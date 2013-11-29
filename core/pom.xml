@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~      http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-parent</artifactId>
+        <version>5.0.0-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>carbon-kernel</artifactId>
+    <packaging>pom</packaging>
+    <name>WSO2 Carbon - Kernel Parent Maven Project</name>
+    <description>carbon-parent</description>
+    <url>http://wso2.org</url>
+
+    <licenses>
+        <license>
+            <name>Apache License Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>WSO2 Inc</name>
+        <url>http://wso2.com</url>
+    </organization>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://wso2.org/jira/browse/CARBON</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>WSO2 Carbon Developers' List</name>
+            <post>mailto:dev@wso2.org</post>
+            <archive>http://wso2.com/mailarchive/dev/</archive>
+            <subscribe>mailto:dev-request@wso2.org?subject=subscribe</subscribe>
+            <unsubscribe>mailto:dev-request@wso2.org?subject=unsubscribe</unsubscribe>
+        </mailingList>
+        <mailingList>
+            <name>WSO2 Architecture List</name>
+            <post>mailto:architecture@wso2.org</post>
+            <archive>http://wso2.org/mailarchive/architecture/</archive>
+            <subscribe>mailto:architecture-request@wso2.org?subject=subscribe</subscribe>
+            <unsubscribe>mailto:architecture-request@wso2.org?subject=unsubscribe</unsubscribe>
+        </mailingList>
+    </mailingLists>
+
+    <!--  TODO - This need to be updated-->  
+    <scm>
+        <connection>scm:svn:http://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/</connection>
+        <developerConnection>scm:svn:https://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/
+        </developerConnection>
+    </scm>
+
+    <build>
+        <plugins>                      
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+        </plugins>
+        <testResources>
+            <testResource>
+                <directory>
+                    ${basedir}/../../distribution/kernel/carbon-home/lib/core/WEB-INF/classes/
+                </directory>
+                <includes>
+                    <include>log4j.properties</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </testResource>
+        </testResources>
+    </build>
+
+    <modules>
+        <module>org.wso2.carbon.deployment</module>
+        <module>org.wso2.carbon.logging</module>
+        <module>org.wso2.carbon.bootstrap</module>
+        <module>org.wso2.carbon.server</module>
+	    <module>org.wso2.carbon.base</module>
+    </modules>
+    
+</project>
