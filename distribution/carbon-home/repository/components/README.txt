@@ -21,6 +21,3 @@ every directory are as follows.
 6. extensions
    Directory to drop non-OSGi libraries which should become system extensions
    in the OSGi environment.
-
-7. patches
-   Directory to drop OSGi level patches.

@@ -1,0 +1,50 @@
+Installing  WSO2 Carbon Kernel ${carbon.version}
+
+1. The directory containing this INSTALL file will the root and it will be
+   treated as Carbon Home directory and let it be CARBON_HOME.
+
+2. All the shell scripts and .bat files are available in CARBON_HOME/bin directory.
+
+3. To start Carbon, use wso2server.sh in all *nix
+   system & wso2server.bat file on Windows operating systems.
+
+4. Either of the following commands can be used to start Carbon
+      i)  ./wso2server.sh {start|stop|restart|version}
+     ii)  wso2server.bat {start|stop|version}
+
+            Usage: wso2server.sh [command] [system-properties]
+
+            command:
+                --debug <port>  Start the server in remote debugging mode.
+                        port:   The remote debugging port.
+                --start		    Start Carbon using nohup
+                --stop		    Stop the Carbon server process
+                --restart	    Restart the Carbon server process
+                --version	    What version of the product are you running?
+
+
+            system-properties:
+                -DosgiConsole=[port]
+                                Start Carbon with Equinox OSGi console.
+                                If the optional 'port' parameter is provided, a
+                                telnet port will be opened.
+
+                -DosgiDebugOptions=[options-file]
+                                Start Carbon with OSGi debugging enabled.
+                                If the optional 'options-file' is provided, the OSGi
+                                debug options will be loaded from it.
+
+
+Hardware Requirements
+-------------------
+1. Minimum memory - 1GB
+2. Processor      - Pentium 800MHz or equivalent at minimum
+
+Software Requirements
+-------------------
+1. Java SE Development Kit - 1.6 (1.6.0_24 onwards)
+2. Apache Ant - An Apache Ant version is required. Ant 1.7.0 version is recommended.
+3. The Management Console requires full Javascript enablement of the Web browser
+   NOTE:
+     On Windows Server 2003, it is not allowed to go below the medium security
+     level in Internet Explorer 6.x.
