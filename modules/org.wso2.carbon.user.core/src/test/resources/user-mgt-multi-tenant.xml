@@ -1,0 +1,74 @@
+<!--
+  ~ Copyright 2005-2011 WSO2, Inc. (http://wso2.com)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<UserManager>
+    <Realm>
+        <Configuration>
+            <AddAdmin>true</AddAdmin>
+            <AdminRole>admin</AdminRole>
+            <AdminUser>
+                <UserName>admin</UserName>
+                <Password>admin</Password>
+            </AdminUser>
+            <EveryOneRoleName>everyone</EveryOneRoleName>
+            <!-- By default users in this role sees the registry root -->
+            <Property name="url">jdbc:h2:repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE</Property>
+            <Property name="userName">wso2carbon</Property>
+            <Property name="password">wso2carbon</Property>
+            <Property name="driverName">org.h2.Driver</Property>
+            <Property name="maxActive">50</Property>
+            <Property name="maxWait">60000</Property>
+            <Property name="minIdle">5</Property>
+            <Property name="MultiTenantRealmConfigBuilder">org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder</Property>
+        </Configuration>
+
+        <!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC. In case if application needs to manage 		     passwords externally set property <Property name="PasswordsExternallyManaged">true</Property>. Furthermore properties, IsEmailUserName and 	     DomainCalculation are readonly properties.
+           Note: Do not comment within UserStoreManager tags. Cause, specific tag names are used as tokens when building configurations for products. -->
+        <UserStoreManager class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
+            <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
+            <Property name="ReadOnly">false</Property>
+            <Property name="MaxUserNameListLength">100</Property>
+            <Property name="IsEmailUserName">false</Property>
+            <Property name="DomainCalculation">default</Property>
+            <Property name="PasswordDigest">SHA-256</Property>
+            <Property name="StoreSaltedPassword">true</Property>
+            <Property name="UserNameUniqueAcrossTenants">false</Property>
+            <Property name="PasswordJavaRegEx">[\S]{5,30}$</Property>
+            <Property name="PasswordJavaScriptRegEx">[\\S]{5,30}</Property>
+            <Property name="UsernameJavaRegEx">^[^~!@#$;%^*+={}\\|\\\\&lt;&gt;]{3,30}$</Property>
+            <Property name="UsernameJavaScriptRegEx">[\\S]{3,30}</Property>
+            <Property name="RolenameJavaRegEx">^[^~!@#$;%^*+={}\\|\\\\&lt;&gt;]{3,30}$</Property>
+            <Property name="RolenameJavaScriptRegEx">[\\S]{3,30}</Property>
+        </UserStoreManager>
+
+        <AuthorizationManager
+                class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
+            <Property name="AdminRoleManagementPermissions">/permission</Property>
+            <Property name="AuthorizationCacheEnabled">true</Property>
+        </AuthorizationManager>
+        <!--
+      * This configuration is used when Single Sign-on is enabled across Carbon Servers.
+          1. Login Page : Login Page of the server. Eg : - /carbon/admin/login.jsp for Carbon and /carbon/tenant-login/login_ajaxprocessor.jsp for Stratos
+          2. ServiceProviderID : A unique id for the server. this needs to be matched with the Issuer ID set at the Identity Provider end.
+          3. IdentityProviderSSOServiceURL : SSO service URL at the Identity Provider
+      -->
+        <!-- <SAML2SSOConfiguration>
+               <LoginPage>/carbon/admin/login.jsp</LoginPage>
+               <ServiceProviderID>carbonServer</ServiceProviderID>
+               <IdentityProviderSSOServiceURL>https://localhost:9443/samlsso</IdentityProviderSSOServiceURL>
+       </SAML2SSOConfiguration> -->
+    </Realm>
+</UserManager>

@@ -1,0 +1,108 @@
+<FindBugsFilter>
+  <!-- About RC_REF_COMPARISON - Permission tree implementation mainly uses Boolean reference to decide permissions.
+         Mostly it uses Boolean.TRUE and Boolean.FALSE objects to decide true and false. Therefore we need to suppress
+         reference comparison check.
+         About OBL_UNSATISFIED_OBLIGATION - This basically says that a prepared statement, database connection is not
+         close. But in code we close these using a common method. (DatabaseUtil.closeAllConnections).
+     -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager"/>    
+    <Bug pattern="RC_REF_COMPARISON, OBL_UNSATISFIED_OBLIGATION"/>
+  </Match>
+
+ <!-- About RC_REF_COMPARISON - Permission tree implementation mainly uses Boolean reference to decide permissions.
+         Mostly it uses Boolean.TRUE and Boolean.FALSE objects to decide true and false. Therefore we need to suppress
+         reference comparison check.
+      -->
+  <Match>      
+    <Class name="org.wso2.carbon.user.core.authorization.PermissionTree"/>
+    <Bug pattern="RC_REF_COMPARISON"/>
+  </Match>
+
+  <!-- Null return is essential to implement permission inheritance. -->
+  <Match>                                                                   
+    <Class name="org.wso2.carbon.user.core.authorization.TreeNode"/>
+    <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+  </Match>
+
+  <!-- About OBL_UNSATISFIED_OBLIGATION - This basically says that a prepared statement, database connection is not
+         close. But in code we close these using a common method. (DatabaseUtil.closeAllConnections). -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.claim.dao.ClaimDAO"/>
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+  </Match>
+
+  <!-- About OBL_UNSATISFIED_OBLIGATION - This basically says that a prepared statement, database connection is not
+close. But in code we close these using a common method. (DatabaseUtil.closeAllConnections). -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.hybrid.HybridRoleManager"/>
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+  </Match>
+  
+  <!-- About OBL_UNSATISFIED_OBLIGATION - This basically says that a prepared statement, database connection is not
+         close. But in code we close these using a common method. (DatabaseUtil.closeAllConnections). -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager"/>
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>    
+  </Match>
+
+  <!-- This says that prepared statements should create from a constant string. Otherwise there is a possibility
+  of a SQL injection attack. But in this case we read SQL's from a configuration file. SQL's in the configuration file
+  cannot be changed by any other person. Therefore should be safe to ignore this rule violation -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager"/>
+    <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
+  </Match>
+
+  <!-- May need in future -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.ldap.LDAPUserStoreManager"/>
+    <Method name="getUserListOfRole"/>
+    <Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
+  </Match>
+
+  <!-- About OBL_UNSATISFIED_OBLIGATION - This basically says that a prepared statement, database connection is not
+         close. But in code we close these using a common method. (DatabaseUtil.closeAllConnections). -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.profile.dao.ProfileConfigDAO"/>
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+  </Match>
+
+   <!-- About OBL_UNSATISFIED_OBLIGATION - This basically says that a prepared statement, database connection is not
+         close. But in code we close these using a common method. (DatabaseUtil.closeAllConnections). -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.util.DatabaseUtil"/>
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+  </Match>
+
+  <!-- About OBL_UNSATISFIED_OBLIGATION - This basically says that a prepared statement, database connection is not
+         close. But in code we close these using a common method. (DatabaseUtil.closeAllConnections). -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.tenant.JDBCTenantManager"/>
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>
+  </Match>
+
+    <!-- This says that prepared statements should create from a constant string. Otherwise there is a possibility
+  of a SQL injection attack. But in this case we read SQL's from a configuration file. SQL's in the configuration file
+  cannot be changed by any other person. Therefore should be safe to ignore this rule violation -->
+   <Match>
+    <Class name="org.wso2.carbon.user.core.tenant.JDBCTenantManager"/>
+    <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>
+  </Match>
+
+  <!-- About OBL_UNSATISFIED_OBLIGATION - This basically says that a prepared statement, database connection is not
+         close. But in code we close these using a common method. (DatabaseUtil.closeAllConnections). -->
+  <!-- Match>
+    <Class name="org.wso2.carbon.user.core.util.DatabaseUtil"/>
+    <Bug pattern="OBL_UNSATISFIED_OBLIGATION"/>    
+  </Match -->
+
+      <!-- This says that prepared statements should create from a constant string. Otherwise there is a possibility
+  of a SQL injection attack. But in this case we read SQL's from a configuration file. SQL's in the configuration file
+  cannot be changed by any other person. Therefore should be safe to ignore this rule violation -->
+  <Match>
+    <Class name="org.wso2.carbon.user.core.util.DatabaseUtil"/>
+    <Bug pattern="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING"/>    
+  </Match>
+  
+</FindBugsFilter>

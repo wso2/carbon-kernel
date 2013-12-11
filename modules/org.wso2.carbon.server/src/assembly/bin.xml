@@ -1,0 +1,51 @@
+<!--
+ ~ Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<assembly>
+    <id>bin</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib/xboot</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:org.wso2.carbon.xboot:jar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib/endorsed</outputDirectory>
+            <includes>
+                <include>xerces.wso2:xercesImpl:jar</include>
+                <include>xalan.wso2:xalan:jar</include>
+                <include>xml-apis.wso2:xml-apis:jar</include>
+                <include>org.apache.geronimo.specs:geronimo-jaxws_2.2_spec:jar</include>
+                <include>org.apache.geronimo.specs.wso2:geronimo-jms_1.1_spec:jar</include>
+                <include>org.jboss.javaee:jboss-transaction-api:jar</include>
+                <include>org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec:jar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
+                <include>commons-logging:commons-logging:jar</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>
