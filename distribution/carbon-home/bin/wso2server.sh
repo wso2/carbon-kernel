@@ -231,7 +231,7 @@ CARBON_CLASSPATH=""
 if [ -e "$JAVA_HOME/lib/tools.jar" ]; then
     CARBON_CLASSPATH="$JAVA_HOME/lib/tools.jar"
 fi
-for f in "$CARBON_HOME"/bin/*.jar
+for f in "$CARBON_HOME"/lib/*.jar
 do
     if [ "$f" != "$CARBON_HOME/bin/*.jar" ];then
         CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
@@ -282,7 +282,6 @@ do
     -Dcarbon.registry.root=/ \
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
-    -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager \
     -Dcarbon.config.dir.path="$CARBON_HOME/repository/conf" \
     -Djava.util.logging.config.file="$CARBON_HOME/repository/conf/etc/logging-bridge.properties" \
     -Dcomponents.repo="$CARBON_HOME/repository/components/plugins" \
@@ -295,6 +294,6 @@ do
     -Dorg.terracotta.quartz.skipUpdateCheck=true \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
-    org.wso2.carbon.bootstrap.Bootstrap $*
+    org.wso2.carbon.launcher.CarbonLauncher $*
     status=$?
 done

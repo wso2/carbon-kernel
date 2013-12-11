@@ -17,7 +17,7 @@
  -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>wso2carbon-core-${pom.version}</baseDirectory>
+    <baseDirectory>wso2carbon-kernel-${pom.version}</baseDirectory>
     <id>carbon</id>
     <formats>
         <format>zip</format>
@@ -76,13 +76,26 @@
 
     <files>
         <file>
-            <source>carbon-home/repository/conf/etc/launch.ini</source>
-            <outputDirectory>webapp-mode/WEB-INF/eclipse</outputDirectory>
+            <source>carbon-home/repository/conf/etc/launch.properties</source>
+            <outputDirectory>repository/conf/etc</outputDirectory>
             <fileMode>644</fileMode>
+            <filtered>true</filtered>
         </file>
         <file>
             <source>carbon-home/bin/wso2carbon-version.txt</source>
             <outputDirectory>bin/</outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>carbon-home/README.txt</source>
+            <outputDirectory></outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>carbon-home/INSTALL.txt</source>
+            <outputDirectory></outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
@@ -98,17 +111,10 @@
 
     <dependencySets>
         <dependencySet>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>org.wso2.carbon:org.wso2.carbon.bootstrap:jar</include>
-                <include>org.apache.tomcat:tomcat-juli:jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
-                <include>commons-logging:commons-logging:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.launcher:jar</include>
+                <include>org.osgi:org.osgi.core:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
