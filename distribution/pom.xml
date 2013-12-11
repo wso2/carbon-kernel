@@ -184,7 +184,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.1</version>
+                <version>1.7</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -200,6 +200,26 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>clean_target</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <target>
+                                <delete dir="target/archive-tmp"/>
+                                <delete dir="target/dependency-maven-plugin-markers"/>
+                                <delete dir="target/org.eclipse.equinox.executable-3.5.0.v20110530-7P7NFUFFLWUl76mart"/>
+                                <delete dir="target/p2-repo"/>
+                                <!-- Figure out a way to delete tmp.* files -->
+                                <delete file="target/tmp"/>
+                                <delete dir="target/WSO2Carbon"/>
+                                <delete dir="target/antrun"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
                 </executions>
             </plugin>
 
