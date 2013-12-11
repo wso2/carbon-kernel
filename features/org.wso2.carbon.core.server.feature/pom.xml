@@ -57,7 +57,7 @@
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.deployment</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.logging</bundleDef>
+                                <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
                             </bundles>
                         </configuration>

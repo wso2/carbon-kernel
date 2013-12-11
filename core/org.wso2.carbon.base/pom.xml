@@ -49,6 +49,13 @@
                             !org.wso2.carbon.base.internal,
                             org.wso2.carbon.base.*; version="1.0.0"
                         </Export-Package>
+                        <Import-Package>
+                            org.apache.commons.logging.*;
+                            org.osgi.*;
+                            javax.xml.parsers.*;
+                            org.w3c.dom.*;
+                            org.xml.sax.*
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -57,9 +64,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <version>${version.pax.logging.api}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+            <version>${equinox.osgi.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -47,6 +47,10 @@ public class Main {
             System.setProperty(LauncherConstants.CARBON_HOME, ".");
         }
         System.setProperty(LauncherConstants.AXIS2_HOME, System.getProperty(LauncherConstants.CARBON_HOME));
+        // Set Default Log-Level on pax logging
+        System.setProperty(LauncherConstants.LOGGING_DEFAULT_SERVICE_NAME, LauncherConstants.PAX_LOGGING_LEVEL);
+        System.setProperty(LauncherConstants.BUNDLE_CONFIG_LOCATION, System.getProperty(LauncherConstants.CARBON_HOME) + File.separator +
+                "repository" + File.separator + "conf");
 
         //To keep track of the time taken to start the Carbon server.
         System.setProperty("wso2carbon.start.time", System.currentTimeMillis() + "");
@@ -142,7 +146,6 @@ public class Main {
         //converting jars found under components/lib and putting them in components/dropins dir
         new DefaultBundleCreator().perform();
         new SystemBundleExtensionCreator().perform();
-        new Log4jPropFileFragmentBundleCreator().perform();
         new LibraryFragmentBundleCreator().perform();
 
         //Add bundles in the dropins directory to the bundles.info file.

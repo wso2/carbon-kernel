@@ -106,7 +106,6 @@
 
     <modules>
         <module>org.wso2.carbon.deployment</module>
-        <module>org.wso2.carbon.logging</module>
         <module>org.wso2.carbon.bootstrap</module>
         <module>org.wso2.carbon.server</module>
 	    <module>org.wso2.carbon.base</module>

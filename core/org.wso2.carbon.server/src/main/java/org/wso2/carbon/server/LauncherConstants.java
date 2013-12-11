@@ -63,4 +63,9 @@ public final class LauncherConstants {
     public static final String DEFAULT_CARBON_PROFILE = "default";
     public static final String WORKER_NODE = "workerNode";
     public static final String WORKER_PROFILE = "worker";
+
+    public static final String LOGGING_DEFAULT_SERVICE_NAME = "org.ops4j.pax.logging.DefaultServiceLog.level";
+    public static final String PAX_LOGGING_LEVEL = "WARN";
+    public static final String BUNDLE_CONFIG_LOCATION = "bundles.configuration.location";
+
 }

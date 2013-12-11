@@ -98,6 +98,22 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.gogo.runtime</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.confman</groupId>
+            <artifactId>pax-confman-propsloader</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>cm</artifactId>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>org.eclipse.equinox</groupId>-->
             <!--<artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>-->
@@ -299,6 +315,10 @@
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.core</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
+                                <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
+                                <bundleDef>org.ops4j.pax.logging:pax-logging-service</bundleDef>
+                                <bundleDef>org.ops4j.pax.confman:pax-confman-propsloader</bundleDef>
+                                <bundleDef>org.eclipse.equinox:cm</bundleDef>
                                 <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.artifact.repository</bundleDef>-->
                                 <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.console</bundleDef>-->
                                 <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.core</bundleDef>-->

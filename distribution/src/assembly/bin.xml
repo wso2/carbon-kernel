@@ -108,7 +108,7 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
+                <include>commons-logging:commons-logging:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
