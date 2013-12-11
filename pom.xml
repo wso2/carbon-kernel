@@ -25,7 +25,7 @@
             </activation>
             <modules>
                 <module>dependencies</module>
-                <module>modules/system-config</module>
+                <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
                 <module>features</module>
                 <module>distribution</module>
