@@ -41,4 +41,8 @@ public class Constants {
     public static final String REPOSITORY_CONF_DIR_PATH = "repository" + File.separator + "conf";
 
     public static final int DEFAULT_BUNDLE_START_LEVEL = 4;
+
+    public static final String LOGGING_DEFAULT_SERVICE_NAME = "org.ops4j.pax.logging.DefaultServiceLog.level";
+    public static final String PAX_LOGGING_LEVEL = "WARN";
+    public static final String BUNDLE_CONFIG_LOCATION = "bundles.configuration.location";
 }

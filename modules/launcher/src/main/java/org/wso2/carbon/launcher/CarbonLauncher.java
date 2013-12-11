@@ -54,6 +54,10 @@ public class CarbonLauncher {
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
         }
+
+        System.setProperty(LOGGING_DEFAULT_SERVICE_NAME, PAX_LOGGING_LEVEL);
+        System.setProperty(BUNDLE_CONFIG_LOCATION, carbonHome + File.separator +
+                "repository" + File.separator + "conf" + File.separator + "logging-config");
     }
 
     private ClassLoader createOSGiFwkClassLoader() {
@@ -85,7 +89,7 @@ public class CarbonLauncher {
 
         initAndVerifySysProps();
 
-        String launchPropFilePath = Utils.getRepositoryConfDir() + File.separator + "etc" +
+        String launchPropFilePath = Utils.getRepositoryConfDir() + File.separator + "osgi" +
                 File.separator + LAUNCH_PROPERTIES_FILE;
         File launchPropFile = new File(launchPropFilePath);
 
