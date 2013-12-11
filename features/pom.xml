@@ -29,7 +29,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>carbon-kernel-features</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - Features Parent</name>
+    <name>WSO2 Carbon Kernel - Features Parent</name>
     <url>http://wso2.org</url>
     <dependencyManagement>
         <dependencies>

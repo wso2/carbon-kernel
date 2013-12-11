@@ -13,7 +13,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>carbon-kernel-dependents</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon - Dependent Projects</name>
+    <name>WSO2 Carbon Kernel - Dependent Projects</name>
     <description>WSO2 Carbon Platform dependent projects</description>
     <url>http://wso2.org</url>
 
@@ -37,6 +37,7 @@
     <modules>
         <module>carbon-p2-plugin</module>
     </modules>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

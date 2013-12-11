@@ -76,7 +76,7 @@
 
     <files>
         <file>
-            <source>carbon-home/repository/conf/etc/launch.properties</source>
+            <source>carbon-home/repository/conf/osgi/launch.properties</source>
             <outputDirectory>repository/conf/etc</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>

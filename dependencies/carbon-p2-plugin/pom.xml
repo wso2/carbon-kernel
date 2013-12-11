@@ -1,11 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-kernel-dependents</artifactId>
+        <version>5.0.0-SNAPSHOT</version>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.maven</groupId>
     <artifactId>carbon-p2-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <version>1.5.4-SNAPSHOT</version>
-    <name>Maven P2 Profile Generation Plugin</name>
+    <name>WSO2 Carbon Kernel - Maven P2 Profile Gen Plugin</name>
 
     <dependencies>
         <dependency>

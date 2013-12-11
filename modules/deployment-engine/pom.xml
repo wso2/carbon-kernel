@@ -21,7 +21,7 @@
 
     <artifactId>org.wso2.carbon.deployment</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Kernel Deployment Engine</name>
+    <name>WSO2 Carbon Kernel - Deployment Engine</name>
     <description>OSGi Bundle for Carbon Kernel Deployment Engine</description>
     <url>http://wso2.org</url>
 
