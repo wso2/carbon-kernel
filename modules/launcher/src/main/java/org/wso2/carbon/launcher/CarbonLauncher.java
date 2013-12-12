@@ -31,6 +31,7 @@ public class CarbonLauncher {
     }
 
     public void launch() throws Exception {
+        //TODO implement a mechanism to plug clustom extensions which needs to executed before launching Carbon.
         ClassLoader fwkClassLoader = createOSGiFwkClassLoader();
         FrameworkFactory fwkFactory = loadOSGiFwkFactory(fwkClassLoader);
         framework = fwkFactory.newFramework(config);
