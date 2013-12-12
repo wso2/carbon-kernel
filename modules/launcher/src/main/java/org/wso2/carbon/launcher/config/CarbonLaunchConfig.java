@@ -157,6 +157,7 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
         } else {
             url = FileResolver.resolve(path, parentPath);
         }
+        //TODO NPE possible. Fix this - Sameera.
         put(key, url.toExternalForm());
         return url;
     }

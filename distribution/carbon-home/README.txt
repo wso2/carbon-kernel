@@ -1,25 +1,15 @@
-WSO2 Carbon Kernel ${carbon.version}
------------------
+WSO2 Carbon Kernel ${carbon.version} M1
+-----------------------------
 
-${buildNumber}
+Welcome to the WSO2 Carbon Kernel ${carbon.version} M1 release
 
-Welcome to the WSO2 Carbon Kernel ${carbon.version} release
-
-WSO2 Carbon is the base platform for all WSO2 products, powered by OSGi.  It is a
-lightweight, high performing platform which is a collection of OSGi bundles. All
-the major features which are included in WSO2 products have been developed as
-pluggable Carbon components and installed into this base Carbon platform.
+Carbon kernel 5 is the next generation of WSO2 Carbon kernel, re-architected from the ground up with the latest technologies and patterns to overcome the existing architectural limitations as well as to get rid of the dependencies to the legacy technologies like Apache Axis2.
 
 What's New In This Release
 ----------------------------
-1. Equinox Kepler SR1 based OSGI runtime
-2. PAX Logging based logging framework
-
-
-Key Features
-------------
-1. Latest Equinox-SDK - WSO2 Carbon Kernel now embeds the latest Equinox SDK (3.9.1) as its OSGi runtime.
-2. PAX Logging based logging framework which supports various logging API's, including OSGI LoggingService
+1. Equinox Kepler based light-weight OSGi runtime.
+2. New Carbon launcher implementation 
+3. Centralized logging back-end (based on Log4j) which supports multiple logging APIs.
 
 Installation & Running
 ----------------------
@@ -28,18 +18,12 @@ Installation & Running
 
 Hardware Requirements
 -------------------
-1. Minimum memory - 1GB
+1. Minimum memory - 512MB
 2. Processor      - Pentium 800MHz or equivalent at minimum
 
 Software Requirements
 -------------------
-1. Java SE Development Kit - 1.6 (1.6.0_24 onwards)
-
-For more details see
-http://docs.wso2.org/wiki/display/Carbon500/Installation+Prerequisites
-
-Known Issues
-------------
+1. Java SE Development Kit - 1.7
 
 All known issues have been recorded at https://wso2.org/jira/browse/CARBON
 
