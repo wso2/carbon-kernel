@@ -22,8 +22,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,47 +54,6 @@ public class Utils {
 
     public static String getRepositoryConfDir() {
         return System.getProperty(CARBON_HOME) + File.separator + Constants.REPOSITORY_CONF_DIR_PATH;
-    }
-
-    public static void main(String[] args) {
-//        String text = "Sameera${carbon.home}/test/samddddeera dfdfd ${profileID}";
-//        String text2 = "${carbon.home}Sameerajasdkjflakds adsjflkasd  asldfj ${ adfadsf asdfadsf";
-//
-//        Properties props = new Properties();
-//        props.put("temp", text);
-//        props.put("temp1", text2);
-//        System.setProperty("carbon.home", "/sameera");
-//        System.setProperty("profileID", "default");
-//        System.out.println(substituteVars(text));
-//
-//        File newFile = new File("temp.txt");
-//        try {
-//            System.out.println(newFile.toURI().toURL().toExternalForm());
-//        } catch (MalformedURLException e) {
-//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//        }
-
-//        for (Map.Entry entry : props.entrySet()) {
-//            System.out.println(entry.getValue());
-//        }
-
-//        System.out.println(checkForNullOrEmpty(""));
-//        System.out.println(checkForNullOrEmpty(null));
-//        System.out.println(checkForNullOrEmpty("sameera"));
-
-        String name = "file:plugins/org.eclipse.equinox.console_1.0.100.v20130429-0953.jar@2:true";
-        Pattern bundleEntryPattern = Pattern.compile("(file):(.*)@(.*):(.*)");
-//        Pattern mvnPattern = Pattern.compile("mvn:([^/ ]+)/([^/ ]+)/([^/ ]*)(/([^/ ]+)(/([^/ ]+))?)?");
-        Matcher m = bundleEntryPattern.matcher(name.toString());
-        if(!m.matches()){
-            System.out.println("Does not match");
-        }
-        System.out.println(m.group(1));
-        System.out.println(m.group(2));
-        System.out.println(m.group(3));
-        System.out.println(m.group(4));
-
-
     }
 
     public static boolean checkForNullOrEmpty(String arg) {

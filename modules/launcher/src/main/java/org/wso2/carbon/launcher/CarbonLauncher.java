@@ -84,6 +84,7 @@ public class CarbonLauncher {
         }
     }
 
+    // TODO handle restarts and error handling here.
     public static void main(String[] args) {
         CarbonLaunchConfig<String, String> config;
 
