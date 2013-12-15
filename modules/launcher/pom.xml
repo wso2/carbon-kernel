@@ -29,7 +29,12 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>5.0.0</version>
+            <version>${osgi.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <version>${version.pax.logging.api}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>

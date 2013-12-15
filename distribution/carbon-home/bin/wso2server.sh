@@ -294,6 +294,6 @@ do
     -Dorg.terracotta.quartz.skipUpdateCheck=true \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
-    org.wso2.carbon.launcher.CarbonLauncher $*
+    org.wso2.carbon.launcher.Main $*
     status=$?
 done

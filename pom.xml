@@ -538,6 +538,9 @@
         <carbon.platform.package.import.version.range>[5.0.0-SNAPSHOT, 5.1.0)
         </carbon.platform.package.import.version.range>
 
+        <!-- OSGi API version -->
+        <osgi.api.version>5.0.0</osgi.api.version>
+
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
         <equinox.osgi.services.version>3.3.100.v20130513-1956</equinox.osgi.services.version>
