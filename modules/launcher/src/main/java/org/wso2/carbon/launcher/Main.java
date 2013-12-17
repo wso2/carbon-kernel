@@ -112,6 +112,6 @@ public class Main {
         }
 
         System.setProperty(LOGGING_DEFAULT_SERVICE_NAME, PAX_LOGGING_LEVEL);
-        System.setProperty(BUNDLE_CONFIG_LOCATION, Utils.getRepositoryConfDir() + File.separator + "logging-config");
+        System.setProperty(BUNDLE_CONFIG_LOCATION, Utils.getRepositoryConfDir());
     }
 }
