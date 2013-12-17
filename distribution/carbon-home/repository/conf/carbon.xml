@@ -79,12 +79,12 @@
     <DeploymentEngineConfig>
         <!--
          Currently there can be two modes
-         1. Auto Mode - (enable below property to "true") - where the task runs periodically and trigger deployment
-         2. Manual Mode - (enable below property to "false") - the deployment has to be triggered externally,
+         1. Scheduled Mode - (enable below property to "true") - where the task runs periodically and trigger deployment
+         2. Triggered Mode - (enable below property to "false") - the deployment has to be triggered externally,
             eg : in a worker node we don't need the task to run, but rather when we receive a
                  cluster msg,  the deployment has to be triggered manually
         -->
-        <AutoMode>true</AutoMode>
+        <ScheduledMode>true</ScheduledMode>
         <!--
              Location of the Axis2 Services & Modules repository
 

@@ -277,8 +277,6 @@ do
     -classpath "$CARBON_CLASSPATH" \
     -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
     -Djava.io.tmpdir="$CARBON_HOME/tmp" \
-    -Dcatalina.base="$CARBON_HOME/lib/tomcat" \
-    -Dwso2.server.standalone=true \
     -Dcarbon.registry.root=/ \
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
@@ -286,12 +284,6 @@ do
     -Djava.util.logging.config.file="$CARBON_HOME/repository/conf/etc/logging-bridge.properties" \
     -Dcomponents.repo="$CARBON_HOME/repository/components/plugins" \
     -Dconf.location="$CARBON_HOME/repository/conf"\
-    -Dcom.atomikos.icatch.file="$CARBON_HOME/lib/transactions.properties" \
-    -Dcom.atomikos.icatch.hide_init_file_path=true \
-    -Dorg.apache.jasper.runtime.BodyContentImpl.LIMIT_BUFFER=true \
-    -Dcom.sun.jndi.ldap.connect.pool.authentication=simple  \
-    -Dcom.sun.jndi.ldap.connect.pool.timeout=3000  \
-    -Dorg.terracotta.quartz.skipUpdateCheck=true \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     org.wso2.carbon.launcher.Main $*

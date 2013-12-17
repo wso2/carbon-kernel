@@ -64,24 +64,24 @@ public class CarbonDeploymentEngine {
             new ConcurrentHashMap<String, Deployer>();
 
     /**
-     * A reentrantlock to be used within this engine
+     * A map to hold all currently deployed artifacts
      */
-    private Lock lock = new ReentrantLock();
+    private Map<String, Artifact> deployedArtifacts = new HashMap<String, Artifact>();
 
     /**
      * A list which holds the artifacts to be deployed
      */
-    private List artifactsToDeploy = new ArrayList();
+    private ArrayList artifactsToDeploy = new ArrayList();
 
     /**
      * A list which holds the artifact to be undeployed
      */
-    private List artifactsToUndeploy = new ArrayList();
+    private ArrayList artifactsToUndeploy = new ArrayList();
 
     /**
-     * A map to hold all currently deployed artifacts
+     * A map to hold the keys of the currently deployed artifacts
      */
-    private Map<String, Artifact> deployedArtifacts = new HashMap<String, Artifact>();
+    private Map<String, Object> artifactKeys = new HashMap<String, Object>();
 
     /**
      * A map to hold set of deployer directories against the deployer type
@@ -94,11 +94,6 @@ public class CarbonDeploymentEngine {
      */
     private List artifactFilePathList = new ArrayList();
 
-    /**
-     * A flag to indicate the deployment engine running mode
-     */
-    private boolean isAutoModeEnabled;
-
 
     public CarbonDeploymentEngine(String repositoryDir) throws CarbonDeploymentException {
         init(repositoryDir);
@@ -109,14 +104,38 @@ public class CarbonDeploymentEngine {
      *
      * @throws CarbonDeploymentException on error
      */
-    public void init(String repositoryDir) throws CarbonDeploymentException {
+    private void init(String repositoryDir) throws CarbonDeploymentException {
         repositoryDirectory = new File(repositoryDir);
         if (!repositoryDirectory.exists()) {
             throw new CarbonDeploymentException("Cannot find repository : " + repositoryDirectory);
         }
         repositoryListener = new CarbonRepositoryListener(this);
-        isAutoModeEnabled = Boolean.parseBoolean(ServerConfiguration.getInstance().
-                getFirstProperty("DeploymentEngineConfig.AutoMode"));
+    }
+
+    /**
+     * Start the repository listener and scheduler task and load artifacts to the deployment engine
+     * to be deployed
+     */
+    public void start() {
+        repositoryListener.start();
+        // We need to check and start the task based on the deployment engine mode of operation
+        // Currently there can be two modes
+        // 1. Scheduled Mode - where the task runs periodically and trigger deployment
+        // 2. Triggered Mode - the deployment has to be triggered externally,
+        //    eg : in a worker node we don't need the task to run, but rather when we receive a
+        //         cluster msg,  the deployment has to be triggered manually
+        //TODO : Need to check whether we need to start the task when triggered mode is enabled
+        startSchedulerTask();
+    }
+
+
+    /**
+     * Starts the Deployment engine to perform Hot deployment and so on.
+     */
+    private void startSchedulerTask() {
+        CarbonScheduler carbonScheduler = new CarbonScheduler();
+        CarbonSchedulerTask carbonSchedulerTask = new CarbonSchedulerTask(repositoryListener);
+        carbonScheduler.schedule(carbonSchedulerTask, new CarbonDeploymentIterator());
     }
 
     /**
@@ -138,16 +157,10 @@ public class CarbonDeploymentEngine {
             return;
         }
 
-        lock.lock();
-        try {
-            Deployer existingDeployer = deployerMap.get(directory);
-            if (existingDeployer == null) {
-                deployerMap.put(directory, deployer);
-                deployerDirectories.put(deployer.getType(), directory);
-            }
-
-        } finally {
-            lock.unlock();
+        Deployer existingDeployer = deployerMap.get(directory);
+        if (existingDeployer == null) {
+            deployerMap.put(directory, deployer);
+            deployerDirectories.put(deployer.getType(), directory);
         }
     }
 
@@ -162,70 +175,15 @@ public class CarbonDeploymentEngine {
             return;
         }
 
-        lock.lock();
-        try {
-            Deployer existingDeployer = deployerMap.get(directory);
-            if (existingDeployer != null) {
-                deployerMap.remove(directory);
-                deployerDirectories.remove(existingDeployer.getType());
-            }
-
-        } finally {
-            lock.unlock();
-        }
-
-    }
-    /**
-     * Return the registered deployers as a Map
-     * @return registered deployers
-     */
-    public Map<String, Deployer> getDeployers() {
-        return this.deployerMap;
-    }
-
-    /**
-     * Returns the map of deployer directories associated with the registered deployers
-     * @return deployerDirectories
-     */
-    public Map<String, String> getDeployerDirectories() {
-        return this.deployerDirectories;
-    }
-    /**
-     * Start the repository listener and scheduler task and load artifacts to the deployment engine
-     * to be deployed
-     *
-     */
-    public void start() {
-        repositoryListener.start();
-        // We need to check and start the task based on the deployment engine mode of operation
-        // Currently there can be two modes
-        // 1. Auto Mode - where the task runs periodically and trigger deployment
-        // 2. Manual Mode - the deployment has to be triggered externally,
-        //    eg : in a worker node we don't need the task to run, but rather when we receive a
-        //         cluster msg,  the deployment has to be triggered manually
-        if (isAutoModeEnabled) {
-            startSchedulerTask();
+        Deployer existingDeployer = deployerMap.get(directory);
+        if (existingDeployer != null) {
+            deployerMap.remove(directory);
+            deployerDirectories.remove(existingDeployer.getType());
         }
     }
 
-
     /**
-     * Starts the Deployment engine to perform Hot deployment and so on.
-     */
-    public void startSchedulerTask() {
-        CarbonScheduler carbonScheduler = new CarbonScheduler();
-        CarbonSchedulerTask carbonSchedulerTask = new CarbonSchedulerTask(repositoryListener);
-        carbonScheduler.schedule(carbonSchedulerTask, new CarbonDeploymentIterator());
-    }
-
-
-    public File getRepositoryDirectory() {
-        return repositoryDirectory;
-    }
-
-    /**
-     * Retrieve the deployer from the current deployers set, by giving the associated
-     * extension and direction
+     * Retrieve the deployer from the current deployers map, by giving the associated directory
      *
      * @param directory associated directory of the deployer
      * @return Deployer instance
@@ -235,11 +193,49 @@ public class CarbonDeploymentEngine {
         return (existingDeployer != null) ? existingDeployer : null;
     }
 
+    /**
+     * Return the registered deployers as a Map
+     *
+     * @return registered deployers
+     */
+    public Map<String, Deployer> getDeployers() {
+        return this.deployerMap;
+    }
+
+
+    /**
+     * Returns the map of deployer directories associated with the registered deployers
+     *
+     * @return deployerDirectories
+     */
+    public Map<String, String> getDeployerDirectories() {
+        return this.deployerDirectories;
+    }
+
+    /**
+     * Returns the repository directory that the deployment engine is registered with
+     *      Eg: CARBON_HOME/repository/deployment/server
+     * @return repository directory
+     */
+    public File getRepositoryDirectory() {
+        return repositoryDirectory;
+    }
+
+    /**
+     * This will return the keys of the currently deployed artifacts.
+     * A key of an artifact is used to uniquely identify it self within a runtime
+     *
+     * @return the map containing the deployed artifact keys
+     */
+    public Map<String, Object> getDeployedArtifactKeys() {
+        return artifactKeys;
+    }
+
 
     /**
      * Add given artifact to the list artifacts to deploy
      *
-     * @param artifact deployment file data to deploy
+     * @param artifact artifact to deploy
      */
     public synchronized void addArtifactToDeploy(Artifact artifact) {
         Artifact deployedArtifact = deployedArtifacts.get(artifact.getPath());
@@ -258,9 +254,9 @@ public class CarbonDeploymentEngine {
     /**
      * Add given artifact to the list fo artifact to be undeployed
      *
-     * @param artifact deployment file data to undeploy
+     * @param artifact artifact to undeploy
      */
-    public synchronized void addArtifactToUndeploy(Artifact artifact) {
+    private synchronized void addArtifactToUndeploy(Artifact artifact) {
         artifactsToUndeploy.add(artifact);
     }
 
@@ -275,8 +271,10 @@ public class CarbonDeploymentEngine {
                     try {
                         String directory = deployerDirectories.get(artifactToDeploy.getType());
                         Deployer deployer = getDeployer(directory);
-                        deployer.deploy(artifactToDeploy);
+                        Object artifactKey = deployer.deploy(artifactToDeploy);
+                        artifactToDeploy.setKey(artifactKey);
                         deployedArtifacts.put(artifactToDeploy.getPath(), artifactToDeploy);
+                        artifactKeys.put(artifactToDeploy.getPath(), artifactKey);
                     } catch (CarbonDeploymentException e) {
                         log.error(e);
                     }
@@ -298,8 +296,9 @@ public class CarbonDeploymentEngine {
                     try {
                         String directory = deployerDirectories.get(artifactToUnDeploy.getType());
                         Deployer deployer = getDeployer(directory);
-                        deployer.undeploy(artifactToUnDeploy);
-                        deployedArtifacts.remove(artifact);
+                        deployer.undeploy(artifactToUnDeploy.getKey());
+                        deployedArtifacts.remove(artifactToUnDeploy.getPath());
+                        artifactKeys.remove(artifactToUnDeploy.getPath());
                     } catch (CarbonDeploymentException e) {
                         log.error(e);
                     }

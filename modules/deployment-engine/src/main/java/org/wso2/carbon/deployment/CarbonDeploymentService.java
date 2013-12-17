@@ -19,16 +19,19 @@
 
 package org.wso2.carbon.deployment;
 
-import org.wso2.carbon.deployment.spi.Artifact;
-import org.wso2.carbon.deployment.spi.Deployer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
-import org.wso2.carbon.deployment.internal.CarbonDeploymentDataHolder;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 
 public class CarbonDeploymentService implements DeploymentService {
+    private static final Log log = LogFactory.getLog(CarbonDeploymentService.class);
+
     private CarbonDeploymentEngine carbonDeploymentEngine;
 
     public CarbonDeploymentService(CarbonDeploymentEngine carbonDeploymentEngine) {
@@ -41,15 +44,40 @@ public class CarbonDeploymentService implements DeploymentService {
         if (deployerDirectory == null) {
             throw new CarbonDeploymentException("Unknown artifact type : " + artifactType);
         }
-        Deployer deployer = carbonDeploymentEngine.getDeployer(deployerDirectory);
-        // TODO : Copy the artifact to the deployment folder
-        Artifact artifact = new Artifact(new File(artifactPath));
-        deployer.deploy(artifact);
+        String destinationDirectory = carbonDeploymentEngine.getRepositoryDirectory() +
+                                      File.separator + deployerDirectory;
+        try {
+            CarbonDeploymentUtils.copyFileToDir(new File(artifactPath),
+                                                new File(destinationDirectory));
+        } catch (IOException e) {
+            throw new CarbonDeploymentException("Error wile copying artifact", e);
+        }
     }
 
     @Override
     public void undeploy(Object key, String artifactType) throws CarbonDeploymentException {
-        // TODO implement this
+        String deployerDirectory = carbonDeploymentEngine.getDeployerDirectories().get(artifactType);
+        if (deployerDirectory == null) {
+            throw new CarbonDeploymentException("Unknown artifact type : " + artifactType);
+        }
+
+        Map<String, Object> artifactKeys = carbonDeploymentEngine.getDeployedArtifactKeys();
+
+        String artifactPath = null;
+        for (String filePath : artifactKeys.keySet()) {
+            Object artifactKey = artifactKeys.get(filePath);
+            if (artifactKey.equals(key)) {
+                artifactPath = filePath;
+            }
+        }
+
+        if (artifactPath != null) {
+            CarbonDeploymentUtils.deleteDir(new File(artifactPath));
+        } else {
+            throw new CarbonDeploymentException("Cannot find artifact with key : " + key +
+                                                " to undeploy");
+        }
+
     }
 
     @Override

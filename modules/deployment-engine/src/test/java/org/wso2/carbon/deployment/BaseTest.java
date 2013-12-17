@@ -12,8 +12,7 @@ public class BaseTest {
     protected String testResourceDir = testDir + "resources";
 
     /**
-     * Basedir for all file I/O. Important when running tests from the reactor.
-     * Note that anyone can use this statically.
+     * Basedir for all file I/O.
      */
     public static String basedir;
 
