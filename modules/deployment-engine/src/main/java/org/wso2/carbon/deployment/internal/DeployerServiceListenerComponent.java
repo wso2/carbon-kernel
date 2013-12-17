@@ -53,7 +53,7 @@ public class DeployerServiceListenerComponent {
     protected void registerDeployer(Deployer deployer) {
 
         try {
-            carbonDeploymentEngine.registerDeployer(deployer, deployer.getDirectory());
+            carbonDeploymentEngine.registerDeployer(deployer);
         } catch (Exception e) {
             log.error("Error while adding deployer to the deployment engine", e);
         }
@@ -62,7 +62,7 @@ public class DeployerServiceListenerComponent {
 
     protected void unRegisterDeployer(Deployer deployer) {
         try {
-            carbonDeploymentEngine.unRegisterDeployer(deployer.getDirectory());
+            carbonDeploymentEngine.unRegisterDeployer(deployer.getType());
         } catch (Exception e) {
             log.error("Error while removing deployer from deployment engine", e);
         }

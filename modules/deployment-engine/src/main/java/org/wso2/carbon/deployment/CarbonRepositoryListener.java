@@ -61,13 +61,13 @@ public class CarbonRepositoryListener {
      */
     public void checkArtifacts() {
         for (Map.Entry<String, Deployer> entry : carbonDeploymentEngine.getDeployers().entrySet()) {
-            String deployerDirectory = entry.getKey();
+            String deployerDirectory = entry.getValue().getDirectory();
             File dirToSearch = new File(deployerDirectory);
             if (!dirToSearch.isAbsolute()) {
                 dirToSearch = new File(carbonDeploymentEngine.getRepositoryDirectory(),
                                        deployerDirectory);
             }
-            String artifactType = carbonDeploymentEngine.getDeployer(deployerDirectory).getType();
+            String artifactType = entry.getValue().getType();
             findArtifactsToDeploy(dirToSearch, artifactType);
         }
     }

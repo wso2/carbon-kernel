@@ -40,7 +40,7 @@ public class CarbonDeploymentService implements DeploymentService {
 
     @Override
     public void deploy(String artifactPath, String artifactType) throws CarbonDeploymentException {
-        String deployerDirectory = carbonDeploymentEngine.getDeployerDirectories().get(artifactType);
+        String deployerDirectory = carbonDeploymentEngine.getDeployer(artifactType).getDirectory();
         if (deployerDirectory == null) {
             throw new CarbonDeploymentException("Unknown artifact type : " + artifactType);
         }
@@ -56,7 +56,7 @@ public class CarbonDeploymentService implements DeploymentService {
 
     @Override
     public void undeploy(Object key, String artifactType) throws CarbonDeploymentException {
-        String deployerDirectory = carbonDeploymentEngine.getDeployerDirectories().get(artifactType);
+        String deployerDirectory = carbonDeploymentEngine.getDeployer(artifactType).getDirectory();
         if (deployerDirectory == null) {
             throw new CarbonDeploymentException("Unknown artifact type : " + artifactType);
         }

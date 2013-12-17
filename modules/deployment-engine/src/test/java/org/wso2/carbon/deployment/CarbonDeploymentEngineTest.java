@@ -29,8 +29,7 @@ public class CarbonDeploymentEngineTest extends BaseTest {
     @Test(dependsOnMethods = {"testCarbonDeploymentEngine"})
     public void testAddDeployer() {
         customDeployer = new CustomDeployer();
-        String deployerDirectory = customDeployer.getDirectory();
-        deploymentEngine.registerDeployer(customDeployer, deployerDirectory);
+        deploymentEngine.registerDeployer(customDeployer);
     }
 
     @Test(dependsOnMethods = {"testCarbonDeploymentEngine"})

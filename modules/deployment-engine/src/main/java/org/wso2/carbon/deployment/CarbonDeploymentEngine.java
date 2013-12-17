@@ -84,12 +84,6 @@ public class CarbonDeploymentEngine {
     private Map<String, Object> artifactKeys = new HashMap<String, Object>();
 
     /**
-     * A map to hold set of deployer directories against the deployer type
-     */
-    private ConcurrentHashMap<String, String> deployerDirectories =
-            new ConcurrentHashMap<String, String>();
-
-    /**
      * A list to hold the path of the artifacts to be deployed
      */
     private List artifactFilePathList = new ArrayList();
@@ -142,54 +136,51 @@ public class CarbonDeploymentEngine {
      * Add and initialize a new Deployer to deployment engine.
      *
      * @param deployer  the deployer
-     * @param directory the directory which will be scanned for deployable artifacts
      */
-    public void registerDeployer(Deployer deployer, String directory) {
+    public void registerDeployer(Deployer deployer) {
 
         if (deployer == null) {
             log.error("Failed to add Deployer : Deployer Class Name is null");
             return;
         }
 
-        if (directory == null) {
+        if (deployer.getDirectory() == null || deployer.getType() == null) {
             log.error("Failed to add Deployer " + deployer.getClass().getName() +
-                      ": missing 'directory' attribute");
+                      ": missing 'directory' or 'type' attribute in deployer instance");
             return;
         }
-
-        Deployer existingDeployer = deployerMap.get(directory);
+        String type = deployer.getType();
+        Deployer existingDeployer = deployerMap.get(type);
         if (existingDeployer == null) {
-            deployerMap.put(directory, deployer);
-            deployerDirectories.put(deployer.getType(), directory);
+            deployerMap.put(type, deployer);
         }
     }
 
     /**
      * Removes a deployer from the deployment engine configuration
      *
-     * @param directory the directory that the deployer is associated with
+     * @param type the artifact deployment type that the deployer is associated with
      */
-    public void unRegisterDeployer(String directory) {
-        if (directory == null) {
-            log.error("Failed to remove Deployer : missing 'directory' attribute");
+    public void unRegisterDeployer(String type) {
+        if (type == null) {
+            log.error("Failed to remove Deployer : missing 'type' attribute");
             return;
         }
 
-        Deployer existingDeployer = deployerMap.get(directory);
+        Deployer existingDeployer = deployerMap.get(type);
         if (existingDeployer != null) {
-            deployerMap.remove(directory);
-            deployerDirectories.remove(existingDeployer.getType());
+            deployerMap.remove(type);
         }
     }
 
     /**
      * Retrieve the deployer from the current deployers map, by giving the associated directory
      *
-     * @param directory associated directory of the deployer
+     * @param type the artifact deployment type that the deployer is associated with
      * @return Deployer instance
      */
-    public Deployer getDeployer(String directory) {
-        Deployer existingDeployer = deployerMap.get(directory);
+    public Deployer getDeployer(String type) {
+        Deployer existingDeployer = deployerMap.get(type);
         return (existingDeployer != null) ? existingDeployer : null;
     }
 
@@ -202,15 +193,6 @@ public class CarbonDeploymentEngine {
         return this.deployerMap;
     }
 
-
-    /**
-     * Returns the map of deployer directories associated with the registered deployers
-     *
-     * @return deployerDirectories
-     */
-    public Map<String, String> getDeployerDirectories() {
-        return this.deployerDirectories;
-    }
 
     /**
      * Returns the repository directory that the deployment engine is registered with
@@ -269,8 +251,7 @@ public class CarbonDeploymentEngine {
                 for (Object artifact : artifactsToDeploy) {
                     Artifact artifactToDeploy = (Artifact) artifact;
                     try {
-                        String directory = deployerDirectories.get(artifactToDeploy.getType());
-                        Deployer deployer = getDeployer(directory);
+                        Deployer deployer = getDeployer(artifactToDeploy.getType());
                         Object artifactKey = deployer.deploy(artifactToDeploy);
                         artifactToDeploy.setKey(artifactKey);
                         deployedArtifacts.put(artifactToDeploy.getPath(), artifactToDeploy);
@@ -294,8 +275,7 @@ public class CarbonDeploymentEngine {
                 for (Object artifact : artifactsToUndeploy) {
                     Artifact artifactToUnDeploy = (Artifact) artifact;
                     try {
-                        String directory = deployerDirectories.get(artifactToUnDeploy.getType());
-                        Deployer deployer = getDeployer(directory);
+                        Deployer deployer = getDeployer(artifactToUnDeploy.getType());
                         deployer.undeploy(artifactToUnDeploy.getKey());
                         deployedArtifacts.remove(artifactToUnDeploy.getPath());
                         artifactKeys.remove(artifactToUnDeploy.getPath());
