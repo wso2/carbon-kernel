@@ -61,7 +61,7 @@ public class CarbonServer {
         }
 
         // Framework.stop() method returns before the framework shutdown. But this.stop() method should only return
-        //  after the framework stops completely. Therefore invokes the framework.stop() method in a new
+        //  after framework stops completely. Therefore we invokes the framework.stop() method in a new
         //  thread and this thread waits till the framework stops completely using the framework.waitForStop() method.
         new Thread() {
             public void run() {

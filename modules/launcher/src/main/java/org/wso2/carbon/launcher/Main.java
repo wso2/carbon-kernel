@@ -22,10 +22,13 @@ import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import static org.wso2.carbon.launcher.utils.Constants.*;
 
 public class Main {
+
+    private static final Logger log = Logger.getLogger(Main.class.getName());
 
 //    private static Log log = LogFactory.getLog(Main.class);
     // TODO handle restarts and error handling here.
@@ -35,6 +38,8 @@ public class Main {
      */
     public static void main(String[] args) {
 
+        log.info("###### Starting ...........");
+
         // 1) Initialize and/or verify System properties
         initAndVerifySysProps();
 
@@ -42,23 +47,14 @@ public class Main {
         //TODO
 
         // 3) Load the Carbon start configuration
-        String launchPropFilePath = Utils.getRepositoryConfDir() + File.separator + "osgi" +
-                File.separator + LAUNCH_PROPERTIES_FILE;
-        File launchPropFile = new File(launchPropFilePath);
-
-        CarbonLaunchConfig<String, String> config;
-        if (launchPropFile.exists()) {
-            config = new CarbonLaunchConfig<String, String>(launchPropFile);
-        } else {
-            config = new CarbonLaunchConfig<String, String>();
-        }
+        CarbonLaunchConfig<String, String> config = loadCarbonLaunchConfig();
 
         CarbonServer carbonServer = new CarbonServer(config);
 
-        // 3 Register a shutdown hook to stop the server
+        // 4) Register a shutdown hook to stop the server
         registerShutdownHook(carbonServer);
 
-        // 4) Start Carbon server.
+        // 5) Start Carbon server.
         try {
             // This method launches the OSGi framework, loads all the bundles and starts Carbon server completely.
             carbonServer.start();
@@ -67,6 +63,18 @@ public class Main {
             // We need to invoke the stop method of the CarbonServer to allow the server to cleanup itself.
             carbonServer.stop();
             System.exit(-1);
+        }
+    }
+
+    private static CarbonLaunchConfig<String, String> loadCarbonLaunchConfig() {
+        String launchPropFilePath = Utils.getRepositoryConfDir() + File.separator + "osgi" +
+                File.separator + LAUNCH_PROPERTIES_FILE;
+        File launchPropFile = new File(launchPropFilePath);
+
+        if (launchPropFile.exists()) {
+            return new CarbonLaunchConfig<String, String>(launchPropFile);
+        } else {
+            return new CarbonLaunchConfig<String, String>();
         }
     }
 
