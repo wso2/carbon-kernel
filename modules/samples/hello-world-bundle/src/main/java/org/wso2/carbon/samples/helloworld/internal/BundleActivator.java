@@ -29,6 +29,21 @@ public class BundleActivator implements org.osgi.framework.BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
         System.out.println("%%%%%%%%%%%% BundleActivator.start()");
         log.info("%%%%%%%%%%%% BundleActivator.start()");
+
+//        Thread t = new Thread(new Runnable() {
+//            public void run() {
+//                System.out.println("$$$$$$$$$$ Thread.sleep");
+//                try {
+//                    Thread.sleep(1000 * 5);
+//                    System.setProperty("carbon.server.restart", "falseeee");
+//                    System.out.println("$$$$$$$$$$ Thread.sleep -- Done");
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        t.start();
     }
 
     public void stop(BundleContext bundleContext) throws Exception {

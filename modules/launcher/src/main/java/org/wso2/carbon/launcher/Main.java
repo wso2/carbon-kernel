@@ -58,7 +58,17 @@ public class Main {
         try {
             // This method launches the OSGi framework, loads all the bundles and starts Carbon server completely.
             carbonServer.start();
-            System.exit(0);
+
+            // Checking whether a server restart is required.
+            boolean restart = Boolean.parseBoolean(System.getProperty("carbon.server.restart"));
+            if(restart) {
+                // Here in this implementation we do not simply restart the OSGi framework. This could lead up to
+                //  memory leaks. Hence we do a complete JVM level restart. Exit state 121 is a special value.
+                //  Once the startup script receives this value, it restarts the JVM with the same arguments.
+                System.exit(121);
+            } else {
+                System.exit(0);
+            }
         } catch (Throwable e) {
             // We need to invoke the stop method of the CarbonServer to allow the server to cleanup itself.
             carbonServer.stop();
