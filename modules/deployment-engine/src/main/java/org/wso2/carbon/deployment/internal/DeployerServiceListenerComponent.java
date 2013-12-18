@@ -62,7 +62,7 @@ public class DeployerServiceListenerComponent {
 
     protected void unRegisterDeployer(Deployer deployer) {
         try {
-            carbonDeploymentEngine.unRegisterDeployer(deployer.getType());
+            carbonDeploymentEngine.unRegisterDeployer(deployer.getDirectory());
         } catch (Exception e) {
             log.error("Error while removing deployer from deployment engine", e);
         }

@@ -67,8 +67,7 @@ public class CarbonRepositoryListener {
                 dirToSearch = new File(carbonDeploymentEngine.getRepositoryDirectory(),
                                        deployerDirectory);
             }
-            String artifactType = entry.getValue().getType();
-            findArtifactsToDeploy(dirToSearch, artifactType);
+            findArtifactsToDeploy(dirToSearch, deployerDirectory);
         }
     }
 
@@ -77,16 +76,16 @@ public class CarbonRepositoryListener {
      * deploy artifacts list
      *
      * @param directoryToScan the directory to scan
-     * @param artifactType artifactType
+     * @param deployerDirectory deployerDirectory
      */
-    private void findArtifactsToDeploy(File directoryToScan, String artifactType) {
+    private void findArtifactsToDeploy(File directoryToScan, String deployerDirectory) {
         try {
             if (directoryToScan.exists()) {
                 File[] files = directoryToScan.listFiles();
                 if (files != null && files.length > 0) {
                     for (File file : files) {
                         Artifact artifact = new Artifact(file);
-                        artifact.setType(artifactType);
+                        artifact.setDirectory(deployerDirectory);
                         carbonDeploymentEngine.addArtifactToDeploy(artifact);
                     }
                 }

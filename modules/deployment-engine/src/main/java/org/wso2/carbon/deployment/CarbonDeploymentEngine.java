@@ -21,7 +21,6 @@ package org.wso2.carbon.deployment;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.deployment.spi.Artifact;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
@@ -31,13 +30,9 @@ import org.wso2.carbon.deployment.scheduler.CarbonSchedulerTask;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The Deployment Engine of Carbon which manages the deployment/undeployment of artifacts in carbon.
@@ -60,13 +55,13 @@ public class CarbonDeploymentEngine {
     /**
      * The map which holds the set of registered deployers with this engine
      */
-    private ConcurrentHashMap<String, Deployer> deployerMap =
-            new ConcurrentHashMap<String, Deployer>();
+    private Map<String, Deployer> deployerMap = new ConcurrentHashMap<String, Deployer>();
 
     /**
      * A map to hold all currently deployed artifacts
      */
-    private Map<String, Artifact> deployedArtifacts = new HashMap<String, Artifact>();
+    private Map<String, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
+            new ConcurrentHashMap<String, ConcurrentHashMap<Object, Artifact>>();
 
     /**
      * A list which holds the artifacts to be deployed
@@ -77,11 +72,6 @@ public class CarbonDeploymentEngine {
      * A list which holds the artifact to be undeployed
      */
     private ArrayList artifactsToUndeploy = new ArrayList();
-
-    /**
-     * A map to hold the keys of the currently deployed artifacts
-     */
-    private Map<String, Object> artifactKeys = new HashMap<String, Object>();
 
     /**
      * A list to hold the path of the artifacts to be deployed
@@ -144,43 +134,43 @@ public class CarbonDeploymentEngine {
             return;
         }
 
-        if (deployer.getDirectory() == null || deployer.getType() == null) {
+        if (deployer.getDirectory() == null) {
             log.error("Failed to add Deployer " + deployer.getClass().getName() +
-                      ": missing 'directory' or 'type' attribute in deployer instance");
+                      ": missing 'directory' attribute in deployer instance");
             return;
         }
-        String type = deployer.getType();
-        Deployer existingDeployer = deployerMap.get(type);
+        String directory = deployer.getDirectory();
+        Deployer existingDeployer = deployerMap.get(directory);
         if (existingDeployer == null) {
-            deployerMap.put(type, deployer);
+            deployerMap.put(directory, deployer);
         }
     }
 
     /**
      * Removes a deployer from the deployment engine configuration
      *
-     * @param type the artifact deployment type that the deployer is associated with
+     * @param directory the artifact deployment directory that the deployer is associated with
      */
-    public void unRegisterDeployer(String type) {
-        if (type == null) {
-            log.error("Failed to remove Deployer : missing 'type' attribute");
+    public void unRegisterDeployer(String directory) {
+        if (directory == null) {
+            log.error("Failed to remove Deployer : missing 'directory' attribute");
             return;
         }
 
-        Deployer existingDeployer = deployerMap.get(type);
+        Deployer existingDeployer = deployerMap.get(directory);
         if (existingDeployer != null) {
-            deployerMap.remove(type);
+            deployerMap.remove(directory);
         }
     }
 
     /**
      * Retrieve the deployer from the current deployers map, by giving the associated directory
      *
-     * @param type the artifact deployment type that the deployer is associated with
+     * @param directory the artifact deployment directory that the deployer is associated with
      * @return Deployer instance
      */
-    public Deployer getDeployer(String type) {
-        Deployer existingDeployer = deployerMap.get(type);
+    public Deployer getDeployer(String directory) {
+        Deployer existingDeployer = deployerMap.get(directory);
         return (existingDeployer != null) ? existingDeployer : null;
     }
 
@@ -204,15 +194,20 @@ public class CarbonDeploymentEngine {
     }
 
     /**
-     * This will return the keys of the currently deployed artifacts.
+     * This will return an artifact for given artifactkey and directory from
+     * currently deployed artifacts.
      * A key of an artifact is used to uniquely identify it self within a runtime
      *
-     * @return the map containing the deployed artifact keys
+     * @return the deployed artifact for given key and directory
      */
-    public Map<String, Object> getDeployedArtifactKeys() {
-        return artifactKeys;
-    }
 
+    public Artifact getDeployedArtifact(String directory, Object artifactKey) {
+        Artifact artifact = null;
+        if (deployedArtifacts.get(directory) != null) {
+            artifact = deployedArtifacts.get(directory).get(artifactKey);
+        }
+        return artifact;
+    }
 
     /**
      * Add given artifact to the list artifacts to deploy
@@ -220,17 +215,31 @@ public class CarbonDeploymentEngine {
      * @param artifact artifact to deploy
      */
     public synchronized void addArtifactToDeploy(Artifact artifact) {
-        Artifact deployedArtifact = deployedArtifacts.get(artifact.getPath());
+        Artifact deployedArtifact = findDeployedArtifact(artifact.getDirectory(),
+                                                         artifact.getPath());
+        // Artifact is getting updated
         if (deployedArtifact != null) {
             if (CarbonDeploymentUtils.isArtifactModified(deployedArtifact)) {
                 artifactsToUndeploy.add(deployedArtifact);
                 artifactsToDeploy.add(deployedArtifact);
             }
-        } else {
+        } else { // New artifact deployment
             artifactsToDeploy.add(artifact);
             CarbonDeploymentUtils.setArtifactLastModifiedTime(artifact);
         }
         artifactFilePathList.add(artifact.getPath());
+    }
+
+    private Artifact findDeployedArtifact(String directory, String path) {
+        Artifact artifact = null;
+        if (deployedArtifacts.get(directory) != null) {
+            for (Artifact anArtifact : deployedArtifacts.get(directory).values()) {
+                if (path.equals(anArtifact.getPath())) {
+                    artifact = anArtifact;
+                }
+            }
+        }
+        return artifact;
     }
 
     /**
@@ -251,11 +260,10 @@ public class CarbonDeploymentEngine {
                 for (Object artifact : artifactsToDeploy) {
                     Artifact artifactToDeploy = (Artifact) artifact;
                     try {
-                        Deployer deployer = getDeployer(artifactToDeploy.getType());
+                        Deployer deployer = getDeployer(artifactToDeploy.getDirectory());
                         Object artifactKey = deployer.deploy(artifactToDeploy);
                         artifactToDeploy.setKey(artifactKey);
-                        deployedArtifacts.put(artifactToDeploy.getPath(), artifactToDeploy);
-                        artifactKeys.put(artifactToDeploy.getPath(), artifactKey);
+                        addToDeployedArtifacts(artifactToDeploy);
                     } catch (CarbonDeploymentException e) {
                         log.error(e);
                     }
@@ -264,6 +272,16 @@ public class CarbonDeploymentEngine {
         } finally {
             artifactsToDeploy.clear();
         }
+    }
+
+    private void addToDeployedArtifacts(Artifact artifact) {
+        ConcurrentHashMap<Object, Artifact> artifactMap = deployedArtifacts.
+                get(artifact.getDirectory());
+        if (artifactMap == null) {
+            artifactMap = new ConcurrentHashMap<Object, Artifact>();
+        }
+        artifactMap.put(artifact.getKey(), artifact);
+        deployedArtifacts.put(artifact.getDirectory(), artifactMap);
     }
 
     /**
@@ -275,10 +293,9 @@ public class CarbonDeploymentEngine {
                 for (Object artifact : artifactsToUndeploy) {
                     Artifact artifactToUnDeploy = (Artifact) artifact;
                     try {
-                        Deployer deployer = getDeployer(artifactToUnDeploy.getType());
+                        Deployer deployer = getDeployer(artifactToUnDeploy.getDirectory());
                         deployer.undeploy(artifactToUnDeploy.getKey());
-                        deployedArtifacts.remove(artifactToUnDeploy.getPath());
-                        artifactKeys.remove(artifactToUnDeploy.getPath());
+                        removeFromDeployedArtifacts(artifactToUnDeploy);
                     } catch (CarbonDeploymentException e) {
                         log.error(e);
                     }
@@ -289,32 +306,42 @@ public class CarbonDeploymentEngine {
         }
     }
 
+    private void removeFromDeployedArtifacts(Artifact artifact) {
+        Map<Object, Artifact> artifactMap = deployedArtifacts.get(artifact.getDirectory());
+        if (artifactMap != null && artifactMap.containsKey(artifact.getKey())) {
+            artifactMap.remove(artifact.getKey());
+            if (artifactMap.isEmpty()) {
+                deployedArtifacts.remove(artifact.getDirectory());
+            }
+        }
+    }
+
     /**
      * Check and add artifacts which are removed form the repository to the artifacts to be
      * unDeployed list
      */
     public void checkUndeployedArtifacts() {
-        Iterator artifactPaths = deployedArtifacts.keySet().iterator();
-        List toBeRemoved = new ArrayList();
-        while (artifactPaths.hasNext()) {
-            String filePath = (String) artifactPaths.next();
-            Artifact artifact = deployedArtifacts.get(filePath);
-            boolean found = false;
-            for (Object anArtifactFilePath : artifactFilePathList) {
-                String artifactFilePath = (String) anArtifactFilePath;
-                if (filePath.equals(artifactFilePath)) {
-                    found = true;
+        List<Artifact> toBeRemoved = new ArrayList<Artifact>();
+        for (Map<Object, Artifact> deployedArtifactList : deployedArtifacts.values()) {
+            for (Artifact artifact : deployedArtifactList.values()) {
+                String filePath = artifact.getPath();
+                boolean found = false;
+                for (Object anArtifactFilePath : artifactFilePathList) {
+                    String artifactFilePath = (String) anArtifactFilePath;
+                    if (filePath.equals(artifactFilePath)) {
+                        found = true;
+                        break;
+                    }
                 }
-            }
-            if (!found) {
-                toBeRemoved.add(filePath);
-                this.addArtifactToUndeploy(artifact);
+                if (!found) {
+                    toBeRemoved.add(artifact);
+                    this.addArtifactToUndeploy(artifact);
+                }
             }
         }
 
-        for (Object fileNameToBeRemoved : toBeRemoved) {
-            String fileName = (String) fileNameToBeRemoved;
-            deployedArtifacts.remove(fileName);
+        for (Artifact artifactToBeRemoved : toBeRemoved) {
+            removeFromDeployedArtifacts(artifactToBeRemoved);
         }
         toBeRemoved.clear();
         artifactFilePathList.clear();

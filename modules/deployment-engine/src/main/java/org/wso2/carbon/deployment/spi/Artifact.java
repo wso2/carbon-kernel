@@ -60,9 +60,9 @@ public class Artifact {
     private Object key;
 
     /**
-     * Type of the artifact Eg : webapp, sequence, api, etc
+     * Deployment directory that the artifact is associated with  Eg : webapps, sequences, apis, etc
      */
-    private String type;
+    private String directory;
 
     /**
      * To keep set of custom properties related to this artifact
@@ -144,19 +144,19 @@ public class Artifact {
      * Type of the artifact
      * Eg : war, aar, dbs
      *
-     * @return artifact type
+     * @return artifact directory
      */
-    public String getType() {
-        return type;
+    public String getDirectory() {
+        return directory;
     }
 
     /**
-     * Sets the given type for this artifact instance
+     * Sets the given directory for this artifact instance
      *
-     * @param type type of the artifact to be set
+     * @param type directory of the artifact to be set
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setDirectory(String type) {
+        this.directory = type;
     }
 
     /**

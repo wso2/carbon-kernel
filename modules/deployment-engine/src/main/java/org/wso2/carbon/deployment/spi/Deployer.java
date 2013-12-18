@@ -63,12 +63,4 @@ public interface Deployer {
      */
     String getDirectory();
 
-    /**
-     * The type of the artifact that the deployer is associated with.
-     *      Eg : war, aar, dbs
-     *
-     * @return artifact type
-     */
-    String getType();
-
 }
