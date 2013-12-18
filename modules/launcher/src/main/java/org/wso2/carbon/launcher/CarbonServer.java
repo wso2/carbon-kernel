@@ -21,8 +21,6 @@ import static org.wso2.carbon.launcher.utils.Constants.*;
  */
 public class CarbonServer {
 
-//    private static Log log = LogFactory.getLog(CarbonServer.class);
-
     private CarbonLaunchConfig<String, String> config;
     private Framework framework;
 
@@ -32,22 +30,39 @@ public class CarbonServer {
 
     /**
      * Starts a Carbon server instance. This method returns only after the server instance stops completely.
+     *
      * @throws Exception
      */
     public void start() throws Exception {
-        // Setting the server start time.
+
+        // Sets the server start time.
         System.setProperty(CARBON_START_TIME, Long.toString(System.currentTimeMillis()));
+
         try {
-            //TODO implement a mechanism to plug clustom extensions which needs to executed before launching Carbon.
+            // Creates an OSGi framework instance
             ClassLoader fwkClassLoader = createOSGiFwkClassLoader();
             FrameworkFactory fwkFactory = loadOSGiFwkFactory(fwkClassLoader);
             framework = fwkFactory.newFramework(config);
+
+            // Notify Carbon server start
+            dispatchEvent(CarbonServerEvent.STARTING);
+
+            // Initializes the framework. Framework will try to resolve all the bundles if their requirements
+            //  can be satisfied.
             framework.init();
-            // TODO add framework listeners, if any.
+
+            // Starts the framework.
             framework.start();
+
+            // Loads initial bundles listed in the launch.properties file.
             loadInitialBundles(framework.getBundleContext());
+
+            // This thread waits until the OSGi framework comes to complete shutdown.
             waitForServerStop();
-        } catch (BundleException e) {
+
+            // Notify Carbon server shutdown.
+            dispatchEvent(CarbonServerEvent.STOPPING);
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -78,7 +93,7 @@ public class CarbonServer {
 
         try {
             FrameworkEvent event = framework.waitForStop(1000 * 60 * 3);
-            if( event.getType() == FrameworkEvent.WAIT_TIMEDOUT){
+            if (event.getType() == FrameworkEvent.WAIT_TIMEDOUT) {
 //                System.out.println("$$$$ Framework did not stop before the wait timeout expired. " +
 //                        "Forcefully shutting down the server " + event.getType());
                 return;
@@ -132,5 +147,12 @@ public class CarbonServer {
 
     private boolean isFrameworkActive() {
         return framework != null && (framework.getState() == Bundle.ACTIVE || framework.getState() == Bundle.STARTING);
+    }
+
+    private void dispatchEvent(int event) {
+        CarbonServerEvent carbonServerEvent = new CarbonServerEvent(event, config);
+        for (CarbonServerListener listener : config.getCarbonServerListeners()) {
+            listener.carbonServerEvent(carbonServerEvent);
+        }
     }
 }

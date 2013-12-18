@@ -50,8 +50,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        log.info("###### Starting ...........");
-
         // 1) Initialize and/or verify System properties
         initAndVerifySysProps();
 
@@ -84,6 +82,8 @@ public class Main {
         } catch (Throwable e) {
             // We need to invoke the stop method of the CarbonServer to allow the server to cleanup itself.
             carbonServer.stop();
+            // TODO add proper logging
+            e.printStackTrace();
             System.exit(-1);
         }
     }

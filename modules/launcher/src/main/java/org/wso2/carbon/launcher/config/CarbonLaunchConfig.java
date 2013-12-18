@@ -1,5 +1,6 @@
 package org.wso2.carbon.launcher.config;
 
+import org.wso2.carbon.launcher.CarbonServerListener;
 import org.wso2.carbon.launcher.utils.FileResolver;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -25,6 +26,8 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
     private String carbonOSGiRepositoryPath;
 
     private CarbonInitialBundle[] initialBundles;
+
+    private CarbonServerListener[] carbonServerListeners;
 
     /**
      * Load the launch configuration from the classpath.
@@ -104,6 +107,10 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
         return carbonHome;
     }
 
+    public CarbonServerListener[] getCarbonServerListeners() {
+        return carbonServerListeners;
+    }
+
     private void loadFromClasspath() {
         InputStream stream = CarbonLaunchConfig.class.getClassLoader().getResourceAsStream("launch.properties");
         loadInternal(stream);
@@ -145,6 +152,8 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
         eclipseP2DataArea = resolvePath(get(ECLIPSE_P2_DATA_AREA), carbonOSGiRepositoryPath, ECLIPSE_P2_DATA_AREA);
 
         populateInitialBundlesList(get(CARBON_INITIAL_OSGI_BUNDLES));
+        loadCarbonServerListeners(get(CARBON_SERVER_LISTENERS));
+
     }
 
     //TODO default values should be available in a launch.properties(classpath)
@@ -165,6 +174,7 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
     private void populateInitialBundlesList(String initialBundleList) {
         if (Utils.checkForNullOrEmpty(initialBundleList)) {
             initialBundles = new CarbonInitialBundle[0];
+            return;
         }
 
         String[] strArray = Utils.tokenize(initialBundleList, ",");
@@ -175,7 +185,11 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
         Pattern bundleEntryPattern = Pattern.compile("(file):(.*)@(.*):(.*)");
         for (String bundleEntry : strArray) {
 
-            Matcher matcher = bundleEntryPattern.matcher(bundleEntry);
+            if (Utils.checkForNullOrEmpty(bundleEntry)) {
+                continue;
+            }
+
+            Matcher matcher = bundleEntryPattern.matcher(bundleEntry.trim());
             if (!matcher.matches()) {
                 throw new RuntimeException("Invalid initial bundle entry: " + bundleEntry);
             }
@@ -193,5 +207,29 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
         }
 
         initialBundles = bundleArrayList.toArray(new CarbonInitialBundle[bundleArrayList.size()]);
+    }
+
+    private void loadCarbonServerListeners(String serverListenersList) {
+        if (Utils.checkForNullOrEmpty(serverListenersList)) {
+            carbonServerListeners = new CarbonServerListener[0];
+            return;
+        }
+
+        String[] classNameArray = Utils.tokenize(serverListenersList, ",");
+        ArrayList<CarbonServerListener> listenerArrayList = new ArrayList<CarbonServerListener>(classNameArray.length);
+
+        for (String className : classNameArray) {
+            if (Utils.checkForNullOrEmpty(className)) {
+                continue;
+            }
+
+            try {
+                Class clazz = Class.forName(className.trim());
+                listenerArrayList.add((CarbonServerListener) clazz.newInstance());
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+        carbonServerListeners = listenerArrayList.toArray(new CarbonServerListener[listenerArrayList.size()]);
     }
 }

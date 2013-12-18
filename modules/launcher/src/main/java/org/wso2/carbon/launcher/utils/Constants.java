@@ -33,6 +33,7 @@ public class Constants {
     public static final String CARBON_OSGI_REPOSITORY = "carbon.osgi.repository";
     public static final String CARBON_OSGI_FRAMEWORK = "carbon.osgi.framework";
     public static final String CARBON_INITIAL_OSGI_BUNDLES = "carbon.initial.osgi.bundles";
+    public static final String CARBON_SERVER_LISTENERS = "carbon.server.listeners";
 
     public static final String OSGI_INSTALL_AREA = "osgi.install.area";
     public static final String OSGI_CONFIG_AREA = "osgi.configuration.area";
