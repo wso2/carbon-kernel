@@ -107,10 +107,6 @@
             <artifactId>pax-logging-service</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ops4j.pax.confman</groupId>
-            <artifactId>pax-confman-propsloader</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>cm</artifactId>
         </dependency>
@@ -317,32 +313,8 @@
                                 <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-service</bundleDef>
-                                <bundleDef>org.ops4j.pax.confman:pax-confman-propsloader</bundleDef>
                                 <bundleDef>org.eclipse.equinox:cm</bundleDef>
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.artifact.repository</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.console</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.core</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.director</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.engine</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.garbagecollector</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.jarprocessor</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.metadata</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.metadata.repository</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.publisher</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.touchpoint.eclipse</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.touchpoint.natives</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.updatechecker</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.director.app</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.directorywatcher</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.extensionlocation</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.repository.tools</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.repository</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.updatesite</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.publisher.eclipse</bundleDef>-->
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86</bundleDef>
-                                <!--<bundleDef>org.eclipse.osgi:org.eclipse.equinox.p2.transport.ecf</bundleDef>-->
-                                <!--<bundleDef>org.eclipse.ecf.provider.filetransfer:httpclient</bundleDef>-->
-                                <!--<bundleDef>commons-httpclient.wso2:commons-httpclient</bundleDef>-->
                             </bundles>
                         </configuration>
                     </execution>

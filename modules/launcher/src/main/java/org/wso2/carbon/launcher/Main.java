@@ -18,10 +18,14 @@
 
 package org.wso2.carbon.launcher;
 
+import org.wso2.carbon.launcher.bootstrapLogging.BootstrapConsoleManager;
+import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogManager;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.wso2.carbon.launcher.utils.Constants.*;
@@ -37,6 +41,14 @@ public class Main {
      * @param args arguments
      */
     public static void main(String[] args) {
+
+        try {
+            log.addHandler(BootstrapLogManager.getDefaultHandler());
+            log.addHandler(BootstrapConsoleManager.getDefaultHandler());
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error occurred while reading log4j.properties file");
+            e.printStackTrace();
+        }
 
         log.info("###### Starting ...........");
 
@@ -112,6 +124,6 @@ public class Main {
         }
 
         System.setProperty(LOGGING_DEFAULT_SERVICE_NAME, PAX_LOGGING_LEVEL);
-        System.setProperty(BUNDLE_CONFIG_LOCATION, Utils.getRepositoryConfDir() + File.separator + "logging-config");
+        System.setProperty(BUNDLE_CONFIG_LOCATION, Utils.getRepositoryConfDir());
     }
 }

@@ -20,6 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.util.tracker.ServiceTracker;
+import org.wso2.carbon.base.LoggingConfiguration;
 import org.wso2.carbon.base.Utils;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.ServerConfigurationException;
@@ -37,6 +39,7 @@ import java.io.InputStream;
 public class CarbonBaseActivator implements BundleActivator {
     private static Log log = LogFactory.getLog(CarbonBaseActivator.class);
     private ServiceRegistration registration;
+    private ServiceTracker m_configTracker;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
@@ -48,6 +51,12 @@ public class CarbonBaseActivator implements BundleActivator {
         //setting the the retrieved ports.offset value as a system property, in case it was not defined.
         //NIO transport make use of this system property
         System.setProperty("portOffset", portOffset);
+
+        //register pax logging on carbon server
+        LoggingConfiguration loggingConfiguration = LoggingConfiguration.getInstance();
+        m_configTracker = new ConfigAdminServiceTracker( bundleContext, loggingConfiguration );
+        m_configTracker.open();
+
         //register carbon server confg as an OSGi service
         registration = bundleContext.registerService(ServerConfigurationService.class.getName(),
                                                      carbonServerConfiguration, null);
@@ -57,6 +66,9 @@ public class CarbonBaseActivator implements BundleActivator {
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
         registration.unregister();
+
+        m_configTracker.close();
+        m_configTracker = null;
     }
 
     private void initServerConfiguration(ServerConfiguration carbonServerConfiguration) {
