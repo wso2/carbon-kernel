@@ -38,7 +38,7 @@ public class CarbonDeploymentUtils {
      * both files and Artifact. If they are different, the file is assumed to have
      * been modified.
      *
-     * @param artifact
+     * @param artifact artifact to check for modification
      */
     public static boolean isArtifactModified(Artifact artifact) {
         long currentTimeStamp = artifact.getLastModifiedTime();
@@ -51,7 +51,7 @@ public class CarbonDeploymentUtils {
     /**
      * Sets the last modified time to the given artifact
      *
-     * @param artifact
+     * @param artifact artifact for update modified time
      */
     public static void setArtifactLastModifiedTime(Artifact artifact) {
         File file = artifact.getFile();

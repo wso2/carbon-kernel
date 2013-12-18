@@ -19,13 +19,10 @@
 
 package org.wso2.carbon.deployment.internal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.deployment.CarbonDeploymentEngine;
 
 public class CarbonDeploymentDataHolder {
     private  static CarbonDeploymentDataHolder instance = new CarbonDeploymentDataHolder();
-    private Log log = LogFactory.getLog(CarbonDeploymentDataHolder.class);
 
     public  static CarbonDeploymentDataHolder getInstance() {
         return instance;

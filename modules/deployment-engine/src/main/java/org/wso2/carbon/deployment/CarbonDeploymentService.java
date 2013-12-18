@@ -31,7 +31,6 @@ import java.io.IOException;
 
 
 public class CarbonDeploymentService implements DeploymentService {
-    private static final Log log = LogFactory.getLog(CarbonDeploymentService.class);
 
     private CarbonDeploymentEngine carbonDeploymentEngine;
 
