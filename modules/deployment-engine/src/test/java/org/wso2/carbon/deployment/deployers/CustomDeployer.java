@@ -6,6 +6,7 @@ import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Artifact;
 import org.wso2.carbon.deployment.spi.Deployer;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
@@ -27,13 +28,16 @@ public class CustomDeployer implements Deployer {
 
     private String directory = "text-files";
     private String type = "txt";
+    private String testDir = "src" + File.separator + "test" + File.separator  + "resources" +
+                             File.separator + "carbon-repo" + File.separator + directory;
 
     public void init() {
         initCalled = true;
     }
 
-    public void deploy(Artifact artifact) throws CarbonDeploymentException {
+    public String deploy(Artifact artifact) throws CarbonDeploymentException {
         log.info("Deploying : " + artifact.getName());
+        String key = null;
         try {
             FileInputStream fis = new FileInputStream(artifact.getFile());
             int x = fis.available();
@@ -42,16 +46,24 @@ public class CustomDeployer implements Deployer {
             String content = new String(b);
             if (content.contains("sample1")) {
                 sample1Deployed = true;
+                key = "sample1.txt";
             }
         } catch (IOException e) {
             throw new CarbonDeploymentException("Error while deploying : " + artifact.getName(), e);
         }
+        return key;
     }
 
-    public void undeploy(Artifact artifact) throws CarbonDeploymentException {
-        log.info("Un Deploying : " + artifact.getName());
+    public void undeploy(Object key) throws CarbonDeploymentException {
+        if (!(key instanceof String)) {
+            throw new CarbonDeploymentException("Error while Un Deploying : " + key +
+                                                "is not a String value");
+        }
+        log.info("Un Deploying : " + key);
         try {
-            FileInputStream fis = new FileInputStream(artifact.getFile());
+            File fileToUndeploy = new File(testDir + File.separator + key);
+            log.info("File to undeploy : " + fileToUndeploy.getAbsolutePath());
+            FileInputStream fis = new FileInputStream(fileToUndeploy);
             int x = fis.available();
             byte b[] = new byte[x];
             fis.read(b);
@@ -60,7 +72,7 @@ public class CustomDeployer implements Deployer {
                 sample1Deployed = false;
             }
         } catch (IOException e) {
-            throw new CarbonDeploymentException("Error while Un Deploying : " + artifact.getName(), e);
+            throw new CarbonDeploymentException("Error while Un Deploying : " + key, e);
         }
     }
 
@@ -69,7 +81,6 @@ public class CustomDeployer implements Deployer {
         return directory;
     }
 
-    @Override
     public String getType() {
         return type;
     }

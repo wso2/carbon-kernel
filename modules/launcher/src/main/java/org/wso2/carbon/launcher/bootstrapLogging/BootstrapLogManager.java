@@ -1,0 +1,80 @@
+/*
+*  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
+
+package org.wso2.carbon.launcher.bootstrapLogging;
+
+import org.wso2.carbon.launcher.utils.Utils;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+import java.util.logging.StreamHandler;
+
+/**
+ * Convenience class for configuring java.util.logging to append to
+ * the configured log4j log.  This could be used for bootstrap logging
+ * prior to start of the framework.
+ */
+public class BootstrapLogManager {
+    private static String LOG4J_PROP_FILE_NAME = "log4j.properties";
+    private static final String CARBON_BOOTSTRAP_LOG = "wso2carbon.log";
+    private static Properties configProps;
+
+    public static synchronized Handler getDefaultHandler() throws IOException {
+        String logFilename = Utils.getRepositoryDir() + File.separator + "logs" + File.separator + CARBON_BOOTSTRAP_LOG;
+        return new BootstrapLogManager.SimpleFileHandler(new File(logFilename));
+
+    }
+
+    /**
+     * Implementation of java.util.logging.Handler that does simple appending
+     * to a named file.  Should be able to use this for bootstrap logging
+     * via java.util.logging prior to startup of pax logging.
+     */
+    private static class SimpleFileHandler extends StreamHandler {
+
+        private SimpleFileHandler(File file) throws IOException {
+            open(file, true);
+        }
+
+        private void open(File logfile, boolean append) throws IOException {
+            if (!logfile.getParentFile().exists()) {
+                try {
+                    logfile.getParentFile().mkdirs();
+                } catch (SecurityException se) {
+                    throw new IOException(se.getMessage());
+                }
+            }
+            FileOutputStream fout = new FileOutputStream(logfile, append);
+            BufferedOutputStream out = new BufferedOutputStream(fout);
+            setOutputStream(out);
+        }
+
+        public synchronized void publish(LogRecord record) {
+            if (!isLoggable(record)) {
+                return;
+            }
+            super.publish(record);
+            flush();
+        }
+    }
+}

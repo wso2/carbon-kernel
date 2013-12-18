@@ -56,6 +56,10 @@ public class Utils {
         return System.getProperty(CARBON_HOME) + File.separator + Constants.REPOSITORY_CONF_DIR_PATH;
     }
 
+    public static String getRepositoryDir() {
+        return System.getProperty(Constants.CARBON_HOME) + File.separator + "repository";
+    }
+
     public static boolean checkForNullOrEmpty(String arg) {
         return (arg == null || arg.length() == 0);
     }

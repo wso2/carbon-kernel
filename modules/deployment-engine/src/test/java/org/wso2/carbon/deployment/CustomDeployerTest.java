@@ -13,6 +13,7 @@ public class CustomDeployerTest extends BaseTest {
     private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private CustomDeployer customDeployer;
     private Artifact artifact;
+    private String key;
 
     /**
      * @param testName
@@ -36,13 +37,13 @@ public class CustomDeployerTest extends BaseTest {
 
     @Test(dependsOnMethods = {"testDeployerInitialization"})
     public void testDeploy() throws CarbonDeploymentException {
-        customDeployer.deploy(artifact);
+        key = customDeployer.deploy(artifact);
         Assert.assertTrue(CustomDeployer.sample1Deployed);
     }
 
     @Test(dependsOnMethods = {"testDeploy"})
     public void testUnDeploy() throws CarbonDeploymentException {
-        customDeployer.undeploy(artifact);
+        customDeployer.undeploy(key);
         Assert.assertFalse(CustomDeployer.sample1Deployed);
     }
 }
