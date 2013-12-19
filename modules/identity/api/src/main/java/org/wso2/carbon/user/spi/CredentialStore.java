@@ -4,7 +4,6 @@ import java.util.Properties;
 
 import org.wso2.carbon.user.Credential;
 import org.wso2.carbon.user.EntryIdentifier;
-import org.wso2.carbon.user.InvalidCredentialException;
 
 public interface CredentialStore {
 
@@ -20,8 +19,7 @@ public interface CredentialStore {
 	 * @throws InvalidCredentialException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void validateCredentials(EntryIdentifier entryId, Credential credential)
-			throws InvalidCredentialException;
+	public void validateCredentials(EntryIdentifier entryId, Credential credential);
 
 	/**
 	 * 
