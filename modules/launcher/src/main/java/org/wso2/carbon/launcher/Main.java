@@ -30,31 +30,23 @@ import java.util.logging.Logger;
 
 import static org.wso2.carbon.launcher.utils.Constants.*;
 
+/**
+ * Starts a Carbon server instance.
+ */
 public class Main {
 
-    private static final Logger log = Logger.getLogger(Main.class.getName());
-
-//    private static Log log = LogFactory.getLog(Main.class);
-    // TODO handle restarts and error handling here.
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     /**
      * @param args arguments
      */
     public static void main(String[] args) {
 
-        try {
-            log.addHandler(BootstrapLogManager.getDefaultHandler());
-            log.addHandler(BootstrapConsoleManager.getDefaultHandler());
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Error occurred while reading log4j.properties file");
-            e.printStackTrace();
-        }
-
         // 1) Initialize and/or verify System properties
         initAndVerifySysProps();
 
         // 2) Initialize logging.
-        //TODO
+        bootstrapLogging();
 
         // 3) Load the Carbon start configuration
         CarbonLaunchConfig<String, String> config = loadCarbonLaunchConfig();
@@ -71,20 +63,20 @@ public class Main {
 
             // Checking whether a server restart is required.
             boolean restart = Boolean.parseBoolean(System.getProperty("carbon.server.restart"));
-            if(restart) {
+            if (restart) {
                 // Here in this implementation we do not simply restart the OSGi framework. This could lead up to
                 //  memory leaks. Hence we do a complete JVM level restart. Exit state 121 is a special value.
                 //  Once the startup script receives this value, it restarts the JVM with the same arguments.
-                System.exit(121);
+                System.exit(ExitCodes.RESTART_ACTION);
             } else {
-                System.exit(0);
+                System.exit(ExitCodes.SUCCESSFUL_TERMINATION);
             }
         } catch (Throwable e) {
             // We need to invoke the stop method of the CarbonServer to allow the server to cleanup itself.
             carbonServer.stop();
-            // TODO add proper logging
-            e.printStackTrace();
-            System.exit(-1);
+
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            System.exit(ExitCodes.UNSUCCESSFUL_TERMINATION);
         }
     }
 
@@ -103,11 +95,7 @@ public class Main {
     private static void registerShutdownHook(final CarbonServer carbonServer) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                try {
-                    carbonServer.stop();
-                } catch (Throwable e) {
-                    System.exit(-1);
-                }
+                carbonServer.stop();
             }
         });
     }
@@ -115,7 +103,9 @@ public class Main {
     private static void initAndVerifySysProps() {
         String carbonHome = System.getProperty(CARBON_HOME);
         if (carbonHome == null || carbonHome.length() == 0) {
-            throw new RuntimeException("carbon.home system property must be set before starting the server");
+            String msg = "carbon.home system property must be set before starting the server";
+            logger.log(Level.SEVERE, msg);
+            throw new RuntimeException(msg);
         }
 
         String profileName = System.getProperty(PROFILE);
@@ -123,7 +113,21 @@ public class Main {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
         }
 
-        System.setProperty(LOGGING_DEFAULT_SERVICE_NAME, PAX_LOGGING_LEVEL);
+        // Set log level for Pax logger to WARN.
+        System.setProperty(PAX_DEFAULT_SERVICE_LOG_LEVEL, LOG_LEVEL_WARN);
         System.setProperty(BUNDLE_CONFIG_LOCATION, Utils.getRepositoryConfDir());
+    }
+
+    private static void bootstrapLogging() {
+        try {
+            logger.addHandler(BootstrapLogManager.getDefaultHandler());
+            logger.addHandler(BootstrapConsoleManager.getDefaultHandler());
+        } catch (IOException e) {
+            // Following log may never get printed if logging is not properly initialized. Hence the sending the error
+            //  message to the standard out.
+            e.printStackTrace();
+            logger.log(Level.SEVERE, "Could not initialize logging");
+            throw new RuntimeException(e);
+        }
     }
 }

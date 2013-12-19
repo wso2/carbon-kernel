@@ -27,8 +27,8 @@ public class BundleActivator implements org.osgi.framework.BundleActivator {
     private static Log log = LogFactory.getLog(BundleActivator.class);
 
     public void start(BundleContext bundleContext) throws Exception {
-        System.out.println("%%%%%%%%%%%% BundleActivator.start()");
-        log.info("%%%%%%%%%%%% BundleActivator.start()");
+//        System.out.println("%%%%%%%%%%%% BundleActivator.start()");
+//        log.info("%%%%%%%%%%%% BundleActivator.start()");
 
 //        Thread t = new Thread(new Runnable() {
 //            public void run() {
@@ -47,7 +47,7 @@ public class BundleActivator implements org.osgi.framework.BundleActivator {
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-        System.out.println("%%%%%%%%%%%% BundleActivator.stop()");
-        log.info("%%%%%%%%%%%% BundleActivator.stop()");
+//        System.out.println("%%%%%%%%%%%% BundleActivator.stop()");
+//        log.info("%%%%%%%%%%%% BundleActivator.stop()");
     }
 }
