@@ -40,7 +40,9 @@ public class Constants {
     public static final String OSGI_INSTANCE_AREA = "osgi.instance.area";
     public static final String ECLIPSE_P2_DATA_AREA = "eclipse.p2.data.area";
 
-    public static final String REPOSITORY_CONF_DIR_PATH = "repository" + File.separator + "conf";
+    public static final String REPOSITORY_DIR_PATH = "repository";
+    public static final String REPOSITORY_CONF_DIR_PATH = REPOSITORY_DIR_PATH + File.separator + "conf";
+    public static final String LAUNCH_CONF_DIR_PATH = REPOSITORY_CONF_DIR_PATH + File.separator + "osgi";
 
     public static final int DEFAULT_BUNDLE_START_LEVEL = 4;
 

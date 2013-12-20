@@ -80,9 +80,12 @@ public class Main {
         }
     }
 
+    /**
+     * Loads Carbon launch configuration from the launch.properties file.
+     * @return
+     */
     private static CarbonLaunchConfig<String, String> loadCarbonLaunchConfig() {
-        String launchPropFilePath = Utils.getRepositoryConfDir() + File.separator + "osgi" +
-                File.separator + LAUNCH_PROPERTIES_FILE;
+        String launchPropFilePath = Utils.getLaunchConfigDir() + File.separator + LAUNCH_PROPERTIES_FILE;
         File launchPropFile = new File(launchPropFilePath);
 
         if (launchPropFile.exists()) {
@@ -126,7 +129,7 @@ public class Main {
             // Following log may never get printed if logging is not properly initialized. Hence the sending the error
             //  message to the standard out.
             e.printStackTrace();
-            logger.log(Level.SEVERE, "Could not initialize logging");
+            logger.log(Level.SEVERE, "Could not initialize logging", e);
             throw new RuntimeException(e);
         }
     }

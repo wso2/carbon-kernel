@@ -57,7 +57,11 @@ public class Utils {
     }
 
     public static String getRepositoryDir() {
-        return System.getProperty(Constants.CARBON_HOME) + File.separator + "repository";
+        return System.getProperty(Constants.CARBON_HOME) + File.separator + Constants.REPOSITORY_DIR_PATH;
+    }
+
+    public static String getLaunchConfigDir(){
+        return System.getProperty(Constants.CARBON_HOME) + File.separator +Constants.LAUNCH_CONF_DIR_PATH;
     }
 
     public static boolean checkForNullOrEmpty(String arg) {
