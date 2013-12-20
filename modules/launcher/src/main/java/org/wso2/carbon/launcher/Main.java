@@ -118,7 +118,6 @@ public class Main {
 
         // Set log level for Pax logger to WARN.
         System.setProperty(PAX_DEFAULT_SERVICE_LOG_LEVEL, LOG_LEVEL_WARN);
-        System.setProperty(BUNDLE_CONFIG_LOCATION, Utils.getRepositoryConfDir());
     }
 
     private static void bootstrapLogging() {
