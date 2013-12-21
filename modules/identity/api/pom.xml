@@ -16,13 +16,13 @@
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
         <version>5.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>org.wso2.carbon.user.api</artifactId>
+    <artifactId>org.wso2.carbon.identity</artifactId>
     <packaging>jar</packaging>
-    <name>WSO2 Carbon - User API</name>
-    <description>Carbon Kernel User API</description>
+    <name>WSO2 Carbon - Identity API</name>
+    <description>Carbon Kernel Identity API</description>
     <url>http://wso2.org</url>   
  
     <build>
@@ -46,7 +46,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
-                            org.wso2.carbon.user.api.*;version=1.0.1,
+                            org.wso2.carbon.identity.*;version=1.0.1,
                         </Export-Package>
                     </instructions>
                 </configuration>

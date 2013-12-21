@@ -1,6 +1,9 @@
-package org.wso2.carbon.user;
+package org.wso2.carbon.identity;
 
 import java.util.Properties;
+
+import org.wso2.carbon.identity.authn.IdentityManager;
+import org.wso2.carbon.identity.authz.AuthorizationManager;
 
 public interface Realm {
 

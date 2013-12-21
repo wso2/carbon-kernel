@@ -1,6 +1,8 @@
-package org.wso2.carbon.user.config;
+package org.wso2.carbon.identity.config;
 
 import java.util.Properties;
+
+import org.wso2.carbon.identity.config.spi.IdentityStoreConfig;
 
 public final class IdentityManagerConfig extends AbstractManagerConfig {
 
