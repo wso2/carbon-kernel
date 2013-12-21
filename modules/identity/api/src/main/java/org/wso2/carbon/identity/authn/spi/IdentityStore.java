@@ -3,7 +3,7 @@ package org.wso2.carbon.identity.authn.spi;
 import java.util.List;
 import java.util.Properties;
 
-import org.wso2.carbon.identity.account.LinkedAccountStore;
+import org.wso2.carbon.identity.account.spi.LinkedAccountStore;
 import org.wso2.carbon.identity.authn.GroupIdentifier;
 import org.wso2.carbon.identity.authn.PrivilegedGroup;
 import org.wso2.carbon.identity.authn.PrivilegedUser;
@@ -16,8 +16,8 @@ import org.wso2.carbon.identity.claim.ClaimIdentifier;
 import org.wso2.carbon.identity.claim.DialectIdentifier;
 import org.wso2.carbon.identity.commons.EntityTree;
 import org.wso2.carbon.identity.commons.EntryIdentifier;
-import org.wso2.carbon.identity.credential.CredentialStore;
 import org.wso2.carbon.identity.credential.spi.Credential;
+import org.wso2.carbon.identity.credential.spi.CredentialStore;
 import org.wso2.carbon.identity.profile.Profile;
 import org.wso2.carbon.identity.profile.ProfileIdentifier;
 

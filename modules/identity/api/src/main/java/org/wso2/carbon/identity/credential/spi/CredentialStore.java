@@ -1,9 +1,8 @@
-package org.wso2.carbon.identity.credential;
+package org.wso2.carbon.identity.credential.spi;
 
 import java.util.Properties;
 
 import org.wso2.carbon.identity.commons.EntryIdentifier;
-import org.wso2.carbon.identity.credential.spi.Credential;
 
 public interface CredentialStore {
 

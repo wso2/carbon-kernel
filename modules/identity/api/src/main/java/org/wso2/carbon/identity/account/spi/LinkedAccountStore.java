@@ -1,4 +1,4 @@
-package org.wso2.carbon.identity.account;
+package org.wso2.carbon.identity.account.spi;
 
 import java.util.List;
 import java.util.Properties;

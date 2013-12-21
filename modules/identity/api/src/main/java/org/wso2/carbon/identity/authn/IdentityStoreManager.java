@@ -1,9 +1,9 @@
 package org.wso2.carbon.identity.authn;
 
-import org.wso2.carbon.identity.account.LinkedAccountStore;
+import org.wso2.carbon.identity.account.spi.LinkedAccountStore;
 import org.wso2.carbon.identity.claim.ClaimManager;
 import org.wso2.carbon.identity.config.spi.IdentityStoreConfig;
-import org.wso2.carbon.identity.credential.CredentialStore;
+import org.wso2.carbon.identity.credential.spi.CredentialStore;
 
 public interface IdentityStoreManager extends ReadOnlyIdentityStoreManager {
 
