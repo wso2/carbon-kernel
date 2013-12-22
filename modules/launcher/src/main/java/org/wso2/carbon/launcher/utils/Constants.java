@@ -40,13 +40,14 @@ public class Constants {
     public static final String OSGI_INSTANCE_AREA = "osgi.instance.area";
     public static final String ECLIPSE_P2_DATA_AREA = "eclipse.p2.data.area";
 
-    public static final String REPOSITORY_CONF_DIR_PATH = "repository" + File.separator + "conf";
+    public static final String REPOSITORY_DIR_PATH = "repository";
+    public static final String REPOSITORY_CONF_DIR_PATH = REPOSITORY_DIR_PATH + File.separator + "conf";
+    public static final String LAUNCH_CONF_DIR_PATH = REPOSITORY_CONF_DIR_PATH + File.separator + "osgi";
 
     public static final int DEFAULT_BUNDLE_START_LEVEL = 4;
 
     public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
     public static final String LOG_LEVEL_WARN = "WARN";
-    public static final String BUNDLE_CONFIG_LOCATION = "bundles.configuration.location";
 
     public static class ExitCodes {
         public static final int SUCCESSFUL_TERMINATION = 0;

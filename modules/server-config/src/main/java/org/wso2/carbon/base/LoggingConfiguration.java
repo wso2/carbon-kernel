@@ -56,7 +56,7 @@ public class LoggingConfiguration {
             );
         }
 
-        File configDir = new File(System.getProperty(Constants.LOGGING_CONFIGURATION_LOCATION));
+        File configDir = new File(Utils.getCarbonConfigDirPath());
         if (!configDir.exists()) {
             return;
         }

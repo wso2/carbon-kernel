@@ -23,12 +23,10 @@ public class Constants {
 	public static final String CARBON_CONFIG_DIR_PATH_ENV = "CARBON_CONFIG_DIR_PATH";
 	public static final String CARBON_HOME = "carbon.home";
 	public static final String CARBON_HOME_ENV = "CARBON_HOME";
-    public static final String REPOSITORY_CONF_DIR_PATH = "repository" + File.separator + "conf";
 
     //    properties relavant to pax logging configuration
     public static final String CONFIG_FILE_NAME = "log4j.properties";
     public static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
-    public static final String LOGGING_CONFIGURATION_LOCATION = "bundles.configuration.location";
 
 	/**
 	 * Remove default constructor and make it not available to initialize.

@@ -81,11 +81,10 @@ public class CarbonServer {
         new Thread() {
             public void run() {
                 try {
-//                    System.out.println("$$$$ Stopping OSGi runtime.");
                     framework.stop();
-//                    System.out.println("$$$$ Stopping OSGi runtime - 1");
                 } catch (BundleException e) {
-//                    System.err.println("Error stopping the framework: " + e.getMessage());
+//                    // TODO handle this.
+                    e.printStackTrace();
                 }
             }
         }.start();
@@ -98,7 +97,6 @@ public class CarbonServer {
 //                        "Forcefully shutting down the server " + event.getType());
                 return;
             }
-//            System.out.println("$$$$ Stopped the OSGi runtime " + event.getType());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
