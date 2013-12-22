@@ -31,52 +31,59 @@ public interface VirtualIdentityStore {
 	 * 
 	 * @param credential
 	 * @return
+	 * @throws AuthenticationFailureException
 	 */
 	@SuppressWarnings("rawtypes")
-	public PrivilegedUser authenticate(Credential credential);
+	public PrivilegedUser authenticate(Credential credential) throws AuthenticationFailureException;
 
 	/**
 	 * Creates a user in the underlying user store.
 	 * 
 	 * @param user
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public PrivilegedUser createUser(User user);
+	public PrivilegedUser createUser(User user) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public PrivilegedUser getUser(UserIdentifier userIdentifier);
+	public PrivilegedUser getUser(UserIdentifier userIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria);
+	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException;
 
 	/**
 	 * Creates a group in the underlying user store.
 	 * 
 	 * @param group
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public PrivilegedGroup createGroup(Group group);
+	public PrivilegedGroup createGroup(Group group) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public PrivilegedGroup getGroup(GroupIdentifier userIdentifier);
+	public PrivilegedGroup getGroup(GroupIdentifier userIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria);
+	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria) throws IdentityStoreException;
 
 }

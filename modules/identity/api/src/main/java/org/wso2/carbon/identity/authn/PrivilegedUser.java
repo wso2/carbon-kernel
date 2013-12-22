@@ -22,8 +22,10 @@ package org.wso2.carbon.identity.authn;
 import java.util.Collections;
 import java.util.List;
 
+import org.wso2.carbon.identity.account.AccountException;
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.IdentityStore;
+import org.wso2.carbon.identity.authz.AuthorizationStoreException;
 import org.wso2.carbon.identity.authz.Permission;
 import org.wso2.carbon.identity.authz.PrivilegedRole;
 import org.wso2.carbon.identity.authz.RoleIdentifier;
@@ -59,8 +61,9 @@ public class PrivilegedUser extends User {
 	/**
 	 * 
 	 * @return
+	 * @throws IdentityStoreException 
 	 */
-	public EntryIdentifier getUserEntryId() {
+	public EntryIdentifier getUserEntryId() throws IdentityStoreException {
 		if (entryIdentifier == null) {
 			entryIdentifier = identityStore.getUserEntryId(getUserIdentifier());
 		}
@@ -70,8 +73,9 @@ public class PrivilegedUser extends User {
 	/**
 	 * 
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedGroup> getGroups() {
+	public List<PrivilegedGroup> getGroups() throws IdentityStoreException {
 		List<PrivilegedGroup> groups = identityStore.getGroups(getUserIdentifier());
 		return Collections.unmodifiableList(groups);
 	}
@@ -80,8 +84,9 @@ public class PrivilegedUser extends User {
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws IdentityStoreException 
 	 */
-	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria) {
+	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria) throws IdentityStoreException {
 		List<PrivilegedGroup> groups = identityStore.getGroups(getUserIdentifier(), searchCriteria);
 		return Collections.unmodifiableList(groups);
 	}
@@ -89,8 +94,9 @@ public class PrivilegedUser extends User {
 	/**
 	 * 
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles() {
+	public List<PrivilegedRole> getRoles() throws AuthorizationStoreException {
 		List<PrivilegedRole> roles = authzStore.getRoles(getUserIdentifier());
 		return Collections.unmodifiableList(roles);
 	}
@@ -99,8 +105,9 @@ public class PrivilegedUser extends User {
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles(RoleSearchCriteria searchCriteria) {
+	public List<PrivilegedRole> getRoles(RoleSearchCriteria searchCriteria) throws AuthorizationStoreException {
 		List<PrivilegedRole> roles = authzStore.getRoles(getUserIdentifier(), searchCriteria);
 		return Collections.unmodifiableList(roles);
 	}
@@ -110,9 +117,10 @@ public class PrivilegedUser extends User {
 	 * @param dialectIdentifier
 	 * @param profileIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public List<Claim> getAttributes(DialectIdentifier dialectIdentifier,
-			ProfileIdentifier profileIdentifier) {
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException {
 		List<Claim> claims = identityStore.getUserAttributes(getUserIdentifier(),
 				dialectIdentifier, profileIdentifier);
 		return Collections.unmodifiableList(claims);
@@ -122,8 +130,9 @@ public class PrivilegedUser extends User {
 	 * 
 	 * @param dialectIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<Claim> getAttributes(DialectIdentifier dialectIdentifier) {
+	public List<Claim> getAttributes(DialectIdentifier dialectIdentifier) throws IdentityStoreException {
 		List<Claim> claims = identityStore.getUserAttributes(getUserIdentifier(),
 				dialectIdentifier, null);
 		return Collections.unmodifiableList(claims);
@@ -135,9 +144,10 @@ public class PrivilegedUser extends User {
 	 * @param claimUris
 	 * @param profileIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public List<Claim> getAttributes(DialectIdentifier dialectIdentifier,
-			List<ClaimIdentifier> claimUris, ProfileIdentifier profileIdentifier) {
+			List<ClaimIdentifier> claimUris, ProfileIdentifier profileIdentifier) throws IdentityStoreException {
 		List<Claim> claims = identityStore.getUserAttributes(getUserIdentifier(),
 				dialectIdentifier, claimUris, profileIdentifier);
 		return Collections.unmodifiableList(claims);
@@ -148,9 +158,10 @@ public class PrivilegedUser extends User {
 	 * @param dialectIdentifier
 	 * @param claims
 	 * @param profileIdentifier
+	 * @throws IdentityStoreException
 	 */
 	public void addAttributes(DialectIdentifier dialectIdentifier, List<Claim> claims,
-			ProfileIdentifier profileIdentifier) {
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException {
 		identityStore.addUserAttributes(getUserIdentifier(), dialectIdentifier, claims,
 				profileIdentifier);
 	}
@@ -159,8 +170,9 @@ public class PrivilegedUser extends User {
 	 * 
 	 * @param dialectIdentifier
 	 * @param claims
+	 * @throws IdentityStoreException
 	 */
-	public void addAttributes(DialectIdentifier dialectIdentifier, List<Claim> claims) {
+	public void addAttributes(DialectIdentifier dialectIdentifier, List<Claim> claims) throws IdentityStoreException {
 		identityStore.addUserAttributes(getUserIdentifier(), dialectIdentifier, claims, null);
 	}
 
@@ -169,9 +181,10 @@ public class PrivilegedUser extends User {
 	 * @param dialectIdentifier
 	 * @param claimUris
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public List<Profile> getProfiles(DialectIdentifier dialectIdentifier,
-			List<ClaimIdentifier> claimIdentifier) {
+			List<ClaimIdentifier> claimIdentifier) throws IdentityStoreException {
 		List<Profile> profiles = identityStore.getUserProfiles(getUserIdentifier(),
 				dialectIdentifier, claimIdentifier);
 		return Collections.unmodifiableList(profiles);
@@ -188,24 +201,27 @@ public class PrivilegedUser extends User {
 	/**
 	 * 
 	 * @param groupIdentifiers
+	 * @throws IdentityStoreException
 	 */
-	public void addToGroup(List<GroupIdentifier> groupIdentifiers) {
+	public void addToGroup(List<GroupIdentifier> groupIdentifiers) throws IdentityStoreException {
 		identityStore.addUserToGroups(groupIdentifiers, getUserIdentifier());
 	}
 
 	/**
 	 * 
 	 * @param roleIdentifiers
+	 * @throws AuthorizationStoreException
 	 */
-	public void assignToRoles(List<RoleIdentifier> roleIdentifiers) {
+	public void assignToRoles(List<RoleIdentifier> roleIdentifiers) throws AuthorizationStoreException {
 		authzStore.assignRolesToUser(getUserIdentifier(), roleIdentifiers);
 	}
 
 	/**
 	 * 
 	 * @param roleIdentifier
+	 * @throws AuthorizationStoreException
 	 */
-	public void assignToRole(RoleIdentifier roleIdentifier) {
+	public void assignToRole(RoleIdentifier roleIdentifier) throws AuthorizationStoreException {
 		authzStore.assignRoleToUser(getUserIdentifier(), roleIdentifier);
 	}
 
@@ -213,8 +229,9 @@ public class PrivilegedUser extends User {
 	 * 
 	 * @param roleIdentifie
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean hasRole(RoleIdentifier roleIdentifie) {
+	public boolean hasRole(RoleIdentifier roleIdentifie) throws AuthorizationStoreException {
 		return authzStore.isUserHasRole(getUserIdentifier(), roleIdentifie);
 	}
 
@@ -222,8 +239,9 @@ public class PrivilegedUser extends User {
 	 * 
 	 * @param permission
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean hasPermission(Permission permission) {
+	public boolean hasPermission(Permission permission) throws AuthorizationStoreException {
 		return authzStore.isUserHasPermission(getUserIdentifier(), permission);
 	}
 
@@ -231,16 +249,18 @@ public class PrivilegedUser extends User {
 	 * 
 	 * @param groupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public boolean inGroup(GroupIdentifier groupIdentifier) {
+	public boolean inGroup(GroupIdentifier groupIdentifier) throws IdentityStoreException {
 		return identityStore.isUserInGroup(getUserIdentifier(), groupIdentifier);
 	}
 
 	/**
 	 * 
 	 * @param linkedEntryIdentifier
+	 * @throws AccountException
 	 */
-	public void linkAccount(EntryIdentifier linkedEntryIdentifier) {
+	public void linkAccount(EntryIdentifier linkedEntryIdentifier) throws AccountException {
 		identityStore.getLinkedAccountStore().link(entryIdentifier, linkedEntryIdentifier);
 	}
 
@@ -257,42 +277,47 @@ public class PrivilegedUser extends User {
 	/**
 	 * 
 	 * @param linkedEntryIdentifier
+	 * @throws AccountException
 	 */
-	public void unlinkAccount(EntryIdentifier linkedEntryIdentifier) {
+	public void unlinkAccount(EntryIdentifier linkedEntryIdentifier) throws AccountException {
 		identityStore.getLinkedAccountStore().unlink(entryIdentifier, linkedEntryIdentifier);
 	}
 
 	/**
 	 * 
 	 * @param newCredentials
+	 * @throws IdentityStoreException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void resetCredentials(Credential newCredentials) {
+	public void resetCredentials(Credential newCredentials) throws IdentityStoreException {
 		identityStore.resetCredentials(newCredentials);
 	}
 
 	/**
 	 * 
 	 * @param credential
+	 * @throws IdentityStoreException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void addCredential(Credential credential) {
+	public void addCredential(Credential credential) throws IdentityStoreException {
 		identityStore.addCredential(credential);
 	}
 
 	/**
 	 * 
 	 * @param credential
+	 * @throws IdentityStoreException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void removeCredential(Credential credential) {
+	public void removeCredential(Credential credential) throws IdentityStoreException {
 		identityStore.removeCredential(credential);
 	}
 
 	/**
+	 * @throws IdentityStoreException
 	 * 
 	 */
-	public void drop() {
+	public void drop() throws IdentityStoreException {
 		identityStore.dropUser(getUserIdentifier());
 	}
 

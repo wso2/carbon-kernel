@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.authn;
 
 import org.wso2.carbon.identity.account.spi.LinkedAccountStore;
 import org.wso2.carbon.identity.claim.ClaimManager;
+import org.wso2.carbon.identity.commons.IdentityException;
 import org.wso2.carbon.identity.config.spi.IdentityStoreConfig;
 import org.wso2.carbon.identity.credential.spi.CredentialStore;
 
@@ -32,19 +33,22 @@ public interface IdentityStoreManager extends ReadOnlyIdentityStoreManager {
 	/**
 	 * 
 	 * @param storeConfig
+	 * @throws IdentityException
 	 */
-	public void addIdentityStore(IdentityStoreConfig storeConfig);
+	public void addIdentityStore(IdentityStoreConfig storeConfig) throws IdentityException;
 
 	/**
 	 * 
 	 * @param storeIdentifier
+	 * @throws IdentityException
 	 */
-	public void dropIdentityStore(StoreIdentifier storeIdentifier);
+	public void dropIdentityStore(StoreIdentifier storeIdentifier) throws IdentityException;
 
 	/**
 	 * 
 	 * @param storeConfig
+	 * @throws IdentityException
 	 */
-	public void updateIdentityStore(IdentityStoreConfig storeConfig);
+	public void updateIdentityStore(IdentityStoreConfig storeConfig) throws IdentityException;
 
 }

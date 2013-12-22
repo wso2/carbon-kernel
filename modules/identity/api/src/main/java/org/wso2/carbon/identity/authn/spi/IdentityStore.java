@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.wso2.carbon.identity.account.spi.LinkedAccountStore;
 import org.wso2.carbon.identity.authn.GroupIdentifier;
+import org.wso2.carbon.identity.authn.IdentityStoreException;
 import org.wso2.carbon.identity.authn.PrivilegedGroup;
 import org.wso2.carbon.identity.authn.PrivilegedUser;
 import org.wso2.carbon.identity.authn.StoreDialectCollection;
@@ -50,14 +51,16 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @param properties
 	 */
 	public void init(StoreDialectCollection storeDialectCollection,
-			LinkedAccountStore linkedAccontStore, CredentialStore credentialStore,
-			Properties properties);
+			LinkedAccountStore linkedAccontStore,
+			CredentialStore credentialStore, Properties properties);
 
 	/**
 	 * 
 	 * @param userIdentifier
+	 * @throws IdentityStoreException
 	 */
-	public void dropUser(UserIdentifier userIdentifier);
+	public void dropUser(UserIdentifier userIdentifier)
+			throws IdentityStoreException;
 
 	/**
 	 * 
@@ -65,10 +68,11 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @param dialectIdentifier
 	 * @param claims
 	 * @param profileIdentifier
+	 * @throws IdentityStoreException
 	 */
 	public void addUserAttributes(UserIdentifier userIdentifier,
 			DialectIdentifier dialectIdentifier, List<Claim> claims,
-			ProfileIdentifier profileIdentifier);
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -76,10 +80,11 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @param dialectIdentifier
 	 * @param claims
 	 * @param profileIdentifier
+	 * @throws IdentityStoreException
 	 */
 	public void updateUserAttributes(UserIdentifier userIdentifier,
 			DialectIdentifier dialectIdentifier, List<Claim> claims,
-			ProfileIdentifier profileIdentifier);
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -87,10 +92,12 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @param dialectIdentifier
 	 * @param claimIdentifiers
 	 * @param profileIdentifier
+	 * @throws IdentityStoreException
 	 */
 	public void removeUserAttributes(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier, List<ClaimIdentifier> claimIdentifiers,
-			ProfileIdentifier profileIdentifier);
+			DialectIdentifier dialectIdentifier,
+			List<ClaimIdentifier> claimIdentifiers,
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -99,10 +106,12 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @param claimIdentifiers
 	 * @param profileIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public List<Claim> getUserAttributes(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier, List<ClaimIdentifier> claimIdentifiers,
-			ProfileIdentifier profileIdentifier);
+			DialectIdentifier dialectIdentifier,
+			List<ClaimIdentifier> claimIdentifiers,
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -110,16 +119,20 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @param dialectIdentifier
 	 * @param profileIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public List<Claim> getUserAttributes(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier, ProfileIdentifier profileIdentifier);
+			DialectIdentifier dialectIdentifier,
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param profileIdentifier
+	 * @throws IdentityStoreException
 	 */
-	public void createUserProfile(UserIdentifier userIdentifier, ProfileIdentifier profileIdentifier);
+	public void createUserProfile(UserIdentifier userIdentifier,
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -127,9 +140,11 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @param dialectIdentifier
 	 * @param profileIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public Profile getUserProfile(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier, ProfileIdentifier profileIdentifier);
+			DialectIdentifier dialectIdentifier,
+			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -137,84 +152,105 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @param dialectIdentifier
 	 * @param claimUris
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public List<Profile> getUserProfiles(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier, List<ClaimIdentifier> claimUris);
+			DialectIdentifier dialectIdentifier, List<ClaimIdentifier> claimUris)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param oldIdentifier
 	 * @param newIdentifier
+	 * @throws IdentityStoreException
 	 */
 	public void updateUserProfileIdentifier(UserIdentifier userIdentifier,
-			ProfileIdentifier oldIdentifier, ProfileIdentifier newIdentifier);
+			ProfileIdentifier oldIdentifier, ProfileIdentifier newIdentifier)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param dialectIdentifier
 	 * @param claims
+	 * @throws IdentityStoreException
 	 */
 	public void addGroupAttributes(GroupIdentifier groupIdentifier,
-			DialectIdentifier dialectIdentifier, List<Claim> claims);
+			DialectIdentifier dialectIdentifier, List<Claim> claims)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param dialectIdentifier
 	 * @param claims
+	 * @throws IdentityStoreException
 	 */
 	public void updateGroupAttributes(GroupIdentifier groupIdentifier,
-			DialectIdentifier dialectIdentifier, List<Claim> claims);
+			DialectIdentifier dialectIdentifier, List<Claim> claims)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param dialectIdentifier
 	 * @param attributes
+	 * @throws IdentityStoreException
 	 */
 	public void removeGroupAttributes(GroupIdentifier groupIdentifier,
-			DialectIdentifier dialectIdentifier, List<ClaimIdentifier> attributes);
+			DialectIdentifier dialectIdentifier,
+			List<ClaimIdentifier> attributes) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public EntryIdentifier getUserEntryId(UserIdentifier userIdentifier);
+	public EntryIdentifier getUserEntryId(UserIdentifier userIdentifier)
+			throws IdentityStoreException;
+
+	/**
+	 * 
+	 * @param groupIdentifier
+	 * @throws IdentityStoreException
+	 * @return
+	 */
+	public EntryIdentifier getGroupEntryId(GroupIdentifier groupIdentifier)
+			throws IdentityStoreException;
+
+	/**
+	 * 
+	 * @param groupIdentifier
+	 * @throws IdentityStoreException
+	 */
+	public void dropGroup(GroupIdentifier groupIdentifier)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public EntryIdentifier getGroupEntryId(GroupIdentifier groupIdentifier);
-
-	/**
-	 * 
-	 * @param groupIdentifier
-	 */
-	public void dropGroup(GroupIdentifier groupIdentifier);
-
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @return
-	 */
-	public PrivilegedGroup getGroup(GroupIdentifier groupIdentifier);
+	public PrivilegedGroup getGroup(GroupIdentifier groupIdentifier)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria);
+	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param group
+	 * @throws IdentityStoreException
 	 */
 	public void updateGroupIdentifier(GroupIdentifier oldGroupIdentifier,
 			GroupIdentifier newGroupIdentifier);
@@ -223,97 +259,116 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * 
 	 * @param groupIdentifier
 	 * @param userIdentifiers
+	 * @throws IdentityStoreException
 	 */
 	public void addUsersToGroup(GroupIdentifier groupIdentifier,
-			List<UserIdentifier> userIdentifiers);
+			List<UserIdentifier> userIdentifiers) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param userIdentifiers
+	 * @throws IdentityStoreException
 	 */
 	public void addUsersToGroups(List<GroupIdentifier> groupIdentifier,
-			List<UserIdentifier> userIdentifiers);
+			List<UserIdentifier> userIdentifiers) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param userIdentifiers
+	 * @throws IdentityStoreException
 	 */
-	public void addUserToGroup(GroupIdentifier groupIdentifier, UserIdentifier userIdentifiers);
+	public void addUserToGroup(GroupIdentifier groupIdentifier,
+			UserIdentifier userIdentifiers) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param userIdentifiers
+	 * @throws IdentityStoreException
 	 */
 	public void addUserToGroups(List<GroupIdentifier> groupIdentifier,
-			UserIdentifier userIdentifiers);
+			UserIdentifier userIdentifiers) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param groupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public boolean isUserInGroup(UserIdentifier userIdentifier, GroupIdentifier groupIdentifier);
+	public boolean isUserInGroup(UserIdentifier userIdentifier,
+			GroupIdentifier groupIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsersInGroup(GroupIdentifier groupIdentifier);
+	public List<PrivilegedUser> getUsersInGroup(GroupIdentifier groupIdentifier)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param searchCriteria
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsersInGroup(GroupIdentifier groupIdentifier,
-			UserSearchCriteria searchCriteria);
+	public List<PrivilegedUser> getUsersInGroup(
+			GroupIdentifier groupIdentifier, UserSearchCriteria searchCriteria)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<EntityTree> getGroupChildren(GroupIdentifier groupIdentifier);
+	public List<EntityTree> getGroupChildren(GroupIdentifier groupIdentifier)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param parentGroupIdentifier
 	 * @param childGroupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public boolean hasChildGroup(GroupIdentifier parentGroupIdentifier,
-			GroupIdentifier childGroupIdentifier);
+			GroupIdentifier childGroupIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param childGroupIdentifier
 	 * @param parentGroupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public boolean hasParentGroup(GroupIdentifier childGroupIdentifier,
-			GroupIdentifier parentGroupIdentifier);
+			GroupIdentifier parentGroupIdentifier)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedGroup> getGroups(UserIdentifier userIdentifier);
+	public List<PrivilegedGroup> getGroups(UserIdentifier userIdentifier)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param searchCriteria
 	 * @return
+	 * @throws IdentityStoreException
 	 */
 	public List<PrivilegedGroup> getGroups(UserIdentifier userIdentifier,
-			GroupSearchCriteria searchCriteria);
+			GroupSearchCriteria searchCriteria) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -336,22 +391,28 @@ public interface IdentityStore extends VirtualIdentityStore {
 	/**
 	 * 
 	 * @param newCredentials
+	 * @throws IdentityStoreException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void resetCredentials(Credential newCredentials);
+	public void resetCredentials(Credential newCredentials)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param credential
+	 * @throws IdentityStoreException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void addCredential(Credential credential);
+	public void addCredential(Credential credential)
+			throws IdentityStoreException;
 
 	/**
 	 * 
 	 * @param credential
+	 * @throws IdentityStoreException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void removeCredential(Credential credential);
+	public void removeCredential(Credential credential)
+			throws IdentityStoreException;
 
 }

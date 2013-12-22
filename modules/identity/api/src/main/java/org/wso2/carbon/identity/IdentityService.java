@@ -22,15 +22,20 @@ package org.wso2.carbon.identity;
 import org.wso2.carbon.identity.authn.IdentityStoreManager;
 import org.wso2.carbon.identity.authz.AuthorizationStoreManager;
 import org.wso2.carbon.identity.claim.ClaimManager;
+import org.wso2.carbon.identity.commons.IdentityException;
 import org.wso2.carbon.identity.config.IdentityServiceConfig;
 
+/**
+ * Entry point for Identity library with full privileges.
+ */
 public interface IdentityService {
 	
 	/**
 	 * 
 	 * @param identityServiceConfig
+	 * @throws IdentityException
 	 */
-	public void init(IdentityServiceConfig identityServiceConfig);
+	public void init(IdentityServiceConfig identityServiceConfig) throws IdentityException;
 
 	/**
 	 * 

@@ -22,6 +22,8 @@ package org.wso2.carbon.identity.credential.spi;
 import java.util.Properties;
 
 import org.wso2.carbon.identity.commons.EntryIdentifier;
+import org.wso2.carbon.identity.credential.InvalideCredentialException;
+import org.wso2.carbon.identity.credential.UnsupportedCredentialException;
 
 public interface CredentialStore {
 
@@ -37,23 +39,25 @@ public interface CredentialStore {
 	 * @throws InvalidCredentialException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void validateCredentials(EntryIdentifier entryId, Credential credential);
+	public void validateCredentials(EntryIdentifier entryId, Credential credential) throws InvalideCredentialException;
 
 	/**
 	 * 
 	 * @param entryId
 	 * @param newCredentials
+	 * @throws UnsupportedCredentialException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void resetCredentials(EntryIdentifier entryId, Credential newCredentials);
+	public void resetCredentials(EntryIdentifier entryId, Credential newCredentials) throws UnsupportedCredentialException;
 
 	/**
 	 * 
 	 * @param entryId
 	 * @param credential
+	 * @throws UnsupportedCredentialException
 	 */
 	@SuppressWarnings("rawtypes")
-	public void addCredential(EntryIdentifier entryId, Credential credential);
+	public void addCredential(EntryIdentifier entryId, Credential credential) throws UnsupportedCredentialException;
 
 	/**
 	 * 

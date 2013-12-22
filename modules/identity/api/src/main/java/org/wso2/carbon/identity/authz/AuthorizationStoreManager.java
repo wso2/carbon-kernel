@@ -20,6 +20,7 @@
 package org.wso2.carbon.identity.authz;
 
 import org.wso2.carbon.identity.authn.StoreIdentifier;
+import org.wso2.carbon.identity.commons.IdentityException;
 import org.wso2.carbon.identity.config.spi.AuthorizationStoreConfig;
 
 public interface AuthorizationStoreManager extends ReadOnlyAuthorizationStoreManager {
@@ -33,19 +34,22 @@ public interface AuthorizationStoreManager extends ReadOnlyAuthorizationStoreMan
 	/**
 	 * 
 	 * @param storeConfig
+	 * @throws IdentityException
 	 */
-	public void addAuthorizationStore(AuthorizationStoreConfig storeConfig);
+	public void addAuthorizationStore(AuthorizationStoreConfig storeConfig) throws IdentityException;
 
 	/**
 	 * 
 	 * @param storeIdentifier
+	 * @throws IdentityException
 	 */
-	public void dropAuthorizationStore(StoreIdentifier storeIdentifier);
+	public void dropAuthorizationStore(StoreIdentifier storeIdentifier) throws IdentityException;
 
 	/**
 	 * 
 	 * @param storeConfig
+	 * @throws IdentityException
 	 */
-	public void updateAuthorizationStore(AuthorizationStoreConfig storeConfig);
+	public void updateAuthorizationStore(AuthorizationStoreConfig storeConfig) throws IdentityException;
 
 }

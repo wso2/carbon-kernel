@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.wso2.carbon.identity.authn.spi.IdentityStore;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
+import org.wso2.carbon.identity.authz.AuthorizationStoreException;
 import org.wso2.carbon.identity.authz.Permission;
 import org.wso2.carbon.identity.authz.PrivilegedRole;
 import org.wso2.carbon.identity.authz.RoleIdentifier;
@@ -53,16 +54,18 @@ public class PrivilegedGroup extends Group {
 	/**
 	 * 
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public EntryIdentifier getEntryId() {
+	public EntryIdentifier getEntryId() throws IdentityStoreException {
 		return identityStore.getGroupEntryId(getIdentifier());
 	}
 
 	/**
 	 * 
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsers() {
+	public List<PrivilegedUser> getUsers() throws IdentityStoreException {
 		return identityStore.getUsersInGroup(getIdentifier());
 	}
 
@@ -70,16 +73,18 @@ public class PrivilegedGroup extends Group {
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria) {
+	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException {
 		return identityStore.getUsersInGroup(getIdentifier(), searchCriteria);
 	}
 
 	/**
 	 * 
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles() {
+	public List<PrivilegedRole> getRoles() throws AuthorizationStoreException {
 		List<PrivilegedRole> roles = authzStore.getRoles(getIdentifier());
 		return Collections.unmodifiableList(roles);
 	}
@@ -88,8 +93,9 @@ public class PrivilegedGroup extends Group {
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles(RoleSearchCriteria searchCriteria) {
+	public List<PrivilegedRole> getRoles(RoleSearchCriteria searchCriteria) throws AuthorizationStoreException {
 		List<PrivilegedRole> roles = authzStore.getRoles(getIdentifier(), searchCriteria);
 		return Collections.unmodifiableList(roles);
 	}
@@ -97,8 +103,9 @@ public class PrivilegedGroup extends Group {
 	/**
 	 * 
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public List<EntityTree> getChildren() {
+	public List<EntityTree> getChildren() throws IdentityStoreException {
 		List<EntityTree> children = identityStore.getGroupChildren(getIdentifier());
 		return Collections.unmodifiableList(children);
 	}
@@ -107,8 +114,9 @@ public class PrivilegedGroup extends Group {
 	 * 
 	 * @param childGroupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public boolean hasChild(GroupIdentifier childGroupIdentifier) {
+	public boolean hasChild(GroupIdentifier childGroupIdentifier) throws IdentityStoreException {
 		return identityStore.hasChildGroup(getIdentifier(), childGroupIdentifier);
 	}
 
@@ -116,24 +124,27 @@ public class PrivilegedGroup extends Group {
 	 * 
 	 * @param parentGroupIdentifier
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public boolean hasParent(GroupIdentifier parentGroupIdentifier) {
+	public boolean hasParent(GroupIdentifier parentGroupIdentifier) throws IdentityStoreException {
 		return identityStore.hasParentGroup(getIdentifier(), parentGroupIdentifier);
 	}
 
 	/**
 	 * 
 	 * @param roleIdentifiers
+	 * @throws AuthorizationStoreException
 	 */
-	public void assignToRole(List<RoleIdentifier> roleIdentifiers) {
+	public void assignToRole(List<RoleIdentifier> roleIdentifiers) throws AuthorizationStoreException {
 		authzStore.assignRoleToGroup(getIdentifier(), roleIdentifiers);
 	}
 
 	/**
 	 * 
 	 * @param userIdentifiers
+	 * @throws IdentityStoreException
 	 */
-	public void addUsers(List<UserIdentifier> userIdentifiers) {
+	public void addUsers(List<UserIdentifier> userIdentifiers) throws IdentityStoreException {
 		identityStore.addUsersToGroup(getIdentifier(), userIdentifiers);
 	}
 
@@ -141,8 +152,9 @@ public class PrivilegedGroup extends Group {
 	 * 
 	 * @param roleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean hasRole(RoleIdentifier roleIdentifier) {
+	public boolean hasRole(RoleIdentifier roleIdentifier) throws AuthorizationStoreException {
 		return authzStore.isGroupHasRole(getIdentifier(), roleIdentifier);
 	}
 
@@ -150,8 +162,9 @@ public class PrivilegedGroup extends Group {
 	 * 
 	 * @param permission
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean hasPermission(Permission permission) {
+	public boolean hasPermission(Permission permission) throws AuthorizationStoreException {
 		return authzStore.isGroupHasPermission(getIdentifier(), permission);
 	}
 

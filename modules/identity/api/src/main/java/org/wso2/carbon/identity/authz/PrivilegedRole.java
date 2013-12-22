@@ -41,7 +41,8 @@ public class PrivilegedRole extends Role {
 	 * @param authzStore
 	 * @param roleIdentifier
 	 */
-	public PrivilegedRole(AuthorizationStore authzStore, RoleIdentifier roleIdentifier) {
+	public PrivilegedRole(AuthorizationStore authzStore,
+			RoleIdentifier roleIdentifier) {
 		super(roleIdentifier);
 		this.authzStore = authzStore;
 	}
@@ -57,33 +58,40 @@ public class PrivilegedRole extends Role {
 	/**
 	 * 
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<Permission> getPermissions() {
-		List<Permission> permission = authzStore.getPermissions(getRoleIdentifier());
+	public List<Permission> getPermissions() throws AuthorizationStoreException {
+		List<Permission> permission = authzStore
+				.getPermissions(getRoleIdentifier());
 		return Collections.unmodifiableList(permission);
 	}
 
 	/**
 	 * 
 	 * @param permission
+	 * @throws AuthorizationStoreException
 	 */
-	public void addPermission(List<Permission> permission) {
+	public void addPermission(List<Permission> permission)
+			throws AuthorizationStoreException {
 		authzStore.addPermissionToRole(getRoleIdentifier(), permission);
 	}
 
 	/**
 	 * 
 	 * @param permission
+	 * @throws AuthorizationStoreException
 	 */
-	public void removePermission(List<Permission> permission) {
+	public void removePermission(List<Permission> permission)
+			throws AuthorizationStoreException {
 		authzStore.removePermissionFromRole(getRoleIdentifier(), permission);
 	}
 
 	/**
 	 * 
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedGroup> getGroups() {
+	public List<PrivilegedGroup> getGroups() throws AuthorizationStoreException {
 		return authzStore.getGroupsOfRole(getRoleIdentifier());
 	}
 
@@ -91,19 +99,23 @@ public class PrivilegedRole extends Role {
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria) {
-		List<PrivilegedGroup> groups = authzStore.getGroupsOfRole(getRoleIdentifier(),
-				searchCriteria);
+	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria)
+			throws AuthorizationStoreException {
+		List<PrivilegedGroup> groups = authzStore.getGroupsOfRole(
+				getRoleIdentifier(), searchCriteria);
 		return Collections.unmodifiableList(groups);
 	}
 
 	/**
 	 * 
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedUser> getUsers() {
-		List<PrivilegedUser> users = authzStore.getUsersOfRole(getRoleIdentifier());
+	public List<PrivilegedUser> getUsers() throws AuthorizationStoreException {
+		List<PrivilegedUser> users = authzStore
+				.getUsersOfRole(getRoleIdentifier());
 		return Collections.unmodifiableList(users);
 	}
 
@@ -111,17 +123,21 @@ public class PrivilegedRole extends Role {
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria) {
-		List<PrivilegedUser> users = authzStore.getUsersOfRole(getRoleIdentifier(), searchCriteria);
+	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria)
+			throws AuthorizationStoreException {
+		List<PrivilegedUser> users = authzStore.getUsersOfRole(
+				getRoleIdentifier(), searchCriteria);
 		return Collections.unmodifiableList(users);
 	}
 
 	/**
 	 * 
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<EntityTree> getChildren() {
+	public List<EntityTree> getChildren() throws AuthorizationStoreException {
 		List<EntityTree> children = authzStore.getChildren(getRoleIdentifier());
 		return Collections.unmodifiableList(children);
 	}
@@ -130,8 +146,10 @@ public class PrivilegedRole extends Role {
 	 * 
 	 * @param childRoleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean hasChild(RoleIdentifier childRoleIdentifier) {
+	public boolean hasChild(RoleIdentifier childRoleIdentifier)
+			throws AuthorizationStoreException {
 		return authzStore.hasChild(getRoleIdentifier(), childRoleIdentifier);
 	}
 
@@ -139,8 +157,10 @@ public class PrivilegedRole extends Role {
 	 * 
 	 * @param parentRoleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean hasParent(RoleIdentifier parentRoleIdentifier) {
+	public boolean hasParent(RoleIdentifier parentRoleIdentifier)
+			throws AuthorizationStoreException {
 		return authzStore.hasParent(getRoleIdentifier(), parentRoleIdentifier);
 	}
 

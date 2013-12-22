@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.wso2.carbon.identity.claim.ClaimIdentifier;
 import org.wso2.carbon.identity.claim.ClaimManager;
+import org.wso2.carbon.identity.claim.ClaimNotMappedException;
 import org.wso2.carbon.identity.claim.DialectIdentifier;
 import org.wso2.carbon.identity.commons.AttributeIdentifier;
 
@@ -37,7 +38,8 @@ public class StoreDialectCollection {
 	 * @param storeIdentifier
 	 * @param claimManager
 	 */
-	public StoreDialectCollection(StoreIdentifier storeIdentifier, ClaimManager claimManager) {
+	public StoreDialectCollection(StoreIdentifier storeIdentifier,
+			ClaimManager claimManager) {
 		this.claimManager = claimManager;
 		this.storeIdentifier = storeIdentifier;
 	}
@@ -47,21 +49,25 @@ public class StoreDialectCollection {
 	 * @param dialectIdentifier
 	 * @param claimIdentifier
 	 * @return
+	 * @throws ClaimNotMappedException
 	 */
-	public AttributeIdentifier getAttributeIdentifier(DialectIdentifier dialectIdentifier,
-			ClaimIdentifier claimIdentifier) {
-		return claimManager.getAttributeIdentifier(dialectIdentifier, claimIdentifier,
-				storeIdentifier);
+	public AttributeIdentifier getAttributeIdentifier(
+			DialectIdentifier dialectIdentifier, ClaimIdentifier claimIdentifier)
+			throws ClaimNotMappedException {
+		return claimManager.getAttributeIdentifier(dialectIdentifier,
+				claimIdentifier, storeIdentifier);
 	}
 
 	/**
 	 * 
 	 * @param dialectIdentifier
 	 * @return
+	 * @throws ClaimNotMappedException
 	 */
-	public List<AttributeIdentifier> getAllAttributeIdentifiers(DialectIdentifier dialectIdentifier) {
-		List<AttributeIdentifier> attrIdentifiers = claimManager.getAllAttributeIdentifiers(
-				dialectIdentifier, storeIdentifier);
+	public List<AttributeIdentifier> getAllAttributeIdentifiers(
+			DialectIdentifier dialectIdentifier) throws ClaimNotMappedException {
+		List<AttributeIdentifier> attrIdentifiers = claimManager
+				.getAllAttributeIdentifiers(dialectIdentifier, storeIdentifier);
 		return Collections.unmodifiableList(attrIdentifiers);
 	}
 

@@ -24,6 +24,9 @@ import java.util.Properties;
 import org.wso2.carbon.identity.authn.IdentityManager;
 import org.wso2.carbon.identity.authz.AuthorizationManager;
 
+/**
+ * Entry point for Identity library with access to user realm.
+ */
 public interface Realm {
 
 	/**

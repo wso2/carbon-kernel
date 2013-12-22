@@ -23,48 +23,55 @@ import java.util.List;
 
 import org.wso2.carbon.identity.authz.spi.PermissionSearchCriteria;
 import org.wso2.carbon.identity.authz.spi.RoleSearchCriteria;
+import org.wso2.carbon.identity.commons.IdentityException;
 
 public interface VirtualAuthorizationStore {
 
 	/**
 	 * 
 	 * @param permissions
+	 * @throws AuthorizationStoreException
 	 */
-	public void createPermissions(List<Permission> permissions);
+	public void createPermissions(List<Permission> permissions) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param permission
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public PermissionIdentifier createPermission(Permission permission);
+	public PermissionIdentifier createPermission(Permission permission) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<Permission> getPermissions(PermissionSearchCriteria searchCriteria);
+	public List<Permission> getPermissions(PermissionSearchCriteria searchCriteria) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param role
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public PrivilegedRole createRole(Role role);
+	public PrivilegedRole createRole(Role role) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public PrivilegedRole getRole(RoleIdentifier roleIdentifier);
+	public PrivilegedRole getRole(RoleIdentifier roleIdentifier) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles(RoleSearchCriteria searchCriteria);
+	public List<PrivilegedRole> getRoles(RoleSearchCriteria searchCriteria) throws AuthorizationStoreException;
 
 }

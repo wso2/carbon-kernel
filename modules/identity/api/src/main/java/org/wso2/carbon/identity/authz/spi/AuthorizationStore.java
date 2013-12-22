@@ -29,6 +29,7 @@ import org.wso2.carbon.identity.authn.StoreIdentifier;
 import org.wso2.carbon.identity.authn.UserIdentifier;
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
+import org.wso2.carbon.identity.authz.AuthorizationStoreException;
 import org.wso2.carbon.identity.authz.Permission;
 import org.wso2.carbon.identity.authz.PrivilegedRole;
 import org.wso2.carbon.identity.authz.RoleIdentifier;
@@ -47,163 +48,207 @@ public interface AuthorizationStore extends VirtualAuthorizationStore {
 	 * 
 	 * @param userIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles(UserIdentifier userIdentifier);
+	public List<PrivilegedRole> getRoles(UserIdentifier userIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param Criteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles(UserIdentifier userIdentifier, RoleSearchCriteria Criteria);
+	public List<PrivilegedRole> getRoles(UserIdentifier userIdentifier,
+			RoleSearchCriteria Criteria) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param roleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean isUserHasRole(UserIdentifier userIdentifier, RoleIdentifier roleIdentifier);
+	public boolean isUserHasRole(UserIdentifier userIdentifier,
+			RoleIdentifier roleIdentifier) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param permission
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean isUserHasPermission(UserIdentifier userIdentifier, Permission permission);
+	public boolean isUserHasPermission(UserIdentifier userIdentifier,
+			Permission permission) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param roleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean isGroupHasRole(GroupIdentifier groupIdentifier, RoleIdentifier roleIdentifier);
+	public boolean isGroupHasRole(GroupIdentifier groupIdentifier,
+			RoleIdentifier roleIdentifier) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param permission
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean isGroupHasPermission(GroupIdentifier groupIdentifier, Permission permission);
+	public boolean isGroupHasPermission(GroupIdentifier groupIdentifier,
+			Permission permission) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param roleIdentifiers
+	 * @throws AuthorizationStoreException
 	 */
 	public void assignRolesToUser(UserIdentifier userIdentifier,
-			List<RoleIdentifier> roleIdentifiers);
+			List<RoleIdentifier> roleIdentifiers)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param userIdentifier
 	 * @param roleIdentifier
+	 * @throws AuthorizationStoreException
 	 */
-	public void assignRoleToUser(UserIdentifier userIdentifier, RoleIdentifier roleIdentifier);
+	public void assignRoleToUser(UserIdentifier userIdentifier,
+			RoleIdentifier roleIdentifier) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles(GroupIdentifier groupIdentifier);
+	public List<PrivilegedRole> getRoles(GroupIdentifier groupIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
 	public List<PrivilegedRole> getRoles(GroupIdentifier groupIdentifier,
-			RoleSearchCriteria searchCriteria);
+			RoleSearchCriteria searchCriteria)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param groupIdentifier
 	 * @param roleIdentifier
+	 * @throws AuthorizationStoreException
 	 */
 	public void assignRoleToGroup(GroupIdentifier groupIdentifier,
-			List<RoleIdentifier> roleIdentifier);
+			List<RoleIdentifier> roleIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<Permission> getPermissions(RoleIdentifier roleIdentifier);
+	public List<Permission> getPermissions(RoleIdentifier roleIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @param permission
+	 * @throws AuthorizationStoreException
 	 */
-	public void addPermissionToRole(RoleIdentifier roleIdentifier, List<Permission> permission);
+	public void addPermissionToRole(RoleIdentifier roleIdentifier,
+			List<Permission> permission) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @param permission
+	 * @throws AuthorizationStoreException
 	 */
-	public void removePermissionFromRole(RoleIdentifier roleIdentifier, List<Permission> permission);
+	public void removePermissionFromRole(RoleIdentifier roleIdentifier,
+			List<Permission> permission) throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedGroup> getGroupsOfRole(RoleIdentifier roleIdentifier);
+	public List<PrivilegedGroup> getGroupsOfRole(RoleIdentifier roleIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
 	public List<PrivilegedGroup> getGroupsOfRole(RoleIdentifier roleIdentifier,
-			GroupSearchCriteria searchCriteria);
+			GroupSearchCriteria searchCriteria)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedUser> getUsersOfRole(RoleIdentifier roleIdentifier);
+	public List<PrivilegedUser> getUsersOfRole(RoleIdentifier roleIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @param searchCriteria
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
 	public List<PrivilegedUser> getUsersOfRole(RoleIdentifier roleIdentifier,
-			UserSearchCriteria searchCriteria);
+			UserSearchCriteria searchCriteria)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param roleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public List<EntityTree> getChildren(RoleIdentifier roleIdentifier);
+	public List<EntityTree> getChildren(RoleIdentifier roleIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param parentRoleIdentifier
 	 * @param childRoleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean hasChild(RoleIdentifier parentRoleIdentifier, RoleIdentifier childRoleIdentifier);
+	public boolean hasChild(RoleIdentifier parentRoleIdentifier,
+			RoleIdentifier childRoleIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
 	 * @param childRoleIdentifier
 	 * @param parentRoleIdentifier
 	 * @return
+	 * @throws AuthorizationStoreException
 	 */
-	public boolean hasParent(RoleIdentifier childRoleIdentifier, RoleIdentifier parentRoleIdentifier);
+	public boolean hasParent(RoleIdentifier childRoleIdentifier,
+			RoleIdentifier parentRoleIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
