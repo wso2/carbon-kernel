@@ -32,7 +32,7 @@ import static org.wso2.carbon.launcher.utils.Constants.*;
  */
 public class Main {
 
-    static Logger log = Logger.getLogger(Main.class);
+    static Logger logger = Logger.getLogger(Main.class);
 
     /**
      * @param args arguments
@@ -72,7 +72,7 @@ public class Main {
             // We need to invoke the stop method of the CarbonServer to allow the server to cleanup itself.
             carbonServer.stop();
 
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             System.exit(ExitCodes.UNSUCCESSFUL_TERMINATION);
         }
     }
@@ -80,22 +80,22 @@ public class Main {
     /**
      * Loads Carbon launch configuration from the launch.properties file.
      *
-     * @return
+     * @return CarbonLaunchConfig
      */
     private static CarbonLaunchConfig<String, String> loadCarbonLaunchConfig() {
         String launchPropFilePath = Utils.getLaunchConfigDir() + File.separator + LAUNCH_PROPERTIES_FILE;
         File launchPropFile = new File(launchPropFilePath);
 
         if (launchPropFile.exists()) {
-            if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " + launchPropFile.getAbsolutePath());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Loading the Carbon launch configuration from the file " + launchPropFile.getAbsolutePath());
             }
 
             return new CarbonLaunchConfig<String, String>(launchPropFile);
         } else {
 
-            if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Loading the Carbon launch configuration from the launch.properties file in the classpath");
+            if (logger.isDebugEnabled()) {
+                logger.debug("Loading the Carbon launch configuration from the launch.properties file in the classpath");
             }
 
             return new CarbonLaunchConfig<String, String>();
@@ -114,7 +114,7 @@ public class Main {
         String carbonHome = System.getProperty(CARBON_HOME);
         if (carbonHome == null || carbonHome.length() == 0) {
             String msg = "carbon.home system property must be set before starting the server";
-            log.error(msg);
+            logger.error(msg);
             throw new RuntimeException(msg);
         }
 
