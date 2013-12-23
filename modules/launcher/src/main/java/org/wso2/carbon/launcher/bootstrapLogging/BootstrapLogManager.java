@@ -18,63 +18,41 @@
 
 package org.wso2.carbon.launcher.bootstrapLogging;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.wso2.carbon.launcher.utils.Constants;
 import org.wso2.carbon.launcher.utils.Utils;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
-import java.util.logging.StreamHandler;
 
 /**
- * Convenience class for configuring java.util.logging to append to
+ * Convenience class for configuring log4j.logging to append to
  * the configured log4j log.  This could be used for bootstrap logging
  * prior to start of the framework.
  */
 public class BootstrapLogManager {
-    private static String LOG4J_PROP_FILE_NAME = "log4j.properties";
-    private static final String CARBON_BOOTSTRAP_LOG = "wso2carbon.log";
-    private static Properties configProps;
+    static Logger log = Logger.getLogger(BootstrapLogManager.class);
 
-    public static synchronized Handler getDefaultHandler() throws IOException {
-        String logFilename = Utils.getRepositoryDir() + File.separator + "logs" + File.separator + CARBON_BOOTSTRAP_LOG;
-        return new BootstrapLogManager.SimpleFileHandler(new File(logFilename));
+    public static void setBootstrapLogger() {
+        Properties log4jProperties = new Properties();
 
-    }
-
-    /**
-     * Implementation of java.util.logging.Handler that does simple appending
-     * to a named file.  Should be able to use this for bootstrap logging
-     * via java.util.logging prior to startup of pax logging.
-     */
-    private static class SimpleFileHandler extends StreamHandler {
-
-        private SimpleFileHandler(File file) throws IOException {
-            open(file, true);
-        }
-
-        private void open(File logfile, boolean append) throws IOException {
-            if (!logfile.getParentFile().exists()) {
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(Utils.getRepositoryConfDir() + File.separator + Constants.LOG4J_FILE);
+            log4jProperties.load(fis);
+        } catch (IOException e) {
+            log.error("Could not initialize : " + Constants.LOG4J_FILE + " File");
+        } finally {
+            if (fis != null) {
                 try {
-                    logfile.getParentFile().mkdirs();
-                } catch (SecurityException se) {
-                    throw new IOException(se.getMessage());
+                    fis.close();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
                 }
             }
-            FileOutputStream fout = new FileOutputStream(logfile, append);
-            BufferedOutputStream out = new BufferedOutputStream(fout);
-            setOutputStream(out);
         }
-
-        public synchronized void publish(LogRecord record) {
-            if (!isLoggable(record)) {
-                return;
-            }
-            super.publish(record);
-            flush();
-        }
+        PropertyConfigurator.configure(log4jProperties);
     }
+
 }

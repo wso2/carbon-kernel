@@ -18,15 +18,12 @@
 
 package org.wso2.carbon.launcher;
 
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapConsoleManager;
+import org.apache.log4j.Logger;
 import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogManager;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.wso2.carbon.launcher.utils.Constants.*;
 
@@ -35,7 +32,7 @@ import static org.wso2.carbon.launcher.utils.Constants.*;
  */
 public class Main {
 
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
+    static Logger log = Logger.getLogger(Main.class);
 
     /**
      * @param args arguments
@@ -46,7 +43,7 @@ public class Main {
         initAndVerifySysProps();
 
         // 2) Initialize logging.
-        bootstrapLogging();
+        BootstrapLogManager.setBootstrapLogger();
 
         // 3) Load the Carbon start configuration
         CarbonLaunchConfig<String, String> config = loadCarbonLaunchConfig();
@@ -75,7 +72,7 @@ public class Main {
             // We need to invoke the stop method of the CarbonServer to allow the server to cleanup itself.
             carbonServer.stop();
 
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            log.error(e.getMessage(), e);
             System.exit(ExitCodes.UNSUCCESSFUL_TERMINATION);
         }
     }
@@ -117,7 +114,7 @@ public class Main {
         String carbonHome = System.getProperty(CARBON_HOME);
         if (carbonHome == null || carbonHome.length() == 0) {
             String msg = "carbon.home system property must be set before starting the server";
-            logger.log(Level.SEVERE, msg);
+            log.error(msg);
             throw new RuntimeException(msg);
         }
 
@@ -130,16 +127,4 @@ public class Main {
         System.setProperty(PAX_DEFAULT_SERVICE_LOG_LEVEL, LOG_LEVEL_WARN);
     }
 
-    private static void bootstrapLogging() {
-        try {
-            logger.addHandler(BootstrapLogManager.getDefaultHandler());
-            logger.addHandler(BootstrapConsoleManager.getDefaultHandler());
-        } catch (IOException e) {
-            // Following log may never get printed if logging is not properly initialized. Hence the sending the error
-            //  message to the standard out.
-            e.printStackTrace();
-            logger.log(Level.SEVERE, "Could not initialize logging", e);
-            throw new RuntimeException(e);
-        }
-    }
 }
