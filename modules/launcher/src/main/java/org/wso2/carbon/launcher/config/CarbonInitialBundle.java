@@ -39,7 +39,7 @@ public class CarbonInitialBundle {
         return level;
     }
 
-    public boolean isStart() {
+    public boolean shouldStart() {
         return start;
     }
 }

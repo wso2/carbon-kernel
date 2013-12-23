@@ -33,6 +33,6 @@ public interface CarbonServerListener {
      *
      * @param event CarbonServerEvent
      */
-    public void carbonServerEvent(CarbonServerEvent event);
+    public void notify(CarbonServerEvent event);
 
 }

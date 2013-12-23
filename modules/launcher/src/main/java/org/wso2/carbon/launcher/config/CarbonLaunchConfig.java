@@ -7,12 +7,16 @@ import org.wso2.carbon.launcher.utils.Utils;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.wso2.carbon.launcher.utils.Constants.*;
 
 public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
+
+    private static final Logger logger = Logger.getLogger(CarbonLaunchConfig.class.getName());
 
     private URL carbonOSGiRepository;
     private URL carbonOSGiFramework;
@@ -34,6 +38,14 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
      */
     public CarbonLaunchConfig() {
         loadFromClasspath();
+
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
+            for (Map.Entry entry : entrySet()) {
+                logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
+            }
+        }
+
         initializeProperties();
     }
 
@@ -50,9 +62,18 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
             // Then load all the other properties defined in the file.
             loadInternal(new FileInputStream(launchPropFile));
 
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
+                for (Map.Entry entry : entrySet()) {
+                    logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
+                }
+            }
+
             initializeProperties();
         } catch (FileNotFoundException e) {
-            throw new RuntimeException("File " + launchPropFile + "does not exists", e);
+            String errorMsg = "File " + launchPropFile + "does not exists";
+            logger.log(Level.SEVERE, errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
         }
     }
 
@@ -69,9 +90,18 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
             // Then load all the other properties defined in the file.
             loadInternal(launchPropURL.openStream());
 
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
+                for (Map.Entry entry : entrySet()) {
+                    logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
+                }
+            }
+
             initializeProperties();
         } catch (IOException e) {
-            throw new RuntimeException("Error loading the launch.properties", e);
+            String errorMsg = "Error loading the launch.properties";
+            logger.log(Level.SEVERE, errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
         }
     }
 
@@ -126,8 +156,10 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
             for (Map.Entry entry : launchProps.entrySet()) {
                 this.put((String) entry.getKey(), Utils.substituteVars((String) entry.getValue()));
             }
+
         } catch (IOException e) {
-            throw new RuntimeException("Error loading the launch.properties", e);
+            throw new RuntimeException(e.getMessage(), e);
+
         } finally {
             try {
                 if (is != null) {
@@ -153,21 +185,36 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
 
         populateInitialBundlesList(get(CARBON_INITIAL_OSGI_BUNDLES));
         loadCarbonServerListeners(get(CARBON_SERVER_LISTENERS));
-
     }
 
-    //TODO default values should be available in a launch.properties(classpath)
+    /**
+     * Resolve a file path against a parent path.
+     *
+     * @param path
+     * @param parentPath
+     * @param key
+     * @return
+     */
     private URL resolvePath(String path, String parentPath, String key) {
-        // TODO temp...
-        URL url = null;
+        URL url;
+
         if (Utils.checkForNullOrEmpty(path)) {
-            // Set the default value
-            // TODO
+            String errorMsg = "The property " + key + " must not be null or empty.";
+            logger.log(Level.SEVERE, errorMsg);
+            throw new RuntimeException("The property " + key + " must not be null or empty.");
+
         } else {
             url = FileResolver.resolve(path, parentPath);
         }
-        //TODO NPE possible. Fix this - Sameera.
+
         put(key, url.toExternalForm());
+
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Path: " + path);
+            logger.log(Level.FINE, "Parent path: " + parentPath);
+            logger.log(Level.FINE, "Resolved path: " + url.toExternalForm());
+        }
+
         return url;
     }
 
@@ -204,6 +251,13 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
 
             URL bundleURL = FileResolver.resolve("file:" + path, carbonOSGiRepositoryPath);
             bundleArrayList.add(new CarbonInitialBundle(bundleURL, bundleStartLevel, start));
+
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Initial bundle entry: " + bundleEntry);
+                logger.log(Level.FINE, "Bundle URL: " + bundleURL.toExternalForm());
+                logger.log(Level.FINE, "Bundle start level: " + bundleStartLevel);
+                logger.log(Level.FINE, "Start flag: " + start);
+            }
         }
 
         initialBundles = bundleArrayList.toArray(new CarbonInitialBundle[bundleArrayList.size()]);
@@ -226,6 +280,10 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
             try {
                 Class clazz = Class.forName(className.trim());
                 listenerArrayList.add((CarbonServerListener) clazz.newInstance());
+
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.log(Level.FINE, "Loaded CarbonServerListener: " + className);
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage(), e);
             }

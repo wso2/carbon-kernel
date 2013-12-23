@@ -82,6 +82,7 @@ public class Main {
 
     /**
      * Loads Carbon launch configuration from the launch.properties file.
+     *
      * @return
      */
     private static CarbonLaunchConfig<String, String> loadCarbonLaunchConfig() {
@@ -89,8 +90,17 @@ public class Main {
         File launchPropFile = new File(launchPropFilePath);
 
         if (launchPropFile.exists()) {
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " + launchPropFile.getAbsolutePath());
+            }
+
             return new CarbonLaunchConfig<String, String>(launchPropFile);
         } else {
+
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Loading the Carbon launch configuration from the launch.properties file in the classpath");
+            }
+
             return new CarbonLaunchConfig<String, String>();
         }
     }

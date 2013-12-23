@@ -23,12 +23,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
 
 public class Utils {
+
+    private static final Logger logger = Logger.getLogger(Utils.class.getName());
 
     private static final String VAR_REGEXP = "\\$\\{[^}]*}";
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
@@ -49,6 +53,11 @@ public class Utils {
             }
             newValue = newValue.replaceFirst(VAR_REGEXP, sysPropValue);
         }
+
+        if(logger.isLoggable(Level.FINE)){
+            logger.log(Level.FINE, "Substitute Variables before: " + value + ", after: " + newValue);
+        }
+
         return newValue;
     }
 
