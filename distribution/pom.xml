@@ -44,16 +44,11 @@
             <artifactId>org.wso2.carbon.launcher</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.logging</artifactId>-->
-            <!--<version>${project.parent.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.base</artifactId>-->
-            <!--<version>${project.parent.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>org.apache.log4j</artifactId>
+            <version>${version.equinox.apache.log4j}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-juli</artifactId>
