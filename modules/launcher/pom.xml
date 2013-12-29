@@ -32,9 +32,9 @@
             <version>${osgi.api.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.apache.log4j</artifactId>
-            <version>${version.equinox.apache.log4j}</version>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <version>${version.pax.logging.api}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>

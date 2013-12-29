@@ -18,12 +18,15 @@
 
 package org.wso2.carbon.launcher;
 
-import org.apache.log4j.Logger;
+import org.wso2.carbon.launcher.bootstrapLogging.BootstrapConsoleManager;
 import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogManager;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.wso2.carbon.launcher.utils.Constants.*;
 
@@ -32,18 +35,18 @@ import static org.wso2.carbon.launcher.utils.Constants.*;
  */
 public class Main {
 
-    static Logger logger = Logger.getLogger(Main.class);
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     /**
      * @param args arguments
      */
     public static void main(String[] args) {
 
-        // 1) Initialize and/or verify System properties
-        initAndVerifySysProps();
+        // 1) Initialize logging.
+        bootstrapLogging();
 
-        // 2) Initialize logging.
-        BootstrapLogManager.setBootstrapLogger();
+        // 2) Initialize and/or verify System properties
+        initAndVerifySysProps();
 
         // 3) Load the Carbon start configuration
         CarbonLaunchConfig<String, String> config = loadCarbonLaunchConfig();
@@ -72,7 +75,7 @@ public class Main {
             // We need to invoke the stop method of the CarbonServer to allow the server to cleanup itself.
             carbonServer.stop();
 
-            logger.error(e.getMessage(), e);
+            logger.log(Level.SEVERE, e.getMessage(), e);
             System.exit(ExitCodes.UNSUCCESSFUL_TERMINATION);
         }
     }
@@ -87,15 +90,13 @@ public class Main {
         File launchPropFile = new File(launchPropFilePath);
 
         if (launchPropFile.exists()) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Loading the Carbon launch configuration from the file " + launchPropFile.getAbsolutePath());
-            }
+            logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " + launchPropFile.getAbsolutePath());
 
             return new CarbonLaunchConfig<String, String>(launchPropFile);
         } else {
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Loading the Carbon launch configuration from the launch.properties file in the classpath");
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE, "Loading the Carbon launch configuration from the launch.properties file in the classpath");
             }
 
             return new CarbonLaunchConfig<String, String>();
@@ -114,7 +115,7 @@ public class Main {
         String carbonHome = System.getProperty(CARBON_HOME);
         if (carbonHome == null || carbonHome.length() == 0) {
             String msg = "carbon.home system property must be set before starting the server";
-            logger.error(msg);
+            logger.log(Level.SEVERE, msg);
             throw new RuntimeException(msg);
         }
 
@@ -127,4 +128,16 @@ public class Main {
         System.setProperty(PAX_DEFAULT_SERVICE_LOG_LEVEL, LOG_LEVEL_WARN);
     }
 
+    private static void bootstrapLogging() {
+        try {
+            logger.addHandler(BootstrapLogManager.getDefaultHandler());
+            logger.addHandler(BootstrapConsoleManager.getDefaultHandler());
+        } catch (IOException e) {
+            // Following log may never get printed if logging is not properly initialized. Hence the sending the error
+            //  message to the standard out.
+            e.printStackTrace();
+            logger.log(Level.SEVERE, "Could not initialize logging", e);
+            throw new RuntimeException(e);
+        }
+    }
 }

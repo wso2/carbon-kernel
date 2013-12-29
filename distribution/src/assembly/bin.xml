@@ -115,7 +115,6 @@
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.launcher:jar</include>
                 <include>org.osgi:org.osgi.core:jar</include>
-                <include>org.eclipse.equinox:org.apache.log4j</include>
             </includes>
         </dependencySet>
     </dependencySets>
