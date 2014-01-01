@@ -48,6 +48,10 @@
             <artifactId>org.apache.felix.scr.annotations</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -69,7 +73,7 @@
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>org.wso2.carbon.deployment</Bundle-SymbolicName>
                         <Bundle-Activator>
-                            org.wso2.carbon.deployment.internal.CarbonDeploymentEngineActivator
+                            org.wso2.carbon.deployment.internal.DeploymentEngineActivator
                         </Bundle-Activator>
                         <Private-Package>
                             org.wso2.carbon.deployment.internal
@@ -87,6 +91,20 @@
                     </instructions>
                 </configuration>
             </plugin>
+            <!--<plugin>-->
+                <!--<artifactId>maven-surefire-plugin</artifactId>-->
+                <!--<inherited>true</inherited>-->
+                <!--<configuration>-->
+                    <!--<forkMode>pertest</forkMode>-->
+                    <!--<argLine>-Xms256m -Xmx512m</argLine>-->
+                    <!--<argLine>-Xdebug -Xnoagent -Djava.compiler=NONE-->
+                        <!---Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005-->
+                    <!--</argLine>-->
+                    <!--<includes>-->
+                        <!--<include>**/*Test.java</include>-->
+                    <!--</includes>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 

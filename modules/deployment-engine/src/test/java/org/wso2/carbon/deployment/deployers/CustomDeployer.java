@@ -2,13 +2,16 @@ package org.wso2.carbon.deployment.deployers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
-import org.wso2.carbon.deployment.spi.Artifact;
+import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.spi.Deployer;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class CustomDeployer implements Deployer {
     private static Log log = LogFactory.getLog(CustomDeployer.class);
@@ -27,11 +30,22 @@ public class CustomDeployer implements Deployer {
     public static boolean sample2Deployed;
 
     private String directory = "text-files";
-    private String type = "txt";
+    private URL directoryLocation;
+    private ArtifactType artifactType;
     private String testDir = "src" + File.separator + "test" + File.separator  + "resources" +
                              File.separator + "carbon-repo" + File.separator + directory;
 
+    public CustomDeployer() {
+        artifactType = new ArtifactType("txt");
+        try {
+            directoryLocation = new URL(new URL("file:"), "./text-files");
+        } catch (MalformedURLException e) {
+            log.error(e);
+        }
+    }
+
     public void init() {
+        log.info("Initializing Deployer");
         initCalled = true;
     }
 
@@ -76,12 +90,16 @@ public class CustomDeployer implements Deployer {
         }
     }
 
-
-    public String getDirectory() {
-        return directory;
+    public Object update(Artifact artifact) throws CarbonDeploymentException {
+        return null;
     }
 
-    public String getType() {
-        return type;
+
+    public URL getLocation() {
+        return directoryLocation;
+    }
+
+    public ArtifactType getArtifactType() {
+        return artifactType;
     }
 }

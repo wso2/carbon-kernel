@@ -19,7 +19,11 @@
 
 package org.wso2.carbon.deployment.spi;
 
+import org.wso2.carbon.deployment.Artifact;
+import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
+
+import java.net.URL;
 
 /**
  * This interface is used to provide the custom deployment mechanism in carbon, where you
@@ -55,12 +59,32 @@ public interface Deployer {
      */
     void undeploy(Object key) throws CarbonDeploymentException;
 
+
     /**
-     * Returns the deploy directory associated with the deployer
-     *      Eg : webapps, dataservices, sequences
+     * Updates a already deployed artifact and update its relevant runtime configuration
      *
-     * @return deployer directory
+     * @param artifact the Artifact object to deploy
+     * @return returns a key to uniquely identify an artifact within a runtime
+     * @throws CarbonDeploymentException - when an error occurs while doing the deployment
      */
-    String getDirectory();
+    Object update(Artifact artifact) throws CarbonDeploymentException;
+
+    /**
+     * Returns the deploy directory location associated with the deployer.
+     * It can be relative to CARBON_HOME or an abosolute path
+     *      Eg : webapps, dataservices, sequences  or
+     *           /dev/wso2/deployment/repository/  or
+     *           file:/dev/wso2/deployment/repository/
+     *
+     * @return deployer directory location
+     */
+    URL getLocation();
+
+    /**
+     * Returns the type of the artifact that the deployer is capable of deploying
+     *      Eg : webapp, dataservice
+     * @return ArtifactType object which contains info about the artifact type
+     */
+    ArtifactType getArtifactType();
 
 }

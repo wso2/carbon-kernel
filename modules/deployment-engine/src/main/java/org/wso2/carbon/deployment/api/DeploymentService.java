@@ -19,10 +19,11 @@
 
 package org.wso2.carbon.deployment.api;
 
+import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 
 /**
- * User level API's for consuming CarbonDeploymentEngine functionality.
+ * User level API's for consuming DeploymentEngine functionality.
  * This will be registered as an OSGI service so that users can reference this in their component.
  *
  * If the given artifact type is not recognized at DeploymentEngine level or there is no deployer
@@ -34,39 +35,39 @@ public interface DeploymentService {
      * User can call this method externally to deploy an artifact by giving the artifact deployment
      * directory and the path
      *
-     * @param deploymentDirectory directory that the artifact is associated with
-     *                     Eg : webapp, dataservices, sequences
      * @param artifactPath path where the artifact resides. This has to be the full qualified path
      *                     of the artifact
+     * @param artifactType the type of the artifact going to be dpeloyed
+     *                     Eg : webapp, dataservice, sequence
      * @throws CarbonDeploymentException - on error while trying deploy the given artifact info
      */
-    void deploy(String deploymentDirectory, String artifactPath) throws CarbonDeploymentException;
+    void deploy(String artifactPath, ArtifactType artifactType) throws CarbonDeploymentException;
 
     /**
      * When you want to undeploy an artifact, this method can be called by giving the key,
      * which uniquely identifies an artifact in a runtime and the artifact deployment
      * directory
      *
-     * @param deploymentDirectory directory that the artifact is associated with
-     *                     Eg : webapp, dataservices, sequences
      * @param key artifact key to uniquely identify an artifact in a runtime
      *            Eg: for webapps this can be webapp context such as /foo , /bar, etc
      *                for service this can be service name such as EchoService, VersionService, etc
+     * @param artifactType the type of the artifact going to be dpeloyed
+     *                     Eg : webapp, dataservice, sequence
      * @throws CarbonDeploymentException - on error while trying undeploy the given artifact info
      */
-    void undeploy(String deploymentDirectory, Object key) throws CarbonDeploymentException;
+    void undeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException;
 
     /**
      * When you want to redeploy an artifact, this method can be called by giving the key,
      * which uniquely identifies an artifact in a runtime and the artifact deployment
      * directory
      *
-     * @param deploymentDirectory directory that the artifact is associated with
-     *                     Eg : webapp, dataservices, sequences
      * @param key artifact key to uniquely identify an artifact in a runtime
      *            Eg: for webapps this can be webapp context such as /foo , /bar, etc
      *                for service this can be service name such as EchoService, VersionService, etc
+     * @param artifactType the type of the artifact going to be dpeloyed
+     *                     Eg : webapp, dataservice, sequence
      * @throws CarbonDeploymentException - on error while trying redeploy the given artifact info
      */
-    void redeploy(String deploymentDirectory, Object key) throws CarbonDeploymentException;
+    void redeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException;
 }

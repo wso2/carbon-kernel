@@ -25,7 +25,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.wso2.carbon.deployment.CarbonDeploymentEngine;
+import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.spi.Deployer;
 
 
@@ -47,7 +47,7 @@ public class DeployerServiceListenerComponent {
     private static Log log = LogFactory.getLog(DeployerServiceListenerComponent.class);
 
 
-    private CarbonDeploymentEngine carbonDeploymentEngine = CarbonDeploymentDataHolder.
+    private DeploymentEngine carbonDeploymentEngine = DataHolder.
             getInstance().getCarbonDeploymentEngine();
 
     protected void registerDeployer(Deployer deployer) {
@@ -62,7 +62,7 @@ public class DeployerServiceListenerComponent {
 
     protected void unRegisterDeployer(Deployer deployer) {
         try {
-            carbonDeploymentEngine.unRegisterDeployer(deployer.getDirectory());
+            carbonDeploymentEngine.unRegisterDeployer(deployer);
         } catch (Exception e) {
             log.error("Error while removing deployer from deployment engine", e);
         }

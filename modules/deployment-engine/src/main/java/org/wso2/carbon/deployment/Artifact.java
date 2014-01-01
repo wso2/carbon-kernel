@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.deployment.spi;
+package org.wso2.carbon.deployment;
 
 import java.io.File;
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public class Artifact {
     /**
      * Deployment directory that the artifact is associated with  Eg : webapps, sequences, apis, etc
      */
-    private String directory;
+    private ArtifactType type;
 
     /**
      * To keep set of custom properties related to this artifact
@@ -141,13 +141,13 @@ public class Artifact {
     }
 
     /**
-     * Type of the artifact
+     * ArtifactType of the artifact
      * Eg : war, aar, dbs
      *
      * @return artifact directory
      */
-    public String getDirectory() {
-        return directory;
+    public ArtifactType getType() {
+        return type;
     }
 
     /**
@@ -155,8 +155,8 @@ public class Artifact {
      *
      * @param type directory of the artifact to be set
      */
-    public void setDirectory(String type) {
-        this.directory = type;
+    public void setType(ArtifactType type) {
+        this.type = type;
     }
 
     /**

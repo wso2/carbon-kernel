@@ -25,13 +25,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.deployment.spi.Artifact;
 
-public class CarbonDeploymentUtils {
-    private static final Log log = LogFactory.getLog(CarbonDeploymentUtils.class);
+public class Utils {
+    private static final Log log = LogFactory.getLog(Utils.class);
 
     /**
      * Checks if a file has been modified by comparing the last update date of
@@ -146,5 +147,33 @@ public class CarbonDeploymentUtils {
 
         File file = new File(dstAbsPath + File.separator + src.getName());
         copyFile(src, file);
+    }
+
+    /**
+     * Request: file:org.eclipse.osgi_3.9.1.v20130814-1242.jar
+     * Response: file:/user/wso2carbon-kernel-5.0.0/repository/components/plugins/org.eclipse.osgi_3.9.1.v20130814-1242.jar
+     *
+     * @param path
+     * @param parentPath
+     * @return
+     */
+    public static File resolveFileURL(String path, String parentPath) {
+        File file = null;
+        if (path.contains(":") && !path.startsWith("file:")) {
+            throw new RuntimeException("URLs other than file URLs are not supported.");
+        }
+        String relativeFilePath = path;
+        if (path.startsWith("file:")) {
+            relativeFilePath = path.substring(5);
+        }
+
+        file = new File(relativeFilePath);
+        if (!file.isAbsolute()) {
+            file = new File(parentPath, relativeFilePath);
+            if (!file.isAbsolute()) {
+                throw new RuntimeException("Malformed URL : " + path);
+            }
+        }
+        return file;
     }
 }

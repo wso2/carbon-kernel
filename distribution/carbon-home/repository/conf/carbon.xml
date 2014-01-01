@@ -76,7 +76,7 @@
     <!--
     Deployment Engine related configurations
     -->
-    <DeploymentEngineConfig>
+    <Deployment>
         <!--
          Currently there can be two modes
          1. Scheduled Mode - (enable below property to "true") - where the task runs periodically and trigger deployment
@@ -104,7 +104,7 @@
         -->
         <DeploymentUpdateInterval>15</DeploymentUpdateInterval>
 
-    </DeploymentEngineConfig>
+    </Deployment>
 
     <!--
        The temporary work directory

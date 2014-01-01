@@ -19,22 +19,22 @@
 
 package org.wso2.carbon.deployment.internal;
 
-import org.wso2.carbon.deployment.CarbonDeploymentEngine;
+import org.wso2.carbon.deployment.DeploymentEngine;
 
-public class CarbonDeploymentDataHolder {
-    private  static CarbonDeploymentDataHolder instance = new CarbonDeploymentDataHolder();
+public class DataHolder {
+    private  static DataHolder instance = new DataHolder();
 
-    public  static CarbonDeploymentDataHolder getInstance() {
+    public  static DataHolder getInstance() {
         return instance;
     }
 
-    private CarbonDeploymentEngine carbonDeploymentEngine = null;
+    private DeploymentEngine carbonDeploymentEngine = null;
 
-    public CarbonDeploymentEngine getCarbonDeploymentEngine() {
+    public DeploymentEngine getCarbonDeploymentEngine() {
         return carbonDeploymentEngine;
     }
 
-    public void setCarbonDeploymentEngine(CarbonDeploymentEngine carbonDeploymentEngine) {
+    public void setCarbonDeploymentEngine(DeploymentEngine carbonDeploymentEngine) {
         this.carbonDeploymentEngine = carbonDeploymentEngine;
     }
 }

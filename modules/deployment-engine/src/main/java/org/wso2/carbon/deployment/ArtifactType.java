@@ -17,22 +17,35 @@
  *
  */
 
-package org.wso2.carbon.deployment.scheduler;
-
-import java.util.Calendar;
-import java.util.Date;
+package org.wso2.carbon.deployment;
 
 /**
- * The iterator class used with the CarbonSchedulerTask.
- *
+ * This class represent the artifact type of an artifact.
  */
-public class CarbonDeploymentIterator {
+public class ArtifactType {
+    private Object type;
 
-    private Calendar calendar = Calendar.getInstance();
+    public ArtifactType(Object type) {
+        this.type = type;
+    }
 
-    public Date next() {
-        calendar.add(Calendar.SECOND, 10);
+    public Object getType() {
+        return type;
+    }
 
-        return calendar.getTime();
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        if (!this.type.equals(((ArtifactType) other).getType())) {
+            return false;
+        }
+        return true;
     }
 }

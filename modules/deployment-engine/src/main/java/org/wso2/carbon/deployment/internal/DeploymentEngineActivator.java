@@ -24,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.deployment.CarbonDeploymentEngine;
+import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.CarbonDeploymentService;
 import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
@@ -33,8 +33,8 @@ import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
  * The bundle activator which activates the carbon deployment engine
  *
  */
-public class CarbonDeploymentEngineActivator implements BundleActivator{
-    private static Log log = LogFactory.getLog(CarbonDeploymentEngineActivator.class);
+public class DeploymentEngineActivator implements BundleActivator{
+    private static Log log = LogFactory.getLog(DeploymentEngineActivator.class);
 
 
     public void start(BundleContext bundleContext) throws Exception {
@@ -42,16 +42,16 @@ public class CarbonDeploymentEngineActivator implements BundleActivator{
             log.debug("Starting Carbon Deployment Engine");
         }
         try {
-            // Initialize deployment engine and start it
+            // Initialize deployment engine and scan it
             ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
             String carbonRepositoryLocation = serverConfiguration.
-                    getFirstProperty("DeploymentEngineConfig.RepositoryLocation");
-            CarbonDeploymentEngine carbonDeploymentEngine =
-                    new CarbonDeploymentEngine(carbonRepositoryLocation);
+                    getFirstProperty("Deployment.RepositoryLocation");
+            DeploymentEngine carbonDeploymentEngine =
+                    new DeploymentEngine(carbonRepositoryLocation);
             carbonDeploymentEngine.start();
 
             // Add deployment engine to the data holder for later usages/references of this object
-            CarbonDeploymentDataHolder.getInstance().
+            DataHolder.getInstance().
                     setCarbonDeploymentEngine(carbonDeploymentEngine);
 
             // Register DeploymentService
