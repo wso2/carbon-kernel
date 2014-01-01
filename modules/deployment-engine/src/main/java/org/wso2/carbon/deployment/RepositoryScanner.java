@@ -29,6 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * The Repository Scanner which does the scanning of repository in carbon.
+ * This will scan each registered deployer's deployment directory and updated the relevant artifact
+ * lists (deploy, undeploy, update)
+ */
 public class RepositoryScanner {
     private static final Log log = LogFactory.getLog(RepositoryScanner.class);
     /**
@@ -59,22 +64,21 @@ public class RepositoryScanner {
     }
 
     /**
-     * Start the repository listener on the given deployment engine.
+     * Scans the repository on the given deployment engine.
      */
     public void scan() {
-        synchronized (carbonDeploymentEngine) {
-            startSearch();
-            update();
-        }
+        search();
+        update();
     }
 
 
 
     /**
-     * Find and add the artifacts in all deployment directories in the repository
-     * and add them to the deployment engine to carry out the deployment process
+     * Search and add the artifacts in all deployment directories in the repository
+     * and populate the relevant lists (deploy, undeploy, update) to carry out the
+     * deployment process
      */
-    private void startSearch() {
+    private void search() {
         File carbonRepo = carbonDeploymentEngine.getRepositoryDirectory();
         for (Deployer deployer : carbonDeploymentEngine.getDeployers().values()) {
             File deploymentLocation = Utils.resolveFileURL(deployer.getLocation().getPath(),
@@ -84,6 +88,10 @@ public class RepositoryScanner {
         checkUndeployedArtifacts();
     }
 
+    /**
+     * Based of populated artifact list, each list will be given to deployment engine to carry on
+     * the relevant deployment process.
+     */
     private void update() {
         if (artifactsToUpdate.size() > 0) {
             try {
@@ -131,7 +139,7 @@ public class RepositoryScanner {
      *
      * @param artifact artifact to deploy
      */
-    private synchronized void addArtifactToDeploy(Artifact artifact) {
+    private void addArtifactToDeploy(Artifact artifact) {
         Artifact deployedArtifact = findDeployedArtifact(artifact.getType(),
                                                          artifact.getPath());
         if (deployedArtifact != null) { // Artifact is getting updated

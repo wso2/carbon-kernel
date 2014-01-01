@@ -82,8 +82,9 @@ public class DeploymentEngine {
     }
 
     /**
-     * Start the repository listener and scheduler task and load artifacts to the deployment engine
-     * to be deployed
+     * Starts the Deployment engine to perform Hot deployment and so on.
+     * This will start the repository scanner and scheduler task and load artifacts to
+     * the deployment engine
      */
     public void start() {
         //Deploy initial set of artifacts
@@ -99,9 +100,6 @@ public class DeploymentEngine {
     }
 
 
-    /**
-     * Starts the Deployment engine to perform Hot deployment and so on.
-     */
     private void startScheduler() {
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         SchedulerTask schedulerTask = new SchedulerTask(repositoryScanner);
