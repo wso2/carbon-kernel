@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.CarbonDeploymentService;
@@ -35,6 +36,7 @@ import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
  */
 public class DeploymentEngineActivator implements BundleActivator{
     private static Log log = LogFactory.getLog(DeploymentEngineActivator.class);
+    private ServiceRegistration serviceRegistration;
 
 
     public void start(BundleContext bundleContext) throws Exception {
@@ -57,8 +59,8 @@ public class DeploymentEngineActivator implements BundleActivator{
             // Register DeploymentService
             DeploymentService deploymentService =
                     new CarbonDeploymentService(carbonDeploymentEngine);
-            bundleContext.registerService(DeploymentService.class.getName(), deploymentService,
-                                          null);
+            serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
+                                                                deploymentService, null);
             if (log.isDebugEnabled()) {
                 log.debug("Started Carbon Deployment Engine");
             }
@@ -69,6 +71,6 @@ public class DeploymentEngineActivator implements BundleActivator{
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-
+        serviceRegistration.unregister();
     }
 }

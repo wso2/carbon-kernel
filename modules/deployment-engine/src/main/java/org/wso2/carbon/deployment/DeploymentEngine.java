@@ -219,6 +219,7 @@ public class DeploymentEngine {
                 artifactToDeploy.setKey(artifactKey);
                 addToDeployedArtifacts(artifactToDeploy);
             } catch (CarbonDeploymentException e) {
+                //TODO : Handle faulty artifact deployment
                 log.error(e);
             }
         }
