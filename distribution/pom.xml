@@ -156,7 +156,7 @@
                             <metadataRepository>file:${basedir}/target/p2-repo</metadataRepository>
                             <artifactRepository>file:${basedir}/target/p2-repo</artifactRepository>
                             <targetPath>file:${basedir}/target/WSO2Carbon</targetPath>
-                            <profile>default</profile>
+                            <profile>profile/default</profile>
                         </configuration>
                     </execution>
                     <execution>
@@ -166,7 +166,7 @@
                             <goal>p2-profile-gen</goal>
                         </goals>
                         <configuration>
-                            <profile>default</profile>
+                            <profile>profile/default</profile>
                             <metadataRepository>file:${basedir}/target/p2-repo</metadataRepository>
                             <artifactRepository>file:${basedir}/target/p2-repo</artifactRepository>
                             <destination>${basedir}/target/WSO2Carbon</destination>
