@@ -76,12 +76,6 @@
 
     <files>
         <file>
-            <source>carbon-home/repository/conf/osgi/launch.properties</source>
-            <outputDirectory>repository/conf/osgi</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
             <source>carbon-home/bin/wso2carbon-version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <fileMode>644</fileMode>
