@@ -625,7 +625,7 @@
         <!--Maven Plugins -->
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
         <maven.surefireplugin.version>1.3</maven.surefireplugin.version>
-        <maven.compilerplugin.version>2.3.2</maven.compilerplugin.version>
+        <maven.compilerplugin.version>3.1</maven.compilerplugin.version>
         <maven.surefireplugin.version>2.12</maven.surefireplugin.version>
         <maven.resourcesplugin.version>2.5</maven.resourcesplugin.version>
         <maven.scrplugin.version>1.9.0</maven.scrplugin.version>
