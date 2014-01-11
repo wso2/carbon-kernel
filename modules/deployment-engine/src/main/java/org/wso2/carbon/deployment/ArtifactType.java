@@ -22,30 +22,14 @@ package org.wso2.carbon.deployment;
 /**
  * This class represent the artifact type of an artifact.
  */
-public class ArtifactType {
-    private Object type;
+public class ArtifactType<T> {
+    private T type;
 
-    public ArtifactType(Object type) {
+    public ArtifactType(T type) {
         this.type = type;
     }
 
-    public Object getType() {
+    public T get() {
         return type;
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other == null) {
-            return false;
-        }
-
-        if (this.getClass() != other.getClass()) {
-            return false;
-        }
-
-        if (!this.type.equals(((ArtifactType) other).getType())) {
-            return false;
-        }
-        return true;
     }
 }

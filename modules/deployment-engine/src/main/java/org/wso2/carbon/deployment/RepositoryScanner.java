@@ -31,8 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The Repository Scanner which does the scanning of repository in carbon.
- * This will scan each registered deployer's deployment directory and updated the relevant artifact
- * lists (deploy, undeploy, update)
+ * This will scan each registered deployer's deployment directory and update
+ * the relevant artifact lists (deploy, undeploy, update)
  */
 public class RepositoryScanner {
     private static final Log log = LogFactory.getLog(RepositoryScanner.class);

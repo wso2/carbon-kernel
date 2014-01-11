@@ -27,7 +27,7 @@ import java.util.Map;
  * This class provide an abstraction level for the concept "artifact" in carbon.
  * <p/>
  * An artifact can be considered as a thing to deploy in carbon.
- * Eg: webapp, service, jaggery-app, proxy-service, sequence, api, endpoint
+ * Eg: webapp, service, jaggery-app, proxy-service, sequence, spi, endpoint
  * <p/>
  * Each artifact is associated with a deployer, which can process and deploy it to the relevant
  * runtime configuration.
