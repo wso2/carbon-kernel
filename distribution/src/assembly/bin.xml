@@ -33,6 +33,7 @@
             <outputDirectory></outputDirectory>
             <excludes>
                 <exclude>**/*.sh</exclude>
+                <exclude>**/*.properties</exclude>
                 <exclude>**/native/*</exclude>
                 <exclude>**/wso2carbon-version.txt</exclude>
                 <exclude>**/carbon.xml</exclude>
@@ -75,6 +76,12 @@
     </fileSets>
 
     <files>
+        <file>
+            <source>carbon-home/repository/conf/log4j.properties</source>
+            <outputDirectory>repository/conf</outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
         <file>
             <source>carbon-home/repository/conf/osgi/launch.properties</source>
             <outputDirectory>repository/conf/osgi</outputDirectory>
