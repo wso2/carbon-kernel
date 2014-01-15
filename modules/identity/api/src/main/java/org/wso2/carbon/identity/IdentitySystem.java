@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.identity;
 
+import org.wso2.carbon.identity.account.spi.LinkedAccountStore;
 import org.wso2.carbon.identity.authn.IdentityStoreManager;
 import org.wso2.carbon.identity.authz.AuthorizationStoreManager;
 import org.wso2.carbon.identity.claim.ClaimManager;
@@ -26,9 +27,9 @@ import org.wso2.carbon.identity.commons.IdentityException;
 import org.wso2.carbon.identity.config.IdentityServiceConfig;
 
 /**
- * Entry point for Identity library with full privileges.
+ * Entry point in Identity library for administrative operations over Identity System.
  */
-public interface IdentityService {
+public interface IdentitySystem {
 	
 	/**
 	 * 
@@ -36,13 +37,7 @@ public interface IdentityService {
 	 * @throws IdentityException
 	 */
 	public void init(IdentityServiceConfig identityServiceConfig) throws IdentityException;
-
-	/**
-	 * 
-	 * @return
-	 */
-	public Realm getUserRealm();
-
+	
 	/**
 	 * 
 	 * @return
@@ -60,4 +55,10 @@ public interface IdentityService {
 	 * @return
 	 */
 	public ClaimManager getClaimManager();
+
+	/**
+	 * 
+	 * @return
+	 */
+	public LinkedAccountStore getLinkedAccountStore();
 }
