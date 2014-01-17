@@ -65,7 +65,7 @@ public class PrivilegedGroup extends Group {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsers() throws IdentityStoreException {
+	public List<PrivilegedRWUser> getUsers() throws IdentityStoreException {
 		return identityStore.getUsersInGroup(getIdentifier());
 	}
 
@@ -75,7 +75,7 @@ public class PrivilegedGroup extends Group {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException {
+	public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException {
 		return identityStore.getUsersInGroup(getIdentifier(), searchCriteria);
 	}
 

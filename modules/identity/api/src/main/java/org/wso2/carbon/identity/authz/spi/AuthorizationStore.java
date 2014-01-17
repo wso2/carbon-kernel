@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import org.wso2.carbon.identity.authn.GroupIdentifier;
 import org.wso2.carbon.identity.authn.PrivilegedGroup;
-import org.wso2.carbon.identity.authn.PrivilegedUser;
+import org.wso2.carbon.identity.authn.PrivilegedRWUser;
 import org.wso2.carbon.identity.authn.StoreIdentifier;
 import org.wso2.carbon.identity.authn.UserIdentifier;
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
@@ -205,7 +205,7 @@ public interface AuthorizationStore extends VirtualAuthorizationStore {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedUser> getUsersOfRole(RoleIdentifier roleIdentifier)
+	public List<PrivilegedRWUser> getUsersOfRole(RoleIdentifier roleIdentifier)
 			throws AuthorizationStoreException;
 
 	/**
@@ -215,7 +215,7 @@ public interface AuthorizationStore extends VirtualAuthorizationStore {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedUser> getUsersOfRole(RoleIdentifier roleIdentifier,
+	public List<PrivilegedRWUser> getUsersOfRole(RoleIdentifier roleIdentifier,
 			UserSearchCriteria searchCriteria)
 			throws AuthorizationStoreException;
 

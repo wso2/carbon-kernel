@@ -26,7 +26,7 @@ import org.wso2.carbon.identity.account.spi.LinkedAccountStore;
 import org.wso2.carbon.identity.authn.GroupIdentifier;
 import org.wso2.carbon.identity.authn.IdentityStoreException;
 import org.wso2.carbon.identity.authn.PrivilegedGroup;
-import org.wso2.carbon.identity.authn.PrivilegedUser;
+import org.wso2.carbon.identity.authn.PrivilegedRWUser;
 import org.wso2.carbon.identity.authn.StoreDialectCollection;
 import org.wso2.carbon.identity.authn.StoreIdentifier;
 import org.wso2.carbon.identity.authn.UserIdentifier;
@@ -307,7 +307,7 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsersInGroup(GroupIdentifier groupIdentifier)
+	public List<PrivilegedRWUser> getUsersInGroup(GroupIdentifier groupIdentifier)
 			throws IdentityStoreException;
 
 	/**
@@ -317,7 +317,7 @@ public interface IdentityStore extends VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsersInGroup(
+	public List<PrivilegedRWUser> getUsersInGroup(
 			GroupIdentifier groupIdentifier, UserSearchCriteria searchCriteria)
 			throws IdentityStoreException;
 

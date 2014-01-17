@@ -27,7 +27,7 @@ import org.wso2.carbon.identity.commons.IdentityException;
 import org.wso2.carbon.identity.config.IdentityServiceConfig;
 
 /**
- * Entry point in Identity library for administrative operations over Identity System.
+ * Entry point in Identity library for administrative operations.
  */
 public interface IdentitySystem {
 	

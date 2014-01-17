@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.wso2.carbon.identity.authn.PrivilegedGroup;
-import org.wso2.carbon.identity.authn.PrivilegedUser;
+import org.wso2.carbon.identity.authn.PrivilegedRWUser;
 import org.wso2.carbon.identity.authn.StoreIdentifier;
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
@@ -113,8 +113,8 @@ public class PrivilegedRole extends Role {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedUser> getUsers() throws AuthorizationStoreException {
-		List<PrivilegedUser> users = authzStore
+	public List<PrivilegedRWUser> getUsers() throws AuthorizationStoreException {
+		List<PrivilegedRWUser> users = authzStore
 				.getUsersOfRole(getRoleIdentifier());
 		return Collections.unmodifiableList(users);
 	}
@@ -125,9 +125,9 @@ public class PrivilegedRole extends Role {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria)
+	public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria)
 			throws AuthorizationStoreException {
-		List<PrivilegedUser> users = authzStore.getUsersOfRole(
+		List<PrivilegedRWUser> users = authzStore.getUsersOfRole(
 				getRoleIdentifier(), searchCriteria);
 		return Collections.unmodifiableList(users);
 	}

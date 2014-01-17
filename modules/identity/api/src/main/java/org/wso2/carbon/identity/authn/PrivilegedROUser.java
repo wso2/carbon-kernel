@@ -22,7 +22,6 @@ package org.wso2.carbon.identity.authn;
 import java.util.Collections;
 import java.util.List;
 
-import org.wso2.carbon.identity.account.AccountException;
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.IdentityStore;
 import org.wso2.carbon.identity.authz.AuthorizationStoreException;
@@ -35,11 +34,10 @@ import org.wso2.carbon.identity.claim.Claim;
 import org.wso2.carbon.identity.claim.ClaimIdentifier;
 import org.wso2.carbon.identity.claim.DialectIdentifier;
 import org.wso2.carbon.identity.commons.EntryIdentifier;
-import org.wso2.carbon.identity.credential.spi.Credential;
 import org.wso2.carbon.identity.profile.Profile;
 import org.wso2.carbon.identity.profile.ProfileIdentifier;
 
-public class PrivilegedUser extends User {
+public class PrivilegedROUser extends User {
 
 	private IdentityStore identityStore;
 	private AuthorizationStore authzStore;
@@ -51,7 +49,7 @@ public class PrivilegedUser extends User {
 	 * @param authzStore
 	 * @param userIdentifier
 	 */
-	public PrivilegedUser(IdentityStore identityStore, AuthorizationStore authzStore,
+	public PrivilegedROUser(IdentityStore identityStore, AuthorizationStore authzStore,
 			UserIdentifier userIdentifier) {
 		super(userIdentifier);
 		this.authzStore = authzStore;
@@ -156,29 +154,6 @@ public class PrivilegedUser extends User {
 	/**
 	 * 
 	 * @param dialectIdentifier
-	 * @param claims
-	 * @param profileIdentifier
-	 * @throws IdentityStoreException
-	 */
-	public void addAttributes(DialectIdentifier dialectIdentifier, List<Claim> claims,
-			ProfileIdentifier profileIdentifier) throws IdentityStoreException {
-		identityStore.addUserAttributes(getUserIdentifier(), dialectIdentifier, claims,
-				profileIdentifier);
-	}
-
-	/**
-	 * 
-	 * @param dialectIdentifier
-	 * @param claims
-	 * @throws IdentityStoreException
-	 */
-	public void addAttributes(DialectIdentifier dialectIdentifier, List<Claim> claims) throws IdentityStoreException {
-		identityStore.addUserAttributes(getUserIdentifier(), dialectIdentifier, claims, null);
-	}
-
-	/**
-	 * 
-	 * @param dialectIdentifier
 	 * @param claimUris
 	 * @return
 	 * @throws IdentityStoreException
@@ -196,33 +171,6 @@ public class PrivilegedUser extends User {
 	 */
 	public StoreIdentifier getStoreIdentifier() {
 		return identityStore.getStoreIdentifier();
-	}
-
-	/**
-	 * 
-	 * @param groupIdentifiers
-	 * @throws IdentityStoreException
-	 */
-	public void addToGroup(List<GroupIdentifier> groupIdentifiers) throws IdentityStoreException {
-		identityStore.addUserToGroups(groupIdentifiers, getUserIdentifier());
-	}
-
-	/**
-	 * 
-	 * @param roleIdentifiers
-	 * @throws AuthorizationStoreException
-	 */
-	public void assignToRoles(List<RoleIdentifier> roleIdentifiers) throws AuthorizationStoreException {
-		authzStore.assignRolesToUser(getUserIdentifier(), roleIdentifiers);
-	}
-
-	/**
-	 * 
-	 * @param roleIdentifier
-	 * @throws AuthorizationStoreException
-	 */
-	public void assignToRole(RoleIdentifier roleIdentifier) throws AuthorizationStoreException {
-		authzStore.assignRoleToUser(getUserIdentifier(), roleIdentifier);
 	}
 
 	/**
@@ -257,60 +205,12 @@ public class PrivilegedUser extends User {
 
 	/**
 	 * 
-	 * @param linkedEntryIdentifier
-	 * @throws AccountException
-	 */
-	public void linkAccount(EntryIdentifier linkedEntryIdentifier) throws AccountException {
-		identityStore.getLinkedAccountStore().link(entryIdentifier, linkedEntryIdentifier);
-	}
-
-	/**
-	 * 
 	 * @return
 	 */
 	public List<UserIdentifier> getLinkedAccounts() {
 		List<UserIdentifier> accounts = identityStore.getLinkedAccountStore().getLinkedAccounts(
 				entryIdentifier);
 		return Collections.unmodifiableList(accounts);
-	}
-
-	/**
-	 * 
-	 * @param linkedEntryIdentifier
-	 * @throws AccountException
-	 */
-	public void unlinkAccount(EntryIdentifier linkedEntryIdentifier) throws AccountException {
-		identityStore.getLinkedAccountStore().unlink(entryIdentifier, linkedEntryIdentifier);
-	}
-
-	/**
-	 * 
-	 * @param newCredentials
-	 * @throws IdentityStoreException
-	 */
-	@SuppressWarnings("rawtypes")
-	public void resetCredentials(Credential newCredentials) throws IdentityStoreException {
-		identityStore.resetCredentials(newCredentials);
-	}
-
-	/**
-	 * 
-	 * @param credential
-	 * @throws IdentityStoreException
-	 */
-	@SuppressWarnings("rawtypes")
-	public void addCredential(Credential credential) throws IdentityStoreException {
-		identityStore.addCredential(credential);
-	}
-
-	/**
-	 * 
-	 * @param credential
-	 * @throws IdentityStoreException
-	 */
-	@SuppressWarnings("rawtypes")
-	public void removeCredential(Credential credential) throws IdentityStoreException {
-		identityStore.removeCredential(credential);
 	}
 
 	/**

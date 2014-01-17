@@ -34,7 +34,7 @@ public interface VirtualIdentityStore {
 	 * @throws AuthenticationFailureException
 	 */
 	@SuppressWarnings("rawtypes")
-	public PrivilegedUser authenticate(Credential credential) throws AuthenticationFailureException;
+	public PrivilegedRWUser authenticate(Credential credential) throws AuthenticationFailureException;
 
 	/**
 	 * Creates a user in the underlying user store.
@@ -43,7 +43,7 @@ public interface VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public PrivilegedUser createUser(User user) throws IdentityStoreException;
+	public PrivilegedRWUser createUser(User user) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -51,7 +51,7 @@ public interface VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public PrivilegedUser getUser(UserIdentifier userIdentifier) throws IdentityStoreException;
+	public PrivilegedRWUser getUser(UserIdentifier userIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -59,7 +59,7 @@ public interface VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException;
+	public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException;
 
 	/**
 	 * Creates a group in the underlying user store.
