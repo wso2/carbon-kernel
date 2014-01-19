@@ -25,9 +25,9 @@ public class CustomDeployer implements Deployer {
      */
     public static boolean sample1Deployed;
     /**
-     * Set to true if "XML2" has been deployed
+     * Set to true if "XML1" has been updated
      */
-    public static boolean sample2Deployed;
+    public static boolean sample1Updated;
 
     private String directory = "text-files";
     private URL directoryLocation;
@@ -38,7 +38,7 @@ public class CustomDeployer implements Deployer {
     public CustomDeployer() {
         artifactType = new ArtifactType("txt");
         try {
-            directoryLocation = new URL(new URL("file:"), "./text-files");
+            directoryLocation = new URL("file:text-files");
         } catch (MalformedURLException e) {
             log.error(e);
         }
@@ -60,7 +60,7 @@ public class CustomDeployer implements Deployer {
             String content = new String(b);
             if (content.contains("sample1")) {
                 sample1Deployed = true;
-                key = "sample1.txt";
+                key = artifact.getName();
             }
         } catch (IOException e) {
             throw new CarbonDeploymentException("Error while deploying : " + artifact.getName(), e);
@@ -90,8 +90,10 @@ public class CustomDeployer implements Deployer {
         }
     }
 
-    public Object update(Artifact artifact) throws CarbonDeploymentException {
-        return null;
+    public String update(Artifact artifact) throws CarbonDeploymentException {
+        log.info("Updating : " + artifact.getName());
+        sample1Updated = true;
+        return  artifact.getName();
     }
 
 

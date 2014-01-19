@@ -41,6 +41,12 @@ public class CustomDeployerTest extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"testDeploy"})
+    public void testUpdate() throws CarbonDeploymentException {
+        key = customDeployer.update(artifact);
+        Assert.assertTrue(CustomDeployer.sample1Updated);
+    }
+
+    @Test(dependsOnMethods = {"testUpdate"})
     public void testUnDeploy() throws CarbonDeploymentException {
         customDeployer.undeploy(key);
         Assert.assertFalse(CustomDeployer.sample1Deployed);
