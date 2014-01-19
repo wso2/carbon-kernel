@@ -101,7 +101,7 @@ public class DeploymentEngine {
 
 
     private void startScheduler() {
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
         SchedulerTask schedulerTask = new SchedulerTask(repositoryScanner);
         String deploymentInterval = ServerConfiguration.getInstance().
                 getFirstProperty("Deployment.UpdateInterval");
@@ -109,7 +109,7 @@ public class DeploymentEngine {
         if (deploymentInterval != null) {
             interval = Integer.parseInt(deploymentInterval);
         }
-        scheduledExecutorService.schedule(schedulerTask, interval, TimeUnit.SECONDS);
+        executorService.scheduleWithFixedDelay(schedulerTask, 0,interval, TimeUnit.SECONDS);
     }
 
     /**
