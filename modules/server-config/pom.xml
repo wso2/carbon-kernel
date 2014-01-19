@@ -47,11 +47,13 @@
                         </Bundle-Activator>
                         <Export-Package>
                             !org.wso2.carbon.base.internal,
-                            org.wso2.carbon.base.*; version="1.0.0"
+                            org.wso2.carbon.base.*; version="${carbon.kernel.package.export.version}"
                         </Export-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*;
-                            org.osgi.*;
+                            org.apache.commons.logging.*;version="${commons.logging.import.version.range}",
+                            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+                            org.osgi.service.cm.*; version="[1.4.0, 1.5.0)",
+                            org.osgi.util.tracker; version="[1.5.1, 1.6.0)",
                             javax.xml.parsers.*;
                             org.w3c.dom.*;
                             org.xml.sax.*
@@ -83,10 +85,5 @@
             <artifactId>testng</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.osgi</groupId>-->
-            <!--<artifactId>org.osgi.core</artifactId>-->
-            <!--<version>5.0.0</version>-->
-        <!--</dependency>-->
     </dependencies>
 </project>

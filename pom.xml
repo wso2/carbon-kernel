@@ -528,14 +528,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon platform version comes here-->
-        <carbon.platform.version>5.0.0-SNAPSHOT</carbon.platform.version>
-        <carbon.platform.package.export.version>5.0.0-SNAPSHOT
-        </carbon.platform.package.export.version>
-        <carbon.platform.package.import.version.range>[5.0.0-SNAPSHOT, 5.1.0)
-        </carbon.platform.package.import.version.range>
+        <carbon.kernel.version>5.0.0-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.package.export.version>5.0.0-SNAPSHOT
+        </carbon.kernel.package.export.version>
+        <carbon.kernel.package.import.version.range>[5.0.0.SNAPSHOT, 5.1.0)
+        </carbon.kernel.package.import.version.range>
+
+        <commons.logging.import.version.range>[1.1.1, 1.2.0)</commons.logging.import.version.range>
 
         <!-- OSGi API version -->
         <osgi.api.version>5.0.0</osgi.api.version>
+        <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>

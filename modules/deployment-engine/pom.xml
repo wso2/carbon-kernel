@@ -80,31 +80,16 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.deployment.internal,
-                            org.wso2.carbon.deployment.*;
-                            version="${carbon.platform.package.export.version}",
+                            org.wso2.carbon.deployment.*;version="${carbon.kernel.package.export.version}"
                         </Export-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*;
-                            org.osgi.*;
-                            org.wso2.carbon.base.*
+                            org.apache.commons.logging.*;version="${commons.logging.import.version.range}",
+                            org.wso2.carbon.base.*;version="${carbon.kernel.package.import.version.range}",
+                            org.osgi.framework.*;version="${osgi.framework.import.version.range}"
                         </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
-            <!--plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <forkMode>pertest</forkMode>
-                    <argLine>-Xms256m -Xmx512m</argLine>
-                    <argLine>-Xdebug -Xnoagent -Djava.compiler=NONE
-                        -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
-                    </argLine>
-                    <includes>
-                        <include>**/*Test.java</include>
-                    </includes>
-                </configuration>
-            </plugin-->
         </plugins>
     </build>
 

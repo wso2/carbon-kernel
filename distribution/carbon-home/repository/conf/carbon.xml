@@ -79,12 +79,12 @@
     <Deployment>
         <!--
          Currently there can be two modes
-         1. Scheduled Mode - (enable below property to "true") - where the task runs periodically and trigger deployment
-         2. Triggered Mode - (enable below property to "false") - the deployment has to be triggered externally,
+         1. Scheduled Mode - (enable below property to "scheduled") - where the task runs periodically and trigger deployment
+         2. Triggered Mode - (enable below property to "triggered") - the deployment has to be triggered externally,
             eg : in a worker node we don't need the task to run, but rather when we receive a
                  cluster msg,  the deployment has to be triggered manually
         -->
-        <ScheduledMode>true</ScheduledMode>
+        <Mode>scheduled</Mode>
         <!--
              Location of the Axis2 Services & Modules repository
 
@@ -102,7 +102,7 @@
          Deployment update interval in seconds. This is the interval between repository listener
          executions. 
         -->
-        <DeploymentUpdateInterval>15</DeploymentUpdateInterval>
+        <UpdateInterval>15</UpdateInterval>
 
     </Deployment>
 

@@ -104,7 +104,7 @@ public class DeploymentEngine {
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         SchedulerTask schedulerTask = new SchedulerTask(repositoryScanner);
         String deploymentInterval = ServerConfiguration.getInstance().
-                getFirstProperty("Deployment.DeploymentUpdateInterval");
+                getFirstProperty("Deployment.UpdateInterval");
         int interval = 15;
         if (deploymentInterval != null) {
             interval = Integer.parseInt(deploymentInterval);
