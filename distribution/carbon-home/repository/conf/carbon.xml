@@ -86,15 +86,7 @@
         -->
         <Mode>scheduled</Mode>
         <!--
-             Location of the Axis2 Services & Modules repository
-
-             This can be a directory in the local file system, or a URL.
-
-             e.g.
-             1. /home/wso2wsas/repository/ - An absolute path
-             2. repository - In this case, the path is relative to CARBON_HOME
-             3. file:///home/wso2wsas/repository/
-             4. http://wso2wsas/repository/
+             Location of the artifact repository
         -->
         <RepositoryLocation>${carbon.home}/repository/deployment/server/</RepositoryLocation>
 

@@ -150,12 +150,12 @@ public class Utils {
     }
 
     /**
-     * Request: file:org.eclipse.osgi_3.9.1.v20130814-1242.jar
-     * Response: file:/user/wso2carbon-kernel-5.0.0/repository/components/plugins/org.eclipse.osgi_3.9.1.v20130814-1242.jar
+     * Request: file:sample.war
+     * Response: file:/user/wso2carbon-kernel-5.0.0/repository/deployment/server/webapps/sample.war
      *
-     * @param path
-     * @param parentPath
-     * @return
+     * @param path file path to resolve
+     * @param parentPath parent file path of the file
+     * @return file with resolved path
      */
     public static File resolveFileURL(String path, String parentPath) {
         File file = null;
