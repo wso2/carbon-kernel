@@ -19,16 +19,15 @@
 package org.wso2.carbon.launcher.test;
 
 
+import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
+import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
+import org.wso2.carbon.launcher.test.bootstrapLoggingTest.LogHandler;
 
-    import org.testng.Assert;
-    import org.testng.annotations.BeforeSuite;
-    import org.testng.annotations.Test;
-    import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
-    import org.wso2.carbon.launcher.test.bootstrapLoggingTest.LogHandler;
-
-    import java.util.logging.Level;
-    import java.util.logging.LogRecord;
-    import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 public class ConsoleLoggerTest {
 

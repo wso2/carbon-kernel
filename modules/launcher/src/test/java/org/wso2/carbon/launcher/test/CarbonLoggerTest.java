@@ -19,6 +19,7 @@
 package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
@@ -46,7 +47,6 @@ public class CarbonLoggerTest extends BaseTest {
 
     @BeforeSuite
     public void doBeforeEachTest() throws IOException{
-//        logger = Logger.getLogger(CarbonLoggerTest.class.getName());  //BootstrapLogger.getBootstrapLogger();
         logger = BootstrapLogger.getBootstrapLogger();
         carbonLogHandler = new CarbonLogHandler(new File(getTestResourceFile(LOGS).getAbsolutePath()));
         carbonLogHandler.setFormatter(new LoggingFormatter());
@@ -60,7 +60,14 @@ public class CarbonLoggerTest extends BaseTest {
 
         logger.info(sampleMessage);
         ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(new File(getTestResourceFile(LOGS).getAbsolutePath())));
-        Assert.assertEquals(logRecords.get(0), resultLog);
+        Assert.assertTrue(logRecords.get(0).contains(resultLog));
+    }
+
+    @AfterTest
+    public void cleanupLogfile() throws IOException {
+        FileOutputStream writer = new FileOutputStream(new File(getTestResourceFile(LOGS).getAbsolutePath()));
+        writer.write((new String()).getBytes());
+        writer.close();
     }
 
 

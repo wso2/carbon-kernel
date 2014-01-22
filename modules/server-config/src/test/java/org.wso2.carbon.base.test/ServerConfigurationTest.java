@@ -34,9 +34,7 @@ package org.wso2.carbon.base.test;
 
 public class ServerConfigurationTest extends BaseTest{
 
-    private Map<String, List<String>> configuration = new HashMap<String, List<String>>();
     protected String testDir = "src" + File.separator + "test" + File.separator;
-    protected String testResourceDir = testDir + "resources";
     private final String CONFIG_FILE = "sample-carbon.xml";
 
     /**
@@ -55,10 +53,10 @@ public class ServerConfigurationTest extends BaseTest{
         public void testServerConfigInit() throws ServerConfigurationException {
 
             String nameProp = "Name";
-            String nameValue = "";
+            String nameValue = "${product.name}";
 
             String versionProp = "Version";
-            String versionValue = "5.0.0";
+            String versionValue = "${product.version}";
 
             String packageProp = "Package";
             String packageValue = "org.wso2.carbon";

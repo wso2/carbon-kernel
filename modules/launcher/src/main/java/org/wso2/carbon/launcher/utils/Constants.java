@@ -47,7 +47,12 @@ public class Constants {
     public static final int DEFAULT_BUNDLE_START_LEVEL = 4;
 
     public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
+
+    public static final String LOG_LEVEL_OFF = "OFF";
+    public static final String LOG_LEVEL_ERROR = "ERROR";
     public static final String LOG_LEVEL_WARN = "WARN";
+    public static final String LOG_LEVEL_INFO = "INFO";
+    public static final String LOG_LEVEL_DEBUG = "DEBUG";
 
     public static class ExitCodes {
         public static final int SUCCESSFUL_TERMINATION = 0;

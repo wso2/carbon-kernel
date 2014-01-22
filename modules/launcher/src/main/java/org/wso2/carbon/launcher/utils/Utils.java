@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.launcher.utils;
 
+import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +34,7 @@ import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
 
 public class Utils {
 
-    private static final Logger logger = Logger.getLogger(Utils.class.getName());
+    private static final Logger logger = BootstrapLogger.getBootstrapLogger();
 
     private static final String VAR_REGEXP = "\\$\\{[^}]*}";
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);

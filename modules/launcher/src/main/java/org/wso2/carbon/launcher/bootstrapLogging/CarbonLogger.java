@@ -31,7 +31,7 @@ import java.util.logging.StreamHandler;
 
 /**
  * Convenience class for configuring java.util.logging to append to
- * the configured log4j log.  This could be used for bootstrap logging
+ * wso2carbon.log file.  This could be used for bootstrap logging
  * prior to start of the framework.
  */
 public class CarbonLogger {

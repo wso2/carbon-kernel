@@ -29,42 +29,6 @@ public class LoggingUtils {
     private static Level log4jCarbonLoggingLevel = null;
 
     /**
-     * Convenience method for configuring java.util.logging log level to
-     * according to what configured on log4j.properties file under
-     * log4j.logger.org.wso2
-     *
-     * @return java.util.logging.Level logLevel
-     */
-//    private static Level getlog4jLoggingLevel() {
-//        String wso2Log4jLogger = null;
-//
-//        FileInputStream fis = null;
-//        try {
-//            Properties log4jProperties = new Properties();
-//            fis = new FileInputStream(Utils.getRepositoryConfDir() + File.separator + Constants.LOG4J_FILE);
-//            log4jProperties.load(fis);
-//            wso2Log4jLogger = log4jProperties.getProperty("log4j.logger.org.wso2");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (fis != null) {
-//                    fis.close();
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (wso2Log4jLogger != null) {
-//            return getLogLevel(wso2Log4jLogger);
-//        } else {
-//            // default log level will be Level.INFO
-//            return Level.INFO;
-//        }
-//        return Level.FINE;
-//    }
-
-    /**
      *
      * @param level String value of log4j.properties under log4j.logger.org.wso2
      * @return java.util.logging Level correspond to log4j logLevel
@@ -92,18 +56,5 @@ public class LoggingUtils {
     private static void setLog4jCarbonLoggingLevel(Level log4jCarbonLoggingLevel) {
         LoggingUtils.log4jCarbonLoggingLevel = log4jCarbonLoggingLevel;
     }
-
-    /**
-     * Getter Method for log4jCarbonLoggingLevel
-     * @return java.util.logging level on log4jCarbonLoggingLevel
-     */
-//    public static Level getLog4jCarbonLoggingLevel() {
-//        if (log4jCarbonLoggingLevel != null) {
-//            return LoggingUtils.log4jCarbonLoggingLevel;
-//        } else {
-//            LoggingUtils.setLog4jCarbonLoggingLevel(getlog4jLoggingLevel());
-//            return LoggingUtils.log4jCarbonLoggingLevel;
-//        }
-//    }
 
 }

@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.launcher;
 
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapConsoleManager;
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogManager;
+import org.wso2.carbon.launcher.bootstrapLogging.CarbonLogger;
+import org.wso2.carbon.launcher.bootstrapLogging.ConsoleLogger;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -130,8 +130,8 @@ public class Main {
 
     private static void bootstrapLogging() {
         try {
-            logger.addHandler(BootstrapLogManager.getDefaultHandler());
-            logger.addHandler(BootstrapConsoleManager.getDefaultHandler());
+            logger.addHandler(CarbonLogger.getDefaultHandler());
+            logger.addHandler(ConsoleLogger.getDefaultHandler());
         } catch (IOException e) {
             // Following log may never get printed if logging is not properly initialized. Hence the sending the error
             //  message to the standard out.
