@@ -19,20 +19,19 @@
 package org.wso2.carbon.base.test;
 
 
+import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
+import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.base.ServerConfigurationException;
 
-    import org.testng.Assert;
-    import org.testng.annotations.BeforeSuite;
-    import org.testng.annotations.Test;
-    import org.wso2.carbon.base.ServerConfiguration;
-    import org.wso2.carbon.base.ServerConfigurationException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    import java.io.File;
-    import java.util.ArrayList;
-    import java.util.HashMap;
-    import java.util.List;
-    import java.util.Map;
-
-public class ServerConfigurationTest extends BaseTest{
+public class ServerConfigurationTest extends BaseTest {
 
     protected String testDir = "src" + File.separator + "test" + File.separator;
     private final String CONFIG_FILE = "sample-carbon.xml";
@@ -45,65 +44,65 @@ public class ServerConfigurationTest extends BaseTest{
     }
 
     @BeforeSuite
-        public void doBeforeEachTest() throws ServerConfigurationException {
+    public void doBeforeEachTest() throws ServerConfigurationException {
 
     }
 
-        @Test
-        public void testServerConfigInit() throws ServerConfigurationException {
+    @Test
+    public void testServerConfigInit() throws ServerConfigurationException {
 
-            String nameProp = "Name";
-            String nameValue = "${product.name}";
+        String nameProp = "Name";
+        String nameValue = "${product.name}";
 
-            String versionProp = "Version";
-            String versionValue = "${product.version}";
+        String versionProp = "Version";
+        String versionValue = "${product.version}";
 
-            String packageProp = "Package";
-            String packageValue = "org.wso2.carbon";
+        String packageProp = "Package";
+        String packageValue = "org.wso2.carbon";
 
-            String offsetProp = "Ports.Offset";
-            String offsetValue = "0";
+        String offsetProp = "Ports.Offset";
+        String offsetValue = "0";
 
-            String RMIRegistryPortProp = "Ports.JMX.RMIRegistryPort";
-            String RMIRegistryPortValue = "9999";
+        String RMIRegistryPortProp = "Ports.JMX.RMIRegistryPort";
+        String RMIRegistryPortValue = "9999";
 
-            String RMIServerPortProp = "Ports.JMX.RMIServerPort";
-            String RMIServerPortValue = "11111";
+        String RMIServerPortProp = "Ports.JMX.RMIServerPort";
+        String RMIServerPortValue = "11111";
 
-            File configFile = new File(getTestResourceFile(CONFIG_FILE).getAbsolutePath());
-            ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
-            serverConfiguration.init(configFile.getAbsolutePath());
+        File configFile = new File(getTestResourceFile(CONFIG_FILE).getAbsolutePath());
+        ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
+        serverConfiguration.init(configFile.getAbsolutePath());
 
-            String[] nameProperties = serverConfiguration.getProperties(nameProp);
-            String[] versionProperties = serverConfiguration.getProperties(versionProp);
-            String[] packageProperties = serverConfiguration.getProperties(packageProp);
-            String[] portOffsetProperties = serverConfiguration.getProperties(offsetProp);
-            String[] PortJMXRegProperties = serverConfiguration.getProperties(RMIRegistryPortProp);
-            String[] portJMXServerProperties = serverConfiguration.getProperties(RMIServerPortProp);
+        String[] nameProperties = serverConfiguration.getProperties(nameProp);
+        String[] versionProperties = serverConfiguration.getProperties(versionProp);
+        String[] packageProperties = serverConfiguration.getProperties(packageProp);
+        String[] portOffsetProperties = serverConfiguration.getProperties(offsetProp);
+        String[] PortJMXRegProperties = serverConfiguration.getProperties(RMIRegistryPortProp);
+        String[] portJMXServerProperties = serverConfiguration.getProperties(RMIServerPortProp);
 
-            for (String prop : nameProperties) {
-                Assert.assertEquals(nameValue, nameProperties[0]);
-            }
-
-            for (String prop : versionProperties) {
-                Assert.assertEquals(versionValue, versionProperties[0]);
-            }
-
-            for (String prop : packageProperties) {
-                Assert.assertEquals(packageValue, packageProperties[0]);
-            }
-
-            for (String prop : portOffsetProperties) {
-                Assert.assertEquals(offsetValue, portOffsetProperties[0]);
-            }
-
-            for (String prop : PortJMXRegProperties) {
-                Assert.assertEquals(RMIRegistryPortValue, PortJMXRegProperties[0]);
-            }
-
-            for (String prop : portJMXServerProperties) {
-                Assert.assertEquals(RMIServerPortValue, portJMXServerProperties[0]);
-            }
+        for (String prop : nameProperties) {
+            Assert.assertEquals(nameValue, nameProperties[0]);
         }
+
+        for (String prop : versionProperties) {
+            Assert.assertEquals(versionValue, versionProperties[0]);
+        }
+
+        for (String prop : packageProperties) {
+            Assert.assertEquals(packageValue, packageProperties[0]);
+        }
+
+        for (String prop : portOffsetProperties) {
+            Assert.assertEquals(offsetValue, portOffsetProperties[0]);
+        }
+
+        for (String prop : PortJMXRegProperties) {
+            Assert.assertEquals(RMIRegistryPortValue, PortJMXRegProperties[0]);
+        }
+
+        for (String prop : portJMXServerProperties) {
+            Assert.assertEquals(RMIServerPortValue, portJMXServerProperties[0]);
+        }
+    }
 
 }

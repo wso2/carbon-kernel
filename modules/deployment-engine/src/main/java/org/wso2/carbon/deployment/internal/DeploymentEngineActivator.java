@@ -28,7 +28,7 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.CarbonDeploymentService;
 import org.wso2.carbon.deployment.api.DeploymentService;
-import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
+import org.wso2.carbon.deployment.exception.DeploymentEngineException;
 
 /**
  * The bundle activator which activates the carbon deployment engine
@@ -64,7 +64,7 @@ public class DeploymentEngineActivator implements BundleActivator{
             if (log.isDebugEnabled()) {
                 log.debug("Started Carbon Deployment Engine");
             }
-        } catch (CarbonDeploymentException e) {
+        } catch (DeploymentEngineException e) {
             String msg = "Could not initialize carbon deployment engine";
             log.fatal(msg, e);
         }
