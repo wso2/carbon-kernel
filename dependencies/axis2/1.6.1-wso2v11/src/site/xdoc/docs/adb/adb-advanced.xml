@@ -1,0 +1,142 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<title>Advanced Axis2 Databinding Framework Features</title>
+</head>
+<body lang="en" xml:lang="en">
+<h1>Advanced Axis2 Databinding Framework Features</h1>
+<p>The aim of this section is provide an insight into the newly
+added advanced features of the Axis2 Databinding (ADB)
+Framework.</p>
+<h2>Content</h2>
+<ul>
+<li><a href="#typeSupport">xsi:type Support</a></li>
+<li><a href="#helper">Helper Mode</a></li>
+<li><a href="#more">Additional ADB Topics</a></li>
+</ul>
+<a name="typeSupport" id="typeSupport"></a>
+<h2>xsi:type Support</h2>
+<p>This is implemented by adding a extension mapping class. The
+code that calls the extension mapper is generated inside the
+Factory.parse method of the beans and gets activated when the
+xsi:type attribute is present. The following code fragment shows
+what the generated type mapper looks like :</p>
+<pre>
+            public static java.lang.Object getTypeObject(java.lang.String namespaceURI,
+                                java.lang.String typeName,
+                                javax.xml.stream.XMLStreamReader reader) throws java.lang.Exception{
+              
+                  if (
+                  "http://soapinterop.org/types".equals(namespaceURI) &amp;&amp;
+                  "SOAPStruct".equals(typeName)){
+                            return  com.test.SOAPStruct.Factory.parse(reader);
+                  }
+              throw new java.lang.RuntimeException("Unsupported type " + namespaceURI + " " + typeName);
+            }
+</pre>
+<p>Inside every Factory.parse method, the extension mapper gets
+called when a xsi:type attribute is encountered
+<strong>and</strong> that type is not the type that is currently
+being parsed.</p>
+<p>The following code fragment shows how the ADB deserialize method
+calls the mapper class:</p>
+<pre>
+             if (reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","type")!=null){
+                  java.lang.String fullTypeName = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance",
+                        "type");
+                  if (fullTypeName!=null){
+                    java.lang.String nsPrefix = fullTypeName.substring(0,fullTypeName.indexOf(":"));
+                    nsPrefix = nsPrefix==null?"":nsPrefix;
+
+                    java.lang.String type = fullTypeName.substring(fullTypeName.indexOf(":")+1);
+                    if (!"SOAPStruct".equals(type)){
+                        //find namespace for the prefix
+                        java.lang.String nsUri = reader.getNamespaceContext().getNamespaceURI(nsPrefix);
+                        return (SOAPStruct)org.soapinterop.types.ExtensionMapper.getTypeObject(
+                             nsUri,type,reader);
+                      }
+
+                  }
+              }
+</pre>
+<p>This makes xsi:type based parsing possible and results in proper
+xsi:type based serializations at runtime.</p>
+<p>By default, the mapping package is derived from the
+targetnamespace of the first schema that is encountered. The
+package name can also be explicitly set by a CompilerOption:</p>
+<pre>
+   
+        CompilerOptions compilerOptions = new CompilerOptions();
+        compilerOptions.setWriteOutput(true);
+        <strong>compilerOptions.setMapperClassPackage("com.test");</strong>
+        compilerOptions.setOutputLocation(new File("src"));
+        try {
+            SchemaCompiler schemaCompiler = new SchemaCompiler(compilerOptions);
+            XmlSchemaCollection xmlSchemaCollection = new XmlSchemaCollection();
+            XmlSchema xmlSchema =xmlSchemaCollection.read(new FileReader("schema/sample.xsd"),null);
+            schemaCompiler.compile(xmlSchema);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+</pre>
+<a name="helper" id="helper"></a>
+<h2>Helper mode</h2>
+<p>Helper mode is a fairly new feature. In the helper mode, the
+beans are plain Java beans and all the
+deserialization/serialization code is moved to a helper class. For
+example, the simple schema mentioned in the ADB-howto document will
+yield four classes instead of the two previously generated:</p>
+<ol>
+<li>MyElement.java</li>
+<li>MyElementHelper.java</li>
+<li>SOAPStruct.java</li>
+<li>SOAPStructHelper.java</li>
+</ol>
+<p>The helpers basically contain all the serialization code that
+otherwise would go into the ADBBeans. Hence the beans in the helper
+mode are much more simplified. Also note that the helper mode is
+available only if you are in unpacked mode. The code generator by
+default does not expand the classes.</p>
+<p>Helper mode can be switched on by using the setHelperMode method
+in CompilerOptions:</p>
+<pre>
+<strong>compilerOptions.setHelperMode(true);</strong>
+</pre>
+<a name="more" id="more"></a>
+<h2>Additional ADB Topics</h2>
+<ul>
+<li><a href="adb-tweaking.html">Tweaking the ADB Code
+Generator</a>- explains available mechanisms to extend ADB and
+possibly adopt it to compile schemas to support other
+languages.</li>
+<li><a href="adb-codegen-integration.html">ADB and Axis2
+Integration</a> - explains how the ADB schema compiler was attached
+to the Axis2 framework</li>
+</ul>
+<hr />
+</body>
+</html>

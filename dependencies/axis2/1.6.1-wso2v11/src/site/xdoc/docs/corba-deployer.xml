@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<title>Exposing CORBA Services as Web Services</title>
+</head>
+<body xml:lang="en">
+<h1>Exposing CORBA Services as Web Services</h1>
+
+<h2>Overview</h2>
+<h3>What is CORBA?</h3>
+CORBA stands for Common Object Request Broker Architecture. It allows clients to invoke methods of remote objects running on remote machines through a binary protocol such as IIOP.
+
+<h3>What Axis2 CORBA module does?</h3>
+
+The Axis2 CORBA module acts as a bridge between SOAP and IIOP protocols by converting SOAP messages originated from a web services client to IIOP messages and vise versa. In other words, Axis2 CORBA module allows web service client to invoke methods on a remote CORBA server.
+<h4>Features</h4>
+<ul>
+<li>Supports all the primitive and composite IDL data types including Value types (objects by value), Structures, Union, Sequences and Arrays (including multidimensional arrays), Enumerations and Exceptions.</li>
+<li>Dynamic conversion of complex data types</li>
+<li>IDL driven WSDL generation</li>
+<li>Supports CORBA pre-processor directives</li>
+</ul>
+
+<h3>Why it is Useful?</h3>
+<ul>
+<li>Convert legacy CORBA services into web services</li>
+<li>Facilitate interoperability between heterogeneous systems</li>
+<li>Integrate CORBA services with Enterprise Service Buses (ESBs)</li>
+</ul>
+
+
+<h2>Tutorial</h2>
+
+This tutorial explains how to write a simple CORBA service and how to make it available as a web service using the Axis2 CORBA module. Let's start the tutorial by creating an IDL file.
+
+<h3>Prerequisites</h3>
+<ul>
+<li>Sun JDK version 5.0 or higher</li>
+<li>Latest version of Axis2 with Axis2 CORBA module</li>
+</ul>
+
+<h3>Creating the IDL file</h3>
+The Interface Definition Language (IDL) is used to describe the interface to a CORBA object. An IDL file can then be used to generate the source code for the CORBA server.
+
+Copy the following listing and save as a text file named <tt>calculator.idl</tt>.
+
+<pre>
+// Address book system module
+module example
+{
+    // A data structure which contains two integer values
+    struct numbers
+    {
+        long first;
+        long second;
+    };
+ 
+    // Specify interface to our address book
+    interface calculator
+    {
+        // returns n.first + n.second
+        long add(in numbers n);
+
+        // returns n.first + n.second
+        long subtract(in numbers n);
+    };
+};
+</pre>
+
+<h3>Creating the CORBA server</h3>
+Open a console window and type the following command. (Make sure JAVA_HOME/bin is included to the PATH environment variable)
+
+<pre>idlj -fall calculator.idl</pre>
+
+idlj generates several classes needed for CORBA servers and client. Typically, idlj command will generate the following file structure.
+
+<pre>
+|
+|   calculator.idl
+|
+\---example
+        numbersHelper.java
+        numbersHolder.java
+        numbers.java
+        calculatorPOA.java
+        _calculatorStub.java
+        calculatorHolder.java
+        calculatorHelper.java
+        calculator.java
+        calculatorOperations.java
+</pre>
+
+Goto the example subdirectory and create <tt>calculatorImpl.java</tt> file as follows.
+
+<pre>
+package example;
+
+import example.calculatorPackage.numbers;
+
+public class calculatorImpl extends calculatorPOA {
+
+	public int add(numbers n) {
+		return n.first + n.second;
+	}
+
+	public int subtract(numbers n) {
+		return n.first - n.second;
+	}
+}
+</pre>
+
+Go back to the root directory (the directory where calculator.idl is located) and create <tt>Server.java</tt> as follows.
+
+<pre>
+import java.io.*;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
+import example.calculatorImpl;
+
+public class Server {
+    public static void main(String[] args) {
+        org.omg.CORBA_2_3.ORB orb = 
+        	(org.omg.CORBA_2_3.ORB) org.omg.CORBA.ORB.init(args, null);
+        try {
+            org.omg.PortableServer.POA poa = 
+            	org.omg.PortableServer.POAHelper.narrow(
+            			orb.resolve_initial_references("RootPOA"));
+            poa.the_POAManager().activate();
+            org.omg.CORBA.Object o = 
+            	poa.servant_to_reference(new calculatorImpl());
+            if(args.length == 1) {
+                PrintWriter ps = new PrintWriter(new FileOutputStream(args[0]));
+                ps.println(orb.object_to_string(o));
+                ps.close();
+            } else {
+                NamingContextExt nc = 
+                	NamingContextExtHelper.narrow(
+                			orb.resolve_initial_references("NameService"));
+                nc.bind(nc.to_name("calculator"), o);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        orb.run();
+    }
+}
+</pre>
+
+Compile all the Java classes by using the following command.
+<pre>javac *.java</pre>
+
+<h3>Creating the CORBA web service</h3>
+Now we are ready to create a CORBA web service using the Axis2 CORBA module. First of all we have to prepare Axis2 to work with CORBA module.
+<br /><br />
+1. Make sure axis2-corba-{version}.jar is available in AXIS2_HOME/lib directory.
+<br /><br />
+2. Download latest Apache Yoko binary distribution form http://cwiki.apache.org/YOKO/download.html. Extract the downloaded archive to a temporary directory and copy yoko-core-{version}.jar and yoko-spec-corba{version}.jar to AXIS2_HOME/lib directory. (Axis2 CORBA module can also work with other CORBA implementations. Refer 'Additional Configuration Details' section for more information.)
+<br /><br />
+3. Add the following line to the &lt;axisconfig&gt; section of the axis2.xml file which is located in AXIS2_HOME/conf directory.<br />
+<pre>&lt;deployer extension=".xml" directory="corba" class="org.apache.axis2.corba.deployer.CorbaDeployer"/&gt;</pre>
+<br />
+4.Create a new directory named corba inside  AXIS2_HOME/repository directory.
+<br /><br />
+
+Now, your Axis2 server is ready to deploy CORBA web services. Copy calculator.idl file to the newly created corba directory and create a new file named <tt>calculator.xml</tt> as follows inside the same directory.
+
+<pre>
+&lt;service name="Calculator">
+    &lt;description&gt;Calculator Service&lt;/description&gt;
+    &lt;parameter name="idlFile"&gt;calculator.idl&lt;/parameter&gt;
+    &lt;parameter name="interfaceName"&gt;example::calculator&lt;/parameter&gt;
+    &lt;parameter name="namingServiceUrl"&gt;corbaloc::localhost:900/NameService&lt;/parameter&gt;
+    &lt;parameter name="objectName"&gt;calculator&lt;/parameter&gt;
+&lt;/service&gt;
+</pre>
+
+Running the Example
+
+Start a console window and execute the following command to start the CORBA name service.
+<pre>tnameserv -ORBInitialPort 900</pre>
+
+Start an other console window and goto the directory where Server.java is located. Execute the following command to start the CORBA server.
+<pre>java Server</pre>
+
+Start the Axis2 server. The EPR of the new Calculator web service will be <tt>http://localhost:8080/axis2/services/Calculator</tt>. The WSDL is located at <tt>http://localhost:8080/axis2/services/Calculator?wsdl</tt>. Now you can create a web service client and use it to invoke methods on the CORBA server.
+
+<h3>Additional Configuration details</h3>
+The service definition file (eg. calculator.xml) supports the following parameters.
+<br />
+
+<table>
+<tr>
+<th>Parameter Name</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+<tr>
+<td>idlFil</td>
+<td>Relative path to the IDL file</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>orbClass</td>
+<td>Overrides the default orb class name.</td>
+<td>No</td>
+</tr>
+<tr>
+<td>orbSingletonClass</td>
+<td>Overrides the default orb singleton class name.
+(Default: org.apache.yoko.orb.CORBA.ORB)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>namingServiceUrl</td>
+<td>URL of the CORBA naming service
+(Default: org.apache.yoko.orb.CORBA.ORBSingleton)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>iorFilePath</td>
+<td>Path to IOR file</td>
+<td>No</td>
+</tr>
+<tr>
+<td>iorString</td>
+<td>IOR as a string</td>
+<td>No</td>
+</tr>
+<tr>
+<td>objectName</td>
+<td>Name of the CORBA service which used in the naming service
+Required if namingServiceUrl is present
+interfaceName
+Full name of the IDL interface used for the web service. (use :: as the separator between module and interface names)</td>
+<td>Yes</td>
+</tr>
+</table>
+
+<br />
+<h3>Notes:</h3>
+1. Axis2 CORBA module uses Apache Yoko as the default CORBA implementation. If you want to use a CORBA implementation other than Apache Yoko, override orbClass and orbSingletonClass properties.
+<br /><br />
+2. To run the above tutorial without a naming service:<br />
+		Use <tt>java Server /path/to/a/new/file</tt> to start the server. Remove <tt>namingServiceUrl</tt> and <tt>objectName</tt> properties from the <tt>calculator.xml</tt> file and add the following line to the 	same file.
+		<pre>&lt;parameter name="iorFilePath"&gt;/path/to/a/new/file&lt;/parameter&gt;</pre>
+</body>
+</html>
+

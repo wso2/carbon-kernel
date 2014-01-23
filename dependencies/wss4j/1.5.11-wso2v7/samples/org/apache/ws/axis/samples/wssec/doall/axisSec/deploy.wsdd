@@ -1,0 +1,27 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from secService WSDL service -->
+
+  <service name="SecHttp" provider="java:RPC" style="rpc" use="literal">
+      <parameter name="wsdlTargetNamespace" value="uri:axis_sec"/>
+      <parameter name="wsdlServiceElement" value="secService"/>
+      <parameter name="wsdlServicePort" value="SecHttp"/>
+      <parameter name="className" value="org.apache.ws.axis.samples.wssec.doall.axisSec.SecBindingImpl"/>
+      <parameter name="wsdlPortType" value="secPort"/>
+      <operation name="secSend" qname="secSend" returnQName="return" returnType="rtns:string" xmlns:rtns="http://www.w3.org/2001/XMLSchema" >
+        <parameter name="applicationName" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+      </operation>
+      <parameter name="allowedMethods" value="secSend"/>
+
+  </service>
+</deployment>

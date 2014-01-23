@@ -1,0 +1,346 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" version="-//W3C//DTDXHTML1.1//EN">
+<head>
+  <meta http-equiv="content-type" content=""/>
+  <title>HTTP transports</title>
+</head>
+
+<body lang="en">
+<a name="configTransport"></a>
+
+<h1>HTTP Transport</h1>
+
+<p>This document covers the sending and receiving of SOAP messages with Axis2 using HTTP
+as the transport mechanism.</p>
+
+<h2>Contents</h2>
+<ul>
+  <li><a href="#CommonsHTTPTransportSender">CommonsHTTPTransportSender</a>
+    <ul>
+      <li><a href="#httpsupport">HTTPS support</a></li>
+    </ul>
+  </li>
+  <li><a href="#timeout_config">Timeout Configuration</a></li>
+  <li><a href="#version_config">HTTP Version Configuration</a></li>
+  <li><a href="#auth">Proxy Authentication</a></li>
+  <li><a href="#preemptive_auth">Basic, Digest and NTLM Authentication</a></li>
+  <li><a href="#reusing_httpclient_object">Reusing the httpclient object</a></li>
+  <li><a href="#setting_cached_httpclient_object">Setting the cached httpclient object</a></li>
+</ul>
+<a name="CommonsHTTPTransportSender"></a>
+
+<h2>CommonsHTTPTransportSender</h2>
+
+<p>CommonsHTTPTransportSender is the transport sender that is used by default in both
+the Server and Client APIs. As its name implies, it is based on <a
+        xmlns="http://www.w3.org/1999/xhtml" xml:space="preserve" href="http://hc.apache.org/httpclient-3.x/">commons-httpclient-3.1</a>.
+For maximum flexibility, this sender supports both the HTTP GET and POST interfaces.
+(REST in Axis2 also supports both interfaces.)</p>
+
+<p>Axis2 uses a single HTTPClient instance per ConfigurationContext (which usually means per instance
+of ServiceClient).  This pattern allows for HTTP 1.1 to automatically reuse TCP connections - in earlier versions of Axis2 the REUSE_HTTP_CLIENT configuration property was necessary to enable this functionality, but as of 1.5 this is no longer necessary.</p>
+
+<p>Commons HttpClient also provides HTTP 1.1, Chunking and KeepAlive support for Axis2.</p>
+
+
+<p>The &lt;transportSender/&gt; element defines transport senders in
+the axis2.xml configuration file as follows:</p>
+<pre>
+&lt;transportSender name="http" class="org.apache.axis2.transport.http.CommonsHTTPTransportSender"&gt;
+   &lt;parameter name="PROTOCOL"&gt;HTTP/1.1&lt;/parameter&gt;
+   &lt;parameter name="Transfer-Encoding"&gt;chunked&lt;/parameter&gt;
+&lt;/transportSender&gt;
+</pre>
+
+<p>The above code snippet shows the simplest configuration of a transport
+sender for common use. The &lt;parameter/&gt; element is used to specify additional
+constraints that the sender should comply with. The HTTP PROTOCOL parameter
+should be set as HTTP/1.0 or HTTP/1.1. The default version is HTTP/1.1. Note that
+chunking support is available only for HTTP/1.1. Thus, even if "chunked" is specified
+as a parameter, if the HTTP version is 1.0, this setting will be
+ignored by the transport framework. Also, KeepAlive is enabled by default in
+HTTP/1.1.</p>
+<p>If you use HTTP1.1 for its Keep-Alive ability, but you need to disable
+chunking at runtime (some servers don't allow chunked requests to
+prevent denial of service), you can do so in the Stub:
+</p>
+    
+<pre>
+options.setProperty(HTTPConstants.CHUNKED, "false");
+</pre>
+
+<p>Some absolute properties are provided at runtime instead.  For example, character
+encoding style (UTF-8, UTF-16, etc.) is provided via MessageContext.</p>
+<a name="httpsupport"></a>
+
+<h3>HTTPS support</h3>
+CommonsHTTPTransportSender can be also used to communicate over https.
+
+<pre>
+   &lt;transportSender name="<b>https</b>" class="org.apache.axis2.transport.http.CommonsHTTPTransportSender"&gt;
+      &lt;parameter name="PROTOCOL"&gt;HTTP/1.1&lt;/parameter&gt;
+      &lt;parameter name="Transfer-Encoding"&gt;chunked&lt;/parameter&gt;
+   &lt;/transportSender&gt;
+</pre>
+
+<p>Please note that by default HTTPS works only when the server does not
+expect to authenticate the clients (1-way SSL only) and where the
+server has the clients' public keys in its trust store.
+
+If you want to perform SSL client authentication (2-way SSL), you may
+use the Protocol.registerProtocol feature of HttpClient. You can
+overwrite the "https" protocol, or use a different protocol for your
+SSL client authentication communications if you don't want to mess
+with regular https. Find more information at
+<a href="http://jakarta.apache.org/commons/httpclient/sslguide.html">http://jakarta.apache.org/commons/httpclient/sslguide.html</a></p>
+<a name="timeout_config"></a>
+
+<h2>Timeout Configuration</h2>
+
+<p>Two timeout instances exist in the transport level, Socket timeout 
+and Connection timeout. These can be configured either at deployment
+or run time.  If configuring at deployment time, the user has to add the
+following lines in axis2.xml.</p>
+
+<p>For Socket timeout:</p>
+<pre>&lt;parameter name="SO_TIMEOUT"&gt;some_integer_value&lt;/parameter&gt;</pre>
+
+<p>For Connection timeout:</p>
+<pre> &lt;parameter name="CONNECTION_TIMEOUT"&gt;some_integer_value&lt;/parameter&gt;</pre>
+<br/>
+
+For runtime configuration, it can be set as follows within the client stub:
+<pre>
+...
+Options options = new Options();
+options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(timeOutInMilliSeconds));
+options.setProperty(HTTPConstants.CONNECTION_TIMEOUT, new Integer(timeOutInMilliSeconds));
+
+// or
+options.setTimeOutInMilliSeconds(timeOutInMilliSeconds);
+...
+</pre>
+
+<a name="version_config"></a>
+
+<h2>HTTP Version Configuration</h2>
+
+<p>The default HTTP version is 1.1. There are two methods in which the user
+can change the HTTP version to 1.0</p>
+<ul>
+  <li>By defining the version in axis2.xml as shown below.
+  <pre> &lt;parameter name="PROTOCOL"&gt;HTTP/1.0&lt;/parameter&gt;</pre></li>
+  <li>By changing the version at runtime by using code similar to the following:
+<pre>
+...
+options.setProperty(org.apache.axis2.context.MessageContextConstants.HTTP_PROTOCOL_VERSION,
+   org.apache.axis2.transport.http.HTTPConstants.HEADER_PROTOCOL_10);
+...
+</pre></li>
+</ul>
+<a name="auth"></a>
+
+<h2>Proxy Authentication</h2>
+
+<p>The Commons-http client has built-in support for proxy
+authentication. Axis2 uses deployment time and runtime mechanisms to
+authenticate proxies. At deployment time, the user has to change the
+axis2.xml as follows. This authentication is available for both HTTP and
+HTTPS.</p>
+<pre>
+&lt;transportSender name="<b>http</b>" class="org.apache.axis2.transport.http.CommonsHTTPTransportSender"&gt;
+   &lt;parameter name="PROTOCOL"&gt;HTTP/1.1&lt;/parameter&gt;
+   &lt;parameter name="PROXY" proxy_host="proxy_host_name" proxy_port="proxy_host_port"&gt;userName:domain:passWord&lt;/parameter&gt;
+&lt;/transportSender&gt;</pre>
+
+<p>For a particular proxy, if authentication is not available, enter the
+"userName:domain:passWord" as "anonymous:anonymous:anonymous".</p>
+
+<p>Prior shown configuration has been deprecated after Axis2 1.2 release and we strongly recommend using the new
+proxy configuration as below. </p>
+<p>
+    New proxy configuration would require the user to add a TOP level parameter in the axis2.xml named "Proxy".
+</p>
+    <pre>
+&lt;parameter name="Proxy"&gt;
+    &lt;Configuration&gt;
+        &lt;ProxyHost&gt;example.org&lt;/ProxyHost&gt;
+        &lt;ProxyPort&gt;5678&lt;/ProxyPort&gt;
+        &lt;ProxyUser&gt;EXAMPLE\saminda&lt;/ProxyUser&gt;
+        &lt;ProxyPassword>ppp&lt;/ProxyPassword&gt;
+    &lt;/Configuration&gt;
+&lt;/parameter&gt;
+    </pre>
+
+    <p> Thus, if its a open proxy, user can ignore ProxyUser and ProxyPassword elements. </p>
+
+    <p>In addition to this, if you don't want to go through writing the above parameter you could
+        use Java Networking Properties for open proxies,
+-Dhttp.proxyHost=10.150.112.254 -Dhttp.proxyPort=8080 </p>
+
+<p>At runtime, the user can override the PROXY settings using the
+HttpTransportProperties.ProxyProperties object. Within your client stub, 
+create an instance of this object, configure proxy values for it,
+and then set it to the MessageContext's property bag via options.setProperty().
+For example:</p>
+<pre>
+...
+Options options = new Options();
+...
+
+HttpTransportProperties.ProxyProperties proxyProperties = new HttpTransportProperties.new ProxyProperties();
+proxyProperties.setProxyHostName(....);
+proxyProperties.setProxyPort(...);
+...
+options.setProperty(HttpConstants.PROXY, proxyProperties);
+...
+</pre>
+<p>The above code will override the deployment proxy configuration settings.</p>
+<a name="preemptive_auth"></a>
+
+<h2>Basic, Digest and NTLM Authentication</h2>
+
+<p>HttpClient supports three different types of HTTP authentication schemes:
+Basic, Digest and NTLM. Based on the challenge provided by the server,
+HttpClient automatically selects the authentication scheme with which the
+request should be authenticated.  The most secure method is NTLM and the Basic
+is the least secure.</p>
+
+<p>NTLM is the most complex of the authentication protocols supported by
+HttpClient. It requires an instance of NTCredentials to be available for the
+domain name of the server or the default credentials. Note that since NTLM
+does not use the notion of realms, HttpClient uses the domain name of the
+server as the name of the realm. Also note that the username provided to the
+NTCredentials should not be prefixed with the domain - ie: "axis2" is correct
+whereas "DOMAIN\axis2" is not correct.</p>
+
+<p>There are some significant differences in the way that NTLM works compared
+with basic and digest authentication. These differences are generally handled
+by HttpClient, however having an understanding of these differences can help
+avoid problems when using NTLM authentication.</p>
+<ol>
+  <li>NTLM authentication works almost exactly the same way as any other form
+    of authentication in terms of the HttpClient API. The only difference is
+    that you need to supply 'NTCredentials' instead of
+    'UsernamePasswordCredentials' (NTCredentials actually extends
+    UsernamePasswordCredentials so you can use NTCredentials right throughout
+    your application if need be).</li>
+  <li>The realm for NTLM authentication is the domain name of the computer to
+    which you are being connected. This can become troublesome as servers often
+    have multiple domain names that refer to them. Only the domain name that
+    the HttpClient connects to (as specified by the HostConfiguration) is
+    used to look up the credentials. It is generally advised that while
+    initially testing NTLM authentication, you pass the realm as null, which
+    is its default value.</li>
+  <li>NTLM authenticates a connection and not a request. So you need to
+    authenticate every time a new connection is made, and keeping the
+    connection open during authentication is vital. Because of this, NTLM cannot
+    be used to authenticate with both a proxy and the server, nor can NTLM be
+    used with HTTP 1.0 connections or servers that do not support HTTP
+    keep-alives.</li>
+</ol>
+
+<p>Axis2 also allows adding a custom Authentication Scheme to HttpClient.</p>
+
+<p>The static inner bean Authenticator of HttpTransportProperties will hold
+the state of the server to be authenticated with. Once filled, it has to be
+set to the Options's property bag with the key as HTTPConstants.AUTHENTICATE.
+The following code snippet shows how to configure the transport
+framework to use Basic Authentication:</p>
+<pre>
+...
+Options options = new Options();
+ 
+HttpTransportProperties.Authenticator
+   auth = new HttpTransportProperties.Authenticator();
+auth.setUsername("username");
+auth.setPassword("password");
+// set if realm or domain is known
+
+options.setProperty(org.apache.axis2.transport.http.HTTPConstants.AUTHENTICATE, auth);
+...
+</pre>
+<a name="reusing_httpclient_object"></a>
+<h2>Reusing the httpclient object</h2>
+
+<p>By default, a new httpclient object is created for each send. It may
+be worthwhile to reuse the same httpclient object to take advantage of
+HTTP1.1 Keep-Alive, especially in HTTPS environment, where the SSL
+handshake may not be of negligible cost. To reuse the same httpclient
+object, you can set the relevant property in the Stub:
+</p>
+
+        <pre>options.setProperty(HTTPConstants.REUSE_HTTP_CLIENT, "true");</pre>
+
+    <a name="setting_cached_httpclient_object"></a>
+<h2>Setting the cached httpclient object</h2>
+
+To control the max connections per host attempted in parallel by a
+reused httpclient (this can be worthwhile as the default value is 2
+connections per host), or any other advanced parameters, you need to
+set the cached httpclient object when your application starts up
+(before any actual axis request). You can set the relevant property in
+the Stub:
+
+    <pre>
+MultiThreadedHttpConnectionManager conmgr = new MultiThreadedHttpConnectionManager();
+conmgr.getParams().setDefaultMaxConnectionsPerHost(10);
+HttpClient client = new HttpClient(conmgr);
+configurationContext.setProperty(HTTPConstants.CACHED_HTTP_CLIENT, client);
+</pre>
+
+    <a name="setting_cached_httpstate_object"></a>
+<h2>Setting the cached httpstate object</h2>
+
+HttpState object can be set as property to the options of a given Axis2 client. 
+HttpState keeps HTTP attributes that may persist from request to request, such
+ as cookies and authentication credentials. So, it is possible to re-use one and
+  the same HttpState object if appropriate.
+
+The idea is to provide the capability to specify/associate a separate HttpState 
+with every client and still reuse one and the same HttpClient. So, this make 
+sense only when CACHED_HTTP_CLIENT is re-used between different clients
+from different threads which may invoke different hosts with different credentials
+and cookies. This is really complicated scenario, but is absolutely possible one.
+ If you re-use a common HttpClient between different clients then the clients will 
+ re-use, the internal for the HttpClient, HttpState object. Doing so authentication 
+ credentials are exposed to all clients sharing one and the same HttpClient. 
+ This is definitely not a good idea. The problem with Cookies is different. The
+  problem here is that if two distinct clients invoke one and the same service 
+  at a specific host then the session established with a given cookie by one of
+  the clients can wrongly be shared among them, too, if it has not expired. This 
+  will cause problems since the two client may need different sessions, which is
+  the more probable scenario.
+
+Sample configuration:
+
+    <pre>
+HttpState myHttpState = new HttpState();
+options.setProperty(WSClientConstants.CACHED_HTTP_STATE, myHttpState);
+</pre>
+    
+Doing so the HttpState is attached to the client. Respectively this is automatically propagated to all MessageContext objects used by the client. 
+Underneath this just instructs Axis2 that the CACHED_HTTP_STATE set should be passed as a parameter when HttpClient#executeMethod is invoked. 
+    
+</body>
+</html>

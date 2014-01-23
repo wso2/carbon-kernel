@@ -1,0 +1,165 @@
+body {
+  padding: 0px 0px 10px 0px;
+}
+body, td, select, input, li{
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+}
+code{
+  font-family: Courier, monospace;
+  font-size: 13px;
+}
+a {
+  text-decoration: none;
+}
+a:link {
+  color:#36a;
+}
+a:visited  {
+  color:#47a;
+}
+a:active, a:hover {
+  color:#69c;
+}
+#legend li.externalLink {
+  background: url(../images/external.png) left top no-repeat;
+  padding-left: 18px;
+}
+a.externalLink, a.externalLink:link, a.externalLink:visited, a.externalLink:active, a.externalLink:hover {
+  background: url(../images/external.png) right center no-repeat;
+  padding-right: 18px;
+}
+#legend li.newWindow {
+  background: url(../images/newwindow.png) left top no-repeat;
+  padding-left: 18px;
+}
+a.newWindow, a.newWindow:link, a.newWindow:visited, a.newWindow:active, a.newWindow:hover {
+  background: url(../images/newwindow.png) right center no-repeat;
+  padding-right: 18px;
+}
+h2 {
+  padding: 4px 4px 4px 6px;
+  border: 1px solid #99CCFF;
+  color: #000;
+  background-color: #CAE4FF;
+  font-weight: bold;
+  font-size: 16px;
+}
+h3 {
+  padding: 4px 4px 4px 6px;
+  border: 1px solid #99CCFF;
+  color: #000;
+  background-color: #EAF4FF;
+  font-weight: normal;
+  font-size: 16px;
+}
+h4 {
+  padding: 4px 4px 4px 6px;
+  border: 1px solid #99CCFF;
+  color: #000;
+  background-color: #fff;
+  font-weight: normal;
+  font-size: 16px;
+}
+h5 {
+  padding: 4px 4px 4px 6px;
+  color: #000;
+  font-size: normal;
+}
+p {
+  line-height: 1.3em;
+  font-size: small;
+}
+#breadcrumbs {
+  border-top: 1px solid #999;
+  border-bottom: 1px solid #999;
+  background-color: #eee;
+}
+#leftColumn {
+  margin: 0 0 17px;
+  border: 1px solid #99CCFF;
+  background-image: url(../images/menuBg.jpg);
+  background-position: left top;
+  background-repeat: repeat-x;
+  background-color: #EAF4FF;
+}
+#navcolumn h5 {
+  font-size: small;
+  border-bottom: 1px solid #999;
+  padding-top: 2px;
+  color: #000;
+}
+
+#navcolumn li {
+  list-style-type: none;
+  background-image: none;
+  background-repeat: no-repeat;
+  background-position: 0 0.6em;
+  padding-left: 16px;
+  list-style-position: outside;
+  line-height: 1.6em;
+  font-size: small;
+}
+
+table.bodyTable th {
+  color: white;
+  background-color: #C1C1C1;
+  text-align: left;
+  font-weight: bold;
+}
+
+table.bodyTable th, table.bodyTable td {
+  font-size: 1em;
+}
+
+table.bodyTable tr.a {
+  background-color: #DFDFDF;
+}
+
+table.bodyTable tr.b {
+  background-color: #eee;
+}
+
+.source {
+  border: 1px solid #999;
+}
+dl {
+  padding: 4px 4px 4px 6px;
+  border: 1px solid #aaa;
+  background-color: #ffc;
+}
+dt {
+  color: #900;
+}
+#organizationLogo img, #projectLogo img, #projectLogo span{
+  margin: 8px;
+}
+#banner {
+  height: 105px;
+  background-image: url(../images/headerBg.jpg);
+  background-position: left top;
+  background-repeat: repeat-x;
+}
+#bannerLeft{
+    background-image:url(../images/axis2TransportsLogo.gif);
+    background-repeat:no-repeat;
+    background-position:0px 0px;
+    height:103px;
+    text-align:right;
+    padding-right:10px;
+    display:block;
+}
+#bannerRight{
+    background-image:url(../images/asfLogo.jpg);
+    background-repeat:no-repeat;
+    background-position:right 0px;
+    display:block;
+    height:65px;
+    position:absolute;
+    right:0px;
+    top:0px;
+}
+#bodyColumn {
+  margin-right: 13px;
+  margin-left: 185px;
+}

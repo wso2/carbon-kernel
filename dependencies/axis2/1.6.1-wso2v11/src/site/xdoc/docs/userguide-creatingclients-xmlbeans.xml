@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Generating a Web Service Client using Axis2 and
+XmlBeans</title>
+</head>
+<body>
+<h1 class="title">Generating a Web Service Client using Apache
+Axis2 and XMLBeans</h1>
+<p>This document explains how to generate a Web service client
+using Apache Axis2 and XMLBeans data binding. The service has the
+following WSDL:</p>
+<p><b>Code Listing 1: The WSDL file</b></p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;wsdl:definitions
+   xmlns:apachesoap="http://xml.apache.org/xml-soap"
+   xmlns:impl="http://apache.org/axis2/Axis2UserGuide"
+   xmlns:intf="http://apache.org/axis2/Axis2UserGuide"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   targetNamespace="http://apache.org/axis2/Axis2UserGuide"&gt;
+
+  &lt;wsdl:types&gt;
+    &lt;schema
+       elementFormDefault="qualified"
+       targetNamespace="http://apache.org/axis2/Axis2UserGuide"
+       xmlns="http://www.w3.org/2001/XMLSchema"&gt;
+      
+      &lt;!-- ELEMENTS --&gt;
+      
+      &lt;element name="DoInOnlyRequest"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="messageString" type="xsd:string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="TwoWayOneParameterEchoRequest"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="echoString" type="xsd:string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      &lt;element name="TwoWayOneParameterEchoResponse"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="echoString" type="xsd:string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="NoParametersRequest"&gt;
+        &lt;complexType/&gt;
+      &lt;/element&gt;
+      &lt;element name="NoParametersResponse"&gt;
+        &lt;complexType/&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="MultipleParametersAddItemRequest"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="itemId" type="xsd:int"/&gt;
+            &lt;element name="itemName" type="xsd:string"/&gt;
+            &lt;element name="price" type="xsd:float"/&gt;
+            &lt;element name="description" type="xsd:string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+
+      &lt;element name="MultipleParametersAddItemResponse"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+          &lt;element name="itemId" type="xsd:int"/&gt;
+          &lt;element name="successfulAdd" type="xsd:boolean"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+
+    &lt;/schema&gt;
+  &lt;/wsdl:types&gt;
+
+  
+  &lt;!-- MESSAGES --&gt;
+
+  &lt;wsdl:message name="DoInOnlyRequestMessage"&gt;
+    &lt;wsdl:part name="input" element="impl:DoInOnlyRequest"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:message name="TwoWayOneParameterEchoRequestMessage"&gt;
+    &lt;wsdl:part name="input" element="impl:TwoWayOneParameterEchoRequest"/&gt;
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:message name="TwoWayOneParameterEchoResponseMessage"&gt;
+    &lt;wsdl:part name="output" element="impl:TwoWayOneParameterEchoResponse"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:message name="NoParametersRequestMessage"&gt;
+    &lt;wsdl:part name="input" element="impl:NoParametersRequest"/&gt;
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:message name="NoParametersResponseMessage"&gt;
+    &lt;wsdl:part name="output" element="impl:NoParametersResponse"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:message name="MultipleParametersAddItemRequestMessage"&gt;
+    &lt;wsdl:part name="input" element="impl:MultipleParametersAddItemRequest"/&gt;
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:message name="MultipleParametersAddItemResponseMessage"&gt;
+    &lt;wsdl:part name="output" element="impl:MultipleParametersAddItemResponse"/&gt;
+  &lt;/wsdl:message&gt;
+
+
+  &lt;!-- Port type (operations) --&gt;
+
+  &lt;wsdl:portType name="Axis2UserGuidePortType"&gt;
+
+    &lt;wsdl:operation name="DoInOnly" parameterOrder="input"&gt;
+      &lt;wsdl:input name="DoInOnlyRequestMessage"
+                  message="impl:DoInOnlyRequestMessage"/&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="TwoWayOneParameterEcho" parameterOrder="input"&gt;
+      &lt;wsdl:input name="TwoWayOneParameterEchoRequestMessage"
+                  message="impl:TwoWayOneParameterEchoRequestMessage"/&gt;
+      &lt;wsdl:output name="TwoWayOneParameterEchoResponseMessage"
+                  message="impl:TwoWayOneParameterEchoResponseMessage"/&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="NoParameters" parameterOrder="input"&gt;
+      &lt;wsdl:input name="NoParametersRequestMessage"
+                  message="impl:NoParametersRequestMessage"/&gt;
+      &lt;wsdl:output name="NoParametersResponseMessage"
+                   message="impl:NoParametersResponseMessage"/&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="MultipleParametersAddItem" parameterOrder="input"&gt;
+      &lt;wsdl:input name="MultipleParametersAddItemRequestMessage"
+                  message="impl:MultipleParametersAddItemRequestMessage"/&gt;
+      &lt;wsdl:output name="MultipleParametersAddItemResponseMessage"
+                  message="impl:MultipleParametersAddItemResponseMessage"/&gt;
+    &lt;/wsdl:operation&gt;
+
+  &lt;/wsdl:portType&gt;
+
+
+  &lt;!-- BINDING (bind operations) --&gt;
+  &lt;wsdl:binding
+     name="Axis2UserGuideSoapBinding"
+     type="impl:Axis2UserGuidePortType"&gt;
+    &lt;wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/&gt;
+
+    &lt;wsdl:operation name="DoInOnly"&gt;
+      &lt;wsdlsoap:operation soapAction="DoInOnly"/&gt;
+      &lt;wsdl:input&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="TwoWayOneParameterEcho"&gt;
+      &lt;wsdlsoap:operation soapAction="TwoWayOneParameterEcho"/&gt;
+      &lt;wsdl:input&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="NoParameters"&gt;
+      &lt;wsdlsoap:operation soapAction="NoParameters"/&gt;
+      &lt;wsdl:input&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="MultipleParametersAddItem"&gt;
+      &lt;wsdlsoap:operation soapAction="MultipleParametersAddItem"/&gt;
+      &lt;wsdl:input&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:binding&gt;
+
+
+  &lt;!-- SERVICE --&gt;
+
+  &lt;wsdl:service name="Axis2UserGuideService"&gt;
+    &lt;wsdl:port binding="impl:Axis2UserGuideSoapBinding"
+               name="Axis2UserGuide"&gt;
+      &lt;wsdlsoap:address location="http://localhost:8080/axis2/services/Axis2UserGuide"/&gt;
+    &lt;/wsdl:port&gt;
+  &lt;/wsdl:service&gt;
+&lt;/wsdl:definitions&gt;
+</pre>
+<p>Note that the document defines four operations, DoInOnly,
+NoParameters, TwoWayOneParameterEcho, and
+MultipleParametersAddItem. Each client will include methods for
+calling each of these operations.</p>
+<p>(For more information on WSDL, refer to: <a href=
+"http://www.w3.org/2002/ws/desc/">http://www.w3.org/2002/ws/desc/</a>
+.)</p>
+<p><b>The short story:</b></p>
+<ol>
+<li><a href="../download.cgi#std-bin">Download</a>
+and unpack the Apache Axis2 Standard Distribution, if you have not
+done so already.</li>
+<li>Create the client classes with the following command:<br />
+<pre>
+%AXIS2_HOME%\bin\WSDL2Java -uri Axis2UserGuide.wsdl -p org.apache.axis2.axis2userguide -d xmlbeans -s
+</pre></li>
+<li>Create the client (for example, Client.java) and save it in the
+org/apache/axis2/axis2userguide directory.</li>
+<li>Build the client by typing: <code>ant jar.client.</code></li>
+<li>Make sure all the .jar files in the Axis2 lib directory are in
+the CLASSPATH.</li>
+<li>Assuming you have a corresponding service, run the client by
+adding the generated Axis2UserGuideService-test-client.jar file in
+build/lib to the CLASSPATH and type: <code>java
+org.apache.axis2.axis2userguide.Client</code></li>
+</ol>
+<p><b>The long story:</b></p>
+<p><a href="../download.cgi#std-bin">Download</a>
+and unpack the Apache Axis2 Standard Distribution, if you have not
+done so already. The <a href="../download.cgi#war">WAR
+distribution</a> does not include the necessary utilities for
+generating code, such as WSDL2Java.</p>
+<p>The XMLBeans method of generating clients, unlike ADB, creates
+individual classes for each object it must model. For example,
+generating a client for this WSDL file created 642 files and
+folders. A small number of these files are directly related to the
+actual client you're creating. The rest are related to the
+processing of XML, and include data bound objects for schemas,
+encodings, and other objects needed to process messages.</p>
+<p>To generate the client, issue the following command in Listing
+2.</p>
+<p><b>Code Listing 2. Generating the client</b></p>
+<pre>
+%AXIS2_HOME%\bin\WSDL2Java -uri Axis2UserGuide.wsdl -p org.apache.axis2.axis2userguide -d xmlbeans -s
+</pre>
+<p>This command analyzes the WSDL file and creates the stubs in the
+package org.apache.axis2.axis2userguide. The options specify that
+you want the XMLBeans data binding method (-d), and synchronous or
+blocking methods (-s). In other words, when the client makes an
+In-Out call to the service, it will wait for a response before
+continuing.</p>
+<p>Once you run this command, you will see several new items in the
+directory. The first is the build.xml file, which contains the
+instructions for <a href="http://ant.apache.org/">Ant</a> to
+compile the generated classes. The second is the src directory,
+which contains all the generated classes. The third is the
+resources directory, which includes files related to the actual
+data binding process.</p>
+<p>Now you need a client. To create a client, create a new class
+and save it as Client.java in the org/apache/axis2/axis2userguide
+directory. It should contain the following code in Listing 3.</p>
+<p><b>Code Listing 3: Client.java</b></p>
+<pre>
+package org.apache.axis2.axis2userguide;
+
+public class Client{
+    public static void main(java.lang.String args[]){
+        try{
+            Axis2UserGuideServiceStub stub =
+                new Axis2UserGuideServiceStub
+                ("http://localhost:8080/axis2/services/Axis2UserGuideService");
+
+            doInOnly(stub);
+            twoWayOneParameterEcho(stub);
+            noParameters(stub);
+            multipleParameters(stub);
+
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+
+    /* fire and forget */
+    public static void doInOnly(Axis2UserGuideServiceStub stub){
+        try{
+            DoInOnlyRequestDocument req =
+                DoInOnlyRequestDocument.Factory.newInstance();
+            DoInOnlyRequestDocument.DoInOnlyRequest data =
+                req.addNewDoInOnlyRequest();
+
+            data.setMessageString("fire and forget it!");
+
+            stub.DoInOnly(req);
+            System.out.println("done");
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+
+    /* two way call/receive */
+    public static void twoWayOneParameterEcho(Axis2UserGuideServiceStub stub){
+        try{
+            TwoWayOneParameterEchoRequestDocument req =
+                TwoWayOneParameterEchoRequestDocument.Factory.newInstance();
+            TwoWayOneParameterEchoRequestDocument.TwoWayOneParameterEchoRequest data =
+                req.addNewTwoWayOneParameterEchoRequest();
+
+            data.setEchoString("echo! ... echo!");
+
+            TwoWayOneParameterEchoResponseDocument res =
+                stub.TwoWayOneParameterEcho(req);
+
+            System.out.println(res.getTwoWayOneParameterEchoResponse().getEchoString());
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+
+    /* No parameters */
+    public static void noParameters(Axis2UserGuideServiceStub stub){
+        try{
+            NoParametersRequestDocument req =
+                NoParametersRequestDocument.Factory.newInstance();
+            NoParametersRequestDocument.NoParametersRequest data =
+                req.addNewNoParametersRequest();
+
+            System.out.println(stub.NoParameters(req));
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+
+    /* multiple parameters */
+    public static void multipleParameters(Axis2UserGuideServiceStub stub){
+        try{
+            MultipleParametersAddItemRequestDocument req =
+                MultipleParametersAddItemRequestDocument.Factory.newInstance();
+            MultipleParametersAddItemRequestDocument.
+                MultipleParametersAddItemRequest data =
+                req.addNewMultipleParametersAddItemRequest();
+
+            data.setPrice((float)1.99);
+            data.setItemId((int)23872983);
+            data.setDescription("Must have for cooking");
+            data.setItemName("flour");
+
+            MultipleParametersAddItemResponseDocument res =
+                stub.MultipleParametersAddItem(req);
+            MultipleParametersAddItemResponseDocument.
+                MultipleParametersAddItemResponse dataRes =
+                res.getMultipleParametersAddItemResponse();
+
+            System.out.println(dataRes.getSuccessfulAdd());
+            System.out.println(dataRes.getItemId());
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+}
+</pre>
+<p>XMLBeans uses a different architecture from ADB. In XMLBeans,
+processing centers around documents, which are created through the
+use of factories, and which include inner classes for the objects
+they contain. The process is still the same -- you create a
+request, and send it using the stub -- the code is just a bit more
+complex.</p>
+<p>To build the client, type: <code>ant jar.client</code></p>
+<p>This action creates two new directories, build and test. The
+test directory will be empty, but the build directory will contain
+two versions of the client. The first version in the lib directory
+consists of two .jar files, one containing the Client class and the
+stub implementations, and the other containing the XMLBeans-related
+classes. The second version in the classes directory consists of
+just the raw classes.</p>
+<p>Make sure all the .jar files in the Axis2 lib directory are on
+the classpath.</p>
+<p>If you have a service corresponding to this client (if you
+don't, check out the <a href=
+"userguide-buildingservices.html">Building Services</a> document)
+you can run the client by adding the two .jar files to your
+classpath and typing:
+<code>java.org.apache.axis2.axis2userguide.Client</code></p>
+<p>You should see the response in a console window of your servlet
+container. It should look something like this:</p>
+<p><img alt=
+"Response in a console window of your servlet container" src=
+"images/fig04.jpg" /><br clear="all" /></p>
+</body>
+</html>

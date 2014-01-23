@@ -1,0 +1,448 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+ <globalConfiguration>
+   <parameter name="disablePrettyXML" value="true"/>
+   <parameter name="enableNamespacePrefixOptimization" value="true"/>
+ </globalConfiguration>
+
+  <!-- Services from PingService WSDL service -->
+
+  <service name="Ping1" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping1"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="UsernameToken"/>
+   </handler>
+  </requestFlow>
+  </service>
+
+  <service name="Ping2" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping2"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="UsernameToken Encrypt"/>
+    <parameter name="decryptionPropFile" value="wsstest.properties" />
+   </handler>
+  </requestFlow>
+  </service>
+
+  <service name="Ping2a" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping2"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="UsernameTokenSignature UsernameToken Encrypt Timestamp"/>
+    <parameter name="decryptionPropFile" value="wsstest.properties" />
+   </handler>
+  </requestFlow>
+  </service>
+
+  <service name="Ping2b" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping2"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="UsernameTokenSignature UsernameToken Timestamp"/>
+   </handler>
+  </requestFlow>
+  </service>
+
+  <service name="Ping3" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping3"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="Signature Encrypt Timestamp"/>
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+   </handler>
+  </requestFlow>
+  <responseFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllSender" >
+    <parameter name="action" value="Signature Encrypt Timestamp"/>
+    <!-- Use the Server's cert/key to sign the response -->
+    <parameter name="user" value="bob"/>
+    <parameter name="passwordCallbackClass" 
+      value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="signatureKeyIdentifier" value="DirectReference" />
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+    <parameter name="encryptionKeyIdentifier" value="SKIKeyIdentifier" />
+    <parameter name="encryptionSymAlgorithm" value="http://www.w3.org/2001/04/xmlenc#tripledes-cbc" />    
+    <!-- Use the Client's cert/key to encrypt the response -->
+    <parameter name="encryptionUser" value="alice" />
+   </handler>
+  </responseFlow>
+  </service>
+    
+  <service name="Ping4" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping4"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="Signature Encrypt Timestamp"/>
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+   </handler>
+  </requestFlow>
+  <responseFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllSender" >
+    <parameter name="action" value="Signature Encrypt Timestamp"/>
+    <!-- Use the Server's cert/key to sign the response -->
+    <parameter name="user" value="bob"/>
+    <parameter name="passwordCallbackClass" 
+      value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="signatureKeyIdentifier" value="SKIKeyIdentifier" />
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+    <parameter name="encryptionKeyIdentifier" value="EmbeddedKeyName" />
+    <parameter name="encryptionSymAlgorithm" value="http://www.w3.org/2001/04/xmlenc#tripledes-cbc" />    
+    <parameter name="EmbeddedKeyCallbackClass" 
+      value="org.apache.ws.axis.oasis.PWCallback1" />
+    <parameter name="EmbeddedKeyName" value="SessionKey" />
+   </handler>
+  </responseFlow>
+  </service>
+
+  <service name="Ping5" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping5"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="Signature Signature Timestamp"/>
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+   </handler>
+  </requestFlow>
+  </service>
+
+  <service name="Ping6" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping6"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="Encrypt Signature Timestamp"/>
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+   </handler>
+  </requestFlow>
+  <responseFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllSender" >
+    <parameter name="action" value="Encrypt Signature Timestamp"/>
+    <!-- Use the Server's cert/key to sign the response -->
+    <parameter name="user" value="bob"/>
+    <parameter name="passwordCallbackClass" 
+      value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="signatureKeyIdentifier" value="SKIKeyIdentifier" />
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+    <parameter name="encryptionKeyIdentifier" value="DirectReference" />
+    <parameter name="encryptionSymAlgorithm" value="http://www.w3.org/2001/04/xmlenc#tripledes-cbc" />    
+    <!-- Use the Client's cert/key to encrypt the response -->
+    <parameter name="encryptionUser" value="alice" />
+   </handler>
+  </responseFlow>
+  </service>
+
+  <service name="Ping7" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+      <parameter name="wsdlServiceElement" value="PingService"/>
+      <parameter name="wsdlServicePort" value="Ping7"/>
+      <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+      <parameter name="wsdlPortType" value="PingPort"/>
+      <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping" >
+        <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+        <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+      </operation>
+      <parameter name="allowedMethods" value="ping"/>
+
+      <typeMapping
+        xmlns:ns="http://xmlsoap.org/Ping"
+        qname="ns:ticketType"
+        type="java:org.apache.ws.axis.oasis.ping.TicketType"
+        serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+        deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+        encodingStyle=""
+      />
+
+  <requestFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="action" value="Signature Encrypt Timestamp"/>
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+    <parameter name="decryptionPropFile" value="wsstest.properties" />
+   </handler>
+  </requestFlow>
+  <responseFlow>
+   <handler type="java:org.apache.ws.axis.security.WSDoAllSender" >
+    <parameter name="action" value="Signature Encrypt Timestamp"/>
+    <!-- Use the Server's cert/key to sign the response -->
+    <parameter name="user" value="bob"/>
+    <parameter name="passwordCallbackClass" 
+      value="org.apache.ws.axis.oasis.PWCallback1"/>
+    <parameter name="signatureKeyIdentifier" value="SKIKeyIdentifier" />
+    <parameter name="signaturePropFile" value="wsstest.properties" />
+    <parameter name="encryptionPropFile" value="wsstest.properties" />
+    <parameter name="encryptionKeyIdentifier" value="DirectReference" />
+    <parameter name="encryptionSymAlgorithm" value="http://www.w3.org/2001/04/xmlenc#tripledes-cbc" />   
+    <!-- Use the Client's cert/key to encrypt the response -->    
+    <parameter name="encryptionUser" value="alice" />
+   </handler>
+  </responseFlow>
+      
+  </service>
+    
+    <service name="STPing1" provider="java:RPC" style="wrapped" use="literal">
+        <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+        <parameter name="wsdlServiceElement" value="PingService"/>
+        <parameter name="wsdlServicePort" value="STPing1"/>
+        <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+        <parameter name="wsdlPortType" value="PingPort"/>
+        <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping">
+            <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+            <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+        </operation>
+        <parameter name="allowedMethods" value="ping"/>
+        <typeMapping
+            xmlns:ns="http://xmlsoap.org/Ping"
+            qname="ns:ticketType"
+            type="java:org.apache.ws.axis.oasis.ping.TicketType"
+            serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+            deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+            encodingStyle=""
+            />
+        <requestFlow>
+            <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+                <parameter name="action" value="Timestamp SAMLTokenUnsigned"/>
+            </handler>
+        </requestFlow>
+    </service>
+    
+    <service name="STPing3" provider="java:RPC" style="wrapped" use="literal">
+        <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+        <parameter name="wsdlServiceElement" value="PingService"/>
+        <parameter name="wsdlServicePort" value="STPing1"/>
+        <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+        <parameter name="wsdlPortType" value="PingPort"/>
+        <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping">
+            <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+            <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+        </operation>
+        <parameter name="allowedMethods" value="ping"/>
+        <typeMapping
+            xmlns:ns="http://xmlsoap.org/Ping"
+            qname="ns:ticketType"
+            type="java:org.apache.ws.axis.oasis.ping.TicketType"
+            serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+            deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+            encodingStyle=""
+            />
+		<!--
+		 ATTENTION: depending on the SAML token type (here "sender vouches") _and_
+		 the keyIdentfier specified by the sender be sure to set the correct
+		 crypto.properties
+		 
+		 action: if the sender specifies "SAMLTokenSigned" then DoAllSender
+		 performs two actions: inserting a SAML Token (unsigned) _and_ an
+		 associated Signature. Thus, at the receiver's side, we need to
+		 define both :-)
+		 -->
+
+        <requestFlow>
+            <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+                <parameter name="action" value="Timestamp Signature SAMLTokenUnsigned"/>
+                <parameter name="signaturePropFile" value="crypto.properties" />
+                
+            </handler>
+        </requestFlow>
+    </service>
+
+    <service name="STPing4" provider="java:RPC" style="wrapped" use="literal">
+        <parameter name="wsdlTargetNamespace" value="http://xmlsoap.org/Ping"/>
+        <parameter name="wsdlServiceElement" value="PingService"/>
+        <parameter name="wsdlServicePort" value="STPing1"/>
+        <parameter name="className" value="org.apache.ws.axis.oasis.ping.PingBindingImpl"/>
+        <parameter name="wsdlPortType" value="PingPort"/>
+        <operation name="ping" qname="operNS:Ping" xmlns:operNS="http://xmlsoap.org/Ping">
+            <parameter qname="pns:ticket" xmlns:pns="http://xmlsoap.org/Ping" type="tns:ticketType" xmlns:tns="http://xmlsoap.org/Ping"/>
+            <parameter qname="pns:text" xmlns:pns="http://xmlsoap.org/Ping" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema" mode="INOUT"/>
+        </operation>
+        <parameter name="allowedMethods" value="ping"/>
+        <typeMapping
+            xmlns:ns="http://xmlsoap.org/Ping"
+            qname="ns:ticketType"
+            type="java:org.apache.ws.axis.oasis.ping.TicketType"
+            serializer="org.apache.axis.encoding.ser.SimpleSerializerFactory"
+            deserializer="org.apache.axis.encoding.ser.SimpleDeserializerFactory"
+            encodingStyle=""
+            />
+		<!--
+		 ATTENTION: depending on the SAML token type (here "key holder") _and_
+		 the keyIdentfier specified by the sender be sure to set the correct
+		 crypto.properties
+		 
+		 action: if the sender specifies "SAMLTokenSigned" then DoAllSender
+		 performs two actions: inserting a SAML Token (unsigned) _and_ an
+		 associated Signature. Thus, at the receiver's side, we need to
+		 define both :-)
+		 -->
+        <requestFlow>
+            <handler type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+                <parameter name="action" value="Timestamp Signature SAMLTokenUnsigned"/>
+			    <parameter name="signaturePropFile" value="crypto.properties" />
+                
+            </handler>
+        </requestFlow>
+    </service>
+
+
+</deployment>

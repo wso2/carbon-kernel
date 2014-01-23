@@ -1,0 +1,37 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    <soapenv:Header xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:axis2="http://ws.apache.org/namespaces/axis2">
+        <wsa:Reference4>Value 400</wsa:Reference4>
+        <wsa:Reference1>Value 100</wsa:Reference1>
+        <wsa:Reference0>Value 0</wsa:Reference0>
+        <wsa:Reference2>Value 200</wsa:Reference2>
+        <wsa:Reference3>Value 300</wsa:Reference3>
+        <wsa:To>http://www.to.org/service/</wsa:To>
+        <wsa:ReplyTo>
+            <wsa:Address>
+                http://schemas.xmlsoap.org/ws/2004/08/addressing/role/anonymous
+            </wsa:Address>
+        </wsa:ReplyTo>
+        <wsa:Action axis2:AttrExt="123456789">http://www.actions.org/action</wsa:Action>
+        <wsa:MessageID axis2:AttrExt="123456789">urn:test:123</wsa:MessageID>
+    </soapenv:Header>
+    <soapenv:Body/>
+</soapenv:Envelope>

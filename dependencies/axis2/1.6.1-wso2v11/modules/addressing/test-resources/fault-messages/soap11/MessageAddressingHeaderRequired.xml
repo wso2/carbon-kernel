@@ -1,0 +1,38 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <soapenv:Header>
+
+        <wsa:FaultDetail xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:ProblemHeaderQName>wsa:Action</wsa:ProblemHeaderQName>
+        </wsa:FaultDetail>
+        <wsa:To xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
+        <wsa:Action xmlns:wsa="http://www.w3.org/2005/08/addressing">http://www.w3.org/2005/08/addressing/fault</wsa:Action>
+        <wsa:MessageID xmlns:wsa="http://www.w3.org/2005/08/addressing">uuid:D1C0C3DF-0109-4000-E000-02ACC0A8015E</wsa:MessageID>
+        <wsa:RelatesTo xmlns:wsa="http://www.w3.org/2005/08/addressing">urn:uuid:32119abf-94c4-48e0-bda5-3daaaa90771e</wsa:RelatesTo>
+
+    </soapenv:Header>
+    <soapenv:Body>
+        <soapenv:Fault>
+            <faultcode>wsa:MessageAddressingHeaderRequired</faultcode>
+            <faultstring><![CDATA[A required header representing a Message Addressing Property is not present]]></faultstring>
+        </soapenv:Fault>
+    </soapenv:Body>
+</soapenv:Envelope>

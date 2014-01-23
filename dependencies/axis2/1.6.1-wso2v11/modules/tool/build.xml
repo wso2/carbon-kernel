@@ -1,0 +1,121 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project basedir="." default="help">
+
+       <property name="output.folder" value="./target/eclipse_plugins"></property>
+       <property name="service.plugin.folder" value="./axis2-eclipse-service-plugin"></property>
+       <property name="codegen.plugin.folder" value="./axis2-eclipse-codegen-plugin"></property>
+
+       <!-- Clean the directory -->
+       <target name="clean">
+          <delete dir="${output.folder}"></delete>
+       </target>
+
+       <!-- Default target to generate all the plugins -->
+       <target name="all">
+         <antcall target="clean" />
+         <antcall target="generate-plugins"/>
+         <antcall target="release-plugins"/>
+       </target>
+
+       <!-- init-->
+       <target name="init">
+          <mkdir dir="${output.folder}"></mkdir>
+       </target>
+
+        <target name="generate-projects" depends="init">
+               <ant dir="${service.plugin.folder}" target="generate-service-project" />
+               <ant dir="${codegen.plugin.folder}" target="generate-codegen-project"  />
+        </target>
+
+	<target name="generate-service-project" depends="init">
+	       <ant dir="${service.plugin.folder}" target="generate-service-project" />
+	</target>
+	
+	<target name="generate-codegen-project" depends="init">
+		 <ant dir="${codegen.plugin.folder}" target="generate-codegen-project" />
+	</target>
+
+        <target name="generate-plugins" depends="init">
+		<ant dir="${service.plugin.folder}" target="generate-service-plugin" />
+		<ant dir="${codegen.plugin.folder}" target="generate-codegen-plugin" />
+        </target>
+
+	<target name="generate-service-plugin" depends="init">
+		<ant dir="${service.plugin.folder}" target="generate-service-plugin" />
+	</target>
+
+	<target name="generate-codegen-plugin" depends="init" >
+		 <ant dir="${codegen.plugin.folder}" target="generate-codegen-plugin" />
+	</target>
+
+        <target name="install-plugins" depends="init">
+		<ant dir="${service.plugin.folder}" target="install-service-plugin" />
+		<ant dir="${codegen.plugin.folder}" target="install-codegen-plugin" />
+        </target>
+
+	<target name="install-service-plugin" depends="init">
+		<ant dir="${service.plugin.folder}" target="install-service-plugin" />
+	</target>
+
+	<target name="install-codegen-plugin" depends="init">
+		 <ant dir="${codegen.plugin.folder}" target="install-codegen-plugin" />
+	</target>
+
+	<target name="release-plugins" depends="init">
+		<ant dir="${service.plugin.folder}" target="release-plugin" />
+		<ant dir="${codegen.plugin.folder}" target="release-plugin" />
+	</target>
+
+        <target name="release-codegen-plugin" depends="init">
+		 <ant dir="${codegen.plugin.folder}" target="release-plugin" />
+        </target>
+
+        <target name="release-service-plugin" depends="init">
+		<ant dir="${service.plugin.folder}" target="release-plugin" />
+        </target>
+
+
+    <target name="help">
+            <echo message="****************************************************************************" />
+            <echo message="**                   Eclipse Plugin Build                                 **" />
+            <echo message="**  pre-requisit            : env.ECLIPSE_HOME                            **" />
+            <echo message="**                                                                        **" />
+            <echo message="**  build projects          : generate-projects                           **" />
+            <echo message="**  build service project   : generate-service-project                    **" />
+            <echo message="**  build codegen project   : generate-codegen-project                    **" />
+            <echo message="**                                                                        **" />
+            <echo message="**  build plugins           : generate-plugins                            **" />
+            <echo message="**  build service plugin    : generate-service-plugin                     **" />
+            <echo message="**  build codegen plugin    : generate-codegen-plugin                     **" />
+            <echo message="**                                                                        **" />
+            <echo message="**  install plugins         : install-plugins                             **" />
+            <echo message="**  install service plugin  : install-service-plugin                      **" />
+            <echo message="**  install codegen plugin  : install-codegen-plugin                      **" />
+            <echo message="**                                                                        **" />
+            <echo message="**  release plugins         : release-plugins                             **" />
+            <echo message="**  release service plugin  : release-service-plugin                      **" />
+            <echo message="**  release codegen plugin  : release-codegen-plugin                      **" />
+            <echo message="**                                                                        **" />
+            <echo message="**                                                                        **" />
+            <echo message="****************************************************************************" />
+
+    </target>
+</project>

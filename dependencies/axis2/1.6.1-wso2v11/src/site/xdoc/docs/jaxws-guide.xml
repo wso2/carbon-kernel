@@ -1,0 +1,1695 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>JAX-WS Guide</title>
+</head>
+
+<body>
+  <h1>JAX-WS Guide</h1>
+
+  <h2>Table of Contents</h2>
+
+  <ol>
+    <li><a href="#JAXWSIntro">Introduction to JAX-WS</a></li>
+
+    <li><a href="#JAXBIntro">Introduction to JAXB</a></li>
+
+    <li>
+      <a href="#DevelopService">Developing JAX-WS Web services</a>
+
+      <ol type='a'>
+        <li><a href="#BottomUpService">From a JavaBean
+        (bottom-up)</a></li>
+
+        <li><a href="#TopDownService">From a WSDL document
+        (top-down)</a></li>
+      </ol>
+    </li>
+
+    <li>
+      <a href="#DeployService">Packaging and deploying a JAX-WS
+      service</a>
+
+      <ol type='a'>
+        <li><a href="#ProxyClient">Developing a JAX-WS client from
+        a WSDL document</a></li>
+
+        <li><a href="#DispatchClient">Developing a dynamic client
+        using JAX-WS APIs</a></li>
+      </ol>
+    </li>
+
+    <li><a href="#DevelopClient">Developing JAX-WS clients</a></li>
+
+    <li><a href="#RunClient">Running a JAX-WS client</a></li>
+
+    <li><a href="#Async">Invoking JAX-WS Web services
+    asynchronously</a></li>
+
+    <li><a href="#Handlers">Using handlers in JAX-WS Web
+    services</a></li>
+
+    <li><a href="#HTTPSession">Enabling HTTP session management
+    support for JAX-WS applications</a></li>
+
+    <li><a href="#MTOM">Enabling MTOM</a></li>
+  </ol>
+
+  <h2><a name="JAXWSIntro" id="JAXWSIntro">Introduction to
+  JAX-WS</a></h2>JAX-WS 2.0 is a new programming model that
+  simplifies application development through support of a standard,
+  annotation-based model to develop Web Service applications and
+  clients. The JAX-WS 2.0 specification strategically aligns itself
+  with the current industry trend towards a more document-centric
+  messaging model and replaces the remote procedure call
+  programming model as defined by JAX-RPC. JAX-WS is the strategic
+  programming model for developing Web services and is a required
+  part of the Java Platform, Enterprise Edition 5 (Java EE 5). The
+  implementation of the JAX-WS programming standard provides the
+  following enhancements for developing Web services and clients:
+
+  <ul>
+    <li>Better platform independence for Java applications.</li>
+
+    <li style="list-style: none"><br />
+    Using JAX-WS APIs, development of Web services and clients is
+    simplified with better platform independence for Java
+    applications. JAX-WS takes advantage of the dynamic proxy
+    mechanism to provide a formal delegation model with a pluggable
+    provider. This is an enhancement over JAX-RPC, which relies on
+    the generation of vendor-specific stubs for invocation.<br />
+    <br /></li>
+
+    <li>Annotations</li>
+
+    <li style="list-style: none">
+      <br />
+      JAX-WS introduces support for annotating Java classes with
+      metadata to indicate that the Java class is a Web service.
+      JAX-WS supports the use of annotations based on the Metadata
+      Facility for the Java Programming Language (JSR 175)
+      specification, the Web Services Metadata for the Java
+      Platform (JSR 181) specification and annotations defined by
+      the JAX-WS 2.0 specification. Using annotations within the
+      Java source and within the Java class simplifies development
+      of Web services by defining some of the additional
+      information that is typically obtained from deployment
+      descriptor files, WSDL files, or mapping metadata from XML
+      and WSDL files into the source artifacts.<br />
+      <br />
+      For example, you can embed a simple @WebService tag in the
+      Java source to expose the bean as a Web service.
+      <pre>
+      @WebService 
+
+      public class QuoteBean implements StockQuote {
+
+             public float getQuote(String sym) { ... }
+
+      }
+</pre>The <code>@WebService</code> annotation tells the server
+runtime to expose all public methods on that bean as a Web service.
+Additional levels of granularity can be controlled by adding
+additional annotations on individual methods or parameters. Using
+annotations makes it much easier to expose Java artifacts as Web
+services. In addition, as artifacts are created from using some of
+the top-down mapping tools starting from a WSDL file, annotations
+are included within the source and Java classes as a way of
+capturing the metadata along with the source files.<br />
+      Using annotations also improves the development of Web
+      services within a team structure because you do not need to
+      define every Web service in a single or common deployment
+      descriptor as required with JAX-RPC Web services. Taking
+      advantage of annotations with JAX-WS Web services allows
+      parallel development of the service and the required
+      metadata.<br />
+      <br />
+    </li>
+
+    <li>Invoking Web services asynchronously</li>
+
+    <li style="list-style: none">
+      <br />
+      With JAX-WS, Web services are called both synchronously and
+      asynchronously. JAX-WS adds support for both a polling and
+      callback mechanism when calling Web services asynchronously.
+      Using a polling model, a client can issue a request, get a
+      response object back, which is polled to determine if the
+      server has responded. When the server responds, the actual
+      response is retrieved. Using the callback model, the client
+      provides a callback handler to accept and process the inbound
+      response object. Both the polling and callback models enable
+      the client to focus on continuing to process work without
+      waiting for a response to return, while providing for a more
+      dynamic and efficient model to invoke Web services.<br />
+      <br />
+      For example, a Web service interface might have methods for
+      both synchronous and asynchronous requests. Asynchronous
+      requests are identified in bold below:
+      <pre>
+      @WebService
+      public interface CreditRatingService {
+            // sync operation
+            Score      getCreditScore(Customer customer);
+            // async operation with polling
+            <b>Response&lt;Score&gt;</b> getCreditScoreAsync(Customer customer);
+            // async operation with callback
+            <b>Future&lt;?&gt;</b> getCreditScoreAsync(Customer customer, 
+               <b>AsyncHandler&lt;Score&gt;</b> handler);
+      }
+</pre>The asynchronous invocation that uses the callback mechanism
+requires an additional input by the client programmer. The callback
+is an object that contains the application code that will be
+executed when an asynchronous response is received. The following
+is a code example for an asynchronous callback handler:
+      <pre>
+      CreditRatingService svc = ...;
+
+      <b>Future&lt;?&gt;</b> invocation = svc.getCreditScoreAsync(customerFred,
+        <b>new AsyncHandler&lt;Score&gt;() {
+           public void handleResponse (
+               Response&lt;Score&gt; response)
+             {
+               Score score = response.get();
+               // do work here...
+             }
+         }</b>
+      );
+</pre>The following is a code example for an asynchronous polling
+client:
+      <pre>
+      CreditRatingService svc = ...;
+      <b>Response&lt;Score&gt; response</b> = svc.getCreditScoreAsync(customerFred);
+
+      while (<b>!response.isDone()</b>) {
+                // do something while we wait
+      }
+
+      // no cast needed, thanks to generics
+      Score score = <b>response.get()</b>;
+</pre><br />
+      <br />
+    </li>
+
+    <li>Using resource injection</li>
+
+    <li style="list-style: none">JAX-WS supports resource injection
+    to further simplify development of Web services. JAX-WS uses
+    this key feature of Java EE 5 to shift the burden of creating
+    and initializing common resources in a Java runtime environment
+    from your Web service application to the application container
+    environment itself. JAX-WS provides support for a subset of
+    annotations that are defined in JSR-250 for resource injection
+    and application lifecycle in its runtime.<br />
+      Axis2 supports the JAX-WS usage of the <code>@Resource</code>
+      annotation for resource injection. The <code>@Resource</code>
+      annotation is defined by the JSR-250, Common Annotations
+      specification that is included in Java Platform, Enterprise
+      Edition 5 (Java EE 5). By placing the <code>@Resource</code>
+      annotation on a service endpoint implementation, you can
+      request a resource injection and collect the
+      <code>javax.xml.ws.WebServiceContext</code> interface related
+      to that particular endpoint invocation. When the endpoint
+      sees the <code>@Resource</code> annotation, the endpoint adds
+      the annotated variable with an appropriate value before the
+      servlet is placed into service. From the
+      <code>WebServiceContext</code> interface, you can collect the
+      <code>MessageContext</code> for the request associated with
+      the particular method call using the
+      <code>getMessageContext()</code> method.<br />
+      <br />
+      The following example illustrates using the
+      <code>@Resource</code> annotation for resource injection:
+      <pre>@WebService
+public class MyService {
+    
+    @Resource
+    private WebServiceContext ctx;
+
+    public String echo (String input) {
+        …
+    }
+     
+}
+</pre>Refer to sections 5.2.1 and 5.3 of the JAX-WS 2.0
+specification for more information on resource injection.<br />
+
+      <br />
+    </li>
+
+    <li>Data binding with Java Architecture for XML Binding (JAXB)
+    2.0</li>
+
+    <li style="list-style: none"><br />
+    JAX-WS leverages the JAXB 2.0 API and tools as the binding
+    technology for mappings between Java objects and XML documents.
+    JAX-WS tooling relies on JAXB tooling for default data binding
+    for two-way mappings between Java objects and XML
+    documents.<br />
+    <br /></li>
+
+    <li>Dynamic and static clients</li>
+
+    <li style="list-style: none"><br />
+    The dynamic client API for JAX-WS is called the dispatch client
+    (<code>javax.xml.ws.Dispatch</code>). The dispatch client is an
+    XML messaging oriented client. The data is sent in either
+    <code>PAYLOAD</code> or <code>MESSAGE</code> mode. When using
+    the <code>PAYLOAD</code> mode, the dispatch client is only
+    responsible for providing the contents of the &lt;soap:Body&gt;
+    and JAX-WS adds the &lt;soap:Envelope&gt; and
+    &lt;soap:Header&gt; elements. When using the
+    <code>MESSAGE</code> mode, the dispatch client is responsible
+    for providing the entire SOAP envelope including the
+    &lt;soap:Envelope&gt;, &lt;soap:Header&gt;, and
+    &lt;soap:Body&gt; elements and JAX-WS does not add anything
+    additional to the message. The dispatch client supports
+    asynchronous invocations using a callback or polling
+    mechanism.<br />
+    The static client programming model for JAX-WS is the called
+    the proxy client. The proxy client invokes a Web service based
+    on a Service Endpoint interface (SEI) which must be
+    provided.<br />
+    <br /></li>
+
+    <li>Support for Message Transmission Optimized Mechanism
+    (MTOM)</li>
+
+    <li style="list-style: none"><br />
+    Using JAX-WS, you can send binary attachments such as images or
+    files along with Web services requests. JAX-WS adds support for
+    optimized transmission of binary data as specified by Message
+    Transmission Optimization Mechanism (MTOM).<br />
+    <br /></li>
+
+    <li>Multiple data binding technologies</li>
+
+    <li style="list-style: none"><br />
+    JAX-WS exposes the following binding technologies to the end
+    user: XML Source, SOAP Attachments API for Java (SAAJ) 1.3, and
+    Java Architecture for XML Binding (JAXB) 2.0. XML Source
+    enables a user to pass a javax.xml.transform.Source into the
+    runtime which represents the data in a Source object to be
+    processed. SAAJ 1.3 now has the ability to pass an entire SOAP
+    document across the interface rather than just the payload
+    itself. This is done by the client passing the SAAJ
+    <code>SOAPMessage</code> object across the interface. JAX-WS
+    leverages the JAXB 2.0 support as the data binding technology
+    of choice between Java and XML.<br />
+    <br /></li>
+
+    <li>Support for SOAP 1.2</li>
+
+    <li style="list-style: none"><br />
+    Support for SOAP 1.2 has been added to JAX-WS 2.0. JAX-WS
+    supports both SOAP 1.1 and SOAP 1.2 so that you can send binary
+    attachments such as images or files along with Web services
+    requests. JAX-WS adds support for optimized transmission of
+    binary data as specified by MTOM.<br />
+    <br /></li>
+
+    <li>New development tools</li>
+
+    <li style="list-style: none">
+      <br />
+      JAX-WS provides the <b>wsgen</b> and <b>wsimport</b>
+      command-line tools for generating portable artifacts for
+      JAX-WS Web services. When creating JAX-WS Web services, you
+      can start with either a WSDL file or an implementation bean
+      class. If you start with an implementation bean class, use
+      the wsgen command-line tool to generate all the Web services
+      server artifacts, including a WSDL file if requested. If you
+      start with a WSDL file, use the wsimport command-line tool to
+      generate all the Web services artifacts for either the server
+      or the client. The wsimport command line tool processes the
+      WSDL file with schema definitions to generate the portable
+      artifacts, which include the service class, the service
+      endpoint interface class, and the JAXB 2.0 classes for the
+      corresponding XML schema.
+
+      <h2><a name="JAXBIntro" id="JAXBIntro">Introduction to
+      JAXB</a></h2>Java Architecture for XML Binding (JAXB) is a
+      Java technology that provides an easy and convenient way to
+      map Java classes and XML schema for simplified development of
+      Web services. JAXB leverages the flexibility of
+      platform-neutral XML data in Java applications to bind XML
+      schema to Java applications without requiring extensive
+      knowledge of XML programming.<br />
+      <br />
+      Axis2 provides JAXB 2.0 standards.<br />
+      <br />
+      JAXB is an XML to Java binding technology that supports
+      transformation between schema and Java objects and between
+      XML instance documents and Java object instances. JAXB
+      consists of a runtime application programming interface (API)
+      and accompanying tools that simplify access to XML documents.
+      JAXB also helps to build XML documents that both conform and
+      validate to the XML schema.<br />
+      <br />
+      JAXB provides the <b>xjc</b> schema compiler tool, the
+      <b>schemagen</b> schema generator tool, and a runtime
+      framework. You can use the <b>xjc</b> schema compiler tool to
+      start with an XML schema definition (XSD) to create a set of
+      JavaBeans that map to the elements and types defined in the
+      XSD schema. You can also start with a set of JavaBeans and
+      use the <b>schemagen</b> schema generator tool to create the
+      XML schema. Once the mapping between XML schema and Java
+      classes exists, XML instance documents can be converted to
+      and from Java objects through the use of the JAXB binding
+      runtime API. Data stored in XML documents can be accessed
+      without the need to understand the data structure. You can
+      then use the resulting Java classes to assemble a Web
+      services application.<br />
+      <br />
+      JAXB annotated classes and artifacts contain all the
+      information needed by the JAXB runtime API to process XML
+      instance documents. The JAXB runtime API supports marshaling
+      of JAXB objects to XML and unmarshaling the XML document back
+      to JAXB class instances. Optionally, you can use JAXB to
+      provide XML validation to enforce both incoming and outgoing
+      XML documents to conform to the XML constraints defined
+      within the XML schema.<br />
+      <br />
+      JAXB is the default data binding technology used by the Java
+      API for XML Web Services (JAX-WS) 2.0 tooling and
+      implementation within this product. You can develop JAXB
+      objects for use within JAX-WS applications.<br />
+      <br />
+      You can also use JAXB independently of JAX-WS when you want
+      to leverage the XML data binding technology to manipulate XML
+      within your Java applications.<br />
+      <br />
+      The following diagram illustrates the JAXB
+      architecture.<br />
+      <img src="images/JAXB_architecture.gif" width="600" height="301"
+      border="0" alt="" />
+
+      <h2><a name="DevelopService" id="DevelopService">Developing
+      JAX-WS Web services</a></h2>
+
+      <h3><a name="BottomUpService" id="BottomUpService">Developing
+      a JAX-WS Web service from a JavaBean (bottom-up
+      development)</a></h3>When developing a JAX-WS Web service
+      starting from JavaBeans, you can use a bean that already
+      exists and then enable the implementation for JAX-WS Web
+      services. The use of annotations simplifies the enabling of a
+      bean for Web services. Adding the <code>@WebService</code>
+      annotation to the bean defines the application as a Web
+      service and how a client can access the Web service.
+      JavaBeans can have a service endpoint interface, but it is
+      not required. Enabling JavaBeans for Web services includes
+      annotating the bean and the optional service endpoint
+      interface, assembling all artifacts required for the Web
+      service, and deploying the application into Axis2. You are
+      not required to develop a WSDL file because the use of
+      annotations can provide all of the WSDL information necessary
+      to configure the service endpoint or the client. It is,
+      however, a best practice to develop a WSDL file.<br />
+      <br />
+
+      <ol>
+        <li>Develop a service endpoint interface.</li>
+
+        <li style="list-style: none">
+          <br />
+          Java API for XML-Based Web Services (JAX-WS) supports two
+          different service endpoint implementations types, the
+          standard JavaBeans service endpoint interface and a new
+          <code>Provider</code> interface to enable services to
+          work at the XML message level. By using annotations on
+          the service endpoint or client, you can define the
+          service endpoint as a Web service.<br />
+          <br />
+          JavaBeans endpoints in JAX-WS are similar to the endpoint
+          implementations in the Java API for XML-based RPC
+          (JAX-RPC) specification. Unlike JAX-RPC, the requirement
+          for a service endpoint interface (SEI) is optional for
+          JavaBeans-based services. JAX-WS services that do not
+          have an associated SEI are regarded as having an implicit
+          SEI, whereas services that have an associated SEI are
+          regarded as having an explicit SEI. The service endpoint
+          interfaces required by JAX-WS are also more generic than
+          the service endpoint interfaces required by JAX-RPC. With
+          JAX-WS, the SEI is not required to extend the
+          java.rmi.Remote interface as required by the JAX-RPC
+          specification.<br />
+          <br />
+          The JAX-WS programming model also leverages support for
+          annotating Java classes with metadata to define a service
+          endpoint application as a Web service and define how a
+          client can access the Web service. JAX-WS supports
+          annotations based on the Metadata Facility for the Java
+          Programming Language (JSR 175) specification, the Web
+          Services Metadata for the Java Platform (JSR 181)
+          specification and annotations defined by the JAX-WS 2.0
+          (JSR 224) specification, which includes Java Architecture
+          for XML Binding (JAXB) annotations. Using annotations,
+          the service endpoint implementation can independently
+          describe the Web service without requiring a WSDL file.
+          Annotations can provide all of the WSDL information
+          necessary to configure your service endpoint
+          implementation or Web services client. You can specify
+          annotations on the service endpoint interface used by the
+          client and the server, or on the server-side service
+          implementation class.<br />
+          <br />
+          To develop a JAX-WS Web service, you must annotate your
+          Java class with the <code>javax.jws.WebService</code>
+          annotation for JavaBeans endpoints or the
+          <code>javax.jws.WebServiceProvider</code> annotation for
+          a Provider endpoint. These annotations define the Java
+          class as a Web service endpoint. For a JavaBeans
+          endpoint, the service endpoint interface or service
+          endpoint implementation is a Java interface or class,
+          respectively, that declares the business methods provided
+          by a particular Web service. The only methods on a
+          JavaBeans endpoint that can be invoked by a Web services
+          client are the business methods that are defined in the
+          explicit or implicit service endpoint interface.<br />
+          <br />
+          All JavaBeans endpoints are required to have the
+          <code>@WebService (javax.jws.WebService)</code>
+          annotation included on the bean class. If the service
+          implementation bean also uses an SEI, then that endpoint
+          interface must be referenced by the endpointInterface
+          attribute on that annotation. If the service
+          implementation bean does not use an SEI, then the service
+          is described by the implicit SEI defined in the
+          bean.<br />
+          <br />
+          The JAX-WS programming model introduces the new Provider
+          API, <code>javax.xml.ws.Provider</code>, as an
+          alternative to service endpoint interfaces. The
+          <code>Provider</code> interface supports a more messaging
+          oriented approach to Web services. With the
+          <code>Provider</code> interface, you can create a Java
+          class that implements a simple interface to produce a
+          generic service implementation class. The
+          <code>Provider</code> interface has one method, the
+          invoke method, which uses generics to control both the
+          input and output types when working with various messages
+          or message payloads. All Provider endpoints must be
+          annotated with the <code>@WebServiceProvider
+          (javax.xml.ws.WebServiceProvider)</code> annotation. A
+          service implementation cannot specify the
+          <code>@WebService</code> annotation if it implements the
+          <code>javax.xml.ws.Provider</code> interface.<br />
+          <br />
+          So the steps involved are:
+
+          <ol>
+            <li>Identify your service endpoint requirements for
+            your Web services application.</li>
+
+            <li style="list-style: none">
+              <br />
+              First determine if the service implementation is a
+              JavaBeans endpoint or a Provider endpoint. If you
+              choose to use a JavaBeans endpoint, then determine if
+              you want to use an explicit SEI or if the bean itself
+              will have an implicit SEI.<br />
+              A Java class that implements a Web service must
+              specify either the <code>javax.jws.WebService</code>
+              or <code>javax.xml.ws.WebServiceProvider</code>
+              annotation. Both annotations must not be present on a
+              Java class. The
+              <code>javax.xml.ws.WebServiceProvider</code>
+              annotation is only supported on classes that
+              implement the <code>javax.xml.ws.Provider</code>
+              interface.
+
+              <ul>
+                <li>If you have an explicit service endpoint
+                interface with the Java class, then use the
+                endpointInterface parameter to specify the service
+                endpoint interface class name to the
+                <code>javax.jws.WebService</code> annotation. You
+                can add the <code>@WebMethod</code> annotation to
+                methods of a service endpoint interface to
+                customize the Java-to-WSDL mappings. All public
+                methods are considered as exposed methods
+                regardless of whether the <code>@WebMethod</code>
+                annotation is specified or not. It is incorrect to
+                have an <code>@WebMethod</code> annotation on an
+                service endpoint interface that contains the
+                <code>exclude</code> attribute.</li>
+
+                <li>If you have an implicit service endpoint
+                interface with the Java class, then the
+                <code>javax.jws.WebService</code> annotation will
+                use the default values for the
+                <code>serviceName</code>, <code>portName</code>,
+                and <code>targetNamespace</code> parameters. To
+                override these default values, specify values for
+                these parameters in the <code>@WebService</code>
+                annotation. If the <code>@WebMethod</code>
+                annotation is not specified, all public methods are
+                exposed including the inherited methods with the
+                exception of methods inherited from
+                <code>java.lang.Object</code>. The
+                <code>exclude</code> parameter of the
+                <code>@WebMethod</code> annotation can be used to
+                control which methods are exposed.</li>
+
+                <li>If you are using the <code>Provider</code>
+                interface, use the
+                <code>javax.xml.ws.WebServiceProvider</code>
+                annotation on the Provider endpoint.</li>
+              </ul>
+            </li>
+
+            <li>Annotate the service endpoints.</li>
+
+            <li>Implement your service.</li>
+          </ol><br />
+          <br />
+          When using a bottom-up approach to develop JAX-WS Web
+          services, use the wsgen command-line tool when starting
+          from a service endpoint implementation. The wsgen tool
+          processes a compiled service endpoint implementation
+          class as input and generates the following portable
+          artifacts:
+
+          <ul>
+            <li>any additional Java Architecture for XML Binding
+            (JAXB) classes that are required to marshal and
+            unmarshal the message contents. The additional classes
+            include classes that are represented by the
+            @RequestWrapper annotation and the
+            <code>@ResponseWrapper</code> annotation for a wrapped
+            method.</li>
+
+            <li>a WSDL file if the optional <code>-wsdl</code>
+            argument is specified. The wsgen command does not
+            automatically generate the WSDL file. The WSDL file is
+            automatically generated when you deploy the service
+            endpoint.</li>
+          </ul><br />
+          You are not required to develop a WSDL file when
+          developing JAX-WS Web services using the bottom-up
+          approach of starting with JavaBeans. The use of
+          annotations provides all of the WSDL information
+          necessary to configure the service endpoint or the
+          client. Axis2 supports WSDL 1.1 documents that comply
+          with Web Services-Interoperability (WS-I) Basic Profile
+          1.1 specifications and are either Document/Literal style
+          documents or RPC/Literal style documents. Additionally,
+          WSDL documents with bindings that declare a USE attribute
+          of value <code>LITERAL</code> are supported while the
+          value, <code>ENCODED</code>, is not supported. For WSDL
+          documents that implement a Document/Literal wrapped
+          pattern, a root element is declared in the XML schema and
+          is used as an operation wrapper for a message flow.
+          Separate wrapper element definitions exist for both the
+          request and the response.<br />
+          <br />
+          To ensure the wsgen command does not miss inherited
+          methods on a service endpoint implementation bean, you
+          must either add the <code>@WebService</code> annotation
+          to the desired superclass or you can override the
+          inherited method in the implementation class with a call
+          to the superclass method. Implementation classes only
+          expose methods from superclasses that are annotated with
+          the <code>@WebService</code> annotation.<br />
+          <br />
+          Note: The <b>wsgen</b> command does not differentiate the
+          XML namespace between multiple <code>XMLType</code>
+          annotations that have the same <code>@XMLType</code> name
+          defined within different Java packages. When this
+          scenario occurs, the following error is produced:
+          <pre>
+   Error: Two classes have the same XML type name ....
+   Use @XmlType.name and @XmlType.namespace to assign different names to them...
+</pre>This error indicates you have class names or
+<code>@XMLType.name</code> values that have the same name, but
+exist within different Java packages. To prevent this error, add
+the <code>@XML.Type.namespace</code> class to the existing <code>
+          @XMLType</code> annotation to differentiate between the
+          XML types.
+        </li>
+
+        <li>Develop the Java artifacts.</li>
+
+        <li>Package and deploy your service.</li>
+      </ol>
+
+      <h3><a name="TopDownService" id="TopDownService">Developing a
+      JAX-WS Web service from a WSDL document (top-down
+      development)</a></h3>You can use a top-down development
+      approach to create a JAX-WS Web service with an existing WSDL
+      file using JavaBeans.<br />
+      <br />
+      You can use the JAX-WS tool, <b>wsimport</b>, to process a
+      WSDL file and generate portable Java artifacts that are used
+      to create a Web service. The portable Java artifacts created
+      using the <b>wsimport</b> tool are:
+
+      <ul>
+        <li>Service endpoint interface (SEI)</li>
+
+        <li>Service class</li>
+
+        <li>Exception class that is mapped from the
+        <code>wsdl:fault</code> class (if any)</li>
+
+        <li>Java Architecture for XML Binding (JAXB) generated type
+        values which are Java classes mapped from XML schema
+        types</li>
+      </ul><br />
+      Run the
+      <pre>
+wsimport -keep -verbose <i>wsdl_URL</i>
+</pre>command to generate the portable artifacts. The
+<code>-keep</code> option tells the tool not to delete the
+generated files, and the <code>-verbose</code> option tells it to
+list the files that were created. The ObjectFactory.java file that
+is created contains factory methods for each Java content interface
+and Java element interface generated in the associated package. The
+package-info.java file takes the <code>targetNamespace</code> value
+and creates the directory structure.<br />
+      <br />
+      You must now provide an implementation for the SEI created by
+      the tool.
+
+      <h2><a name="DeployService" id="DeployService">Packaging and
+      deploying a JAX-WS service</a></h2>Axis2 provides two
+      mechanisms for deploying JAX-WS services:
+
+      <ol>
+        <li>The service may be packaged and deployed as an AAR,
+        just like any other service within Axis2. Like with all
+        AARs, a services.xml file containing the relevant metadata
+        is required for the service to deploy correctly.</li>
+
+        <li>The service may be packaged in a jar file and placed
+        into the <code>servicejars</code> directory. The
+        <code>JAXWSDeployer</code> will examine all jars within
+        that directory and deploy those classes that have JAX-WS
+        annotations which identify them as Web services.</li>
+      </ol>
+
+      <h2><a name="DevelopClient" id="DevelopClient">Developing
+      JAX-WS clients</a></h2>The Java API for XML-Based Web
+      Services (JAX-WS) Web service client programming model
+      supports both the Dispatch client API and the Dynamic Proxy
+      client API. The Dispatch client API is a dynamic client
+      programming model, whereas the static client programming
+      model for JAX-WS is the Dynamic Proxy client. The Dispatch
+      and Dynamic Proxy clients enable both synchronous and
+      asynchronous invocation of JAX-WS Web services.<br />
+      <br />
+
+      <ul>
+        <li>Dispatch client: Use this client when you want to work
+        at the XML message level or when you want to work without
+        any generated artifacts at the JAX-WS level.</li>
+
+        <li>Dynamic Proxy client: Use this client when you want to
+        invoke a Web service based on a service endpoint
+        interface.</li>
+      </ul>
+
+      <h4>Dispatch client</h4>XML-based Web services use XML
+      messages for communications between Web services and Web
+      services clients. The JAX-WS APIs provide high-level methods
+      to simplify and hide the details of converting between Java
+      method invocations and their associated XML messages.
+      However, in some cases, you might desire to work at the XML
+      message level. Support for invoking services at the XML
+      message level is provided by the Dispatch client API. The
+      Dispatch client API, <code>javax.xml.ws.Dispatch</code>, is a
+      dynamic JAX-WS client programming interface. To write a
+      Dispatch client, you must have expertise with the Dispatch
+      client APIs, the supported object types, and knowledge of the
+      message representations for the associated WSDL file. The
+      Dispatch client can send data in either <code>MESSAGE</code>
+      or <code>PAYLOAD</code> mode. When using the
+      <code>javax.xml.ws.Service.Mode.MESSAGE</code> mode, the
+      Dispatch client is responsible for providing the entire SOAP
+      envelope including the <code>&lt;soap:Envelope&gt;</code>,
+      <code>&lt;soap:Header&gt;</code>, and
+      <code>&lt;soap:Body&gt;</code> elements. When using the
+      <code>javax.xml.ws.Service.Mode.PAYLOAD</code> mode, the
+      Dispatch client is only responsible for providing the
+      contents of the <code>&lt;soap:Body&gt;</code> and JAX-WS
+      includes the payload in a <code>&lt;soap:Envelope&gt;</code>
+      element.<br />
+      <br />
+      The Dispatch client API requires application clients to
+      construct messages or payloads as XML which requires a
+      detailed knowledge of the message or message payload. The
+      Dispatch client supports the following types of objects:
+
+      <ul>
+        <li><code>javax.xml.transform.Source</code>: Use
+        <code>Source</code> objects to enable clients to use XML
+        APIs directly. You can use <code>Source</code> objects with
+        SOAP or HTTP bindings.</li>
+
+        <li>JAXB objects: Use JAXB objects so that clients can use
+        JAXB objects that are generated from an XML schema to
+        create and manipulate XML with JAX-WS applications. JAXB
+        objects can only be used with SOAP or HTTP bindings.</li>
+
+        <li><code>javax.xml.soap.SOAPMessage</code>: Use
+        <code>SOAPMessage</code> objects so that clients can work
+        with SOAP messages. You can only use
+        <code>SOAPMessage</code> objects with SOAP bindings.</li>
+
+        <li><code>javax.activation.DataSource</code>: Use
+        <code>DataSource</code> objects so that clients can work
+        with Multipurpose Internet Mail Extension (MIME) messages.
+        Use <code>DataSource</code> only with HTTP bindings.</li>
+      </ul><br />
+      For example, if the input parameter type is
+      javax.xml.transform.Source, the call to the Dispatch client
+      API is similar to the following code example:
+      <pre>Dispatch<strong>&lt;Source&gt;</strong> dispatch = … create a Dispatch<strong>&lt;Source&gt;</strong>
+Source request = … create a Source object
+Source response = dispatch.invoke(request);</pre>The Dispatch parameter value determines the return type of
+the <code>invoke()</code> method.<br />
+      <br />
+      The Dispatch client is invoked in one of three ways:<br />
+
+      <ul>
+        <li>Synchronous invocation for requests and responses using
+        the <code>invoke</code> method</li>
+
+        <li>Asynchronous invocation for requests and responses
+        using the <code>invokeAsync</code> method with a callback
+        or polling object</li>
+
+        <li>One-way invocation using the <code>invokeOneWay</code>
+        methods</li>
+      </ul><br />
+      Refer to Chapter 4, section 3 of the JAX-WS 2.0 specification
+      for more information on using a Dispatch client.
+
+      <h4>Dynamic Proxy client</h4>The static client programming
+      model for JAX-WS is the called the Dynamic Proxy client. The
+      Dynamic Proxy client invokes a Web service based on a Service
+      Endpoint Interface (SEI) which must be provided. The Dynamic
+      Proxy client is similar to the stub client in the Java API
+      for XML-based RPC (JAX-RPC) programming model. Although the
+      JAX-WS Dynamic Proxy client and the JAX-RPC stub client are
+      both based on the Service Endpoint Interface (SEI) that is
+      generated from a WSDL file , there is a major difference. The
+      Dynamic Proxy client is dynamically generated at run time
+      using the Java 5 Dynamic Proxy functionality, while the
+      JAX-RPC-based stub client is a non-portable Java file that is
+      generated by tooling. Unlike the JAX-RPC stub clients, the
+      Dynamic Proxy client does not require you to regenerate a
+      stub prior to running the client on an application server for
+      a different vendor because the generated interface does not
+      require the specific vendor information.<br />
+      <br />
+      The Dynamic Proxy instances extend the
+      <code>java.lang.reflect.Proxy</code> class and leverage the
+      Dynamic Proxy function in the base Java Runtime Environment
+      Version 5. The client application can then provide an
+      interface that is used to create the proxy instance while the
+      runtime is responsible for dynamically creating a Java object
+      that represents the SEI.<br />
+      <br />
+      The Dynamic Proxy client is invoked in one of three
+      ways:<br />
+
+      <ul>
+        <li>Synchronous invocation for requests and responses using
+        the <code>invoke</code> method</li>
+
+        <li>Asynchronous invocation for requests and responses
+        using the <code>invokeAsync</code> method with a callback
+        or polling object</li>
+
+        <li>One-way invocation using the <code>invokeOneWay</code>
+        methods</li>
+      </ul><br />
+      Refer to Chapter 4 of the JAX-WS 2.0 specification for more
+      information on using Dynamic Proxy clients.
+
+      <h3><a name="ProxyClient" id="ProxyClient">Developing a
+      JAX-WS client from a WSDL document</a></h3>Java API for
+      XML-Based Web Services (JAX-WS) tooling supports generating
+      Java artifacts you need to develop static JAX-WS Web services
+      clients when starting with a Web Services Description
+      Language (WSDL) file.<br />
+      <br />
+      The static client programming model for JAX-WS is the called
+      the dynamic proxy client. The dynamic proxy client invokes a
+      Web service based on a service endpoint interface that is
+      provided. After you create the proxy, the client application
+      can invoke methods on the proxy just like a standard
+      implementation of those interfaces. For JAX-WS Web service
+      clients using the dynamic proxy programming model, use the
+      JAX-WS tool, <b>wsimport</b>, to process a WSDL file and
+      generate portable Java artifacts that are used to create a
+      Web service client.<br />
+      <br />
+      Create the following portable Java artifacts using the
+      wsimport tool:
+
+      <ul>
+        <li>Service endpoint interface (SEI)</li>
+
+        <li>Service class</li>
+
+        <li>Exception class that is mapped from the wsdl:fault
+        class (if any)</li>
+
+        <li>Java Architecture for XML Binding (JAXB) generated type
+        values which are Java classes mapped from XML schema
+        types</li>
+      </ul><br />
+      The steps to creating a dynamic proxy client are:
+
+      <ol>
+        <li>(Optional) If you are using WSDL or schema
+        customizations, use the <b>-b</b> option with the
+        <b>wsimport</b> command to specify an external binding
+        files that contain your customizations.<br />
+        <br />
+        For example: <b>wsimport -b <i>binding.xml
+        wsdlfile.wsdl</i></b>.<br />
+        <br />
+        You can customize the bindings in your WSDL file to enable
+        asynchronous mappings or attachments. To generate
+        asynchronous interfaces, add the client-side only
+        customization <code>enableAsyncMapping</code> binding
+        declaration to the <code>wsdl:definitions</code> element or
+        in an external binding file that is defined in the WSDL
+        file. Use the <code>enableMIMEContent</code> binding
+        declaration in your custom client or server binding file to
+        enable or disable the default <code>mime:content</code>
+        mapping rules. For additional information on custom binding
+        declarations, see chapter 8 the JAX-WS specification.</li>
+
+        <li style="list-style: none"><br /></li>
+
+        <li>Run the <b>wsimport -keep <i>wsdl_UR</i>L</b> command
+        to generate the portable client artifacts. Use the
+        <b>-verbose</b> option to see a list of generated files
+        when you run the command.<br />
+        <br />
+        Best practice: When you run the <b>wsimport</b> tool, the
+        location of your WSDL file must either be omitted or point
+        to a valid WSDL document. A best practice for ensuring that
+        you produce a JAX-WS Web services client that is portable
+        to other systems is to package the WSDL document within the
+        application module such as a Web services client Java
+        archive (JAR) file or a Web archive (WAR) file. You can
+        specify a relative URI for the location of your WSDL file
+        by using the<code>-wsdllocation</code> annotation
+        attribute. For example, if your MyService.wsdl file is
+        located in the META-INF/wsdl/ directory, then run the
+        wsimport tool and use the <code>-wsdllocation</code> option
+        to specify the value to be used for the location of the
+        WSDL file.<br />
+        <br />
+        <code>wsimport -keep
+        -wsdllocation=META-INF/wsdl/MyService.wsdl</code></li>
+      </ol>
+
+      <h3><a name="DispatchClient" id="DispatchClient">Developing a
+      dynamic client using JAX-WS APIs</a></h3>JAX-WS provides a
+      new dynamic Dispatch client API that is more generic and
+      offers more flexibility than the existing Java API for
+      XML-based RPC (JAX-RPC)-based Dynamic Invocation Interface
+      (DII). The Dispatch client interface,
+      <code>javax.xml.ws.Dispatch</code>, is an XML messaging
+      oriented client that is intended for advanced XML developers
+      who prefer to work at the XML level using XML constructs. To
+      write a Dispatch client, you must have expertise with the
+      Dispatch client APIs, the supported object types, and
+      knowledge of the message representations for the associated
+      WSDL file.<br />
+      <br />
+      The Dispatch API can send data in either <code>PAYLOAD</code>
+      or <code>MESSAGE</code> mode. When using the
+      <code>PAYLOAD</code> mode, the Dispatch client is only
+      responsible for providing the contents of the
+      <code>&lt;soap:Body&gt;</code> and JAX-WS includes the input
+      payload in a <code>&lt;soap:Envelope&gt;</code> element. When
+      using the <code>MESSAGE</code> mode, the Dispatch client is
+      responsible for providing the entire SOAP envelope.<br />
+      <br />
+      The Dispatch client API requires application clients to
+      construct messages or payloads as XML and requires a detailed
+      knowledge of the message or message payload. The Dispatch
+      client can use HTTP bindings when using <code>Source</code>
+      objects, Java Architecture for XML Binding (JAXB) objects, or
+      data source objects. The Dispatch client supports the
+      following types of objects:<br />
+      <br />
+
+      <ul>
+        <li><code>javax.xml.transform.Source</code>: Use
+        <code>Source</code> objects to enable clients to use XML
+        APIs directly. You can use <code>Source</code> objects with
+        SOAP and HTTP bindings.</li>
+
+        <li>JAXB objects: Use JAXB objects so that clients can use
+        JAXB objects that are generated from an XML schema to
+        create and manipulate XML with JAX-WS applications. JAXB
+        objects can only be used with SOAP and HTTP bindings.</li>
+
+        <li><code>javax.xml.soap.SOAPMessage</code>: Use
+        <code>SOAPMessage</code> objects so that clients can work
+        with SOAP messages. You can only use
+        <code>SOAPMessage</code> objects with SOAP version 1.1 or
+        SOAP version 1.2 bindings.</li>
+
+        <li><code>javax.activation.DataSource</code>: Use
+        <code>DataSource</code> objects so that clients can work
+        with Multipurpose Internet Mail Extension (MIME) messages.
+        Use <code>DataSource</code> only with HTTP bindings.</li>
+      </ul><br />
+      The Dispatch API uses the concept of generics that are
+      introduced in Java Runtime Environment Version 5. For each of
+      the invoke() methods on the Dispatch interface, generics are
+      used to determine the return type.<br />
+      <br />
+      The steps to creating a dynamic client are:
+
+      <ol>
+        <li>Determine if you want your dynamic client to send data
+        in <code>PAYLOAD</code> or <code>MESSAGE</code> mode.</li>
+
+        <li>Create a service instance and add at least one port to
+        it. The port carries the protocol binding and service
+        endpoint address information.</li>
+
+        <li>Create a <code>Dispatch&lt;T&gt;</code> object using
+        either the <code>Service.Mode.PAYLOAD</code> method or the
+        <code>Service.Mode.MESSAGE</code> method.</li>
+
+        <li>Configure the request context properties on the
+        <code>javax.xml.ws.BindingProvider</code> interface. Use
+        the request context to specify additional properties such
+        as enabling HTTP authentication or specifying the endpoint
+        address.</li>
+
+        <li>Compose the client request message for the dynamic
+        client.</li>
+
+        <li>Invoke the service endpoint with the Dispatch client
+        either synchronously or asynchronously.</li>
+
+        <li>Process the response message from the service.</li>
+      </ol><br />
+      The following example illustrates the steps to create a
+      Dispatch client and invoke a sample EchoService service
+      endpoint.
+      <pre>
+   String endpointUrl = ...;
+                
+   QName serviceName = new QName("http://org/apache/ws/axis2/sample/echo/",
+    "EchoService");
+   QName portName = new QName("http://org/apache/ws/axis2/sample/echo/",
+    "EchoServicePort");
+                
+   /** Create a service and add at least one port to it. **/ 
+   Service service = Service.create(serviceName);
+   service.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, endpointUrl);
+                
+   /** Create a Dispatch instance from a service.**/ 
+   Dispatch&lt;SOAPMessage&gt; dispatch = service.createDispatch(portName, 
+   SOAPMessage.class, Service.Mode.MESSAGE);
+        
+   /** Create SOAPMessage request. **/
+   // compose a request message
+   MessageFactory mf = MessageFactory.newInstance(SOAPConstants.SOAP_1_1_PROTOCOL);
+
+   // Create a message.  This example works with the SOAPPART.
+   SOAPMessage request = mf.createMessage();
+   SOAPPart part = request.getSOAPPart();
+
+   // Obtain the SOAPEnvelope and header and body elements.
+   SOAPEnvelope env = part.getEnvelope();
+   SOAPHeader header = env.getHeader();
+   SOAPBody body = env.getBody();
+
+   // Construct the message payload.
+   SOAPElement operation = body.addChildElement("invoke", "ns1",
+    "http://org/apache/ws/axis2/sample/echo/");
+   SOAPElement value = operation.addChildElement("arg0");
+   value.addTextNode("ping");
+   request.saveChanges();
+
+   /** Invoke the service endpoint. **/
+   SOAPMessage response = dispatch.invoke(request);
+
+   /** Process the response. **/
+</pre>
+
+      <h2><a name="RunClient" id="RunClient">Running a JAX-WS
+      client</a></h2>A JAX-WS client may be started from the
+      command line like any other Axis2-based client, including
+      through the use of the <code>axis2</code> shell scripts in
+      the <code>bin</code> directory of the installed runtime.
+
+      <h2><a name="Async" id="Async">Invoking JAX-WS Web services
+      asynchronously</a></h2>Java API for XML-Based Web Services
+      (JAX-WS) provides support for invoking Web services using an
+      asynchronous client invocation. JAX-WS provides support for
+      both a callback and polling model when calling Web services
+      asynchronously. Both the callback model and the polling model
+      are available on the Dispatch client and the Dynamic Proxy
+      client.<br />
+      <br />
+      An asynchronous invocation of a Web service sends a request
+      to the service endpoint and then immediately returns control
+      to the client program without waiting for the response to
+      return from the service. JAX-WS asynchronous Web service
+      clients consume Web services using either the callback
+      approach or the polling approach. Using a polling model, a
+      client can issue a request and receive a response object that
+      is polled to determine if the server has responded. When the
+      server responds, the actual response is retrieved. Using the
+      callback model, the client provides a callback handler to
+      accept and process the inbound response object. The
+      <code>handleResponse()</code> method of the handler is called
+      when the result is available. Both the polling and callback
+      models enable the client to focus on continuing to process
+      work without waiting for a response to return, while
+      providing for a more dynamic and efficient model to invoke
+      Web services.
+
+      <h3>Using the callback asynchronous invocation model</h3>To
+      implement an asynchronous invocation that uses the callback
+      model, the client provides an <code>AsynchHandler</code>
+      callback handler to accept and process the inbound response
+      object. The client callback handler implements the
+      <code>javax.xml.ws.AsynchHandler</code> interface, which
+      contains the application code that is executed when an
+      asynchronous response is received from the server. The
+      <code>javax.xml.ws.AsynchHandler</code> interface contains
+      the <code>handleResponse(java.xml.ws.Response)</code> method
+      that is called after the run time has received and processed
+      the asynchronous response from the server. The response is
+      delivered to the callback handler in the form of a
+      <code>javax.xml.ws.Response</code> object. The response
+      object returns the response content when the
+      <code>get()</code> method is called. Additionally, if an
+      error was received, then an exception is returned to the
+      client during that call. The response method is then invoked
+      according to the threading model used by the executor method,
+      <code>java.util.concurrent.Executor</code> on the client's
+      <code>java.xml.ws.Service</code> instance that was used to
+      create the Dynamic Proxy or Dispatch client instance. The
+      executor is used to invoke any asynchronous callbacks
+      registered by the application. Use the
+      <code>setExecutor</code> and <code>getExecutor</code> methods
+      to modify and retrieve the executor configured for your
+      service.
+
+      <h3>Using the polling asynchronous invocation model</h3>Using
+      the polling model, a client can issue a request and receive a
+      response object that can subsequently be polled to determine
+      if the server has responded. When the server responds, the
+      actual response can then be retrieved. The response object
+      returns the response content when the <code>get()</code>
+      method is called. The client receives an object of type
+      <code>javax.xml.ws.Response</code> from the
+      <code>invokeAsync</code> method. That <code>Response</code>
+      object is used to monitor the status of the request to the
+      server, determine when the operation has completed, and to
+      retrieve the response results.
+
+      <h3>Using an asynchronous message exchange</h3>By default,
+      asynchronous client invocations do not have asynchronous
+      behavior of the message exchange pattern on the wire. The
+      programming model is asynchronous; however, the exchange of
+      request or response messages with the server is not
+      asynchronous. To use an asynchronous message exchange, the
+      org.apache.axis2.jaxws.use.async.mep property must be set on
+      the client request context with a boolean value of true. When
+      this property is enabled, the messages exchanged between the
+      client and server are different from messages exchanged
+      synchronously. With an asynchronous exchange, the request and
+      response messages have WS-Addressing headers added that
+      provide additional routing information for the messages.
+      Another major difference between asynchronous and synchronous
+      message exchange is that the response is delivered to an
+      asynchronous listener that then delivers that response back
+      to the client. For asynchronous exchanges, there is no
+      timeout that is sent to notify the client to stop listening
+      for a response. To force the client to stop waiting for a
+      response, issue a <code>Response.cancel()</code> method on
+      the object returned from a polling invocation or a
+      <code>Future.cancel()</code> method on the object returned
+      from a callback invocation. The cancel response does not
+      affect the server when processing a request.<br />
+      <br />
+      The steps necessary to invoke a Web service asynchronously
+      are:
+
+      <ol>
+        <li>Determine if you want to implement the callback method
+        or the polling method for the client to asynchronously
+        invoke the Web service.</li>
+
+        <li>(Optional) Configure the client request context. Add
+        the<br />
+          <br />
+          <code>org.apache.axis2.jaxws.use.async.mep</code><br />
+          <br />
+          property to the request context to enable asynchronous
+          messaging for the Web services client. Using this
+          property requires that the service endpoint supports
+          WS-Addressing which is supported by default for the
+          application server. The following example demonstrates
+          how to set this property:
+          <pre>
+           Map&lt;String, Object&gt; rc = ((BindingProvider) port).getRequestContext();
+           rc.put("org.apache.axis2.jaxws.use.async.mep", Boolean.TRUE);
+</pre>
+        </li>
+
+        <li>To implement the asynchronous callback method, perform
+        the following steps.
+
+          <ol>
+            <li>Find the asynchronous callback method on the SEI or
+            <code>javax.xml.ws.Dispatch</code> interface. For an
+            SEI, the method name ends in <code>Async</code> and has
+            one more parameter than the synchronous method of type
+            <code>javax.xml.ws.AsyncHandler</code>. The
+            <code>invokeAsync(Object, AsyncHandler)</code> method
+            is the one that is used on the Dispatch interface.</li>
+
+            <li>(Optional) Add the <code>service.setExecutor</code>
+            methods to the client application. Adding the executor
+            methods gives the client control of the scheduling
+            methods for processing the response. You can also
+            choose to use the <code>java.current.Executors</code>
+            class factory to obtain packaged executors or implement
+            your own executor class. See the JAX-WS specification
+            for more information on using executor class methods
+            with your client.</li>
+
+            <li>Implement the
+            <code>javax.xml.ws.AsynchHandler</code> interface. The
+            <code>javax.xml.ws.AsynchHandler</code> interface only
+            has the
+            <code>handleResponse(javax.xml.ws.Response)</code>
+            method. The method must contain the logic for
+            processing the response or possibly an exception. The
+            method is called after the client run time has received
+            and processed the asynchronous response from the
+            server.</li>
+
+            <li>Invoke the asynchronous callback method with the
+            parameter data and the callback handler.</li>
+
+            <li>The <code>handleResponse(Response)</code> method is
+            invoked on the callback object when the response is
+            available. The <code>Response.get()</code> method is
+            called within this method to deliver the response.</li>
+          </ol>
+        </li>
+
+        <li>To implement the polling method,
+
+          <ol>
+            <li>Find the asynchronous polling method on the SEI or
+            <code>javax.xml.ws.Dispatch</code> interface. For an
+            SEI, the method name ends in <code>Async</code> and has
+            a return type of <code>javax.xml.ws.Response</code>.
+            The <code>invokeAsync(Object)</code> method is used on
+            the Dispatch interface.</li>
+
+            <li>Invoke the asynchronous polling method with the
+            parameter data.</li>
+
+            <li>The client receives the object type,
+            <code>javax.xml.ws.Response</code>, that is used to
+            monitor the status of the request to the server. The
+            <code>isDone()</code> method indicates whether the
+            invocation has completed. When the
+            <code>isDone()</code> method returns a value of true,
+            call the <code>get()</code> method to retrieve the
+            response object.</li>
+          </ol>
+        </li>
+
+        <li>Use the <code>cancel()</code> method for the callback
+        or polling method if the client needs to stop waiting for a
+        response from the service. If the <code>cancel()</code>
+        method is invoked by the client, the endpoint continues to
+        process the request. However, the wait and response
+        processing for the client is stopped.</li>
+      </ol><br />
+      When developing Dynamic Proxy clients, after you generate the
+      portable client artifacts from a WSDL file using the
+      <b>wsimport</b> command, the generated service endpoint
+      interface (SEI) does not have asynchronous methods included
+      in the interface. Use JAX-WS bindings to add the asynchronous
+      callback or polling methods on the interface for the Dynamic
+      Proxy client. To enable asynchronous mappings, you can add
+      the <code>jaxws:enableAsyncMapping</code> binding declaration
+      to the WSDL file. For more information on adding binding
+      customizations to generate an asynchronous interface, see
+      chapter 8 of the JAX-WS specification.<br />
+      <br />
+      Note: When you run the <b>wsimport</b> tool and enable
+      asynchronous invocation through the use of the JAX-WS
+      <code>enableAsyncMapping</code> binding declaration, ensure
+      that the corresponding response message your WSDL file does
+      not contain parts. When a response message does not contain
+      parts, the request acts as a two-way request, but the actual
+      response that is sent back is empty. The <b>wsimport</b> tool
+      does not correctly handle a void response. To avoid this
+      scenario, you can remove the output message from the
+      operation which makes your operation a one-way operation or
+      you can add a &lt;wsdl:part&gt; to your message. For more
+      information on the usage, syntax and parameters for the
+      <b>wsimport</b> tool, see the <b>wsimport</b> command for
+      JAX-WS applications documentation.<br />
+      <br />
+      The following example illustrates a Web service interface
+      with methods for asynchronous requests from the client.
+      <pre>
+   @WebService
+
+   public interface CreditRatingService {
+          // Synchronous operation.
+          Score getCreditScore(Customer     customer);
+          // Asynchronous operation with polling.
+          <b>Response&lt;Score&gt;</b> getCreditScoreAsync(Customer customer);
+          // Asynchronous operation with callback.
+          <b>Future&lt;?&gt;</b> getQuoteAsync(Customer customer, 
+                 <b>AsyncHandler&lt;Score&gt;</b> handler);
+   }
+</pre>Using the callback method The callback method requires a
+callback handler that is shown in the following example. When using
+the callback procedure, after a request is made, the callback
+handler is responsible for handling the response. The response
+value is a response or possibly an exception. The
+<code>Future&lt;?&gt;</code> method represents the result of an
+asynchronous computation and is checked to see if the computation
+is complete. When you want the application to find out if the
+request is completed, invoke the <code>Future.isDone()</code>
+method. Note that the <code>Future.get()</code> method does not
+provide a meaningful response and is not similar to the <code>
+      Response.get()</code> method.
+      <pre>
+   CreditRatingService svc = ...;
+ 
+   <b>Future&lt;?&gt;</b> invocation = svc.getCreditScoreAsync(customerTom,
+          <b>new AsyncHandler&lt;Score&gt;() {
+                 public void handleResponse (
+                        Response&lt;Score&gt; response)
+                     {
+                        score = response.get();
+                        // process the request...
+                     }
+       }</b>
+  );
+</pre>Using the polling method The following example illustrates an
+asynchronous polling client:
+      <pre>
+   CreditRatingService svc = ...;
+   <b>Response&lt;Score&gt; response</b> = svc.getCreditScoreAsync(customerTom);
+ 
+   while (<b>!response.isDone()</b>) {
+          // Do something while we wait.
+   }
+ 
+
+   score = <b>response.get()</b>;
+</pre>
+
+      <h2><a name="Handlers" id="Handlers">Using handlers in JAX-WS
+      Web services</a></h2>As in the Java API for XML-based RPC
+      (JAX-RPC) programming model, the JAX-WS programming model
+      provides an application handler facility that enables you to
+      manipulate a message on either an inbound or an outbound
+      flow. You can add handlers into the JAX-WS runtime
+      environment to perform additional processing of request and
+      response messages. You can use handlers for a variety of
+      purposes such as capturing and logging information and adding
+      security or other information to a message. Because of the
+      support for additional protocols beyond SOAP, JAX-WS provides
+      two different classifications for handlers. One type of
+      handler is a logical handler that is protocol independent and
+      can obtain the message in the flow as an extensible markup
+      language (XML) message. The logical handlers operate on
+      message context properties and message payload. These
+      handlers must implement the
+      <code>javax.xml.ws.handler.LogicalHandler</code> interface. A
+      logical handler receives a <code>LogicalMessageContext</code>
+      object from which the handler can get the message
+      information. Logical handlers can exist on both SOAP and
+      XML/HTTP-based configurations.<br />
+      <br />
+      The second type of handler is a protocol handler. The
+      protocol handlers operate on message context properties and
+      protocol-specific messages. Protocol handlers are limited to
+      SOAP-based configurations and must implement the
+      <code>javax.xml.ws.handler.soap.SOAPHandler</code> interface.
+      Protocol handlers receive the message as a
+      <code>javax.xml.soap.SOAPMessage</code> to read the message
+      data.<br />
+      <br />
+      The JAX-WS runtime makes no distinction between server-side
+      and client-side handler classes. The runtime does not
+      distinguish between inbound or outbound flow when a
+      <code>handleMessage(MessageContext)</code> method or
+      <code>handleFault(MessageContext)</code> method for a
+      specific handler is invoked. You must configure the handlers
+      for the server or client, and implement sufficient logic
+      within these methods to detect the inbound or outbound
+      direction of the current message.<br />
+      <br />
+      To use handlers with Web services client applications, you
+      must add the <code>@HandlerChain</code> annotation to the
+      service endpoint interface or the generated service class and
+      provide the handler chain configuration file. The
+      <code>@HandlerChain</code> annotation contains a file
+      attribute that points to a handler chain configuration file
+      that you create. For Web services client applications, you
+      can also configure the handler chain programmatically using
+      the Binding API. To modify the <code>handlerchain</code>
+      class programmatically, use either the default implementation
+      or a custom implementation of the
+      <code>HandlerResolver</code> method.<br />
+      <br />
+      To use handlers with your server application, you must set
+      the <code>@HandlerChain</code> annotation on either the
+      service endpoint interface or the endpoint implementation
+      class, and provide the associated handler chain configuration
+      file. Handlers for the server are only configured by setting
+      the <code>@HandlerChain</code> annotation on the service
+      endpoint implementation or the implementation class. The
+      handler classes must be included in the deployed
+      artifact.<br />
+      <br />
+      For both server and client implementations of handlers using
+      the <code>@HandlerChain</code> annotation, you must specify
+      the location of the handler configuration as either a
+      relative path from the annotated file or as an absolute URL.
+      For example:<br />
+      <br />
+      <pre>
+   @HandlerChain(file="../../common/handlers/myhandlers.xml")
+</pre>or
+      <pre>
+   @HandlerChain(file="http://foo.com/myhandlers.xml")
+</pre>For more information on the schema of the handler
+configuration file, see the JSR 181 specification.<br />
+      <br />
+      For more information regarding JAX-WS handlers, see chapter 9
+      of the JAX-WS specification.<br />
+      <br />
+      To create a JAX-WS handler:
+
+      <ol>
+        <li>Determine if you want to implement JAX-WS handlers on
+        the service or the client.
+
+          <ol>
+            <li>Use the default implementation of a handler
+            resolver. The runtime now uses the
+            <code>@HandlerChain</code> annotation and the default
+            implementation of <code>HandlerResolver</code> class to
+            build the handler chain. You can obtain the existing
+            handler chain from the <code>Binding</code>, add or
+            remove handlers, and then return the modified handler
+            chain to the <code>Binding</code> object.</li>
+
+            <li>To use a custom implementation of a handler
+            resolver, set the custom <code>HandlerResolver</code>
+            class on the <code>Service</code> instance. The runtime
+            uses your custom implementation of the
+            <code>HandlerResolver</code> class to build the handler
+            chain, and the default runtime implementation is not
+            used. In this scenario, the <code>@HandlerChain</code>
+            annotation is not read when retrieving the handler
+            chain from the binding after the custom
+            <code>HandlerResolver</code> instance is registered on
+            the <code>Service</code> instance. You can obtain the
+            existing handler chain from the <code>Binding</code>,
+            add or remove handlers, and then return the modified
+            handler chain to the <code>Binding</code> object.</li>
+          </ol>
+        </li>
+
+        <li>Configure the client handlers by setting the
+        <code>@HandlerChain</code> annotation on the service
+        instance or service endpoint interface, or you can modify
+        the handler chain programmatically to control how the
+        handler chain is built in the runtime. If you choose to
+        modify the handler chain programmatically, then you must
+        determine if you will use the default handler resolver or
+        use a custom implementation of a handler resolver that is
+        registered on the service instance. A service instance uses
+        a handler resolver when creating binding providers. When
+        the binding providers are created, the handler resolver
+        that is registered with a service is used to create a
+        handler chain and the handler chain is subsequently used to
+        configure the binding provider.</li>
+
+        <li>Configure the server handlers by setting the
+        <code>@HandlerChain</code> annotation on the service
+        endpoint interface or implementation class. When the
+        <code>@HandlerChain</code> annotation is configured on both
+        the service endpoint interface and the implementation
+        class, the implementation class takes priority.</li>
+
+        <li>Create the handler chain configuration XML file. You
+        must create a handler chain configuration XML file for the
+        <code>@HandlerChain</code> to reference.</li>
+
+        <li>Add the handler chain configuration XML file in the
+        class path for the service endpoint interface when
+        configuring the server or client handlers using the
+        <code>@HandlerChain</code> annotation. You must also
+        include the handler classes contained in the configuration
+        XML file in your class path.</li>
+
+        <li>Write your handler implementation.</li>
+      </ol><br />
+      The following example illustrates the steps necessary to
+      configure JAX-WS handlers on a service endpoint interface
+      using the <code>@HandlerChain</code> annotation.<br />
+      <br />
+      The <code>@HandlerChain</code> annotation has a file
+      attribute that points to a handler chain configuration XML
+      file that you create. The following file illustrates a
+      typical handler configuration file. The
+      <code>protocol-bindings</code>,
+      <code>port-name-pattern</code>, and
+      <code>service-name-pattern</code> elements are all filters
+      that are used to restrict which services can apply the
+      handlers.
+      <pre>
+   &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+   &lt;jws:handler-chains xmlns:jws="http://java.sun.com/xml/ns/javaee"&gt;
+   &lt;!-- Note:  The '*" denotes a wildcard. --&gt;
+
+        &lt;jws:handler-chain name="MyHandlerChain"&gt;
+                &lt;jws:protocol-bindings&gt;##SOAP11_HTTP ##ANOTHER_BINDING&lt;/jws:protocol-bindings&gt;
+                &lt;jws:port-name-pattern 
+                 xmlns:ns1="http://handlersample.samples.apache.org/"&gt;ns1:MySampl*&lt;/jws:port-name-pattern&gt;
+           &lt;jws:service-name-pattern 
+                 xmlns:ns1="http://handlersample.samples.apache.org/"&gt;ns1:*&lt;/jws:service-name-pattern&gt;
+                &lt;jws:handler&gt;
+                        &lt;jws:handler-class&gt;org.apache.samples.handlersample.SampleLogicalHandler&lt;/jws:handler-class&gt;
+                &lt;/jws:handler&gt;
+                &lt;jws:handler&gt;
+                        &lt;jws:handler-class&gt;org.apache.samples.handlersample.SampleProtocolHandler2&lt;/jws:handler-class&gt;
+                &lt;/jws:handler&gt;
+                &lt;jws:handler&gt;
+                        &lt;jws:handler-class&gt;org.apache.samples.handlersample.SampleLogicalHandler&lt;/jws:handler-class&gt;
+                &lt;/jws:handler&gt;
+                &lt;jws:handler&gt;
+                        &lt;jws:handler-class&gt;org.apache.samples.handlersample.SampleProtocolHandler2&lt;/jws:handler-class&gt;
+                &lt;/jws:handler&gt;
+        &lt;/jws:handler-chain&gt;
+        
+   &lt;/jws:handler-chains&gt;
+</pre>Make sure that you add the handler.xml file and the handler
+classes contained in the handler.xml file in your class path.<br />
+
+      <br />
+      The following example demonstrates a handler implementation:
+      <pre>
+   package org.apache.samples.handlersample;
+
+   import java.util.Set;
+
+   import javax.xml.namespace.QName;
+   import javax.xml.ws.handler.MessageContext;
+   import javax.xml.ws.handler.soap.SOAPMessageContext;
+
+   public class SampleProtocolHandler implements
+           javax.xml.ws.handler.soap.SOAPHandler&lt;SOAPMessageContext&gt; {
+
+       public void close(MessageContext messagecontext) {
+       }
+
+       public Set&lt;QName&gt; getHeaders() {
+           return null;
+       }
+
+       public boolean handleFault(SOAPMessageContext messagecontext) {
+           return true;
+       }
+
+       public boolean handleMessage(SOAPMessageContext messagecontext) {
+           Boolean outbound = (Boolean) messagecontext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+           if (outbound) {
+               // Include your steps for the outbound flow.
+           }
+           return true;
+       }
+
+   }
+</pre>
+
+      <h2><a name="HTTPSession" id="HTTPSession">Enabling HTTP
+      session management support for JAX-WS
+      applications</a></h2>You can use HTTP session management to
+      maintain user state information on the server, while passing
+      minimal information back to the user to track the session.
+      You can implement HTTP session management on the application
+      server using either session cookies or URL rewriting.<br />
+      <br />
+      The interaction between the browser, application server, and
+      application is transparent to the user and the application
+      program. The application and the user are typically not aware
+      of the session identifier provided by the server.
+
+      <h3>Session cookies</h3>The HTTP maintain session feature
+      uses a single cookie, <code>JSESSIONID</code>, and this
+      cookie contains the session identifier. This cookie is used
+      to associate the request with information stored on the
+      server for that session. On subsequent requests from the
+      JAX-WS application, the session ID is transmitted as part of
+      the request header, which enables the application to
+      associate each request for a given session ID with prior
+      requests from that user. The JAX-WS client applications
+      retrieve the session ID from the HTTP response headers and
+      then use those IDs in subsequent requests by setting the
+      session ID in the HTTP request headers.
+
+      <h3>URL rewriting</h3>URL rewriting works like a redirected
+      URL as it stores the session identifier in the URL. The
+      session identifier is encoded as a parameter on any link or
+      form that is submitted from a Web page. This encoded URL is
+      used for subsequent requests to the same server.<br />
+      <br />
+      To enable HTTP session management:
+
+      <ol>
+        <li>Configure the server to enable session tracking.</li>
+
+        <li>Enable session management on the client by setting the
+        JAX-WS property,
+        <code>javax.xml.ws.session.maintain</code>, to true on the
+        <code>BindingProvider</code>.
+          <pre>
+      Map&lt;String, Object&gt; rc = ((BindingProvider) port).getRequestContext();
+      ...
+      ...
+      rc.put(BindingProvider.SESSION_MAINTAIN_PROPERTY, Boolean.TRUE);
+      ...
+      ...
+   
+</pre>
+        </li>
+      </ol>
+
+      <h2><a name="MTOM" id="MTOM">Enabling MTOM</a></h2>JAX-WS
+      supports the use of SOAP Message Transmission Optimized
+      Mechanism (MTOM) for sending binary attachment data. By
+      enabling MTOM, you can send and receive binary data optimally
+      without incurring the cost of data encoding to ensure the
+      data is included in the XML document.<br />
+      <br />
+      JAX-WS applications can send binary data as base64 or
+      hexBinary encoded data contained within the XML document.
+      However, to take advantage of the optimizations provided by
+      MTOM, enable MTOM to send binary base64 data as attachments
+      contained outside the XML document. MTOM optimization is only
+      available for the xs:base64Binary data type. The MTOM option
+      is not enabled by default. JAX-WS applications require
+      separate configuration of both the client and the server
+      artifacts to enable MTOM support. For the server, MTOM can be
+      enabled on a JAX-WS JavaBeans endpoint only and not on a
+      provider-based endpoint.<br />
+      <br />
+      To enable MTOM on an endpoint, use the @BindingType
+      (javax.xml.ws.BindingType) annotation on a server endpoint
+      implementation class to specify that the endpoint supports
+      one of the MTOM binding types so that the response messages
+      are MTOM-enabled. The javax.xml.ws.SOAPBinding class defines
+      two different constants, SOAP11HTTP_MTOM_BINDING and
+      SOAP12HTTP_MTOM_BINDING that you can use for the value of the
+      @BindingType annotation. For example:
+      <pre>
+   // for SOAP version 1.1
+   @BindingType(value = SOAPBinding.SOAP11HTTP_MTOM_BINDING)
+   // for SOAP version 1.2
+   @BindingType(value = SOAPBinding.SOAP12HTTP_MTOM_BINDING)
+</pre><br />
+      Enable MTOM on the client by using the
+      javax.xml.ws.soap.SOAPBinding client-side API. Enabling MTOM
+      on the client optimizes the binary messages that are sent to
+      the server.
+
+      <ul>
+        <li>Enable MTOM on a Dispatch client.</li>
+
+        <li style="list-style: none">The following example uses
+        SOAP version 1.1:
+
+          <ul>
+            <li>First method: Using
+            SOAPBinding.setMTOMEnabled()</li>
+
+            <li style="list-style: none; display: inline">
+              <pre>
+             SOAPBinding binding = (SOAPBinding)dispatch.getBinding();
+             binding.setMTOMEnabled(true);
+         
+</pre>
+            </li>
+
+            <li>Second method: Using Service.addPort()</li>
+
+            <li style="list-style: none; display: inline">
+              <pre>
+ 
+             Service svc = Service.create(serviceName);
+             svc.addPort(portName,SOAPBinding.SOAP11HTTP_MTOM_BINDING,endpointUrl);
+         
+</pre>
+            </li>
+          </ul>
+        </li>
+
+        <li>Enable MTOM on a Dynamic Proxy client.</li>
+
+        <li style="list-style: none; display: inline">
+          <pre>
+          // Create a BindingProvider bp from a proxy port.
+          Service svc = Service.create(serviceName);
+          MtomSample proxy = svc.getPort(portName, MtomSample.class);
+          BindingProvider bp = (BindingProvider) proxy;
+
+          //Enable MTOM
+          SOAPBinding binding = (SOAPBinding) bp.getBinding();
+          binding.setMTOMEnabled(true);
+      
+</pre>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://ws.apache.org/axis2/actiontest/"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="actionTests"
+	xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+	targetNamespace="http://ws.apache.org/axis2/actiontest/">
+	<wsdl:types>
+	</wsdl:types>
+	<wsdl:message name="echoResponse">
+		<wsdl:part name="echoResponse" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoRequest">
+		<wsdl:part name="echoRequest" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoResponse1">
+		<wsdl:part name="echoResponse1" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoRequest1">
+		<wsdl:part name="echoRequest1" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoechoFault">
+		<wsdl:part name="echoechoFault" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoechoFault1">
+		<wsdl:part name="echoechoFault1" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoResponse2">
+		<wsdl:part name="echoResponse2" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoRequest2">
+		<wsdl:part name="echoRequest2" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoechoFault2">
+		<wsdl:part name="echoechoFault2" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoResponse3">
+		<wsdl:part name="echoResponse3" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoRequest3">
+		<wsdl:part name="echoRequest3" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="echoechoFault3">
+		<wsdl:part name="echoechoFault3" type="xsd:string"></wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="withoutWSAWAction">
+		<wsdl:operation name="echo">
+			<wsdl:input message="tns:echoRequest" name="NamedInput"></wsdl:input>
+			<wsdl:output message="tns:echoResponse" name="NamedOutput"></wsdl:output>
+			<wsdl:fault name="echoFault" message="tns:echoechoFault"></wsdl:fault>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="withWSAWAction">
+		<wsdl:operation name="echo">
+			<wsdl:input message="tns:echoRequest1" wsaw:Action="http://example.org/action/echoIn"></wsdl:input>
+			<wsdl:output message="tns:echoResponse1" wsaw:Action="http://example.org/action/echoOut"></wsdl:output>
+			<wsdl:fault name="echoFault" message="tns:echoechoFault1" wsaw:Action="http://example.org/action/echoFault"></wsdl:fault>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="withoutWSAWActionNoName">
+		<wsdl:operation name="echo">
+			<wsdl:input message="tns:echoRequest2"></wsdl:input>
+			<wsdl:output message="tns:echoResponse2"></wsdl:output>
+			<wsdl:fault name="echoFault" message="tns:echoechoFault2"></wsdl:fault>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:portType name="withSOAPAction">
+		<wsdl:operation name="echo">
+			<wsdl:input message="tns:echoRequest3"></wsdl:input>
+			<wsdl:output message="tns:echoResponse3"></wsdl:output>
+			<wsdl:fault name="echoFault" message="tns:echoechoFault3"></wsdl:fault>
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="withoutWSAWActionBinding"
+		type="tns:withoutWSAWAction">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="echo">
+			<soap:operation
+				soapAction="" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+			<wsdl:fault name="echoFault">
+				<soap:fault name="echoFault" use="literal" />
+			</wsdl:fault>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="withWSAWActionBinding"
+		type="tns:withWSAWAction">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="echo">
+			<soap:operation
+				soapAction="" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+			<wsdl:fault name="echoFault">
+				<soap:fault name="echoFault" use="literal" />
+			</wsdl:fault>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="withoutWSAWActionNoNameBinding"
+		type="tns:withoutWSAWActionNoName">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="echo">
+			<soap:operation
+				soapAction="" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+			<wsdl:fault name="echoFault">
+				<soap:fault name="echoFault" use="literal" />
+			</wsdl:fault>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:binding name="withSOAPActionBinding"
+		type="tns:withSOAPAction">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="echo">
+			<soap:operation
+				soapAction="http://ws.apache.org/axis2/actiontest/echo" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+			<wsdl:fault name="echoFault">
+				<soap:fault name="echoFault" use="literal" />
+			</wsdl:fault>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="actionTests">
+		<wsdl:port binding="tns:withSOAPActionBinding"
+			name="actionTestsSOAP">
+			<soap:address location="http://tempuri.org" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

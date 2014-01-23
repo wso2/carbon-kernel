@@ -1,0 +1,696 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>8</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.axis2</groupId>
+    <artifactId>axis2</artifactId>
+    <version>1.6.1-wso2v11</version>
+    <packaging>pom</packaging>
+    <name>Apache Axis2 - Root</name>
+    <inceptionYear>2004</inceptionYear>
+    <url>http://axis.apache.org/axis2/java/core/</url>
+    <issueManagement>
+        <system>jira</system>
+        <url>http://issues.apache.org/jira/browse/AXIS2</url>
+    </issueManagement>
+    <modules>
+        <module>modules/resource-bundle</module> <!-- Must be first in the list! -->
+        <module>modules/adb</module>
+        <module>modules/adb-codegen</module>
+        <module>modules/addressing</module>
+        <module>modules/codegen</module>
+        <module>modules/fastinfoset</module>
+        <module>modules/integration</module>
+        <module>modules/java2wsdl</module>
+        <module>modules/jibx</module>
+        <module>modules/json</module>
+        <module>modules/kernel</module>
+        <module>modules/mex</module>
+        <module>modules/mtompolicy</module>
+        <module>modules/mtompolicy-mar</module>
+        <module>modules/parent</module>
+        <module>modules/ping</module>
+        <module>modules/samples/version</module>
+        <module>modules/soapmonitor/servlet</module>
+        <module>modules/soapmonitor/module</module>
+        <module>modules/spring</module>
+        <module>modules/testutils</module>
+        <module>modules/tool/axis2-aar-maven-plugin</module>
+        <module>modules/tool/axis2-ant-plugin</module>
+        <!--module>modules/tool/axis2-eclipse-codegen-plugin</module>
+        <module>modules/tool/axis2-eclipse-service-plugin</module>
+        <module>modules/tool/axis2-idea-plugin</module-->
+        <module>modules/tool/axis2-java2wsdl-maven-plugin</module>
+        <module>modules/tool/axis2-mar-maven-plugin</module>
+        <module>modules/tool/axis2-repo-maven-plugin</module>
+        <module>modules/tool/axis2-wsdl2code-maven-plugin</module>
+        <!-- <module>modules/webapp</module> -->
+        <module>modules/xmlbeans</module>
+        <module>modules/scripting</module>
+        <module>modules/jaxbri</module>
+        <module>modules/metadata</module>
+        <module>modules/saaj</module>
+        <module>modules/jaxws</module>
+        <module>modules/jaxws-mar</module>
+        <module>modules/jaxws-integration</module>
+        <module>modules/clustering</module>
+        <module>modules/corba</module>
+        <module>modules/osgi</module>
+        <module>modules/transport/local</module>
+        <module>modules/transport/http</module>
+    </modules>
+    <pluginRepositories>
+	<pluginRepository> 
+            <id>repository.dev.java.net-maven2</id>
+	    <name>Java.net Repository for Maven</name> 
+	    <url>http://download.java.net/maven/2/</url> 
+	    <layout>default</layout> 
+	</pluginRepository>
+    </pluginRepositories>
+    <profiles>
+        <profile>
+            <!-- This profile needs to be activated when doing the release:prepare
+                 (by adding -Peverything) to make sure that the release plugin updates
+                 the version numbers of all relevant submodules. It must contain
+                 all modules not built by default, i.e. the set of modules used
+                 by this profile must be the union of the module sets of all
+                 other profiles. -->
+            <id>everything</id>
+            <modules>
+                <module>modules/distribution</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>apache-release</id>
+            <modules>
+                <module>modules/distribution</module>
+            </modules>
+            <build>		
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.0-beta-1</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <!-- We need Maven 2.1 because the prepare-package phase
+                                             doesn't exist in Maven 2.0 -->
+                                        <requireMavenVersion>
+                                            <version>2.1.0</version>
+                                        </requireMavenVersion>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.gmaven</groupId>
+                        <artifactId>gmaven-plugin</artifactId>
+                        <version>1.2</version>
+                        <executions>
+                            <execution>
+                                <id>generate-timestamp</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>execute</goal>
+                                </goals>
+                                <configuration>
+                                    <source>
+                                        import java.util.Date 
+                                        import java.text.MessageFormat 
+                                        project.properties['buildTimestamp'] = MessageFormat.format("{0,date,dd-MM-yyyy}", new Date())
+                                    </source>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <!-- Configure an additional execution. The configuration
+                             is the same as the one specified together with the execution
+                             in the pre-site phase.  -->
+                        <executions>
+                            <execution>
+                                <id>distribution-javadoc</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <!-- Override the execution defined in org.apache:apache
+                                     so that the source-release assembly is not built.
+                                     We define our own source distribution in modules/distribution. -->
+                                <id>source-release-assembly</id>
+                                <configuration>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>single</goal>
+                                    </goals>
+                                    <skipAssembly>true</skipAssembly>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>package-other-distributions</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/doc.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>prepare-dists</id>
+                                <!-- Must be done in the install phase after the checksum and signature for
+                                     the docs distribution has been generated. -->
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/dists.xml</descriptor>
+                                    </descriptors>
+                                    <!-- We can only prepare the distributions if they have been signed -->
+                                    <skipAssembly>${gpg.skip}</skipAssembly>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <configuration>
+                            <createChecksum>true</createChecksum>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <mailingLists>
+        <mailingList>
+            <name>Axis2 Developer List</name>
+            <subscribe>java-dev-subscribe@axis.apache.org</subscribe>
+            <unsubscribe>java-dev-unsubscribe@axis.apache.org</unsubscribe>
+            <post>java-dev@axis.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/axis-java-dev/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/list:org.apache.ws.axis-dev</otherArchive>
+            </otherArchives>
+        </mailingList>
+        <mailingList>
+            <name>Axis2 User List</name>
+            <subscribe>java-user-subscribe@axis.apache.org</subscribe>
+            <unsubscribe>java-user-unsubscribe@axis.apache.org</unsubscribe>
+            <post>java-user@axis.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/axis-java-user/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/list:org.apache.ws.axis-user</otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+    <developers>
+        <developer>
+            <name>Saminda Abeyruwan</name>
+            <id>saminda</id>
+            <email>saminda AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Afkham Azeez</name>
+            <id>azeez</id>
+            <email>azeez AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~azeez</url>
+        </developer>
+        <developer>
+            <name>Jeff Barrett</name>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Eran Chinthaka</name>
+            <id>chinthaka</id>
+            <email>chinthaka AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~chinthaka</url>
+        </developer>
+        <developer>
+            <name>Glen Daniels</name>
+            <id>gdaniels</id>
+            <email>gdaniels AT apache.org</email>
+            <organization>Sonic Software</organization>
+        </developer>
+        <developer>
+            <name>Brian DePradine</name>
+            <id>pradine</id>
+            <email>pradine AT uk.ibm.com</email>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Jaliya Ekanayake</name>
+            <id>jaliya</id>
+            <email>jaliya AT opensource.lk</email>
+            <organization>Indiana University, USA</organization>
+            <url>http://www.apache.org/~jaliya</url>
+        </developer>
+        <developer>
+            <name>Ruchith Fernando</name>
+            <id>ruchithf</id>
+            <email>ruchith AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Nicholas Gallardo</name>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Thilina Gunarathne</name>
+            <id>thilina</id>
+            <email>thilina AT opensource.lk</email>
+            <organization>Lanka Software Foundation</organization>
+        </developer>
+        <developer>
+            <name>Chathura Herath</name>
+            <id>chathura</id>
+            <email>chathura AT opensource.lk</email>
+            <organization>Indiana University, USA</organization>
+            <url>http://www.apache.org/~chathura</url>
+        </developer>
+        <developer>
+            <name>David Illsley</name>
+            <id>davidillsley</id>
+            <organization>IBM</organization>
+            <url>http://www.illsley.org</url>
+        </developer>
+        <developer>
+            <name>Deepal Jayasinghe</name>
+            <id>deepal</id>
+            <email>deepal AT gatech.org</email>
+            <organization>Georgia Institute of Technology, USA</organization>
+            <url>http://www.apache.org/~deepal</url>
+        </developer>
+        <developer>
+            <name>Robert Lazarski</name>
+            <id>robertlazarski</id>
+            <email>robertlazarski AT gmail.com</email>
+            <organization>Brazil Outsource</organization>
+        </developer>
+        <developer>
+            <name>Senaka Fernando</name>
+            <id>senaka</id>
+            <email>senaka AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Steve Loughran</name>
+            <id>stevel</id>
+            <email>stevel AT apache.org</email>
+            <organization>HP labs</organization>
+        </developer>
+        <developer>
+            <name>Bill Nagy</name>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Chatra Nakkawita</name>
+            <id>chatra</id>
+            <email>chatra AT WSO2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Sumedha Rubasinghe</name>
+            <id>sumedha</id>
+            <email>sumedha AT WSO2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Charitha Kamkanamge</name>
+            <id>charitha</id>
+            <email>charitha AT WSO2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Srinath Perera</name>
+            <id>hemapani</id>
+            <email>hemapani AT apache.org</email>
+            <organization>Indiana University, USA</organization>
+            <url>http://www.apache.org/~hemapani</url>
+        </developer>
+        <developer>
+            <name>Ajith Ranabahu</name>
+            <id>ajith</id>
+            <email>ajith AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~ajith</url>
+        </developer>
+        <developer>
+            <name>Venkat Reddy</name>
+            <id>venkat</id>
+            <email>vreddyp AT gmail.com</email>
+            <organization>Computer Associates</organization>
+        </developer>
+        <developer>
+            <name>Michael Rheinheimer</name>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Ann Robinson</name>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Sanka Samaranayake</name>
+            <id>sanka</id>
+            <email>sanka AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Rich Scheuerle</name>
+            <id>scheu</id>
+            <email>scheu AT us.ibm.com</email>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Ashutosh Shahi</name>
+            <id>ashu</id>
+            <email>Ashutosh.Shahi AT ca.com</email>
+            <organization>Computer Associates</organization>
+        </developer>
+        <developer>
+            <name>Aleksander Slominski</name>
+            <id>alek</id>
+            <email>aslom AT cs.indiana.edu</email>
+            <organization>Indiana University Extreme! Computing Lab</organization>
+        </developer>
+        <developer>
+            <name>Dennis Sosnoski</name>
+            <id>dsosnoski</id>
+            <email>dms AT sosnoski.com</email>
+            <organization>Sosnoski Software</organization>
+        </developer>
+        <developer>
+            <name>Davanum Srinivas</name>
+            <id>dims</id>
+            <email>davanum AT gmail.com</email>
+        </developer>
+        <developer>
+            <name>Jayachandra Sekhara Rao Sunkara</name>
+            <id>jaya</id>
+            <email>jayachandra AT gmail.com</email>
+            <organization>Computer Associates</organization>
+        </developer>
+        <developer>
+            <name>Nandana Mihindukulasooriya</name>
+            <id>nandana</id>
+            <email>nandana AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Nikhil Thaker</name>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Chamil Thanthrimudalige</name>
+            <id>chamil</id>
+            <email>chamil AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Dasarath Weerathunga</name>
+            <id>dasarath</id>
+            <email>dasarath AT opensource.lk</email>
+            <organization>Purdue University, USA</organization>
+        </developer>
+        <developer>
+            <name>Eranga Jayasundera</name>
+            <id>eranga</id>
+            <email>eranga AT apache.org</email>
+        </developer>
+        <developer>
+            <name>Sanjiva Weerawarana</name>
+            <id>sanjiva</id>
+            <email>sanjiva AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Keith Chapman</name>
+            <id>keithc</id>
+            <email>keith AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Andreas Veithen</name>
+            <id>veithen</id>
+            <email>veithen AT apache.org</email>
+            <url>http://www.linkedin.com/in/aveithen</url>
+        </developer>
+        <developer>
+            <name>Ruwan Linton</name>
+            <id>ruwan</id>
+            <email>ruwan AT apache.org</email>
+            <url>http://www.linkedin.com/in/ruwanlinton</url>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Gayan Asanka</name>
+            <email>gayan AT opensource.lk</email>
+            <organization>Lanka Software Foundation</organization>
+        </contributor>
+        <contributor>
+            <name>Dharshana Dias</name>
+            <organization>Lanka Software Foundation / University of Moratuwa</organization>
+        </contributor>
+        <contributor>
+            <name>Nadana Gunarathna</name>
+            <email>nadana AT opensource.lk</email>
+            <organization>Lanka Software Foundation</organization>
+        </contributor>
+        <contributor>
+            <name>Thilini Gunawardhana</name>
+            <email>thilini AT WSO2.com</email>
+            <organization>WSO2</organization>
+        </contributor>
+        <contributor>
+            <name>Anushka Kumara</name>
+            <email>anushkakumar AT gmail.com</email>
+            <organization>Lanka Software Foundation / University of Moratuwa</organization>
+        </contributor>
+        <contributor>
+            <name>Farhaan Mohideen</name>
+            <email>fmohideen AT valista.com</email>
+            <organization>Lanka Software Foundation</organization>
+        </contributor>
+        <contributor>
+            <name>Chinthaka Thilakarathne</name>
+            <organization>Lanka Software Foundation / University of Moratuwa</organization>
+        </contributor>
+        <contributor>
+            <name>Shivantha Huruggamuwa</name>
+            <email>shivanthah AT gmail.com</email>
+            <organization>University Of Peradeniya , Sri Lanka</organization>
+        </contributor>
+        <contributor>
+            <name>Dobri Kitipov</name>
+            <email>kdobrik AT gmail.com</email>
+            <organization>Software AG</organization>
+        </contributor>
+    </contributors>
+<distributionManagement>
+        <repository>
+            <id>wso2-maven2-repository</id>
+            <name>WSO2 Maven2 Repository</name>
+            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/</url>
+        </repository>
+<!--
+        <snapshotRepository>
+            <id>wso2-maven2-snapshot-repository</id>
+            <name>WSO2 Maven2 Snapshot Repository</name>
+            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/snapshots/maven2/</url>
+        </snapshotRepository>
+-->
+    </distributionManagement>
+
+    <properties>
+        <!-- This variable is used in some Xdocs and is substituted using Velocity. Note that
+             we can't use the project.version variable directly because of the dot. See
+             http://maven.apache.org/plugins/maven-site-plugin/examples/creating-content.html -->
+        <axis2_version>${project.version}</axis2_version>
+    </properties>
+    <build>
+        <!-- Note: the pluginManagement in axis2-parent doesn't apply here; we
+             need to define our own! -->
+	<extensions>
+      	    <extension>
+        	<groupId>org.apache.maven.wagon</groupId>
+        	<artifactId>wagon-ssh</artifactId>
+        	<version>2.1</version>
+      	    </extension>
+    	</extensions>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.7</version>
+                    <configuration>
+                        <reportOutputDirectory>${project.reporting.outputDirectory}</reportOutputDirectory>
+                        <destDir>api</destDir>
+                        <additionalJOption>-J-Xmx256m</additionalJOption>
+                        <links>
+                            <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+                            <link>http://java.sun.com/javaee/5/docs/api/</link>
+                            <link>http://jaxen.codehaus.org/apidocs/</link>
+                        </links>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <!-- Note: 2.0 seems to have issues with the calculation of the tag path -->
+                    <version>2.0-beta-9</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <!-- "clean verify" fails because for OSGi bundles, there
+                             is a mismatch between the type of the dependency (jar)
+                             and the actual packaging (bundle) and Maven resolves
+                             the dependency from the local repository instead of the
+                             reactor. -->
+                        <preparationGoals>clean install</preparationGoals>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>2.1.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+	    <plugin> 
+		<groupId>org.jvnet.maven.incrementalbuild</groupId> 
+		<artifactId>incremental-build-plugin</artifactId>
+		<version>1.3</version>
+		<executions> 
+		    <execution> 
+		        <goals> 
+			    <goal>incremental-build</goal>
+			</goals>
+		    </execution> 
+		</executions> 
+	    </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>org.apache.axis2:axis2-resource-bundle:${project.version}</resourceBundle>
+                            </resourceBundles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>package-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/jar.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>site-javadoc</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.1.1</version>
+                <configuration>
+                    <!-- These features are disabled since they cause "mvn site" to hang -->
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>

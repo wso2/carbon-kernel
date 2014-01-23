@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>samples</artifactId>
+        <version>${carbon.platform.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>student-manager</artifactId>
+    <packaging>pom</packaging>
+    <name>WSO2 Carbon - student Manager Sample</name>
+    <description>Student Manager Sample</description>
+    <url>http://wso2.org</url>
+
+    <modules>
+        <module>components</module>
+        <module>features</module>
+        <module>repository</module>
+    </modules>
+
+</project>

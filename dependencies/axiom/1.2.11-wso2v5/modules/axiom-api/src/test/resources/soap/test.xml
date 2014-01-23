@@ -1,0 +1,6 @@
+<?xml version='1.0' ?>
+<env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+    <env:Body>
+        <p:echo xmlns:p="urn://sample">Hello World</p:echo>
+    </env:Body>
+</env:Envelope>

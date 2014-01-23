@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Code Listing 6: Client.java</title>
+</head>
+<body>
+<h1>Code Listing 7- Client.java</h1>
+<pre>
+package org.apache.axis2.axis2userguide;
+
+import org.apache.axis2.axis2userguide.Axis2UserGuideServiceStub.DoInOnlyRequest;
+import org.apache.axis2.axis2userguide.Axis2UserGuideServiceStub.TwoWayOneParameterEchoRequest;
+import org.apache.axis2.axis2userguide.Axis2UserGuideServiceStub.NoParametersRequest;
+import org.apache.axis2.axis2userguide.Axis2UserGuideServiceStub.MultipleParametersAddItemRequest;
+
+import org.apache.axis2.axis2userguide.Axis2UserGuideServiceStub.TwoWayOneParameterEchoResponse;
+import org.apache.axis2.axis2userguide.Axis2UserGuideServiceStub.NoParametersResponse;
+import org.apache.axis2.axis2userguide.Axis2UserGuideServiceStub.MultipleParametersAddItemResponse;
+
+public class Client{
+    public static void main(java.lang.String args[]){
+        try{
+            Axis2UserGuideServiceStub stub =
+                new Axis2UserGuideServiceStub
+                ("http://localhost:8080/axis2/services/Axis2UserGuideService");
+
+            doInOnly(stub);
+            twoWayOneParameterEcho(stub);
+            noParameters(stub);
+            multipleParameters(stub);
+
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+
+    /* do in only */
+    public static void doInOnly(Axis2UserGuideServiceStub stub){
+        try{
+            DoInOnlyRequest req = new DoInOnlyRequest();
+
+            req.setMessageString("An in only request");
+
+            stub.DoInOnly(req);
+            System.out.println("done");
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+
+    /* two way call/receive */
+    public static void twoWayOneParameterEcho(Axis2UserGuideServiceStub stub){
+        try{
+            TwoWayOneParameterEchoRequest req = new TwoWayOneParameterEchoRequest();
+
+            req.setEchoString("echo! ... echo!");
+
+            TwoWayOneParameterEchoResponse res =
+                stub.TwoWayOneParameterEcho(req);
+
+            System.out.println(res.getEchoString());
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+
+    /* No parameters */
+    public static void noParameters(Axis2UserGuideServiceStub stub){
+        try{
+            NoParametersRequest req = new NoParametersRequest();
+
+            System.out.println(stub.NoParameters(req));
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+
+    /* multiple parameters */
+    public static void multipleParameters(Axis2UserGuideServiceStub stub){
+        try{
+            MultipleParametersAddItemRequest req =
+                new MultipleParametersAddItemRequest();
+
+            req.setPrice((float)1.99);
+            req.setItemId((int)23872983);
+            req.setDescription("Must have for cooking");
+            req.setItemName("flour");
+
+            MultipleParametersAddItemResponse res =
+                stub.MultipleParametersAddItem(req);
+
+            System.out.println(res.getSuccessfulAdd());
+            System.out.println(res.getItemId());
+        } catch(Exception e){
+            e.printStackTrace();
+            System.out.println("\n\n\n");
+        }
+    }
+}
+</pre>
+</body>
+</html>

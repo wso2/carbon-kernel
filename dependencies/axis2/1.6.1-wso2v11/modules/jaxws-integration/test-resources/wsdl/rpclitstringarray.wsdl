@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<definitions name="EchoService" targetNamespace="http://sei.stringarray.rpclit.jaxws.axis2.apache.org" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://sei.stringarray.rpclit.jaxws.axis2.apache.org" xmlns:ns1= "http://stringarray.rpclit.test.org" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+			targetNamespace= "http://stringarray.rpclit.test.org">
+      <xsd:complexType name="stringArray" final="#all">
+		<xsd:sequence>
+			<xsd:element name="item" type="xsd:string" minOccurs="0" maxOccurs="unbounded" nillable="true"></xsd:element>
+		</xsd:sequence>
+	  </xsd:complexType>
+    </xsd:schema>
+  </types>
+  <message name="echoStringArray">
+    <part name="arg0" type="ns1:stringArray">
+    </part>
+
+  </message>
+  <message name="echoStringArrayResponse">
+    <part name="return" type="ns1:stringArray">
+    </part>
+  </message>
+  <message name="echoStringResponse">
+    <part name="return" type="xsd:string">
+    </part>
+  </message>
+
+  <message name="echoString">
+    <part name="arg0" type="xsd:string">
+    </part>
+  </message>
+  <portType name="Echo">
+    <operation name="echoString" parameterOrder="arg0">
+      <input message="tns:echoString">
+    </input>
+      <output message="tns:echoStringResponse">
+
+    </output>
+    </operation>
+    <operation name="echoStringArray" parameterOrder="arg0">
+      <input message="tns:echoStringArray">
+    </input>
+      <output message="tns:echoStringArrayResponse">
+    </output>
+    </operation>
+  </portType>
+
+  <binding name="EchoPortBinding" type="tns:Echo">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="echoString">
+      <soap:operation soapAction=""/>
+      <input>
+        <soap:body use="literal" namespace="http://stringarray.rpclit.test.org"/>
+      </input>
+      <output>
+        <soap:body use="literal" namespace="http://stringarray.rpclit.test.org"/>
+
+      </output>
+    </operation>
+    <operation name="echoStringArray">
+      <soap:operation soapAction="echoStringArray"/>
+      <input>
+        <soap:body use="literal" namespace="http://stringarray.rpclit.test.org"/>
+      </input>
+      <output>
+        <soap:body use="literal" namespace="http://stringarray.rpclit.test.org"/>
+
+      </output>
+    </operation>
+  </binding>
+  <service name="RPCLitStringArrayService">
+    <port name="EchoPort" binding="tns:EchoPortBinding">
+      <soap:address location="http://localhost:6060/axis2/services/RPCLitStringArrayService"/>
+    </port>
+  </service>
+</definitions>
+

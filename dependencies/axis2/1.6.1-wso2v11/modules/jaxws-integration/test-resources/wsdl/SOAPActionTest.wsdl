@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<definitions targetNamespace="http://jaxws.axis2.apache.org/client/soapaction"
+      xmlns:tns="http://jaxws.axis2.apache.org/client/soapaction"
+      xmlns="http://schemas.xmlsoap.org/wsdl/" 
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+      xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+   <types>
+      <xsd:schema targetNamespace="http://jaxws.axis2.apache.org/client/soapaction"
+         xmlns:tns="http://jaxws.axis2.apache.org/client/soapaction"
+         xmlns="http://www.w3.org/2001/XMLSchema"
+         elementFormDefault="qualified">
+         <complexType name="GetPriceType">
+            <sequence>
+               <element name="item" type="xsd:string"/>
+            </sequence>
+         </complexType>
+         <complexType name="GetPriceResponseType">
+            <sequence>
+               <element name="price" type="xsd:float"/>
+            </sequence>
+         </complexType>
+
+         <element name="getPrice" type="tns:GetPriceType"/>
+         <element name="getPriceResponse" type="tns:GetPriceResponseType"/>
+   
+         <element name="getPriceWithAction" type="tns:GetPriceType"/>
+         <element name="getPriceWithActionResponse" type="tns:GetPriceResponseType"/>
+
+         <element name="item" type="xsd:string"/>
+         <element name="inventory" type="xsd:int"/>
+
+         <element name="itemWithAction" type="xsd:string"/>
+         <element name="inventoryWithAction" type="xsd:int"/>
+      </xsd:schema>
+   </types>
+
+   <message name="getPriceRequest">
+      <part name="parameters" element="tns:getPrice"/>
+   </message>
+
+   <message name="getPriceResponse">
+      <part name="parameters" element="tns:getPriceResponse"/>
+   </message>
+  
+   <message name="getPriceWithActionRequest">
+      <part name="parameters" element="tns:getPriceWithAction"/>
+   </message>
+
+   <message name="getPriceWithActionResponse">
+      <part name="parameters" element="tns:getPriceWithActionResponse"/>
+   </message>
+ 
+   <message name="getInventoryRequest">
+      <part name="item" element="tns:item"/>
+   </message>
+   
+   <message name="getInventoryResponse">
+      <part name="inventory" element="tns:inventory"/>
+   </message>
+
+   <message name="getInventoryWithActionRequest">
+      <part name="item" element="tns:itemWithAction"/>
+   </message>
+
+   <message name="getInventoryWithActionResponse">
+      <part name="inventory" element="tns:inventoryWithAction"/>
+   </message>
+
+   <portType name="BookStore">
+      <operation name="getPrice">
+         <input message="tns:getPriceRequest" />
+         <output message="tns:getPriceResponse" />
+      </operation>
+      <operation name="getPriceWithAction">
+         <input message="tns:getPriceWithActionRequest" />
+         <output message="tns:getPriceWithActionResponse" />
+      </operation>
+      <operation name="getInventory">
+         <input message="tns:getInventoryRequest" />
+         <output message="tns:getInventoryResponse" />
+      </operation>
+      <operation name="getInventoryWithAction">
+         <input message="tns:getInventoryWithActionRequest" />
+         <output message="tns:getInventoryWithActionResponse" />
+      </operation>
+   </portType>
+
+   <binding name="BookStoreBinding" type="tns:BookStore">
+      <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+      <operation name="getPrice">
+         <soap:operation soapAction=""/>
+         <input>
+            <soap:body use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+      </operation>
+      <operation name="getPriceWithAction">
+         <soap:operation soapAction="http://jaxws.axis2.apache.org/client/soapaction/getPrice"/>
+         <input>
+            <soap:body use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+      </operation>
+      <operation name="getInventory">
+         <soap:operation soapAction=""/>
+         <input>
+            <soap:body use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+      </operation>
+      <operation name="getInventoryWithAction">
+         <soap:operation soapAction="http://jaxws.axis2.apache.org/client/soapaction/getInventory"/>
+         <input>
+            <soap:body use="literal"/>
+         </input>
+         <output>
+            <soap:body use="literal"/>
+         </output>
+      </operation>
+   </binding>
+
+   <service name="BookStoreService">
+      <port binding="tns:BookStoreBinding" name="BookStorePort">
+         <soap:address location="http://localhost:6060/axis2/services/BookStoreService"/>
+      </port>
+   </service>
+</definitions>

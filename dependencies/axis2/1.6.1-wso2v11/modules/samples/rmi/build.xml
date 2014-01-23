@@ -1,0 +1,115 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project name="sample_service" default="generate_service" basedir=".">
+
+    <target name="init">
+        <property name="sample_home" value="${basedir}"/>
+        <property name="classes_dir" value="${sample_home}/classes"/>
+        <property name="src_dir" value="${sample_home}/src"/>
+        <property name="axis2.home" value="../../" />
+        <property name="lib_dir" value="${axis2.home}/lib"/>
+        <property name="dist_dir" value="${axis2.home}/dist"/>
+        <property name="deploy_dir" value="${sample_home}/deploy"/>
+        <property name="service_file" value="${axis2.home}/repository/rmiservices/rmiservice.jsa"/>
+
+        <path id="client.class.path">
+            <fileset dir="${axis2.home}/lib">
+                <include name="*.jar"/>
+            </fileset>
+            <fileset dir="${dist_dir}">
+                <include name="*.jar"/>
+            </fileset>
+
+        </path>
+
+
+    </target>
+
+    <target name="generate_service" depends="clean" description="Generating the service aar">
+
+        <echo message="creating the service aar from ${sample_home}"/>
+
+        <!-- creates deploy and class directoris -->
+        <mkdir dir="${deploy_dir}"/>
+        <mkdir dir="${deploy_dir}/META-INF"/>
+
+        <!-- compiling the classes -->
+        <javac  destdir="${deploy_dir}" srcdir="${src_dir}" debug="on">
+            <exclude name="**/client/*"/>
+            <classpath>
+                <fileset dir="${lib_dir}" includes="*.jar"/>
+            </classpath>
+        </javac>
+
+        <!-- copy services file -->
+        <copy file="conf/config.xml" todir="${deploy_dir}/META-INF"/>
+
+        <!-- create BasicServiceTest.aar file -->
+        <jar destfile="${service_file}">
+            <zipfileset dir="${deploy_dir}" prefix=""/>
+        </jar>
+
+    </target>
+
+    <target name="run_client" depends="clean" description="Running the clients">
+
+        <echo message="Running the RMI clients"/>
+
+        <!-- creates deploy and class directoris -->
+        <mkdir dir="${classes_dir}"/>
+        <mkdir dir="${dist_dir}"/>
+
+        <!-- compiling the classes -->
+        <javac  destdir="${classes_dir}" srcdir="${src_dir}" debug="on">
+            <classpath>
+                <fileset dir="${lib_dir}" includes="*.jar"/>
+            </classpath>
+        </javac>
+
+        <jar destfile="${dist_dir}/rmi_client.jar">
+            <zipfileset dir="${classes_dir}" prefix=""/>
+        </jar>
+
+        <!-- running the clients -->
+        <java classname="sample.rmi.client.TestService1">
+             <classpath refid="client.class.path"/>
+        </java>
+        <java classname="sample.rmi.client.TestService2">
+             <classpath refid="client.class.path"/>
+        </java>
+        <java classname="sample.rmi.client.TestService3">
+             <classpath refid="client.class.path"/>
+        </java>
+        <java classname="sample.rmi.client.TestService4">
+             <classpath refid="client.class.path"/>
+        </java>
+
+    </target>
+
+
+
+    <target name="clean" depends="init" description="deletes the old contentst">
+        <!--<delete dir="${classes_dir}"/>-->
+        <delete dir="${deploy_dir}"/>
+        <delete dir="${classes_dir}"/>
+        <delete dir="${dist_dir}"/>
+    </target>
+
+</project>

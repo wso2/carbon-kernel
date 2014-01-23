@@ -1,0 +1,279 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>JiBX unwrapped document/literal</title>
+</head>
+<body>
+<h1>JiBX Unwrapped document/literal</h1>
+<p>Code generation for JiBX data binding converts operations
+defined by a Web service to method calls. In the most general case
+of document/literal (doc/lit) Web services the generated methods
+each take a single parameter object and return a single result
+object. This type of interface can be painful for developers
+because it adds both a layer of indirection and potentially a large
+number of extra classes (one input and one output class for each
+generated method).</p>
+<p>Fortunately, there's an alternative way of generating methods
+that gives a much more usable API for many Web services. This
+alternative is called <i>unwrapping</i>, and the service
+definitions that it applies to are called <i>wrapped</i>
+definitions. The key difference that qualifies a service definition
+as wrapped is the structure of the input and output elements used
+for operations.</p>
+<p>Here's a sample wrapped WSDL (partial) by way of an example:</p>
+<pre>
+&lt;wsdl:definitions targetNamespace="http://ws.sosnoski.com/library/wsdl"
+    xmlns:tns="http://ws.sosnoski.com/library/types"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"&gt;
+    
+  &lt;wsdl:types&gt;
+  
+    &lt;schema elementFormDefault="qualified"
+        targetNamespace="http://ws.sosnoski.com/library/types"
+        xmlns="http://www.w3.org/2001/XMLSchema"&gt;
+        
+      &lt;element name="getBook"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="isbn" type="string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="getBookResponse"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="book" minOccurs="0" type="tns:BookInformation"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="addBook"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="type" type="string"/&gt;
+            &lt;element name="isbn" type="string"/&gt;
+            &lt;element name="author" minOccurs="0" maxOccurs="unbounded" type="string"/&gt;
+            &lt;element name="title" type="string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="addBookResponse"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="success" type="boolean"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      
+      &lt;complexType name="BookInformation"&gt;
+        &lt;sequence&gt;
+          &lt;element name="author" minOccurs="0" maxOccurs="unbounded" type="string"/&gt;
+          &lt;element name="title" type="string"/&gt;
+        &lt;/sequence&gt;
+        &lt;attribute name="type" use="required" type="string"/&gt;
+        &lt;attribute name="isbn" use="required" type="string"/&gt;
+      &lt;/complexType&gt;
+      
+    &lt;/schema&gt;
+
+  &lt;/wsdl:types&gt;
+
+  &lt;wsdl:message name="getBookRequest"&gt;
+    &lt;wsdl:part element="wns:getBook" name="parameters"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:message name="getBookResponse"&gt;
+    &lt;wsdl:part element="wns:getBookResponse" name="parameters"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:message name="addBookRequest"&gt;
+    &lt;wsdl:part element="wns:addBook" name="parameters"/&gt;
+  &lt;/wsdl:message&gt;
+  
+  &lt;wsdl:message name="addBookResponse"&gt;
+    &lt;wsdl:part element="wns:addBookResponse" name="parameters"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:portType name="Library"&gt;
+
+    &lt;wsdl:operation name="getBook"&gt;
+      &lt;wsdl:input message="wns:getBookRequest" name="getBookRequest"/&gt;
+      &lt;wsdl:output message="wns:getBookResponse" name="getBookResponse"/&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="addBook"&gt;
+      &lt;wsdl:input message="wns:addBookRequest" name="addBookRequest"/&gt;
+      &lt;wsdl:output message="wns:addBookResponse" name="addBookResponse"/&gt;
+    &lt;/wsdl:operation&gt;
+
+  &lt;/wsdl:portType&gt;
+  ...
+&lt;/wsdl:definitions&gt;
+</pre>
+<p>This WSDL defines a service with just two operations:
+<b>getBook</b> and <b>addBook</b>. The <b>getBook</b> operation
+takes a <i>getBook</i> element as input, and returns a
+<i>getBookResponse</i> element as output, while <b>addBook</b>
+takes an <i>addBook</i> element as input and returns an
+<i>addBookResponse</i> as output. Each of these input and output
+elements in turn consists of a sequence of child elements, with
+some of the child elements defined directly using standard schema
+types and others referencing user-defined schema types.</p>
+<p>As I said up front, this WSDL qualifies for unwrapped handling
+using JiBX. Here's the body of the client interface generated when
+using unwrapping (the <i>-uw</i> option for WSDL2Java):</p>
+<pre>
+    public interface LibraryJibxUnwrapped {
+          
+             
+        /**
+         * Auto generated method signatures
+         * @param type* @param isbn* @param author* @param title
+         */
+         public boolean addBook(
+         java.lang.String type,java.lang.String isbn,java.lang.String[] author,java.lang.String title) throws java.rmi.RemoteException
+          
+                       
+             ;
+             
+             
+        /**
+         * Auto generated method signatures
+         * @param isbn
+         */
+         public com.sosnoski.ws.library.jibx.beans.Book getBook(
+         java.lang.String isbn) throws java.rmi.RemoteException
+          
+                       
+             ;
+             
+
+        
+       //
+       }
+</pre>
+<p>You can see that the JiBX code generation converted the
+operations into simple method call interfaces without introducing
+any extraneous objects (see <a href=
+"./jibx-doclit-example.html">JiBX Document/Literal Example</a> for
+the interface generated when unwrapping is not used). The
+server-side interface is the same.</p>
+<p>The key points that allow unwrapped handling with JiBX are:</p>
+<ol>
+<li>Each operation either accepts no input, or the input consists
+of a single element.</li>
+<li>Each input element is defined as a schema <i>complexType</i>
+consisting of a <i>sequence</i> of any number of child
+elements.</li>
+<li>Each operation either generates no output, or the output
+consists of a single element.</li>
+<li>Each output element is defined as a schema <i>complexType</i>
+consisting of a <i>sequence</i> that's either empty or contains a
+single child element.</li>
+<li>The child elements of both inputs and outputs are defined using
+<i>type</i> references, rather than an embedded type
+definitions.</li>
+</ol>
+<p>You also need to supply an appropriate JiBX binding definition
+(using the <i>-Ebindingfile {file}</i> parameter for WSDL2Java -
+see <a href="./jibx-codegen-integration.html#codegen">JiBX Codegen
+Integration - WSDL2Java usage</a> for more details). This must
+define abstract <i>mapping</i>s for the <i>complexType</i>s
+referenced by child elements of the inputs and outputs, with a
+<i>type-name</i> attribute matching the schema <i>complexType</i>
+name. If the child elements reference schema <i>simpleType</i>
+definitions the binding must also define a <i>format</i>s for each
+<i>simpleType</i>, with a <i>label</i> attribute matching the
+schema <i>simpleType</i> name. The binding definition must also
+specify the <i>force-classes='true'</i> attribute on the
+<i>binding</i> element.</p>
+<p>For example, here's a binding definition that matches the above
+WSDL:</p>
+<pre>
+&lt;binding force-classes="true" xmlns:tns="http://ws.sosnoski.com/library/types"&gt;
+
+  &lt;namespace uri="http://ws.sosnoski.com/library/types" default="elements"/&gt;
+  
+  &lt;mapping abstract="true" class="com.sosnoski.ws.library.jibx.beans.Book"
+      type-name="tns:BookInformation"&gt;
+    &lt;value name="type" style="attribute" field="m_type"/&gt;
+    &lt;value name="isbn" style="attribute" field="m_isbn"/&gt;
+    &lt;collection field="m_authors"&gt;
+      &lt;value name="author"/&gt;
+    &lt;/collection&gt;
+    &lt;value name="title" field="m_title"/&gt;
+  &lt;/mapping&gt;
+  
+&lt;/binding&gt;
+</pre>
+<p>And here's the actual
+<code>com.sosnoski.ws.library.jibx.beans.Book</code> class:</p>
+<pre>
+package com.sosnoski.ws.library.jibx.beans;
+
+public class Book
+{
+    private String m_type;
+    private String m_isbn;
+    private String m_title;
+    private String[] m_authors;
+    
+    public Book() {}
+
+    public String getType() {
+        return m_type;
+    }
+    
+    public String getIsbn() {
+        return m_isbn;
+    }
+    
+    public String getTitle() {
+        return m_title;
+    }
+    
+    public String[] getAuthors() {
+        return m_authors;
+    }
+}
+</pre>
+<p>The JiBX code generation for Axis2 currently requires that
+classes coresponding to unwrapped child elements (such as
+<code>com.sosnoski.ws.library.jibx.beans.Book</code>, in this case)
+provide public default (no-argument) constructors.</p>
+<p>JiBX handling allows the child elements of both inputs and
+outputs to be optional (with <i>nillable='true'</i>,
+<i>minOccurs='0'</i>, or both), providing the binding converts
+these child elements to object types rather than primitive types.
+It also allows repeated child elements (with
+<i>minOccurs='unbounded'</i>, or any value of <i>minOccurs</i>
+greater than one), representing the repeated elements as arrays of
+the corresponding object or primitive types.</p>
+</body>
+</html>

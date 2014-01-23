@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<wsdl:definitions
+	targetNamespace="http://swamtomservice.test.org"
+	xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+	xmlns:tns="http://swamtomservice.test.org"
+	xmlns:typens="http://swamtomservice.types.test.org"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	 <wsdl:types>
+		<xsd:schema
+		  xmlns="http://www.w3.org/2001/XMLSchema"
+		  xmlns:tns="http://swamtomservice.types.test.org"
+		  targetNamespace="http://swamtomservice.types.test.org">
+
+		<element name="mtomAttachment" >
+			<complexType>
+				<sequence>
+					<element name="message" type="xsd:base64Binary" />
+				</sequence>
+			</complexType>
+		</element>
+
+		<element name="mtomAttachmentResponse" >
+			<complexType>
+				<sequence>
+					<element name="message" type="xsd:base64Binary" />
+				</sequence>
+			</complexType>
+		</element>
+		</xsd:schema>
+	</wsdl:types>
+
+
+  <!-- attachment...note no body part -->
+  <wsdl:message name="swaAttachmentRequest">
+    <part name="jpegImageRequest" type="xsd:hexBinary"/>
+  </wsdl:message>
+  <wsdl:message name="swaAttachmentResponse">
+    <part name="jpegImageResponse" type="xsd:hexBinary"/>
+  </wsdl:message>
+
+  
+  <!-- two attachments...and no body part -->
+  <wsdl:message name="swaAttachment2Request">
+    <part name="jpegImage1Request" type="xsd:hexBinary"/>
+    <part name="jpegImage2Request" type="xsd:hexBinary"/>
+  </wsdl:message>
+  <wsdl:message name="swaAttachment2Response">
+    <part name="jpegImage1Response" type="xsd:hexBinary"/>
+    <part name="jpegImage2Response" type="xsd:hexBinary"/>
+  </wsdl:message>
+  
+
+   <!-- mtom -->
+
+  <wsdl:message name="mtomAttachmentRequest">
+    <part name="mtom_in" element="typens:mtom"/>
+  </wsdl:message>
+  <wsdl:message name="mtomAttachmentResponse">
+    <part name="mtom_out" element="typens:mtomResponse"/>
+  </wsdl:message>
+
+   <wsdl:portType name="SWAMTOMPortType">
+      
+      <wsdl:operation name="swaAttachment">
+         <wsdl:input message="tns:swaAttachmentRequest" />
+         <wsdl:output message="tns:swaAttachmentResponse" />
+      </wsdl:operation>
+      
+      <wsdl:operation name="swaAttachment2">
+         <wsdl:input message="tns:swaAttachment2Request" />
+         <wsdl:output message="tns:swaAttachment2Response" />
+      </wsdl:operation>
+      
+      <wsdl:operation name="mtomAttachment">
+         <wsdl:input message="tns:mtomAttachmentRequest" />
+
+         <wsdl:output message="tns:mtomAttachmentResponse" />
+
+      </wsdl:operation>
+   </wsdl:portType>
+
+   <wsdl:binding name="SWAMTOMBinding" type="tns:SWAMTOMPortType">
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+      <wsdl:operation name="swaAttachment">
+        <wsdlsoap:operation soapAction="swaAttachment"/>
+        <wsdl:input >
+          <mime:multipartRelated>
+            <mime:part>
+              <wsdlsoap:body parts="" use="literal"/>
+            </mime:part>
+
+            <mime:part>
+              <mime:content part="jpegImageRequest" type="text/plain"/>
+            </mime:part>
+          </mime:multipartRelated>
+        </wsdl:input>
+        <wsdl:output >
+          <mime:multipartRelated>
+            <mime:part>
+              <wsdlsoap:body parts="" use="literal"/>
+            </mime:part>
+            <mime:part>
+              <mime:content part="jpegImageResponse" type="text/plain"/>
+            </mime:part>
+          </mime:multipartRelated>
+        </wsdl:output>
+      </wsdl:operation>
+      
+      <wsdl:operation name="swaAttachment2">
+        <wsdlsoap:operation soapAction="swaAttachment2"/>
+        <wsdl:input >
+          <mime:multipartRelated>
+            <mime:part>
+              <wsdlsoap:body parts="" use="literal"/>
+            </mime:part>
+
+            <mime:part>
+              <mime:content part="jpegImage1Request" type="text/plain"/>
+            </mime:part>
+            <mime:part>
+              <mime:content part="jpegImage2Request" type="text/plain"/>
+            </mime:part>
+          </mime:multipartRelated>
+        </wsdl:input>
+        <wsdl:output >
+          <mime:multipartRelated>
+            <mime:part>
+              <wsdlsoap:body parts="" use="literal"/>
+            </mime:part>
+            <mime:part>
+              <mime:content part="jpegImage1Response" type="text/plain"/>
+            </mime:part>
+            <mime:part>
+              <mime:content part="jpegImage2Response" type="text/plain"/>
+            </mime:part>
+          </mime:multipartRelated>
+        </wsdl:output>
+      </wsdl:operation>
+
+      <wsdl:operation name="mtomAttachment">
+         <wsdlsoap:operation soapAction="mtomAttachment"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output >
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+      </wsdl:operation>
+   </wsdl:binding>
+
+   <wsdl:service name="SWAMTOMService">
+     <wsdl:port name="SWAMTOMPortTypePort" binding="tns:SWAMTOMBinding">
+        <wsdlsoap:address location="http://@HOST@:@PORT@/jaxws.swamtom/services/SWAMTOMService" />
+     </wsdl:port>
+   </wsdl:service>
+          
+</wsdl:definitions>

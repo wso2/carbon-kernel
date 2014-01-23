@@ -1,0 +1,244 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Apache Axis2 User's Guide- Creating Clients</title>
+</head>
+<body>
+<a name="createclients" id="createclients"></a>
+<h1>Apache Axis2 User's Guide - Creating Clients</h1>
+<p>When it comes to creating a Web service client, you can do it
+manually (see <a href="userguide-buildingservices.html">Building
+Services</a>), but in most cases you have a Web Service Description
+Language (WSDL) definition that describes the messages clients
+should send and expect to receive. Axis2 provides several ways to
+use this definition to automatically generate a client.</p>
+<h2>Content</h2>
+<ul>
+<li><a href="userguide.html#intro">Introducing Axis2</a><br />
+<ul>
+<li><a href="userguide.html#whatis">What is Axis2?</a></li>
+<li><a href="userguide.html#underhood">What's Under the
+hood?</a></li>
+<li><a href="userguide.html#handlessoap">How Axis2 Handles SOAP
+Messages</a></li>
+<li><a href="userguide.html#distributions">Axis2
+Distributions</a></li>
+<li><a href="userguide.html#sbd">The Axis2 Standard Binary
+Distribution</a></li>
+<li><a href="userguide.html#hierarchy">Axis2.war Directory
+hierarchy</a></li>
+<li><a href="userguide.html#docs">Axis2 Documents
+Distribution</a></li>
+<li><a href="userguide.html#clients">Axis2 and Clients</a></li>
+</ul>
+</li>
+<li><a href=
+"userguide-installingtesting.html#installingtesting">Installing and
+Testing Client Code</a></li>
+<li><a href=
+"userguide-introtoservices.html#introservices">Introduction to
+Services</a><br />
+<ul>
+<li><a href=
+"userguide-introtoservices.html#messageexchange">Message Exchange
+Patterns</a></li>
+</ul>
+</li>
+<li><a href=
+"userguide-creatingclients.html#createclients"><strong>Creating
+Clients</strong></a><br />
+<ul>
+<li><a href=
+"userguide-creatingclients.html#choosingclient"><strong>Choosing a
+Client Generation Method</strong></a></li>
+<li><a href=
+"userguide-creatingclients.html#generating"><strong>Generating
+Clients</strong></a></li>
+<li><a href="userguide-creatingclients.html#adb"><strong>Axis Data
+Binding (ADB)</strong></a></li>
+</ul>
+</li>
+<li><a href=
+"userguide-buildingservices.html#buildservices">Building
+Services</a><br />
+<ul>
+<li><a href=
+"userguide-buildingservices.html#getcomfortable">Getting
+Comfortable with Available Options</a></li>
+<li><a href=
+"userguide-buildingservices.html#createscratch">Creating a service
+from Scratch</a></li>
+<li><a href="userguide-buildingservices.html#deploypojo">Deploying
+Plain Old Java Objects</a></li>
+<li><a href="userguide-buildingservices.html#deployrun">Deploying
+and Running an Axis2 Service Created from WSDL</a></li>
+</ul>
+</li>
+<li><a href="userguide-samples.html">Samples</a></li>
+<li><a href="userguide-forfurtherstudy.html">For Further
+Study</a></li>
+</ul>
+<a name="choosingclient" id="choosingclient"></a>
+<h2>Choosing a Client Generation Method</h2>
+<p>Axis2 gives you several options when it comes to mapping WSDL to
+objects when generating clients. Three of these options are Axis2
+DataBinding Framework, XMLBeans, and JiBX databinding. All of these
+methods involve using databinding to create Java objects out of the
+XML structures used by the service, and each has its pros and cons.
+You can also generate XML in-out stubs that are not based on
+databinding.</p>
+<p>Axis2 Databinding Framework (ADB): ADB is probably the simplest
+method of generating an Axis2 client. In most cases, all of the
+pertinent classes are created as inner classes of a main stub
+class. ADB is very easy to use, but it does have limitations. It is
+not meant to be a full schema binding application, and has
+difficulty with structures such as XML Schema element extensions
+and restrictions.</p>
+<p>XMLBeans: Unlike ADB, XMLBeans is a fully functional schema
+compiler, so it doesn't carry the same limitations as ADB. It is,
+however, a bit more complicated to use than ADB. It generates a
+huge number of files, and the programming model, while being
+certainly usable, is not as straightforward as ADB.</p>
+<p>JiBX: JiBX is a complete databinding framework that actually
+provides not only WSDL-to-Java conversion, as covered in this
+document, but also Java-to-XML conversion. In some ways, JiBX
+provides the best of both worlds. JiBX is extremely flexible,
+enabling you to choose the classes that represent your entities,
+but it can be complicated to set up. On the other hand, once it is
+set up, actually using the generated code is as easy as using
+ADB.</p>
+<p>In the end, for simple structures, ADB will likely be enough for
+you. If, on the other hand you need more power or flexibility,
+whether you choose XMLBeans or JiBX depends on how much power or
+flexibility you need and your tolerance for complexity.</p>
+<a name="generating" id="generating"></a>
+<h2>Generating Clients</h2>
+<p>The process for generating and using a client varies slightly
+depending on the method of generation you choose. In all three
+cases in this document, clients are generated from the same WSDL
+file (see <a href="userguide-codelisting5.html">Code Listing
+5</a>).</p>
+<p>Note that the document defines four operations, DoInOnly,
+NoParameters, TwoWayOneParameterEcho, and
+MultipleParametersAddItem. Each of the clients will include methods
+for calling each of these operations.</p>
+<p>(You can get more information on WSDL at <a href=
+"http://www.w3.org/2002/ws/desc/">http://www.w3.org/2002/ws/desc/</a>
+.)</p>
+<a name="adb" id="adb"></a>
+<h2>Axis Data Binding (ADB)</h2>
+<p>To create a client using ADB, execute the following steps:</p>
+<p><b>The short story:</b></p>
+<ol>
+<li>
+<a href="../download.cgi">Download</a> and unpack the Apache Axis2 Standard
+Distribution, if you have not done it already.</li>
+<li>Create the client stub with the following command:
+<pre>
+%AXIS2_HOME%\bin\WSDL2Java -uri Axis2UserGuide.wsdl -p org.apache.axis2.axis2userguide -d adb -s
+</pre></li>
+<li>Create the client (for example, Client.java), a Java
+application that uses the generated stub, and save it in the
+org/apache/axis2/axis2userguide directory.</li>
+<li>Build the client by typing: ant jar.client.</li>
+<li>Assuming you have a corresponding service, run the client by
+adding the generated Axis2UserGuideService-test-client.jar file
+located in build/lib to the classpath and type: java
+org.apache.axis2.axis2userguide.Client</li>
+</ol>
+<p><b>The long story:</b></p>
+<p>If you have not done it already, <a href="../download.cgi">
+download</a> and unpack the Apache Axis2 Standard Distribution. The
+Axis2 WAR Distribution does not include the necessary utilities for
+generating code, such as WSDL2Java.</p>
+<p>In the ADB method of generating clients, all the functionalities
+of the services are contained in a single class called a stub. The
+stub contains inner classes corresponding to all the necessary
+objects defined in the WSDL file, such as, in the case of this
+WSDL, DoInOnlyRequestMessage. Once you have the stub, you will be
+able to create a client by simply referring to these classes and
+their methods. To generate the client, issue the following command
+in Code Listing 6.</p>
+<h3><b>Code Listing 6 - Generating the Client</b></h3>
+<pre>
+%AXIS2_HOME%\bin\WSDL2Java -uri Axis2UserGuide.wsdl -p org.apache.axis2.axis2userguide -d adb -s
+</pre>
+<p>This command analyzes the WSDL file and creates the stub in the
+package org.apache.axis2.axis2userguide. The options specify that
+you want the ADB data binding method (-d), and synchronous or
+blocking, methods (-s). In other words, when the client makes an
+In-Out call to the service, it will wait for a response before
+continuing.</p>
+<p>Once you run this command, you will see two new items in the
+directory. The first is the build.xml file, which contains the
+instructions for <a href="http://ant.apache.org/">Ant</a> to
+compile the generated classes. The second is the src directory,
+which contains the actual Axis2UserGuideServiceStub.java file. If
+you open this file, you will see a collection of inner classes for
+each of the items in the WSDL file. You'll also see a number of
+calls to the Axis2 client API, including those that use AXIOM to
+build and analyze the incoming and outgoing messages.</p>
+<p>Now you need a client to make use of this code. To create a
+client, create a new class and save it as Client.java in the
+org/apache/axis2/axis2userguide directory. It should contain the
+following code in <a href="userguide-codelisting7.html">Code
+Listing 7</a>.</p>
+<p>Note that using the service is simply a matter of creating and
+populating the appropriate type of request using the names defined
+in the WSDL file, and then using the stub to actually send the
+request to the appropriate method. For example, to call the
+DoInOnly operation, you create a DoInOnlyRequest, use its
+setMessageString() method to set the contents of its messageString
+element, and pass it as an argument to stub.DoInOnly().</p>
+<p>To build the client, type: ant jar.client</p>
+<p>This action creates two new directories, build and test. The
+test directory will be empty, but the build directory contains two
+versions of the client. The first version, in the lib directory, is
+a .jar file that contains the client class and the stub. The
+second, in the classes directory, is just raw classes.</p>
+<p>Make sure all the jar files in the Axis2 lib directory are in
+the classpath.</p>
+<p>If you have a service corresponding to this client you can run
+the client by adding the jar file to your classpath and typing:
+java org.apache.axis2.axis2userguide.Client</p>
+<p>(If you don't have such a service,, refer to the <a href=
+"userguide-buildingservices.html">Building services</a>
+document.)</p>
+<p>You should see the response in the console window of your
+servlet container. It should look something like this:</p>
+<p><img alt=
+"Response in a console window of your servlet container" src=
+"images/fig03.jpg" /><br clear="all" /></p>
+<p>ADB is not your only option for generating Web service clients.
+Other options include <a href=
+"userguide-creatingclients-xmlbeans.html">XmlBeans</a>, <a href=
+"userguide-creatingclients-jibx.html">JiBX</a> and
+JAXBRI.</p>
+<p><strong>See the Next Section</strong> -<a href=
+"userguide-buildingservices.html#buildservices">Building
+Services</a></p>
+</body>
+</html>

@@ -1,0 +1,150 @@
+~~ Licensed to the Apache Software Foundation (ASF) under one
+~~ or more contributor license agreements. See the NOTICE file
+~~ distributed with this work for additional information
+~~ regarding copyright ownership. The ASF licenses this file
+~~ to you under the Apache License, Version 2.0 (the
+~~ "License"); you may not use this file except in compliance
+~~ with the License. You may obtain a copy of the License at
+~~
+~~ http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing,
+~~ software distributed under the License is distributed on an
+~~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~~ KIND, either express or implied. See the License for the
+~~ specific language governing permissions and limitations
+~~ under the License.
+
+TCP Transport
+
+* {Content}
+
+%{toc|section=1|fromDepth=1}
+
+* {Transport listener}
+
+** {Listener configuration}
+
+  The TCP transport listener is configured in <<<axis2.xml>>> using the following declaration:
+
++----------------------------+
+<transportReceiver name="tcp" class="org.apache.axis2.transport.tcp.TCPTransportListener"/>
++----------------------------+
+
+  Depending on how the TCP transport is set up, additional parameters may be required inside the
+  <<<transportReceiver>>> element (see next section).
+
+** {Endpoint configuration}
+
+  Endpoints can be configured both at the transport level and at the service level. Each endpoint
+  opens a TCP server socket for listening. TCP requests received on a port that is configured on a
+  service will be pre-dispatched to that service. Packets received by a port that is configured
+  at the transport level need to be dispatched using one of the following mechanisms:
+
+  [[1]] Using the namespace URI of the first child element of SOAPBody
+  (SOAPMessageBodyBasedDispatcher).
+
+  [[2]] Using WS-Addressing headers (SOAPActionBasedDispatcher).
+
+  Endpoints are configured by adding <<<parameter>>> elements to the <<<transportReceiver>>>
+  element in <<<axis2.xml>>> or to a <<<service>>> element in an <<<services.xml>>> file. The
+  set of parameters is the same for both scenarios:
+
+  [<<<transport.tcp.port>>> (required)]
+  The port number over which the TCP server socket should be opened.
+
+  [<<<transport.tcp.hostname>>> (optional)]
+  The hostname to which the TCP server socket should be bound.
+
+  [<<<transport.tcp.contentType>>> (optional, defaults to text/xml)]
+  Specifies the content type of the messages received on the endpoint.
+
+  [<<<transport.tcp.backlog>>> (optional, defaults to 50)]
+  The length of the backlog (queue) supported by the TCP server socket.
+
+* {Transport sender}
+
+  The TCP transport sender can be enabled in <<<axis2.xml>>> using the following declaration:
+
++----------------------------+
+<transportSender name="tcp" class="org.apache.axis2.transport.tcp.TCPTransportSender"/>
++----------------------------+
+
+* {Examples}
+
+** {Enabling TCP listener at the transport level}
+
+  The following declaration in <<<axis2.xml>>> initializes a TCP server socket on port 6060
+  and allows all services (for which TCP is in the list of exposed transports) to receive
+  messages over that port:
+
++----------------------------+
+<transportReceiver name="tcp" class="org.apache.axis2.transport.tcp.TCPTransportListener">
+  <parameter name="transport.tcp.port">6060</parameter>
+</transportReceiver>
++----------------------------+
+
+  For this to work, WS-Addressing must be enabled, and messages sent to port 6060 must
+  have the relevant WS-Addressing headers.
+
++----------------------------+
+<module ref="addressing"/>
++----------------------------+
+
+  With the configuration shown above, the TCP transport would generate bindings with the
+  following EPR:
+
++----------------------------+
+tcp://localhost:6060/services/Version?contentType=text/xml
++----------------------------+
+
+  Similar EPRs will be generated for services when the transport is configured at service
+  level.
+
+  The following example shows a message that can be sent to the Version service over TCP:
+
++----------------------------+
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+                   xmlns:wsa="http://www.w3.org/2005/08/addressing">
+    <SOAP-ENV:Header>
+        <wsa:MessageID>1234</wsa:MessageID>
+        <wsa:To>tcp://localhost:6060/services/Version?contentType=text/xml</wsa:To>
+        <wsa:Action>urn:getVersion</wsa:Action>
+    </SOAP-ENV:Header>
+    <SOAP-ENV:Body>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
++----------------------------+
+
+  Axis2 client API can be used to easily send TCP requests to a remote service.
+  The following code snippet shows how to do that. The TCP transport sender
+  must be enabled in the <<axis2.xml>> in order for this to work.
+
++------------------------------------------------------+
+
+String url = "tcp://localhost:6060/services/Version?contentType=text/xml";
+OMElement payload = ...
+
+ServiceClient serviceClient = new ServiceClient();
+Options options = new Options();
+EndpointReference targetEPR = new EndpointReference(url);
+options.setTo(targetEPR);
+serviceClient.setOptions(options);
+OMElement response = serviceClient.sendReceive(payload);
++------------------------------------------------------+
+
+  The transport sender that should be invoked is inferred from the targetEPR
+  (tcp://...). In this case it is TCP and the listener is also TCP. The SOAP
+  message has to be self contained in order to use Addressing.
+  The parameter is of the type OMElement, the XML representation of Axis2.
+
+  A TCP URL may contain an optional timeout value, as a query parameter, to
+  indicate how long (in milliseconds) the client should wait for a response.
+  Once this period has expired, the client TCP socket will timeout:
+
++----------------------------+
+tcp://localhost:6060/services/Version?contentType=text/xml&timeout=10000
++----------------------------+
+
+  If the Axis2 client API is used to send a request to the above URL, the client
+  socket will timeout after waiting for 10 seconds, for the response.

@@ -1,0 +1,522 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+  <meta http-equiv="content-type" content=""/>
+  <title>Axis2 Advanced User's Guide</title>
+</head>
+
+<body dir="ltr" lang="en-US">
+<a name="_Toc96697849" id="_Toc96697849"></a>
+
+<h1 align="center">Apache Axis2 Advanced User's Guide</h1>
+
+<p>This guide will help you get started with Axis2, the next generation of
+Apache Axis! It gives a detailed description on how to write Web services and
+Web service clients using Axis2, how to write custom modules, and how to use
+them with a Web service. Advanced topics and samples that are shipped with
+the binary distribution of Axis2 are also discussed.</p>
+<a name="Introduction"></a>
+
+<h2>Introduction</h2>
+
+<p>This user guide is written based on the Axis2 Standard Binary
+Distribution. The Standard Binary Distribution can be directly <a
+href="../download.cgi">downloaded</a> or built using
+the Source Distribution. If
+you choose the latter, then the <a href="installationguide.html">Installation
+Guide</a> will instruct you on how to build Axis2 Standard Binary
+Distribution using the source.</p>
+
+<p>Please note that Axis2 is an open-source effort. If you feel the code
+could use some new features or fixes, please get involved and lend us a hand!
+The Axis developer community welcomes your participation.</p>
+
+<p>Let us know what you think! Send your feedback to "<a
+href="mailto:java-user@axis.apache.org?subject=[Axis2]">java-user@axis.apache.org</a>".
+(Subscription details are available on the <a href="../mail-lists.html">Axis2 site</a>.) Kindly
+prefix the subject of the mail with [Axis2].</p>
+
+<h2>Getting Started</h2>
+
+<p>The first two sections of the user guide explain how to write and deploy a
+new Web Service using Axis2, and how to write a Web Service client using
+Axis2. The next section - <a href="#config"> Configuring Axis2</a> - provides
+an introduction to important configuration options in Axis2. The final
+section - <a href="#advanced">Advanced Topics</a> - provides references to
+other features.</p>
+
+<p>In this (first) section, we will learn how to write and deploy Web
+services using Axis2. All the samples mentioned in this guide are located in
+the <b>"samples/userguide/src"</b> directory of <a
+href="../download.cgi">Axis2 standard binary
+distribution</a>.</p>
+
+<p>Please deploy axis2.war in your servlet container and ensure that it works
+fine. The <a href="installationguide.html">Installation
+Guide</a> gives you step-by-step instructions on just how to build axis2.war
+and deploy it in your servlet container.</p>
+<a name="ws_codegen"></a><a name="Web_Services_Using_Axis2"></a>
+
+<h2>Creating a New Web Service</h2>
+
+<p>If you are interested in how to write a Web Service client using Axis2, it
+is described under <a href="#client">Writing a Web Service Client</a>. Axis2
+provides two ways to create new Web Services, using <strong>code
+generation</strong> and using <strong>XML based primary APIs</strong>. The
+following section explains how to start from a WSDL, and create a new service
+with code generation. For the XML based primary API, please refer to the
+section <a href="xmlbased-server.html">Writing Web Services Using Axis2's
+Primary APIs</a> for more information. However, if you are a new user, it is
+better to follow the code generation approach first (given below)</p>
+
+<h3>Starting with WSDL, Creating and Deploying a Service</h3>
+
+<p>We start with a WSDL, however if you do not have a WSDL and need to create
+a WSDL from a java class, please use the <a
+href="reference.html#wsdl2java">Java2WSDL tool</a> to create the WSDL. As you
+might already know, a WSDL description of a service provides a precise
+definition of that web service. Axis2 can process the WSDL and generate java
+code that does most of the work for you. At the server side, we call them
+Skeletons, and at the client side, Stubs.</p>
+This method of writing a Web service with Axis2 involves four steps:
+<ol>
+  <li>Generate the skeleton code.</li>
+  <li>Add business logic.</li>
+  <li>Create a *.aar archive (Axis Archive) for the Web service.</li>
+  <li>Deploy the Web service.</li>
+</ol>
+<a name="Step1_:Generate_skeleton"></a>
+
+<h3>Step1: Generate Skeleton Code</h3>
+
+<p>To generate the skeleton and required classes, you can use the WSDL2Java
+tool provided in Axis2. This tool is located in the bin directory of the
+distribution and can be executed using the provided scripts (.bat or .sh).
+The tool's parameter list can be found in the <a
+href="reference.html#wsdl2code">Axis2 Reference Document</a>.</p>
+
+<p>The parameters for the wsdl2java tool in our example are as follows.
+Please note that, for this example, we are using xmlbeans as the data binding framework, and the generated
+code will be placed in a "samples" directory. </p>
+<pre>wsdl2java.sh -uri ../samples/wsdl/Axis2SampleDocLit.wsdl -ss -sd -d xmlbeans 
+-o ../samples -p org.apache.axis2.userguide</pre>
+
+<p>This will generate the required classes in the <b>"sample/src"</b>
+directory, and the schema classes in the
+<strong>"samples/resources/schemaorg_apache_xmlbeans"</strong>
+directory<strong></strong>. Note that these are not source files and should
+be available in the class path in order to compile the generated classes.</p>
+<a name="Step2_Implement_Business_Logic"></a>
+
+<h3>Step 2: Implement Business Logic</h3>
+
+<p>Now you should fill the business logic in the skeleton class. You can find
+the skeleton class -Axis2SampleDocLitServiceSkeleton.java- among the
+generated classes in the
+<strong>"samples/src/org/apache/axis2/userguide</strong> directory. Let's
+fill the <code>echoString(..)</code> method in the skeleton as shown below.
+Our sample WSDL-Axis2SampleDocLit.wsdl in <strong>"samples/wsdl"</strong>
+directory has three operations: echoString, echoStringArray, echoStruct. To
+see how the others will look when they are filled up, see <a
+href="src/Axis2SampleDocLitServiceCode.html">Code Listing For
+Axis2SampleDocLitService Service</a></p>
+<pre>public org.apache.axis2.userguide.xsd.EchoStringReturnDocument 
+    echoString(org.apache.axis2.userguide.xsd.EchoStringParamDocument param4) throws Exception {
+    //Use the factory to create the output document.
+    org.apache.axis2.userguide.xsd.EchoStringReturnDocument retDoc = 
+           org.apache.axis2.userguide.xsd.EchoStringReturnDocument.Factory.newInstance();
+    //send the string back.
+    retDoc.setEchoStringReturn(param4.getEchoStringParam());
+   return retDoc;</pre>
+<a name="Step4_Create_archive"></a>
+
+<h3>Step 3: Create Archive File</h3>
+
+<p>An Axis2 service must be bundled as a service archive. The next step is to
+package the classes in an .aar (axis2 archive) and deploy it in Axis2. There
+is an ant file generated with the code; it will generate the Axis2 service
+archive for you. However, if you do not want to use ant, you can create an
+archive with the following steps :</p>
+<ol>
+  <li>Compile the generated code.</li>
+  <li>Copy <strong>"resources/schemaorg_apache_xmlbeans</strong>" xmlbeans
+    classes to your class folder.</li>
+  <li>Among the generated files, there will be a services.xml file, which is
+    the deployment descriptor for Axis2 service.[<a
+    href="reference.html#servicedd">learn more about it</a>]. Copy the
+    resources/service.xml to META-INF/services.xml</li>
+
+  <p>(To write your own service.xml file, see the sub section in <a
+  href="xmlbased-server.html#Step2_:Write_the_services_xml_file">Writing Web
+  Services Using Axis2's Primary APIs</a> )</p>
+  <li>Create the archive using content of the class folder. Change the
+    directory to the class folder and run <code>jar -cf
+    &lt;service-name&gt;.aar</code> to create the archive.</li>
+</ol>
+
+<p>Once the archive is created, the content of the JAR should look like
+this:</p>
+
+<p><img src="images/userguide/DirectoryStructure.jpg" align="bottom"
+border="0"/></p>
+<a name="Step5_Deploy_web_service"></a>
+
+<h3>Step 4: Deploy Web Service</h3>
+
+<p>The service can be deployed by simply dropping the ".aar" file into the
+"services" directory in "/webapps/axis2/WEB-INF" of your servlet container.
+We recommend using <a href="http://tomcat.apache.org/">Apache Tomcat</a> as
+the servlet container. <strong>Please Note that the services directory is
+available only after axis2.war has been exploded by Tomcat. However, the easiest
+way to do it is to start Tomcat after axis2.war is copied to the webapps
+directory</strong> (if you have not already started it). Check the "Services"
+link on the <a href="http://localhost:8080/axis2/">Home page
+of Axis2 Web Application</a> (http://localhost:8080/axis2) and see whether
+the Axis2SampleDocLitService is displayed under the deployed services.</p>
+
+<p>We recommend using the exploded configuration to deploy Axis2 WAR in
+<strong>WebLogic and WebSphere</strong> application servers to support the
+hotupdate/hotdeployment features of Axis2. See <a
+href="app_server.html#weblogic_websphere">Application Server Specific
+Configuration Guide</a> for details.</p>
+
+<p>Note: Axis2 provides an easy way to deploy Web Services using the "Upload
+Service" tool in the Axis2 Web Application's Administration module. (See the
+<a href="webadminguide.html">Web Administration Guide</a> for
+more information)</p>
+<a name="client"></a>
+
+<h2>Writing a Web Service Client</h2>
+
+<p>Axis2 also provides a more complex, yet powerful XML based client API
+which is intended for advanced users. Read <a href="dii.html">Writing Web
+Service Clients Using Axis2's Primary APIs</a> to learn more about it.
+However, if you are a new user, we recommend using the <strong>code
+generation</strong> approach presented below.</p>
+
+<h3>Generate Stubs</h3>
+
+<p>Let's see how we could generate java code (Stub) to handle the client side
+Web Service invocation for you. This can be done by running the WSDL2Java
+tool using the following arguments</p>
+<pre>wsdl2java.sh -uri ../samples/wsdl/Axis2SampleDocLit.wsdl -d xmlbeans 
+     -o ../samples/src -p org.apache.axis2.userguide</pre>
+<p>This will generate client side stubs and xmlbeans types for your types.
+The Stub class that you need to use will be of the form
+<strong>&lt;service-name&gt;Stub</strong>. In our example, it will be called
+"Axis2SampleDocLitServiceStub.java"</p>
+
+<p>Axis2 clients can invoke Web Services both in a blocking and non-blocking
+manner. In a blocking invocation, the client waits till the service performs
+its task without proceeding to the next step. Normally, the client waits till
+the response to its particular request arrives. In a non-blocking invocation,
+the client proceeds to the next step immediately, and the responses (if any)
+are handled using a Callback mechanism. Please note that some explanations
+use the terms Synchronous and Asynchronous to describe the similar invocation
+strategies.</p>
+
+<h3>Do a Blocking Invocation</h3>
+
+<p>The following code fragment shows the necessary code calling
+<code>echoString</code> operation of the
+<code>Axis2SampleDocLitService</code> that we have already deployed. The code
+is extremely simple to understand and the explanations are in the form of
+comments.</p>
+<pre>     try {
+               org.apache.axis2.userguide.Axis2SampleDocLitServiceStub stub 
+                  = new org.apache.axis2.userguide.Axis2SampleDocLitServiceStub(null,
+                    "http://localhost:8080/axis2/services/Axis2SampleDocLitService");
+                //Create the request document to be sent.
+                org.apache.axis2.userguide.xsd.EchoStringParamDocument reqDoc =
+                org.apache.axis2.userguide.xsd.EchoStringParamDocument.Factory.newInstance();
+                reqDoc.setEchoStringParam("Axis2 Echo");
+                //invokes the Web service.
+                org.apache.axis2.userguide.xsd.EchoStringReturnDocument resDoc = 
+                stub.echoString(reqDoc);
+                System.out.println(resDoc.getEchoStringReturn());
+               } catch (java.rmi.RemoteException e) {
+                  e.printStackTrace();
+              }</pre>
+<p>First argument of <code>Axis2SampleDocLitPortTypeStub</code> should be the
+Axis2 repository for the client. Here we use null to make the stub use
+default configurations. However, you can make Axis2 use your own repository
+by providing it here. You can find more information about this from the <a
+href="#config">Axis2 Configuration section</a>. You can find code to invoke
+other operations from <a href="src/Axis2SampleDocLitServiceCode.html">Code
+Listing For Axis2SampleDocLitService Service</a></p>
+
+<h3>Do a Non-Blocking Invocation</h3>
+
+<p>The stubs also include a method that allows you to do a non-blocking
+innovation. For each method in the Service, there will be a method
+<strong>start&lt;method-name&gt;</strong>. These methods accept a callback
+object, which would be called when the response is received. Sample code that
+does an asynchronous interaction is given below.</p>
+<pre>try {
+         org.apache.axis2.userguide.Axis2SampleDocLitServiceStub stub
+           = new org.apache.axis2.userguide.Axis2SampleDocLitServiceStub(null,
+             "http://localhost:8080/axis2/services/Axis2SampleDocLitService");
+             //implementing the callback online
+            org.apache.axis2.userguide.Axis2SampleDocLitServiceCallbackHandler callback =
+            new org.apache.axis2.userguide.Axis2SampleDocLitServiceCallbackHandler() {
+                    public void receiveResultechoString(
+                      org.apache.axis2.userguide.xsd.EchoStringReturnDocument resDoc) {
+                       System.out.println(resDoc.getEchoStringReturn());
+                       }
+            };
+        org.apache.axis2.userguide.xsd.EchoStringParamDocument reqDoc = 
+          org.apache.axis2.userguide.xsd.EchoStringParamDocument.Factory.newInstance();
+           reqDoc.setEchoStringParam("Axis2 Echo");
+           stub.startechoString(reqDoc, callback);
+        } catch (java.rmi.RemoteException e) {
+          e.printStackTrace();
+       }</pre>
+<p>Even though the above code does a non-blocking invocation at the client
+API, the transport connection may still operate in a blocking fashion. For
+example, a single HTTP connection can be used to create a Web Service request
+and to get the response when a blocking invocation happens at the transport
+level. To perform a "true" non-blocking invocation in which two separate
+transport connections are used for the request and the response, please add
+the following code segment after creating the stub. It will force Axis2 to
+use two transport connections for the request and the response while the
+client uses a Callback to process the response.</p>
+<pre>stub._getServiceClient().engageModule(new QName("addressing"));
+stub._getServiceClient().getOptions().setUseSeparateListener(true);</pre>
+<p>Once those options are set, Axis2 client does the following:</p>
+<ol>
+  <li>Starts a new Transport Listener(Server) at the client side.</li>
+  <li>Sets the address of the Transport Listener, as the ReplyTo
+    WS-Addressing Header of the request message</li>
+  <li>According to the WS-Addressing rules, the Server will process the
+    request message and send the response back to the ReplyTo address.</li>
+  <li>Client accepts the response, processes it and invokes the callback with
+    the response parameters.</li>
+</ol>
+
+<h3>Using Your Own Repository</h3>
+
+<p>You can also use your own repository with an Axis2 Client.  The code below shows how
+to do this.</p>
+<pre>String axis2Repo = ...
+String axis2xml = ...
+ConfigurationContext configContext =
+ConfigurationContextFactory.createConfigurationContextFromFileSystem(axis2Repo, axis2xml);
+Service1Stub stub1 = new Service1Stub(configContext,...);
+//invoke Service1
+Service2Stub stub2 = new Service2Stub(configContext,...);
+//invoke Service2</pre>
+<p>Note by creating the <code>ConfigurationContext</code> outside and passing
+it to the stubs, you could make number of stubs to use same repository, thus
+saving the configuration loading overhead from each request.</p>
+<a name="config"></a>
+
+<h2>Configuring Axis2</h2>
+
+<h3>Axis2 Repository</h3>
+
+<p>Axis2 configuration is based on a repository and standard archive format.
+A repository is a directory in the file system, and it should have the
+following:</p>
+<ol>
+  <li><strong>axis2.xml</strong>, the Axis2 global deployment descriptor in
+    conf/axis2.xml file</li>
+  <li><strong>services</strong> directory, which will have the service
+    archives</li>
+  <li><strong>modules</strong> directory (optional), which will have the
+    module archives</li>
+</ol>
+
+<p>Both services and modules will be identified and deployed once their
+archives are copied to the corresponding directories. At the server side,
+users should specify the repository folder at the time of starting the Axis2
+Server (e.g. HTTP or TCP). In Tomcat, <code>webapps/axis2/WEB-INF</code>
+folder acts as the repository. At the client side, binary distribution can
+itself be a repository. You can copy the conf directory which includes the
+axis2.xml file from the exploded axis2.war and edit it to change the global
+configurations repository.</p>
+
+<h3>Global Configurations</h3>
+
+<p>The Global configuration can be changed by editing the axis2.xml file,
+refer to the <a href="axis2config.html#Global_Configuration">Axis2
+Configuration Guide</a> for more information.</p>
+
+<h3>Add New Services</h3>
+
+<p>New services can be written either using WSDL based code generation as we
+did, or from scratch as explained in <a href="xmlbased-server.html">Writing
+Web Services Using Axis2's Primary APIs</a>.  Read <a
+href="xmlbased-server.html">Creating a Service from Scratch</a> for more
+information. Also refer to <a
+href="axis2config.html#Service_Configuration">Axis2 Configuration Guide</a>
+for a reference on <strong>services.xml</strong> file.</p>
+
+<h3 name="module_engage">Engaging Modules</h3>
+
+<p>Each module(.mar file) provides extensions to Axis2. A module can be
+deployed by copying it to the modules directory in the repository. Then it
+becomes available and can be engaged at a global, service or operation scope.
+Once engaged, it becomes active (adds handlers to the execution flow) at the
+respective scope. Please refer to <a href="Axis2ArchitectureGuide.html">Axis2
+architecture guide</a> for detailed explanation. The following table explains
+the semantics of scope, and how to engage modules in those scopes.</p>
+
+<table>
+  <tbody>
+    <tr>
+      <th>Scope</th>
+      <th>Semantics</th>
+      <th>How to Engage</th>
+    </tr>
+    <tr>
+      <td>Global</td>
+      <td>Add handlers in the module to all the services. Addressing Handler
+        can be only engaged as global</td>
+      <td>By adding a &lt;module ref="addressing"/&gt; to the Axis2 xml file
+        or calling
+        <code>stub._getServiceClient().engageModule(moduleName)</code>
+        at client side</td>
+    </tr>
+    <tr>
+      <td>Service</td>
+      <td>Add handlers in the module to a specific service</td>
+      <td>By adding a &lt;module ref="addressing"/&gt; to a service.xml file
+        in a service archive</td>
+    </tr>
+    <tr>
+      <td>Operation</td>
+      <td>Add handlers in the module to a specific operation</td>
+      <td>By adding a &lt;module ref="addressing"/&gt; inside an operation
+        tag of a service.xml file in a service archive</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>* If a handler is added to a service or an operation, it will be invoked
+for every request received by that service or operation</p>
+
+<p>Axis2 provides a number of built in Modules (such as <a
+href="">addressing</a>,<a href="">Security</a>, <a href="">WS-Reliable
+Messaging</a>), and they can be engaged as shown above. Please refer to each
+module on how to use and configure them. You can also <a
+href="modules.html">create your own modules with Axis2</a>. Also refer to <a
+href="axis2config.html#Global_Configuration">Axis2 Configuration Guide</a>
+for a reference on the module.xml file.</p>
+
+<h3>WS-Addressing Support</h3>
+
+<p>WS-Addressing support for Axis2 is implemented by the addressing module.
+To enable addressing, you need to engage the addressing module in both server
+and client sides.</p>
+<ol>
+  <li>To <strong>enable</strong> addressing at the server side, you need to
+    copy the addressing.mar file to the modules directory of the server's
+    axis2 repository. To engage the module, add a &lt;module
+    ref="addressing"/&gt; to axis2.xml. The <strong>Addressing module can be
+    engaged only at global level.</strong></li>
+  <li>To <strong>enable</strong> addressing at the client side, you should
+    add it to the repository and provide the repository as an argument to the
+    <a href="dii.html">ServiceClient</a> or <a href="#client">generated
+    stub</a> or have it in your classpath.</li>
+  <li>To <strong>engage</strong> the addressing module, you should either add
+    &lt;module ref="addressing"/&gt; to the axis2.xml file at the client side
+    or call
+    <code>stub._getServiceClient().engageModule(moduleName)</code>
+  </li>
+</ol>
+<a name="advanced"></a>
+
+<h2>Advanced Topics</h2>
+
+<h3>Transports</h3>
+
+<p>By default, Axis2 is configured to use HTTP as the transport. However,
+Axis2 supports HTTP, SMTP, TCP and JMS transports. You can also write your
+own transports, and deploy them by adding new transportReceiver or
+transportSender tags to axis2.xml. To learn how to configure and use
+different transports, please refer to the following documents.</p>
+<ol>
+  <li><a href="http-transport.html">HTTP Transports</a></li>
+  <li><a href="http://ws.apache.org/commons/transport/">WS-Commons Transport project</a></li>
+</ol>
+
+<h3>Attachments</h3>
+
+<p>Axis2 provides attachment support using <a
+href="http://www.w3.org/TR/soap12-mtom/">MTOM</a>. Please refer to <a
+href="mtom-guide.html">MTOM with Axis2</a> for more
+information.</p>
+
+<h3>Security</h3>
+
+<p>WS-Security support for Axis2 is provided by <a
+href="http://axis.apache.org/axis2/java/rampart/">Apache Rampart</a>.</p>
+
+<h3>REST Web Service</h3>
+
+<p>Please refer to <a href="rest-ws.html">RESTful Web
+Services</a> for more information.</p>
+
+<h3>Pluggable Data Binding</h3>
+
+<p>Axis2 ships with Axis Data Binding(ADB) as the default data binding
+framework. However, data binding frameworks are pluggable to Axis2, and
+therefore you can use other data binding frameworks with Axis2. Please refer
+to the following documents for more information.</p>
+
+<h4>Axis2 Data Binding(ADB)</h4>
+<ol>
+  <li><a href="adb/adb-howto.html">Axis2 Databinding
+    Framework</a></li>
+  <li><a href="adb/adb-codegen-integration.html">ADB
+    Integration With Axis2</a></li>
+  <li><a href="adb/adb-advanced.html">Advanced Axis2 Databinding Framework
+    Features</a></li>
+  <li><a href="adb/adb-tweaking.html">ADB Tweaking Guide</a></li>
+</ol>
+
+<h4>JiBX</h4>
+<a href="jibx/jibx-codegen-integration.html">JiBX Integration With Axis2</a>
+
+<h3>Other Topics</h3>
+<ol>
+  <li><a href="spring.html">Axis2 Integration With The Spring
+    Framework</a></li>
+  <li><a href="WS_policy.html">Web Services Policy Support In
+    Axis2</a></li>
+  <li><a href="axis2config.html#Global_Configuration">Axis2 Configuration
+    Guide</a></li>
+  <li><a href="Axis2-rpc-support.html">Axis2 RPC Support</a></li>
+  <li><a href="migration.html">Migrating from Apache Axis 1.x to Axis
+  2</a></li>
+  <li><a href="modules.html">Writing your Own Axis2 Module</a></li>
+  <li><a href="soapmonitor-module.html">Using the SOAP Monitor</a></li>
+  <li><a href="xmlbased-server.html">Writing Web Services Using Axis2's
+    Primary APIs</a></li>
+  <li><a href="dii.html">Writing Web Service Clients Using Axis2's Primary
+    APIs</a></li>
+  <li><a href="app_server.html">Application Server Specific Configuration
+    Guide</a></li>
+</ol>
+</body>
+</html>

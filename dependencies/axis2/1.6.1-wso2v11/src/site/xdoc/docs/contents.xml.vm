@@ -1,0 +1,274 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<title>Axis2/Java ${axis2_version} Documentation Home</title>
+</head>
+<body lang="en" xml:lang="en">
+<h1>Apache Axis2/Java Version ${axis2_version} Documentation
+Index</h1>
+<h2>Introduction</h2>
+<p>Apache Axis2, the third generation Web services engine is more
+efficient, more modular and more XML-oriented than its predecessor
+<a href="http://ws.apache.org/axis/">Apache Axis</a>. It is
+carefully designed to support the easy addition of plug-in modules
+that extend its functionality for features such as security and
+increased reliability.</p>
+<p>Apache Axis2 Version ${axis2_version} is a bugfix release, fixing several
+problems in version 1.5.  Please see the release notes for more
+details.</p>
+<p>This page describes our list of available documents.</p>
+<h2>Apache Axis2 User's Guide</h2>
+<p>You can get started with Axis2 with the assistance of the
+following documents. They will guide you through the Axis2
+download, installation (both as a standalone Web services engine
+and as part of a J2EE compliant servlet container), and
+instructions on how to write Web services and Web services client
+using Apache Axis2.</p>
+<ul>
+<li><a href="userguide.html#intro">Introduction</a>- Gives you an
+introduction to what Axis2 is, the life cycle of a Web services
+message, how Axis2 handles SOAP messages and also includes a basic
+description on Axis2 distributions, and how Axis2 behaves as part
+of a Web application or as a standalone client that is not part of
+a J2EE application.</li>
+<li><a href="installationguide.html">Download and Installation</a>-
+Lists the different distribution packages offered by Axis2 and
+gives in-depth instructions on the installation of the standalone
+method and as part of a J2EE servlet container.</li>
+<li><a href="userguide-installingtesting.html">Testing Client
+Code</a> - The best way to make sure that your system is running
+Axis2 is to install and test both a service and a client. This
+document describes this process in easy to understand steps.</li>
+<li><a href="userguide-introtoservices.html">Introduction to
+Services</a> - The term "Web services" can apply to a number of
+different ways of sending information back and forth. However, this
+guide focuses on the sending and receiving of SOAP messages and
+Message Exchange Patterns (MEPs).</li>
+<li><a href="userguide-creatingclients.html">Creating Clients from
+WSDL</a> - When it comes to creating a Web service client, you can
+do it manually as described in the next document. However, in most
+cases, you will have a Web Service Description Language (WSDL)
+definition that describes the messages that clients should send and
+expect to receive. Axis2 provides several ways to use this
+definition to automatically generate a client. This document
+explains how to create a client using WSDL definitions.</li>
+<li><a href="userguide-buildingservices.html">Building Services
+from Scratch</a> - Now that you know how to use Axis2 to generate
+clients from WSDL as described in the document before, this
+document digs a little deeper, showing you how to create services,
+and how to create both services and clients "from scratch", so to
+speak.</li>
+<li><a href="userguide-samples.html">Samples</a> - The Axis2
+Standard Distribution provides a number of samples you can use as a
+guide for implementing specific features and capabilities. These
+services are listed in this document along with basic introductions
+for each one.</li>
+<li><a href="userguide-forfurtherstudy.html">For Further Study</a>
+- This section lists resource documents for further study.
+<ul>
+<li><a href="pojoguide.html">POJO Web Services using Apache
+Axis2</a>-This guide will show you how to create a Plain Old Java
+Object (POJO) for deploying using Apache Axis2 on Apache Tomcat.
+POJOs are fast to build and easy to maintain, which means you'll
+save a lot of time building and debugging your code</li>
+<li><a href="quickstartguide.html">Axis2 Quick Start Guide</a>-The
+purpose of this guide is to get you started on creating services
+and clients using Axis2 as quickly as possible. It demonstrates how
+to create Web services using a variety of different
+technologies.&lt;/&gt;</li>
+</ul>
+</li>
+</ul>
+Also see our <a href="../faq.html">FAQ page</a> to answer those
+common questions in mind.
+<h2>How To</h2>
+<p>This section deals with more advanced topics including Axis2
+support features such as Transports, Attachments, Pluggable Data
+Binding, Security, and REST Web services in detail.</p>
+<ul>
+<li><a href="webadminguide.html">Web Administrator's Guide</a> -
+Detailed instructions on the administration console of Axis2 Web
+application, which provides run-time configuration of Axis2.</li>
+<li><a href="migration.html">Migrating from Axis 1.x to Axis 2</a>
+- Guiding Axis 1.x users in upgrading to Axis2</li>
+<li><a href="app_server.html">Application Server Specific
+Configuration Guide</a> - Provides extra configuration information
+required for application servers to run Axis2 to its fullest
+potential</li>
+<li><a href="http://ws.apache.org/axiom/userguide/userguide.html">Axiom User Guide</a> -
+An introduction to Axis2's Object Model</li>
+<li><a href="rest-ws.html">REST Support</a>-Introduction on
+Representational State Transfer</li>
+<li><a href="Axis2-rpc-support.html">Axis2 RPC Support</a> - This
+document talks about the Axis2's Remote Procedure Calls support in
+a set of easy to understand implementation steps</li>
+<li><a href="mtom-guide.html">MTOM Guide -Sending Binary Data with
+SOAP</a> - Explains how to send binary data using the SOAP Message
+Transmission Optimization Mechanism</li>
+<li><a href="axis2config.html">Axis2 Configuration Guide</a> -
+Explains the three configurations in Axis2: global, service, and
+module</li>
+<li><a href="soapmonitor-module.html">SOAP Monitor How-to</a> - A
+guide on the utilities used to monitor the SOAP messages that
+invoke Web services, along with the results of those messages</li>
+<li><a href="WS_policy.html">Web Services Policy Support In
+Axis2</a> - Introduction to the role of Web services policy in
+Axis2</li>
+<li><a href="spring.html">Spring Framework</a> - A guide on how to
+use Axis2 with the Spring Framework</li>
+<li><a href="json_support.html">JSON Support</a> - This document
+explains how to use JSON support implementation in Axis2. Includes
+details on test cases and samples</li>
+<li><a href="corba-deployer.html">Exposing CORBA Services as Web Services</a> - This guide explains how to expose a CORBA Services as a Web Services in Axis2
+using an example</li>
+<li><a href="ejb-provider.html">Guide to using EJB Provider in
+Axis2</a> - This guide explains how to use an EJB provider in Axis2
+using an example</li>
+<li><a href="clustering-guide.html">Clustering Guide</a> - This guide will show how you can leverage clustering support to improve Scalability, Failover and High Availability of your Web Services</li>
+
+</ul>
+
+<p><strong>Data Bindings:</strong></p>
+<ul>
+<li><a href="adb/adb-howto.html">ADB How-to</a> - A guide on the
+Axis2 Databinding Framework (ADB)</li>
+<li><a href="adb/adb-advanced.html">Advanced ADB Framework
+Features</a> - Provides an insight into the newly added advanced
+features of ADB</li>
+<li><a href="adb/adb-tweaking.html">Tweaking the ADB Code
+Generator</a> - Explains the available mechanisms to extend
+ADB</li>
+<li><a href="adb/adb-codegen-integration.html">ADB Integration with
+Axis2</a> - A guide to writing an extension using the integrator in
+order to integrate ADB with Axis2</li>
+<li><a href="jibx/jibx-codegen-integration.html">JiBX Integration
+With Axis2</a> - A guide to using JiBX with Axis2 in order to
+expose existing Java code as a Web service and to implement a
+client for an existing Web service</li>
+</ul>
+<p><strong>Transports:</strong></p>
+<ul>
+<li><a href="http-transport.html">HTTP Transports</a> - A description on HTTP sender and HTTP
+receiver in Axis2</li>
+<li><a href="transport_howto.html">Write Your Own Axis2
+Transport</a> - A quick and easy guide to create your own Axis2
+Transport protocol</li>
+</ul>
+<p><strong>Axis2 Tools:</strong></p>
+<ul>
+<li><a href=
+"../tools/CodegenToolReference.html">Code
+Generator Tool Guide for Command Line and Ant Tasks</a> - Lists
+command line and Ant task references. How to build a file using
+custom Ant tasks and how to invoke a Code Generator from Ant</li>
+<li><a href=
+"../tools/eclipse/wsdl2java-plugin.html">Code
+Generator Wizard Guide for Eclipse Plug-in</a> - Explains the usage
+of the code generator Eclipse plug-in for WSDL2Java and/or
+Java2WSDL operations</li>
+<li><a href=
+"../tools/eclipse/servicearchiver-plugin.html">Service
+Archive Generator Wizard Guide for Eclipse Plug-in</a> - Describes
+the functionality of the Eclipse plugin service archive generator
+tool</li>
+<li><a href=
+"../tools/idea/Idea_plug-in_userguide.html">Code
+Generator Wizard Guide for IntelliJ IDEA Plug-in</a> - A guide on
+the usage of the IDEA code generation plug-in to create service
+archives and generate Java class files from WSDL files</li>
+<li><a href=
+"../tools/maven-plugins/maven-aar-plugin.html">Maven2
+AAR Plug-in Guide</a> - A guide to generate an Axis 2 service file
+(AAR file) using the Maven plug-in.</li>
+<li><a href=
+"../tools/maven-plugins/maven-java2wsdl-plugin.html">
+Maven2 Java2WSDL Plug-in Guide</a> - A guide to using Java2WSDL
+Maven 2 Plug-in that takes a Java class as input and generates a
+WSDL, which describes a Web service for invoking the class
+methods</li>
+<li><a href=
+"../tools/maven-plugins/maven-wsdl2code-plugin.html">
+Maven2 WSDL2Code Plug-in Guide</a> - A guide to using this plugin
+that takes as input a WSDL and generates client and server stubs
+for calling or implementing a Web service matching the WSDL.</li>
+</ul>
+<h2>Apache Axis2 Developers</h2>
+<ul>
+<li><a href="adv-userguide.html">Advanced User's Guide</a> - A
+quick start user's guide for more experienced users and developers
+on how to install, create Web services and Web service clients
+using Axis2.
+<ul>
+<li><a href="adv-userguide.html#introduction">Introduction</a> -
+Outlines the overall direction of the user guide, with a high level
+introduction on Axis2</li>
+<li><a href="installationguide.html">Download and Installation</a>
+- Lists the different distribution packages offered by Axis2, and
+the installations for the standalone and as part of a J2EE servlet
+container methods.</li>
+<li><a href="adv-userguide.html#ws_codegen">Creating a new Web
+Service with Code Generation</a> - Axis2 provides two ways to
+create new Web Services: using code generation and XML based
+primary APIs. This section explains how to start from a WSDL, and
+create a new Service with code generation</li>
+<li><a href="xmlbased-server.html">Writing Web Services Using
+Axis2's Primary APIs</a> - Explains how to create new Web Services
+using XML based primary APIs</li>
+<li><a href="adv-userguide.html#client">Writing a Web Service
+Client with Code Generation</a> - Axis2 also provides a more
+complex, yet powerful XML based client API that is intended for
+advanced users. However, if you are a new user we recommend using
+the code generation approach presented below</li>
+<li><a href="dii.html">Writing Web Service Clients Using Axis2's
+Primary APIs</a> - This section presents complex yet powerful XML
+based client APIs, which is intended for advanced users to write
+Web services clients</li>
+<li><a href="adv-userguide.html#config">Configuring Axis2</a> -
+Axis2 configuration is based on a repository and standard archive
+formats. Here you will find details on how to configure Axis2. You
+will also find reference documents that lead to greater detail in
+this area.</li>
+</ul>
+</li>
+<li><a href="Axis2ArchitectureGuide.html">Axis2 Architecture
+Guide</a> - Introduction to Axis2's modular architecture</li>
+<!--<li><a href="api/index.html">Online Java Docs</a>-Java API
+  documentation</li>-->
+<li><a href="../api/index.html">Online
+Java Docs</a> - Java API documentation</li>
+<li><a href="../refLib.html">Reference Library</a> - This document
+provides additional information to developers on WS-*
+specifications, Java language specifications, Subversion (SVN)
+control etc.</li>
+</ul>
+<h2>References</h2>
+<p>Gives you a list of published articles, tutorials and
+Questions-Answers on Apache Axis2. <a href="../articles.html">Check
+them out</a> for that extra knowledge on the next generation Web
+services engine Apache Axis2. Be informed and up-to-date!</p>
+</body>
+</html>

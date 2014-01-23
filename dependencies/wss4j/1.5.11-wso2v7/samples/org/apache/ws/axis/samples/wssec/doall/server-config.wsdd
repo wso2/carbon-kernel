@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+ <globalConfiguration>
+  <parameter name="adminPassword" value="admin"/>
+  <parameter name="attachments.implementation" value="org.apache.axis.attachments.AttachmentsImpl"/>
+  <parameter name="sendXsiTypes" value="true"/>
+  <parameter name="sendMultiRefs" value="true"/>
+  <parameter name="sendXMLDeclaration" value="true"/>
+  <requestFlow>
+   <handler type="java:org.apache.axis.handlers.JWSHandler">
+    <parameter name="scope" value="session"/>
+   </handler>
+   <handler type="java:org.apache.axis.handlers.JWSHandler">
+    <parameter name="scope" value="request"/>
+    <parameter name="extension" value=".jwr"/>
+   </handler>
+  </requestFlow>
+ </globalConfiguration>
+ <handler name="LocalResponder" type="java:org.apache.axis.transport.local.LocalResponder"/>
+ <handler name="URLMapper" type="java:org.apache.axis.handlers.http.URLMapper"/>
+ <handler name="Authenticate" type="java:org.apache.axis.handlers.SimpleAuthenticationHandler"/>
+ <service name="SecHttp" provider="java:RPC" use="literal">
+  <operation name="secSend" qname="secSend" returnQName="return" returnType="xsd:string" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <parameter name="applicationName" type="xsd:string"/>
+  </operation>
+  <requestFlow>
+   <handler name="DoSecurityReceiver" type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.samples.wssec.doall.PWCallback"/>
+    <!-- <parameter name="action" value="Signature"/> -->
+	<!-- <parameter name="action" value="Encrypt Signature"/> -->
+    <parameter name="action" value="Signature Encrypt"/>
+    <!-- <parameter name="action" value="Encrypt"/> -->
+    <parameter name="signaturePropFile" value="crypto.properties" />
+    <!-- <parameter name="decryptionPropFile" value="crypto.properties" /> -->
+   </handler>
+  </requestFlow>
+  <responseFlow>
+   <handler name="DoSecuritySender" type="java:org.apache.ws.axis.security.WSDoAllSender" >
+    <parameter name="user" value="16c73ab6-b892-458f-abf5-2f875f74882e"/>
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.samples.wssec.doall.PWCallback"/>
+    <!-- <parameter name="action" value="Signature"/> -->
+	<parameter name="action" value="Encrypt Signature"/>
+    <!-- <parameter name="action" value="Signature Encrypt"/> -->
+    <!-- <parameter name="action" value="Encrypt"/> -->
+    <parameter name="signaturePropFile" value="crypto.properties" />
+    <!-- <parameter name="encryptionPropFile" value="crypto.properties" /> -->
+    <parameter name="signatureKeyIdentifier" value="DirectReference" />
+    <parameter name="encryptionKeyIdentifier" value="X509KeyIdentifier" />
+   </handler>
+  
+  </responseFlow>
+  <parameter name="allowedMethods" value="secSend"/>
+  <parameter name="wsdlPortType" value="secPort"/>
+  <parameter name="className" value="org.apache.ws.axis.samples.wssec.doall.axisSec.SecBindingImpl"/>
+  <parameter name="wsdlServicePort" value="SecHttp"/>
+  <parameter name="wsdlTargetNamespace" value="uri:axis_sec"/>
+  <parameter name="wsdlServiceElement" value="secService"/>
+ </service>
+ <service name="AdminService" provider="java:MSG">
+  <parameter name="allowedMethods" value="AdminService"/>
+  <parameter name="enableRemoteAdmin" value="false"/>
+  <parameter name="className" value="org.apache.axis.utils.Admin"/>
+  <namespace>http://xml.apache.org/axis/wsdd/</namespace>
+ </service>
+ <service name="Version" provider="java:RPC">
+  <parameter name="allowedMethods" value="getVersion"/>
+  <parameter name="className" value="org.apache.axis.Version"/>
+ </service>
+ <transport name="http">
+  <requestFlow>
+   <handler type="URLMapper"/>
+   <handler type="java:org.apache.axis.handlers.http.HTTPAuthHandler"/>
+  </requestFlow>
+  <parameter name="qs:list" value="org.apache.axis.transport.http.QSListHandler"/>
+  <parameter name="qs:wsdl" value="org.apache.axis.transport.http.QSWSDLHandler"/>
+  <parameter name="qs:method" value="org.apache.axis.transport.http.QSMethodHandler"/>
+ </transport>
+ <transport name="local">
+  <responseFlow>
+   <handler type="LocalResponder"/>
+  </responseFlow>
+ </transport>
+</deployment>

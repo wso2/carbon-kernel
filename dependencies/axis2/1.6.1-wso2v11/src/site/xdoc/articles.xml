@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<title>Axis2 Knowledge Base</title>
+<meta name="generator" content=
+"amaya 9.2.1, see http://www.w3.org/Amaya/" />
+</head>
+<body>
+<h1>Apache Axis2 References</h1>
+<p>This page contains articles, tutorials, presentations and
+question and answers published on various Web sites on the Apache
+Axis2 engine. These references will prove to be a great help in
+boosting your knowledge on Axis2.</p>
+<h2>Books:</h2><ul><li><a class="externalLink" href="http://www.packtpub.com/article/create-quality-web-services-with-quicktstart-apache-axis2">
+Quicktstart Apache Axis2</a>
+- By Deepal Jayasinghe</li>
+<img alt="Quicktstart Apache Axis2" src="http://images.packtpub.com/images/100x123/1847192866.png"></img>
+
+</ul>
+<h2>Articles:</h2>
+<ul>
+<li><a href=
+"http://www.jaxmag.com/itr/online_artikel/psecom,id,747,nodeid,147.html">
+Axis2 - The Future of Web Services</a>- By Srinath Perera, Ajith
+Ranabahu</li>
+<li><a href=
+"http://www.developer.com/services/article.php/3525481">Introducing
+Axis2, the Next Generation of the Apache Web Service Stack</a>- By
+Srinath Perera</li>
+<li><a href=
+"http://www.onjava.com/pub/a/onjava/2005/07/27/axis2.html">Web
+Services Messaging with Apache Axis2: Concepts and Techniques</a>-
+By Srinath Perera, Ajith Ranabahu (27 July 2005)</li>
+<li><a href=
+"http://developer.com/java/web/article.php/3529321">Axis2 Execution
+Framework</a>- By Deepal Jayasinghe</li>
+<li><a href=
+"http://jaxmag.com/itr/online_artikel/psecom,id,757,nodeid,147.html">
+Axis2 Deployment Model</a>- By Deepal Jayasinghe</li>
+<li><a href=
+"http://www.developer.com/open/article.php/3557741">Understanding
+Axis2 Deployment Architecture</a>- By Deepal Jayasinghe</li>
+<li><a href=
+"http://wso2.org/library/35">
+Inside the Axis2 Code Generator</a>- By Ajith Ranabahu (06 Feb
+2006)</li>
+<li><a href=
+"http://www.developer.com/java/other/article.php/3570031">Utilizing
+a Non-Java Web Service with Axis2</a>- By Deepal Jayasinghe</li>
+<li><a href=
+"http://www.developer.com/open/article.php/3589126">Avoiding
+Mistakes Made Using Axis2</a>- By Deepal Jayasinghe</li>
+<li><a href=
+"http://www-128.ibm.com/developerworks/java/library/os-ag-axis2mig/index.html">
+Migrating Apache Axis apps to Axis2 using Apache Geronimo</a>- By
+Tyler Anderson (07 Mar 2006)</li>
+<li><a href=
+"http://www.developer.com/java/ent/article.php/3606466">The Axis2
+Transport Framework</a>- By Deepal Jayasinghe</li>
+<li><a href=
+"http://wso2.org/library/230">
+Reference Guide to Apache Axis2 Client API Parameters</a>- By Eran
+Chinthaka (01 Aug 2006)</li>
+<li><a href=
+"http://wso2.org/library/91">
+Axis2 - Performance Testing Round #1</a>- By
+Devanum Sirinivas (17 May 2006)</li>
+<li><a href=
+"http://wso2.org/library/259">
+Working With Apache Axis2</a>- Deepal Jayasinghe (13 Sep 2006)</li>
+<li><a href=
+"http://www.developer.com/java/ent/article.php/3613896">Writing an
+Apache Axis2 Service from Scratch</a>- By Deepal Jayasinghe (20
+June 2006)</li>
+<li><a href=
+"http://www.developer.com/java/web/article.php/3620661">Apache
+Axis2 Session Management</a>- By Deepal Jayasinghe</li>
+<li><a href="http://www.devx.com/Java/Article/33839">Apache Axis2
+with POJO's and Spring</a>- By Ramanujam A. Rao</li>
+
+<li><a href=
+"http://www-128.ibm.com/developerworks/webservices/library/ws-axis2soap/">
+Six ways the Axis2 deployment model is more user friendly</a>- By Deepal Jayasinghe</li>
+<li><a href="http://today.java.net/pub/a/today/2006/12/13/invoking-web-services-using-apache-axis2.html">
+Invoking Web Services using Apache Axis2
+</a>- By Deepal Jayasinghe</li>
+<li><a href="http://wso2.org/library/2060">
+Writing Your Own services.xml for Axis2 Web Services</a>- By Deepal Jayasinghe</li>
+<li><a href="http://wso2.org/library/2068">
+ADB Generated Code in Apache Axis2</a>- By Amila Suriarachchi</li>
+<li><a href="http://wso2.org/library/articles/working-rpcserviceclient">Working with RPCServiceClient</a>- By Deepal Jayasinghe</li>
+<li><a href="http://www.developer.com/open/article.php/10930_3777111_2/Embedding-Apache-Axis2-into-Existing-Applications.htm">Embedding Apache Axis2 into Existing Applications</a>- By Deepal Jayasinghe</li>
+<li><a href="http://www.developer.com/java/web/article.php/10935_3863416_2/Using-Axis2-and-Java-for-Asynchronous-Web-Service-Invocation-on-the-Client-Side.htm">Using Axis2 and Java for Asynchronous Web Service Invocation on the Client Side</a>- By Deepal Jayasinghe</li>
+
+
+
+<li><a href="http://www.ibm.com/developerworks/webservices/library/ws-java2/">Java
+Web services, Part 2: Digging into Axis2: AXIOM</a> - By Dennis Sosnoski (30 Nov
+2006)</li>
+<li><a href="http://www.ibm.com/developerworks/webservices/library/ws-java3/">Java
+Web services, Part 3: Axis2 Data Binding</a> - By Dennis Sosnoski (26 Jul
+2007)</li>
+
+
+</ul>
+<h2>Tutorials</h2>
+<ul>
+<li><a href="http://wso2.org/library/140">Introducing Axis2</a>- By
+Eran Chinthaka, Chathura Herath (05 June 2006)</li>
+<li><a href="http://wso2.org/library/141">Accelerating Web Services
+Development with Axis2</a>- By Deepal Jayasinghe, Ajith Ranabahu
+(05 June 2006)</li>
+<li><a href="http://wso2.org/library/95">Hello World with Apache
+Axis2</a>- By Ruchith Fernando (29 May 2006)</li>
+<li><a href="http://wso2.org/library/176">How Apache Axis2 Finds
+the Operation and Service a Message is Destined To</a>- By Eran
+Chinthaka(18 June 2006)</li>
+<li><a href="http://wso2.org/library/225">How to Debug a Web
+Service?</a>- By Ajith Ranabahu (28 July 2006)</li>
+</ul>
+<h2>Presentations</h2>
+<ul>
+<li><a href="http://wso2.org/library/136">Why Axis2: The Future of
+Web Services</a>- By Eran Chinthaka (05 June 2006)</li>
+<li><a href="http://wso2.org/library/247">Building Enterprise
+Applications with Axis2-Tutorial from ApacheCon Asia 2006</a>- By
+Deepal Jayasinghe, Ruchith Fernando (30 Aug 2006)</li>
+<li><a href="http://wso2.org/library/137">Introducing Axis2</a>- By
+Ajith Ranabahu (05 June 2006)</li>
+</ul>
+<h2>Questions and Answers</h2>
+<ul>
+<li><a href="http://wso2.org/library/67">Setting up Apache Axis2 in
+eclipse IDE</a>- By Ruchith Fernando (04 April 2006)</li>
+<li><a href="http://wso2.org/library/83">How do I Embed
+SimpleHTTPServer in My Application and Deploy a POJO?</a>- By
+Davanum Sirinivas (09 May 2006)</li>
+<li><a href="http://wso2.org/library/209">How to Configure Axis2's
+HTTP Transport Sender at Client Side?</a>- By Saminda Abeysinghe
+(11July 2006)</li>
+<li><a href="http://wso2.org/library/175">How to do REST invocation
+with Axis2/Java ServiceClient?</a>- By Eran Chinthaka (17 June
+2006)</li>
+<li><a href="http://wso2.org/library/90">How to Embed an Axis2
+based Web Service in your Webapp?</a>- By Davanum Sirinivas(17 May
+2006)</li>
+</ul>
+<h2>Other</h2>
+<ul>
+<li><a href=
+"http://pzf.fremantle.org/2007/05/getting-started-with-wsrm-and-axis2.html">
+Getting started with Axis2 and Sandesha2 to do
+WS-ReliableMessaging</a></li>
+</ul>
+</body>
+</html>

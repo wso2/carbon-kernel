@@ -1,0 +1,494 @@
+<!--
+ ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:tns="http://prov.services.mgt.feature.carbon.wso2.org" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax290="http://data.prov.services.mgt.feature.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://prov.services.mgt.feature.carbon.wso2.org">
+    <wsdl:documentation>RepositoryAdminService</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema xmlns:ns="http://org.apache.axis2/xsd" xmlns:ax291="http://data.prov.services.mgt.feature.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://org.apache.axis2/xsd">
+            <xs:import namespace="http://data.prov.services.mgt.feature.carbon.wso2.org/xsd"/>
+            <xs:element name="updateRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="prevLocation" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="prevNickName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="updatedLocation" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="updatedNickName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="removeRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getInstallableFeatures">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="groupByCategory" type="xs:boolean"/>
+                        <xs:element minOccurs="0" name="hideInstalledFeatures" type="xs:boolean"/>
+                        <xs:element minOccurs="0" name="showOnlyTheLatestFeatures" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getInstallableFeaturesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax290:Feature"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getInstallableFeatureInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="featureID" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="featureVersion" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getInstallableFeatureInfoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax290:FeatureInfo"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEnabledRepositories">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getEnabledRepositoriesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax290:RepositoryInfo"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllRepositories">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getAllRepositoriesResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax290:RepositoryInfo"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="enableRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="enabled" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRepository">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="location" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="nickName" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addRepositoryResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addDefaultRepository">
+                <xs:complexType>
+                    <xs:sequence/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="addDefaultRepositoryResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://data.prov.services.mgt.feature.carbon.wso2.org/xsd">
+            <xs:complexType name="Feature">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="featureDescription" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureID" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureVersion" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="installed" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="provider" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="required" type="xs:boolean"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="requiredFeatures" nillable="true" type="ax290:Feature"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="FeatureInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="copyrightInfo" nillable="true" type="ax290:CopyrightInfo"/>
+                    <xs:element minOccurs="0" name="description" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureID" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="featureVersion" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="licenseInfo" nillable="true" type="ax290:LicenseInfo"/>
+                    <xs:element minOccurs="0" name="provider" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="CopyrightInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="body" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="LicenseInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="body" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="RepositoryInfo">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="enabled" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="location" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="nickName" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="enableRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:enableRepository"/>
+    </wsdl:message>
+    <wsdl:message name="addDefaultRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:addDefaultRepository"/>
+    </wsdl:message>
+    <wsdl:message name="addDefaultRepositoryResponse">
+        <wsdl:part name="parameters" element="ns1:addDefaultRepositoryResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getEnabledRepositoriesRequest">
+        <wsdl:part name="parameters" element="ns1:getEnabledRepositories"/>
+    </wsdl:message>
+    <wsdl:message name="getEnabledRepositoriesResponse">
+        <wsdl:part name="parameters" element="ns1:getEnabledRepositoriesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="updateRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:updateRepository"/>
+    </wsdl:message>
+    <wsdl:message name="getInstallableFeatureInfoRequest">
+        <wsdl:part name="parameters" element="ns1:getInstallableFeatureInfo"/>
+    </wsdl:message>
+    <wsdl:message name="getInstallableFeatureInfoResponse">
+        <wsdl:part name="parameters" element="ns1:getInstallableFeatureInfoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getInstallableFeaturesRequest">
+        <wsdl:part name="parameters" element="ns1:getInstallableFeatures"/>
+    </wsdl:message>
+    <wsdl:message name="getInstallableFeaturesResponse">
+        <wsdl:part name="parameters" element="ns1:getInstallableFeaturesResponse"/>
+    </wsdl:message>
+    <wsdl:message name="removeRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:removeRepository"/>
+    </wsdl:message>
+    <wsdl:message name="addRepositoryRequest">
+        <wsdl:part name="parameters" element="ns1:addRepository"/>
+    </wsdl:message>
+    <wsdl:message name="addRepositoryResponse">
+        <wsdl:part name="parameters" element="ns1:addRepositoryResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getAllRepositoriesRequest">
+        <wsdl:part name="parameters" element="ns1:getAllRepositories"/>
+    </wsdl:message>
+    <wsdl:message name="getAllRepositoriesResponse">
+        <wsdl:part name="parameters" element="ns1:getAllRepositoriesResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="RepositoryAdminServicePortType">
+        <wsdl:operation name="enableRepository">
+            <wsdl:input message="tns:enableRepositoryRequest" wsaw:Action="urn:enableRepository"/>
+        </wsdl:operation>
+        <wsdl:operation name="addDefaultRepository">
+            <wsdl:input message="tns:addDefaultRepositoryRequest" wsaw:Action="urn:addDefaultRepository"/>
+            <wsdl:output message="tns:addDefaultRepositoryResponse" wsaw:Action="urn:addDefaultRepositoryResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getEnabledRepositories">
+            <wsdl:input message="tns:getEnabledRepositoriesRequest" wsaw:Action="urn:getEnabledRepositories"/>
+            <wsdl:output message="tns:getEnabledRepositoriesResponse" wsaw:Action="urn:getEnabledRepositoriesResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="updateRepository">
+            <wsdl:input message="tns:updateRepositoryRequest" wsaw:Action="urn:updateRepository"/>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatureInfo">
+            <wsdl:input message="tns:getInstallableFeatureInfoRequest" wsaw:Action="urn:getInstallableFeatureInfo"/>
+            <wsdl:output message="tns:getInstallableFeatureInfoResponse" wsaw:Action="urn:getInstallableFeatureInfoResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatures">
+            <wsdl:input message="tns:getInstallableFeaturesRequest" wsaw:Action="urn:getInstallableFeatures"/>
+            <wsdl:output message="tns:getInstallableFeaturesResponse" wsaw:Action="urn:getInstallableFeaturesResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="removeRepository">
+            <wsdl:input message="tns:removeRepositoryRequest" wsaw:Action="urn:removeRepository"/>
+        </wsdl:operation>
+        <wsdl:operation name="addRepository">
+            <wsdl:input message="tns:addRepositoryRequest" wsaw:Action="urn:addRepository"/>
+            <wsdl:output message="tns:addRepositoryResponse" wsaw:Action="urn:addRepositoryResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getAllRepositories">
+            <wsdl:input message="tns:getAllRepositoriesRequest" wsaw:Action="urn:getAllRepositories"/>
+            <wsdl:output message="tns:getAllRepositoriesResponse" wsaw:Action="urn:getAllRepositoriesResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="RepositoryAdminServiceSoap11Binding" type="tns:RepositoryAdminServicePortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="enableRepository">
+            <soap:operation soapAction="urn:enableRepository" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="addDefaultRepository">
+            <soap:operation soapAction="urn:addDefaultRepository" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getEnabledRepositories">
+            <soap:operation soapAction="urn:getEnabledRepositories" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="updateRepository">
+            <soap:operation soapAction="urn:updateRepository" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatureInfo">
+            <soap:operation soapAction="urn:getInstallableFeatureInfo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="removeRepository">
+            <soap:operation soapAction="urn:removeRepository" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatures">
+            <soap:operation soapAction="urn:getInstallableFeatures" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addRepository">
+            <soap:operation soapAction="urn:addRepository" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllRepositories">
+            <soap:operation soapAction="urn:getAllRepositories" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="RepositoryAdminServiceSoap12Binding" type="tns:RepositoryAdminServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="enableRepository">
+            <soap12:operation soapAction="urn:enableRepository" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="addDefaultRepository">
+            <soap12:operation soapAction="urn:addDefaultRepository" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getEnabledRepositories">
+            <soap12:operation soapAction="urn:getEnabledRepositories" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="updateRepository">
+            <soap12:operation soapAction="urn:updateRepository" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatureInfo">
+            <soap12:operation soapAction="urn:getInstallableFeatureInfo" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="removeRepository">
+            <soap12:operation soapAction="urn:removeRepository" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatures">
+            <soap12:operation soapAction="urn:getInstallableFeatures" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addRepository">
+            <soap12:operation soapAction="urn:addRepository" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllRepositories">
+            <soap12:operation soapAction="urn:getAllRepositories" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="RepositoryAdminServiceHttpBinding" type="tns:RepositoryAdminServicePortType">
+        <http:binding verb="POST"/>
+        <wsdl:operation name="enableRepository">
+            <http:operation location="enableRepository"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="addDefaultRepository">
+            <http:operation location="addDefaultRepository"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getEnabledRepositories">
+            <http:operation location="getEnabledRepositories"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="updateRepository">
+            <http:operation location="updateRepository"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatureInfo">
+            <http:operation location="getInstallableFeatureInfo"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="removeRepository">
+            <http:operation location="removeRepository"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getInstallableFeatures">
+            <http:operation location="getInstallableFeatures"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addRepository">
+            <http:operation location="addRepository"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getAllRepositories">
+            <http:operation location="getAllRepositories"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="RepositoryAdminService">
+        <wsdl:port name="RepositoryAdminServiceHttpsSoap11Endpoint" binding="tns:RepositoryAdminServiceSoap11Binding">
+            <soap:address location="https://192.168.1.3:9443/services/RepositoryAdminService.RepositoryAdminServiceHttpsSoap11Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="RepositoryAdminServiceHttpsSoap12Endpoint" binding="tns:RepositoryAdminServiceSoap12Binding">
+            <soap12:address location="https://192.168.1.3:9443/services/RepositoryAdminService.RepositoryAdminServiceHttpsSoap12Endpoint/"/>
+        </wsdl:port>
+        <wsdl:port name="RepositoryAdminServiceHttpsEndpoint" binding="tns:RepositoryAdminServiceHttpBinding">
+            <http:address location="https://192.168.1.3:9443/services/RepositoryAdminService.RepositoryAdminServiceHttpsEndpoint/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

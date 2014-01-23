@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="axisconfig">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="messageReceiver"/>
+        <xs:element ref="module"/>
+        <xs:element ref="parameter"/>
+        <xs:element ref="defaultModuleVersions"/>
+        <xs:element ref="deployer"/>
+        <xs:element ref="hostConfiguration"/>
+        <xs:element ref="listener"/>
+        <xs:element ref="messageBuilders"/>
+        <xs:element ref="messageFormatters"/>
+        <xs:element ref="messageReceivers"/>
+        <xs:element ref="moduleConfig"/>
+        <xs:element ref="phaseOrder"/>
+        <xs:element ref="targetResolvers"/>
+        <xs:element ref="transportReceiver"/>
+        <xs:element ref="transportSender"/>
+      </xs:choice>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="defaultModuleVersions">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="module"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="deployer">
+    <xs:complexType>
+      <xs:attribute name="class" use="required"/>
+      <xs:attribute name="directory" use="required" type="xs:NCName"/>
+      <xs:attribute name="extension" use="required" type="xs:NMTOKEN"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="hostConfiguration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ip"/>
+        <xs:element ref="port"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ip" type="xs:NMTOKEN"/>
+  <xs:element name="port" type="xs:integer"/>
+  <xs:element name="listener">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="parameter"/>
+      </xs:sequence>
+      <xs:attribute name="class" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="messageBuilders">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="messageBuilder"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="messageBuilder">
+    <xs:complexType>
+      <xs:attribute name="class" use="required"/>
+      <xs:attribute name="contentType" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="messageFormatters">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="messageFormatter"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="messageFormatter">
+    <xs:complexType>
+      <xs:attribute name="class" use="required"/>
+      <xs:attribute name="contentType" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="messageReceivers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="messageReceiver"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="moduleConfig">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="parameter"/>
+      </xs:sequence>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="phaseOrder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="phase"/>
+      </xs:sequence>
+      <xs:attribute name="type" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="phase">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="handler"/>
+      </xs:sequence>
+      <xs:attribute name="class"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="handler">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="order"/>
+      </xs:sequence>
+      <xs:attribute name="class" use="required"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="order">
+    <xs:complexType>
+      <xs:attribute name="phase" use="required" type="xs:NCName"/>
+      <xs:attribute name="phaseLast" type="xs:boolean"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="targetResolvers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="targetResolver"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="targetResolver">
+    <xs:complexType>
+      <xs:attribute name="class" use="required"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="transportReceiver">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="parameter"/>
+      </xs:sequence>
+      <xs:attribute name="class" use="required"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="transportSender">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="parameter"/>
+      </xs:sequence>
+      <xs:attribute name="class" use="required"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="module">
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:NCName"/>
+      <xs:attribute name="ref" type="xs:NCName"/>
+      <xs:attribute name="version" type="xs:decimal"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="parameter">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="parameter"/>
+      </xs:sequence>
+      <xs:attribute name="locked" type="xs:boolean"/>
+      <xs:attribute name="name" use="required" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="messageReceiver">
+    <xs:complexType>
+      <xs:attribute name="class" use="required"/>
+      <xs:attribute name="mep" use="required" type="xs:anyURI"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

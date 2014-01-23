@@ -1,0 +1,39 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+    <soapenv:Header xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:myRef="http://reference.org">
+        <wsa:From soapenv:role="urn:test:role">
+            <wsa:Address>http://www.from.org/service/</wsa:Address>
+            <wsa:ReferenceParameters>
+                <Reference2>Value 200</Reference2>
+            </wsa:ReferenceParameters>
+        </wsa:From>
+        <wsa:To soapenv:role="urn:test:role">http://www.to.org/service/</wsa:To>
+        <wsa:MessageID soapenv:role="urn:test:role">123456-7890</wsa:MessageID>
+        <myRef:Reference4 soapenv:role="urn:test:role">Value 400</myRef:Reference4>
+        <myRef:Reference3 soapenv:role="urn:test:role">Value 300</myRef:Reference3>
+        <wsa:Action soapenv:role="urn:test:role">http://www.actions.org/action</wsa:Action>
+        <wsa:ReplyTo soapenv:role="urn:test:role">
+            <wsa:Address>http://www.replyTo.org/service/</wsa:Address>
+        </wsa:ReplyTo>
+        <wsa:RelatesTo soapenv:role="urn:test:role" RelationshipType="TestRelation">http://www.relatesTo.org/service/</wsa:RelatesTo>
+    </soapenv:Header>
+    <soapenv:Body></soapenv:Body>
+</soapenv:Envelope>

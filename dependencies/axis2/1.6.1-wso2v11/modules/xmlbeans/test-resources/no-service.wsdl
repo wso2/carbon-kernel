@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions
+  targetNamespace="http://www.gridforum.org/cddlm/deployapi/2005/02/wsdl"
+  xmlns:tns="http://www.gridforum.org/cddlm/deployapi/2005/02/wsdl"
+  xmlns:api="http://www.gridforum.org/cddlm/deployapi/2005/02"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:wsa="http://schemas.xmlsoap.org/ws/2003/03/addressing"
+  >
+  
+   <wsdl:types>
+    <xsd:schema targetNamespace="http://www.gridforum.org/cddlm/deployapi/2005/02"
+      xmlns="http://www.gridforum.org/cddlm/deployapi/2005/02"
+      elementFormDefault="qualified">
+    
+    
+       <xsd:complexType name="unboundedXMLAnyNamespace">
+        <xsd:sequence>
+          <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+       
+      <xsd:element name="createRequest">
+        <xsd:complexType>
+          <xsd:annotation>
+            <xsd:documentation>
+              This is our request to create a system
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:sequence>
+            <xsd:element name="hostname" type="xsd:string" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <!-- ============================================================= -->
+      <!-- ============================================================= -->
+      <xsd:element name="createResponse">
+        <xsd:complexType>
+          <xsd:annotation>
+            <xsd:documentation>
+              This is our deployment response.
+              It consists of a reference to the system, 
+              which can then be used directly
+            </xsd:documentation>
+          </xsd:annotation>
+          <xsd:sequence>
+            <xsd:element name="ResourceId" type="xsd:anyURI"/>
+            <xsd:element name="systemReference" type="api:unboundedXMLAnyNamespace"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      
+    </xsd:schema>
+    
+   </wsdl:types>
+  
+   
+  <wsdl:message name="createRequest">
+    <wsdl:part element="api:createRequest" name="createRequest"/>
+  </wsdl:message>
+
+  <wsdl:message name="createResponse">
+    <wsdl:part element="api:createResponse" name="createResponse"/>
+  </wsdl:message>
+  
+ <wsdl:portType name="PortalEPR"
+    >
+    
+    <!-- create -->
+    <wsdl:operation name="Create">
+      <wsdl:input message="tns:createRequest" name="CreateRequest"/>
+      <wsdl:output message="tns:createResponse" name="CreateResponse"/>
+      <wsdl:fault name="DeploymentFault"
+        message="tns:DeploymentFault"/>
+    </wsdl:operation>
+    
+    </wsdl:portType>
+  
+  <wsdl:binding name="PortalEPRBinding" type="tns:PortalEPR">
+    <wsdlsoap:binding style="document"
+      transport="http://schemas.xmlsoap.org/soap/http"/>
+  <wsdl:operation name="Create">
+      <wsdlsoap:operation soapAction="" style="document"/>
+      <wsdl:input name="CreateRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+<!--       <wsdl:fault name="DeploymentFault">
+        <wsdlsoap:fault name="DeploymentFault" use="literal"/>
+      </wsdl:fault> -->
+    </wsdl:operation>
+    
+  </wsdl:binding>
+      
+  </wsdl:definitions>

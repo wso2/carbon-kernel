@@ -1,0 +1,356 @@
+<html>
+<title>JMS Transport Configuration</title>
+<body>
+
+<h2>JMS Listener Configuration (axis2.xml)</h2>
+
+e.g:
+
+<pre>
+    &lt;transportReceiver name="jms" class="org.apache.axis2.transport.jms.JMSListener"&gt;
+        &lt;parameter name="myTopicConnectionFactory"&gt;
+            &lt;parameter name="java.naming.factory.initial"&gt;org.apache.activemq.jndi.ActiveMQInitialContextFactory&lt;/parameter&gt;
+            &lt;parameter name="java.naming.provider.url"&gt;tcp://localhost:61616&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.ConnectionFactoryJNDIName"&gt;TopicConnectionFactory&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.ConnectionFactoryType"&gt;topic&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.JMSSpecVersion"&gt;1.0.2b&lt;/parameter&gt;
+        &lt;/parameter&gt;
+
+        &lt;parameter name="myQueueConnectionFactory"&gt;
+            &lt;parameter name="java.naming.factory.initial"&gt;org.apache.activemq.jndi.ActiveMQInitialContextFactory&lt;/parameter&gt;
+            &lt;parameter name="java.naming.provider.url"&gt;tcp://localhost:61616&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.ConnectionFactoryJNDIName"&gt;QueueConnectionFactory&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.ConnectionFactoryType"&gt;queue&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.JMSSpecVersion"&gt;1.1&lt;/parameter&gt;
+        &lt;/parameter&gt;
+
+        &lt;parameter name="default"&gt;
+            &lt;parameter name="java.naming.factory.initial"&gt;org.apache.activemq.jndi.ActiveMQInitialContextFactory&lt;/parameter&gt;
+            &lt;parameter name="java.naming.provider.url"&gt;tcp://localhost:61616&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.ConnectionFactoryJNDIName"&gt;ConnectionFactory&lt;/parameter&gt;
+        &lt;/parameter&gt;
+    &lt;/transportReceiver&gt;
+
+    &lt;transportSender name="jms" class="org.apache.axis2.transport.jms.JMSSender"&gt;
+        &lt;parameter name="myTopicConnectionFactory"&gt;
+            &lt;parameter name="java.naming.factory.initial"&gt;org.apache.activemq.jndi.ActiveMQInitialContextFactory&lt;/parameter&gt;
+            &lt;parameter name="java.naming.provider.url"&gt;tcp://localhost:61616&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.ConnectionFactoryJNDIName"&gt;TopicConnectionFactory&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.JMSSpecVersion"&gt;1.0.2b&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.CacheLevel"&gt;producer&lt;/parameter&gt;
+        &lt;/parameter&gt;
+
+        &lt;parameter name="myQueueConnectionFactory"&gt;
+            &lt;parameter name="java.naming.factory.initial"&gt;org.apache.activemq.jndi.ActiveMQInitialContextFactory&lt;/parameter&gt;
+            &lt;parameter name="java.naming.provider.url"&gt;tcp://localhost:61616&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.ConnectionFactoryJNDIName"&gt;QueueConnectionFactory&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.JMSSpecVersion"&gt;1.0.2b&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.CacheLevel"&gt;producer&lt;/parameter&gt;
+        &lt;/parameter&gt;
+
+        &lt;parameter name="default"&gt;
+            &lt;parameter name="java.naming.factory.initial"&gt;org.apache.activemq.jndi.ActiveMQInitialContextFactory&lt;/parameter&gt;
+            &lt;parameter name="java.naming.provider.url"&gt;tcp://localhost:61616&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.ConnectionFactoryJNDIName"&gt;ConnectionFactory&lt;/parameter&gt;
+            &lt;parameter name="transport.jms.CacheLevel"&gt;connection&lt;/parameter&gt;
+        &lt;/parameter&gt;
+    &lt;/transportSender&gt;
+</pre>
+
+<p>
+    The Transport Listener and Sender both allows the user to configure one or more logical JMS Connection
+    Factories, which are named definitions as shown above. Any remaining parameters maybe defined at the
+    service level via the services.xml. The applicable set of parameters for a service would be the
+    union of the properties from the services.xml and the corresponding logical connection factory.
+</p>
+
+<TABLE WIDTH="100%" BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH="10%">
+	<COL WIDTH="20%">
+	<COL WIDTH="60%">
+	<COL WIDTH="5%">
+	<COL WIDTH="5%">
+    <tr>
+        <td>Transport level</td>
+        <td><BR></td>
+        <td><BR></td>
+        <td>Listening</td>
+        <td>Sending</td>
+    </tr>
+    <tr>
+        <td>JNDI</td>
+        <td>java.naming.factory.initial</td>
+        <td>The JNDI InitialContext factory class</td>
+        <td>Required</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>java.naming.provider.url</td>
+        <td>JNDI Provider URL</td>
+        <td>Required</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>java.naming.security.principal</td>
+        <td>Username for JNDI access</td>
+        <td><BR></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>java.naming.security.credentials</td>
+        <td>Password for JNDI access</td>
+        <td><BR></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td>Transactions</td>
+        <td>transport.Transactionality</td>
+        <td>Desired transactionality. One of none / local / jta</td>
+        <td>Defaults to <B>none</B></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.UserTxnJNDIName</td>
+        <td>JNDI name to be used to obtain a UserTransaction</td>
+        <td>Defaults to &quot;java:comp/UserTransaction&quot;</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.CacheUserTxn</td>
+        <td>Generally its safe and more efficient to cache the
+			UserTransaction reference from JNDI. One of true/ false</td>
+        <td>Defaults to <B>true</B></td>
+        <td><BR></td>
+    </tr>
+
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.SessionTransacted</td>
+        <td>Should the JMS Session be transacted. One of true/ false</td>
+        <td>Defaults to <B>true</B> when local transactions are used</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.SessionAcknowledgement</td>
+        <td>JMS Session acknowledgement mode to be used. One of AUTO_ACKNOWLEDGE | CLIENT_ACKNOWLEDGE | DUPS_OK_ACKNOWLEDGE | SESSION_TRANSACTED</td>
+        <td>Defaults to <B>AUTO_ACKNOWLEDGE</B></td>
+        <td><BR></td>
+    </tr>    
+
+    <tr>
+        <td>Connection</td>
+        <td>transport.jms.ConnectionFactory</td>
+        <td>Name of the logical connection factory this service will use</td>
+        <td>Defaults to &quot;default&quot;</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.ConnectionFactoryJNDIName</td>
+        <td>The JNDI name of the JMS ConnectionFactory</td>
+        <td>Required</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.ConnectionFactoryType</td>
+        <td> Type of ConnectionFactory &ndash; queue / topic</td>
+        <td>Suggested to be specified</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.JMSSpecVersion</td>
+        <td>JMS API Version One of &quot;1.1&quot; or &quot;1.0.2b&quot;</td>
+        <td>Defaults to 1.1</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.UserName</td>
+        <td>The JMS connection username</td>
+        <td><BR></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.Password</td>
+        <td>The JMS connection password</td>
+        <td><BR></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td>Destinations</td>
+        <td>transport.jms.Destination</td>
+        <td>JNDI Name of the Destination </td>
+        <td>Defaults to Service name</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.DestinationType</td>
+        <td>Type of Destination &ndash; queue / topic</td>
+        <td>Defaults to a queue</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.DefaultReplyDestination</td>
+        <td>JNDI Name of the default reply Destination</td>
+        <td><BR></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.DefaultReplyDestinationType</td>
+        <td>Type of the reply Destination &ndash; queue / topic</td>
+        <td>Same type as of  Destination</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td>Advanced</td>
+        <td>transport.jms.MessageSelector</td>
+        <td>Optional message selector to be applied</td>
+        <td><BR></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.SubscriptionDurable</td>
+        <td>Is the subscription durable? (For Topics) &ndash; true / false</td>
+        <td>Defaults to <B>false</B></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.DurableSubscriberName</td>
+        <td>Name to be used for the durable subscription</td>
+        <td>Required when subscription is durable</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.PubSubNoLocal</td>
+        <td>Should messages published by the same connection (for Topics)
+			be received? &ndash; true / false</td>
+        <td>Defaults to <B>false</B></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.CacheLevel</td>
+        <td>The JMS resource cache level. One of none / connection /
+			session / consumer / producer / auto</td>
+        <td>Defaults to <B>auto</B> </td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.ReceiveTimeout</td>
+        <td>Time to wait for a JMS message during polling. Negative means
+			wait forever, while 0 means do not wait at all. Anything else, is
+			a millisecond value for the poll</td>
+        <td>Defaults to 1000ms</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.ConcurrentConsumers</td>
+        <td>Number of concurrent consumer tasks (~threads) to be started to
+			poll for messages for this service. For Topics, this should be
+			always 1, to prevent the same message being processed multiple
+			times</td>
+        <td>Defaults to <B>1</B></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.MaxConcurrentConsumers</td>
+        <td>Will dynamically scale the number of concurrent consumer tasks
+			(~threads) until this value; as the load increases. Should always
+			be 1 for Topics.</td>
+        <td>Defaults to <B>1</B></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.IdleTaskLimit</td>
+        <td>The number of idle (i.e. poll without receipt of a message)
+			runs per task, before it dies &ndash; to recycle resources, and to
+			allow dynamic scale down.</td>
+        <td>Defaults to 10</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.MaxMessagesPerTask</td>
+        <td>The maximum number of successful message receipts to limit per
+			Task lifetime. </td>
+        <td>Defaults to <B>&ndash;1</B> which implies unlimited messages</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td>Reconnection</td>
+        <td>transport.jms.InitialReconnectDuration</td>
+        <td>Initial reconnection attempt duration</td>
+        <td>Defaults to 10,000ms</td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.ReconnectProgressFactor</td>
+        <td>Factor used to compute consecutive reconnection attempt
+			durations, in a geometric series</td>
+        <td>Defaults to <B>2 (i.e. exponential)</B></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.MaxReconnectDuration</td>
+        <td>Maximum limit for a reconnection duration</td>
+        <td>Defaults to <B>1 hour</B></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>transport.jms.PublishEPR</td>
+        <td>One or more JMS URL's to be showed as the JMS EPRs on the WSDL
+			for the service. Allows the specification of a custom EPR, and/or
+			hiding of internal properties from a public EPR (e.g.
+			credentials). Add one as LEGACY to retain auto generated EPR, when
+			adding new EPRs</td>
+        <td><BR></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td><BR></td>
+        <td><BR></td>
+        <td><BR></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td>Legacy Mode and Payload handling</td>
+        <td>Wrapper</td>
+        <td>Binary and Text payload wrapper element to be specified as &quot;{ns}name&quot; where ns refers to a namespace and name the name of the element</td>
+        <td>Default binary wrapper<ul><li>{http://ws.apache.org/commons/ns/payload}binary</li></ul>
+            Default text wrapper <ul><li>{http://ws.apache.org/commons/ns/payload}text</li></ul></td>
+        <td><BR></td>
+    </tr>
+    <tr>
+        <td><BR></td>
+        <td>Operation</td>
+        <td>operation name to be specified as &quot;{ns}name&quot; where ns refers to the namespace and name the name of the operation</td>
+        <td>Defaults to urn:mediate</td>
+        <td><BR></td>
+    </tr>
+</TABLE>
+
+</body>
+</html>

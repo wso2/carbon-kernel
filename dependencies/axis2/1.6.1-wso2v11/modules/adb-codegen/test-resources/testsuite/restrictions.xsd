@@ -1,0 +1,210 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<xsd:schema elementFormDefault="qualified"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://apache.org/axis2/schema/restriction"
+            xmlns:ns1="http://google.com"
+            targetNamespace="http://apache.org/axis2/schema/restriction">
+
+    <xsd:simpleType name="ChildSimpleType">
+        <xsd:restriction base="xsd:string"/>
+    </xsd:simpleType>
+    <xsd:simpleType name="ParentSimpleType">
+        <xsd:restriction base="tns:ChildSimpleType"/>
+    </xsd:simpleType>
+    <xsd:complexType name="TestSimpleAttribute">
+        <xsd:attribute name="attrib1" type="tns:ParentSimpleType" use="required"></xsd:attribute>
+        <xsd:attribute name="attrib2" type="tns:ParentSimpleType" use="optional"></xsd:attribute>
+        <xsd:all>
+            <xsd:element name="testElement1" type="xsd:QName"/>
+            <xsd:element name="testElement2" type="xsd:QName"/>
+            <xsd:element name="testElement3" type="xsd:QName"/>
+        </xsd:all>
+    </xsd:complexType>
+
+    <xsd:element name="TestSimpleAttributeElement" type="tns:TestSimpleAttribute"/>
+
+
+    <xsd:simpleType name="NormalSimpleType">
+        <xsd:restriction base="xsd:QName"/>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="EnumerationSimpleType">
+        <xsd:restriction base="xsd:QName">
+            <xsd:enumeration value="ns1:test1"/>
+            <xsd:enumeration value="ns1:test2"/>
+            <xsd:enumeration value="ns1:test3"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="ParentNormalSimpleType">
+        <xsd:restriction base = "tns:NormalSimpleType"/>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="ParentEnumerationSimpleType">
+        <xsd:restriction base="tns:EnumerationSimpleType"/>
+    </xsd:simpleType>
+
+    <xsd:element name="NormalSimpleTypeElement" type="tns:ParentNormalSimpleType"/>
+    <xsd:element name="EnumerationSimpleTypeElement" type="tns:ParentEnumerationSimpleType"/>
+
+    <xsd:complexType name="BaseRestrictionType">
+        <xsd:sequence>
+            <xsd:element name="baseTypeElement1" minOccurs="0" type="xsd:string"/>
+            <xsd:element name="baseTypeElement2" minOccurs="0" type="xsd:int"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ParentRestrictionType">
+        <xsd:complexContent>
+            <xsd:restriction base="tns:BaseRestrictionType">
+                <xsd:sequence>
+                    <xsd:element name="baseTypeElement1" type="xsd:string"/>
+                    <xsd:element name="baseTypeElement2" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="ComplexRestrictionTypeTestElement" type="tns:ParentRestrictionType"/>
+
+    <xsd:simpleType name="ErrorCodeType">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="30"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+    <xsd:simpleType name="TestSimpleTypeRestrictionPattern">
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="\d{4}((-\d{2}){0,1}-\d{2}){0,1}"></xsd:pattern>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xs:simpleType name="RFCProbabilityCodeType1">
+           <xs:restriction base="xs:double">
+                   <xs:maxInclusive value="1.5"/>
+                   <xs:minInclusive value="0.1"/>
+           </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="RFCProbabilityCodeType2">
+           <xs:restriction base="xs:long">
+                   <xs:maxExclusive value="5"/>
+                   <xs:minExclusive value="1"/>
+           </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="RFCProbabilityCodeType3">
+           <xs:restriction base="xs:integer">
+                   <xs:maxExclusive value="5"/>
+                   <xs:minExclusive value="1"/>
+           </xs:restriction>
+    </xs:simpleType>
+
+    <xsd:complexType name="Person">
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string"></xsd:element>
+            <xsd:element name="age" type="xsd:int"></xsd:element>
+            <xsd:element name="hairColor">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="black"></xsd:enumeration>
+                        <xsd:enumeration value="brown"></xsd:enumeration>
+                        <xsd:enumeration value="blonde"></xsd:enumeration>
+                        <xsd:enumeration value="gray"></xsd:enumeration>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:element>
+            <xsd:element name="birthDate" type="xsd:date"></xsd:element>
+            <xsd:element name="address" type="tns:Address" maxOccurs="1" minOccurs="0"></xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+
+
+    <xsd:complexType name="Address">
+        <xsd:sequence>
+            <xsd:element name="line1" type="xsd:string"></xsd:element>
+            <xsd:element name="line2" type="xsd:string" maxOccurs="1"
+                     minOccurs="0">
+            </xsd:element>
+            <xsd:element name="city" type="xsd:string"></xsd:element>
+            <xsd:element name="state" type="xsd:string"></xsd:element>
+            <xsd:element name="zip">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:pattern value="[A-Z]"></xsd:pattern>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="PersonElement" type="tns:Person"/>
+
+    <xsd:element name="SMSElement">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="EndDate" type="tns:WSTypeDate" nillable="true"/>
+                <xsd:element name="SMS_Provider" type="tns:WSTypeChar3" nillable="true"/>
+            </xsd:sequence>
+            <xsd:attribute name="MultipleRestriction">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:pattern value="String"/>
+                        <xsd:pattern value="Base64"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:simpleType name="WSTypeDate">
+        <xsd:restriction base="xsd:date">
+            <xsd:pattern value='[0-9]{4}-[0-9]{2}-[0-9]{2}'/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="WSTypeChar3">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="3"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:element name="GetExemplarResponseTypeElement" type="tns:getExemplarResponseType"/>
+    <xsd:complexType name="getExemplarResponseType">
+        <xsd:complexContent>
+            <xsd:restriction base="xsd:anyType">
+                <xsd:sequence>
+                    <xsd:element name="exemplar" type="xsd:string"/>
+                </xsd:sequence>
+                <xsd:attributeGroup ref="tns:ResponseAttributeGroup"/>
+                <xsd:attribute name="supportedMethods" type="xsd:string" use="optional"/>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:attributeGroup name="ResponseAttributeGroup">
+        <xsd:attribute name="responseCode" type="xsd:integer" use="optional" default="0"/>
+        <xsd:attribute name="responseMessage" type="xsd:string" use="optional"/>
+    </xsd:attributeGroup>
+
+</xsd:schema>

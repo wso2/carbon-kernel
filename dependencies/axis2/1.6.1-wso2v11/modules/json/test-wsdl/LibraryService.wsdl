@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+
+<wsdl:definitions targetNamespace="http://adb.json.axis2.apache.org" xmlns:ns="http://adb.json.axis2.apache.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ax21="http://adb.json.axis2.apache.org/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+<wsdl:documentation>
+        This is a sample service to test json implementation
+    </wsdl:documentation>
+  <wsdl:types>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://adb.json.axis2.apache.org/xsd">
+            <xs:complexType name="Library">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="admin" nillable="true" type="ax21:Person"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="books" nillable="true" type="ax21:Book"/>
+                    <xs:element minOccurs="0" name="staff" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Person">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="address" nillable="true" type="ax21:Address"/>
+                    <xs:element minOccurs="0" name="age" type="xs:int"/>
+                    <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="phone" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Address">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="city" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="country" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="street" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="zipCode" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="Book">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="author" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="numOfPages" type="xs:int"/>
+                    <xs:element minOccurs="0" name="publisher" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="reviewers" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://adb.json.axis2.apache.org" xmlns:ax22="http://adb.json.axis2.apache.org/xsd">
+            <xs:import namespace="http://adb.json.axis2.apache.org/xsd"/>
+            <xs:element name="getLibrary">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="args0" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getLibraryResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax21:Library"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="echoLibrary">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="args0" nillable="true" type="ax21:Library"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="echoLibraryResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ax21:Library"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getLibraryResponse">
+    <wsdl:part name="parameters" element="ns:getLibraryResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="echoLibraryRequest">
+    <wsdl:part name="parameters" element="ns:echoLibrary">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="echoLibraryResponse">
+    <wsdl:part name="parameters" element="ns:echoLibraryResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLibraryRequest">
+    <wsdl:part name="parameters" element="ns:getLibrary">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="LibraryServicePortType">
+    <wsdl:operation name="echoLibrary">
+      <wsdl:input message="ns:echoLibraryRequest" wsaw:Action="urn:echoLibrary">
+    </wsdl:input>
+      <wsdl:output message="ns:echoLibraryResponse" wsaw:Action="urn:echoLibraryResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getLibrary">
+      <wsdl:input message="ns:getLibraryRequest" wsaw:Action="urn:getLibrary">
+    </wsdl:input>
+      <wsdl:output message="ns:getLibraryResponse" wsaw:Action="urn:getLibraryResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LibraryServiceHttpBinding" type="ns:LibraryServicePortType">
+    <http:binding verb="POST"/>
+    <wsdl:operation name="echoLibrary">
+      <http:operation location="echoLibrary"/>
+      <wsdl:input>
+        <mime:content part="parameters" type="application/xml"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="parameters" type="application/xml"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getLibrary">
+      <http:operation location="getLibrary"/>
+      <wsdl:input>
+        <mime:content part="parameters" type="application/xml"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="parameters" type="application/xml"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="LibraryServiceSoap11Binding" type="ns:LibraryServicePortType">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="echoLibrary">
+      <soap:operation soapAction="urn:echoLibrary" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getLibrary">
+      <soap:operation soapAction="urn:getLibrary" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="LibraryServiceSoap12Binding" type="ns:LibraryServicePortType">
+    <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="echoLibrary">
+      <soap12:operation soapAction="urn:echoLibrary" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getLibrary">
+      <soap12:operation soapAction="urn:getLibrary" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LibraryService">
+    <wsdl:port name="LibraryServiceHttpSoap12Endpoint" binding="ns:LibraryServiceSoap12Binding">
+      <soap12:address location="http://localhost:8080/axis2/services/LibraryService.LibraryServiceHttpSoap12Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="LibraryServiceHttpSoap11Endpoint" binding="ns:LibraryServiceSoap11Binding">
+      <soap:address location="http://localhost:8080/axis2/services/LibraryService.LibraryServiceHttpSoap11Endpoint/"/>
+    </wsdl:port>
+    <wsdl:port name="LibraryServiceHttpEndpoint" binding="ns:LibraryServiceHttpBinding">
+      <http:address location="http://localhost:8080/axis2/services/LibraryService.LibraryServiceHttpEndpoint/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

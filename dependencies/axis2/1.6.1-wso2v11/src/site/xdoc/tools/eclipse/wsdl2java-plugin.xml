@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Code Generator Wizard Guide for Eclipse Plug-in</title>
+    </properties>
+    <body>
+        <h1>Code Generator Wizard Guide for Eclipse Plug-in</h1>
+        <p>This document explains the usage of this code generator plug-in
+        for Eclipse. In other words, this document will guide you through
+        the operations of generating a WSDL file from a Java class and/or
+        generating a Java class file from a WSDL file.</p>
+        <p><a href="../index.html">[Download Plugin Tool]</a></p>
+        <macro name="toc"/>
+        <section name="Introduction">
+            <p>The Axis2 code generator comes built-in with an <a href=
+            "http://www.eclipse.org">Eclipse</a> plug-in. This plug-in can be
+            used to generate a WSDL file from a java class (Java2WSDL) and/or a
+            java class file from a WSDL (WSDL2Java). First you need to install
+            the plug-in. The instructions for the installation process are
+            given below.</p>
+        </section>
+        <section name="Installation">
+            <p>
+                Installation instructions for the plugin can be found
+                <a href="plugin-installation.html">here</a>.
+            </p>
+        </section>
+        <section name="Operation">
+            <subsection name="WSDL2Java">
+                <p>If the plug-in is properly installed you should see a new wizard
+                under the "New" section.(use the File -&gt; New -&gt; Other or Ctrl
+                + N )</p>
+                <p><img alt="wsdl2java-screen0" src="images/wsdl2java-screen0.png" /></p>
+                <p>Selecting the wizard and pressing the "Next" button will start
+                the code generator wizard. Following is the first wizard page.</p>
+                <p><strong>Page 1:</strong></p>
+                <p><img alt="wsdl2java-screen1" src="images/wsdl2java-screen1.png" /></p>
+                <p>Selecting the "Generate Java source code from WSDL file" option
+                and clicking "Next" leads to the following page.</p>
+                <p><strong>WSDL2Java Page 2 :</strong></p>
+                <p><img alt="wsdl2java-screen2" src="images/wsdl2java-screen2.png" /></p>
+                <p>To move on to the next page the WSDL file location must be
+                given. The "Browse" button can be used to easily browse for a file
+                rather than typing the whole path.</p>
+                <p><strong>WSDL2Java Page 3 :</strong></p>
+                <p>Once the WSDL file is selected, the next page will take you to
+                the page from where <strong>codegen options</strong> are to be
+                selected. By far this is the most important page in this wizard.
+                This page determines the characteristics of the code being
+                generated.</p>
+                <p>Novices need not worry about these options since the most common
+                options are defaulted, but advanced users will find it very easy to
+                turn the knobs using these options.</p>
+                <p><img alt="wsdl2java-screen3" src="images/wsdl2java-screen3.png" /></p>
+                <p>What advanced users can do is select custom from the select
+                codegen options drop down list and then change/edit the fields that
+                you need.</p>
+                <p><img alt="wsdl2java-screen31" src="images/wsdl2java-screen31.png" /></p>
+                <p>Once the options are selected, only the final step of the code
+                generation is left which is the selection of the output file
+                location.</p>
+                <p><strong>WSDL2Java Page 4 :</strong></p>
+                <p>Here you can select the output file path by typing or browsing
+                using the "Browse" button. You have the option of browsing only
+                eclipse workspace projects by selecting the "Add the source to a
+                project on current eclipse workspace" radio button. Or else you
+                have the option to save the codegen resutls to file system</p>
+                <p><img alt="wsdl2java-screen4" src="images/wsdl2java-screen4.png" /></p>
+                <p>Here also you have the option to add some value to the codegen
+                results. If you have enabled the check box "Add Axis2 libraries to
+                the codegen result project" then all other controls below will get
+                enabled. What you can do is point the downloaded Axis2_HOME
+                location via the "Browse" button. Then you can verify the
+                availability of the Axis2 libs by clicking on the "Check Libs"
+                button. If all goes well then you can add the axis 2 libs to the
+                codegen results location. Another option is available to generate a
+                jar file if the user needs to add the codegen results to a project
+                as a compiled jar file to the selected locations lib directory.</p>
+                <p><img alt="wsdl2java-screen41" src="images/wsdl2java-screen41.png" /></p>
+                <p>When the output file location is selected, the "Finish" button
+                will be enabled. Clicking the "Finish" button will generate the
+                code and a message box will pop up acknowledging the success. Well
+                Done! You've successfully completed Axis2 code generation.</p>
+            </subsection>
+            <subsection name="Java2WSDL">
+                <p><strong>Page 1:</strong></p>
+                <p>For this operation you need to select the option which says
+                "Generate a WSDL from a Java source file"</p>
+                <p><img alt="java2wsdl-screen0" src="images/java2wsdl-screen0.png" /></p>
+                <p>Then click the "Next" button which will lead to the next page
+                below.</p>
+                <p><strong>Java2WSDL Page 2:</strong></p>
+                <p><img alt="java2wsdl-screen1" src="images/java2wsdl-screen1.png" /></p>
+                <p>In this page one needs to select the class to be exposed and the
+                relevant jar files /classes to be loaded as the classpath. After
+                the libraries have been set, the "Test Class Loading" button must
+                be clicked in order to test whether the class is loadable. Unless
+                the class loading is successful proceeding to the "Next" button
+                will not be enabled.</p>
+                <p>Once the classloading is successful and "Next" button is clicked
+                the page below will appear.</p>
+                <p><strong>Java2WSDL Page 3:</strong></p>
+                <p>This page allows the parameters to be modified by setting the
+                options for the generator.</p>
+                <p><img alt="java2wsdl-screen2" src="images/java2wsdl-screen2.png" /></p>
+                <p><strong>Java2WSDL Page 4:</strong></p>
+                <p>Here you can select the output file path by typing or browsing
+                using the "Browse" button. You have the option of browsing only
+                Eclipse workspace projects by selecting the "Add the source to a
+                project on current eclipse workspace" radio button . Or else you
+                have the option to save the codegen resutls to file system. Once
+                the output file location and the output WSDL file name is added you
+                can click the "Finish" button to complete generation.</p>
+                <p><img alt="java2wsdl-screen3" src="images/java2wsdl-screen3.png" /></p>
+                <p>If a message box pops up acknowledging the success, then you've
+                successfully completed the Java2WSDL code generation.</p>
+            </subsection>
+        </section>
+        <section name="Appendix">
+            <ul>
+            <li>Eclipse reference - <a href=
+            "http://www.eclipse.org/">http://www.eclipse.org/</a></li>
+            <li>Custom Ant Tasks - <a href=
+            "http://ant.apache.org/manual/develop.html">http://ant.apache.org/manual/develop.html</a></li>
+            </ul>
+        </section>
+    </body>
+</document>

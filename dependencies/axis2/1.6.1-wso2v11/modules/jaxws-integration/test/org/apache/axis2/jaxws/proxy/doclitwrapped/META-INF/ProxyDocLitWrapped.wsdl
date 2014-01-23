@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://doclitwrapped.proxy.test.org"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="proxy"
+	targetNamespace="http://doclitwrapped.proxy.test.org">
+
+	<wsdl:types>
+		<xsd:schema
+			targetNamespace="http://doclitwrapped.proxy.test.org"
+			xmlns:tns="http://doclitwrapped.proxy.test.org"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+			<xsd:element name="MyFault" type="xsd:string" />
+
+			<xsd:element name="oneWayVoid">
+				<xsd:complexType>
+					<xsd:sequence />
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="oneWay">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="oneway_str"
+							type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="twoWayHolder">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="twoWayHolder_str"
+							type="xsd:string" />
+						<xsd:element name="twoWayHolder_int"
+							type="xsd:int" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="twoWay">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="twoway_str"
+							type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			
+			<xsd:element name="ReturnType">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="return_str"
+							type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="invoke">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="invoke_str"
+							type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="invokeReturnType">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="return_str"
+							type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+
+			
+
+			<!-- fin op definition -->
+
+			<xsd:element name="finOp">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="op"
+							type="tns:FinancialOperation" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="finOpResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="response"
+							type="tns:FinancialOperation" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:complexType name="FinancialOperation">
+				<xsd:sequence>
+					<xsd:element name="amount" type="xsd:float" />
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<xsd:complexType name="Withdraw">
+				<xsd:complexContent>
+					<xsd:extension base="tns:FinancialOperation">
+						<xsd:sequence>
+							<xsd:element name="memo" type="xsd:string" />
+						</xsd:sequence>
+					</xsd:extension>
+				</xsd:complexContent>
+			</xsd:complexType>
+
+			<xsd:complexType name="Deposit">
+				<xsd:complexContent>
+					<xsd:extension base="tns:FinancialOperation">
+						<xsd:sequence>
+							<xsd:element name="status"
+								type="xsd:string" />
+						</xsd:sequence>
+					</xsd:extension>
+				</xsd:complexContent>
+			</xsd:complexType>
+
+		</xsd:schema>
+	</wsdl:types>
+
+	<wsdl:message name="oneWayVoidRequest">
+		<wsdl:part name="allByMyself" element="tns:oneWayVoid" />
+	</wsdl:message>
+
+	<wsdl:message name="oneWayRequest">
+		<wsdl:part name="allByMyself" element="tns:oneWay" />
+	</wsdl:message>
+
+	<wsdl:message name="twoWayHolderRequest">
+		<wsdl:part name="allByMyself" element="tns:twoWayHolder" />
+	</wsdl:message>
+
+	<wsdl:message name="twoWayHolderResponse">
+		<wsdl:part name="allByMyself" element="tns:twoWayHolder" />
+	</wsdl:message>
+
+	<wsdl:message name="twoWayRequest">
+		<wsdl:part name="allByMyself" element="tns:twoWay" />
+	</wsdl:message>
+
+	<wsdl:message name="twoWayResponse">
+		<wsdl:part name="allByMyself" element="tns:ReturnType" />
+	</wsdl:message>
+
+	<wsdl:message name="invokeRequest">
+		<wsdl:part name="allByMyself" element="tns:invoke" />
+	</wsdl:message>
+
+	<wsdl:message name="invokeResponse">
+		<wsdl:part name="allByMyself" element="tns:ReturnType" />
+	</wsdl:message>
+
+	<wsdl:message name="finOpRequest">
+		<wsdl:part name="op" element="tns:finOp" />
+	</wsdl:message>
+
+	<wsdl:message name="finOpResponse">
+		<wsdl:part name="op" element="tns:finOpResponse" />
+	</wsdl:message>
+
+	<wsdl:portType name="DocLitWrappedProxy">
+
+		<wsdl:operation name="oneWayVoid">
+			<wsdl:input message="tns:oneWayVoidRequest" />
+		</wsdl:operation>
+
+		<wsdl:operation name="oneWay">
+			<wsdl:input message="tns:oneWayRequest" />
+		</wsdl:operation>
+
+		<wsdl:operation name="twoWayHolder">
+			<wsdl:input message="tns:twoWayHolderRequest" />
+			<wsdl:output message="tns:twoWayHolderResponse" />
+		</wsdl:operation>
+
+		<wsdl:operation name="twoWay">
+			<wsdl:input message="tns:twoWayRequest" />
+			<wsdl:output message="tns:twoWayResponse" />
+		</wsdl:operation>
+		
+		<wsdl:operation name="invoke">
+			<wsdl:input message="tns:invokeRequest" />
+			<wsdl:output message="tns:invokeResponse" />
+		</wsdl:operation>
+		
+		<wsdl:operation name="finOp">
+			<wsdl:input message="tns:finOpRequest" />
+			<wsdl:output message="tns:finOpResponse" />
+		</wsdl:operation>
+
+	</wsdl:portType>
+
+	<wsdl:binding name="ProxyDocLitWrapped"
+		type="tns:DocLitWrappedProxy">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+
+		<wsdl:operation name="oneWayVoid">
+			<soap:operation
+				soapAction="http://doclitwrapped.proxy.test.org/twoWayReturn" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+
+		<wsdl:operation name="oneWay">
+			<soap:operation
+				soapAction="http://doclitwrapped.proxy.test.org/twoWayReturn" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+		</wsdl:operation>
+
+		<wsdl:operation name="twoWayHolder">
+			<soap:operation
+				soapAction="http://doclitwrapped.proxy.test.org/twoWayReturn" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+
+		</wsdl:operation>
+
+		<wsdl:operation name="twoWay">
+			<soap:operation
+				soapAction="http://doclitwrapped.proxy.test.org/twoWayReturn" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+
+		</wsdl:operation>
+		
+		<wsdl:operation name="invoke">
+			<soap:operation
+				soapAction="http://doclitwrapped.proxy.test.org/twoWayReturn" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+
+		</wsdl:operation>
+		
+		<wsdl:operation name="finOp">
+			<soap:operation
+				soapAction="http://doclitwrapped.proxy.test.org/finOp" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+
+		</wsdl:operation>
+
+	</wsdl:binding>
+
+	<wsdl:service name="ProxyDocLitWrappedService">
+		<wsdl:port binding="tns:ProxyDocLitWrapped"
+			name="DocLitWrappedProxyImplPort">
+			<soap:address
+				location="http://localhost:9080/axis2/services/ProxyDocLitWrappedService/invoke" />
+		</wsdl:port>
+	</wsdl:service>
+
+</wsdl:definitions>

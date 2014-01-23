@@ -1,0 +1,95 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Reference Library</title>
+</head>
+<body>
+<h2>Reference Library</h2>
+<p>The Axis Project lives or fails based on its human resources.
+Users and contributors alike help the project with ideas and
+brainpower. A common foundation of knowledge is required to
+effectively participate in this virtual community. The following is
+a list of documents that we have found helpful to us and they maybe
+helpful to you:</p>
+<p>These resources are required reading for anybody contributing
+source code to the project.</p>
+<p><b><font>SOAP Specific Resources</font></b></p>
+<p><b>SOAP W3C Specification</b> <a href=
+"http://www.w3.org/TR/2000/NOTE-SOAP-20000508/">1.1</a> and
+<a href="http://www.w3.org/TR/soap/">1.2</a><br />
+Required reading.</p>
+<p><b><a href="http://www.w3.org/TR/SOAP-attachments">SOAP
+Messaging with Attachments W3C Specification</a></b><br />
+SOAP combined with MIME.</p>
+<p><b><a href="http://www.w3.org/TR/SOAP-dsig/">SOAP Security
+Extensions: Digital Signature Specification</a></b><br />
+Adding security to SOAP.</p>
+<p><b>Other Specifications</b></p>
+<p>Web Services Description Language (WSDL) <a href=
+"http://www.w3c.org/TR/wsdl.html">1.1</a> <a href=
+"http://www.w3.org/TR/wsdl20/">2.0</a></p>
+<p>WS - Addressing <a href=
+"http://www.w3.org/Submission/ws-addressing/">submission</a>
+<a href="http://www.w3.org/TR/2005/WD-ws-addr-core-20050331/">1.0
+(31st March,2005)</a></p>
+<p><a href=
+"http://www.w3.org/TR/ws-policy/">
+Web Services Policy Framework (WSPolicy)</a></p>
+<p><a href=
+"http://www.ws-i.org/Profiles/BasicProfile-1.0.html">WS-I Basic
+Profile Version 1.0</a></p>
+<p><a href=
+"http://jcp.org/aboutJava/communityprocess/first/jsr101/index.html">
+Java API for XML-based RPC (JAX-RPC)</a></p>
+<p><a href=
+"http://www.w3.org/TR/2005/REC-soap12-mtom-20050125/">SOAP Message
+Transmission Optimization Mechanism</a></p>
+<p><b>Other Resources</b></p>
+<p><b><a href="http://java.sun.com/docs/books/jls/index.html">The
+Java Language Specification</a></b><br />
+Written by the creators of the Java Programming Language, this
+online book is considered by many to be the bible for programming
+in Java. A must read.</p>
+<p><b><a href=
+"http://java.sun.com/products/jdk/javadoc/index.html">Javadoc</a></b><br />
+
+Javadoc is the automatic software documentation generator used by
+Java, since it was first released. All code written for this
+project must be documented using Javadoc conventions.</p>
+<p><b><a href=
+"http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html">The
+Java Code Conventions</a></b><br />
+This Sun document specifies the de-facto standard way of formatting
+Java code. All code written for this project must follow these
+conventions.</p>
+<p><a href=
+"http://svnbook.red-bean.com/en/1.1/svn-book.html"><strong>Version
+Control with SubVersion</strong></a><br />
+Written by Ben Collins-Sussman, Brian W. Fitzpatrick, C. Michael
+Pilato. It provides details on SVN features.</p>
+<p></p>
+</body>
+</html>

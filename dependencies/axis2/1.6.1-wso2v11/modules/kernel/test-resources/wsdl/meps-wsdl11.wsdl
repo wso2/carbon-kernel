@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions targetNamespace="http://www.example.org"
+  xmlns:tns="http://www.example.org"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/">
+
+  <wsdl:documentation>
+    Message Exchange Patterns
+  </wsdl:documentation>
+
+  <wsdl:types>
+    <xsd:schema elementFormDefault="qualified"
+      targetNamespace="http://www.example.org">
+      <xsd:element name="generic-element-in" type="xsd:string"/>
+      <xsd:element name="generic-element-out" type="xsd:string"/>
+    </xsd:schema>
+  </wsdl:types>
+
+  <wsdl:message name="generic-message-in">
+    <wsdl:part name="input" element="tns:generic-element-in" />
+  </wsdl:message>
+  
+  <wsdl:message name="generic-message-out">
+    <wsdl:part name="output" element="tns:generic-element-out" />
+  </wsdl:message>
+
+  <wsdl:portType name="message-exchange-patterns">
+    <wsdl:operation name="in-only">
+      <wsdl:input message="tns:generic-message-in" />
+    </wsdl:operation>
+    <wsdl:operation name="robust-in-only">
+      <wsdl:input message="tns:generic-message-in" />
+      <wsdl:fault message="tns:generic-message-out" name="fault" />
+    </wsdl:operation>
+    <wsdl:operation name="in-out">
+      <wsdl:input message="tns:generic-message-in" />
+      <wsdl:output message="tns:generic-message-out" />
+      <wsdl:fault message="tns:generic-message-out" name="fault" />
+    </wsdl:operation>
+    <wsdl:operation name="out-only">
+      <wsdl:output message="tns:generic-message-out" />
+    </wsdl:operation>
+    <wsdl:operation name="robust-out-only">
+      <wsdl:output message="tns:generic-message-out" />
+      <wsdl:fault message="tns:generic-message-in" name="fault" />
+    </wsdl:operation>
+    <wsdl:operation name="out-in">
+      <wsdl:output message="tns:generic-message-out" />
+      <wsdl:input message="tns:generic-message-in" />
+      <wsdl:fault message="tns:generic-message-in" name="fault" />
+    </wsdl:operation>
+  </wsdl:portType>
+
+  <wsdl:binding name="mep-soap11"
+    type="tns:message-exchange-patterns">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="in-only">
+      <soap:operation soapAction="http://www.example.org/in-only"
+        style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="robust-in-only">
+      <soap:operation soapAction="http://www.example.org/robust-in-only"
+        style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:fault name="fault">
+        <soap:fault name="fault" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="in-out">
+      <soap:operation soapAction="http://www.example.org/in-out"
+        style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="fault">
+        <soap12:fault name="fault" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="out-only">
+      <soap:operation soapAction="http://www.example.org/out-only"
+        style="document" />
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="robust-out-only">
+      <soap:operation soapAction="http://www.example.org/robust-out-only"
+        style="document" />
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="fault">
+        <soap:fault name="fault" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="out-in">
+      <soap:operation soapAction="http://www.example.org/out-in"
+        style="document" />
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:fault name="fault">
+        <soap12:fault name="fault" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+
+  <wsdl:binding name="mep-soap12"
+    type="tns:message-exchange-patterns">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="in-only">
+      <soap12:operation soapAction="http://www.example.org/in-only"
+        style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+    </wsdl:operation>
+    <wsdl:operation name="robust-in-only">
+      <soap12:operation soapAction="http://www.example.org/robust-in-only"
+        style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:fault name="fault">
+        <soap12:fault name="fault" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="in-out">
+      <soap12:operation soapAction="http://www.example.org/in-out"
+        style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="fault">
+        <soap12:fault name="fault" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="out-only">
+      <soap12:operation soapAction="http://www.example.org/out-only"
+        style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="robust-out-only">
+      <soap12:operation soapAction="http://www.example.org/robust-out-only"
+        style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="fault">
+        <soap12:fault name="fault" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="out-in">
+      <soap12:operation soapAction="http://www.example.org/out-in"
+        style="document" />
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:fault name="fault">
+        <soap12:fault name="fault" use="literal" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+
+  <wsdl:service name="message-exchange-patterns">
+    <wsdl:documentation>
+      Message Exchange Patterns
+    </wsdl:documentation>
+    <wsdl:port name="soap11" binding="tns:mep-soap11">
+      <soap:address location="http://www.example.org" />
+    </wsdl:port>
+    <wsdl:port name="soap12" binding="tns:mep-soap12">
+      <soap12:address location="http://www.example.org" />
+    </wsdl:port>
+  </wsdl:service>
+  
+</wsdl:definitions>

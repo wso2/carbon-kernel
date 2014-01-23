@@ -1,0 +1,214 @@
+~~ Licensed to the Apache Software Foundation (ASF) under one
+~~ or more contributor license agreements. See the NOTICE file
+~~ distributed with this work for additional information
+~~ regarding copyright ownership. The ASF licenses this file
+~~ to you under the Apache License, Version 2.0 (the
+~~ "License"); you may not use this file except in compliance
+~~ with the License. You may obtain a copy of the License at
+~~
+~~ http://www.apache.org/licenses/LICENSE-2.0
+~~
+~~ Unless required by applicable law or agreed to in writing,
+~~ software distributed under the License is distributed on an
+~~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~~ KIND, either express or implied. See the License for the
+~~ specific language governing permissions and limitations
+~~ under the License.
+
+           -----------------------------------
+           Apache Axiom - The XML Object Model
+           -----------------------------------
+
+Welcome to Apache Axiom
+
+  Apache Axiom\u2122 is a StAX-based, XML Infoset compliant object model which supports on-demand building
+  of the object tree. It supports a novel "pull-through" model which allows one to turn off the tree
+  building and directly access the underlying pull event stream. It also has built in support for XML
+  Optimized Packaging (XOP) and MTOM, the combination of which allows XML to carry binary data
+  efficiently and in a transparent manner. The combination of these is an easy to use API with a very
+  high performant architecture!
+
+  Developed as part of Apache Axis2, Apache Axiom is the core of Apache Axis2. However, it is a pure
+  standalone XML Infoset model with novel features and can be used independently of Apache Axis2.
+
+  Apache Axiom, Axiom, Apache, the Apache feather logo, and the Apache Axiom project logo are
+  trademarks of {{{http://apache.org/}The Apache Software Foundation}}.
+  
+Key Features
+
+    * Full XML Infoset compliant XML object model
+
+    * StAX based builders with on-demand building and pull-through
+
+    * XOP/MTOM support offering direct binary support
+
+    * Convenient SOAP Infoset API on top of Axiom
+
+    * Two implementations included:
+
+        * Linked list based implementation
+
+        * W3C DOM supporting implementation
+
+    * Highly performant
+
+Latest Release
+
+  <<3rd February 2011 - Apache Axiom Version 1.2.11 Released!>>
+  
+  \[{{{http://ws.apache.org/axiom/download.cgi}Download Axiom 1.2.11}}\]
+  
+  Axiom 1.2.11 is a maintenance release to support the upcoming Axis2 1.6 release.
+  It also introduces a couple of new APIs that make it easier to support alternative
+  Axiom implementations and that eliminate the need to refer to internal Axiom APIs.
+  
+  Resolved JIRA issues:
+  
+    * [AXIOM-12] - OMOutputFormat: doSWA and doOptimize should be mutually exclusive...plus we need doOptimizeThreshold
+    
+    * [AXIOM-24] - OMDocument#serializeAndConsume doesn't consume the document
+    
+    * [AXIOM-172] - OMChildrenQNameIterator doesn't work correctly if hasNext() is not called before next()
+    
+    * [AXIOM-274] - Refactor/deprecate MIMEOutputUtils
+    
+    * [AXIOM-275] - Implement non JavaMail implementation of MultipartWriter
+    
+    * [AXIOM-313] - Add a new getDocumentElement method to StAXOMBuilder that allows to discard the OMDocument
+    
+    * [AXIOM-333] - getFirstChildWithName should not read the next element.
+    
+    * [AXIOM-346] - Enhance OMStAXWrapper/OMNavigator to work with OMDocument objects
+    
+    * [AXIOM-351] - Links in Javadoc JARs are broken
+    
+    * [AXIOM-352] - StAXDialectDetector doesn't recognize com.bea.core.weblogic.stax_1.7.0.0.jar
+  
+  Please refer to the {{{./userguide/ch04.html#changes-1.2.11}user guide}} for additional
+  information about changes in Axiom 1.2.11.
+
+Previous Releases
+
+  <<30th October 2010 - Apache Axiom Version 1.2.10 Released!>>
+  
+  Axiom 1.2.10 is a maintenance release that contains the following improvements:
+  
+    * Improved DOM compatibility and performance for DOOM. Users running Rampart on Axis2 1.5.2
+      may want to upgrade Axiom to 1.2.10 to take advantage of these improvements.
+    
+    * Improved interoperability with various StAX implementation, in particular
+      support for Woodstox 4.0.
+    
+    * It is now possible to specify a configuration when requesting an <<<XMLStreamWriter>>>
+      from <<<StAXUtils>>>, similarly to what is already possible for <<<XMLStreamReader>>>
+      instances. This feature is required to support the next Abdera release
+      (see {{{https://issues.apache.org/jira/browse/ABDERA-267}ABDERA-267}}).
+  
+  <<13th June 2010 - Apache Axiom Version 1.2.9 Released!>>
+
+  Note: Starting with release 1.2.9, Axiom requires Java 1.5. While the API is
+  still compatible with Java 1.4, Axiom relies on classes from the Java 1.5
+  runtime environment. Some of its dependencies also require Java 1.5.
+
+  Highlights in this release:
+  
+    * Improved interoperability with StAX implementations other than Woodstox. Axiom now
+      detects the StAX implementation that is used and works around interoperability issues.
+      In particular, version 1.2.9 solves the longstanding concurrency issue that occurs
+      when using Axiom with SJSXP.
+
+    * Better control over XMLInputFactory and XMLOutputFactory settings. It is now possible
+      to use property files to define application wide default settings for the StAX factories
+      used by <<<StAXUtils>>>. It is also possible to specify a particular configuration when
+      requesting a StAX parser from <<<StAXUtils>>>.
+
+    * Improved XOP/MTOM handling. Axiom 1.2.9 is able to stream binary/base64 data in several
+      situations where this was not possible previously. The behavior of Axiom 1.2.9 is also
+      more consistent with respect to XOP encoded data sent to the application, solving
+      some issues where attachments were processed incorrectly.
+	
+    * Improved documentation. There is now more and better Javadoc. Also, a user guide
+      is available in HTML and as PDF.
+    
+    * Better OSGi support.
+    
+    * Improved consistency of the core interfaces. E.g. <<<OMDocument>>> now has a <<<build>>>
+      method.
+
+  Resolved JIRA issues:
+    
+    * WSCOMMONS-547 apache-release profile not working
+    
+    * WSCOMMONS-546 axiom unit test failure in axiom-parser-tests
+    
+    * WSCOMMONS-545 Legal issue related to inclusion of Jaxen source code in Axiom
+    
+    * WSCOMMONS-541 Create replacement for UUIDGenerator
+    
+    * WSCOMMONS-540 CustomBuilder interface is not well defined for optimized binary data
+    
+    * WSCOMMONS-536 OMStAXWrapper generated illegal event code of 0
+    
+    * WSCOMMONS-535 StreamingOMSerializer drops "xml" prefixes
+    
+    * WSCOMMONS-534 "prefix cannot be null or empty" with SJSXP
+    
+    * WSCOMMONS-530 AXIOM DOM implementation of SOAPFaultDetailImpl only serializes the first child node whereas the LLOM implementation serializes all children
+    
+    * WSCOMMONS-528 Unable to build axiom-api with IBM JDK
+    
+    * WSCOMMONS-526 SOAPEnvelope toString() behavior inconsistant dependent on content
+    
+    * WSCOMMONS-518 Some consumers of Axiom need direct access to the orignal parser/XMLStreamReader
+    
+    * WSCOMMONS-516 Axiom Bundles are "named" the same, appear to be running twice in ServiceMix/Karaf
+    
+    * WSCOMMONS-513 Behavior of insertSiblingAfter and insertSiblingBefore is not well defined for orphan nodes
+    
+    * WSCOMMONS-505 Build Error when creating source jar fie on modules that do not have source directory
+    
+    * WSCOMMONS-502 Backward imcompatibility with Apache Abdera in Axiom 1.2.9-SNAPSHOT
+    
+    * WSCOMMONS-489 StAXUtils incorrectly assumes that XMLInputFactory and XMLOutputFactory instances are thread safe
+    
+    * WSCOMMONS-488 The sequence of events produced by OMStAXWrapper with inlineMTOM=false is inconsistent
+    
+    * WSCOMMONS-487 DataHandler extension should support deferred loading/parsing
+    
+    * WSCOMMONS-485 The sequence of events produced by OMStAXWrapper for XOP:Include is inconsistent
+    
+    * WSCOMMONS-483 provide help how to find a datahandler when you see "Cannot get InputStream from DataHandler.javax.activation.UnsupportedDataTypeException: no object DCH for MIME type ..."
+    
+    * WSCOMMONS-481 Add a method to OMFactory to create an OMSourcedElement using a QName
+    
+    * WSCOMMONS-480 Some of the serialize/serializeAndConsume methods are declared on the wrong interface
+    
+    * WSCOMMONS-479 OMDocument should have a "build" method
+    
+    * WSCOMMONS-478 OMChildrenIterator based on local name has bug in isEqual() method
+    
+    * WSCOMMONS-477 Attachment order is not preserved in Axiom
+    
+    * WSCOMMONS-462 axiom-api 1.2.8 is missing OSGi Import-Package to javax.xml.stream.util under JDK 1.5
+    
+    * WSCOMMONS-461 Allow StAXUtils to apply properties to XMLInputFactory and XMLOutputFactory
+    
+    * WSCOMMONS-457 Build fails on JDK 1.6
+    
+    * WSCOMMONS-452 Merge org.apache.axis2.format.ElementHelper into org.apache.axiom.om.util.ElementHelper
+    
+    * WSCOMMONS-446 Serializing an MTOM SOAPEnvelope inlines the attachments
+    
+    * WSCOMMONS-437 Define a common superinterface for SOAPFaultCode and SOAPFaultSubCode
+    
+    * WSCOMMONS-435 org.apache.axiom.om.impl.dom.ParentNode.removeChild(Node) is broken
+    
+    * WSCOMMONS-433 When inlining a DataHandler as Base64, OMTextImpl doesn't stream the data
+    
+    * WSCOMMONS-432 Make OMAbstractFactory work correctly in an OSGi runtime environment
+    
+    * WSCOMMONS-417 Clarify the status of the JavaMail dependency
+    
+    * WSCOMMONS-414 Namespace issue in SOAP message generated
+    
+    * WSCOMMONS-111 Careless exception handling needs to be fixed

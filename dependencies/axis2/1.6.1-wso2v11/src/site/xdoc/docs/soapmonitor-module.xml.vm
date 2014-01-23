@@ -1,0 +1,156 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+  <meta http-equiv="content-type" content=""/>
+  <title>The SOAP Monitor Module</title>
+</head>
+
+<body>
+<h1>Using the SOAP Monitor</h1>
+
+<p>Web service developers often want to see the SOAP messages that are being
+used to invoke the Web services, along with the results of those messages.
+The goal of the SOAP Monitor utility is to provide a way for the developers
+to monitor these SOAP messages without requiring any special configuration or
+restarting the server.</p>
+
+<p>In this utility, a handler has been written and added to the global
+handler chain. As SOAP requests and responses are received, the SOAP message
+information is forwarded to a SOAP monitor service where it can be displayed
+using a Web browser interface. The SOAP message information is accessed by a
+Web browser by going to http://localhost:8080/axis2/SOAPMonitor (where 8080
+is the port number where the application server is running). The SOAP message
+information is displayed through a Web browser by using an applet that opens
+a socket connection to the SOAP monitor service. This applet requires a Java
+plug-in 1.3 or higher to be installed in your browser. If you do not have a
+correct plug-in, the browser will prompt you to install one. The port used by
+the SOAP monitor service to communicate with applets is configurable. Edit
+the web.xml file to change the port used by the Axis2 Web application.</p>
+
+<p>The SOAP Monitor module (soapmonitor.mar) is available in the axis2.war
+but it is not engaged by default. The SOAP Monitor is NOT enabled by default
+for security reasons.</p>
+
+<p>The SOAP Monitor can be engaged by inserting the following in the
+axis2.xml file.</p>
+<pre>   &lt;module ref="soapmonitor"/&gt;</pre>
+<p>In the axis2.xml file, define your phase orders for the 'soapmonitorPhase'
+referenced in the module.xml of soapmonitor.mars. Below is an example which
+should NOT be copied exactly, since the default phases change occasionally.
+The important point here is that 'soapmonitorPhase' should be placed under
+the 'user can add his own phases to this area' comment in the 'inflow',
+'outflow', 'INfaultflow', and 'Outfaultflow' sections.</p>
+<pre>    &lt;phaseOrder type="inflow"&gt;
+        &lt;!--System pre defined phases--&gt;
+        &lt;phase name="TransportIn"/&gt;
+        &lt;phase name="PreDispatch"/&gt;
+        &lt;phase name="Dispatch" class="org.apache.axis2.engine.DispatchPhase"&gt;
+            &lt;handler name="AddressingBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.AddressingBasedDispatcher"&gt;
+                &lt;order phase="Dispatch"/&gt;
+            &lt;/handler&gt;
+            &lt;handler name="RequestURIBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.RequestURIBasedDispatcher"&gt;
+                &lt;order phase="Dispatch"/&gt;
+            &lt;/handler&gt;
+            &lt;handler name="SOAPActionBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher"&gt;
+                &lt;order phase="Dispatch"/&gt;
+            &lt;/handler&gt;
+            &lt;handler name="SOAPMessageBodyBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPMessageBodyBasedDispatcher"&gt;
+                &lt;order phase="Dispatch"/&gt;
+            &lt;/handler&gt;
+            &lt;handler name="InstanceDispatcher"
+                     class="org.apache.axis2.engine.InstanceDispatcher"&gt;
+                &lt;order phase="PostDispatch"/&gt;
+            &lt;/handler&gt;
+        &lt;/phase&gt;
+        &lt;!--System pre defined phases--&gt;
+        &lt;!--After Postdispatch phase module author or or service author can add any phase he want--&gt;
+        &lt;phase name="userphase1"/&gt;
+        &lt;phase name="soapmonitorPhase"/&gt;
+    &lt;/phaseOrder&gt;
+    &lt;phaseOrder type="outflow"&gt;
+        &lt;!--user can add his own phases to this area--&gt;
+        &lt;phase name="userphase1"/&gt;
+        &lt;phase name="soapmonitorPhase"/&gt;
+        &lt;!--system predefined phase--&gt;
+        &lt;!--these phase will run irrespective of the service--&gt;
+        &lt;phase name="PolicyDetermination"/&gt;
+        &lt;phase name="MessageOut"/&gt;
+    &lt;/phaseOrder&gt;
+    &lt;phaseOrder type="INfaultflow"&gt;
+        &lt;!--user can add his own phases to this area--&gt;
+        &lt;phase name="userphase1"/&gt;
+        &lt;phase name="soapmonitorPhase"/&gt;
+    &lt;/phaseOrder&gt;
+    &lt;phaseOrder type="Outfaultflow"&gt;
+        &lt;!--user can add his own phases to this area--&gt;
+        &lt;phase name="userphase1"/&gt;
+        &lt;phase name="soapmonitorPhase"/&gt;
+        &lt;phase name="PolicyDetermination"/&gt;
+        &lt;phase name="MessageOut"/&gt;
+    &lt;/phaseOrder&gt;</pre>
+
+<p>To configure the servlet to communicate with the applet, add the following
+code to the web.xml (The SOAPMonitorPort is configurable.):</p>
+<pre>    &lt;servlet&gt;
+       &lt;servlet-name&gt;SOAPMonitorService&lt;/servlet-name&gt;
+       &lt;display-name&gt;SOAPMonitorService&lt;/display-name&gt;
+       &lt;servlet-class&gt;
+         org.apache.axis2.soapmonitor.servlet.SOAPMonitorService
+       &lt;/servlet-class&gt;
+       &lt;init-param&gt;
+          &lt;param-name&gt;SOAPMonitorPort&lt;/param-name&gt;
+          &lt;param-value&gt;5001&lt;/param-value&gt;
+       &lt;/init-param&gt;
+       &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;SOAPMonitorService&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/SOAPMonitor&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;</pre>
+
+<p>Finally, the applet classes must be placed into the Web application so that
+they can be loaded by the Web browser. You can get the compiled applet
+classes from the WEB-INF/lib/soapmonitor-servlet-${axis2_version}.jar which is inside
+the extracted axis2.war. To extract the content of the file, simply
+execute the command, <code>jar -xf soapmonitor-servlet-${axis2_version}.jar</code>.
+The applet code is in the org.apache.axis2.soapmonitor.applet package and therefore 
+the 'org' directory created by the unpacking of JAR file should be placed
+in &lt;CATALINA_HOME&gt;/webapps/axis2/.</p>
+
+<p>Using a Web browser, go to http[s]://host[:port][/webapp]/SOAPMonitor
+(e.g.http://localhost:8080/axis2/SOAPMonitor) substituting the correct values
+for your Web application. This will show the SOAP Monitor applet used to view
+the service requests and responses. Any requests to services that have been
+configured and deployed correctly should show up in the applet.</p>
+
+<p>The SOAPMonitor with attachments currently serializes themselves as base64
+characters. It is therefore recommended to use the TCPMon tool to correctly
+capture MTOM and SWA messages as an multipart mime where the binary data is
+an attachment.</p>
+</body>
+</html>

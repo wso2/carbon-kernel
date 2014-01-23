@@ -1,0 +1,17 @@
+POST /axis/services/EchoService HTTP/1.1
+Host: 127.0.0.1
+Content-Type: application/soap+xml; charset="utf-8"
+Connection: close
+
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/03/addressing">
+    <soapenv:Header>
+        <wsa:MessageID soapenv:mustUnderstand="0">uuid:920C5190-0B8F-11D9-8CED-F22EDEEBF7E5</wsa:MessageID>
+        <wsa:To soapenv:mustUnderstand="0">http://localhost:8081/axis/services/BankPort</wsa:To>
+        <wsa:From soapenv:mustUnderstand="0">
+            <Address xmlns="http://schemas.xmlsoap.org/ws/2004/03/addressing">http://schemas.xmlsoap.org/ws/2004/03/addressing/role/anonymous</Address>
+        </wsa:From>
+    </soapenv:Header>
+    <soapenv:Body>
+        <axis2:echoVoid xmlns:axis2="http://ws.apache.org/axis2" ></axis2:echoVoid>
+    </soapenv:Body>
+</soapenv:Envelope>

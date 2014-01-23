@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:complexType name="operationType">
+		<xs:sequence>
+			<xs:element name="actionMapping" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="outputActionMapping" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="faultActionMapping" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="faultName" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="messageReceiver" minOccurs="0">
+				<xs:complexType>
+					<xs:attribute name="class" use="required"/>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="parameter" type="parameterType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="module" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:attribute name="ref" use="required"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="mep" type="xs:anyURI" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="parameterType">
+		<xs:annotation>
+			<xs:documentation>Type describing a parameter. This element contains two attributes
+         and may contain any element or simply a string</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="xs:anyType">
+				<xs:attribute name="name" type="xs:string" use="required"/>
+				<xs:attribute name="locked" type="xs:boolean" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="service">
+		<xs:annotation>
+			<xs:documentation>
+			Service element description. This has a number of
+             parameter and operation elements nested
+     </xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Description" type="xs:string" minOccurs="0"/>
+				<xs:element name="parameter" type="parameterType" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="operation" type="operationType" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="module" minOccurs="0" maxOccurs="unbounded">
+				    <xs:complexType>
+					<xs:attribute name="ref" use="required"/>
+				    </xs:complexType>
+			      </xs:element>
+                        <xs:element name="transports" minOccurs="0" maxOccurs="unbounded">
+                            <xs:sequence>
+				        <xs:element name="transport" type="xs:string" minOccurs="1"/>
+                            </xs:sequence>
+			      </xs:element>
+                        <xs:element name="messageReceivers" minOccurs="0" maxOccurs="unbounded">
+                            <xs:sequence>
+				        <xs:element name="messageReceiver" maxOccurs="unbounded">
+				            <xs:complexType>
+					        <xs:attribute name="mep" type="xs:string"  use="required"/>
+                                       <xs:attribute name="class" type="xs:string"  use="required"/>
+				            </xs:complexType>
+			               </xs:element>
+                            </xs:sequence>
+			      </xs:element>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			      <xs:attribute name="activate" type="xs:boolean" use="optional"/>
+                  <xs:attribute name="scope" type="xs:string" use="optional"/>
+                  <xs:attribute name="targetNamespace" type="xs:string" use="optional"/>
+			<xs:attribute name="wsaddressing" type="xs:string" />
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="serviceGroup">
+		<xs:annotation>
+			<xs:documentation>
+			 holder for multiple service elements. 
+     </xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="service" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

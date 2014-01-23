@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<xs:schema elementFormDefault="qualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+    xmlns:tns="urn://mtom.test.org"
+    targetNamespace="urn://mtom.test.org">
+    <!-- Use local file for speed -->
+    <!-- <xs:import namespace="http://www.w3.org/2005/05/xmlmime"
+               schemaLocation="http://www.w3.org/2005/05/xmlmime"/>-->
+    <xs:import namespace="http://www.w3.org/2005/05/xmlmime"
+               schemaLocation="xmlmime.xsd"/>
+    <xs:complexType name="ImageDepot">
+       <xs:sequence>
+           <xs:element name="imageData" 
+                       type="xs:base64Binary"
+                       xmime:expectedContentTypes="multipart/*"/>
+       </xs:sequence>
+    </xs:complexType>
+    
+    <xs:element name="sendImage">
+       <xs:complexType>
+          <xs:sequence>
+             <xs:element minOccurs="0" maxOccurs="1" name="input" type="tns:ImageDepot"/>
+          </xs:sequence>
+       </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="sendImageResponse">
+       <xs:complexType>
+          <xs:sequence>
+             <xs:element minOccurs="0" maxOccurs="1" name="output" type="tns:ImageDepot"/>
+          </xs:sequence>
+       </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="sendText">
+       <xs:complexType>
+          <xs:sequence>
+             <xs:element nillable="false" name="input" 
+                type="xs:base64Binary" xmime:expectedContentType="text/xml"/>
+          </xs:sequence>
+       </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="sendTextResponse">
+       <xs:complexType>
+          <xs:sequence>
+             <xs:element minOccurs="0" maxOccurs="1" name="output" type="tns:ImageDepot"/>
+          </xs:sequence>
+       </xs:complexType>
+    </xs:element>
+
+</xs:schema>

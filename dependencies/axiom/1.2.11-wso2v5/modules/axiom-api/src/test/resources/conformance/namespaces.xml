@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<a xmlns='urn:ns1' xmlns:ns2='urn:ns2' ns2:att='test'><ns2:b att='test'><ns3:c xmlns:ns3='urn:ns3'/></ns2:b></a>

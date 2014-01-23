@@ -1,0 +1,101 @@
+Configuration
+
+  All Mar plugin goals takes the following configuration parameters as input:
+
+*---------------------+----------------------------------+------------------------------------------------+
+| Parameter name      | Default value                    | Description                                    |
+*---------------------+----------------------------------+------------------------------------------------+
+| marDirectory        | ${project.build.directory}/mar   | Directory where the mar file is built.         |
+*---------------------+----------------------------------+------------------------------------------------+
+| classesDirectory    | ${project.build.outputDirectory} | Directory with compiled classes and resources. |
+*---------------------+----------------------------------+------------------------------------------------+
+| fileSets            |                                  | Additional file sets, which are being added to |
+|                     |                                  | the archive. See "File Sets" below for an      |
+|                     |                                  | example.                                       |
+*---------------------+----------------------------------+------------------------------------------------+
+| moduleXmlFile       |                                  | Location of the module.xml file. By default,   |
+|                     |                                  | it is assumed that the file is already present |
+|                     |                                  | in classesDirectory/META-INF and no special    |
+|                     |                                  | processing is required.                        |
+*---------------------+----------------------------------+------------------------------------------------+
+| includeDependencies | true                             | Whether to include the project dependencies in |
+|                     |                                  | the generated mar.                             |
+*---------------------+----------------------------------+------------------------------------------------+
+
+
+The mar goal
+
+  The mar goal allows the following additional parameters:
+
+*------------------+----------------------------+------------------------------------------------+
+| Parameter name   | Default value              | Description                                    |
+*------------------+----------------------------+------------------------------------------------+
+| outputDirectory  | ${project.build.directory} | Directory where to generate the MAR file.      |
+*------------------+----------------------------+------------------------------------------------+
+| marName          | ${project.build.finalName} | The generated MAR files name.                  |
+*------------------+----------------------------+------------------------------------------------+
+| archive          |                            | A Maven archive configuration. This allows,    |
+|                  |                            | for example, to configure the MANIFEST.MF      |
+|                  |                            | file.                                          |
+*------------------+----------------------------+------------------------------------------------+
+| classifier       |                            | A classifier, which should be added to the     |
+|                  |                            | generated MAR files name. Setting this         |
+|                  |                            | parameter has the side effect, that the        |
+|                  |                            | artifact is treated as an attachment and not   |
+|                  |                            | as the projects primary artifact.              |
+*------------------+----------------------------+------------------------------------------------+
+| primaryArtifact  | true                       | Setting this property to false disables        |
+|                  |                            | installation or deployment of the artifact as  |
+|                  |                            | the projects primary artifact.                 |
+*------------------+----------------------------+------------------------------------------------+
+
+
+File Sets
+
+  Additional file sets may be configured for inclusion into the MAR file. A file set looks
+  as follows:
+
+-----------------
+  <fileSets>
+    <fileSet>
+      <directory>src/mar/files</directory>
+      <outputDirectory>META-INF/docs</outputDirectory>
+      <includes>
+        <include>**/*.html</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>src/mar/files</directory>
+      <outputDirectory>META-INF/etc</outputDirectory>
+      <excludes>
+        <exclude>**/*.html</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+-----------------
+
+  The example specifies, that the contents of the directory src/mar/files shall
+  be added to the MAR file. HTML files will go into META-INF/docs, all other
+  files to META-INF/etc.
+
+  A file set is configured through the following configuration parameters:
+
+*---------------------+-------------------------------------------------------------------+
+| Parameter name      | Description                                                       |
+*---------------------+-------------------------------------------------------------------+
+| directory           | The directory, from which to read the file set. This parameter is |
+|                     | required.                                                         |
+*---------------------+-------------------------------------------------------------------+
+| outputDirectory     | The target directory within the MAR file. Defaults to the MAR     |
+|                     | files root directory.                                             |
+*---------------------+-------------------------------------------------------------------+
+| includes            | Configures the set of files, which shall be included into the MAR |
+|                     | file. Defaults to **/*.                                           |
+*---------------------+-------------------------------------------------------------------+
+| excludes            | Configures a set of files, which shall be excluded from the file  |
+|                     | set. Defaults to the Maven default excludes (**/*~, **/cvs/**/*,  |
+|                     | **/.svn/**/*, etc.)                                               |
+*---------------------+-------------------------------------------------------------------+
+| skipDefaultExcludes | If this parameter is set to true, then no default excludes are    |
+|                     | being used.                                                       |
+*---------------------+-------------------------------------------------------------------+

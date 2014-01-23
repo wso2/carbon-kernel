@@ -1,0 +1,149 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Apache Axis2 User's Guide-Installing and Testing Client
+Code</title>
+</head>
+<body lang="en" xml:lang="en">
+<a name="installingtesting" id="installingtesting"></a>
+<h1>Apache Axis2 User's Guide - Installing and Testing Client
+Code</h1>
+<p>The best way to make sure that your system is running Apache
+Axis2 is to install and test both a service and a client. The
+process involves the following steps:</p>
+<h2>Content</h2>
+<ul>
+<li><a href="userguide.html#intro">Introducing Axis2</a><br />
+<ul>
+<li><a href="userguide.html#whatis">What is Axis2?</a></li>
+<li><a href="userguide.html#underhood">What's under the
+hood?</a></li>
+<li><a href="userguide.html#handlessoap">How Axis2 handles SOAP
+messages</a></li>
+<li><a href="userguide.html#distributions">Axis2
+distributions</a></li>
+<li><a href="userguide.html#sbd">The Axis2 Standard Binary
+Distribution</a></li>
+<li><a href="userguide.html#hierarchy">Axis2.war Directory
+Hierarchy</a></li>
+<li><a href="userguide.html#docs">Axis2 Documents
+Distribution</a></li>
+<li><a href="userguide.html#clients">Axis2 and clients</a></li>
+</ul>
+</li>
+<li><a href=
+"userguide-installingtesting.html#installingtesting"><strong>Installing
+and testing client code</strong></a></li>
+<li><a href=
+"userguide-introtoservices.html#introservices">Introduction to
+Services</a><br />
+<ul>
+<li><a href=
+"userguide-introtoservices.html#messageexchange">Message Exchange
+Patterns</a></li>
+</ul>
+</li>
+<li><a href="userguide-creatingclients.html#createclients">Creating
+Clients</a><br />
+<ul>
+<li><a href=
+"userguide-creatingclients.html#choosingclient">Choosing a Client
+Generation Method</a></li>
+<li><a href="userguide-creatingclients.html#generating">Generating
+Clients</a></li>
+<li><a href="userguide-creatingclients.html#adb">Axis Data Binding
+(ADB)</a></li>
+</ul>
+</li>
+<li><a href=
+"userguide-buildingservices.html#buildservices">Building
+Services</a><br />
+<ul>
+<li><a href=
+"userguide-buildingservices.html#getcomfortable">Getting
+Comfortable with the Available Options</a></li>
+<li><a href=
+"userguide-buildingservices.html#createscratch">Creating a service
+from scratch</a></li>
+<li><a href="userguide-buildingservices.html#deploypojo">Deploying
+Plain Old Java Objects</a></li>
+<li><a href="userguide-buildingservices.html#deployrun">Deploying
+and running an Axis2 service created from WSDL</a></li>
+</ul>
+</li>
+<li><a href="userguide-samples.html">Samples</a></li>
+<li><a href="userguide-forfurtherstudy.html">For Further
+Study</a></li>
+</ul>
+<p><b>The Short Story:</b></p>
+<ol>
+<li>Install Apache Axis2 in a suitable container, such as Apache
+Tomcat, by copying the axis2.war file to the webapps
+directory.</li>
+<li>Install the service into the Axis2 application by copying the
+*.aar file into the Axis2 services directory.</li>
+<li>Install the client on the system on which you want to run it,
+and make sure all the Axis2 libraries are on the CLASSPATH.</li>
+<li>Run the client.</li>
+</ol>
+<!--stopped here-->
+<p><b>The Long Story:</b></p>
+<p>Start by installing a suitable container, such as <a href=
+"http://tomcat.apache.org/">Apache Tomcat</a>. Any J2EE server will
+do. To install Apache Axis2 on the server, <a href="../download.cgi">download</a> the Axis2 WAR
+distribution and place the axis2.war file in the server's webapps directory. The
+server will then expand the distribution into its proper structure,
+as seen in the <a href="userguide.html#hierarchy">earlier
+section</a>.</p>
+<p>Apache Axis2 services come bundled as *.aar files, which contain
+all the pieces necessary to define the service, such as the
+necessary classes and libraries and the services.xml file that
+defines the service's behavior. You can install the service using
+the <a href="webadminguide.html">Web administration
+application</a>, but to make things simple for now, copy the *.aar
+file into the Axis2 services directory. For example, to install the
+MyService service distributed as one of the Axis2 samples, copy the
+file &lt;AXIS2_HOME&gt;/samples/userguide/build/MyService.aar file,
+which is built using the <code>ant</code> command, from
+&lt;AXIS2_HOME&gt;/samples/userguide, to the directory
+&lt;J2EE_HOME&gt;/webapps/axis2/WEB-INF/services.</p>
+<p>Your client can come in any number of forms, from a collection
+of files to a single *.jar file. The important thing is to ensure
+that all the appropriate classes are on the classpath. In addition
+to the classes that pertain to the actual client, you must also add
+the Axis2 .jar files into the CLASSPATH. Normally you will do this
+by downloading and unpacking the <a href="../download.cgi">
+Axis2 Standard Distribution</a> and adding the *.jar files in the
+lib directory to your CLASSPATH, or you also have the option of
+running your client using the axis2.bat (or axis2.sh) script, which
+takes care of it for you. For example, you can run a client with
+the command:</p>
+<p>axis2 org.apache.axis2.axis2userguide.Client.</p>
+<p><strong>See Next Section</strong>- <a href=
+"userguide-introtoservices.html#introservices">Introduction to
+Services</a></p>
+</body>
+</html>

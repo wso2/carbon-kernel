@@ -1,0 +1,80 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<xs:schema elementFormDefault="qualified"
+           attributeFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="http://apache.org/axis2/schema/attribute"
+           targetNamespace="http://apache.org/axis2/schema/attribute">
+
+    <xs:element name="TestElement1">
+        <xs:complexType>
+            <xs:attribute name="attribute1" type="xs:int"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="TestElement2">
+        <xs:complexType>
+            <xs:attribute name="attribute1" type="xs:int" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="TestElement3">
+        <xs:complexType>
+            <xs:attribute name="attribute1" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="TestElement4">
+        <xs:complexType>
+            <xs:attribute name="attribute1" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="TestAttributeSimpleType">
+        <xs:complexType>
+            <xs:attribute name="attribute1">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string"/>
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="TestAttributeReferenceElement" type="tns:TestAttributeReferenceType"/>
+    <xs:attribute name="TestAttribute1" type="xs:string"/>
+    <xs:complexType name="TestAttributeReferenceType">
+        <xs:sequence>
+            <xs:element name="param1" type="xs:string"/>
+            <xs:element name="param2" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute use="optional" ref="tns:TestAttribute1"/>
+    </xs:complexType>
+
+    <xs:attribute name="Type">
+        <xs:simpleType>
+            <xs:restriction base="xs:string">
+                <xs:pattern value="String|Base64"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:attribute>
+
+    <xs:element name="TestTypeElement">
+        <xs:complexType>
+            <xs:attribute ref="tns:Type"/>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

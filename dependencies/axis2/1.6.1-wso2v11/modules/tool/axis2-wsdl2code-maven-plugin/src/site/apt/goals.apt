@@ -1,0 +1,55 @@
+ ------
+ Maven 2 WSDL2Code Plugin: configuration examples
+ ------
+ Jochen Wiedmann 
+ <jochen.wiedmann@gmail.com>
+ ------
+
+Goals
+
+  The WSDl2Code offers a single goal:
+
+   * wsdl2code (default): Reads the WSDL and generates code.
+
+  To run the plugin, add the following section to your POM:
+
+------------------------
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.axis2.maven2</groupId>
+        <artifactId>axis2-wsdl2code-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>wsdl2code</goal>
+            </goals>
+          </execution>
+          <configuration>
+            <packageName>com.foo.myservice</packageName>
+          </configuration>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+------------------------
+
+  The plugin will be invoked automatically in the generate-sources
+  phase. You can also invoke it directly from the command line by
+  running the command
+
++--------
+  mvn wsdl2code:wsdl2code
++---------
+
+
+The WSDL2Code Goal
+
+  By default, the plugin reads the file <<<src/main/axis2/service.wsdl>>>.
+  Sources for the Java programming language and the ADB data binding are
+  generated into <<<target/generated-sources/axis2/wsdl2code>>>.
+  Note the configuration element <<<packageName>>> above, which sets
+  the package name, thus a subdirectory.
+
+  See the detailed documentation on {{{configuration.html}properties}} for
+  how to configure the goal.

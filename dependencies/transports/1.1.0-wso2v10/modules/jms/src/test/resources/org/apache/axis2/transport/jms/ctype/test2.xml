@@ -1,0 +1,9 @@
+<service>
+    <parameter name="test">
+        <rules>
+            <jmsProperty>contentType</jmsProperty>
+            <jmsProperty>ctype</jmsProperty>
+            <default>text/xml</default>
+        </rules>
+    </parameter>
+</service>

@@ -1,0 +1,643 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>POJO Web Services using Axis2</title>
+</head>
+<body lang="en" xml:lang="en">
+<h1>POJO Web Services using Apache Axis2</h1>
+<p>Want a quick way to get a Web service up and running in no time?
+Then you should consider creating a Plain Old Java Object (POJO)
+that you can deploy using Apache Axis2 on Apache Tomcat. POJOs are
+fast to build and easy to maintain, which means you'll save a lot
+of time building and debugging your code. This document shows you
+how to take a simple POJO, and deploy it on Apache Tomcat as a Web
+service in the exploded directory format. You'll also learn how to
+take a POJO based on the Spring Framework, and deploy that as an
+AAR packaged Web service on Tomcat.</p>
+<h2>Content</h2>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#pojo">The POJO</a></li>
+<li><a href="#pojows">POJO Web service using Apache Axis2 and
+Tomcat</a>
+<ul>
+<li><a href="#definingservice">Defining the Service:
+services.xml</a></li>
+</ul>
+</li>
+<li><a href="#buildpojows">Building the POJO Web Service Using
+Ant</a></li>
+<li><a href="#testingpojows">Testing the POJO Web Service Using
+RPCServiceClient</a>
+<ul>
+<li><a href="#limitationspojo">Limitations and Strengths of
+POJO</a></li>
+</ul>
+</li>
+<li><a href="#springpojows">Spring-based POJO Web Service</a>
+<ul>
+<li><a href="#quickintro">Quick Introduction</a></li>
+<li><a href="#servicedef">The Service Definition:
+services.xml</a></li>
+<li><a href="#initializingspring">Initializing the Spring
+application context: SpringInit</a></li>
+<li><a href="#testingrpc">Testing Using an
+RPCServiceClient</a></li>
+</ul>
+</li>
+<li><a href="#jsr181pojows">JSR 181 Annotation support with POJO Web services</a>
+<ul>
+<li><a href="#jsr181definingservice">Sample JSR 181 POJO Web Service</a></li>
+</ul>
+</li>
+<li><a href="#summary">Summary</a></li>
+<li><a href="#furtherstudy">For Further Study</a></li>
+</ul>
+<a name="introduction" id="introduction"></a>
+<h2>Introduction</h2>
+<p>The task of building a Web service can sometimes be
+overwhelming, but not with POJOs! The old-school Plain Old Java
+Object is a simple and quick way to get most, if not all, of your
+currently existing Java classes up on the Web as readily accessible
+Web services. This document describes how to build a POJO-style Web
+service with Apache Axis2 and Tomcat. It is organized as
+follows:</p>
+<ul>
+<li>The POJO: This is the Java class that you'll use throughout
+this document</li>
+<li>POJO deployment</li>
+<li>Test the POJO Web service using an RPC based client</li>
+<li>Limitations of straight POJO</li>
+<li>Spring-based POJO Web service and deployment</li>
+</ul>
+<p>The code for the document can be found at
+Axis2_HOME/samples/pojoguide and Axis2_HOME/samples/pojoguidespring
+once you extract the <a href=
+"../download.cgi">Axis2
+Standard Distribution</a>. (It is better to get it now as it will
+help you to follow along.) Let's get started.</p>
+<a name="pojo" id="pojo"></a>
+<h2>The POJO</h2>
+<p>The POJO you'll be using throughout this document is a Weather
+service POJO that consists of two classes: WeatherService and
+Weather. Weather contains the Weather data: Temperature, forecast,
+rain (will it rain?), and howMuchRain (See Code Listing 1).</p>
+<p><b>Code Listing 1: The Weather POJO</b></p>
+<pre>
+package sample.pojo.data;
+
+public class Weather{
+    float temperature;
+    String forecast;
+    boolean rain;
+    float howMuchRain;
+    
+    public void setTemperature(float temp){
+        temperature = temp;
+    }
+
+    public float getTemperature(){
+        return temperature;
+    }
+    
+    public void setForecast(String fore){
+        forecast = fore;
+    }
+
+    public String getForecast(){
+        return forecast;
+    }
+    
+    public void setRain(boolean r){
+        rain = r;
+    }
+
+    public boolean getRain(){
+        return rain;
+    }
+    
+    public void setHowMuchRain(float howMuch){
+        howMuchRain = howMuch;
+    }
+
+    public float getHowMuchRain(){
+        return howMuchRain;
+    }
+}
+</pre>
+<p>And here's the WeatherService class, shown in Code Listing
+2.</p>
+<p><b>Code Listing 2: The WeatherService class</b></p>
+<pre>
+package sample.pojo.service;
+
+import sample.pojo.data.Weather;
+
+public class WeatherService{
+    Weather weather;
+    
+    public void setWeather(Weather weather){
+        this.weather = weather;
+    }
+
+    public Weather getWeather(){
+        return this.weather;
+    }
+}
+</pre>
+<p>Note that it's all just straight POJOs with field items and
+<code>getter</code> and <code>setter</code> methods for each field.
+Next, you'll take a look at what you need to do to make it ready
+for deployment on Apache Axis2 and Tomcat.</p>
+<a name="pojows" id="pojows"></a>
+<h2>POJO Web Service Using Apache Axis2 and Tomcat</h2>
+<p>Got the POJOs? Great. This section will show you how to package
+them in the exploded directory format for easy deployment. First
+you'll look at the services.xml file that defines the Web service,
+and then you'll build the files using <a href=
+"http://ant.apache.org/">Apache Ant</a>, and deploy the Web service
+on Tomcat.</p>
+<a name="definingservice" id="definingservice"></a>
+<h3>Defining the Service: services.xml</h3>
+<p>Before Axis2 can understand what is going on, you have to tell
+it to use the services.xml file. Let's get right into it (see Code
+Listing 3).</p>
+<p><b>Code Listing 3: The service definition file:
+services.xml</b></p>
+<pre>
+&lt;service name="WeatherService" scope="application"&gt;
+    &lt;description&gt;
+        Weather POJO Service
+    &lt;/description&gt;
+    &lt;messageReceivers&gt;
+        &lt;messageReceiver 
+            mep="http://www.w3.org/2004/08/wsdl/in-only"
+    class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver"/&gt;
+        &lt;messageReceiver
+            mep="http://www.w3.org/2004/08/wsdl/in-out"
+    class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/&gt;
+    &lt;/messageReceivers&gt;
+    &lt;parameter name="ServiceClass"&gt;
+        sample.pojo.service.WeatherService
+    &lt;/parameter&gt;
+&lt;/service&gt;
+</pre>
+<p>The name of the service is specified as WeatherService and the
+scope of the service is application. As you can see in the
+WeatherService POJO, there are two methods: IN-ONLY method and
+IN-OUT method. Hence the messageReceiver elements are ordered
+within the messageReceivers tag. Lastly, the ServiceClass parameter
+specifies the class of the Web service, which is
+sample.pojo.service.WeatherService. When operations of your Web
+service get called, the methods of the WeatherService class will be
+called. Next let usl take a look at an easy method of building your
+application using Ant.</p>
+<a name="buildpojows" id="buildpojows"></a>
+<h2>Building the POJO Web Service Using Apache Ant</h2>
+<p><a href="http://ant.apache.org/">Ant</a> is a slick build tool.
+It helps reduce the time to build the applications, and several of
+the Axis2 command-line tools create the build.xml files for you.
+(We will not be going into too much detail on the build.xml file
+that you'll be using.)</p>
+<p>Here are the main Ant tasks you'll be using:</p>
+<ul>
+<li>generate.service -- This Ant task builds the service relevant
+source, and copies the files to build/WeatherService</li>
+<li>rpc.client -- This task builds the client relevant files,
+builds a JAR at <em>build/lib/rpc-client.jar</em>, and then runs
+the client</li>
+</ul>
+<p>Before you can build the source, you'll need to download the
+Axis2 ${axis2_version}-bin and ${axis2_version}-war distributions
+from <a href=
+"../download.cgi">here</a>. Then
+modify the following line inside the build.xml file (in the
+Axis2_HOME/samples/pojoguide directory in the extracted Axis2
+${axis2_version} Standard Binary (bin) Distribution) :</p>
+<pre>
+&lt;property name="axis2.home" value="c:\apps\axis2" /&gt;
+</pre>
+<p>This modification contains the path to the root of the unzipped
+Axis2 ${axis2_version}-bin <a href=
+"../download.cgi">download</a>.
+With that explanation, you'll now build the source by typing the
+following: ant</p>
+<p>The following directory format should now exist at
+build/WeatherService:</p>
+<pre>
+ - WeatherService
+   - META-INF
+     - services.xml
+   - sample
+     - pojo
+       - data
+         - Weather.class
+       - service
+         - WeatherService.class
+</pre>
+<p>Simple isn't it? An excellent way to dive into Web services
+development.</p>
+<p>Now get a <a href="http://tomcat.apache.org/">Tomcat</a>
+distribution (I used v5.5), and start it up by running
+<em>bin/startup.bat</em> or <em>bin/startup.sh</em>. Once it's
+running, deploy the Axis2 ${axis2_version}-war by copying the
+axis2.war file to Tomcat's webapps directory. Tomcat will proceed
+by deploying axis2 and un-archiving it into the webapps directory.
+Now copy the WeatherService directory that was created at the time
+of building our project to:
+<em>&lt;tomcat-home&gt;/webapps/axis2/WEB-INF/services</em>.</p>
+<p>The service should deploy quickly. You willl test the Web
+service using the RPCServiceClient in the next section.</p>
+<a name="testingpojows" id="testingpojows"></a>
+<h2>Testing the POJO Web Service Using RPCServiceClient</h2>
+<p>OK, so the Web service should be running on Tomcat. Now you'll
+build a simple RPCServiceClient and test the POJO Web service.
+You'll first start out with the class constructs, creating the
+RPCServiceClient and initializing the values of the Weather class
+within the Web service (See Code Listing 4).</p>
+<p><b>Code Listing 4: Setting the weather</b></p>
+<pre>
+package sample.pojo.rpcclient;
+
+import javax.xml.namespace.QName;
+
+import org.apache.axis2.AxisFault;
+import org.apache.axis2.addressing.EndpointReference;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.rpc.client.RPCServiceClient;
+
+import sample.pojo.data.Weather;
+
+
+public class WeatherRPCClient {
+
+    public static void main(String[] args1) throws AxisFault {
+
+        RPCServiceClient serviceClient = new RPCServiceClient();
+
+        Options options = serviceClient.getOptions();
+
+        EndpointReference targetEPR = new EndpointReference(
+                <b>"http://localhost:8080/axis2/services/WeatherService");</b>
+        options.setTo(targetEPR);
+
+        // Setting the weather
+        QName opSetWeather =
+            new QName("http://service.pojo.sample/xsd", "<b>setWeather");
+
+        Weather w = new Weather();
+
+        w.setTemperature((float)39.3);
+        w.setForecast("Cloudy with showers");
+        w.setRain(true);
+        w.setHowMuchRain((float)4.5);
+
+        Object[] opSetWeatherArgs = new Object[] { w };
+
+        serviceClient.invokeRobust(opSetWeather, opSetWeatherArgs);</b>
+...
+</pre>
+<p>The most interesting code to note is in bold font. Notice the
+targetEPR variable you create, setting the endpoint reference to
+http://localhost:8080/axis2/services/WeatherService. This is where
+you deployed it on Axis2. You can also verify this by asking Axis2
+to list its services by going to the following URL:
+http://localhost:8080/axis2/services/listServices.</p>
+<p>Next the opSetWeather variable gets setup, pointing to the
+setWeather operation. Then the Weather data is created and
+initialized. Lastly, you invoke the Web service, which initializes
+the weather data (you'll verify this soon). Next you get back the
+weather data (see Code Listing 5).</p>
+<p><b>Code Listing 5: Getting the weather data</b></p>
+<pre>
+...
+        serviceClient.invokeRobust(opSetWeather, opSetWeatherArgs);
+
+        // Getting the weather
+        QName opGetWeather =
+            new QName("http://service.pojo.sample/xsd", "<b>getWeather");
+
+        Object[] opGetWeatherArgs = new Object[] { };
+        Class[] returnTypes = new Class[] { Weather.class };
+        
+        Object[] response = serviceClient.invokeBlocking(opGetWeather,
+                opGetWeatherArgs, returnTypes);
+        
+        Weather result = (Weather) response[0];
+        
+        if (result == null) {
+            System.out.println("Weather didn't initialize!");
+            return;
+        }</b>
+...
+</pre>
+<p>First you set the operation in opGetWeather to getWeather. Then
+you create an empty argument list. Note that this time you expect
+something back from the Web service, and so you create a list of
+return types. Then you invoke the Web service using a blocking call
+and wait for the weather data to be returned to you, and you place
+it in the result variable. Lastly, you make sure it isn't null and
+that it was successfully initialized by the previous call to
+setWeather. Now display the data to verify it. (see Code Listing
+6).</p>
+<p><b>Code Listing 6: Displaying the data</b></p>
+<pre>
+...
+            return;
+        }
+
+        // Displaying the result
+        <b>System.out.println("Temperature               : " +
+                           result.getTemperature());
+        System.out.println("Forecast                  : " +
+                           result.getForecast());
+        System.out.println("Rain                      : " +
+                           result.getRain());
+        System.out.println("How much rain (in inches) : " +
+                           result.getHowMuchRain());
+        
+    }</b>
+}
+</pre>
+<p>You should receive the data shown in Code Listing 7.</p>
+<p><b>Code Listing 7: Output from running the client</b></p>
+<pre>
+rpc.client.run:
+     [java] Temperature               : 39.3
+     [java] Forecast                  : Cloudy with showers
+     [java] Rain                      : true
+     [java] How much rain (in inches) : 4.5
+</pre>
+<p>Excellent! You have a working POJO Web service! Next you'll
+quickly morph this one into a Spring based POJO.</p>
+<a name="limitationspojo" id="limitationspojo"></a>
+<h3>Limitations and Strengths of POJO</h3>
+<p>We've covered the strengths of using POJO based Web services,
+but what about any limitations? One main limitation of POJO based
+Web services is the lack of initialization support (meaning that
+you have to go into your Web service and initialize the values
+before the Web service is completely useful). However, you'll soon
+see how to overcome that limitation with a Spring based POJO, which
+is covered next.</p>
+<a name="springpojows" id="springpojows"></a>
+<h2>Spring-based POJO Web Service</h2>
+<p>Spring is a hot framework for J2EE and makes bean usage a
+breeze. You'll use it in this section to create a Spring based POJO
+Web service. For this section, you'll need the spring.jar from the
+latest 1.x Spring download.</p>
+<a name="quickintro" id="quickintro"></a>
+<h3>Quick Introduction</h3>
+<p>If you take a look at the source code of this document in
+Axis2_HOME/samples/pojoguidespring (to see how the Spring based
+POJO Web service is coded), you can see that the Weather class
+didn't change at all and the WeatherService class only got its name
+changed to WeatherSpringService.</p>
+<p>You'll also notice an applicationContext.xml file, which we'll
+cover later. It is used to setup the beans used in our Web
+service.</p>
+<p>Now you might wonder what the SpringInit.java class is for. This
+service is necessary to initialize the Spring Framework's
+application context.</p>
+<p>The client is pretty much the same, except you won't use it to
+initialize the Weather data in the Web service, since Spring does
+that for you using Inversion of Control (IoC), which is covered
+next.</p>
+<a name="servicedef" id="servicedef"></a>
+<h3>The Service Definition: services.xml</h3>
+<p>Since the core POJOs didn't change, you move straight to the
+services.xml file. It's a bit longer this time because it
+instantiates two services in one file (see Code Listing 7).</p>
+<p><b>Code Listing 7: Defining the services: services.xml</b></p>
+<pre>
+&lt;serviceGroup&gt;
+  &lt;service <b>name="SpringInit" 
+class="sample.spring.service.SpringInit</b>"&gt;
+    &lt;description&gt;
+      This web service initializes Spring.
+    &lt;/description&gt;
+    <b>&lt;parameter name="ServiceClass"&gt;
+        sample.spring.service.SpringInit
+    &lt;/parameter&gt;
+    &lt;parameter name="ServiceTCCL"&gt;composite&lt;/parameter&gt;
+    &lt;parameter name="load-on-startup"&gt;true&lt;/parameter&gt;</b>
+    &lt;operation name="springInit"&gt;
+      &lt;messageReceiver 
+      class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/&gt;
+    &lt;/operation&gt;
+  &lt;/service&gt;
+  &lt;service <b>name="WeatherSpringService</b>"&gt;
+    &lt;description&gt;
+      Weather Spring POJO Axis2 AAR deployment
+    &lt;/description&gt;
+    <b>&lt;parameter name="ServiceClass"&gt;
+        sample.spring.service.WeatherSpringService
+    &lt;/parameter&gt;
+    &lt;parameter name="ServiceObjectSupplier"&gt;
+org.apache.axis2.extensions.spring.receivers.SpringAppContextAwareObjectSupplier
+    &lt;/parameter&gt;
+    &lt;parameter name="SpringBeanName"&gt;
+        weatherSpringService
+    &lt;/parameter&gt;</b>
+    &lt;messageReceivers&gt;
+      &lt;messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
+      class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver"/&gt;
+      &lt;messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
+      class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/&gt;
+    &lt;/messageReceivers&gt;
+  &lt;/service&gt;
+&lt;/serviceGroup&gt;
+</pre>
+<p>You'll see a few familiar items in the above listing, and
+several changes. Once again, the items in bold are most important.
+The ServiceTCCL property under the SpringInit service makes sure
+that the Spring class loader is used for the Web service, allowing
+it to properly instantiate the Spring application context. The
+load-on-startup variable is a must-have so that the service loads
+up immediately on startup, creating the Spring application context.
+The WeatherSpringService stays similar to the WeatherService
+previously with a couple of additions: The ServiceObjectSupplier
+provides the service with the Spring application context, making it
+"Spring Aware."</p>
+<p>Lastly, the SpringBeanName points to the name of the bean
+associated with this Web service, which is defined in the
+applicationContext.xml file (essentially the WeatherSpringService).
+We'll cover the applicationContext.xml file next. The application
+context, applicationContext.xml file tells the Spring Framework
+what beans are defined. For this example, you'll define three of
+them (see Code Listing 8).</p>
+<p><b>Code Listing 8: Defining the application context:
+applicationContext.xml</b></p>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+"http://www.springframework.org/dtd/spring-beans.dtd"&gt;
+
+&lt;beans&gt;
+  &lt;bean id="<b>applicationContext</b>" class=
+"org.apache.axis2.extensions.spring.receivers.ApplicationContextHolder" /&gt;
+
+  <b>&lt;bean id="weatherSpringService" 
+        class="sample.spring.service.WeatherSpringService"&gt;
+    &lt;property name="weather" ref="weatherBean"/&gt;
+  &lt;/bean&gt;
+
+  &lt;bean id="weatherBean" class="sample.spring.bean.Weather"&gt;
+    &lt;property name="temperature" value="89.9"/&gt;
+    &lt;property name="forecast" value="Sunny"/&gt;
+    &lt;property name="rain" value="false"/&gt;
+    &lt;property name="howMuchRain" value="0.2"/&gt;
+  &lt;/bean&gt;</b>
+&lt;/beans&gt;
+</pre>
+<p>The first one is Axis2's hook into Spring's application context
+(needed since AAR deployment is quite different from regular WAR
+deployment). Next, you define the bean to which the services.xml
+file points, which is the weatherSpringService bean that points to
+the WeatherSpringService class. It has one field property that gets
+initialized by the Spring Framework - weather. This will be set to
+the weatherBean. The weatherBean is an instantiation of the Weather
+class that holds information on the weather. Spring will initialize
+it to the values shown above, and set the Weather object in the
+WeatherSpringService class to the weatherBean instantiation. Thus,
+when you deploy the Web service, you won't have to instantiate the
+values because they'll already be set.</p>
+<p>Next up is the SpringInit class.</p>
+<a name="initializingspring" id="initializingspring"></a>
+<h3>Initializing the Spring Application Context: SpringInit</h3>
+<p>Without the Spring application context being initialized
+quickly, you'll run into problems. The SpringInit class initializes
+the Spring application context on startup because it is a
+ServiceLifeCycle class whose startUp method gets called upon
+loading the class (and because its load-on-startup property is set
+in the services.xml file). The only code worth mentioning in this
+class is shown in Code Listing 9.</p>
+<p><b>Code Listing 9: SpringInit's startUp method</b></p>
+<pre>
+    public void startUp(ConfigurationContext ignore,
+                        AxisService service) {
+        <b>ClassLoader classLoader = service.getClassLoader();
+        ClassPathXmlApplicationContext appCtx = new
+            ClassPathXmlApplicationContext</b>(new String[]
+                                           {"<b>applicationContext.xml</b>"}, 
+                                           false);
+        <b>appCtx.setClassLoader(classLoader);
+        appCtx.refresh();</b>
+        if (logger.isDebugEnabled()) {
+            logger.debug("\n\nstartUp() set spring classloader " +
+                         "via axisService.getClassLoader() ... ");
+        }
+    }
+</pre>
+<p>Note that this method retrieves the Spring class loader, and
+creates an application context with applicationContext.xml as the
+parameters. This new application context then gets the Spring class
+loader as its class loader. The Spring Framework is now up and
+ready for our WeatherSpringService.</p>
+<h3>Build and Deploy Using Apache Axis2 and Tomcat</h3>
+<p>Your POJO is now ready for primetime within the Spring
+Framework. Before you build, you'll first need to make sure the
+axis2-spring-${axis2_version}.jar and spring.jar files are in the
+project's <em>Axis2_HOME/lib</em> directory.</p>
+<p><strong>Note:</strong> The service will not deploy if you add
+the above .jar files to the service archive due to class loding
+issues.</p>
+<p>Now build the source and create an AAR file by typing: ant</p>
+<p>It'll be created at <em>target/WeatherSpringService.aar</em>.
+Copy it to
+<em>&lt;tomcat-home&gt;/webapps/axis2/WEB-INF/services</em>, and
+Axis2 should deploy it quickly.</p>
+<p>Next, test the Web service to see whether Spring will really
+initialize the weather data for you.</p>
+<a name="testingrpc" id="testingrpc"></a>
+<h3>Testing Using an RPCServiceClient</h3>
+<p>It's as simple as it was for the other Web service, except this
+time type: ant rpc.client</p>
+<p>Feel free to browse the code for this client in
+src/client/WeatherSpringRPCClient.java. Essentially, this client
+does the same thing as the client testing the WeatherService.
+Except that this one skips the "Setting the weather" task since the
+weather data should have already been set by the Spring framework
+at startup.</p>
+<p>Thus, you should get the following as output from the
+client:</p>
+<pre>
+run.client:
+    [javac] Compiling 1 source file to C:\axis2-${axis2_version}\samples\pojoguidespring\build\cl
+asses
+     <b>[java] Temperature               : 89.9
+     [java] Forecast                  : Sunny
+     [java] Rain                      : false
+     [java] How much rain (in inches) : 0.2</b>
+</pre>
+<p>Which are exactly the values you set in the
+applicationContext.xml file!</p>
+
+<a name="jsr181pojows" id="jsr181pojows"></a>
+<h2>SR 181 Annotation support with POJO Web services</h2>
+<p>Got the JSR 181 annotated POJOs? Great. This section will show you how to package
+them in to a jar format for easy pojo deployment with the help of Axis2 POJO deployer.
+First create the JSR 181 Annotated class.</p>
+<a name="jsr181definingservice" id="jsr181definingservice"></a>
+<h3>Sample JSR 181 POJO Web Service</h3>
+<p>For example lets assume that our JSR 181 Annotated class is.
+</p>
+<pre>
+@WebService(name="JSR181TestService" targetNamespace="http://www.test.org/jsr181/Example")
+@SOAPBinding(style=SOAPBinding.Style.RPC)
+public class TestService {
+    @WebMethod(operationName = "echoMethod")
+    public String echoString(@WebParam(name="stringIn")String s){
+        return s;
+    }
+}
+</pre>
+    <p>Compile this with the help of the Axis2 libs in to a jar file.
+        Add one additional like to the axis2.xml to deploy jar files on the pojo directory
+    </p>
+    <pre>
+        Ex: &lt;deployer extension=".jar" directory="pojo" class="org.apache.axis2.deployment.POJODeployer"/&gt;
+    </pre>
+<p>Create a pojo directory if its not already there under the Axis2 repository and put the JSR 181 Annotated
+jar inside that and start Axis2. You will see the service up and running !!</p>
+
+<a name="summary" id="summary"></a>
+<h2>Summary</h2>
+<p>Apache Axis2 is an excellent way to expose your POJOs as Web
+services. Spring adds greater flexibility to your POJOs by adding
+beans support and initialization abilities, along with all the
+other goodies provided by the Spring framework.</p>
+<a name="furtherstudy" id="furtherstudy"></a>
+<h2>For Further Study</h2>
+<p><a href="Axis2ArchitectureGuide.html">Axis2 Architecture</a></p>
+<p>Introduction to Apache Axis2-<a href=
+"http://www.redhat.com/magazine/021jul06/features/apache_axis2/">http://www.redhat.com/magazine/021jul06/features/apache_axis2/</a></p>
+<p><a href="http://wso2.org/library/259">Working With Apache Axis2</a></p>
+<p>Apache Tomcat-<a href=
+"http://tomcat.apache.org/">http://tomcat.apache.org</a></p>
+<p>Spring Framework-<a href=
+"http://www.springframework.org/">http://www.springframework.org/</a></p>
+</body>
+</html>

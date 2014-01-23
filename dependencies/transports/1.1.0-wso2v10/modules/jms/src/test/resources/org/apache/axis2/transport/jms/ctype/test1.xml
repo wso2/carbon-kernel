@@ -1,0 +1,9 @@
+<service>
+    <parameter name="test">
+        <rules>
+            <jmsProperty>contentType</jmsProperty>
+            <textMessage>text/plain</textMessage>
+            <bytesMessage>application/octet-stream</bytesMessage>
+        </rules>
+    </parameter>
+</service>

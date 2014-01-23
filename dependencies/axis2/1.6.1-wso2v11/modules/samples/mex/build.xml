@@ -1,0 +1,127 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project name="mex" default="generate.service">
+    <property name="mainDir" value="../.."/>
+    <property name="classes.dir" value="build/classes"/>
+    <path id="axis.classpath">
+        <fileset dir="../../lib">
+            <include name="*.jar"/>
+        </fileset>
+        <pathelement location="build/userguideMex.jar"/>
+    </path>
+
+    <target name="run.client.all"
+            depends="run.client.default,run.client.service,run.client.wsdl">
+    </target>
+    
+    <target name="compile">
+    		<mkdir dir="${classes.dir}" />
+		<javac srcdir="src" destdir="${classes.dir}">
+			<classpath refid="axis.classpath" />
+		</javac>
+		<jar destfile="build/userguideMex.jar">
+            		<fileset dir="${classes.dir}">
+                		<include name="userguide/**"/>
+            		</fileset>
+       		</jar>
+    </target>
+    
+    <target name="generate.service" depends="compile">
+            <jar destfile="build/DefaultAxis2DataLocatorDemoService.aar">
+            <fileset dir="src/userguide/mex/services/example1/">
+                <include name="META-INF/**"/>
+            </fileset>
+            <fileset dir="${classes.dir}">
+                <include name="userguide/mex/services/example1/**/*.class"/>
+            </fileset>
+        </jar>
+        <copy file="build/DefaultAxis2DataLocatorDemoService.aar" tofile="../../repository/services/DefaultAxis2DataLocatorDemoService.aar" overwrite="true"/>
+        <jar destfile="build/ServiceLevelDataLocatorDemoService.aar" >
+            <fileset dir="src/userguide/mex/services/example2/">
+                <include name="META-INF/**"/>
+            </fileset>
+            <fileset dir="${classes.dir}">
+                <include name="userguide/mex/services/example2/**/*.class"/>
+            </fileset>
+		<fileset dir="${classes.dir}">
+                <include name="userguide/mex/datalocators/*.class"/>
+            </fileset>
+        </jar>
+        <copy file="build/ServiceLevelDataLocatorDemoService.aar" tofile="../../repository/services/ServiceLevelDataLocatorDemoService.aar" overwrite="true"/>
+        <jar destfile="build/WSDLDataLocatorDemoService.aar">
+            <fileset dir="src/userguide/mex/services/example3/">
+                <include name="META-INF/**"/>
+            </fileset>
+            <fileset dir="${classes.dir}">
+                <include name="userguide/mex/services/example3/**/*.class"/>
+            </fileset>
+		<fileset dir="${classes.dir}">
+                <include name="userguide/mex/datalocators/*.class"/>
+            </fileset>
+        </jar>
+        <copy file="build/WSDLDataLocatorDemoService.aar" tofile="../../repository/services/WSDLDataLocatorDemoService.aar" overwrite="true"/>
+    </target>
+    
+     <target name="run.client.default" depends="compile">
+        <java classname="userguide.mex.clients.DemoDefaultDataLocator"
+              classpathref="axis.classpath" fork="true">
+            <jvmarg value="-Daxis2.repo=${mainDir}/repository"/>
+        </java>
+    </target>
+    <target name="run.client.service" depends="compile">
+        <java classname="userguide.mex.clients.DemoServiceLevelDataLocator"
+              classpathref="axis.classpath" fork="true">
+            <jvmarg value="-Daxis2.repo=${mainDir}/repository"/>
+        </java>
+    </target>
+    
+    <target name="run.client.wsdl" depends="compile">
+        <java classname="userguide.mex.clients.DemoWSDLServiceDataLocator"
+              classpathref="axis.classpath" fork="true">
+            <jvmarg value="-Daxis2.repo=${mainDir}/repository"/>
+        </java>
+    </target>
+    
+  
+    <target name="run.datalocators.service" depends="compile">
+        <java classname="userguide.mex.datalocators.ServiceLevelDataLocator"
+              classpathref="axis.classpath" fork="true">
+            <jvmarg value="-Daxis2.repo=${mainDir}/repository"/>
+        </java>
+    </target>
+
+    <target name="run.datalocators.wsdl" depends="compile">
+        <java classname="userguide.mex.datalocators.WSDLDataLocator"
+              classpathref="axis.classpath" fork="true">
+            <jvmarg value="-Daxis2.repo=${mainDir}/repository"/>
+        </java>
+    </target>
+    
+    <target name="run.client">
+	<echo message="Please use the following ant targets to run the clients" />
+	<echo message="run.client.default" />
+	<echo message="run.client.service" />
+	<echo message="run.client.wsdl" />
+	<echo message="run.client.all  -  run all clients" />
+    </target>
+    <target name="clean">
+	<delete dir="build" />
+    </target>
+</project>

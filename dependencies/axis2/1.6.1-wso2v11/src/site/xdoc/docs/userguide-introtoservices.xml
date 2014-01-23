@@ -1,0 +1,188 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Apache Axis2 User's Guide- Introduction to Services</title>
+</head>
+<body>
+<a name="introservices" id="introservices"></a>
+<h1>Apache Axis2 User's Guide - Introduction to Services</h1>
+<p>The term "Web services" can apply to a number of different ways
+of sending information back and forth. However, this guide focuses
+on the sending and receiving of SOAP messages. SOAP messages are
+XML documents that consist of an "envelope" containing a "payload"
+(see Code Listing 4).</p>
+<h2>Content</h2>
+<ul>
+<li><a href="userguide.html#intro">Introducing Axis2</a><br />
+<ul>
+<li><a href="userguide.html#whatis">What is Axis2?</a></li>
+<li><a href="userguide.html#underhood">What's under the
+hood?</a></li>
+<li><a href="userguide.html#handlessoap">How Axis2 handles SOAP
+messages</a></li>
+<li><a href="userguide.html#distributions">Axis2
+distributions</a></li>
+<li><a href="userguide.html#sbd">The Axis2 Standard Binary
+Distribution</a></li>
+<li><a href="userguide.html#hierarchy">Axis2.war Directory
+Hierarchy</a></li>
+<li><a href="userguide.html#docs">Axis2 Documents
+Distribution</a></li>
+<li><a href="userguide.html#clients">Axis2 and clients</a></li>
+</ul>
+</li>
+<li><a href=
+"userguide-installingtesting.html#installingtesting">Installing and
+testing client code</a></li>
+<li><a href=
+"userguide-introtoservices.html#introservices"><strong>Introduction
+to Services</strong></a><br />
+<ul>
+<li><a href=
+"userguide-introtoservices.html#messageexchange"><strong>Message
+Exchange Patterns</strong></a></li>
+</ul>
+</li>
+<li><a href="userguide-creatingclients.html#createclients">Creating
+Clients</a><br />
+<ul>
+<li><a href=
+"userguide-creatingclients.html#choosingclient">Choosing a Client
+Generation Method</a></li>
+<li><a href="userguide-creatingclients.html#generating">Generating
+Clients</a></li>
+<li><a href="userguide-creatingclients.html#adb">Axis Data Binding
+(ADB)</a></li>
+</ul>
+</li>
+<li><a href=
+"userguide-buildingservices.html#buildservices">Building
+Services</a><br />
+<ul>
+<li><a href=
+"userguide-buildingservices.html#getcomfortable">Getting
+Comfortable with the Available Options</a></li>
+<li><a href=
+"userguide-buildingservices.html#createscratch">Creating a service
+from scratch</a></li>
+<li><a href="userguide-buildingservices.html#deploypojo">Deploying
+Plain Old Java Objects</a></li>
+<li><a href="userguide-buildingservices.html#deployrun">Deploying
+and running an Axis2 service created from WSDL</a></li>
+</ul>
+</li>
+<li><a href="userguide-samples.html">Samples</a></li>
+<li><a href="userguide-forfurtherstudy.html">For Further
+Study</a></li>
+</ul>
+<h3>Code Listing 4: Example SOAP Message</h3>
+<pre>
+&lt;?xml version='1.0' ?&gt;
+&lt;env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope"
+xmlns:wsa="http://www.w3.org/2005/03/addressing"&gt; 
+ &lt;env:Header&gt;
+
+    &lt;wsa:MessageID&gt;
+      http://ws.apache.org/9C21DE32-DB42-1228-C42E-66CB101421AD
+    &lt;/wsa:MessageID&gt;
+    &lt;wsa:ReplyTo&gt;
+      &lt;wsa:Address&gt;http://example.com/projects/clientApp&lt;/wsa:Address&gt;
+    &lt;/wsa:ReplyTo&gt;
+    
+&lt;wsa:To&gt;http://example.com/axis2/publishingService&lt;/wsa:To&gt;
+    
+&lt;wsa:Action&gt;http://example.com/axis2/addDocument&lt;/wsa:Action&gt;
+ 
+&lt;/env:Header&gt;
+ &lt;env:Body&gt;
+
+  &lt;addDocument&gt;
+   &lt;docTitle&gt;What I Did On My Summer Vacation&lt;/doctitle&gt;
+   &lt;docSubtitle&gt;Children's Essays from Accross the World&lt;/docSubtitle&gt;
+   &lt;docLocation&gt;contentRepos/summerVac.doc&lt;/docLocation&gt;
+  &lt;/addDocument&gt;
+
+ &lt;/env:Body&gt;
+&lt;/env:Envelope&gt;
+</pre>
+<p>This XML document consists of the outer element or the SOAP
+Envelope, and its contents. The SOAP Envelope is in the SOAP
+namespace, http://www.w3.org/2003/05/soap-envelope, prefixed as
+env: and contains up to two children. This envelope is a standard
+format that pertains to every single SOAP message sent and received
+by any SOAP Web service.</p>
+<p>The contents of the Envelope consists of two parts; the first
+being the SOAP headers-the contents of the env:Header element.
+These headers, such as the WS-Addressing elements shown here,
+provide additional information about the message and how it should
+be handled. A SOAP message may carry headers relating to several
+aspects of the message, or it may carry no headers at all. These
+headers are typically processed by the message handlers.</p>
+<p>The second and arguably the most important part of the message
+is the payload, which consists of the contents of the env:Body
+element. This is the actual message intended for the receiver, and
+it is the information that the main application will ultimately
+process.</p>
+<a name="messageexchange" id="messageexchange"></a>
+<h2>Message Exchange Patterns</h2>
+<p>Although all SOAP messages carry the same structure, the ways in
+which they are used can be combined into a number of different
+"message exchange patterns", or MEPs. The two major message
+exchange patterns are:</p>
+<ul>
+<li>In-Out: in this MEP, the client sends a SOAP message to the
+server, which processes the message and sends a response back. This
+is probably the most commonly used MEP, and is useful for tasks
+such as searching for information or submitting information in
+situations in where acknowledgment is important.</li>
+<li>In-Only: In this MEP, the client sends a message to the server
+without expecting a response. You may use this MEP for activities
+such as pinging a server to wake it up, reporting logging
+information for which you do not need an acknowledgment and so
+on.</li>
+</ul>
+<p>Within these two MEPs, you also have several variables to
+consider:</p>
+<ul>
+<li>Blocking versus non-blocking: When the client sends a message,
+the application may wait to receive a response before moving on, or
+it may simply send a message and move on by specifying a callback
+action to be completed when the response is received.</li>
+<li>Number of parameters: Ultimately, a message sent from a client
+to server is intended to execute a particular action. That action
+may not require any parameters, or it may require one or more
+parameters. These parameters must be encoded as part of the payload
+of the message.</li>
+</ul>
+<p>Taking all these options into consideration, you can create
+virtually any MEP. For example, you can create an Out-Only system
+by reversing roles for the In-Only MEP. Apache Axis2 also includes
+support for less prominent MEPs, such as Robust-In-Only.</p>
+<p><strong>See Next Section</strong> - <a href=
+"userguide-creatingclients.html#createclients">Creating
+Clients</a></p>
+</body>
+</html>

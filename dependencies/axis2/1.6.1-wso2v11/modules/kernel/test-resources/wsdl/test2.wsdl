@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!-- WSDL description of the WSS Ping interop scenarios -->
+
+<definitions name="Echo"
+    targetNamespace="http://ws.apache.org/axis2/tests"
+    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" 
+    xmlns:tns="http://ws.apache.org/axis2/tests"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+    xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"
+    xmlns:intf="http://ws-policy.tests">
+    
+  <wsp:Policy wsu:Id="Message1-2">
+    <intf:MessagePolicyTestAssertion2 marker="6" />
+  </wsp:Policy>
+    
+  <wsp:Policy wsu:Id="Operation1-2">
+	<intf:OperationPolicyTestAssertion2 marker="6" />
+  </wsp:Policy>
+	
+  <wsp:Policy wsu:Id="Endpoint1-2">
+    <intf:EndpointPolicyTestAssertion2 marker="7" />
+  </wsp:Policy>
+	  
+  <types>
+    <schema targetNamespace="http://xmlsoap.org/Echo"
+         xmlns="http://www.w3.org/2001/XMLSchema">
+      <complexType name="echo">
+        <sequence>
+          <element name="text" type="xsd:string" nillable="true"/>
+                 </sequence>
+      </complexType>
+      <complexType name="echoResponse">
+        <sequence>
+          <element name="text" type="xsd:string" nillable="true"/>
+                 </sequence>
+      </complexType>
+      <element name="Echo" type="tns:echo"/>
+      <element name="EchoResponse" type="tns:echoResponse"/>
+    </schema>
+  </types>
+
+  <message name="EchoRequest">
+    <part name="echo" element="tns:Echo"/>
+  </message>
+
+  <message name="EchoResponse">
+    <part name="echoResponse" element="tns:EchoResponse"/>
+  </message>
+
+  <portType name="EchoPort" wsp:PolicyURIs="#Endpoint1-2">
+    <operation name="Echo">
+      <wsp:PolicyReference URI="#Operation1-2"/>
+      <input  message="tns:EchoRequest" wsp:PolicyURIs="#Message1-2" wsa:Action="http://tests.org/echo/in"/>
+      <output message="tns:EchoResponse" wsp:PolicyURIs="#Message1-2" wsa:Action="http://tests.org/echo/out" />
+    </operation>
+  </portType>
+
+  <binding name="EchoBinding" type="tns:EchoPort">
+    <wsp:Policy wsu:Id="Endpoint2">
+	  <intf:EndpointPolicyTestAssertion1 marker="6" />
+    </wsp:Policy>
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+style="document"/>
+    <operation name="Echo">
+      <wsp:Policy>
+        <intf:OperationPolicyTestAssertion2 marker="3" />
+      </wsp:Policy> 
+      <soap:operation soapAction="http://ws.apache.org/axis2/tests/echo"/>
+      <input> 
+        <wsp:Policy>
+          <intf:MessagePolicyTestAssertion1 marker="2" />
+		</wsp:Policy>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+        <wsp:Policy>
+          <intf:MessagePolicyTestAssertion1 marker="1" />
+		</wsp:Policy>
+      </output>
+    </operation>
+  </binding>
+   
+  <service name="EchoService">
+    <wsp:Policy>
+	  <intf:ServicePolicyTestAssertion1 marker="5" />
+	</wsp:Policy>
+    <port name="EchoPort" binding="tns:EchoBinding">
+      <wsp:Policy>
+	    <intf:EndpointPolicyTestAssertion1 marker="4" />
+	  </wsp:Policy>
+      <soap:address location="http://localhost:8080/axis2/services/EchoService"/>
+    </port>
+  </service>
+
+</definitions>

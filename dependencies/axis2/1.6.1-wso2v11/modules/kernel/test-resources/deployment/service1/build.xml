@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project basedir="." default="jar">
+    <property name="src" location="."/>
+    <property name="build" location="build"/>
+    <property name="build.classes" location="${build}/classes"/>
+    <property name="build.lib" location="${build}/lib"/>
+    <property name="lib" location="lib"/>
+    <property name="root" location="../../../"/>
+    <property name="jar.dir" location="${root}/target/test-resources/deployment/services/"/>
+
+    <path id="axis.test.classpath">
+        <path refid="maven.dependency.classpath"></path>
+        <pathelement location="../../../target/classes"/>
+        <pathelement location="../../../target/test-classes"/>
+    </path>
+
+    <target name="compile" depends="init" unless="jars.uptodate">
+        <mkdir dir="${build.classes}"/>
+        <mkdir dir="${build.lib}"/>
+        <javac destdir="${build.classes}" debug="on">
+            <classpath refid="axis.test.classpath"/>
+            <src path="${src}"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile" unless="jars.uptodate">
+        <copy todir="${build.classes}/META-INF">
+            <fileset dir="${basedir}/META-INF/">
+                <include name="**/*.xml"/>
+                <exclude name="build.xml"/>
+            </fileset>
+        </copy>
+
+        <mkdir dir="${jar.dir}"/>
+        <jar jarfile="${jar.dir}/service1.jar" basedir="${build.classes}">
+            <include name="**"/>
+        </jar>
+        <delete dir="${build}"/>
+    </target>
+
+    <target name="init">
+        <uptodate property="jars.uptodate" targetfile="${jar.dir}/service1.jar">
+            <srcfiles dir="${src}">
+                <include name="**/*.java"/>
+                <include name="**/*.xml"/>
+                <include name="**/*.wsdl"/>
+                <exclude name="${build}/**"/>
+            </srcfiles>
+        </uptodate>
+        <echo message="the files are up to date = ${jars.uptodate}"></echo>
+    </target>
+
+</project>

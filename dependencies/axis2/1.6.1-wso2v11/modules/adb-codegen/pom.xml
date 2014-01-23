@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache.axis2</groupId>
+        <artifactId>axis2-parent</artifactId>
+        <version>1.6.1-wso2v11</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>axis2-adb-codegen</artifactId>
+    <name>Apache Axis2 - ADB Codegen</name>
+    <description>ADB code generation support for Axis2</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-adb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-codegen</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.schema</groupId>
+            <artifactId>XmlSchema</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>xmlunit</groupId>
+            <artifactId>xmlunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/axis/axis2/java/core/branches/1_6/modules/adb-codegen</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/axis/axis2/java/core/branches/1_6/modules/adb-codegen</developerConnection>
+        <url>http://svn.apache.org/viewvc/axis/axis2/java/core/branches/1_6/modules/adb-codegen</url>
+    </scm>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>conf</directory>
+                <excludes>
+                    <exclude>**/*.properties</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>org.apache.axis2:axis2-resource-bundle:${project.version}</resourceBundle>
+                            </resourceBundles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*Abstract*.java</exclude>
+                        <exclude>**/*Util*.java</exclude>
+                        <exclude>**/*PhaseResolvingTest.java</exclude>
+                        <exclude>**/*UnionQNameTest.java</exclude>
+                    </excludes>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+	        <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <configuration>
+	                <fork>true</fork>
+	                <meminitial>128m</meminitial>
+	                <maxmem>256m</maxmem>
+                    <testExcludes>
+                        <exclude>helper/org/apache/axis2/schema/testsuite/TestAnyType*Helper.java</exclude>
+                    </testExcludes>
+	            </configuration>
+	        </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-resources</id>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <tstamp>
+                                    <format property="build.time" pattern="MMM dd, yyyy (hh:mm:ss z)" locale="en" />
+                                </tstamp>
+                                <copy toDir="${basedir}/target/classes/" overwrite="true" filtering="on">
+                                    <fileset dir="${basedir}/src/" includes="**/*.xsl" />
+                                    <filterset begintoken="#" endtoken="#">
+                                        <filter token="axisVersion" value="${project.version}" />
+                                        <filter token="today" value=" Built on : ${build.time}" />
+                                    </filterset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>generate-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <tasks unless="maven.test.skip">
+                                <property name="maven.junit.jvmargs" value="" />
+                                <path id="maven.dependency.classpath">
+                                    <path refid="maven.compile.classpath" />
+                                </path>
+                                <property name="compiled.classes.dir" value="target/classes" />
+                                <!-- Theres got to be a better way to do this -->
+                                <property name="schema.source.dir" value="test-resources/xsd" />
+                                <property name="testsuite.source.dir" value="test-resources/testsuite" />
+                                <property name="schema.output.base.dir" value="target/schema" />
+                                <property name="schema.generated.src.dir" value="${schema.output.base.dir}/src" />
+                                <property name="schema.generated.classes.dir" value="${schema.output.base.dir}/classes" />
+                                <ant antfile="sub-build.xml" inheritall="true" inheritrefs="true" dir="." target="main" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/target/schema/src</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

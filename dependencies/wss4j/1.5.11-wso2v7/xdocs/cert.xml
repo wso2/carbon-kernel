@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<document>
+<properties>
+<author email="gtr@ast.cam.ac.uk">Guy Rixon</author>
+<title>Including the sender's certificate in the signed message</title>
+</properties>
+
+<body>
+<section name="Including the sender's certificate in the signed message">
+<p>
+When messages are digitally signed, the recipient must have the sender's
+certificate chain in order to check the signature. Typically, the chain has
+two certificates: that of the sender and that of the sender's certificate
+authority (CA).
+</p>
+<p>
+There are two common ways of getting the certificates to the service.
+</p>
+<ol>
+<li>
+Install the CA's certificate in the service configuration. Send the caller's
+individual certificate with the signed message. This is called "direct reference",
+since the signature mark-up in the SOAP header refers directly to an included
+credential.
+</li>
+<li>
+Install both the CA certificate and the caller's individual certificate in the
+service configuration. Send the CA's name and the serial number of the caller's
+certificate in the SOAP message; have the service retrieve its copy of the certificate
+using these metadata. This is called the "issuer-serial" method.
+</li>
+</ol>
+<p>
+The issuer-serial method presumes that all trusted users of the service are known to the
+service and have pre-registered
+their certificate chains before using the service. The direct-reference method presumes
+that the service operator trusts all users with certificates issued by a trusted CA.
+</p>
+<p>
+To use the direct-reference method when using WSDoAllSender to sign the messages, the client must
+set a handler property as follows.
+</p>
+<pre>
+stub._setProperty(WSHandlerConstants.SIG_KEY_ID, "DirectReference");
+</pre>
+<p>
+To use the issuer-serial method, the property should be set like this:
+</p>
+<pre>
+stub._setProperty(WSHandlerConstants.SIG_KEY_ID, "IssuerSerial");
+</pre>
+<p>
+If the property is not set, the default in WSS4J is to use the issuer-serial method.
+</p>
+</section>
+</body>
+
+</document> 

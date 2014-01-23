@@ -1,0 +1,1376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache.axis2</groupId>
+        <artifactId>axis2-parent</artifactId>
+        <version>1.6.1-wso2v11</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>axis2-jaxws-integration</artifactId>
+    <name>Apache Axis2 - JAXWS Integration Tests</name>
+    <description>Axis2 JAXWS Integration Tests</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxws_2.2_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-annotation_1.0_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>addressing</artifactId>
+            <version>${project.version}</version>
+            <type>mar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-adb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-saaj</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+         <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+         <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-local</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-jaxws</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-testutils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/axis/axis2/java/core/branches/1_6/modules/jaxws-integration</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/axis/axis2/java/core/branches/1_6/modules/jaxws-integration</developerConnection>
+        <url>http://svn.apache.org/viewvc/axis/axis2/java/core/branches/1_6/modules/jaxws-integration</url>
+    </scm>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>conf</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>resources</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>test</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.wsdl</include>
+                    <include>**/*.properties</include>
+                </includes>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>javax.xml.bind</groupId>
+                                    <artifactId>jaxb-api</artifactId>
+                                    <type>jar</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.specs</groupId>
+                                    <artifactId>geronimo-saaj_1.3_spec</artifactId>
+                                    <type>jar</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.specs</groupId>
+                                    <artifactId>geronimo-jaxws_2.2_spec</artifactId>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>${project.build.directory}/endorsed</outputDirectory>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <compilerArgument>
+                        -Xbootclasspath/p:${basedir}/../jaxws-api/target/classes${path.separator}${basedir}/../jws-api/target/classes
+                    </compilerArgument>
+                    <compilerVersion>1.5</compilerVersion>
+                    <source>1.5</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>gen-ts</id>
+                        <phase>generate-test-sources</phase>
+                        <configuration>
+                            <tasks unless="maven.test.skip">
+                                <!-- Theres got to be a better way to do this -->
+                                <property name="schema.source.dir" value="test-resources/xsd" />
+                                <property name="wsdl.source.dir" value="test-resources/wsdl" />
+                                <property name="schema.output.base.dir" value="target/schema" />
+                                <property name="schema.generated.src.dir" value="${schema.output.base.dir}/src" />
+                                <property name="schema.generated.classes.dir" value="${schema.output.base.dir}/classes" />
+                                <!-- make the dirs -->
+                                <mkdir dir="${schema.output.base.dir}" />
+                                <mkdir dir="${schema.generated.src.dir}" />
+                                <mkdir dir="${schema.generated.classes.dir}" />
+                                <!-- Run JAXB schema compiler with designated schemas -->
+                                <echo>Generating JAX-B classes from XSDs</echo>
+                                <echo>Generating java from soap 11</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet ${schema.source.dir}/soap11.xsd" />
+                                </java>
+                                <echo>Generating java from echo.xsd</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet ${schema.source.dir}/echo.xsd" />
+                                </java>
+                                <echo>Generating java from stock1.xsd</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet ${schema.source.dir}/stock1.xsd" />
+                                </java>
+                                <echo>Generating java from stock2.xsd</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet ${schema.source.dir}/stock2.xsd" />
+                                </java>
+                                <echo>Generating java from samplemtom.xsd</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet ${schema.source.dir}/samplemtom.xsd" />
+                                </java>
+                                <echo>Generating java from greeterTypes.xsd</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet ${schema.source.dir}/greeterTypes.xsd" />
+                                </java>
+                                <echo>Generating java from ProxyDocLitWrapped.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -p org.test.proxy.doclitwrapped -quiet -wsdl ${wsdl.source.dir}/ProxyDocLitWrapped.wsdl" />
+                                </java>
+                                <echo>Generating java from AddNumbers.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/AddNumbers.wsdl" />
+                                </java>
+                                <echo>Generating java from ProxyDocLitnonWrapped.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/ProxyDocLitnonWrapped.wsdl" />
+                                </java>
+                                <echo>Generating java from samplemtomjpeg.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/samplemtomjpeg.wsdl" />
+                                </java>
+                                <echo>Generating java from RPCLit.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -p org.test.proxy.rpclit -quiet -wsdl ${wsdl.source.dir}/RPCLit.wsdl" />
+                                </java>
+                                <echo>Generating java from RPCLitSWA.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -p org.test.proxy.rpclitswa -quiet -wsdl ${wsdl.source.dir}/RPCLitSWA.wsdl" />
+                                </java>
+                                <echo>Generating java from gorilla_dlw.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/gorilla_dlw.wsdl" />
+                                </java>
+                                <echo>Generating java from SOAP12Echo.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/SOAP12Echo.wsdl" />
+                                </java>
+                                <echo>Generating java from AddNumbersHandler.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/AddNumbersHandler.wsdl" />
+                                </java>
+                                <echo>Generating java from HeadersHandler.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/HeadersHandler.wsdl" />
+                                </java>
+                                <echo>Generating java from async_doclitwr.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/async_doclitwr.wsdl" />
+                                </java>
+                                <echo>Generating java from async_doclitwr2.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/async_doclitwr2.wsdl" />
+                                </java>
+                                <echo>Generating java from FaultyWebService.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/FaultyWebService.wsdl" />
+                                </java>
+                                <echo>Generating java from FaultsService.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/FaultsService.wsdl" />
+                                </java>
+                                <echo>Generating java from jaxbsource</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -p org.test.dispatch.jaxbsource ${schema.source.dir}/jaxbsource.xsd" />
+                                </java>
+                                <echo>Generating java from doclit_nonwrap.wsdl for javabean endpoint
+                                    support
+                                </echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/doclit_nonwrap.wsdl" />
+                                </java>
+                                <echo>Generating java from doclitwrap.wsdl for javabean endpoint
+                                    support
+                                </echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/doclitwrap.wsdl" />
+                                </java>
+                                <echo>Generating java from doclitbare.wsdl for javabean endpoint
+                                    support
+                                </echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/doclitbare.wsdl" />
+                                </java>
+                                
+                                <echo>Generating java from EchoMessage.wsdl for javabean endpoint
+                                    support
+                                </echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/EchoMessage.wsdl" />
+                                </java>
+                                
+                                <echo>Generating java from resourceinjection.wsdl for javabean
+                                    endpoint Resource Injection support
+                                </echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/resourceinjection.wsdl" />
+                                </java>
+                                <echo>Generating java from AnyType.wsdl for javabean endpoint
+                                    AnyType support
+                                </echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/AnyType.wsdl" />
+                                </java>
+                                <echo>Generating java from MessageContext.wsdl for message context
+                                    properties support
+                                </echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/MessageContext.wsdl" />
+                                </java>
+                                <echo>Generating java from WSDLMultiTests.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/WSDLMultiTests.wsdl" />
+                                </java>
+                                <echo>Generating java from Polymorphic shapes.wsdl for javabean
+                                    endpoint support
+                                </echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/shapes.wsdl" />
+                                </java>
+                                <echo>Generating java from SOAPActionTest.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/SOAPActionTest.wsdl" />
+                                </java>
+                                <echo>Generating java from rpclitenum.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/rpclitenum.wsdl" />
+                                </java>
+                                <echo>Generating java from rpclitstringarray.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/rpclitstringarray.wsdl" />
+                                </java>
+                                <echo>Generating java from swamtomservice.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/swamtomservice.wsdl" />
+                                </java>
+                                <echo>Generating java from ProcessDocumentService.wsdl</echo>
+                                <java classname="com.sun.tools.xjc.Driver" fork="true">
+                                    <classpath refid="maven.runtime.classpath" />
+                                    <classpath location="${compiled.classes.dir}" />
+                                    <arg line="-d ${schema.generated.src.dir} -quiet -wsdl ${wsdl.source.dir}/ProcessDocumentService.wsdl" />
+                                </java>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>build-repo</id>
+                        <phase>test-compile</phase>
+                        <configuration>
+                            <tasks unless="maven.test.skip">
+                                <property name="repo.dir" value="${project.build.directory}/repo" />
+                                <property name="services.dir" value="${repo.dir}/services" />
+                                <property name="servicejars.dir" value="${repo.dir}/servicejars" />
+
+                                <!-- Enable Addressing on the client side -->
+                                <mkdir dir="./target/client-repo/modules/" />
+                                <copy file="../addressing/target/addressing-${project.version}.mar" tofile="./target/client-repo/modules/addressing-${project.version}.mar" />
+
+                                <!-- Enable Addressing on the server side -->
+                                <mkdir dir="${repo.dir}/modules/" />
+                                <copy file="../addressing/target/addressing-${project.version}.mar" tofile="${repo.dir}/modules/addressing-${project.version}.mar" />
+
+                                <!-- ================================================================ -->
+                                <!-- Non-JAXWS services -->
+                                <!-- ================================================================ -->
+
+                                <copy toDir="${services.dir}/EchoService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="server/**" />
+                                    </fileset>
+                                    <fileset dir="test/server">
+                                        <exclude name="**/*.java" />
+                                    </fileset>
+                                </copy>
+                                <copy toDir="${services.dir}/BookStoreService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/client/soapaction/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/client/soapaction/server">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <mkdir dir="${servicejars.dir}" />
+                                <!-- ================================================================ -->
+                                <!-- JAXWS services -->
+                                <!-- ================================================================ -->
+                                <!-- ================================================================ -->
+                                <!-- Provider endpoint Service Samples -->
+                                <!-- ================================================================ -->
+                                <copy toDir="${servicejars.dir}/WSGenService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/wsgen/WSGenInterface.class" />
+                                        <include name="org/apache/axis2/jaxws/sample/wsgen/WSGenImpl.class" />
+                                        <include name="org/apache/axis2/jaxws/sample/wsgen/jaxws/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/wsgen">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/WSGenService.jar" basedir="${servicejars.dir}/WSGenService" />
+                                <delete dir="${servicejars.dir}/WSGenService" />
+
+                                <copy toDir="${servicejars.dir}/BasicAuthSecurityService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/security/server/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/security/server">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/BasicAuthSecurityService.jar" basedir="${servicejars.dir}/BasicAuthSecurityService" />
+                                <delete dir="${servicejars.dir}/BasicAuthSecurityService" />
+
+                                <copy toDir="${servicejars.dir}/StringProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/string/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/string">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/StringProviderService.jar" basedir="${servicejars.dir}/StringProviderService" />
+                                <delete dir="${servicejars.dir}/StringProviderService" />
+
+                                <copy toDir="${servicejars.dir}/StringMessageProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/stringmsg/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/stringmsg">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/StringMessageProviderService.jar" basedir="${servicejars.dir}/StringMessageProviderService" />
+                                <delete dir="${servicejars.dir}/StringMessageProviderService" />
+
+                                <copy toDir="${servicejars.dir}/SourceProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/source/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/source">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SourceProviderService.jar" basedir="${servicejars.dir}/SourceProviderService" />
+                                <delete dir="${servicejars.dir}/SourceProviderService" />
+
+                                <copy toDir="${servicejars.dir}/SourceMessageProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/sourcemsg/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/sourcemsg">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SourceMessageProviderService.jar" basedir="${servicejars.dir}/SourceMessageProviderService" />
+                                <delete dir="${servicejars.dir}/SourceMessageProviderService" />
+
+                                <copy toDir="${servicejars.dir}/SoapMessageProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/soapmsg/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/soapmsg">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SoapMessageProviderService.jar" basedir="${servicejars.dir}/SoapMessageProviderService" />
+                                <delete dir="${servicejars.dir}/SoapMessageProviderService" />
+
+                                <copy toDir="${servicejars.dir}/SoapMessageCheckMTOMProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/soapmsgcheckmtom/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/soapmsgcheckmtom">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SoapMessageCheckMTOMProviderService.jar" basedir="${servicejars.dir}/SoapMessageCheckMTOMProviderService" />
+                                <delete dir="${servicejars.dir}/SoapMessageCheckMTOMProviderService" />
+                                
+                                <copy toDir="${servicejars.dir}/SoapMessageMUProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/soapmsgmu/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/soapmsgmu">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SoapMessageMUProviderService.jar" basedir="${servicejars.dir}/SoapMessageMUProviderService" />
+                                <delete dir="${servicejars.dir}/SoapMessageMUProviderService" />
+
+                                <copy toDir="${servicejars.dir}/SoapMessageNullProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/soapmsgreturnnull/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/soapmsgreturnnull">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SoapMessageNullProviderService.jar" basedir="${servicejars.dir}/SoapMessageNullProviderService" />
+                                <delete dir="${servicejars.dir}/SoapMessageNullProviderService" />
+
+                                <copy toDir="${servicejars.dir}/JAXBProviderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/jaxb/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/jaxb">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                    <fileset dir="target/schema/classes">
+                                        <include name="org/test/mtom/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/JAXBProviderService.jar" basedir="${servicejars.dir}/JAXBProviderService" />
+                                <delete dir="${servicejars.dir}/JAXBProviderService" />
+
+                                <copy toDir="${servicejars.dir}/SendImageService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/mtom1/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/mtom1">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                    <fileset dir="target/schema/classes">
+                                        <include name="org/apache/axis2/jaxws/sample/mtom1/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SendImageService.jar" basedir="${servicejars.dir}/SendImageService" />
+                                <delete dir="${servicejars.dir}/SendImageService" />
+
+                                <copy toDir="${servicejars.dir}/SOAP12Service/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/dispatch/server/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/dispatch/server">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SOAP12Service.jar" basedir="${servicejars.dir}/SOAP12Service" />
+                                <delete dir="${servicejars.dir}/SOAP12Service" />
+
+
+                                <copy toDir="${servicejars.dir}/SWAMTOMService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/swamtom/server/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/swamtom/server">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SWAMTOMService.jar" basedir="${servicejars.dir}/SWAMTOMService" />
+                                <delete dir="${servicejars.dir}/SWAMTOMService" />
+                                <!-- ================================================================ -->
+                                <!-- Proxy endpoint Service Samples -->
+                                <!-- ================================================================ -->
+                                <copy toDir="${servicejars.dir}/ProxyDocLitWrapped/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/proxy/doclitwrapped/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/proxy/doclitwrapped">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/ProxyDocLitWrapped.jar" basedir="${servicejars.dir}/ProxyDocLitWrapped" />
+                                <delete dir="${servicejars.dir}/ProxyDocLitWrapped" />
+
+                                <copy toDir="${servicejars.dir}/ProxyDocLitnonWrapped/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/proxy/doclitnonwrapped/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/proxy/doclitnonwrapped">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/ProxyDocLitnonWrapped.jar" basedir="${servicejars.dir}/ProxyDocLitnonWrapped" />
+                                <delete dir="${servicejars.dir}/ProxyDocLitnonWrapped" />
+
+                                <copy toDir="${servicejars.dir}/RPCLit/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/proxy/rpclit/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/proxy/rpclit">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/RPCLit.jar" basedir="${servicejars.dir}/RPCLit" />
+                                <delete dir="${servicejars.dir}/RPCLit" />
+
+                                <copy toDir="${servicejars.dir}/RPCLitSWA/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/proxy/rpclitswa/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/proxy/rpclitswa">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/RPCLitSWA.jar" basedir="${servicejars.dir}/RPCLitSWA" />
+                                <delete dir="${servicejars.dir}/RPCLitSWA" />
+
+                                <copy toDir="${servicejars.dir}/AddressingProvider/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/provider/addressing/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/provider/addressing/">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/AddressingProvider.jar" basedir="${servicejars.dir}/AddressingProvider" />
+                                <delete dir="${servicejars.dir}/AddressingProvider" />
+
+                                <copy toDir="${servicejars.dir}/SOAP12EchoService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/proxy/soap12/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/proxy/soap12/server">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/SOAP12EchoService.jar" basedir="${servicejars.dir}/SOAP12EchoService" />
+                                <delete dir="${servicejars.dir}/SOAP12EchoService" />
+
+                                <copy toDir="${servicejars.dir}/gorilla_dlw/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/proxy/gorilla_dlw/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/proxy/gorilla_dlw">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/gorilla_dlw.jar" basedir="${servicejars.dir}/gorilla_dlw" />
+                                <delete dir="${servicejars.dir}/gorilla_dlw" />
+
+                                <!-- ================================================================ -->
+                                <!-- XML HTTP Tests -->
+                                <!-- ================================================================ -->
+                                <copy toDir="${servicejars.dir}/XPayloadStringProvider/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/xmlhttp/provider/payload/string/*.class" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/xmlhttp/provider/payload/string">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/XPayloadStringProvider.jar" basedir="${servicejars.dir}/XPayloadStringProvider" />
+                                <delete dir="${servicejars.dir}/XPayloadStringProvider" />
+
+                                <copy toDir="${servicejars.dir}/XMessageStringProvider/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/xmlhttp/provider/message/string/*.class" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/xmlhttp/provider/message/string">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/XMessageStringProvider.jar" basedir="${servicejars.dir}/XMessageStringProvider" />
+                                <delete dir="${servicejars.dir}/XMessageStringProvider" />
+
+                                <copy toDir="${servicejars.dir}/XPayloadSourceProvider/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/xmlhttp/provider/payload/source/*.class" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/xmlhttp/provider/payload/source">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/XPayloadSourceProvider.jar" basedir="${servicejars.dir}/XPayloadSourceProvider" />
+                                <delete dir="${servicejars.dir}/XPayloadSourceProvider" />
+
+                                <copy toDir="${servicejars.dir}/XMessageSourceProvider/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/xmlhttp/provider/message/source/*.class" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/xmlhttp/provider/message/source">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/XMessageSourceProvider.jar" basedir="${servicejars.dir}/XMessageSourceProvider" />
+                                <delete dir="${servicejars.dir}/XMessageSourceProvider" />
+
+                                <copy toDir="${servicejars.dir}/XMessageDataSourceProvider/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/xmlhttp/provider/message/datasource/*.class" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/xmlhttp/provider/message/datasource">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/XMessageDataSourceProvider.jar" basedir="${servicejars.dir}/XMessageDataSourceProvider" />
+                                <delete dir="${servicejars.dir}/XMessageDataSourceProvider" />
+
+                                <!-- ================================================================ -->
+                                <!-- Java Bean Endpoint Samples -->
+                                <!-- ================================================================ -->
+                                <copy toDir="${servicejars.dir}/AddressBookService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/addressbook/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/addressbook">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+                                <zip destfile="${servicejars.dir}/AddressBookService.jar" basedir="${servicejars.dir}/AddressBookService" />
+                                <delete dir="${servicejars.dir}/AddressBookService" />
+
+
+                                <copy toDir="${servicejars.dir}/AppleFinderService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/type_substitution/*" />
+                                        <include name="org/apache/axis2/jaxws/type_substitution/jaxws/*" />
+                                    </fileset>
+                                </copy>
+                                <zip destfile="${servicejars.dir}/AppleFinderService.jar" basedir="${servicejars.dir}/AppleFinderService" />
+                                <delete dir="${servicejars.dir}/AppleFinderService" />
+
+                                <copy toDir="${servicejars.dir}/MtomSampleService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/mtom/**" />
+                                    </fileset>
+
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/mtom">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+
+                                </copy>
+                                <zip destfile="${servicejars.dir}/MtomSampleService.jar" basedir="${servicejars.dir}/MtomSampleService" />
+                                <delete dir="${servicejars.dir}/MtomSampleService" />
+                                <copy toDir="${servicejars.dir}/DocLitNonWrapService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/nonwrap/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/nonwrap">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+                                <zip destfile="${servicejars.dir}/DocLitNonWrapService.jar" basedir="${servicejars.dir}/DocLitNonWrapService" />
+                                <delete dir="${servicejars.dir}/DocLitNonWrapService" />
+                                <copy toDir="${servicejars.dir}/DocLitWrapService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/wrap/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/wrap">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+                                <zip destfile="${servicejars.dir}/DocLitWrapService.jar" basedir="${servicejars.dir}/DocLitWrapService" />
+                                <delete dir="${servicejars.dir}/DocLitWrapService" />
+                                <copy toDir="${servicejars.dir}/AddNumbersService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/addnumbers/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/addnumbers">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+                                <zip destfile="${servicejars.dir}/AddNumbersService.jar" basedir="${servicejars.dir}/AddNumbersService" />
+                                <delete dir="${servicejars.dir}/AddNumbersService" />
+                                <copy toDir="${servicejars.dir}/AddNumbersHandlerService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/addnumbershandler/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/addnumbershandler">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+                                <zip destfile="${servicejars.dir}/AddNumbersHandlerService.jar" basedir="${servicejars.dir}/AddNumbersHandlerService" />
+                                <delete dir="${servicejars.dir}/AddNumbersHandlerService" />
+                                <copy toDir="${servicejars.dir}/HeadersHandlerService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/headershandler/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/headershandler">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+                                <zip destfile="${servicejars.dir}/HeadersHandlerService.jar" basedir="${servicejars.dir}/HeadersHandlerService" />
+                                <delete dir="${servicejars.dir}/HeadersHandlerService" />
+                                <copy toDir="${servicejars.dir}/GreeterService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/dlwmin/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/dlwmin">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/GreeterService.jar" basedir="${servicejars.dir}/GreeterService" />
+                                <delete dir="${servicejars.dir}/GreeterService" />
+                                
+                                <copy toDir="${servicejars.dir}/GenericService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/dlwminArrays/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/dlwminArrays">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/GenericService.jar" basedir="${servicejars.dir}/GenericService" />
+                                <delete dir="${servicejars.dir}/GenericService" />
+
+                                <copy toDir="${servicejars.dir}/AsyncService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/parallelasync/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/parallelasync/server">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/AsyncService.jar" basedir="${servicejars.dir}/AsyncService" />
+                                <delete dir="${servicejars.dir}/AsyncService" />
+
+                                <copy toDir="${servicejars.dir}/AsyncService2/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/asyncdoclit/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/asyncdoclit/server">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/AsyncService2.jar" basedir="${servicejars.dir}/AsyncService2" />
+                                <delete dir="${servicejars.dir}/AsyncService2" />
+
+                                <copy toDir="${servicejars.dir}/FaultyWebServiceService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/faults/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/faults">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/FaultyWebServiceService.jar" basedir="${servicejars.dir}/FaultyWebServiceService" />
+                                <delete dir="${servicejars.dir}/FaultyWebServiceService" />
+
+                                <copy toDir="${servicejars.dir}/FaultsService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/faultsservice/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/faultsservice">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/FaultsService.jar" basedir="${servicejars.dir}/FaultsService" />
+                                <delete dir="${servicejars.dir}/FaultsService" />
+
+                                <copy toDir="${servicejars.dir}/BareDocLitService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/doclitbare/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/doclitbare">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/BareDocLitService.jar" basedir="${servicejars.dir}/BareDocLitService" />
+                                <delete dir="${servicejars.dir}/BareDocLitService" />
+
+                                <copy toDir="${servicejars.dir}/BareDocLitNoArgService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/doclitbarenoarg/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/doclitbarenoarg">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/BareDocLitNoArgService.jar" basedir="${servicejars.dir}/BareDocLitNoArgService" />
+                                <delete dir="${servicejars.dir}/BareDocLitNoArgService" />
+
+                                <copy toDir="${servicejars.dir}/EchoMessageService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/nonanonymous/complextype/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/nonanonymous/complextype">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/EchoMessageService.jar" basedir="${servicejars.dir}/EchoMessageService" />
+                                <delete dir="${servicejars.dir}/EchoMessageService" />
+
+                                <copy toDir="${servicejars.dir}/ResourceInjectionService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/resourceinjection/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/resourceinjection">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/ResourceInjectionService.jar" basedir="${servicejars.dir}/ResourceInjectionService" />
+                                <delete dir="${servicejars.dir}/ResourceInjectionService" />
+
+                                <copy toDir="${servicejars.dir}/AnyTypeMessageService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/anytype/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/anytype">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/AnyTypeMessageService.jar" basedir="${servicejars.dir}/AnyTypeMessageService" />
+                                <delete dir="${servicejars.dir}/AnyTypeMessageService" />
+
+                                <copy toDir="${servicejars.dir}/MessageContextService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/context/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/context">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/MessageContextService.jar" basedir="${servicejars.dir}/MessageContextService" />
+                                <delete dir="${servicejars.dir}/MessageContextService" />
+
+                                <copy toDir="${servicejars.dir}/PolymorphicShapeService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/polymorphic/shape/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/polymorphic/shape">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/PolymorphicShapeService.jar" basedir="${servicejars.dir}/PolymorphicShapeService" />
+                                <delete dir="${servicejars.dir}/PolymorphicShapeService" />
+
+                                <copy toDir="${servicejars.dir}/RPCLitEnumService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/rpclit/enumtype/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/rpclit/enumtype">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/RPCLitEnumService.jar" basedir="${servicejars.dir}/RPCLitEnumService" />
+                                <delete dir="${servicejars.dir}/RPCLitEnumService" />
+
+                                <copy toDir="${servicejars.dir}/RPCLitStringArrayService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/rpclit/stringarray/**" />
+                                        <include name="org/test/rpclit/stringarray/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/rpclit/stringarray/">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/RPCLitStringArrayService.jar" basedir="${servicejars.dir}/RPCLitStringArrayService" />
+                                <delete dir="${servicejars.dir}/RPCLitStringArrayService" />
+
+
+                                <copy toDir="${servicejars.dir}/BareDocLitMinService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/doclitbaremin/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/doclitbaremin/">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/BareDocLitMinService.jar" basedir="${servicejars.dir}/BareDocLitMinService" />
+                                <delete dir="${servicejars.dir}/BareDocLitMinService" />
+
+                                <copy toDir="${servicejars.dir}/StringListService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/sample/stringlist/**" />
+                                    </fileset>
+                                    <fileset dir="test/org/apache/axis2/jaxws/sample/stringlist/">
+                                        <include name="META-INF/**" />
+                                    </fileset>
+                                </copy>
+                                <zip destfile="${servicejars.dir}/StringListService.jar" basedir="${servicejars.dir}/StringListService" />
+                                <delete dir="${servicejars.dir}/StringListService" />
+                                
+								<copy toDir="${servicejars.dir}/SOAPBindingProviderService/">
+									<fileset dir="target/test-classes">
+									   <include name="org/apache/axis2/jaxws/provider/soapbinding/SOAPBindingProvider**" />
+									</fileset>
+									<fileset dir="test/org/apache/axis2/jaxws/provider/soapbinding">
+									   <include name="META-INF/**" />
+									</fileset>
+								</copy>
+								<zip destfile="${servicejars.dir}/SOAPBindingProviderService.jar" basedir="${servicejars.dir}/SOAPBindingProviderService" />
+						        
+						        <delete dir="${servicejars.dir}/SOAPBindingProviderService" />
+						        
+								<copy toDir="${servicejars.dir}/SOAPBindingStringProviderService/">
+									<fileset dir="target/test-classes">
+									   <include name="org/apache/axis2/jaxws/provider/soapbinding/string/**" />
+									</fileset>
+									<fileset dir="test/org/apache/axis2/jaxws/provider/soapbinding/string">
+									   <include name="META-INF/**" />
+									</fileset>
+								</copy>
+								
+								<zip destfile="${servicejars.dir}/SOAPBindingStringProviderService.jar" basedir="${servicejars.dir}/SOAPBindingStringProviderService" />
+						        <delete dir="${servicejars.dir}/SOAPBindingStringProviderService" />
+						        
+								<copy toDir="${servicejars.dir}/SoapMessageProviderService/">
+									<fileset dir="target/test-classes">
+									   <include name="org/apache/axis2/jaxws/provider/soapbinding/soapmsg/**" />
+									</fileset>
+									<fileset dir="test/org/apache/axis2/jaxws/provider/soapbinding/soapmsg">
+									   <include name="META-INF/**" />
+									</fileset>
+								</copy>
+								<zip destfile="${servicejars.dir}/SoapMessageProviderService.jar" basedir="${servicejars.dir}/SoapMessageProviderService" />
+						        <delete dir="${servicejars.dir}/SoapMessageProviderService" />
+						        
+								<copy toDir="${servicejars.dir}/HandlerHeaderService/">
+									<fileset dir="target/test-classes">
+									   <include name="org/apache/axis2/jaxws/handler/header/**" />
+									</fileset>
+									<fileset dir="test/org/apache/axis2/jaxws/handler/header">
+									   <include name="META-INF/**" />
+									   <include name="handler.xml" />			   
+									</fileset>
+									
+								</copy>	
+								<!-- We have to explicitly copy the xml file refered to by the client interface HandlerChain annotation -->
+								<copy toDir="target/test-classes/">
+									<fileset dir="test">
+										<include name="org/apache/axis2/jaxws/handler/header/handler.xml" />
+									</fileset>
+								</copy>
+								
+								<zip destfile="${servicejars.dir}/HandlerHeaderService.jar" basedir="${servicejars.dir}/HandlerHeaderService" />
+								
+								<delete dir="${servicejars.dir}/HandlerHeaderService" />
+								
+								<copy toDir="${servicejars.dir}/ProcessDocumentService/">
+									<fileset dir="target/test-classes">
+									   <include name="org/apache/axis2/jaxws/sample/mtomfeature/**" />
+									</fileset>
+									<fileset dir="test/org/apache/axis2/jaxws/sample/mtomfeature/">
+									   <include name="META-INF/**" />
+									</fileset>
+								</copy>
+								<zip destfile="${servicejars.dir}/ProcessDocumentService.jar" basedir="${servicejars.dir}/ProcessDocumentService" />
+								
+								<delete dir="${servicejars.dir}/ProcessDocumentService" />
+								
+                                <copy toDir="${servicejars.dir}/JAXBStringService/">
+                                    <fileset dir="target/test-classes">
+                                        <include name="org/apache/axis2/jaxws/jaxb/string/**" />
+                                    </fileset>
+                                </copy>
+
+                                <zip destfile="${servicejars.dir}/JAXBStringService.jar" basedir="${servicejars.dir}/JAXBStringService" />
+                                        
+                                <delete dir="${servicejars.dir}/JAXBStringService" />
+                                
+                                <copy toDir="${servicejars.dir}/OMProviderService/">
+									<fileset dir="target/test-classes">
+									   <include name="org/apache/axis2/jaxws/provider/om/**" />
+									</fileset>
+								</copy>
+								<zip destfile="${servicejars.dir}/OMProviderService.jar" basedir="${servicejars.dir}/OMProviderService" />
+						        <delete dir="${servicejars.dir}/OMProviderService" />
+                                <copy toDir="target/test-classes/">
+                                    <fileset dir="test-resources/">
+                                        <include name="**/*.properties" />
+                                        <include name="**/axis2.xml" />
+                                    </fileset>
+                                </copy>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-repo</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/repo</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>test-resources</directory>
+                                    <includes>
+                                        <include>axis2.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>              
+                        </configuration>            
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${basedir}/target/schema/src</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <argLine>-Xms256m -Xmx512m -Xbootclasspath/p:${project.build.directory}/endorsed/jaxb-api.jar${path.separator}${project.build.directory}/endorsed/geronimo-saaj_1.3_spec.jar${path.separator}${project.build.directory}/endorsed/geronimo-jaxws_2.2_spec.jar</argLine>
+                    <!-- Enable the next 2 lines if you want to attach a debugger
+                    <argLine>-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5006</argLine>-->
+                    <includes>
+                        <include>**/MultiRedirectionCatalogTest.java</include>
+                        <include>**/DispatchSoapActionTest.java</include>
+                        <include>**/ProxySoapActionTest.java</include>
+                        <include>**/DispatchMTOMFeatureTest.java</include>
+                        <include>**/InvocationControllerTest.java</include>
+                        <include>**/ProxyMTOMFeatureTest.java</include>
+                        <include>**/SOAP12DispatchTest.java</include>
+                        <include>**/OMElementDispatchTest.java</include>
+                        <include>**/JAXBContextTest.java</include>
+                        <include>**/JAXBStringUTF16Tests.java</include>
+                        <include>**/JAXBStringUTF8Tests.java</include>
+
+                        <include>**/StringProviderTests.java</include>
+                        <include>**/SOAPFaultProviderTests.java</include>
+                        <include>**/StringMessageProviderTests.java</include>
+                        <include>**/SourceProviderTests.java</include>
+                        <include>**/SourceMessageProviderTests.java</include>
+                        <include>**/SoapMessageMUProviderTests.java</include>
+                        <include>**/SoapMessageNullProviderTests.java</include>
+                        
+                        <include>**/ProxyTests.java</include>
+                        <include>**/ProxyNonWrappedTests.java</include>
+                        <include>**/RPCProxyTests.java</include>
+                        <include>**/RPCLitSWAProxyTests.java</include>
+
+                        <include>**/GorillaDLWProxyTests.java</include>
+                        <include>**/SOAP12ProxyTests.java</include>
+                        <include>**/BasicAuthSecurityTests.java</include>
+                        <include>**/AddressBookTests.java</include>
+                        <include>**/MtomSampleTests.java</include>
+                        <include>**/MTOMFeatureTests.java</include>
+                        <include>**/JAXBProviderTests.java</include>
+                        <include>**/BareTests.java</include>
+                        <include>**/BareNoArgTests.java</include>
+                        <include>**/AddNumbersHandlerTests.java</include>
+                        <include>**/HeadersHandlerTests.java</include>
+                        <include>**/AddNumbersTests.java</include>
+                        <include>**/DLWMinTests.java</include>
+                        <include>**/DLWMinArrayTests.java</include>
+                        <include>**/FaultsServiceTests.java</include>
+                        <include>**/WrapTests.java</include>
+                        <include>**/SoapMessageProviderTests.java</include>
+                        <include>**/WSGenTests.java</include>
+                        <include>**/NonAnonymousComplexTypeTests.java</include>
+                        <include>**/ResourceInjectionTests.java</include>
+                        <include>**/AnyTypeTests.java</include>
+                        <include>**/PolymorphicTests.java</include>
+
+                        <include>**/DispatchXPayloadStringTests.java</include>
+                        <include>**/DispatchXMessageStringTests.java</include>
+                        <include>**/DispatchXPayloadSourceTests.java</include>
+                        <include>**/DispatchXMessageSourceTests.java</include>
+                        <include>**/DispatchXPayloadJAXBTests.java</include>
+                        <include>**/DispatchXMessageDataSourceTests.java</include>
+                        <include>**/RPCLitEnumTests.java</include>
+                        <include>**/RPCLitStringArrayTests.java</include>
+
+                        <include>**/StreamSourceDispatchTests.java</include>
+                        <include>**/DOMSourceDispatchTests.java</include>
+                        <include>**/SAXSourceDispatchTests.java</include>
+                        <include>**/SOAPMessageDispatchTests.java</include>
+                        <include>**/JAXBDispatchTests.java</include>
+                        <include>**/JAXBSourceDispatchTests.java</include>
+                        <include>**/StringDispatchTests.java</include>
+                        <include>**/ParamTests.java</include>
+                        <include>**/MessageContextTests.java</include>
+                        <include>**/DocLitBareMinTests.java</include>
+                        <include>**/MtomSampleByteArrayTests.java</include>
+                        <include>**/HandlerTests.java</include>
+                        <include>**/StringListTests.java</include>
+                        <include>**/NonWrapTests.java</include>
+                        <include>**/FaultyWebServiceTests.java</include> 
+                        <include>**/AsyncExecutorTests.java</include>
+                        <include>**/ParallelAsyncTests.java</include>
+                        <include>**/SWAMTOMTests.java</include>
+                        <include>**/RuntimeExceptionsAsyncMepTest.java</include>
+                        <include>**/AddressingProviderTests.java</include>
+                        <include>**/TypeSubstitutionTests.java</include>
+                        <include>**/SOAPBindingProviderTests.java</include>
+                        <include>**/SoapMessageProviderTests.java</include>
+                        <include>**/StringProviderTests.java</include>
+                        <include>**/OMProviderTests.java</include>
+                        <include>**/CustomHTTPHeaderTests.java</include>
+                       
+                    </includes>
+                    <systemProperties>
+                        <property>
+                            <name>OASISCatalogManager.catalog.debug.level</name>
+                            <value>0</value>
+                        </property>
+                        <property>
+                            <name>build.repository</name>
+                            <value>${project.build.directory}/repo</value>
+                        </property>
+                        <property>
+                            <name>javax.xml.soap.MessageFactory</name>
+                            <value>org.apache.axis2.saaj.MessageFactoryImpl</value>
+                        </property>
+                        <property>
+                            <name>javax.xml.soap.SOAPFactory</name>
+                            <value>org.apache.axis2.saaj.SOAPFactoryImpl</value>
+                        </property>
+                        <property>
+                            <name>javax.xml.soap.SOAPConnectionFactory</name>
+                            <value>org.apache.axis2.saaj.SOAPConnectionFactoryImpl</value>
+                        </property>
+                        <property>
+                            <name>javax.xml.soap.MetaFactory</name>
+                            <value>org.apache.axis2.saaj.SAAJMetaFactoryImpl</value>
+                        </property>
+                        <!-- Need this for the client side to pickup an axis2.xml to configure SoapMessageMUProviderChecker -->
+                        <property>
+                            <name>org.apache.axis2.jaxws.config.path</name>
+                            <value>./target/test-classes/axis2.xml</value>
+                        </property>
+                        <!-- Need this for the client side to pickup the addressing mar -->
+                        <property>
+                            <name>org.apache.axis2.jaxws.repo.path</name>
+                            <value>./target/client-repo</value>
+                        </property>
+                        <!-- Prevent Mac OS X from showing an icon in the dock during the test run -->
+                        <property>
+                            <name>java.awt.headless</name>
+                            <value>true</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

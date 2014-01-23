@@ -1,0 +1,51 @@
+<!-- Use this file to deploy some handlers/chains and services      -->
+<!-- Two ways to do this:                                           -->
+<!--   java org.apache.axis.client.AdminClient deploy.wsdd          -->
+<!--      after the axis server is running                          -->
+<!-- or                                                             -->
+<!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   -->
+<!--      from the same directory that the Axis engine runs         -->
+
+<deployment
+    xmlns="http://xml.apache.org/axis/wsdd/"
+    xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from secService WSDL service -->
+
+  <service name="SecHttp" provider="java:RPC" style="rpc" use="literal">
+    <parameter name="wsdlTargetNamespace" value="uri:axis_sec"/>
+    <parameter name="wsdlServiceElement" value="secService"/>
+    <parameter name="wsdlServicePort" value="SecHttp"/>
+    <parameter name="className" value="org.apache.ws.axis.samples.wssec.doall.axisSec.SecBindingImpl"/>
+    <parameter name="wsdlPortType" value="secPort"/>
+    <operation name="secSend" qname="secSend" returnQName="return" returnType="rtns:string" xmlns:rtns="http://www.w3.org/2001/XMLSchema" >
+      <parameter name="applicationName" type="tns:string" xmlns:tns="http://www.w3.org/2001/XMLSchema"/>
+    </operation>
+    <parameter name="allowedMethods" value="secSend"/>
+    <requestFlow>
+      <handler name="DoSecurityReceiver" type="java:org.apache.ws.axis.security.WSDoAllReceiver">
+       <parameter name="passwordCallbackClass" value="org.apache.ws.axis.samples.wssec.doall.PWCallback"/>
+       <!-- <parameter name="action" value="Signature"/> -->
+	   <!-- <parameter name="action" value="Encrypt Signature"/> -->
+       <parameter name="action" value="Signature Encrypt"/>
+       <!-- <parameter name="action" value="Encrypt"/> -->
+       <parameter name="signaturePropFile" value="crypto.properties" />
+       <!-- <parameter name="decryptionPropFile" value="crypto.properties" /> -->
+	  </handler>
+ 	</requestFlow>
+  <responseFlow>
+   <handler name="DoSecuritySender" type="java:org.apache.ws.axis.security.WSDoAllSender" >
+    <parameter name="user" value="16c73ab6-b892-458f-abf5-2f875f74882e"/>
+    <parameter name="passwordCallbackClass" value="org.apache.ws.axis.samples.wssec.doall.PWCallback"/>
+    <!-- <parameter name="action" value="Signature"/> -->
+	<parameter name="action" value="Encrypt Signature"/>
+    <!-- <parameter name="action" value="Signature Encrypt"/> -->
+    <!-- <parameter name="action" value="Encrypt"/> -->
+    <parameter name="signaturePropFile" value="crypto.properties" />
+    <!-- <parameter name="encryptionPropFile" value="crypto.properties" /> -->
+    <parameter name="signatureKeyIdentifier" value="DirectReference" />
+    <parameter name="encryptionKeyIdentifier" value="X509KeyIdentifier" />
+   </handler>
+  </responseFlow>
+  </service>
+</deployment>

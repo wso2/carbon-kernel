@@ -1,0 +1,199 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:ns="http://mgt.student.carbon.wso2.org" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ax2362="http://data.mgt.student.carbon.wso2.org/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://mgt.student.carbon.wso2.org">
+    <wsdl:documentation>StudentManager</wsdl:documentation>
+    <wsdl:types>
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://data.mgt.student.carbon.wso2.org/xsd">
+            <xs:complexType name="Student">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="NICNumber" nillable="true" type="xs:string" />
+                    <xs:element minOccurs="0" name="age" type="xs:int" />
+                    <xs:element minOccurs="0" name="firstName" nillable="true" type="xs:string" />
+
+                    <xs:element minOccurs="0" name="lastName" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+        <xs:schema xmlns:ax2363="http://data.mgt.student.carbon.wso2.org/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://mgt.student.carbon.wso2.org">
+            <xs:import namespace="http://data.mgt.student.carbon.wso2.org/xsd" />
+            <xs:element name="getStudents">
+                <xs:complexType>
+                    <xs:sequence />
+
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="getStudentsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax2363:Student" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="StudentManagerException">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="StudentManagerException" nillable="true" type="ns:Exception" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="Exception">
+                <xs:sequence>
+
+                    <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="deleteStudent">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="nicNumber" nillable="true" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+
+            </xs:element>
+            <xs:element name="addStudent">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="student" nillable="true" type="ax2363:Student" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+
+    </wsdl:types>
+    <wsdl:message name="deleteStudentRequest">
+        <wsdl:part name="parameters" element="ns:deleteStudent" />
+    </wsdl:message>
+    <wsdl:message name="StudentManagerException">
+        <wsdl:part name="parameters" element="ns:StudentManagerException" />
+    </wsdl:message>
+    <wsdl:message name="addStudentRequest">
+        <wsdl:part name="parameters" element="ns:addStudent" />
+
+    </wsdl:message>
+    <wsdl:message name="getStudentsRequest">
+        <wsdl:part name="parameters" element="ns:getStudents" />
+    </wsdl:message>
+    <wsdl:message name="getStudentsResponse">
+        <wsdl:part name="parameters" element="ns:getStudentsResponse" />
+    </wsdl:message>
+    <wsdl:portType name="StudentManagerPortType">
+        <wsdl:operation name="deleteStudent">
+
+            <wsdl:input message="ns:deleteStudentRequest" wsaw:Action="urn:deleteStudent" />
+            <wsdl:fault message="ns:StudentManagerException" name="StudentManagerException" wsaw:Action="urn:deleteStudentStudentManagerException" />
+        </wsdl:operation>
+        <wsdl:operation name="addStudent">
+            <wsdl:input message="ns:addStudentRequest" wsaw:Action="urn:addStudent" />
+            <wsdl:fault message="ns:StudentManagerException" name="StudentManagerException" wsaw:Action="urn:addStudentStudentManagerException" />
+        </wsdl:operation>
+        <wsdl:operation name="getStudents">
+            <wsdl:input message="ns:getStudentsRequest" wsaw:Action="urn:getStudents" />
+
+            <wsdl:output message="ns:getStudentsResponse" wsaw:Action="urn:getStudentsResponse" />
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="StudentManagerSoap11Binding" type="ns:StudentManagerPortType">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <wsdl:operation name="deleteStudent">
+            <soap:operation soapAction="urn:deleteStudent" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+
+            </wsdl:input>
+            <wsdl:fault name="StudentManagerException">
+                <soap:fault use="literal" name="StudentManagerException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addStudent">
+            <soap:operation soapAction="urn:addStudent" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+
+            </wsdl:input>
+            <wsdl:fault name="StudentManagerException">
+                <soap:fault use="literal" name="StudentManagerException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getStudents">
+            <soap:operation soapAction="urn:getStudents" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="StudentManagerSoap12Binding" type="ns:StudentManagerPortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document" />
+        <wsdl:operation name="deleteStudent">
+
+            <soap12:operation soapAction="urn:deleteStudent" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="StudentManagerException">
+                <soap12:fault use="literal" name="StudentManagerException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="addStudent">
+
+            <soap12:operation soapAction="urn:addStudent" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:fault name="StudentManagerException">
+                <soap12:fault use="literal" name="StudentManagerException" />
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="getStudents">
+
+            <soap12:operation soapAction="urn:getStudents" style="document" />
+            <wsdl:input>
+                <soap12:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:binding name="StudentManagerHttpBinding" type="ns:StudentManagerPortType">
+        <http:binding verb="POST" />
+        <wsdl:operation name="deleteStudent">
+            <http:operation location="deleteStudent" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="addStudent">
+
+            <http:operation location="addStudent" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="getStudents">
+            <http:operation location="getStudents" />
+            <wsdl:input>
+                <mime:content type="text/xml" part="parameters" />
+
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="parameters" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="StudentManager">
+        <wsdl:port name="StudentManagerHttpsSoap11Endpoint" binding="ns:StudentManagerSoap11Binding">
+            <soap:address location="https://10.100.3.49:9443/services/StudentManager.StudentManagerHttpsSoap11Endpoint/" />
+
+        </wsdl:port>
+        <wsdl:port name="StudentManagerHttpsSoap12Endpoint" binding="ns:StudentManagerSoap12Binding">
+            <soap12:address location="https://10.100.3.49:9443/services/StudentManager.StudentManagerHttpsSoap12Endpoint/" />
+        </wsdl:port>
+        <wsdl:port name="StudentManagerHttpsEndpoint" binding="ns:StudentManagerHttpBinding">
+            <http:address location="https://10.100.3.49:9443/services/StudentManager.StudentManagerHttpsEndpoint/" />
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

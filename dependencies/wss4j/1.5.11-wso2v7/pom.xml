@@ -1,0 +1,623 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.ws.security</groupId>
+    <artifactId>wss4j</artifactId>
+    <packaging>bundle</packaging>
+    <name>WSS4J</name>
+    <version>1.5.11-wso2v7</version>
+    <description>
+        Apache WSS4J is an implementation of the Web Services Security
+        (WS-Security) being developed at OASIS Web Services Security TC.
+        WSS4J is a primarily a Java library that can be used to sign and
+        verify SOAP Messages with WS-Security information. WSS4J will
+        use Apache Axis and Apache XML-Security projects and will be
+        interoperable with JAX-RPC based server/clients and .NET
+        server/clients.
+    </description>
+    <url>http://ws.apache.org/wss4j/</url>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://issues.apache.org/jira/browse/WSS</url>
+    </issueManagement>
+    <mailingLists>
+        <mailingList>
+            <name>WSS4J Developer List</name>
+            <subscribe>wss4j-dev-subscribe@ws.apache.org</subscribe>
+            <unsubscribe>
+                wss4j-dev-unsubscribe@ws.apache.org
+            </unsubscribe>
+            <post>wss4j-dev@ws.apache.org</post>
+            <archive>
+                http://mail-archives.apache.org/mod_mbox/ws-wss4j-dev/
+            </archive>
+            <otherArchives>
+                <otherArchive>http://www.nabble.com/WSS4J-f2398.html</otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+    <inceptionYear>2004</inceptionYear>
+    <!-- who the developers are for the project -->
+    <developers>
+        <developer>
+            <name>Davanum Srinivas</name>
+            <id>dims</id>
+            <email>dims@yahoo.com</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Werner Dittmann</name>
+            <id>werner</id>
+            <email>werner@apache.org</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Ias</name>
+            <id>ias</id>
+            <email>ias@apache.org</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Ruchith Fernando</name>
+            <id>ruchithf</id>
+            <email>ruchithf@apache.org</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Fred Dushin</name>
+            <id>fadushin</id>
+            <email>fadushin@apache.org</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Colm O hEigeartaigh</name>
+            <id>coheigea</id>
+            <email>coheigea@apache.org</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Nandana Mihindukulasooriya</name>
+            <id>nandana</id>
+            <email>nandana@apache.org</email>
+            <organization></organization>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>
+            scm:svn:http://svn.apache.org/repos/asf/webservices/wss4j/trunk/
+        </connection>
+        <developerConnection>
+            scm:svn:https://svn.apache.org/repos/asf/webservices/wss4j/trunk/
+        </developerConnection>
+        <url>http://svn.apache.org/viewvc/webservices/wss4j/trunk</url>
+    </scm>
+    <organization>
+        <name>The Apache Software Foundation</name>
+        <url>http://www.apache.org/</url>
+    </organization>
+    
+
+
+    <build>
+	<extensions>
+      	    <extension>
+        	<groupId>org.apache.maven.wagon</groupId>
+        	<artifactId>wagon-ssh</artifactId>
+        	<version>2.1</version>
+      	    </extension>
+    	</extensions>
+        <sourceDirectory>src</sourceDirectory>
+        <testSourceDirectory>test</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <includes>
+                    <include>org/**/errors.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>test</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+
+        <plugins>
+            <plugin> 
+		<groupId>org.jvnet.maven.incrementalbuild</groupId> 
+		<artifactId>incremental-build-plugin</artifactId>
+		<version>1.3</version>
+		<executions> 
+		    <execution> 
+		        <goals> 
+			    <goal>incremental-build</goal>
+			</goals>
+		    </execution> 
+		</executions> 
+	    </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <linkXRef>false</linkXRef>
+                    <failOnViolation>true</failOnViolation>
+                    <verbose>true</verbose>
+                    <includeTests>false</includeTests>
+                    <excludes>
+                        <exclude>**/Merlin.java, **/CryptoBase.java, **/SAMLIssuerImpl.java, **/DOM2Writer.java
+                        </exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>1.4.3</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Implementation-Title>Apache WSS4J</Implementation-Title>
+                        <Implementation-Vendor>The Apache Software Foundation</Implementation-Vendor>
+                        <Implementation-Vendor-Id>org.apache</Implementation-Vendor-Id>
+                        <Implementation-Version>${project.version}</Implementation-Version>
+                        <Specification-Title>Apache WSS4J</Specification-Title>
+                        <Specification-Vendor>The Apache Software Foundation</Specification-Vendor>
+                        <Specification-Version>${project.version}</Specification-Version>
+
+                        <Export-Package>
+                              org.apache.ws.security.*;version="${project.version}",
+                              org.apache.ws.axis.security.*;version="${project.version}",
+                        </Export-Package>
+                        <Import-Package>
+                              !org.apache.ws.security.*,
+                              !org.apache.ws.axis.security.*,
+                              javax.xml.crypto.*,
+                              org.apache.xml.security.*,
+                              org.bouncycastle.*;resolution:=optional,
+                              org.jcp.xml.dsig.internal.*,
+                              org.opensaml.*;resolution:=optional,
+                              *;resolution:=optional
+                        </Import-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
+                            </resourceBundles>
+                            <properties>
+                                <projectName>Apache WebServices - WSS4J</projectName>
+                            </properties>
+                            <appendedResourcesDirectory> ${basedir}/appended-resources</appendedResourcesDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <reportFormat>brief</reportFormat>
+                        <useFile>false</useFile>
+                        <argLine>-Djava.endorsed.dirs=${basedir}/endorsed</argLine>
+                        <forkMode>once</forkMode>
+                        <childDelegation>false</childDelegation>
+			<testFailureIgnore>true</testFailureIgnore>
+                        <includes>
+                            <include>**/PackageTests.java</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.0</version>
+                    <configuration>
+                        <tagBase>
+                            https://svn.apache.org/repos/asf/webservices/wss4j/tags/
+                        </tagBase>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <source>1.5</source>
+                        <target>1.6</target>
+                        <testExcludes>
+                            <exclude>interop/**/*</exclude>
+                        </testExcludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.1.2</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <attach>true</attach>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.7</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <attach>true</attach>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <descriptors>
+                            <descriptor>assembly/bin.xml</descriptor>
+                            <descriptor>assembly/src.xml</descriptor>
+                        </descriptors>
+                        <tarLongFileMode>gnu</tarLongFileMode>
+                    </configuration>
+                </plugin>
+  
+            </plugins>
+        </pluginManagement>
+        
+        <defaultGoal>install</defaultGoal>
+    </build>
+    
+
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                    <value></value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.5</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.0.4</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>deploy</id>
+            <activation>
+                <property>
+                    <name>deploy</name>
+                    <value></value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.0.4</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jdk14</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <jdk>1.4</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk14</artifactId>
+                    <version>${bcprov.jdk14.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>jdk15</id>
+            <activation>
+                <jdk>1.5</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15</artifactId>
+                    <version>${bcprov.jdk15.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>fastinstall</id>
+            <properties>
+                <maven.test.skip>true</maven.test.skip>
+                <pmd.skip>true</pmd.skip>
+            </properties>
+        </profile>
+    </profiles>
+    
+
+
+    <properties>
+        <xmlsec.version>1.5.2</xmlsec.version>
+        <opensaml.version>1.1</opensaml.version>
+        <xml.apis.version>1.3.04</xml.apis.version>
+        <bcprov.jdk14.version>1.45</bcprov.jdk14.version>
+        <bcprov.jdk15.version>1.45</bcprov.jdk15.version>
+        <commons.logging.version>1.1</commons.logging.version>
+        <xerces.version>2.9.1</xerces.version>
+        <axis.version>1.4</axis.version>
+        <junit.version>3.8.1</junit.version>
+    </properties>
+    
+
+
+    <dependencies>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons.logging.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.santuario</groupId>
+            <artifactId>xmlsec</artifactId>
+            <version>${xmlsec.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>${xerces.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>${xml.apis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml1</artifactId>
+            <version>${opensaml.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>${axis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis</groupId>
+            <artifactId>axis-ant</artifactId>
+            <version>${axis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis</groupId>
+            <artifactId>axis-jaxrpc</artifactId>
+            <version>${axis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis</groupId>
+            <artifactId>axis-saaj</artifactId>
+            <version>${axis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml</artifactId>
+            <version>2.2.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-ext-jdk15</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.5.2</version>
+        </dependency>
+    </dependencies>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>issue-tracking</report>
+                            <report>license</report>
+                            <report>mailing-list</report>
+                            <report>project-team</report>
+                            <report>scm</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.1</version>
+            </plugin>
+        </plugins>
+    </reporting>
+    
+
+
+    <!--<distributionManagement>
+        <repository>
+            <id>apache-repo</id>
+            <name>Maven Central Repository</name>
+            <url>
+                scpexe://people.apache.org/www/people.apache.org/repo/m2-ibiblio-rsync-repository
+            </url>
+        </repository>
+        <snapshotRepository>
+            <id>apache.snapshots.https</id>
+            <name>Apache Development Snapshot Repository</name>
+            <url>https://repository.apache.org/content/repositories/snapshots</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <site>
+            <id>website</id>
+            <url>
+                scpexe://people.apache.org/www/ws.apache.org/wss4j/
+            </url>
+        </site>
+    </distributionManagement>-->
+    <distributionManagement>
+        <repository>
+            <id>wso2-maven2-repository</id>
+            <name>WSO2 Maven2 Repository</name>
+            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/</url>
+        </repository>
+<!--
+        <snapshotRepository>
+            <id>wso2-maven2-snapshot-repository</id>
+            <name>WSO2 Maven2 Snapshot Repository</name>
+            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/snapshots/maven2/</url>
+        </snapshotRepository>
+-->
+    </distributionManagement>
+	
+	<repositories>
+         <repository>
+            <id>wso2-nexus</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+	<pluginRepository> 
+            <id>repository.dev.java.net-maven2</id>
+	    <name>Java.net Repository for Maven</name> 
+	    <url>http://download.java.net/maven/2/</url> 
+	    <layout>default</layout> 
+	</pluginRepository>
+    </pluginRepositories>
+
+</project>

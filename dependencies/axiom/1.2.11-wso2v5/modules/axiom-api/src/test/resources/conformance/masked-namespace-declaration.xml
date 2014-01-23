@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<a xmlns:p="urn:ns1"><b xmlns:p="urn:ns2"><c xmlns:p="urn:ns1" p:attr="test"/></b></a>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions name="wsdladmintest"
+                  targetNamespace="http://www.example.org/wsdltest/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:tns="http://www.example.org/wsdltest/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://www.example.org/wsdltest/"
+                    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                    xmlns:p="http://schemas.xmlsoap.org/wsdl/soap/">
+            <xsd:complexType name="RequestType1">
+                <xsd:sequence>
+                    <xsd:element name="param1" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="ResponseType1">
+                <xsd:sequence>
+                    <xsd:element name="param1" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="AbstractType">
+                <xsd:sequence>
+                    <xsd:element name="param1" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:complexType>
+            <xsd:complexType name="RequestType2">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:AbstractType">
+                        <xsd:sequence>
+                            <xsd:element name="param2" type="xsd:int"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+            <xsd:complexType name="ResponseType2">
+                <xsd:complexContent>
+                    <xsd:extension base="tns:AbstractType">
+                        <xsd:sequence>
+                            <xsd:element name="param2" type="xsd:int"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+        </xsd:schema>
+    </wsdl:types>
+
+    <wsdl:message name="OperationRequestMessage1">
+        <wsdl:part name="part1" type="xsd:string"/>
+    </wsdl:message>
+    <wsdl:message name="OperationResponseMessage1">
+        <wsdl:part name="part1" type="xsd:string"/>
+    </wsdl:message>
+
+    <wsdl:message name="OperationRequestMessage2">
+        <wsdl:part name="part1" type="xsd:string"/>
+        <wsdl:part name="part2" type="xsd:int"/>
+    </wsdl:message>
+    <wsdl:message name="OperationResponseMessage2">
+        <wsdl:part name="part1" type="xsd:string"/>
+        <wsdl:part name="part2" type="xsd:boolean"/>
+    </wsdl:message>
+
+    <wsdl:message name="OperationRequestMessage3">
+        <wsdl:part name="part1" type="tns:RequestType1"/>
+    </wsdl:message>
+    <wsdl:message name="OperationResponseMessage3">
+        <wsdl:part name="part1" type="tns:ResponseType1"/>
+    </wsdl:message>
+
+    <wsdl:message name="OperationRequestMessage4">
+        <wsdl:part name="part1" type="tns:RequestType2"/>
+    </wsdl:message>
+    <wsdl:message name="OperationResponseMessage4">
+        <wsdl:part name="part1" type="tns:ResponseType2"/>
+    </wsdl:message>
+
+    <wsdl:portType name="RPCUnwrappingPortType">
+        <wsdl:operation name="Operation1">
+            <wsdl:input message="tns:OperationRequestMessage1"/>
+            <wsdl:output message="tns:OperationResponseMessage1"/>
+        </wsdl:operation>
+        <wsdl:operation name="Operation2">
+            <wsdl:input message="tns:OperationRequestMessage2"/>
+            <wsdl:output message="tns:OperationResponseMessage2"/>
+        </wsdl:operation>
+        <wsdl:operation name="Operation3">
+            <wsdl:input message="tns:OperationRequestMessage3"/>
+            <wsdl:output message="tns:OperationResponseMessage3"/>
+        </wsdl:operation>
+        <wsdl:operation name="Operation4">
+            <wsdl:input message="tns:OperationRequestMessage4"/>
+            <wsdl:output message="tns:OperationResponseMessage4"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="RPCUnwrappingBinding" type="tns:RPCUnwrappingPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="Operation1">
+            <soap:operation soapAction="http://www.example.org/wsdltest/Operation1"/>
+            <wsdl:input>
+                <soap:body use="literal" namespace="http://axis2.org/test1"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" namespace="http://axis2.org/test2"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="Operation2">
+            <soap:operation soapAction="http://www.example.org/wsdltest/Operation2"/>
+            <wsdl:input>
+                <soap:body use="literal" namespace="http://axis2.org/test1"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" namespace="http://axis2.org/test2"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="Operation3">
+            <soap:operation soapAction="http://www.example.org/wsdltest/Operation2"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="Operation4">
+            <soap:operation soapAction="http://www.example.org/wsdltest/Operation2"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="RPCUnwrappingServiceTest">
+        <wsdl:port binding="tns:RPCUnwrappingBinding" name="port1">
+            <soap:address location="http://www.example.org/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
+

@@ -1,0 +1,77 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+<!--<idea-plugin>-->
+<idea-plugin url="http://www.apache.org/~deepal">
+
+    <!-- Plugin name -->
+    <name>Axis2 IDEA tools</name>
+
+    <!-- Description -->
+    <description> Service Archive creation and Code Generation </description>
+
+    <!-- Plugin version -->
+    <version>1.0</version>
+
+    <!-- Plugin's vendor -->
+    <!--  <vendor logo="/general/ijLogo.png">IntelliJ</vendor>-->
+    <vendor email="deepal@apache.org">Deepal Jayasinghe </vendor>
+
+    <!-- the IDEA build number which works with plugin -->
+    <idea-version since-build="2000" />
+
+    <!-- Plugin's application components -->
+    <application-components>
+        <component>
+            <!-- Component's implementation class -->
+            <implementation-class>org.apache.ideaplugin.plugin.Axis2IdeaPlugin</implementation-class>
+
+            <!-- Component's interface class -->
+            <interface-class>org.apache.ideaplugin.plugin.Axis2IdeaPlugin</interface-class>
+        </component>
+    </application-components>
+    <!-- Component's actions -->
+    <actions>
+        <!-- We use "PluginName.ComponentName.ActionName" notation for "id" to avoid conflicts -->
+        <action id="ActionsSample.ActionsPlugin.ServiceArchiveCreator"
+            class="org.apache.ideaplugin.plugin.Axis2PluginAction"
+            text="Axis2 plugins" description="Service creation and code generation">
+            <keyboard-shortcut first-keystroke="alt W" second-keystroke="C" keymap="$default"/>
+            <mouse-shortcut keystroke="ctrl alt button2" keymap="$default"/>
+        </action>
+
+        <!--    <group id="Actions.ActionsPlugin.SampleGroup" text="S_ample" description="Sample group">-->
+        <group id="Actions.ActionsPlugin.SampleGroup" text="Axis2" description="Axis2 Group">
+            <reference id="ActionsSample.ActionsPlugin.ServiceArchiveCreator"/>
+            <separator/>
+            <add-to-group group-id="MainMenu" anchor="last"/>
+            <add-to-group group-id="MainToolBar" anchor="before" relative-to-action="HelpTopics"/>
+        </group>
+
+        <!--the group below contains only the "Hello World" action defined above -->
+        <group>
+            <reference id="ActionsSample.ActionsPlugin.ServiceArchiveCreator"/>
+            <!--the group is added to the editor popup menu-->
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="CutCopyPasteGroup"/>
+        </group>
+
+    </actions>
+
+</idea-plugin>

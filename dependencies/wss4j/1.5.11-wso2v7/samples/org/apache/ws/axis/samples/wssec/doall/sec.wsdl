@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="Axis_sec"
+   targetNamespace="uri:axis_sec"
+   xmlns:swa="uri:axis_sec"
+   xmlns="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   >
+
+   <message name="SecRequest">
+      <part name="applicationName" type="xsd:string"/>
+   </message>
+
+   <message name="SecResponse">
+      <part name="return" type="xsd:string"/>
+   </message>
+
+   <portType name="secPort">
+      <operation name="secSend">
+         <input message="swa:SecRequest"/>
+	 <output message="swa:SecResponse"/>
+      </operation>
+   </portType>
+
+   <binding name="secBinding" type="swa:secPort">
+     <soap:binding style="rpc" transport= "http://schemas.xmlsoap.org/soap/http"/>
+     <operation name="secSend">
+       <soap:operation soapAction="secSend" />
+	   <input>
+	     <soap:body use="literal" parts="applicationName" />
+	   </input>
+	   <output>
+	    <soap:body use="literal" />
+	   </output>
+     </operation>
+   </binding>
+
+   <service name="secService">
+      <port name="SecHttp" binding="swa:secBinding">
+         <soap:address location="http://localhost:8081/axis/services/secHttp"/>
+      </port>
+   </service>
+</definitions>

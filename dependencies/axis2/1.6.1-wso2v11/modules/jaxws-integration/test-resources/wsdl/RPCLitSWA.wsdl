@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions targetNamespace="http://org/apache/axis2/jaxws/proxy/rpclitswa" 
+xmlns="http://schemas.xmlsoap.org/wsdl/" 
+xmlns:apachesoap="http://xml.apache.org/xml-soap" 
+xmlns:impl="http://org/apache/axis2/jaxws/proxy/rpclitswa" 
+xmlns:intf="http://org/apache/axis2/jaxws/proxy/rpclitswa" 
+xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" 
+xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <wsdl:message name="echoRequest">
+      <wsdl:part name="request" type="xsd:string"/>
+      <wsdl:part name="dummyAttachmentIN" type="xsd:string" />
+      <wsdl:part name="dummyAttachmentINOUT" type="xsd:base64Binary" />
+   </wsdl:message>
+   <wsdl:message name="echoResponse">
+      <wsdl:part name="response" type="xsd:string"/>
+      <wsdl:part name="dummyAttachmentINOUT" type="xsd:base64Binary" />
+      <wsdl:part name="dummyAttachmentOUT" type="xsd:string"/>
+   </wsdl:message>
+
+
+   <wsdl:portType name="RPCLitSWA">
+     
+      <wsdl:operation name="echo">
+
+         <wsdl:input message="impl:echoRequest" name="echoRequest"/>
+
+         <wsdl:output message="impl:echoResponse" name="echoResponse"/>
+
+      </wsdl:operation>
+           
+   </wsdl:portType>
+
+   <wsdl:binding name="RPCLitSWASoapBinding" type="impl:RPCLitSWA">
+
+      <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="echo">
+         <wsdlsoap:operation/>
+         <wsdl:input>
+            <mime:multipartRelated>
+               <mime:part>
+                 <wsdlsoap:body parts="request" use="literal" namespace="http://org/apache/axis2/jaxws/proxy/rpclitswa"/> 
+               </mime:part>
+               <mime:part>
+                 <mime:content part="dummyAttachmentIN" type="text/plain"/>
+               </mime:part>
+               <mime:part>
+                 <mime:content part="dummyAttachmentINOUT" type="image/jpeg"/>
+               </mime:part>
+            </mime:multipartRelated>
+         </wsdl:input>
+         <wsdl:output>
+            <mime:multipartRelated>
+               <mime:part>
+                  <wsdlsoap:body parts="response" use="literal" namespace="http://org/apache/axis2/jaxws/proxy/rpclitswa"  />
+               </mime:part>
+               <mime:part>
+                 <mime:content part="dummyAttachmentINOUT" type="image/jpeg"/>
+               </mime:part>
+               <mime:part>
+                 <mime:content part="dummyAttachmentOUT" type="text/plain"/>
+               </mime:part>
+            </mime:multipartRelated>
+         </wsdl:output>
+      </wsdl:operation>
+   </wsdl:binding>
+
+   <wsdl:service name="RPCLitSWAService">
+
+      <wsdl:port binding="impl:RPCLitSWASoapBinding" name="RPCLitSWA">
+
+         <wsdlsoap:address location="http://localhost:9080/axis2/services/RPCLitSWAService"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>
+

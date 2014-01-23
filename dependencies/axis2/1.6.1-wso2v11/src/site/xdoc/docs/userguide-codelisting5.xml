@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Code Listing 4: Generating clients from the WSDL
+file</title>
+</head>
+<body>
+<h1>Code Listing 5 - Generating Clients from the WSDL File</h1>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;wsdl:definitions
+   xmlns:apachesoap="http://xml.apache.org/xml-soap"
+   xmlns:impl="http://apache.org/axis2/Axis2UserGuide"
+   xmlns:intf="http://apache.org/axis2/Axis2UserGuide"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   targetNamespace="http://apache.org/axis2/Axis2UserGuide"&gt;
+
+  &lt;wsdl:types&gt;
+    &lt;schema
+       elementFormDefault="qualified"
+       targetNamespace="http://apache.org/axis2/Axis2UserGuide"
+       xmlns="http://www.w3.org/2001/XMLSchema"&gt;
+      
+      &lt;!-- ELEMENTS --&gt;
+      
+      &lt;element name="DoInOnlyRequest"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="messageString" type="xsd:string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="TwoWayOneParameterEchoRequest"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="echoString" type="xsd:string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      &lt;element name="TwoWayOneParameterEchoResponse"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="echoString" type="xsd:string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="NoParametersRequest"&gt;
+        &lt;complexType/&gt;
+      &lt;/element&gt;
+      &lt;element name="NoParametersResponse"&gt;
+        &lt;complexType/&gt;
+      &lt;/element&gt;
+      
+      &lt;element name="MultipleParametersAddItemRequest"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+            &lt;element name="itemId" type="xsd:int"/&gt;
+            &lt;element name="itemName" type="xsd:string"/&gt;
+            &lt;element name="price" type="xsd:float"/&gt;
+            &lt;element name="description" type="xsd:string"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+
+      &lt;element name="MultipleParametersAddItemResponse"&gt;
+        &lt;complexType&gt;
+          &lt;sequence&gt;
+          &lt;element name="itemId" type="xsd:int"/&gt;
+          &lt;element name="successfulAdd" type="xsd:boolean"/&gt;
+          &lt;/sequence&gt;
+        &lt;/complexType&gt;
+      &lt;/element&gt;
+
+    &lt;/schema&gt;
+  &lt;/wsdl:types&gt;
+
+  
+  &lt;!-- MESSAGES --&gt;
+
+  &lt;wsdl:message name="DoInOnlyRequestMessage"&gt;
+    &lt;wsdl:part name="input" element="impl:DoInOnlyRequest"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:message name="TwoWayOneParameterEchoRequestMessage"&gt;
+    &lt;wsdl:part name="input" element="impl:TwoWayOneParameterEchoRequest"/&gt;
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:message name="TwoWayOneParameterEchoResponseMessage"&gt;
+    &lt;wsdl:part name="output" element="impl:TwoWayOneParameterEchoResponse"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:message name="NoParametersRequestMessage"&gt;
+    &lt;wsdl:part name="input" element="impl:NoParametersRequest"/&gt;
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:message name="NoParametersResponseMessage"&gt;
+    &lt;wsdl:part name="output" element="impl:NoParametersResponse"/&gt;
+  &lt;/wsdl:message&gt;
+
+  &lt;wsdl:message name="MultipleParametersAddItemRequestMessage"&gt;
+    &lt;wsdl:part name="input" element="impl:MultipleParametersAddItemRequest"/&gt;
+  &lt;/wsdl:message&gt;
+  &lt;wsdl:message name="MultipleParametersAddItemResponseMessage"&gt;
+    &lt;wsdl:part name="output" element="impl:MultipleParametersAddItemResponse"/&gt;
+  &lt;/wsdl:message&gt;
+
+
+  &lt;!-- Port type (operations) --&gt;
+
+  &lt;wsdl:portType name="Axis2UserGuidePortType"&gt;
+
+    &lt;wsdl:operation name="DoInOnly" parameterOrder="input"&gt;
+      &lt;wsdl:input name="DoInOnlyRequestMessage"
+                  message="impl:DoInOnlyRequestMessage"/&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="TwoWayOneParameterEcho" parameterOrder="input"&gt;
+      &lt;wsdl:input name="TwoWayOneParameterEchoRequestMessage"
+                  message="impl:TwoWayOneParameterEchoRequestMessage"/&gt;
+      &lt;wsdl:output name="TwoWayOneParameterEchoResponseMessage"
+                  message="impl:TwoWayOneParameterEchoResponseMessage"/&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="NoParameters" parameterOrder="input"&gt;
+      &lt;wsdl:input name="NoParametersRequestMessage"
+                  message="impl:NoParametersRequestMessage"/&gt;
+      &lt;wsdl:output name="NoParametersResponseMessage"
+                   message="impl:NoParametersResponseMessage"/&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="MultipleParametersAddItem" parameterOrder="input"&gt;
+      &lt;wsdl:input name="MultipleParametersAddItemRequestMessage"
+                  message="impl:MultipleParametersAddItemRequestMessage"/&gt;
+      &lt;wsdl:output name="MultipleParametersAddItemResponseMessage"
+                  message="impl:MultipleParametersAddItemResponseMessage"/&gt;
+    &lt;/wsdl:operation&gt;
+
+  &lt;/wsdl:portType&gt;
+
+
+  &lt;!-- BINDING (bind operations) --&gt;
+  &lt;wsdl:binding
+     name="Axis2UserGuideSoapBinding"
+     type="impl:Axis2UserGuidePortType"&gt;
+    &lt;wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/&gt;
+
+    &lt;wsdl:operation name="DoInOnly"&gt;
+      &lt;wsdlsoap:operation soapAction="DoInOnly"/&gt;
+      &lt;wsdl:input&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="TwoWayOneParameterEcho"&gt;
+      &lt;wsdlsoap:operation soapAction="TwoWayOneParameterEcho"/&gt;
+      &lt;wsdl:input&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="NoParameters"&gt;
+      &lt;wsdlsoap:operation soapAction="NoParameters"/&gt;
+      &lt;wsdl:input&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+
+    &lt;wsdl:operation name="MultipleParametersAddItem"&gt;
+      &lt;wsdlsoap:operation soapAction="MultipleParametersAddItem"/&gt;
+      &lt;wsdl:input&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:input&gt;
+      &lt;wsdl:output&gt;
+        &lt;wsdlsoap:body use="literal"/&gt;
+      &lt;/wsdl:output&gt;
+    &lt;/wsdl:operation&gt;
+  &lt;/wsdl:binding&gt;
+
+
+  &lt;!-- SERVICE --&gt;
+
+  &lt;wsdl:service name="Axis2UserGuideService"&gt;
+    &lt;wsdl:port binding="impl:Axis2UserGuideSoapBinding"
+               name="Axis2UserGuide"&gt;
+      &lt;wsdlsoap:address location="http://localhost:8080/axis2/services/Axis2UserGuide"/&gt;
+    &lt;/wsdl:port&gt;
+  &lt;/wsdl:service&gt;
+&lt;/wsdl:definitions&gt;
+</pre>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+
+<definitions name="AddNumbers" targetNamespace="http://org/test/addnumbers"
+	xmlns:tns="http://org/test/addnumbers" xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+	xmlns:notsoap="http://not.a.soap.address/wsdl/notsoap/">
+
+
+	<types>
+		<xsd:schema xmlns="http://www.w3.org/2001/XMLSchema"
+			elementFormDefault="qualified" targetNamespace="http://org/test/addnumbers">
+			<element name="addNumbersResponse">
+				<complexType>
+					<sequence>
+						<element name="return" type="xsd:int" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="addNumbers">
+				<complexType>
+					<sequence>
+						<element name="arg0" type="xsd:int" />
+						<element name="arg1" type="xsd:int" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="AddNumbersFault">
+				<complexType>
+					<sequence>
+						<element name="faultInfo" type="xsd:string" />
+						<element name="message" type="xsd:string" />
+					</sequence>
+				</complexType>
+			</element>
+
+			<element name="oneWayInt">
+				<complexType>
+					<sequence>
+						<element name="arg0" type="xsd:int" />
+					</sequence>
+				</complexType>
+			</element>
+
+		</xsd:schema>
+	</types>
+
+	<message name="addNumbers">
+		<part name="parameters" element="tns:addNumbers" />
+	</message>
+	<message name="addNumbersResponse">
+		<part name="result" element="tns:addNumbersResponse" />
+	</message>
+	<message name="addNumbersFault">
+		<part name="AddNumbersFault" element="tns:AddNumbersFault" />
+	</message>
+	<message name="oneWayInt">
+		<part name="parameters" element="tns:oneWayInt" />
+	</message>
+
+	<portType name="AddNumbersPortType">
+		<operation name="addNumbers">
+			<input message="tns:addNumbers" name="add" />
+			<output message="tns:addNumbersResponse" name="addResponse" />
+			<fault name="addNumbersFault" message="tns:addNumbersFault" />
+		</operation>
+		<operation name="oneWayInt">
+			<input message="tns:oneWayInt" />
+		</operation>
+	</portType>
+	<portType name="AddNumbersPortTypeOtherPT">
+		<operation name="addNumbers">
+			<input message="tns:addNumbers" name="add" />
+			<output message="tns:addNumbersResponse" name="addResponse" />
+			<fault name="addNumbersFault" message="tns:addNumbersFault" />
+		</operation>
+		<operation name="oneWayInt">
+			<input message="tns:oneWayInt" />
+		</operation>
+	</portType>
+	
+	<binding name="AddNumbersBinding" type="tns:AddNumbersPortType">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+			style="document" />
+		<operation name="addNumbers">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="addNumbersFault">
+				<soap:fault name="addNumbersFault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="oneWayInt">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+		</operation>
+	</binding>
+	<binding name="AddNumbersBindingSamePT" type="tns:AddNumbersPortType">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+			style="document" />
+		<operation name="addNumbers">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="addNumbersFault">
+				<soap:fault name="addNumbersFault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="oneWayInt">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+		</operation>
+	</binding>
+	<binding name="AddNumbersBindingOtherPT" type="tns:AddNumbersPortTypeOtherPT">
+		<soap:binding transport="http://schemas.xmlsoap.org/soap/http"
+			style="document" />
+		<operation name="addNumbers">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+			<output>
+				<soap:body use="literal" />
+			</output>
+			<fault name="addNumbersFault">
+				<soap:fault name="addNumbersFault" use="literal" />
+			</fault>
+		</operation>
+		<operation name="oneWayInt">
+			<soap:operation soapAction="" />
+			<input>
+				<soap:body use="literal" />
+			</input>
+		</operation>
+	</binding>
+	
+	<!--
+		IMPORTANT NOTE: These ports are not intended to be connected too!  This test is simply for
+		WSDL processing and Service.addPort(...) and Service.getPort(...) validation; no attempt is
+		made to actually connect to the endpoints defined below; there is no implementation and no
+		valid endpoint at those addresses.	
+	-->
+	
+	<service name="AddNumbersService1">
+		<port name="AddNumbersPortS1P1" binding="tns:AddNumbersBinding">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS1P1" />
+		</port>
+		<port name="AddNumbersPortS1P2" binding="tns:AddNumbersBinding">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS1P2" />
+		</port>
+		<port name="AddNumbersPortS1P3" binding="tns:AddNumbersBinding">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS1P3" />
+		</port>
+	</service>
+	<service name="AddNumbersService2">
+		<port name="AddNumbersPortS2P1" binding="tns:AddNumbersBinding">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS2P1" />
+		</port>
+		<port name="AddNumbersPortS2P2" binding="tns:AddNumbersBinding">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS2P2" />
+		</port>
+		<port name="AddNumbersPortS2P3" binding="tns:AddNumbersBinding">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS2P3" />
+		</port>
+				<port name="AddNumbersPortS2P4" binding="tns:AddNumbersBinding">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS2P4" />
+		</port>
+		
+	</service>
+		<service name="AddNumbersService3">
+		<port name="AddNumbersPortS3P1" binding="tns:AddNumbersBindingOtherPT">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS3P1" />
+		</port>
+		<port name="AddNumbersPortS3P2" binding="tns:AddNumbersBinding">
+			<soap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS3P2" />
+		</port>
+		<port name="AddNumbersPortS3P3" binding="tns:AddNumbersBindingSamePT">
+			<notsoap:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS3P3" />
+		</port>
+				<port name="AddNumbersPortS3P4" binding="tns:AddNumbersBinding">
+			<soap12:address
+				location="http://localhost:9080/AddNumber/AddNumbersImplServiceS3P4" />
+		</port>
+		
+	</service>
+	
+</definitions>

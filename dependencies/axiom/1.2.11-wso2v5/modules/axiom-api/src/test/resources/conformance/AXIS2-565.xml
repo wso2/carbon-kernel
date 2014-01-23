@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<root>
+    <node>Some text</node>
+    <node>More test</node>
+    <items>
+        <item shape="rectangle" xmlns:col="urn:mycolor">
+            <col:color rgb="#FF0000">red</col:color>
+            <name>My fine <b>item</b></name>
+        </item>
+        <item shape="circle" xmlns:col="urn:mycolor">
+            <col:color rgb="#0000FF">blue</col:color>
+            <name>Something else</name>
+        </item>
+    </items>
+    <shapes>
+        <shape>rectangle</shape>
+        <shape>circle</shape>
+        <shape basedOn="rectangle">square</shape>
+    </shapes>
+</root>

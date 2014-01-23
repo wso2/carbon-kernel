@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+	<properties>
+        <title>Axis2 Tools Download Page</title>
+    </properties>
+	<body xml:lang="en">
+		<h1>Apache Axis2 Tools</h1>
+		<p>Axis2 is bundled with a set of tools in order to make users'
+life easier. This page is maintained to keep track of the tools
+supported by Axis2.</p>
+		<table>
+			<tbody>
+				<tr>
+					<th scope="col">Name</th>
+					<th scope="col">Description</th>
+					<th scope="col">Downloads</th>
+				</tr>
+				<tr>
+					<td>
+						<a href="CodegenToolReference.html">Code Generator
+Tool- Command Line &amp; Ant Task</a>
+					</td>
+					<td>Tool consists of a command line version and an Ant Task. It is
+implemented by the WSDL2Code class and WSDL2Java class. One can
+choose to run the main classes directly or use one of the scripts
+to run the WSDL2Code and WSDL2Java appropriately.</td>
+					<td>This tool is bundled with the Axis2 Standard Binary
+Distribution found <a href="../download.cgi#std-bin">here</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="eclipse/servicearchiver-plugin.html">Service Archive
+Wizard - Eclipse Plug-in</a>
+					</td>
+					<td>As part of the Axis2 tool set, the service archive generator is
+an important tool that allows the generation of service archives
+("aar" file or a "jar" files) that can be deployed as a Web
+services to the Axis2.</td>
+					<td>
+						<a href="http://www.apache.org/dyn/mirrors/mirrors.cgi/axis/axis2/java/core/${axis2_version}/axis2-eclipse-service-plugin-${axis2_version}.zip">zip</a> |
+						<a href="http://www.apache.org/dist/axis/axis2/java/core/${axis2_version}/axis2-eclipse-service-plugin-${axis2_version}.zip.md5">MD5</a> |
+						<a href="http://www.apache.org/dist/axis/axis2/java/core/${axis2_version}/axis2-eclipse-service-plugin-${axis2_version}.zip.asc">PGP</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="eclipse/wsdl2java-plugin.html">Code
+Generator Wizard - Eclipse Plug-in</a>
+					</td>
+					<td>Axis2 code generator comes built-in with an <a href="http://www.eclipse.org/">eclipse</a> plug-in. This can be used to
+generate a WSDL file from a java class (Java2WSDL) and/or a java
+class file from a WSDL (WSDL2Java)</td>
+					<td>
+						<a href="http://www.apache.org/dyn/mirrors/mirrors.cgi/axis/axis2/java/core/${axis2_version}/axis2-eclipse-codegen-plugin-${axis2_version}.zip">zip</a> |
+						<a href="http://www.apache.org/dist/axis/axis2/java/core/${axis2_version}/axis2-eclipse-codegen-plugin-${axis2_version}.zip.md5">MD5</a> |
+						<a href="http://www.apache.org/dist/axis/axis2/java/core/${axis2_version}/axis2-eclipse-codegen-plugin-${axis2_version}.zip.asc">PGP</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="idea/Idea_plug-in_userguide.html">Code
+Generator Wizard - IntelliJ IDEA Plug-in</a>
+					</td>
+					<td>Using this tool one can create service archives that can be
+deployed as a Web services to the Axis2, and also generate a java
+class file from a WSDL file (WSDL2Java).</td>
+					<td>
+                        <a href="http://www.apache.org/dyn/mirrors/mirrors.cgi/axis/axis2/java/core/${axis2_version}/axis2-idea-plugin-${axis2_version}.zip">zip</a> |
+                        <a href="http://www.apache.org/dist/axis/axis2/java/core/${axis2_version}/axis2-idea-plugin-${axis2_version}.zip.md5">MD5</a> |
+                        <a href="http://www.apache.org/dist/axis/axis2/java/core/${axis2_version}/axis2-idea-plugin-${axis2_version}.zip.asc">PGP</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="maven-plugins/maven-aar-plugin.html">Maven2 AAR
+Plug-in</a>
+					</td>
+					<td>This plugin generates an Axis2 service file (AAR file).</td>
+					<td>N/A <a href="#note1">[1]</a></td>
+				</tr>
+				<tr>
+					<td>
+						Maven2 MAR Plug-in
+					</td>
+					<td>This plugin generates an Axis2 module archive file (MAR file).</td>
+					<td>N/A <a href="#note1">[1]</a></td>
+				</tr>
+				<tr>
+					<td>
+						<a href="maven-plugins/maven-java2wsdl-plugin.html">Maven2
+Java2WSDL Plug-in</a>
+					</td>
+					<td>
+						<p>This plugin takes as input a Java class and generates a WSDL,
+which describes a Web service for invoking the classes methods.</p>
+					</td>
+					<td>N/A <a href="#note1">[1]</a></td>
+				</tr>
+				<tr>
+					<td>
+						<a href="maven-plugins/maven-wsdl2code-plugin.html">Maven2
+WSDL2Code Plug-in</a>
+					</td>
+					<td>
+						<p>This plugin takes as input a WSDL and generates client and
+server stubs for calling or implementing a Web service matching the
+WSDL.</p>
+					</td>
+					<td>N/A <a href="#note1">[1]</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<p><a name="note1"/>[1] All Maven plugins are available from the Maven central repository and need not be downloaded separately.</p>
+	</body>
+</document>

@@ -1,0 +1,8 @@
+# To enable the use of proxy settings Replace XXXXX 
+# with your environment information and remove the '#' 
+# at the beginning of each line below.
+#http.proxyHost=XXXXX
+#http.proxyPort=XXXXX
+#http.nonProxyHosts=localhost|127.0.0.1
+#http.proxyUser=XXXXX
+#http.proxyPassword=XXXX

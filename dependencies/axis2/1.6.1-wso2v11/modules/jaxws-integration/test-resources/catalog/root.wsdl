@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions
+  targetNamespace="http://www.example.com/test/calculator"
+  xmlns:axis2ns1="http://www.example.com/test/calculator"
+  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+  xmlns:msgtypes="http://www.example.com/test/messageTypes"
+  xmlns:ns1="urn:types1"
+  xmlns:ns2="urn:types2"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:import namespace="http://www.example.com/test/messageTypes" location="http://example.com/test/doesnotexist.wsdl"/>
+  
+  <!-- Importing does not actually bring in the messages, just the ability to refer to them.
+       Without the following (duplicated) messages the wsdl definition would not have any messages.
+       However, do use the imported versions of these messages in the operation descriptions below.
+  -->
+  <wsdl:message name="getTotalRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="msgtypes:getTotal" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="getTotalResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="msgtypes:getTotalResponse" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="addRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns1:add" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="addResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns1:addResponse" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="clearRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns1:clear" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="clearResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns1:clearResponse" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="divideRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns1:divide" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="divideResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns1:divideResponse" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="divideByZeroException" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns1:divideByZeroFault" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="multiplyRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns1:multiply" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="multiplyResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns2:multiplyResponse" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="subtractRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns2:subtract" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:message name="subtractResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:part element="ns2:subtractResponse" name="part1" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+  </wsdl:message>
+  <wsdl:portType name="CalculatorService" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:operation name="getTotal" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <wsdl:input message="msgtypes:getTotalRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+      <wsdl:output message="msgtypes:getTotalResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+    </wsdl:operation>
+    <wsdl:operation name="add" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <wsdl:input message="msgtypes:addRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+      <wsdl:output message="msgtypes:addResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+    </wsdl:operation>
+    <wsdl:operation name="clear" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <wsdl:input message="msgtypes:clearRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+      <wsdl:output message="msgtypes:clearResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+    </wsdl:operation>
+    <wsdl:operation name="divide" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <wsdl:input message="msgtypes:divideRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+      <wsdl:output message="msgtypes:divideResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+      <wsdl:fault message="msgtypes:divideByZeroException"
+        name="divideByZeroException" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+    </wsdl:operation>
+    <wsdl:operation name="multiply" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <wsdl:input message="msgtypes:multiplyRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+      <wsdl:output message="msgtypes:multiplyResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+    </wsdl:operation>
+    <wsdl:operation name="subtract" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <wsdl:input message="msgtypes:subtractRequest" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+      <wsdl:output message="msgtypes:subtractResponseMessage" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="CalculatorServiceSOAP11Binding"
+    type="axis2ns1:CalculatorService" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <soap:binding style="document"
+      transport="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+    <wsdl:operation name="getTotal" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <soap:operation soapAction="urn:getTotal" style="document" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      <wsdl:input xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:input>
+      <wsdl:output xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="add" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <soap:operation soapAction="urn:add" style="document" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      <wsdl:input xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:input>
+      <wsdl:output xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="clear" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <soap:operation soapAction="urn:clear" style="document" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      <wsdl:input xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:input>
+      <wsdl:output xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="divide" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <soap:operation soapAction="urn:divide" style="document" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      <wsdl:input xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:input>
+      <wsdl:output xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:output>
+      <wsdl:fault name="divideByZeroException" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:fault body="use" name="divideByZeroException"
+          namespace="http://www.example.com/test/calculator" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="multiply" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <soap:operation soapAction="urn:multiply" style="document" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      <wsdl:input xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:input>
+      <wsdl:output xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="subtract" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <soap:operation soapAction="urn:subtract" style="document" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      <wsdl:input xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:input>
+      <wsdl:output xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+        <soap:body namespace="http://www.example.com/test/calculator"
+          use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="CalculatorServiceWebService" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <wsdl:port binding="axis2ns1:CalculatorServiceSOAP11Binding"
+      name="CalculatorServiceSOAP11port" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+      <soap:address location="" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

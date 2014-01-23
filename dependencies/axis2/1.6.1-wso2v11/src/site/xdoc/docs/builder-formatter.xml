@@ -1,0 +1,82 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->                              
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="" />
+<title>Supporting new/custom message types with MessageBuilder/Formatter</title>
+</head>
+<body dir="ltr" lang="en-US" xml:lang="en-US">
+<h1>Supporting new/custom message types with MessageBuilder/Formatter</h1>
+<p>Axis2 provides extended support for new or custom message types. This is done with
+using a extension point in the Axis2 architecture, called message builders and formatters.
+In Axis2 a builder is responsible of building the MessageContext by looking at the raw message
+transmitted and the formatter is responsible of the inverse of that, which is to serialize a
+MessageContext to the wire transfer format. Let's create a
+custom MessageBuilder/Formatter to add the support for a new message type.</p>
+<p>Send your feedback or questions to: <a href=
+"mailto:java-dev@axis.apache.org?subject=[Axis2]">java-dev@axis.apache.org</a>.
+( Subscription details are available on the <a href="../mail-lists.html">Axis2 site</a>.)
+Kindly prefix subject with [Axis2].</p>
+<h2>Contents</h2>
+<ul>
+<li><a href="#ContentType_with_new_builder_formatter">New ContentType handling with a custom message builder and formatter</a>
+<ul>
+<li><a href="#Step1_MessageBuilder_implementation">Step1 : MessageBuilder implementation</a></li>
+<li><a href="#Step2_MessageFormatter_implementation">Step2 : MessageFormatter implementation</a></li>
+<li><a href="#Step3_Register_builder_formatter">Step3 : Register the builder and formatter with Axis2</a></li>
+<li><a href="#Step4_Packaging">Step4 : Packaging builder and formatter</a></li>
+<li><a href="#Step5_Testing">Step5 : Testing the new ContentType with the echo service</a></li>
+</ul>
+</li>
+</ul>
+<a name="ContentType_with_new_builder_formatter"></a>
+<h3>New ContentType handling with a custom message builder and formatter</h3>
+<p>Let's write a simple builder and formatter to add the support for a new content type</p>
+
+<a name="Step1_MessageBuilder_implementation"></a>
+<h4>Step1 : MessageBuilder implementation</h4>
+<!--<p>LoggingModule is the implementation class of the Axis2 module.-->
+<!--Axis2 modules should implement the "<a href=-->
+<!--"http://svn.apache.org/viewcvs.cgi/webservices/axis2/trunk/java/modules/core/src/org/apache/axis2/modules/Module.java?rev=396785&amp;view=log">org.apache.axis2.modules.Module</a>"-->
+<!--interface with the following methods.</p>-->
+<!--<pre>-->
+<!--public void init(ConfigurationContext configContext, AxisModule module) throws AxisFault;//Initialize the module-->
+<!--public void shutdown(ConfigurationContext configurationContext) throws AxisFault;//End of module processing-->
+<!--public void engageNotify(AxisDescription axisDescription) throws AxisFault;-->
+<!--public void applyPolicy(Policy policy, AxisDescription axisDescription) throws AxisFault ;-->
+<!--public boolean canSupportAssertion(Assertion assertion) ;-->
+<!--</pre>-->
+
+<a name="Step2_MessageFormatter_implementation"></a>
+<h4>Step2 : MessageFormatter implementation</h4>
+
+<a name="Step3_Register_builder_formatter"></a>
+<h4>Step3 : Register the builder and formatter with Axis2</h4>
+
+<a name="Step4_Packaging"></a>
+<h4>Step4 : Packaging builder and formatter</h4>
+
+<a name="Step5_Testing"></a>
+<h4>Step5 : Testing the new ContentType with the echo service</h4>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<title>Overview</title>
+</head>
+<body>
+<h2>Overview</h2>
+<p>Every volunteer project obtains its strength from the people
+involved in it. We invite you to participate as much or as little
+as you choose. The roles and responsibilities that people can
+assume in the project are based on merit. Everybody's input
+matters!</p>
+<p>There are a variety of ways to participate. Regardless of how
+you choose to participate, we suggest you join some or all of our
+<a href="mail-lists.html">mailing lists</a>.</p>
+<h2><b>Use the Products and Give Us Feedback</b></h2>
+<p>Using the products, reporting bugs, making feature requests,
+etc. is by far the most important role. It's your feedback that
+allows the technology to evolve.</p>
+<ul>
+<li><a href="mail-lists.html">Join Mailing Lists</a></li>
+<li><a href="download.cgi">Download Binary Builds</a></li>
+<li><a href="http://issues.apache.org/jira/browse/AXIS2">Report
+bugs/Request additional features</a></li>
+</ul>
+<h2><b>Contribute Code or Documentation Patches</b></h2>
+<p>In this role, you participate in the actual development of the
+code. If this is the type of role you'd like to play, here are some
+steps (in addition to the ones above) to get you started:</p>
+<ul>
+<li>Read our <a href="guidelines.html">developer guidelines</a> and <a
+href="release-process.html">release process</a></li>
+<li>Review the <a href="refLib.html">reference library</a></li>
+<li><a href=
+"http://svn.apache.org/viewvc/axis/axis2/java/core/">
+View the Source Code</a></li>
+<li><a href="svn.html">Access SVN Repository</a></li>
+</ul>
+<div id="pdf" align="right"></div>
+</body>
+</html>

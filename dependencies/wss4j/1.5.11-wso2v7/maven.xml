@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- $Revision: 700768 $ $Date: 2008-10-01 19:26:10 +0530 (Wed, 01 Oct 2008) $ -->
+
+<project default="jar"
+    xmlns:j="jelly:core"
+    xmlns:maven="jelly:maven"
+    xmlns:deploy="deploy"
+    xmlns:ant="jelly:ant">
+
+    <path id="test.classpath">
+        <path refid="maven.dependency.classpath"/>
+        <pathelement path="${maven.build.dest}"/>
+        <pathelement path="target/classes"/>
+        <pathelement path="target/test-classes"/>
+    </path>
+
+    <preGoal name="java:compile">
+        <ant:path id="classpath.libraries">
+            <ant:fileset dir="./lib">
+                <ant:include name="**/*.jar"/>
+            </ant:fileset>
+            <ant:pathelement path="${maven.build.dest}"/>
+            <ant:pathelement path="target/classes"/>
+        </ant:path>
+        <maven:addPath id="maven.dependency.classpath" refid="classpath.libraries"/>
+    </preGoal>
+
+    <preGoal name="test:compile">
+        <taskdef resource="axis-tasks.properties" classpathref="maven.dependency.classpath"/>
+
+        <property name="dir.wss4j" value="."/>
+        <property name="dir.interop" value="${dir.wss4j}/interop"/>
+        <property name="dir.interop2" value="${dir.wss4j}/test"/>
+        <property name="dir.work" value="${dir.wss4j}/target/work"/>
+        <property name="server" value="org/apache/ws/axis/oasis/ping"/>
+        <property name="client" value="org/apache/ws/axis/oasis"/>
+
+        <mkdir dir="${dir.work}"/>
+
+        <axis-wsdl2java
+            output="${dir.work}"
+            serverSide="yes"
+            testcase="no"
+            verbose="no"
+            url="${dir.interop}/ping.wsdl">
+            <mapping
+                namespace="http://xmlsoap.org/Ping"
+                package="org.apache.ws.axis.oasis.ping"/>
+        </axis-wsdl2java>
+
+        <copy todir="target/classes" overwrite="yes">
+          <fileset dir="${dir.interop}/${server}">
+            <include name="*.properties"/>
+          </fileset>
+        </copy>
+        <copy todir="${dir.work}/${server}" overwrite="yes">
+          <fileset dir="${dir.interop}/${server}">
+            <include name="*.java"/>
+            <include name="*.wsdd"/>
+          </fileset>
+        </copy>
+        <copy todir="${dir.work}/${client}" overwrite="yes">
+          <fileset dir="${dir.interop}/${client}">
+            <include name="*.java"/>
+            <include name="*.wsdd"/>
+          </fileset>
+        </copy>
+
+        <path id="wss4j.samples.set"
+              location="${basedir}/samples"/>
+        <path id="wss4j.generated.set"
+              location="${basedir}/target/work"/>
+        <maven:addPath id="maven.test.compile.src.set"
+                       refid="wss4j.samples.set"/>
+        <maven:addPath id="maven.test.compile.src.set"
+                       refid="wss4j.generated.set"/>
+    </preGoal>
+
+    <goal name="start-functional-test-http-server">
+        <ant:echo message="Starting http server."/>
+        <ant:java classname="org.apache.axis.transport.http.SimpleAxisServer" fork="true" spawn="yes" dir=".">
+            <ant:classpath refid="test.classpath"/>
+        </ant:java>
+    </goal>
+
+    <preGoal name="test:test">
+        <j:thread>
+          <attainGoal name="start-functional-test-http-server"/>
+        </j:thread>
+
+        <sleep seconds="2"/>
+
+        <path id="deploy.xml.files">
+            <fileset dir="./target/work">
+                <include name="**/deploy.wsdd"/>
+            </fileset>
+        </path>
+
+        <property name="deploy.xml.property" refid="deploy.xml.files"/>
+
+        <java classname="org.apache.axis.utils.Admin" fork="true">
+            <classpath refid="maven.dependency.classpath"/>
+            <arg value="client"/>
+            <arg file="./target/work/org/apache/ws/axis/oasis/Client_deploy.wsdd"/>
+        </java>
+        
+        <java classname="org.apache.axis.client.AdminClient" fork="yes">
+            <classpath refid="maven.dependency.classpath"/>
+            <arg line="${deploy.xml.property}"/>
+        </java>
+    </preGoal>
+
+    <postGoal name="test:test">
+        <echo message="Stopping http server."/>
+
+        <path id="undeploy.xml.files">
+            <fileset dir="./target/work">
+                <include name="**/undeploy.wsdd"/>
+            </fileset>
+        </path>
+
+        <property name="undeploy.xml.property" refid="deploy.xml.files"/>
+
+        <java classname="org.apache.axis.client.AdminClient" fork="yes">
+            <classpath refid="maven.dependency.classpath"/>
+            <arg line="${undeploy.xml.property}"/>
+        </java>
+
+
+        <java classname="org.apache.axis.client.AdminClient" fork="yes">
+            <classpath refid="maven.dependency.classpath"/>
+            <arg line="quit"/>
+        </java>
+    </postGoal>
+
+    <postGoal name="jar">
+        <ant:mkdir dir="${basedir}/target/lib"/>
+    </postGoal>
+    <!--
+    <preGoal name="xdoc:jelly-transform">
+      <attainGoal name="html2xdoc"/>
+    </preGoal>  
+    -->
+</project>

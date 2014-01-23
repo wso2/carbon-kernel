@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ipo:purchaseOrder xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ipo="http://www.example.com/IPO" orderDate="2002-10-20" xsi:schemaLocation="http://www.example.com/IPO ipo.xsd">
+  <shipTo xsi:type="ipo:USAddress">
+    <name>Alice Smith</name>
+    <street>123 Maple Street</street>
+    <city>Mill Valley</city>
+    <state>AL</state>
+    <zip>90952</zip>
+  </shipTo>
+  <billTo xsi:type="ipo:USAddress">
+    <name>Robert Smith</name>
+    <street>8 Oak Avenue</street>
+    <city>Old Town</city>
+    <state>AK</state>
+    <zip>95800</zip>
+  </billTo>
+  <ipo:comment>Hurry, my sister loves Boeing!</ipo:comment>
+  <items>
+    <item partNum="777-BA" weightKg="4.5" shipBy="land">
+      <productName>777 Model</productName>
+      <quantity>1</quantity>
+      <USPrice>99.95</USPrice>
+      <ipo:shipComment> Use gold wrap if possible </ipo:shipComment>
+      <ipo:customerComment> Want this for the holidays! </ipo:customerComment>
+      <shipDate>1999-12-05</shipDate>
+    </item>
+    <item partNum="833-AA">
+      <productName>833 Model</productName>
+      <quantity>2</quantity>
+      <USPrice>199.95</USPrice>
+      <shipDate>2000-02-28</shipDate>
+    </item>
+  </items>
+</ipo:purchaseOrder>

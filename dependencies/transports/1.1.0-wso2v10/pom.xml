@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>7</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.apache.axis2</groupId>
+    <artifactId>axis2-transports</artifactId>
+    <version>1.1.0-wso2v10</version>
+    <packaging>pom</packaging>
+    <name>Apache Axis2 - Transport - Root</name>
+    <url>http://axis.apache.org/axis2/java/transports/</url>
+    <description>
+        Axis2 Transports are a set of transport adaptors for the Apache Axis2 project
+        as well as for the Apache Synapse project. These transports consists of a set of
+        synchronous as well as completely asynchronous transport adaptors.
+    </description>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://issues.apache.org/jira/browse/TRANSPORTS</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>Axis2 Developer List</name>
+            <subscribe>java-dev-subscribe@axis.apache.org</subscribe>
+            <unsubscribe>java-dev-unsubscribe@axis.apache.org</unsubscribe>
+            <post>java-dev@axis.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/axis-java-dev/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/list:org.apache.ws.axis-dev</otherArchive>
+            </otherArchives>
+        </mailingList>
+        <mailingList>
+            <name>Axis2 User List</name>
+            <subscribe>java-user-subscribe@axis.apache.org</subscribe>
+            <unsubscribe>java-user-unsubscribe@axis.apache.org</unsubscribe>
+            <post>java-user@axis.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/axis-java-user/</archive>
+            <otherArchives>
+                <otherArchive>http://markmail.org/search/list:org.apache.ws.axis-user</otherArchive>
+            </otherArchives>
+        </mailingList>
+    </mailingLists>
+    <inceptionYear>2008</inceptionYear>
+
+    <developers>
+        <developer>
+            <name>Saminda Abeyruwan</name>
+            <id>saminda</id>
+            <email>saminda AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Eran Chinthaka</name>
+            <id>chinthaka</id>
+            <email>chinthaka AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~chinthaka</url>
+        </developer>
+        <developer>
+            <name>Glen Daniels</name>
+            <id>gdaniels</id>
+            <email>gdaniels AT apache.org</email>
+            <organization>Sonic Software</organization>
+        </developer>
+        <developer>
+            <name>Deepal Jayasinghe</name>
+            <id>deepal</id>
+            <email>deepal AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~deepal</url>
+        </developer>
+        <developer>
+            <name>Srinath Perera</name>
+            <id>hemapani</id>
+            <email>hemapani AT apache.org</email>
+            <organization>Lanka Software Foundation</organization>
+            <url>http://www.apache.org/~hemapani</url>
+        </developer>
+        <developer>
+            <name>Ajith Ranabahu</name>
+            <id>ajith</id>
+            <email>ajith AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~ajith</url>
+        </developer>
+        <developer>
+            <name>Davanum Srinivas</name>
+            <id>dims</id>
+            <email>davanum AT gmail.com</email>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Andreas Veithen</name>
+            <id>veithen</id>
+            <email>veithen AT apache.org</email>
+            <url>http://www.linkedin.com/in/aveithen</url>
+        </developer>
+        <developer>
+            <name>Sanjiva Weerawarana</name>
+            <id>sanjiva</id>
+            <email>sanjiva AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Asankha Perera</name>
+            <id>asankha</id>
+            <email>asankha AT apache.org</email>
+            <organization>Apache</organization>
+        </developer>
+        <developer>
+            <name>Ruwan Linton</name>
+            <id>ruwan</id>
+            <email>ruwan AT apache.org</email>
+            <organization>WSO2</organization>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/axis/axis2/java/transports/trunk</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/axis/axis2/java/transports/trunk</developerConnection>
+        <url>http://svn.apache.org/viewvc/axis/axis2/java/transports/trunk</url>
+    </scm>
+
+    <modules>
+        <module>modules/base</module>
+        <module>modules/http</module>
+        <module>modules/tcp</module>
+        <module>modules/udp</module>
+        <module>modules/xmpp</module>
+        <module>modules/mail</module>
+        <module>modules/jms</module>
+        <module>modules/rabbitmq</module>
+        <module>modules/sms</module>
+        <module>modules/testkit</module>
+        <module>modules/all</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>cobertura</id>
+            <dependencies>
+                <dependency>
+                    <groupId>net.sourceforge.cobertura</groupId>
+                    <artifactId>cobertura</artifactId>
+                    <version>1.9</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>site</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <taskdef classpathref="maven.runtime.classpath" resource="tasks.properties"/>
+                                        <mkdir dir="${project.build.directory}/site/cobertura" />
+                                        <cobertura-report format="html"
+                                                          datafile="target/cobertura.ser"
+                                                          destdir="${project.build.directory}/cobertura">
+                                            <fileset dir="modules/base/src/main/java"/>
+                                            <fileset dir="modules/jms/src/main/java"/>
+                                            <fileset dir="modules/mail/src/main/java"/>
+                                        </cobertura-report>
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                    <value />
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <configuration>
+                            <tagBase>https://svn.apache.org/repos/asf/webservices/commons/tags/transport</tagBase>
+                            <useReleaseProfiles>false</useReleaseProfiles>
+                            <goals>deploy</goals>
+                            <arguments>-Prelease</arguments>
+                            <preparationGoals>clean install</preparationGoals>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <inherited>true</inherited>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <altDeploymentRepository>${deploy.altRepository}</altDeploymentRepository>
+                            <updateReleaseInfo>true</updateReleaseInfo>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                       <inherited>true</inherited>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+<!--
+                    <plugin>
+                        <inherited>true</inherited>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+-->
+                   <plugin>
+                       <inherited>true</inherited>
+                       <groupId>org.apache.maven.plugins</groupId>
+                       <artifactId>maven-gpg-plugin</artifactId>
+                       <executions>
+                            <execution>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                       </executions>
+                   </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.axis2</groupId>
+                <artifactId>axis2-kernel</artifactId>
+                <version>${axis2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+
+            <!-- Smack Jabber client libraries to be included -->
+            <dependency>
+                <groupId>jivesoftware</groupId>
+                <artifactId>smack</artifactId>
+                <version>3.0.4</version>
+            </dependency>
+            <dependency>
+                <groupId>jivesoftware</groupId>
+                <artifactId>smackx</artifactId>
+                <version>3.0.4</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.3</version>
+            </dependency>
+
+            <!-- Dependencies used in the unit tests -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>3.8.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.6.1</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>wso2-maven2-repository</id>
+            <name>WSO2 Maven2 Repository</name>
+            <url>http://dist.wso2.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+        </repository>
+      </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>snapshot</id>
+            <name>Snapshot repository</name>
+            <url>http://snapshots.maven.codehaus.org/maven2/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>snapshot-apache</id>
+            <name>Apache Snapshot repository</name>
+            <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+	<pluginRepository> 
+            <id>repository.dev.java.net-maven2</id>
+	    <name>Java.net Repository for Maven</name> 
+	    <url>http://download.java.net/maven/2/</url> 
+	    <layout>default</layout> 
+	</pluginRepository>
+    </pluginRepositories>
+
+    <!--distributionManagement>
+        <repository>
+            <id>apache-repo</id>
+            <name>Maven Central Repository</name>
+            <url>
+                scpexe://people.apache.org//www/people.apache.org/repo/m2-ibiblio-rsync-repository
+            </url>
+        </repository>
+        <snapshotRepository>
+            <id>apache-snapshots</id>
+            <name>Apache Development Repository</name>
+            <url>scpexe://people.apache.org//www/people.apache.org/repo/m2-snapshot-repository</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <site>
+            <id>website</id>
+            <url>scpexe://people.apache.org/www/ws.apache.org/commons/transport</url>
+        </site>
+    </distributionManagement-->
+    <distributionManagement>
+        <repository>
+            <id>wso2-maven2-repository</id>
+            <name>WSO2 Maven2 Repository</name>
+            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/</url>
+        </repository>
+<!--
+        <snapshotRepository>
+            <id>wso2-maven2-snapshot-repository</id>
+            <name>WSO2 Maven2 Snapshot Repository</name>
+            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/snapshots/maven2/</url>
+        </snapshotRepository>
+-->
+    </distributionManagement>
+
+    <build>
+	<extensions>
+      	    <extension>
+        	<groupId>org.apache.maven.wagon</groupId>
+        	<artifactId>wagon-ssh</artifactId>
+        	<version>2.1</version>
+      	    </extension>
+    	</extensions>
+        <plugins>
+            <plugin> 
+		<groupId>org.jvnet.maven.incrementalbuild</groupId> 
+		<artifactId>incremental-build-plugin</artifactId>
+		<version>1.3</version>
+		<executions> 
+		    <execution> 
+		        <goals> 
+			    <goal>incremental-build</goal>
+			</goals>
+		    </execution> 
+		</executions> 
+	    </plugin>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.1.1</version>
+                <configuration>
+                    <!-- These features are disabled since they cause "mvn site" to hang -->
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jdepend-maven-plugin</artifactId>
+                <version>2.0-beta-1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <aggregate>true</aggregate>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>2.0-beta-5</version>
+                <inherited>false</inherited>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <properties>
+        <axis2.version>1.6.1-wso2v11</axis2.version>
+        <failIfNoTests>false</failIfNoTests>
+    </properties>
+
+</project>

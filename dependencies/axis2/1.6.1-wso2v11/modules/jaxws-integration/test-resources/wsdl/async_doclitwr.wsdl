@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://org/test/parallelasync"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="async"
+	targetNamespace="http://org/test/parallelasync">
+	
+	<wsdl:types>
+		<xsd:schema
+			targetNamespace="http://org/test/parallelasync"
+			xmlns:tns="http://org/test/parallelasync"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema">		
+			
+			<xsd:element name="ping">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="message" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>		
+			
+			<xsd:element name="pingResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="response" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>			
+			
+			<xsd:element name="sleep">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="message" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>		
+			
+			<xsd:element name="sleepResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="message" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>		
+
+			<xsd:element name="isAsleep">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="request" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>	
+
+			<xsd:element name="isAsleepResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="response" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>	
+
+			<xsd:element name="wakeUp">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="request" type="xsd:string" />
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>	
+
+			<xsd:element name="wakeUpResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="response" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>	
+
+			<xsd:element name="invokeAsync">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="request" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="invokeAsyncResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="response" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="customAsync">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="request" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="customAsyncResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="response" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="another">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="request" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+			<xsd:element name="anotherResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="response" type="xsd:string" />						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+
+		</xsd:schema>
+	</wsdl:types>
+
+	<wsdl:message name="pingRequest">
+		<wsdl:part name="request" element="tns:ping" />
+	</wsdl:message>
+
+	<wsdl:message name="pingResponse">
+		<wsdl:part name="response" element="tns:pingResponse" />
+	</wsdl:message>
+
+	<wsdl:message name="sleepRequest">
+		<wsdl:part name="request" element="tns:sleep" />
+	</wsdl:message>
+
+	<wsdl:message name="sleepResponse">
+		<wsdl:part name="response" element="tns:sleepResponse" />
+	</wsdl:message>
+	
+	<wsdl:message name="wakeUpRequest">
+		<wsdl:part name="request" element="tns:wakeUp" />	
+	</wsdl:message>
+
+	<wsdl:message name="wakeUpResponse">
+		<wsdl:part name="response" element="tns:wakeUpResponse" />	
+	</wsdl:message>	
+	
+	<wsdl:message name="isAsleepRequest">
+	<wsdl:part name="request" element="tns:isAsleep" />
+	</wsdl:message>
+
+	<wsdl:message name="isAsleepResponse">
+		<wsdl:part name="response" element="tns:isAsleepResponse" />	
+	</wsdl:message>		
+	
+	<wsdl:message name="invokeAsyncRequest">
+		<wsdl:part name="request" element="tns:invokeAsync" />
+	</wsdl:message>
+
+	<wsdl:message name="invokeAsyncResponse">
+		<wsdl:part name="response" element="tns:invokeAsyncResponse" />
+	</wsdl:message>	
+	
+	<wsdl:message name="customAsyncRequest">
+		<wsdl:part name="request" element="tns:customAsync" />
+	</wsdl:message>
+
+	<wsdl:message name="customAsyncResponse">
+		<wsdl:part name="response" element="tns:customAsyncResponse" />
+	</wsdl:message>		
+	
+	<wsdl:message name="anotherRequest">
+		<wsdl:part name="request" element="tns:another" />
+	</wsdl:message>
+
+	<wsdl:message name="anotherResponse">
+		<wsdl:part name="response" element="tns:anotherResponse" />
+	</wsdl:message>		
+	
+	<wsdl:portType name="AsyncPort">
+		
+		<!-- simple ping operation that will be used for DocLitWrapped async test-->
+		<wsdl:operation name="ping">
+			<wsdl:input  message="tns:pingRequest" />
+			<wsdl:output message="tns:pingResponse" />
+		</wsdl:operation>		
+		
+		<!-- request for the server to goto sleep until release is called-->
+		<wsdl:operation name="sleep">
+			<wsdl:input  message="tns:sleepRequest" />
+			<wsdl:output message="tns:sleepResponse" />
+		</wsdl:operation>
+		
+		<!-- check to see if the sleep operation has been called yet -->
+		<wsdl:operation name="isAsleep">
+			<wsdl:input  message="tns:isAsleepRequest" />
+			<wsdl:output message="tns:isAsleepResponse" />
+		</wsdl:operation>			
+		
+		<!-- force the sleep operation to stop sleeping -->
+		<wsdl:operation name="wakeUp">
+			<wsdl:input  message="tns:wakeUpRequest" />
+			<wsdl:output message="tns:wakeUpResponse" />
+		</wsdl:operation>		
+			
+			
+			
+		<!-- Second suite of tests for Async operation naming:
+			 will test for how the implementation responds to
+		     methods ending in Async with async binding enabled
+		 -->
+		<wsdl:operation name="invokeAsync">
+			<wsdl:input  message="tns:invokeAsyncRequest" />
+			<wsdl:output message="tns:invokeAsyncResponse" />
+		</wsdl:operation>			
+			
+		<!-- will test for how the implementation responds to
+		     methods ending in async with async binding enabled
+		 -->			
+		<wsdl:operation name="customAsync">
+			<wsdl:input  message="tns:customAsyncRequest" />
+			<wsdl:output message="tns:customAsyncResponse" />
+		</wsdl:operation>
+		
+		<!-- we will map this operation to a java method ending in Async
+		 -->		
+		<wsdl:operation name="another">
+			<wsdl:input  message="tns:anotherRequest" />
+			<wsdl:output message="tns:anotherResponse" />
+		</wsdl:operation>					
+			
+	</wsdl:portType>
+	
+	<wsdl:binding name="Async" type="tns:AsyncPort">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+		
+		<wsdl:operation name="ping">
+			<soap:operation soapAction="http://org/test/parallelasync/ping" />
+			<wsdl:input>
+				<soap:body use="literal"  />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"  />
+			</wsdl:output>
+		</wsdl:operation>		
+		
+		<wsdl:operation name="sleep">
+			<soap:operation soapAction="http://org/test/parallelasync/sleep" />
+			<wsdl:input>
+				<soap:body use="literal"  />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"  />
+			</wsdl:output>
+		</wsdl:operation>
+	
+		<wsdl:operation name="isAsleep">
+			<soap:operation soapAction="http://org/test/parallelasync/isAsleep" />
+			<wsdl:input>
+				<soap:body use="literal"  />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"  />
+			</wsdl:output>
+		</wsdl:operation>	
+	
+		<wsdl:operation name="wakeUp">
+			<soap:operation soapAction="http://org/test/parallelasync/wakeUp" />
+			<wsdl:input>
+				<soap:body use="literal"  />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"  />
+			</wsdl:output>
+		</wsdl:operation>
+	
+		<wsdl:operation name="invokeAsync">
+			<soap:operation soapAction="http://org/test/parallelasync/invokeAsync" />
+			<wsdl:input>
+				<soap:body use="literal"  />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"  />
+			</wsdl:output>
+		</wsdl:operation>		
+	
+		<wsdl:operation name="customAsync">
+			<soap:operation soapAction="http://org/test/parallelasync/customAsync" />
+			<wsdl:input>
+				<soap:body use="literal"  />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"  />
+			</wsdl:output>
+		</wsdl:operation>		
+	
+		<wsdl:operation name="another">
+			<soap:operation soapAction="http://org/test/parallelasync/another" />
+			<wsdl:input>
+				<soap:body use="literal"  />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal"  />
+			</wsdl:output>
+		</wsdl:operation>	
+	
+	</wsdl:binding>
+	
+	<wsdl:service name="AsyncService">
+		<wsdl:port binding="tns:Async" name="AsyncPort">
+			<soap:address location="http://localhost:9080/jaxws.async/services/AsyncDocLitWrappedService" />
+		</wsdl:port>
+	</wsdl:service>
+	
+</wsdl:definitions>

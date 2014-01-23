@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<definitions targetNamespace="http://wsgen.sample.jaxws.axis2.apache.org" name="WSGenService" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://wsgen.sample.jaxws.axis2.apache.org" xmlns="http://schemas.xmlsoap.org/wsdl/">
+  <types>
+    <xsd:schema>
+      <xsd:import namespace="http://wsgen.sample.jaxws.axis2.apache.org" schemaLocation="WSGenService_schema1.xsd"/>
+    </xsd:schema>
+  </types>
+  <message name="echoString">
+    <part name="parameters" element="tns:echoString"/>
+  </message>
+  <message name="echoStringResponse">
+    <part name="parameters" element="tns:echoStringResponse"/>
+  </message>
+  <portType name="WSGenInterface">
+    <operation name="echoString">
+      <input message="tns:echoString"/>
+      <output message="tns:echoStringResponse"/>
+    </operation>
+  </portType>
+  <binding name="WSGenPortBinding" type="tns:WSGenInterface">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <operation name="echoString">
+      <soap:operation soapAction="urn:EchoString"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="WSGenService">
+    <port name="WSGenPort" binding="tns:WSGenPortBinding">
+      <soap:address location="http://localhost:6060/axis2/services/WSGenService"/>
+    </port>
+  </service>
+</definitions>
+

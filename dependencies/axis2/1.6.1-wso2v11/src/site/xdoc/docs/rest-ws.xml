@@ -1,0 +1,172 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<html>
+<head>
+  <meta http-equiv="content-type" content=""/>
+  <title>RESTful Web Services Support</title>
+</head>
+
+<body lang="en">
+<h1>RESTful Web Services Support</h1>
+
+<p>This document presents an introduction on REST and REST with HTTP POST and
+GET.</p>
+
+<h2>Content</h2>
+<ul>
+  <li><a href="#intro">Introduction</a></li>
+  <li><a href="#rest_with_post">Doing REST Web Services with HTTP POST</a>
+    <ul>
+      <li><a href="#sample">Sample REST - HTTP POST Client</a></li>
+    </ul>
+  </li>
+  <li><a href="#rest_with_get">Access a REST Web Service via HTTP GET</a></li>
+</ul>
+<a name="intro"></a>
+
+<h2>Introduction</h2>
+
+<p>WSDL 2.0 HTTP Binding defines a way to implement REST (Representational
+State Transfer) with Web services. Axis2 implements the most defined HTTP
+binding specification. REST Web services are a reduced subset of the usual
+Web service stack.</p>
+
+<p>The Axis2 REST implementation assumes the following properties:</p>
+<ol>
+  <li>REST Web services are Synchronous and Request Response in nature.</li>
+  <li>When REST Web services are accessed via GET, the service and the
+    operations are identified based on the URL. The parameters are assumed as
+    parameters of the Web service. In this case, the GET based REST Web
+    services support only simple types as arguments and it should adhere to
+    the <a
+    href="http://www.w3.org/TR/2006/CR-wsdl20-adjuncts-20060327/#_operation_iri_style">IRI
+    style</a>.</li>
+  <li>POST based Web services do not need a SOAP Envelope or a SOAP Body.
+    REST Web Services do not have Headers and the payload is sent
+  directly.</li>
+</ol>
+
+<p>Axis2 can be configured as a REST Container and can be used to send and
+receive RESTful Web service requests and responses. REST Web services can be
+accessed using HTTP GET and POST.</p>
+<a name="rest_with_post"></a>
+
+<h2>REST Web Services with HTTP POST</h2>
+
+<p>If REST is enabled, the Axis2 server will act as both a REST endpoint and
+a SOAP endpoint. When a message is received, if the content type is text/xml
+and if the SOAPAction Header is missing, then the message is treated as a
+RESTful Message, if not it is treated as a usual SOAP Message.</p>
+
+<p>On sending a message, whether the message is RESTful or not, can be
+decided from the client API.<br/>
+Set a property in the client API.<br/>
+</p>
+<pre>...
+Options options = new Options();
+options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
+...</pre>
+<a name="sample"></a>
+
+<h3>Sample REST - HTTP POST Client</h3>
+
+<p>There is an example named, userguide.clients.RESTClient.java found in
+AXIS2_HOME/samples/userguide/src/userguide/clients which demonstrates the
+usage of the above. It uses the "echo" operation of the
+<code>userguide.example1.MyService </code>of the
+AXIS2_HOME/samples/userguide/src/userguide/example1.</p>
+
+<p>The class source will be as follows:</p>
+<pre>public class RESTClient {
+
+    private static String toEpr = "http://localhost:8080/axis2/services/MyService";
+    
+    public static void main(String[] args) throws AxisFault {
+
+        Options options = new Options();
+        options.setTo(new EndpointReference(toEpr));
+        
+        options.setProperty(Constants.Configuration.ENABLE_REST, Constants.VALUE_TRUE);
+
+        ServiceClient sender = new ServiceClient();
+        sender.engageModule(new QName(Constants.MODULE_ADDRESSING));
+        sender.setOptions(options);
+        OMElement result = sender.sendReceive(getPayload());
+
+        try {
+            XMLStreamWriter writer = XMLOutputFactory.newInstance()
+                    .createXMLStreamWriter(System.out);
+            result.serialize(writer);
+            writer.flush();
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
+        } catch (FactoryConfigurationError e) {
+            e.printStackTrace();
+        }
+    }
+    private static OMElement getPayload() {
+        OMFactory fac = OMAbstractFactory.getOMFactory();
+        OMNamespace omNs = fac.createOMNamespace(
+                "http://example1.org/example1", "example1");
+        OMElement method = fac.createOMElement("echo", omNs);
+        OMElement value = fac.createOMElement("Text", omNs);
+        value.addChild(fac.createOMText(value, "Axis2 Echo String "));
+        method.addChild(value);
+
+        return method;
+    }
+}</pre>
+<a name="rest_with_get"></a>
+
+<h2>Access a REST Web Service via HTTP GET</h2>
+
+<p>Axis2 allows users to access Web services that have simple type parameters
+via HTTP GET. For example, the following URL requests the Version Service via
+HTTP GET. However, the Web service arriving via GET assumes REST. Other
+parameters are converted into XML and put into the SOAP body.</p>
+<pre>http://127.0.0.1:8080/axis2/services/Version/getVersion</pre>
+<p>The result can be shown in the browser as follows:</p>
+<img src="images/userguide/http-get-ws.jpg"/>
+
+<p>For example, the following request,</p>
+<pre>http://127.0.0.1:8080/axis2/services/Version/getVersion</pre>
+will be converted into the following SOAP message for processing by
+Axis2.
+<pre> 
+   &lt;soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+      &lt;soapenv:Body&gt;   
+          &lt;axis2:getVersion xmlns:axis2="http://ws.apache.org/goGetWithREST" /&gt;
+      &lt;/soapenv:Body&gt;
+   &lt;/soapenv:Envelope&gt;
+    </pre>
+
+<h2>Resources</h2>
+
+<p>How I Explained REST to My Wife, By Ryan Tomayko- <a
+href="http://naeblis.cx/articles/2004/12/12/rest-to-my-wife">http://naeblis.cx/articles/2004/12/12/rest-to-my-wife</a></p>
+
+<p>Building Web Services the REST Way, By Roger L. Costello- <a
+href="http://www.xfront.com/REST-Web-Services.html">
+http://www.xfront.com/REST-Web-Services.html</a></p>
+
+<p>Resource-oriented vs. activity-oriented Web services, By James Snell- <a
+href="http://www-128.ibm.com/developerworks/webservices/library/ws-restvsoap/">http://www-128.ibm.com/developerworks/webservices/library/ws-restvsoap/</a></p>
+</body>
+</html>

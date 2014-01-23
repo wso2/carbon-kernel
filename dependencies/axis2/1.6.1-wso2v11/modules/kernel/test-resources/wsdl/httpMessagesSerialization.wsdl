@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions targetNamespace="http://www.example.org"
+  xmlns:tns="http://www.example.org" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/">
+
+  <wsdl:types>
+    <xsd:schema elementFormDefault="qualified"
+      targetNamespace="http://www.example.org">
+      <xsd:element name="getFoo" type="xsd:string"/>
+      <xsd:element name="getFooResponse" type="xsd:string"/>
+    </xsd:schema>
+  </wsdl:types>
+
+  <wsdl:message name="getFooIn">
+    <wsdl:part name="input" element="tns:getFoo" />
+  </wsdl:message>
+  <wsdl:message name="getFooOut">
+    <wsdl:part name="output" element="tns:getFooResponse" />
+  </wsdl:message>
+  
+  <wsdl:message name="getBarIn">
+    <wsdl:part name="input" type="xsd:string" />
+  </wsdl:message>
+  <wsdl:message name="getBarOut">
+    <wsdl:part name="output" type="xsd:string" />
+  </wsdl:message>
+
+  <wsdl:portType name="FooPortType">
+    <wsdl:operation name="getFoo">
+      <wsdl:input message="tns:getFooIn" />
+      <wsdl:output message="tns:getFooOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getBar">
+      <wsdl:input message="tns:getBarIn" />
+      <wsdl:output message="tns:getBarOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  
+  <wsdl:binding name="FooHttpGetBinding" type="tns:FooPortType">
+    <http:binding verb="GET" />
+    <wsdl:operation name="getFoo">
+      <http:operation location="getFoo" />
+      <wsdl:input>
+        <http:urlEncoded/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="output" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getBar">
+      <http:operation location="getBar" />
+      <wsdl:input>
+        <mime:content part="input" type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="output" type="image/jpeg" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+
+  <wsdl:binding name="FooHttpPostBinding" type="tns:FooPortType">
+    <http:binding verb="POST" />
+    <wsdl:operation name="getFoo">
+      <http:operation location="getFoo" />
+      <wsdl:input>
+        <mime:content part="input" type="text/xml" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="output" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getBar">
+      <http:operation location="getBar" />
+      <wsdl:input>
+        <mime:content part="input" type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="output" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+
+  <wsdl:service name="FooService">
+    <wsdl:port name="FooHttpGetPort" binding="tns:FooHttpGetBinding">
+      <http:address location="http://www.example.org/" />
+    </wsdl:port>
+    <wsdl:port name="FooHttpPostPort" binding="tns:FooHttpPostBinding">
+      <http:address location="http://www.example.org/" />
+    </wsdl:port>
+  </wsdl:service>
+  
+</wsdl:definitions>

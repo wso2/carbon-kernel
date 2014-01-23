@@ -1,0 +1,40 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<assembly>
+    <id>dist</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <dependencySets>
+        <dependencySet>
+            <!-- We only want to include the main artifact of the project -->
+            <useProjectArtifact>true</useProjectArtifact>
+            <includes>
+                <include>${project.groupId}:${project.artifactId}</include>
+            </includes>
+            <outputDirectory>plugins</outputDirectory>
+            <!-- Make sure that the name of the JAR in the distribution respects the naming
+                 convention expected by Eclipse. The bundle-symbolic-name and
+                 bundle-version variables are calculated by a Groovy script executed from the POM. -->
+            <outputFileNameMapping>${bundle-symbolic-name}_${bundle-version}.jar</outputFileNameMapping>
+        </dependencySet>
+    </dependencySets>
+</assembly>

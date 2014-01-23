@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+
+<project>
+
+  <!-- the version of maven's project object model -->
+  <pomVersion>3</pomVersion>
+  
+  <!-- a unique name for this project -->
+  <id>wss4j</id>
+  
+  <!-- a short but descriptive name for the project -->
+  <name>Apache WSS4J</name>
+  
+  <!-- The version of the project under development, e.g.
+       1.1, 1.2, 2.0-SNAPSHOT -->
+  <currentVersion>1.5</currentVersion>
+  
+  <!-- details about the organization that 'owns' the project -->
+  <organization>
+    <name>Apache Web Services</name>
+    <url>http://ws.apache.org/</url>
+    <logo>http://ws.apache.org/images/project-logo.jpg</logo>
+  </organization>
+  
+  <!-- the year the project started -->
+  <inceptionYear>2004</inceptionYear>
+  <package>org.apache.ws</package>
+  <logo></logo>
+  <description>
+    Apache WSS4J is an implementation of the Web Services Security (WS-Security) being developed at 
+    OASIS Web Services Security TC. WSS4J is a primarily a Java library that can be used to sign and 
+    verify SOAP Messages with WS-Security information. WSS4J will use Apache Axis and Apache XML-Security 
+    projects and will be interoperable with JAX-RPC based server/clients and .NET server/clients. 
+  </description>
+  <!-- a short description of what the project does -->
+  <shortDescription>
+    WS-Security implementation for Apache Axis
+  </shortDescription>
+
+  <!-- the project home page -->
+  <url>http://ws.apache.org/wss4j/</url>
+  <issueTrackingUrl>http://issues.apache.org/jira/browse/WSS</issueTrackingUrl>
+  <siteAddress>ws.apache.org</siteAddress>
+  <siteDirectory>/wss4j/</siteDirectory>
+  <distributionSite>www.apache.org</distributionSite>
+  <distributionDirectory>//dyn/closer.cgi/ws/wss4j/</distributionDirectory>
+
+  <!-- the version control repository and http url for online access
+       the connection element has the form:
+       scm:<system>:<system specific connection string> -->
+  <repository>
+    <connection>scm:svn:http://svn.apache.org:repos/asf/webservices:wss4j/trunk</connection>
+    <developerConnection>scm:svn:http://svn.apache.org:repos/asf/webservices:wss4j/trunk</developerConnection>
+    <url>http://svn.apache.org/viewcvs.cgi/webservices/wss4j/trunk?root=Apache-SVN</url>
+  </repository>
+
+  <!-- any mailing lists for the project -->
+    <mailingLists>
+        <mailingList>
+            <name>WSS4J Developer List</name>
+            <subscribe>wss4j-dev-subscribe@ws.apache.org</subscribe>
+            <unsubscribe>wss4j-dev-unsubscribe@ws.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/ws-wss4j-dev/</archive>
+        </mailingList>
+    </mailingLists>
+  
+  <!-- who the developers are for the project -->
+  <developers>
+        <developer>
+            <name>Davanum Srinivas</name>
+            <id>dims</id>
+            <email>dims@yahoo.com</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Werner Dittmann</name>
+            <id>werner</id>
+            <email>werner@apache.org</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Ias</name>
+            <id>ias</id>
+            <email>ias@apache.org</email>
+            <organization></organization>
+        </developer>
+        <developer>
+            <name>Ruchith Fernando</name>
+            <id>ruchithf</id>
+            <email>ruchithf@apache.org</email>
+            <organization></organization>
+        </developer>
+  </developers>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+  
+  <!-- build information for the project -->
+  <build>
+    <nagEmailAddress>wss4j-dev@ws.apache.org</nagEmailAddress>
+    <sourceDirectory>src</sourceDirectory>
+    <unitTestSourceDirectory>test</unitTestSourceDirectory>
+
+    <unitTest>
+      <includes>
+        <include>**/*PackageTests*.java</include>
+      </includes>
+      <excludes>
+          <exclude>**/wssec/PackageTests.java</exclude>
+          <exclude>**/interop/PackageTests.java</exclude>
+          <exclude>**/TestScenario7.java</exclude>
+      </excludes>
+    </unitTest>
+
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+
+    <dependencies>
+
+        <!-- Module Dependencies -->
+        <!--
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>SNAPSHOT</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>SNAPSHOT</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>SNAPSHOT</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>jaxrpc</artifactId>
+            <version>SNAPSHOT</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>saaj</artifactId>
+            <version>SNAPSHOT</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>SNAPSHOT</version>
+            <properties>
+                <module>true</module>
+            </properties>
+        </dependency>
+        -->
+    </dependencies>
+
+    <!-- ======= -->
+    <!-- Reports -->
+    <!-- ======= -->
+
+    <reports>
+        <report>maven-license-plugin</report>
+        <report>maven-checkstyle-plugin</report>
+        <report>maven-pmd-plugin</report>
+        <report>maven-jdepend-plugin</report>
+        <!--<report>maven-changelog-plugin</report> -->
+        <!-- <report>maven-statcvs-plugin</report> -->
+        <!-- <report>maven-file-activity-plugin</report> -->
+        <!-- <report>maven-developer-activity-plugin</report> -->
+        <report>maven-jxr-plugin</report>
+        <report>maven-javadoc-plugin</report>
+        <!-- <report>maven-junit-report-plugin</report> -->
+        <!-- <report>maven-clover-plugin</report> -->
+    </reports>
+    
+</project>
+

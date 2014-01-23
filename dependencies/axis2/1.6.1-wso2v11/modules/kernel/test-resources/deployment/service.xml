@@ -1,0 +1,87 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<service provider="xsd:anyprovider" style="rpcI" contextPath="services">
+    <!-- these are Service Parameters -->
+    <parameter name="para1" locked="xsd:true">10</parameter>
+    <parameter name="para2">Colombo</parameter>
+
+    <!--  Service TypeMapping -->
+    <typeMapping>Type mappping should come here</typeMapping>
+    <beanMapping>bean mappping should come here</beanMapping>
+
+    <!--
+    Phases
+    P1 p2 p3
+    -->
+
+    <InFlow>
+        <handler name="h1" class="org.apache.axis2.engine.registry.SpeakingHandler">
+            <order phase="p1" phaseFirst="true"/>
+            <parameter name="para8" locked="xsd:true">123</parameter>
+            <parameter name="para9" locked="xsd:true">456</parameter>
+            <parameter name="para10" locked="xsd:true">789</parameter>
+        </handler>
+        <handler name="h2" class="org.apache.axis2.engine.registry.SpeakingHandler"/>
+    </InFlow>
+
+    <OutFlow>
+        <handler name="h3" class="org.apache.axis2.engine.registry.SpeakingHandler">
+            <order phase="p2"/>
+            <parameter name="para8" locked="xsd:true">123</parameter>
+            <parameter name="para9" locked="xsd:true">456</parameter>
+        </handler>
+    </OutFlow>
+
+    <FaultFlow>
+        <handler name="h4" class="org.apache.axis2.engine.registry.SpeakingHandler">
+            <parameter name="para8" locked="xsd:true">123</parameter>
+            <parameter name="para9" locked="xsd:true">456</parameter>
+            <parameter name="para10" locked="xsd:true">789</parameter>
+        </handler>
+
+        <handler name="h5" class="org.apache.axis2.engine.registry.SpeakingHandler">
+            <order phase="p1"/>
+        </handler>
+
+        <handler name="h6" class="org.apache.axis2.engine.registry.SpeakingHandler">
+            <order phase="anyhase" phaseFirst="true" phaseLast="false"/>
+            <parameter name="para8" locked="xsd:true">123</parameter>
+            <parameter name="para9" locked="xsd:true">456</parameter>
+            <parameter name="para10" locked="xsd:true">789</parameter>
+        </handler>
+    </faultflow>
+
+
+    <operation name="opname" qname="opqname" style="anyStyle" use="anyUse">
+        <InFlow>
+            <handler name="h7" class="org.apache.axis2.engine.registry.SpeakingHandler"/>
+        </InFlow>
+        <OutFlow>
+            <handler name="h8" class="org.apache.axis2.engine.registry.SpeakingHandler">
+                <order phase="anyhase"/>
+                <parameter name="para8" locked="xsd:true">123</parameter>
+                <parameter name="para9" locked="xsd:true">456</parameter>
+                <parameter name="para10" locked="xsd:true">789</parameter>
+            </handler>
+        </OutFlow>
+        <FaultFlow>
+        </FaultFlow>
+    </operation>
+</service>

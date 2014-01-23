@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document><properties><title>Apache WSS4J API Overview</title></properties><body><section name="Apache WSS4J API Overview"></section><subsection name="Contents"><ul>
+  <li><a href="#API_Overview">API Overview</a><br></br>
+  </li>
+  <ul>
+    <li><a href="#org.apache.ws.security.WSSecurityEngine">WSSecurityEngine</a></li>
+    <li><a href="#org.apache.ws.security.message.WSBaseMessage">WSBaseMessage</a></li>
+    <li><a href="#org.apache.ws.security.message.WSSignEnvelope">WSSignEnvelope</a> 
+(extends WSBaseMessage)</li>
+    <li><a href="#org.apache.ws.security.message.WSAddTimestamp">WSAddTimestamp</a> 
+(extends WSBaseMessage)</li>
+    <li><a href="#org.apache.ws.security.message.WSEncryptBody">WSEncryptBody</a>  
+(extends WSBaseMessage)</li>
+    <li><a href="#org.apache.ws.security.message.WSAddUsernameToken">WSAddUsernameToken</a>
+(extends WSBaseMessage)</li>
+    <li><a href="#org.apache.ws.security.message.WSSAddSAMLToken">WSSAddSAMLToken</a>
+(extends WSBaseMessage)</li>
+  </ul>
+  <li><a href="#Examples">Examples</a></li>
+  <ul>
+    <li>Sign the SOAP Body</li>
+    <li>Encrypt the SOAP Body</li>
+    <li>Process WSS Header and Check the Results<br></br>
+    </li>
+  </ul>
+</ul><br></br></subsection><subsection name="API Overview"><p>WSS4J can be used as a library to provide an API for WS-Security
+processing. In this case WSS4J does not need to be used with Axis, or
+even be a part of a deployed web application. The WSS4J API can be
+invoked directly to create WS-Security headers or process them given a
+SOAP Envelope DOM Document.<br></br>
+</p><p>Following is an overview of the main classes and methods for the
+WSS4J API. Please refer to the java docs for the complete API
+documentation.<br></br>
+</p></subsection><subsection name="org.apache.ws.security.WSSecurityEngine"><table style="width: 100%; text-align: left;" border="0" cellpadding="4" cellspacing="4">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Action<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Method<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">Get an instance of security
+engine </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">
+      <pre>public static org.apache.ws.security.WSSecurityEngine getInstance()</pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Description<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 255, 255);">Get
+a singleton instance of security engine
+class. If you need to get an instance configured for an older spec
+(different namespaces) then use the other method which takes
+org.apache.ws.security.WSSConfig<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="4" style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Parameters<br></br>
+      </td>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Returns</span><br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">
+      <pre>org.apache.ws.security.WSSecurityEngine</pre>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">Processes
+WS-Security Headers in a SOAP Envelope<br></br>
+      </td>
+    </tr>
+  </tbody>
+</table><br></br><table style="width: 100%; text-align: left;" border="0" cellpadding="4" cellspacing="4">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Action<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Method<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">Verify WSS Headers<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">
+      <pre>java.util.Vector <b>processSecurityHeader</b>(<br></br>    org.w3c.dom.Document doc,<br></br>    java.lang.String actor,<br></br>    javax.security.auth.callback.CallbackHandler cb,<br></br>    org.apache.ws.security.components.crypto.Crypto crypto<br></br>    ) throws org.apache.ws.security.WSSecurityException</pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Description<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 255, 255);">Takes
+a SOAP Envelope as a W3C Document and verifies the WSS Headers. 
+This
+includes Username Token processing, Signature verification, decryption
+and timestamp verification. In the case of encrypted elements,
+decryption is performed live on the passed document, i.e., it is
+transformed into the decrypted format.<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="4" style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Parameters<br></br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">
+      <pre>doc</pre>
+      </td>
+      <td style="vertical-align: top;">the SOAP Envelope as W3C DOM
+Document</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold; background-color: rgb(204, 255, 255);">actor</td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">the
+engine works on behalf of this actor. Refer to the SOAP specification
+about actor or role, this may be null.<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold;">cb<br></br>
+      </td>
+      <td style="vertical-align: top;">a callback hander to the caller
+to resolve passwords during encryption and UsernameToken handling, this
+may be null.<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold; background-color: rgb(204, 255, 255);">crypto<br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">the
+object that implements the access to the keystore and the handling of
+certificates. A default implementation is included:
+org.apache.ws.security.components.crypto.Merlin<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Returns</span><br></br>
+      </td>
+      <td style="vertical-align: top;">
+      <pre>java.util.Vector</pre>
+      </td>
+      <td style="vertical-align: top;">Vector of
+org.apache.ws.security.WSSecurityEngineResult, this has the information
+resulting from the processing, such as the principal, SAML token, etc.<br></br>
+      </td>
+    </tr>
+  </tbody>
+</table><br></br></subsection><subsection name="org.apache.ws.security.message.WSBaseMessage"><table style="width: 100%; text-align: left;" border="0" cellpadding="4" cellspacing="4">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Action<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Method<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">Set the Signature/Encryption
+parts<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">
+      <pre>public void setParts(java.util.Vector parts)</pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Description<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 255, 255);">Takes
+a vector of org.apache.ws.security.WSEncryptionPart.<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="2" style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Parameters<br></br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">
+      <pre>doc</pre>
+      </td>
+      <td style="vertical-align: top;">the SOAP Envelope as W3C DOM
+Document</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold; background-color: rgb(204, 255, 255);">crypto<br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">the
+object that implements the access to the keystore and the handling of
+certificates. A default implementation is included:
+org.apache.ws.security.components.crypto.Merlin<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Returns</span><br></br>
+      </td>
+      <td style="vertical-align: top;">
+      <pre>org.w3c.dom.Document</pre>
+      </td>
+      <td style="vertical-align: top;">the
+SOAP Envelope Signed. The signed elements depend on the signature parts
+that are specified by the WSBaseMessage.setParts(java.util.Vector
+parts) method<br></br>
+      </td>
+    </tr>
+  </tbody>
+</table><br></br></subsection><subsection name="org.apache.ws.security.message.WSSignEnvelope
+(extends WSBaseMessage)"><table style="width: 100%; text-align: left;" border="0" cellpadding="4" cellspacing="4">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Action<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Method<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">Signs a SOAP Envelope<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">
+      <pre>public org.w3c.dom.Document build(<br></br>    org.w3c.dom.Document doc,<br></br>    org.apache.ws.security.components.crypto.Crypto crypto<br></br>    ) throws org.apache.ws.security.WSSecurityException</pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Description<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 255, 255);">Takes
+a SOAP Envelope as a W3C Document and adds WSS Signature header to it.
+The signed elements depend on the signature parts
+that are specified by the WSBaseMessage.setParts(java.util.Vector
+parts) method. By default, SOAP Body is signed </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="2" style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Parameters<br></br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">
+      <pre>doc</pre>
+      </td>
+      <td style="vertical-align: top;">the SOAP Envelope as W3C DOM
+Document</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold; background-color: rgb(204, 255, 255);">crypto<br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">the
+object that implements the access to the keystore and the handling of
+certificates. A default implementation is included:
+org.apache.ws.security.components.crypto.Merlin<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Returns</span><br></br>
+      </td>
+      <td style="vertical-align: top;">
+      <pre>org.w3c.dom.Document</pre>
+      </td>
+      <td style="vertical-align: top;">the
+SOAP Envelope signed.<br></br>
+      </td>
+    </tr>
+  </tbody>
+</table><br></br></subsection><subsection name="org.apache.ws.security.message.WSAddTimestamp
+(extends WSBaseMessage)"><table style="width: 100%; text-align: left;" border="0" cellpadding="4" cellspacing="4">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Action<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Method<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">Add a Timestamp Token to a
+SOAP Envelope </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">
+      <pre>public org.w3c.dom.Document <b>build</b>(<br></br>    org.w3c.dom.Document doc,<br></br>    int ttl)</pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Description<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 255, 255);">Takes
+a SOAP Envelope as a W3C Document and adds a Timestamp header to
+it. Please refer to the WS specification 1.0. chapter 10 / appendix A.2
+      <p> </p>
+      <p> </p>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="2" style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Parameters<br></br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">
+      <pre>doc</pre>
+      </td>
+      <td style="vertical-align: top;">the SOAP Envelope as W3C DOM
+Document</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold; background-color: rgb(204, 255, 255);">
+      <pre>ttl</pre>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">(time
+to live) This is the time difference in seconds between the <code>Created</code>
+and the <code>Expires</code> in <code>Timestamp</code>, set to zero
+if <code>Expires</code> should not be added. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Returns</span><br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(255, 255, 255);">
+      <pre>org.w3c.dom.Document</pre>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(255, 255, 255);">the
+SOAP Envelope with the Timestamp added<br></br>
+      </td>
+    </tr>
+  </tbody>
+</table><br></br></subsection><subsection name="org.apache.ws.security.message.WSEncryptBody
+(extends WSBaseMessage)"><table style="width: 100%; text-align: left;" border="0" cellpadding="4" cellspacing="4">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Action<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Method<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">Encrypt a SOAP Envelope<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">
+      <pre>public org.w3c.dom.Document build(<br></br>    org.w3c.dom.Document doc,<br></br>    org.apache.ws.security.components.crypto.Crypto crypto<br></br>    ) throws org.apache.ws.security.WSSecurityException</pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Description<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 255, 255);">Takes
+a SOAP Envelope as a W3C Document and adds WSS Encryption header to it.
+Unlike
+what the class name might imply, this can be used to encrypt elements
+in the SOAP Header, such as Username Tokens or other arbitrary
+elements. The encrypted elements depend on the signature parts
+that are specified by the WSBaseMessage.setParts(java.util.Vector
+parts) method. By default, SOAP Body is encrypted</td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="2" style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Parameters<br></br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">
+      <pre>doc</pre>
+      </td>
+      <td style="vertical-align: top;">the SOAP Envelope as W3C DOM
+Document</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold; background-color: rgb(204, 255, 255);">crypto<br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">the
+object that implements the access to the keystore and the handling of
+certificates. A default implementation is included:
+org.apache.ws.security.components.crypto.Merlin<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Returns</span><br></br>
+      </td>
+      <td style="vertical-align: top;">
+      <pre>org.w3c.dom.Document</pre>
+      </td>
+      <td style="vertical-align: top;">the
+SOAP Envelope encrypted.<br></br>
+      </td>
+    </tr>
+  </tbody>
+</table><br></br></subsection><subsection name="org.apache.ws.security.message.WSAddUsernameToken
+(extends WSBaseMessage)"><table style="width: 100%; text-align: left;" border="0" cellpadding="4" cellspacing="4">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Action<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Method<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">Add a Username Token to a
+SOAP Envelope<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">
+      <pre>public org.w3c.dom.Document build(<br></br>    org.w3c.dom.Document doc,<br></br>    java.lang.String username,<br></br>    java.lang.String password)</pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Description<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 255, 255);">Takes
+a SOAP Envelope as a W3C Document and adds a Username Token header to
+it. Use setPasswordType(java.lang.String pwType) to choose between
+plain text passwords and digested ones. </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="3" style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Parameters<br></br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">
+      <pre>doc</pre>
+      </td>
+      <td style="vertical-align: top;">the SOAP Envelope as W3C DOM
+Document</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold; background-color: rgb(204, 255, 255);">username<br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">the
+username to use<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">password<br></br>
+      </td>
+      <td style="vertical-align: top;">the password to use (a plain
+text string)<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Returns</span><br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">
+      <pre>org.w3c.dom.Document</pre>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">the
+SOAP Envelope with the username token header added<br></br>
+      </td>
+    </tr>
+  </tbody>
+</table><br></br></subsection><subsection name="org.apache.ws.security.message.WSSAddSAMLToken
+(extends WSBaseMessage)"><table style="width: 100%; text-align: left;" border="0" cellpadding="4" cellspacing="4">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Action<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 204, 204); font-weight: bold;">Method<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle;">Add a SAML Token to a SOAP
+Envelope </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top;">
+      <pre>public org.w3c.dom.Document build(<br></br>    org.w3c.dom.Document doc,<br></br>    org.opensaml.SAMLAssertion assertion)</pre>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Description<br></br>
+      </td>
+      <td colspan="2" rowspan="1" style="vertical-align: top; background-color: rgb(204, 255, 255);">Takes
+a SOAP Envelope as a W3C Document and adds a SAML Assertion Token
+header to
+it. Please refer to the OpenSAML documentation on how to construct SAML
+assertions.<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="1" rowspan="2" style="vertical-align: middle; background-color: rgb(204, 204, 204); font-weight: bold;">Parameters<br></br>
+      </td>
+      <td style="vertical-align: top; font-weight: bold;">
+      <pre>doc</pre>
+      </td>
+      <td style="vertical-align: top;">the SOAP Envelope as W3C DOM
+Document</td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; font-weight: bold; background-color: rgb(204, 255, 255);">
+      <pre>assertion</pre>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(204, 255, 255);">the
+SAML assertion to add<br></br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top; background-color: rgb(204, 204, 204);"><span style="font-weight: bold;">Returns</span><br></br>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(255, 255, 255);">
+      <pre>org.w3c.dom.Document</pre>
+      </td>
+      <td style="vertical-align: top; background-color: rgb(255, 255, 255);">the
+SOAP Envelope with the SAML assertion header added<br></br>
+      </td>
+    </tr>
+  </tbody>
+</table><br></br></subsection><subsection name="Examples"></subsection><subsection name="Sign the SOAP Body"><small>Document envelope = ...<br></br>
+WSSignEnvelope signer = new WSSignEnvelope();<br></br>
+Crypto crypto = CryptoFactory.getInstance("crypto.properties");<br></br>
+Vector parts = new Vector();<br></br>
+WSEncryptionPart part = new
+WSEncryptionPart(soapConstants.getBodyQName().getLocalPart(),<br></br>
+                       
+                 
+   soapConstants.getEnvelopeURI(),<br></br>
+                 
+                          
+"Content");<br></br>
+parts.add(part);<br></br>
+signer.setParts(parts); // this is optional since the body is signed by
+default<br></br>
+envelope = signer.build(envelope, crypto);</small><br></br></subsection><subsection name="Encrypt the SOAP Body"><small>Document envelope = ...<br></br>
+WSEncryptBody encryptor = new WSEncryptBody();<br></br>
+Crypto crypto = CryptoFactory.getInstance("crypto.properties");<br></br>
+Vector parts = new Vector();<br></br>
+WSEncryptionPart part = new
+WSEncryptionPart(soapConstants.getBodyQName().getLocalPart(),<br></br>
+                       
+                 
+   soapConstants.getEnvelopeURI(),<br></br>
+                 
+                          
+"Content");<br></br>
+parts.add(part);<br></br>
+encryptor.setParts(parts); </small><small>// this is optional since
+the body is encrypted by default</small><br></br><small>envelope = encryptor.build(envelope, crypto);</small><br></br></subsection><subsection name="Process WSS Header and Check the Results"><small>
+Document envelope = ...<br></br>
+WSSecurityEngine secEngine = WSSecurityEngine.getInstance();<br></br>
+Crypto crypto = CryptoFactory.getInstance("crypto.properties");<br></br>
+<code>// </code><code>javax.security.auth.callback.CallbackHandler<br></br>
+// please refer to the tests for examples of callback handlers<br></br>
+</code><code>CallbackHandler cb = new MyCallbackHandler();</code><code></code><br></br>
+Vector results = secEngine.processSecurityHeader(envelope, null, <code>cb</code>,
+crypto);<br></br>
+for (int i = 0; i &lt; results.size(); i++) {<br></br>
+    WSHandlerResult hResult =
+(WSHandlerResult)results.get(i);<br></br>
+    String actor = hResult.getActor();<br></br>
+    Vector hResults = hResult.getResults();<br></br>
+    for (int j = 0; j &lt; hResults.size(); j++) {<br></br>
+        WSSecurityEngineResult
+eResult = (WSSecurityEngineResult)hResults.get(j);<br></br>
+        // Note: an encryption
+action does not have an associated principal<br></br>
+        // only Signature and
+UsernameToken actions return a principal<br></br>
+        if (eResult.getAction() !=
+WSConstants.ENCR) {<br></br>
+           
+System.out.println(eResult.getPrincipal().getName());<br></br>
+        }<br></br>
+    }<br></br>
+}</small><br></br></subsection></body></document>

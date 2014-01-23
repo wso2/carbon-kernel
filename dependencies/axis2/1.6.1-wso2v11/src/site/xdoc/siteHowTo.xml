@@ -1,0 +1,64 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>How To Build Axis Project's Website</title>
+</head>
+<body>
+<h1>How to Build the Axis2 Project's Website</h1>
+<h2>Installing Maven2</h2>
+<p>The Axis 2.0 website build system solely depends on <a href=
+"http://maven.apache.org/">Maven2</a>. The build has been
+specifically tested to work with Maven version 2.0.7. To install
+Maven, download the distributions and follow the instructions in
+the documentation. Make sure you don't forget to add MAVEN_HOME/bin
+directory in the path.</p>
+<h2>Checking out Axis 2.0</h2>
+<p>Checkout the <a href=
+"http://svn.apache.org/repos/asf/axis/axis2/java/core/trunk">latest
+source</a> using your favorite SVN client. If you are a committer,
+get a <a href=
+"https://svn.apache.org/repos/asf/axis/axis2/java/core/trunk">commiter
+check out.</a></p>
+<h2>Building the Site</h2>
+<p>cd to modules/documentation and type <i>mvn install</i> The built
+site will be available under target/site.</p>
+<h2>FAQ</h2>
+<ol>
+<li>How can I update a document in the site ?<br />
+Get a commiter check out. All the documents are in XHTML format
+under the modules/documentation/xdocs folder, and you can change only the documents found
+under this folder. Change the relevant file and run <i>mvn
+install</i>. New documentation will be available under
+the target folder.</li>
+<li>How can I add a new document?<br />
+Add the new document in the xdocs folder. Change the navigation.xml
+found under the xdocs folder by adding a link to the newly added
+document. Re-generate the site.<br />
+Please make sure you have not included any of the illegal
+characters and your document should be well formed.</li>
+</ol>
+</body>
+</html>

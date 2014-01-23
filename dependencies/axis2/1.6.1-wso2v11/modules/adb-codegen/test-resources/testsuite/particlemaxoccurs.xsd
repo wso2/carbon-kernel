@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<xsd:schema targetNamespace="http://apache.org/axis2/schema/particlemaxoccurs"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:tns="http://apache.org/axis2/schema/particlemaxoccurs"
+            elementFormDefault="qualified" attributeFormDefault="unqualified"
+            version="1.0">
+
+    <xsd:element name="TestParticleSequenceMaxOccurs" type="tns:TestParticleSequenceMaxOccursType"/>
+    <xsd:complexType name="TestParticleSequenceMaxOccursType">
+        <xsd:sequence>
+            <xsd:element name="parm1" type="xsd:string"/>
+            <xsd:element name="parm2" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="TestParticleSequenceMaxOccurs1" type="tns:TestParticleSequenceMaxOccursType1"/>
+    <xsd:complexType name="TestParticleSequenceMaxOccursType1">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="parm1" type="xsd:string"/>
+            <xsd:element name="parm2" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="TestParticleSequenceMaxOccurs2" type="tns:TestParticleSequenceMaxOccursType2"/>
+    <xsd:complexType name="TestParticleSequenceMaxOccursType2">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="parm1" type="xsd:string"/>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="parm2" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="TestParticleSequenceMaxOccurs3" type="tns:TestParticleSequenceMaxOccursType3"/>
+    <xsd:complexType name="TestParticleSequenceMaxOccursType3">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element nillable="true" maxOccurs="unbounded" name="parm1" type="xsd:string"/>
+            <xsd:element nillable="true" maxOccurs="unbounded" name="parm2" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="TestParticleSequenceMaxOccurs4" type="tns:TestParticleSequenceMaxOccursType4"/>
+    <xsd:complexType name="TestParticleSequenceMaxOccursType4">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element nillable="true" name="parm1" type="tns:TestCustomType"/>
+            <xsd:element nillable="true" name="parm2" type="xsd:string"/>
+            <xsd:element nillable="true" name="parm3" type="tns:TestCustomType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="TestParticleSequenceMaxOccurs5" type="tns:TestParticleSequenceMaxOccursType5"/>
+    <xsd:complexType name="TestParticleSequenceMaxOccursType5">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element maxOccurs="unbounded" name="parm1" type="tns:TestCustomType"/>
+            <xsd:element nillable="true" name="parm2" type="xsd:string"/>
+            <xsd:element maxOccurs="unbounded" name="parm3" type="tns:TestCustomType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element name="TestParticleSequenceMaxOccurs6" type="tns:TestParticleSequenceMaxOccursType6"/>
+    <xsd:complexType name="TestParticleSequenceMaxOccursType6">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="parm1" type="xsd:string"/>
+            <xsd:element name="parm2" type="xsd:string"/>
+        </xsd:sequence>
+        <xsd:attribute type="xsd:string" use="optional" name="attribute1"/>
+        <xsd:attribute type="xsd:string" use="optional" name="attribute2"/>
+    </xsd:complexType>
+    <xsd:element name="TestParticleChoiceMaxOccurs" type="tns:TestParticleChoiceMaxOccursType"/>
+    <xsd:complexType name="TestParticleChoiceMaxOccursType">
+        <xsd:choice>
+            <xsd:element name="parm1" type="xsd:string"/>
+            <xsd:element name="parm2" type="xsd:string"/>
+        </xsd:choice>
+    </xsd:complexType>
+    <xsd:element name="TestParticleChoiceMaxOccurs1" type="tns:TestParticleChoiceMaxOccursType1"/>
+    <xsd:complexType name="TestParticleChoiceMaxOccursType1">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="parm1" type="xsd:string"/>
+            <xsd:element name="parm2" type="xsd:string"/>
+        </xsd:choice>
+    </xsd:complexType>
+    <xsd:element name="TestParticleChoiceMaxOccurs2" type="tns:TestParticleChoiceMaxOccursType2"/>
+    <xsd:complexType name="TestParticleChoiceMaxOccursType2">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="parm1" type="xsd:string"/>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="parm2" type="xsd:string"/>
+        </xsd:choice>
+    </xsd:complexType>
+    <xsd:element name="TestParticleChoiceMaxOccurs3" type="tns:TestParticleChoiceMaxOccursType3"/>
+    <xsd:complexType name="TestParticleChoiceMaxOccursType3">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element nillable="true" maxOccurs="unbounded" name="parm1" type="xsd:string"/>
+            <xsd:element nillable="true" maxOccurs="unbounded" name="parm2" type="xsd:string"/>
+        </xsd:choice>
+    </xsd:complexType>
+    <xsd:element name="TestParticleChoiceMaxOccurs4" type="tns:TestParticleChoiceMaxOccursType4"/>
+    <xsd:complexType name="TestParticleChoiceMaxOccursType4">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element nillable="true" name="parm1" type="tns:TestCustomType"/>
+            <xsd:element nillable="true" name="parm2" type="xsd:string"/>
+            <xsd:element nillable="true" name="parm3" type="tns:TestCustomType"/>
+        </xsd:choice>
+    </xsd:complexType>
+    <xsd:element name="TestParticleChoiceMaxOccurs5" type="tns:TestParticleChoiceMaxOccursType5"/>
+    <xsd:complexType name="TestParticleChoiceMaxOccursType5">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element maxOccurs="unbounded" name="parm1" type="tns:TestCustomType"/>
+            <xsd:element nillable="true" name="parm2" type="xsd:string"/>
+            <xsd:element maxOccurs="unbounded" name="parm3" type="tns:TestCustomType"/>
+        </xsd:choice>
+    </xsd:complexType>
+    <xsd:element name="TestParticleChoiceMaxOccurs6" type="tns:TestParticleChoiceMaxOccursType6"/>
+    <xsd:complexType name="TestParticleChoiceMaxOccursType6">
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="parm1" type="xsd:string"/>
+            <xsd:element name="parm2" type="xsd:string"/>
+        </xsd:choice>
+        <xsd:attribute type="xsd:string" use="optional" name="attribute1"/>
+        <xsd:attribute type="xsd:string" use="optional" name="attribute2"/>
+    </xsd:complexType>
+    <xsd:complexType name="TestCustomType">
+        <xsd:sequence>
+            <xsd:element nillable="true" name="param1" type="xsd:string"/>
+            <xsd:element maxOccurs="unbounded" name="param2" type="xsd:string"/>
+            <xsd:element minOccurs="0" name="param3" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+
+</xsd:schema>

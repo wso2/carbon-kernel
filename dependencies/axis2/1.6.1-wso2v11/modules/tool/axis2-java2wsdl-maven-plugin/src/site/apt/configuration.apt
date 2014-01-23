@@ -1,0 +1,30 @@
+Configuration
+
+  The Java2WSDL goal takes the following parameters as input. All parameters can be set from the command line by using
+  properties. For example, the parameter "className" may be set using the property
+  "axis2.java2wsdl.className". If the parameter isn't set via property or in the POM, then a default
+  value applies.
+
+*-----------------------------+------------------------------------------------+------------------------------------------------+
+| Parameter name              | Command line property                          | Description                                    |
+|                             | Default value                                  |                                                |
+*-----------------------------+------------------------------------------------+------------------------------------------------+
+| className                   | ${axis2.java2wsdl.className}                   | Fully qualified name of the class, which is    |
+|                             |                                                | being read and transformed into a WSDL.        |
+*-----------------------------+------------------------------------------------+------------------------------------------------+
+| outputFileName              | ${axis2.java2wsdl.outputFileName}              | Path of the generated service file.            |
+*-----------------------------*------------------------------------------------*------------------------------------------------*
+| schemaTargetNamespace       | ${axis2.java2wsdl.schemaTargetNamespace}       | Target namespace of the generated schema.      |
+*-----------------------------+------------------------------------------------+------------------------------------------------+
+| schemaTargetNamespacePrefix | ${axis2.java2wsdl.schemaTargetNamespacePrefix} | Prefix, which is being associated with the     |
+|                             |                                                | schemas target namespace.                      |
+*-----------------------------+------------------------------------------------+------------------------------------------------+
+| serviceName                 | ${axis2.java2wsdl.serviceName}                 | Name of the generated web service.             |
+|                             | Unqualified name of the input class.           |                                                |
+*-----------------------------+------------------------------------------------+------------------------------------------------+
+| targetNamespace             | ${axis2.java2wsdl.targetNamespace}             | Target namespace of the generated WSDL.        |
+|                             | Default namespace                              |                                                |
+*-----------------------------+------------------------------------------------+------------------------------------------------+
+| targetNamespacePrefix       | ${axis2.java2wsdl.targetNamespacePrefix}       | Prefix, which is being associated with the     |
+|                             |                                                | target namespace.                              |
+*-----------------------------+------------------------------------------------+------------------------------------------------+

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<faqs xmlns="http://maven.apache.org/FML/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/FML/1.0 http://maven.apache.org/xsd/fml-1.0.xsd"
+      title="Frequently (and less frequently) Asked Questions"
+      toplink="false">
+    <part id="general">
+        <faq id="dom">
+            <question>
+                I'm using Axiom, but I need to integrate with a library using DOM. What can I do?
+            </question>
+            <answer>
+                <p>There are currently two solutions:</p>
+                <ol>
+                    <li>Axiom separates API and implementation. The default implementation is called
+                    LLOM (Linked List Object Model) and provided by the <code>axiom-impl</code>
+                    artifact. There is also a second implementation called DOOM (DOM over OM) that
+                    implements both the Axiom API and DOM. It is provided by the <code>axiom-dom</code>
+                    artifact. You can use this implementation to integrate with DOM based code.
+                    Note however that the DOM implementation provided by DOOM is not perfect. In
+                    particular it doesn't implement DOM 3.</li>
+                    <li>Starting with version 1.2.8, Axiom has
+                    <a href="apidocs/org/apache/axiom/om/impl/jaxp/OMSource.html"><code>OMSource</code></a> and
+                    <a href="apidocs/org/apache/axiom/om/impl/jaxp/OMResult.html"><code>OMResult</code></a>
+                    classes which are implementations of JAXP's
+                    <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/xml/transform/Source.html"><code>Source</code></a> and
+                    <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/xml/transform/Result.html"><code>Result</code></a>
+                    classes. You can use these to transform an Axiom tree into DOM (using
+                    a standard implementation of DOM) and vice-versa. These two classes are based on
+                    <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/xml/transform/sax/SAXSource.html">SAXSource</a> and
+                    <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/xml/transform/sax/SAXResult.html">SAXResult</a>,
+                    which means that you loose the deferred parsing capabilities of Axiom, but in many cases this will be
+                    acceptable.</li>
+                </ol>
+            </answer>
+        </faq>
+    </part>
+</faqs>

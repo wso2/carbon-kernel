@@ -1,0 +1,389 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Writing your Own Axis2 Module</title>
+</head>
+<body dir="ltr" lang="en-US" xml:lang="en-US">
+<a name="Modules" id="Modules"></a>
+<h1>Writing Your Own Axis2 Module</h1>
+<p>Axis2 provides extended support for modules (See the <a href=
+"Axis2ArchitectureGuide.html">Architecture
+Guide</a> for more details about modules in Axis2). Let's create a
+custom module and deploy it to MyService, which we created
+earlier.</p>
+<p>Send your feedback or questions to: <a href=
+"mailto:java-dev@axis.apache.org?subject=[Axis2]">java-dev@axis.apache.org</a>.
+( Subscription details are available on the <a href="../mail-lists.html">Axis2 site</a>.)
+Kindly prefix subject with [Axis2].</p>
+<h2>Content List</h2>
+<ul>
+<li><a href="#MyService_with_a_Logging_Module">MyService with a
+Logging Module</a>
+<ul>
+<li><a href="#Step1_:_LoggingModule_Class">Step1 : LoggingModule
+Class</a></li>
+<li><a href="#Step2_:_LogHandler">Step2 : LogHandler</a></li>
+<li><a href="#Step3_:_module_xml">Step3 : module.xml</a></li>
+<li><a href="#Step_4:_Modify_the_&quot;axis2_xml&quot;">Step4:
+Modify the "axis2.xml"</a></li>
+<li><a href="#Step5_:_Modify_the_&quot;services_xml&quot;">Step5 :
+Modify the "services.xml</a></li>
+<li><a href="#Step6_:_Packaging">Step6 : Packaging</a></li>
+<li><a href="#Step7_:_Deploy_the_Module_in_Axis2">Step7 : Deploy
+the Module in Axis2</a></li>
+</ul>
+</li>
+</ul>
+<p>The following steps show the actions that need to be performed
+to deploy a custom module for a given Web service:</p>
+<ol>
+<li>
+<p style="margin-bottom: 0in">Create the Module Implementation</p>
+</li>
+<li>
+<p style="margin-bottom: 0in">Create the Handlers</p>
+</li>
+<li>
+<p style="margin-bottom: 0in">Create the module.xml</p>
+</li>
+<li>
+<p style="margin-bottom: 0in">Modify the "axis2.xml" (if you need
+custom phases)</p>
+</li>
+<li>
+<p style="margin-bottom: 0in">Modify the "services.xml" to engage
+modules at the deployment time.</p>
+</li>
+<li>
+<p style="margin-bottom: 0in">Package in a ".mar" (Module
+Archive)</p>
+</li>
+<li>
+<p>Deploy the module in Axis2</p>
+</li>
+</ol>
+<a name="MyService_with_a_Logging_Module" id=
+"MyService_with_a_Logging_Module"></a>
+<h3>MyService with a Logging Module</h3>
+<p>Let's write a simple logging module for our sample located at
+the <b>"samples\userguide\src"</b> directory of the binary
+distribution. This module contains one handler that just logs the
+message that is passed through it. Axis2 uses ".mar" (Module
+Archive) to deploy modules in Axis2. The following diagram shows
+the file structure inside which needs to be there in the ".mar"
+archive. Let's create all these and see how it works.</p>
+<p><img src="images/userguide/ModuleView.jpg" name="Graphic5"
+align="bottom" border="0" id="Graphic5" /></p>
+<a name="Step1_:_LoggingModule_Class" id=
+"Step1_:_LoggingModule_Class"></a>
+<h4>Step1 : LoggingModule Class</h4>
+<p>LoggingModule is the implementation class of the Axis2 module.
+Axis2 modules should implement the "<a href=
+"http://svn.apache.org/viewcvs.cgi/webservices/axis2/trunk/java/modules/core/src/org/apache/axis2/modules/Module.java?rev=396785&amp;view=log">org.apache.axis2.modules.Module</a>"
+interface with the following methods.</p>
+<pre>
+public void init(ConfigurationContext configContext, AxisModule module) throws AxisFault;//Initialize the module
+public void shutdown(ConfigurationContext configurationContext) throws AxisFault;//End of module processing
+public void engageNotify(AxisDescription axisDescription) throws AxisFault;
+public void applyPolicy(Policy policy, AxisDescription axisDescription) throws AxisFault ;
+public boolean canSupportAssertion(Assertion assertion) ;
+</pre>
+<p>The first three methods can be used to control the module
+initialization and the termination, and the next three methods are
+used to perform policy related operations. With the input parameter
+AxisConfiguration, the user is provided with the complete
+configuration hierarchy. This can be used to fine-tune the module
+behavior by the module writers. For a simple logging service, we
+can keep these methods blank in our implementation class.</p>
+<a name="Step2_:_LogHandler" id="Step2_:_LogHandler"></a>
+<h4>Step2 : LogHandler</h4>
+<p>A module in Axis2 can contain, one or more handlers that perform
+various SOAP header processing at different phases. (See the
+<a href="Axis2ArchitectureGuide.html#incomingsoap"
+>Architecture Guide</a> for more information on phases). To
+write a handler one should implement <a href=
+"http://svn.apache.org/viewcvs.cgi/webservices/axis2/trunk/java/modules/core/src/org/apache/axis2/engine/Handler.java?rev=357187&amp;view=log">
+org.apache.axis2.engine.Handler</a>. But for convenience, <a href=
+"http://svn.apache.org/viewcvs.cgi/webservices/axis2/trunk/java/modules/core/src/org/apache/axis2/handlers/AbstractHandler.java?rev=396788&amp;view=log">
+org.apache.axis2.handlers.AbstractHandler</a> provides an abstract
+implementation of the Handler interface.</p>
+<p>For the logging module, we will write a handler with the
+following methods. "public void invoke(MessageContext ctx);" is the
+method that is called by the Axis2 engine when the control is
+passed to the handler. "public void revoke(MessageContext ctx);" is
+called when the handlers are revoked by the Axis2 engine.</p>
+<pre>
+public class LogHandler extends AbstractHandler implements Handler {
+    private static final Log log = LogFactory.getLog(LogHandler.class);
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public InvocationResponse invoke(MessageContext msgContext) throws AxisFault {
+        log.info(msgContext.getEnvelope().toString());
+        return InvocationResponse.CONTINUE;        
+    }
+
+    public void revoke(MessageContext msgContext) {
+        log.info(msgContext.getEnvelope().toString());
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+</pre>
+<a name="Step3_:_module_xml" id="Step3_:_module_xml"></a>
+<h4>Step3 : module.xml</h4>
+<p>"module.xml" contains the deployment configurations for a
+particular module. It contains details such as the Implementation
+class of the module (in this example it is the "LoggingModule"
+class and various handlers that will run in different phases). The
+"module.xml" for the logging module will be as follows:</p>
+<pre>
+&lt;module name="logging" class="userguide.loggingmodule.LoggingModule"&gt;
+   &lt;InFlow&gt;
+        &lt;handler name="InFlowLogHandler" class="userguide.loggingmodule.LogHandler"&gt;
+        &lt;order phase="loggingPhase" /&gt;
+        &lt;/handler&gt;
+   &lt;/InFlow&gt;
+
+   &lt;OutFlow&gt;
+        &lt;handler name="OutFlowLogHandler" class="userguide.loggingmodule.LogHandler"&gt;
+        &lt;order phase="loggingPhase"/&gt;
+        &lt;/handler&gt;
+   &lt;/OutFlow&gt;
+
+   &lt;OutFaultFlow&gt;
+        &lt;handler name="FaultOutFlowLogHandler" class="userguide.loggingmodule.LogHandler"&gt;
+        &lt;order phase="loggingPhase"/&gt;
+        &lt;/handler&gt;
+   &lt;/OutFaultFlow&gt;
+
+   &lt;InFaultFlow&gt;
+        &lt;handler name="FaultInFlowLogHandler" class="userguide.loggingmodule.LogHandler"&gt;
+        &lt;order phase="loggingPhase"/&gt;
+        &lt;/handler&gt;
+   &lt;/InFaultFlow&gt;
+&lt;/module&gt;
+</pre>
+<p>As you can see, there are four flows defined in the
+"module.xml"</p>
+<ol>
+<li>InFlow Represents the handler chain that will run when a
+message is coming in.</li>
+<li>
+<p style="margin-bottom: 0in">OutFlow Represents the handler chain
+that will run when the message is going out.</p>
+</li>
+<li>
+<p style="margin-bottom: 0in">OutFaultFlow - Represents the handler
+chain that will run when there is a fault, and the fault is going
+out.</p>
+</li>
+<li>
+<p>InFaultFlow - Represents the handler chain that will run when
+there is a fault, and the fault is coming in.</p>
+</li>
+</ol>
+<p>The following set of tags describe the name of the handler,
+handler class, and the phase in which this handler is going to run.
+"InFlowLogHandler" is the name given for the particular instance of
+this handler class. The value of the class attribute is the actual
+implementation class for this handler. Since we are writing a
+logging handler, we can reuse the same handler in all these phases.
+However, this may not be the same for all the modules. "&lt;order
+phase="loggingPhase" /&gt;" describes the phase in which this
+handler runs.</p>
+<pre>
+&lt;handler name="InFlowLogHandler" class="userguide.loggingmodule.LogHandler"&gt;
+&lt;order phase="loggingPhase" /&gt;
+&lt;/handler&gt;
+</pre>
+<p>To learn more about Phase rules, check out the article <a href=
+"http://www.developer.com/java/web/article.php/3529321"
+>Axis2 Execution Framework</a></p>
+<a name="Step_4:_Modify_the_&quot;axis2_xml&quot;"></a>
+<h4>Step 4: Modify the "axis2.xml"</h4>
+<p>In this handler, the "loggingPhase", is defined by the module
+writer. It is not a pre-defined handler phase, hence the module
+writer should introduce it to the "axis2.xml" (NOT the
+services.xml) so that the Axis2 engine knows where to place the
+handler in different "flows" (inFlow, outFlow, etc.). The following
+XML lines show the respective changes made to the "axis2.xml" in
+order to deploy the logging module in the Axis2 engine. This is an
+extract of the phase section of "axis2.xml".</p>
+<pre>
+&lt;!-- ================================================= --&gt;
+&lt;!-- Phases --&gt;
+&lt;!-- ================================================= --&gt;
+
+&lt;phaseOrder type="inflow"&gt;
+        &lt;!--  System pre defined phases       --&gt;
+        &lt;phase name="TransportIn"/&gt;
+        &lt;phase name="PreDispatch"/&gt;
+        &lt;phase name="Dispatch" class="org.apache.axis2.engine.DispatchPhase"&gt;
+            &lt;handler name="AddressingBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.AddressingBasedDispatcher"&gt;
+                &lt;order phase="Dispatch"/&gt;
+            &lt;/handler&gt;
+
+            &lt;handler name="RequestURIBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.RequestURIBasedDispatcher"&gt;
+                &lt;order phase="Dispatch"/&gt;
+            &lt;/handler&gt;
+
+            &lt;handler name="SOAPActionBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher"&gt;
+                &lt;order phase="Dispatch"/&gt;
+            &lt;/handler&gt;
+
+            &lt;handler name="SOAPMessageBodyBasedDispatcher"
+                     class="org.apache.axis2.dispatchers.SOAPMessageBodyBasedDispatcher"&gt;
+                &lt;order phase="Dispatch"/&gt;
+            &lt;/handler&gt;
+            &lt;handler name="InstanceDispatcher"
+                     class="org.apache.axis2.engine.InstanceDispatcher"&gt;
+                &lt;order phase="PostDispatch"/&gt;
+            &lt;/handler&gt;
+        &lt;/phase&gt;
+        &lt;!--  System pre defined phases       --&gt;
+        &lt;!--   After Postdispatch phase module author or service author can add any phase he wants      --&gt;
+        &lt;phase name="OperationInPhase"/&gt;
+                &lt;phase name="<span style=
+"color: rgb(36, 193, 19);">loggingPhase</span>"/&gt;
+    &lt;/phaseOrder&gt;
+    &lt;phaseOrder type="outflow"&gt;
+        &lt;!--      user can add his own phases to this area  --&gt;
+        &lt;phase name="OperationOutPhase"/&gt;
+        &lt;phase name="<span style=
+"color: rgb(36, 193, 19);">loggingPhase</span>"/&gt;
+        &lt;!--system predefined phases--&gt;
+        &lt;!--these phases will run irrespective of the service--&gt;
+        &lt;phase name="PolicyDetermination"/&gt;
+        &lt;phase name="MessageOut"/&gt;
+    &lt;/phaseOrder/&gt;
+    &lt;phaseOrder type="INfaultflow"&gt;
+        &lt;!--      user can add his own phases to this area  --&gt;
+        &lt;phase name="OperationInFaultPhase"/&gt;
+        &lt;phase name="<span style=
+"color: rgb(36, 193, 19);">loggingPhase</span>"/&gt;
+    &lt;/phaseOrder&gt;
+    &lt;phaseOrder type="Outfaultflow"&gt;
+        &lt;!--      user can add his own phases to this area  --&gt;
+        &lt;phase name="OperationOutFaultPhase"/&gt;
+        &lt;phase name="<span style=
+"color: rgb(36, 193, 19);">loggingPhase</span>"/&gt;
+        &lt;phase name="PolicyDetermination"/&gt;
+        &lt;phase name="MessageOut"/&gt;
+    &lt;/phaseOrder&gt;
+    
+</pre>
+<p>The text in green, the custom phase "loggingPhase" is placed in
+all the flows, hence that phase will be called in all the message
+flows in the engine. Since our module is associated with this
+phase, the LogHandler inside the module will now be executed in
+this phase.</p>
+<a name="Step5_:_Modify_the_&quot;services_xml&quot;"></a>
+<h4>Step5 : Modify the "services.xml"</h4>
+<p>Up to this point, we have created the required classes and
+configuration descriptions for the logging module, and by changing
+the "axis2.xml" we created the required phases for the logging
+module.</p>
+<p>Next step is to "<b>engage</b>" (use) this module in one of our
+services. For this, let's use the same Web service that we have
+used throughout the user's guide- MyService. However, since we need
+to modify the "services.xml" of MyService in order to engage this
+module, we use a separate Web service, but with similar
+operations.</p>
+<p>The code for this service can be found in the
+"<strong>Axis2_HOME/samples/userguide/src/userguide/example2</strong>"
+directory. The simple changes that we have done to "services.xml'
+are shown in green in the following lines of xml.</p>
+<pre>
+&lt;service name="<span style=
+"color: rgb(36, 193, 19);">MyServiceWithModule</span>"&gt;
+    &lt;description&gt;
+    This is a sample Web service with a logging module engaged.
+    &lt;/description&gt;
+    <span style=
+"color: rgb(36, 193, 19);">&lt;module ref="logging"/&gt;</span>
+    &lt;parameter name="ServiceClass" locked="xsd:false"&gt;userguide.example2.MyService&lt;/parameter&gt;
+    &lt;operation name="echo"&gt;
+    &lt;messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/&gt;
+    &lt;/operation&gt;
+    &lt;operation name="ping"&gt;
+    &lt;messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/&gt;
+    &lt;/operation&gt;
+&lt;/service&gt;
+</pre>
+<p>In this example, we have changed the service name (the
+implementation class is very similar to what we have used earlier,
+although it is in a different package). In addition we have added
+the line <b>"&lt;module ref="logging"/&gt;"</b> to "services.xml".
+This informs the Axis2 engine that the module "logging" should be
+engaged for this service. The handler inside the module will be
+executed in their respective phases as described by the
+"module.xml".</p>
+<a name="Step6_:_Packaging" id="Step6_:_Packaging"></a>
+<h4>Step6 : Packaging</h4>
+<p>Before deploying the module, we need to create the ".mar" file
+for this module. This can be done, using the "jar" command and then
+renaming the created .jar file. Else, you can find the
+"logging.mar" that has already been created in the
+"<strong>Axis2_HOME/samples/userguide</strong>" directory.</p>
+<a name="Step7_:_Deploy_the_Module_in_Axis2" id=
+"Step7_:_Deploy_the_Module_in_Axis2"></a>
+<h4>Step7 : Deploy the Module in Axis2</h4>
+<p>Deploying a module in Axis2 requires the user to create a
+directory with the name "modules" in the "webapps/axis2/WEB-INF"
+directory of their servlet container, and then copying the ".mar"
+file to that directory. So let's first create the "modules"
+directory and drop the "logging.mar" into this directory.</p>
+<p>Although the required changes to the "services.xml" is very
+little, we have created a separate service archive
+(MyServiceWithModule.aar) for users to deploy the service..</p>
+<p>Deploy this service using the same steps used in the <a href=
+"adv-userguide.html#Step5_Deploy_web_service">'Step 4: Deploy Web
+Service'</a> sub section in '<a href=
+"userguide.html#ws_codegen">Writing a New Service using
+Codegeneration</a>', and copy the "logging.mar" file to the
+"modules" directory.</p>
+<p>Then run 'ant run.client.servicewithmodule' from
+<strong>axis2home/samples/userguide directory</strong></p>
+<p>Note: To see the logs, the user needs to modify the
+"log4j.properties" to log INFO. The property file is located in
+"<strong>webapps/axis2/WEB-INF/classes</strong>" of your servlet
+container. Change the line "log4j.rootCategory= ERROR, LOGFILE" to
+"log4j.rootCategory=INFO, ERROR, LOGFILE".</p>
+<p><font size="2"><b>Note (on samples):</b></font> All the samples
+mentioned in the user's guide are located at the
+<b>"samples\userguide\src"</b> directory of the binary
+distribution.</p>
+</body>
+</html>

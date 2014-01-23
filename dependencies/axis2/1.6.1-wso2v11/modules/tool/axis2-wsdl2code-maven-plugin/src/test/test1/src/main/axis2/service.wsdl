@@ -1,0 +1,112 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions
+    xmlns:axis2="http://ws.apache.org/axis2"
+    xmlns:ns1="http://org.apache.axis2/xsd"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+    xmlns:ns="http://axisversion.sample/xsd"
+    xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+    targetNamespace="http://ws.apache.org/axis2">
+  <wsdl:documentation>
+    xDWS service example
+  </wsdl:documentation>
+  <wsdl:types>
+    <xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        attributeFormDefault="unqualified"
+        elementFormDefault="qualified"
+        targetNamespace="http://axisversion.sample/xsd">
+      <xs:element name="commands">
+        <xs:complexType/>
+      </xs:element>
+      <xs:element name="commandsResponse">
+        <xs:complexType/>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="commandsMessage">
+    <wsdl:part name="part1" element="ns:commands"/>
+  </wsdl:message>
+  <wsdl:message name="commandsResponse">
+    <wsdl:part name="part1" element="ns:commandsResponse"/>
+  </wsdl:message>
+  <wsdl:portType name="axis2-test-0.0.1PortType">
+    <wsdl:operation name="commands">
+      <wsdl:input
+          xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+          message="axis2:commandsMessage"
+          wsaw:Action="urn:commands"/>
+      <wsdl:output
+          xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+          message="axis2:commandsResponse"
+          wsaw:Action="http://ws.apache.org/axis2/xDWSPortType/commandsResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="axis2-test-0.0.1SOAP11Binding" type="axis2:axis2-test-0.0.1PortType">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="commands">
+      <soap:operation soapAction="urn:commands" style="document"/>
+      <wsdl:input>
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="axis2-test-0.0.1SOAP12Binding" type="axis2:axis2-test-0.0.1PortType">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+    <wsdl:operation name="commands">
+      <soap12:operation soapAction="urn:commands" style="document"/>
+      <wsdl:input>
+        <soap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="axis2-test-0.0.1HttpBinding" type="axis2:axis2-test-0.0.1PortType">
+    <http:binding verb="POST"/>
+    <wsdl:operation name="commands">
+      <http:operation location="commands"/>
+      <wsdl:input>
+        <mime:content type="text/xml"/>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/xml"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="axis2-test-0.0.1">
+    <wsdl:port name="axis2-test-0.0.1SOAP11port_http" binding="axis2:axis2-test-0.0.1SOAP11Binding">
+      <soap:address location="http://192.168.136.3:8080/axis2-webapp/services/axis2-test-0.0.1"/>
+    </wsdl:port>
+    <wsdl:port name="axis2-test-0.0.1SOAP12port_http" binding="axis2:axis2-test-0.0.1SOAP12Binding">
+      <soap12:address location="http://192.168.136.3:8080/axis2-webapp/services/axis2-test-0.0.1"/>
+    </wsdl:port>
+    <wsdl:port name="axis2-test-0.0.1Httpport0" binding="axis2:axis2-test-0.0.1HttpBinding">
+      <http:address location="http://192.168.136.3:8080/axis2-webapp/rest/axis2-test-0.0.1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

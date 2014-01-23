@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<rdf:RDF xml:lang="en"
+         xmlns="http://usefulinc.com/ns/doap#" 
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:asfext="http://projects.apache.org/ns/asfext#"
+	 xmlns:foaf="http://xmlns.com/foaf/0.1/">
+  <Project rdf:about="http://ws.apache.org/axiom/">
+    <created>2010-05-30</created>
+    <license rdf:resource="http://usefulinc.com/doap/licenses/asl20"/>
+    <name>Apache Axiom</name>
+    <homepage rdf:resource="http://ws.apache.org/axiom/"/>
+    <asfext:pmc rdf:resource="http://webservices.apache.org"/>
+    <shortdesc>Apache Axiom is an XML object model supporting deferred parsing.</shortdesc>
+    <description>Apache Axiom is a StAX-based, XML Infoset compliant object model which supports on-demand building of the object tree. It supports a novel "pull-through" model which allows one to turn off the tree building and directly access the underlying pull event stream. It also has built in support for XML Optimized Packaging (XOP) and MTOM, the combination of which allows XML to carry binary data efficiently and in a transparent manner. The combination of these is an easy to use API with a very high performant architecture!</description>
+    <bug-database rdf:resource="http://issues.apache.org/jira/browse/AXIOM"/>
+    <mailing-list rdf:resource="http://ws.apache.org/axiom/mail-lists.html"/>
+    <download-page rdf:resource="http://ws.apache.org/axiom/download.cgi"/>
+    <programming-language>Java</programming-language>
+    <category rdf:resource="http://projects.apache.org/category/library"/>
+    <category rdf:resource="http://projects.apache.org/category/xml"/>
+    <release><Version><name>Apache Axiom</name><created>2006-03-26</created><revision>0.95</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2006-05-02</created><revision>1.0</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2006-09-15</created><revision>1.1</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2006-09-18</created><revision>1.1.1</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2006-11-13</created><revision>1.2</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2006-11-30</created><revision>1.2.1</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2007-01-09</created><revision>1.2.2</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2007-04-03</created><revision>1.2.3</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2007-04-20</created><revision>1.2.4</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2007-07-05</created><revision>1.2.5</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2008-04-09</created><revision>1.2.6</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2008-04-20</created><revision>1.2.7</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2009-01-15</created><revision>1.2.8</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2010-06-13</created><revision>1.2.9</revision></Version></release>
+    <release><Version><name>Apache Axiom</name><created>2010-10-30</created><revision>1.2.10</revision></Version></release>
+    <repository>
+      <SVNRepository>
+        <location rdf:resource="http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/axiom"/>
+        <browse rdf:resource="http://svn.apache.org/viewvc/webservices/commons/trunk/modules/axiom"/>
+      </SVNRepository>
+    </repository>
+    <maintainer>
+      <foaf:Person>
+        <foaf:name>Axiom Development Team</foaf:name>
+        <foaf:mbox rdf:resource="mailto:dev@ws.apache.org?subject=[Axiom]"/>
+      </foaf:Person>
+    </maintainer>
+    <asfext:implements>
+      <asfext:Standard>
+        <asfext:title>Extensible Markup Language (XML) 1.0 (Fourth Edition)</asfext:title>
+        <asfext:body>W3C</asfext:body>
+        <asfext:id>XML 1.0</asfext:id>
+        <asfext:url rdf:resource="http://www.w3.org/TR/2006/REC-xml-20060816/"/>
+      </asfext:Standard>
+    </asfext:implements>
+    <asfext:implements>
+      <asfext:Standard>
+        <asfext:title>Namespaces in XML 1.0 (Second Edition)</asfext:title>
+        <asfext:body>W3C</asfext:body>
+        <asfext:id>Namespaces in XML 1.0</asfext:id>
+        <asfext:url rdf:resource="http://www.w3.org/TR/2006/REC-xml-names-20060816/"/>
+      </asfext:Standard>
+    </asfext:implements>
+    <asfext:implements>
+      <asfext:Standard>
+        <asfext:title>XML-binary Optimized Packaging</asfext:title>
+        <asfext:body>W3C</asfext:body>
+        <asfext:id>XOP 1.0</asfext:id>
+        <asfext:url rdf:resource="http://www.w3.org/TR/2005/REC-xop10-20050125/"/>
+      </asfext:Standard>
+    </asfext:implements>
+    <asfext:implements>
+      <asfext:Standard>
+        <asfext:title>SOAP Version 1.2 Part 1: Messaging Framework (Second Edition)</asfext:title>
+        <asfext:body>W3C</asfext:body>
+        <asfext:id>SOAP 1.2</asfext:id>
+        <asfext:url rdf:resource="http://www.w3.org/TR/2007/REC-soap12-part1-20070427/"/>
+      </asfext:Standard>
+    </asfext:implements>
+    <asfext:implements>
+      <asfext:Standard>
+        <asfext:title>SOAP Message Transmission Optimization Mechanism</asfext:title>
+        <asfext:body>W3C</asfext:body>
+        <asfext:id>MTOM</asfext:id>
+        <asfext:url rdf:resource="http://www.w3.org/TR/2005/REC-soap12-mtom-20050125/"/>
+      </asfext:Standard>
+    </asfext:implements>
+    <asfext:implements>
+      <asfext:Standard>
+        <asfext:title>XML Information Set (Second Edition)</asfext:title>
+        <asfext:body>W3C</asfext:body>
+        <asfext:id>XML Infoset</asfext:id>
+        <asfext:url rdf:resource="http://www.w3.org/TR/2004/REC-xml-infoset-20040204/"/>
+      </asfext:Standard>
+    </asfext:implements>
+    <asfext:implements>
+      <asfext:Standard>
+        <asfext:title>Document Object Model (DOM) Level 2 Core</asfext:title>
+        <asfext:body>W3C</asfext:body>
+        <asfext:id>DOM Level 2 Core</asfext:id>
+        <asfext:url rdf:resource="http://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/"/>
+      </asfext:Standard>
+    </asfext:implements>
+  </Project>
+</rdf:RDF>

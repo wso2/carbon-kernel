@@ -1,0 +1,187 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<title>WS Policy Support in Axis2</title>
+<meta name="generator" content=
+"amaya 9.2.1, see http://www.w3.org/Amaya/" />
+</head>
+<body lang="en" xml:lang="en">
+<h1 align="center">Web Services Policy Support In Apache Axis2</h1>
+<p>This document gives you an introduction to the role of Web
+services policy in Apache Axis2.</p>
+<p>Send your feedback to: <a href=
+"mailto:java-dev@axis.apache.org?subject=[Axis2]">java-dev@axis.apache.org</a>.
+(Subscription details are available on the <a href="../mail-lists.html">Axis2 site</a>.)
+Kindly prefix every email subject with [Axis2].</p>
+<h2>Content</h2>
+<ul>
+<li><a href="#what">What is Web Services (WS) Policy?</a></li>
+<li><a href="#client">Client Side WS-Policy Support</a></li>
+<li><a href="#server">Server Side WS-Policy Support</a></li>
+<li><a href="#resources">Resources</a></li>
+</ul>
+<a name="what" id="what"></a>
+<h2>What is Web Services (WS) Policy?</h2>
+<p>To consume non trivial web services you must fully understand
+its XML contract (WSDL) along with any other additional
+requirements, capabilities, or preferences that translate to the
+configuration of the service and essentially becomes the policies
+of the service.</p>
+<p>WS Policy framework provides a way to express the policies of a
+service in a machine-readable way. A Web services infrastructure
+can be enhanced to understand and enforce policies at runtime. For
+instance, a service author might write a policy requiring a digital
+signature and encryption, while service consumers can use the
+policy information to reason out whether they can adhere to this
+policy information to use the service.</p>
+<p>Furthermore, Web service infrastructure can be enhanced to
+enforce those requirements without requiring the service author to
+write even a single line of code.</p>
+<a name="client" id="client"></a>
+<h2>Client Side WS-Policy Support</h2>
+<p>This release <strong>fully supports WS Policy at
+client-side</strong>. It means that when you codegen a stub against
+a WSLD which contains policies, the stub will contain the
+capability to engage the required modules with the appropriate
+configurations, plus it will generate additional methods in the
+stub where the user can set certain properties. For instance, if
+there is a security policy attached to a binding, the generated
+stub will engage the security module for that service with the
+appropriate security configurations with some addtional methods
+that the user can use to set properties in the generated stub.</p>
+<h3>How it works:</h3>
+<h4>Phase 1: At PolicyEvaluator</h4>
+<p>The Codegen engine runs a few of its registered extensions
+before it generates the stub. When the PolicyEvalutor (which is a
+registered Codegen extension) is initialized, it populates a
+registry of QNames of supported policy assertions to
+PolicyExtensions.</p>
+<p>For instance, module Foo might have a mapping of assertion
+{http://test.com/foo, foo} which means any assertion that has this
+name will be processed by this module. The Foo module might
+implement the ModulePolicyExtension interface through which the
+PolicyExtension object can be obtained.</p>
+<p>A <strong>PolicyExtension</strong> is the access point for a
+module to add any additional methods to the stub. For instance a
+Reliable Messaging module can add startSequence() and endSequence()
+methods to the stub, that the user must call to start and end an RM
+sequence.</p>
+<p>Then at the engagement of the PolicyEvaluator, the effective
+policy of each message of every operation is calculated based on
+policy information declared in the WSDL document. Here we assume
+that the effective policy of an operation contains a single
+alternative (<strong>Multiple policy alternatives are not
+supported</strong>). Then we split that policy as follows into few
+other policies such that, each policy will contain assertions that
+can be processed by a single module.</p>
+<pre>
+  &lt;wsp:Policy&gt;         &lt;wsp:Policy&gt;       &lt;wsp:Policy&gt;        
+    &lt;a:Foo/&gt;             &lt;a:Foo/&gt;           &lt;b:Foo/&gt;               
+    &lt;b:Bar/&gt;      =&gt;                               &lt;/wsp:Policy&gt;       
+                                   &lt;/wsp:Policy&gt;
+  &lt;/wsp:Policy&gt;
+</pre>
+<p>Then each policy is given the appropriate PolicyExtension with
+an org.w3c.Element type object to which the module can append any
+other elements/attributes it wishes. Those attributes/elements
+should resolve to meaningful stub functions through the Custom
+PolicyExtensionTemplate.xsl at a latter point of time.</p>
+<p>For instance, depending on the policy, the Security module can
+append &lt;username&gt;, &lt;passwd&gt; elements to the given
+element as children, which are later resolved into setUsername(..),
+setPasswd(..), functions of the stub. This way a module can include
+additional methods to the stub that can be used to get specific
+propreties from the user. These methods store any user input in the
+ServiceClient properties
+(ServiceClient.getOptions().putProperty(...)) which can later be
+accessed by the module.</p>
+<h4>Phase 2: At AxisServiceBasedMultiLanguageClientEmitter</h4>
+<p>Further, policies (based on the WSDL) at appropriate levels
+(service level, operation level) are stored as policy strings in
+the stub. If there are a few policies at a given level, they are
+merged together and represented as a single policy in the stub. Few
+more generic methods are also added to the stub which are used to
+evaluate and process the policies at runtime.</p>
+<h4>Phase 3: Runtime</h4>
+<p>When a new stub object is created, the policy strings in the
+stub are converted into policy objects and are set in the
+AxisDescription hierarchy that is used in the stub. In other words,
+any policy information available in the WSDL will be preserved in
+the AxisService object that is used in the stub.</p>
+<p>Then based on its policy, each AxisDescription is engaged to a
+set of modules. Modules can do a prior calculation of
+configurations if needed at the engagement.</p>
+<p>When the stub method is invoked, those modules which are engaged
+to that AxisDescription, access the policy for that operation via
+the AxisDescription object. It can get the other required
+information from the MessageContext, which is stored by stub
+methods that the module has added to the stub earlier, through the
+ModulePolicyExtension implementation. The modules are required to
+load their configurations according to the effective policy, which
+is set at AxisDescription, and the properties they get via
+MessageContext.</p>
+<a name="server" id="server"></a>
+<h2>Server Side WS-Policy Support</h2>
+<p>In this current release, the Apache Axis2 framework uses the
+WS-Commons/Neethi framework to manipulate policy documents. All its
+description builders store the policy information included in
+description documents (services.xml, axis2.xml, .. etc) in the
+appropriate description classes. This information is available at
+both deployment and run time via these description classes.</p>
+<p>When generating WSDL dynamically for each service, policy
+information in the description classes is included. For instance,
+if you declare a policy in axis2.xml, then that policy is reflected
+in the service elements of the WSDL of every service. If a policy
+is declared in a services.xml, it is shown in the service element
+of WSDL for that particular service.</p>
+<p>Further, when a service is deployed, an arbitary policy
+alternative is selected and set for each AxisOperation and
+AxisMessages of the AxisService. If the selected Policy alternative
+cannot be supported by any modules that are capable of processing
+the selective alternative, then the service is considered as a
+faulty service. Else, the set of modules is engaged at appropriate
+levels to support the requirments and capabilities that are defined
+in the Policies associated with the AxisDescription.</p>
+<p>It is evident that there is some work left to make Apache Axis2
+a fully fledged ws-policy supported Web service infrastructure.
+However, it is encouraging to note that we've taken the first steps
+towards this goal. We appreciate any suggestions, patches, etc.,
+you send us in this regard. Keep on contributing!</p>
+<a name="resources" id="resources"></a>
+<h2>Resources</h2>
+<ul>
+<li>Apache Neethi (WS Policy Implementation) official site-
+<a href="http://ws.apache.org/commons/neethi/index.html">Home Page</a></li>
+<li>Sanka Samaranayake, March 2006. <a href=
+"http://wso2.org/library/23">Web services Policy - Why, What &amp; How</a></li>
+<li><a href=
+"http://svn.apache.org/viewcvs.cgi/webservices/commons/trunk/modules/neethi/">WS-commons/policy SVN</a></li>
+<li><a href=
+"http://specs.xmlsoap.org/ws/2004/09/policy/ws-policy.pdf">Web Services Policy Framework (WS-Policy)</a></li>
+</ul>
+</body>
+</html>

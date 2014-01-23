@@ -1,0 +1,349 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<meta content="text/html; charset=iso-8859-1" />
+<title>Axis2 Plug-in Guide for IntelliJ IDEA</title>
+<meta name="generator" content="Bluefish 1.0.6" />
+</head>
+<body lang="en" xml:lang="en">
+<h1>Axis2 Plug-in Guide for IntelliJ IDEA</h1>
+<p>This document explains the installation and usage of Axis2
+plug-in for IntelliJ IDEA.</p>
+<p><a href="../index.html">[Download
+Plug-in]</a></p>
+<h2>Content</h2>
+<ul>
+<li><a href="#intro">Introduction</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#WSDL2Java_Code_Generation">WSDL2Java Code
+Generation</a></li>
+<li><a href="#Create_Service_Archive">Create a Service Archive</a>
+<ul>
+<li><a href="#sub12">Sub Wizard 1 &amp; Sub Wizard 2</a></li>
+<li><a href="#sub3">Sub Wizard 3</a></li>
+</ul>
+</li>
+</ul>
+<a name="intro" id="intro"></a>
+<h2>Introduction</h2>
+<p>The Axis2 plug-in for IntelliJ IDEA helps users to create
+service archives which can be deployed in Axis2, and generate java
+classes files from WSDL files. The following section describes the
+installation procedure followed by the usage of the plug-in.</p>
+<p><b>Note:</b> This plug-in is made up with IDEA Open API which will be
+compatible with idea version since build 4121. The plugin also be
+compatible with all the builds after build number 4121 and also the
+java version should be 1.4 or higher. The provided screen shots may
+slightly differ with what the user would actually see but the
+functionality has not been changed.</p>
+<a name="installation" id="installation"></a>
+<h2>Installation</h2>
+<p>First <a href=
+"../index.html">download</a> the
+plug-in which is a zipped file, and extract it into plugins
+directory which is located in the directory where IDEA is
+installed. If a previous version of the plug-in resides in this
+directory you will have to delete it prior to extracting the new
+zip file. If you have extracted the file correctly you would see a
+directory called axis2-idea-plugin.</p>
+<p>Next step is to restart IDEA so that the changes can take place.
+If the plug-in has been installed correctly, you will see following
+icons in IDEA when it is restarted.</p>
+<p><img alt="Figure 1" src="images/idea-icons.jpg" /></p>
+<p>Also if you right-click on the IDEA editor you would see a link
+to the same plug-in.</p>
+<p><img alt="Figure2" src="images/idea-popup.jpg" /></p>
+<p>When you click on either one of them, a window (Page 1) will
+appear asking you to select one of the following two options.</p>
+<ol>
+<li><a href="#Create_Service_Archive">Create a service
+archive</a></li>
+<li><a href="#WSDL2Java_Code_Generation">WSDL2Java code
+generation</a></li>
+</ol>
+<p><strong>Page 1:</strong></p>
+<p><img alt="Figure3" src="images/fig1.jpg" /></p>
+<p>If you want to create a service archive obviously you must
+select "Create a service archive" option. Like wise, if u want to
+generate java class file from a WSDL file you must select the radio
+button option "WSDL2Java code generation".</p>
+<h2><a name="WSDL2Java_Code_Generation" id=
+"WSDL2Java_Code_Generation">WSDL2Java Code Generation</a></h2>
+<p>Select "WSDL2Java code generation" and click on the button "OK"
+to generate code from a WSDL file. Then the following window will
+appear.</p>
+<p><strong>WSDL2Java Page 2:</strong></p>
+<p><img alt="Figure4" src="images/fig2.jpg" /></p>
+<p>Once the WSDL file is selected you will be able to move onto the
+next page. The "Browse" button can be used to easily browse for a
+file rather than having to type the whole path.</p>
+<p>Once the WSDL file is selected, click on the "Next" button which
+will take you to the page below.</p>
+<p><strong>WSDL2Java Page 3:</strong></p>
+<p>This page gives the user the option of selecting default or
+custom code generation options. There are three default code
+generation options in all. The first enables the user to generate
+both client and server code under default configurations while the
+second generates just the client side under default configurations.
+The third option generates server side code under default
+configurations.</p>
+<p><strong>Note:</strong></p>
+<ul>
+<li>When client side code is generated under default configurations
+it generates the stub, compiles it, packages it as a jar (the name
+of the jar will be &lt;service name &gt;-jar) places it in a lib
+folder (If there is no lib folder, it is created) under the IDEA
+project that is opened. This jar that's generated will also be
+added as a project library to the current active IDEA project.</li>
+<li>When server code is generated under default configurations it
+generates the server side code and also generates a default
+service.xml. The user will then be taken to page 5.</li>
+<li>When both server and client side is generated under default
+configurations the client stub is added are a jar to the current
+IDEA project and the user is taken to page 5.</li>
+</ul>
+<p><img alt="Figure5" src="images/fig19.jpg" /></p>
+<p><strong>WSDL2Java Page 4:</strong></p>
+<p><strong>Codegen options</strong> are to be selected here. By far
+this is the most important page in this wizard, which determines
+the characteristics of the code being generated.</p>
+<p><img alt="Figure5" src="images/fig18.jpg" /></p>
+<p><strong>Here's some information on the options for
+selection:</strong></p>
+<ul>
+<li>Output language can be Java, C#. But we have not fully tested
+C# codegeneration, therefore, it is better to select Java as output
+language.</li>
+<li>If the WSDL comprises of several services, the user can select
+the service for which the code should be generated for.</li>
+<li>If the WSDL comprises of several ports for a particullar
+service, the user can select the port which the code should be
+generated for.</li>
+<li>The default data binding type is adb (Axis2 Data Binding).
+Although the tool is capable of providing XML beans, due to class
+loading issues in XML beans, current implementation only generate
+code with OM and ADB.</li>
+<li>As for the package name of the generated code, you can set the
+name as you wish.</li>
+<li>Users can select the one out of the three options- "Generate
+Client Side", "Generate Server Side" and "Generate All". The user
+will be able to select further options based on his options
+selected here. These sub options are explained below.</li>
+<li style="list-style: none; display: inline">
+<ul>
+<li>If user selects "Generate Client Side", he can further select
+the service invocation style. Since Axis2 supports both synchronous
+and asynchronous client programming model, the tool has provided a
+way to selecting the invocation style.</li>
+<li>If user selects "Generate Server Side", he can also generate a
+default service XML file. If the user selects "Generate an
+interface for skeleton" option then it only generates an interface
+for the server side. If so the user has to implement this
+interface. If this option is not selected, the skeleton class is
+generated, which the user can fill in later on.</li>
+<li>If user selects "Generate All" option, then all the classes
+will be generated in the referenced schemas by the WSDL
+irrespective of elements referred by the WSDL, along with the
+client side code.</li>
+</ul>
+</li>
+<li>The dafault behaviour of the code generator is to map
+namespaces to package names logically, but if the user wishes to
+change the package names of the generated classes, he can do so by
+changing the values in the Namespace to Packagename mapping
+table.</li>
+</ul>
+<p>With these enhanced options novices need not worry about the
+options that can be set as the default options cover the most
+common cases. Advanced users will find it very easy to turn the
+knobs using the custom generation option.</p>
+<p><strong>WSDL2Java Page 5:</strong></p>
+<p><img alt="Figure6" src="images/fig3.jpg" /></p>
+<p>Here uses have the option of adding the generated code directly
+to their working IDEA project or choose a custom location. If the
+user decides to add it to the current IDEA project he/she will have
+to choose the module and the source directory that the code should
+be generated to.</p>
+<p>Alternatively the user can browse and select the output
+location/path (the location at which the code is to be generated)
+using the "Browse" button. Because of the "Browse" button you do
+not need to type in the output file path.</p>
+<p><img alt="Fig4" src="images/fig4.jpg" /></p>
+<p>Once an output location is selected you can click on "Finish"
+button which will generate the java class file. If code generation
+is successful then a message box will appear acknowledging this
+fact a shown above.</p>
+<p><a name="Create_Service_Archive" id=
+"Create_Service_Archive"></a></p>
+<h2>Create a Service Archive</h2>
+<p>Select the "Create a service archive" radio button on Page 1 of
+Axis2 IDEA plug-in wizard.</p>
+<p><strong>Page 1:</strong></p>
+<p><img alt="Fig5" src="images/fig1.jpg" /></p>
+<p><strong>Service Archive Page 2:</strong></p>
+<p>The page below will appear asking the user to select the archive
+type</p>
+<p><img alt="fig6" src="images/fig6.jpg" /></p>
+<p>In Axis2, the user can deploy a single service or a service
+group. Therefore, you can select either "Single service archive" or
+"Service group archive" for the archive type you want to
+create.</p>
+<p>If you already have a services.xml you can skip some of the
+steps in the wizard by selecting the radio button option "I already
+have services.xml" and clicking on "Next" button. If you do not
+have the services.xml, select the radio button option "Generate
+services.xml" and click on the "Next" button, in which case the
+tool will create the services.xml for you.</p>
+<p>Depending on the options you selected on this page there can be
+three sub wizards:</p>
+<ol>
+<li><a href="#sub12">Sub wizard 1</a> (Generate single service and
+its services.xml)</li>
+<li><a href="#sub12">Sub wizard 2</a> (Generate service group and
+its services.xml)</li>
+<li><a href="#sub3">Sub wizard 3</a> (Generate service/service
+group using already existing services.xml)</li>
+</ol>
+<p>1 &amp; 2 follow the same set of steps except for some looping
+mechanism in the middle of the wizard.</p>
+<a name="sub12" id="sub12"></a>
+<h3>Sub Wizard 1 and Sub Wizard 2</h3>
+<p><strong>Service Archive (sub wizards 1 &amp; 2) Page
+3:</strong></p>
+<p>From this page you have to select the location of the service
+classes directory (the location of the compiled classes). You do
+not need to type path, simply browse and select.</p>
+<p><img alt="fig7" src="images/fig7.jpg" /></p>
+<p>When you click on "Next" button, wizard will move to the page
+below</p>
+<p><strong>Service Archive (sub wizards 1 &amp; 2) Page
+4:</strong></p>
+<p>Here you select service specific external libraries (third party
+libraries) and service WSDL files. If you want to add multiple WSDL
+files to a single service type you can do that as well.</p>
+<p><img alt="fig8" src="images/fig8.jpg" /></p>
+<p>To add libraries first click on the browse button to browse for
+library files and then click on the "Add" button. Once added the
+selected file will appear in the list box.</p>
+<p>To add WSDLs, first click on the browse button to browse for
+WSDL file and then click the "Add" button to add the file to the
+list.</p>
+<p>After adding external libraries and service WSDL files click on
+the "Next" button to move to next page.</p>
+<p><strong>Service Archive (sub wizards 1 &amp; 2) Page
+5:</strong></p>
+<p>This page allows you to select service implementation class. In
+the case of service group, same page will be looped to select
+multiple service implementation classes. This process is explained
+in detail below.</p>
+<p>Select a service implementation class by browsing and clicking
+on the "Load" button to load all the public methods in that class,
+after which you can select the methods that you want to publish
+using the check boxes.</p>
+<p><strong>Note :</strong> If you do not select the correct class
+path from the "Class location selection" window, the public methods
+which are available in the selected class file will not be
+loaded.</p>
+<p><img alt="fig10" src="images/fig10.jpg" /></p>
+<p>In "Service Name" text box you can type the name of the service
+you want, but remember that the service name should be unique
+throughout the system.</p>
+<p>When you have completed this particular service click on the
+button "Next". In the case of a service group when you click on the
+"Next" button for that particular service the following dialog box
+will appear with option to add more service(s) to a service
+group.</p>
+<p><img alt="fig11" src="images/fig11.jpg" /></p>
+<p>If you click on "Yes", you have to follow the same procedure to
+add some other service(s) to service group.</p>
+<p>If you click on "No", the button "Next" will be enabled and you
+can go to next page.</p>
+<p><a name="Note" id="Note"><strong><em>Note: From this point
+onwards the steps are similar to all the sub
+wizards.</em></strong></a></p>
+<p><strong>Service Archive (sub wizards 1 &amp; 2) Page
+6:</strong></p>
+<p>This page displays the services.xml file, either the one given
+by you (in the case of I already have services.xml)
+or the one generated by the system (in the case of "generate
+services.xml")</p>
+<p><img alt="fig12" src="images/fig12.jpg" /></p>
+<p>This page is editable and provide a way to add parameters and
+module references to any level.</p>
+<p><strong>Note :</strong> When you click on either the
+"+Parameter" or the "+ModuleRef" buttons remember that
+corresponding text will be added to the current mouse position.
+Therefore, click on the location you want to add the parameter or
+module references and then click relevant button (+Parameter or
++ModuleRef).</p>
+<p><strong>+Parameter button:</strong></p>
+<p>If you click on the "+Parameter" button a window will appear
+asking to give parameter name and parameter value.</p>
+<p><img alt="fig13" src="images/fig13.jpg" /></p>
+<p>Note that you can also manually add parameters (without clicking
+on the "+Parameter" button ) to any where in the document as you
+wish.</p>
+<p><strong>+ModuleRef button:</strong></p>
+<p>Likewise, adding module references can be done by clicking on
+the "+ModuleRef" button in the page. You have to type the name of
+the module to be engaged as shown in the following figure.</p>
+<p><img alt="fig14" src="images/fig14.jpg" /></p>
+<p>When you complete this page press the "Next" button to go to
+final page.</p>
+<p><strong>Service Archive (sub wizards 1 &amp; 2) Page
+7:</strong></p>
+<p><img alt="fig15" src="images/fig15.jpg" /></p>
+<p>Next step is to select output file location, the location in
+which archive file should be created.</p>
+<p>In the "Archive Name" text box, type the name of the archive
+file you want to place. This name will finally become the service
+group name.</p>
+<p><strong>Note :</strong> Do not include file extension when you
+type archive name. System will generate that for you.</p>
+<p>When you are done, click the "Finish" button. If everything has
+been done successfully you will see following message.</p>
+<p><img alt="fig16" src="images/fig16.jpg" /></p>
+<p><strong><em>Note: Pages 6 &amp; 7 of sub wizards 1 &amp; 2 are
+common to sub wizard 3 from its page 3 onwards.</em></strong></p>
+<a name="sub3" id="sub3"></a>
+<h3>Sub Wizard 3</h3>
+<p>In the case where services.xml is already available, the steps
+are as follows:</p>
+<p><strong>Service Archive (sub wizard 3) Page 3:</strong></p>
+<p><img alt="fig17" src="images/fig17.jpg" /></p>
+<p>This page allows you to select both location of services.xml and
+the location of service classes directory. Click on the "Select"
+buttons and browse the file system to find required document and
+location.</p>
+<p>Click on the "Next" button which will take you to a page which
+allows you to add third party libraries and WSDL's in the same
+manner as "Sub Wizard 1 &amp; Sub Wizard 2" section's <a href=
+"#Note">Page 6 - Edit service descriptors</a>. Note that Sub Wizard
+3 from this point takes the same pages as 6 to 7 of Sub Wizards 1
+&amp; 2.</p>
+</body>
+</html>

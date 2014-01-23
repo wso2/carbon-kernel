@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<faqs xmlns="http://maven.apache.org/FML/1.0.1"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/FML/1.0.1 http://maven.apache.org/xsd/fml-1.0.1.xsd"
+      title="Frequently Asked Questions on Apache Axis2"
+      toplink="false">
+    <part id="general">
+    	<title>General</title>
+        <faq id="a1">
+            <question>
+                I'm having a problem using Axis2. What should I do?
+            </question>
+            <answer>
+                <p>First make sure you go through the user guide and this FAQ. If
+                you are using a released version of Axis2, then there is a
+                possibility that your problem has already being fixed in the latest
+                code. Download Axis2 nightly builds and test again. You can download
+                the complete snapshot distributions from our
+                <a href="https://hudson.apache.org/hudson/job/Axis2/lastStableBuild/org.apache.axis2$distribution">Hudson
+                continuous integration server</a> and individual JARs from our
+                <a href="http://repository.apache.org/snapshots/org/apache/axis2/">snapshot repository</a>. The
+                snapshot repository is also the best choice if you are using Maven to build your project.
+                </p>
+                <p>If the problem still persists, then try to search for your
+                question in our <a href=
+                "http://marc.theaimsgroup.com/?l=axis-dev&amp;r=1&amp;w=2">developer</a>
+                or <a href=
+                "http://marc.theaimsgroup.com/?l=axis-user&amp;r=1&amp;w=2">user</a>
+                mailing archives as it might have already being answered.</p>
+                <p>If your problem is not answered in the mailing list, now is the
+                best time to post your question to the axis-user mailing list (see next question). If
+                you think it is a bug, please fill a bug report in <a href=
+                "http://issues.apache.org/jira/browse/AXIS2">JIRA</a>. Please
+                attach all the supportive information, like your wsdl, schema,
+                clients, services, stacktraces, etc., to the JIRA issue you
+                created, as it will help one of our contributors to re-create the
+                problem. <b>PLEASE DO NOT ASK QUESTIONS USING JIRA; USE IT ONLY AS
+                AN ISSUE TRACKER.</b></p>
+                <p>If you are asking for an explanation of a feature in Axis2,
+                there is a possibility that there is an article or FAQ written on
+                it. Please search the web as there are lots of articles written and
+                hosted by various sources on the web.</p>
+            </answer>
+        </faq>
+        <faq id="mailinglists">
+            <question>
+                How to ask a question on the mailing list?
+            </question>
+            <answer>
+                <p>
+                    If you have a question that has not been answered elsewhere (see previous question),
+                    you may ask it on one of the mailing lists:
+                </p>
+                <ul>
+                    <li>Users : <a href="mailto:java-user@axis.apache.org">java-user@axis.apache.org</a></li>
+                    <li>Developers : <a href="mailto:java-dev@axis.apache.org">java-dev@axis.apache.org</a></li>
+                </ul>
+                <p>
+                    Before posting to a list, you need to <a href="mail-lists.html">subscribe</a> first.
+                    Since the mailing lists are shared with other subprojects (such as Rampart), please
+                    prefix the subject with <tt>[Axis2]</tt>. 
+                </p>
+                <p><b>Note</b> : When you ask questions in the mailing list, please
+                remember that everyone working in our project are volunteers.
+                No-one can be forced to fix your bugs (See <a href=
+                "http://www.apache.org/foundation/faq.html#what-is-apache-NOT-about">
+                What is Apache not about?</a> ).</p>
+                <p>Make sure you add enough information about your problem with
+                stacktraces and any other supportive information. It will improve
+                the chances of your question being answered. Prefixing your mail
+                subject with prefixes like "URGENT" will not help you in any means.
+                Yes we also accept all the blames about Axis2 in these mailing
+                lists, as those will definitely help us to improve Axis2 :) .</p>
+            </answer>
+        </faq>
+    </part>
+    <part id="classloading">
+        <title>Class Loading Issues</title>
+        <faq id="b1">
+            <question>
+                How do I access resources that I put into my service or module archive file?
+            </question>
+            <answer>
+                <p>Axis2 has the notion of service isolation where each service or
+                module gets its own class loader. Using this class loader you can
+                access any resource that you put into your service archive file.
+                You may want to access your resources from different locations. For
+                example,</p>
+                <ol>
+                    <li>
+                        <p>A third party module wants to access your resources. Then the
+                        scenario is as follows:</p>
+<pre>
+AxisService myService =
+messageContext.getAxisConfiguration().getAxisService("serviceName"); 
+</pre>
+                        <p>or</p>
+<pre>
+AxisService myService = msgCtx.getAxisService();
+</pre>
+                        <p>Then you can use the service class loader through which you can
+                        access its resources</p>
+<pre>
+ClassLoader clsLoader = myService.getServiceClassLoader();
+clsLoader.getResourceAsStream("myResource");
+</pre>
+                    </li>
+                    <li>
+                        <p>To initialize the service implementation class at the
+                        MessageReceiver level, the following steps need to be taken</p>
+<pre>
+AxisService service = msgCtx.getAxisService();
+ClassLoader clsLoader = service.getServiceClassLoader();
+Class.forName("serviceName",clsLoader,true);
+</pre>
+                        <p>NOTE : Axis2 default MessageReciver uses the same technique to
+                        initialize service implementations</p>
+                    </li>
+                    <li>
+                        <p>If you want to load your resources at the service
+                        implementation class, then the scenario is as follows</p>
+<pre>
+getClass().getClassLoader().getResourceAsStream("myResource");
+</pre>
+                    </li>
+                </ol>
+            </answer>
+        </faq>
+    </part>
+    <part id="client">
+        <title>Client API</title>
+        <faq id="c1">
+            <question>
+                I want to do Request-Response Messaging, Where should I look?
+            </question>
+            <answer>
+                <p>Look at the <a href=
+                "https://svn.apache.org/repos/asf/axis/axis2/java/core/trunk/modules/kernel/src/org/apache/axis2/client/ServiceClient.java"
+                >ServiceClient</a> class, for more information
+                please read the <a href="docs/adv-userguide.html"
+                >User's Guide</a></p>
+            </answer>
+        </faq>
+        <faq id="c2">
+            <question>
+                I want to do One Way Messaging, Where should I look?
+            </question>
+            <answer>
+                <p>From Axis2 0.94 onwards, both request-response and one way
+                messaging will be handled by <a href=
+                "https://svn.apache.org/repos/asf/axis/axis2/java/core/trunk/modules/kernel/src/org/apache/axis2/client/ServiceClient.java"
+                >ServiceClient</a>.</p>
+            </answer>
+        </faq>
+        <faq id="c3">
+            <question>
+                When I try to do a non blocking call with <tt>useSeparateListener=true</tt> I get the error <i>to do two Transport Channels the Addressing
+                Modules must be engaged</i>, Why is this?
+            </question>
+            <answer>
+                <p>To do the two transport channel invocation, you need to engage
+                the addressing module. You can enable it by un-commenting the entry
+                in the axis2.xml file or <code>Call.engageModule(QName)</code>. However,
+                addressing is enabled by default.</p>
+            </answer>
+        </faq>
+        <faq id="c4">
+            <question>
+                I have engaged addressing, and
+                when I try to invoke a service I get an exception
+            </question>
+            <answer>
+                <p>If you have engaged addressing, then you must have wsa:action,
+                the required WS-Addressing header. You have to call
+                <code>option.setAction("urn:myaction");</code>. Note that the
+                action should be a URI.</p>
+            </answer>
+        </faq>
+        <faq id="c5">
+            <question>
+                What is Axis2 Repository?
+            </question>
+            <answer>
+                <p>The Repository stores the configuration of Axis2. The users
+                should specify the repository folder of the Axis Server (HTTP or
+                TCP). In the case of Tomcat, it is the webapps/axis2/WEB-INF
+                folder. The following picture shows a sample repository.</p>
+                <img alt="Sample repository" src="images/faq/1.jpg" />
+                <p>Modules and services have an archive format defined and they are
+                automatically picked up by Axis2 when they are copied to
+                corresponding folders.</p>
+            </answer>
+        </faq>
+    </part>
+    <part id="services">
+        <title>Services</title>
+        <faq id="e1">
+            <question>
+                How do I have multiple services in one service archive?
+            </question>
+            <answer>
+                <p>It's just a matter of writing a services.xml file to configure
+                the service or services in an archive file. The corresponding
+                services.xml <strong>must</strong> look as follows,</p>
+<pre>
+&lt;serviceGroup&gt;
+  &lt;service <strong>name="myService1"</strong>&gt;
+  ...........................
+  &lt;/service&gt;
+
+  &lt;service <strong>name="myService2"</strong>&gt;
+  ...........................
+  &lt;/service&gt;
+&lt;serviceGroup&gt;
+</pre>
+                <p>NOTE : The name attribute is a compulsory attribute that will
+                become the name of the services. If you want to have one service in
+                the archive file, then there are two options. You can either have
+                one service inside the serviceGroup tag or have only one service
+                tag, as shown below, in your services.xml, in which case, the name
+                of the service will be the name of the archive file, which you
+                cannot override.</p>
+<pre>
+&lt;service&gt;
+...............
+&lt;service&gt;
+</pre>
+            </answer>
+        </faq>
+        <faq id="f1">
+            <question>
+                I see an internal server error page when I try to view the WSDL file.
+            </question>
+            <answer>
+                <p>This happens specifically with Tomcat 4.x and 5.0 in a JDK 1.5
+                environment. The reason is that the system picks up a wrong
+                transformer factory class. This can be solved simply by putting the
+                <a href=
+                "http://www.apache.org/dist/java-repository/xalan/jars/">xalan-2.7.0.jar</a>
+                into the axis2/WEB-INF/lib directory</p>
+            </answer>
+        </faq>
+    </part>
+    <part id="databindings">
+        <title>Databindings</title>
+        <faq id="unexpected_subelement">
+            <question>
+                When using ADB, I get an "Unexpected subelement" exception. Is this a bug?
+            </question>
+            <answer>
+                <p>
+                    In general, "Unexpected subelement" means that the message being processed
+                    doesn't conform to the WSDL that was used to generate the ADB code. If you are getting
+                    this exception on the client side, it means that the response from the server
+                    is invalid. If you are seeing the error on the server side, it means that the
+                    request received by the service is invalid.
+                </p>
+                <p>
+                    If you are sure that the message conforms to the WSDL and believe that there
+                    is an issue with the code generated by Axis2, you should do the following before
+                    opening a JIRA issue:
+                </p>
+                <ol>
+                    <li>
+                        Test the scenario with the latest Axis2 snapshot version. This includes
+                        regenerating the code with the latest codegen version.
+                    </li>
+                    <li>
+                        Provide the WSDL that causes the issue, or if for legal reasons you are not
+                        allowed to provide the original WSDL, provide a minimal WSDL that reproduces
+                        the problem.
+                    </li>
+                    <li>
+                        Provide some hard evidence that this is indeed an issue in Axis2. This means
+                        at least a transcript of the SOAP message that proves that it conforms to the WSDL.
+                    </li>
+                </ol>
+            </answer>
+        </faq>
+    </part>
+</faqs>

@@ -1,0 +1,13 @@
+--MIMEBoundaryurn_uuid_E3F7CE4554928DA89B1231365678616
+Content-Type: text/xml; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Content-ID: <0.urn:uuid:E3F7CE4554928DA89B1231365678617@apache.org>
+
+<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"><soapenv:Body><m0:uploadFileUsingSwA xmlns:m0="http://services.samples"><m0:request><m0:imageId>urn:uuid:E3F7CE4554928DA89B1231365678347</m0:imageId></m0:request></m0:uploadFileUsingSwA></soapenv:Body></soapenv:Envelope>
+--MIMEBoundaryurn_uuid_E3F7CE4554928DA89B1231365678616
+Content-Type: text/plain
+Content-Transfer-Encoding: binary
+Content-ID: <urn:uuid:E3F7CE4554928DA89B1231365678347>
+
+test text
+--MIMEBoundaryurn_uuid_E3F7CE4554928DA89B1231365678616--

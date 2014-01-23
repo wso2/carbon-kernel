@@ -1,0 +1,14 @@
+--MIMEBoundaryurn:uuid:F02ECC18873CFB73E211412748909307
+content-type: application/xop+xml; charset=UTF-8; type="text/xml"
+content-transfer-encoding: binary
+content-id: <0.urn:uuid:F02ECC18873CFB73E211412748909308@apache.org>
+
+<?xml version='1.0' encoding='UTF-8'?><soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"><soapenv:Header><ns-prefix:Header1 xmlns:ns-prefix="ns-uri" xmlns:mustUnderstand="1" soapenv:mustUnderstand="1">This is Header1</ns-prefix:Header1><ns-prefix:Header2 xmlns:ns-prefix="ns-uri" xmlns:mustUnderstand="0" soapenv:mustUnderstand="0">This is Header2</ns-prefix:Header2><ns-prefix:Header3 xmlns:ns-prefix="ns-uri" xmlns:mustUnderstand="1" soapenv:mustUnderstand="1">This is Header3</ns-prefix:Header3><ns-prefix:Header4 xmlns:ns-prefix="ns-uri" xmlns:mustUnderstand="0" soapenv:mustUnderstand="0">This is Header4</ns-prefix:Header4></soapenv:Header><soapenv:Body><ns-prefix:Body1 xmlns:ns-prefix="ns-uri"><ns-prefix:Child1>This is Child1</ns-prefix:Child1><ns-prefix:Child2>This is Child2</ns-prefix:Child2></ns-prefix:Body1><swa:echo xmlns:swa="http://fakeNamespace.org"><internal xmlns=""><text xmlns=""><xop:Include href="cid:1.urn:uuid:F02ECC18873CFB73E211412748909349@apache.org" xmlns:xop="http://www.w3.org/2004/08/xop/include" /></text></internal></swa:echo></soapenv:Body></soapenv:Envelope>
+--MIMEBoundaryurn:uuid:F02ECC18873CFB73E211412748909307
+content-type: text/xml
+content-transfer-encoding: binary
+content-id: <1.urn:uuid:F02ECC18873CFB73E211412748909349@apache.org>
+
+TATA
+
+--MIMEBoundaryurn:uuid:F02ECC18873CFB73E211412748909307--

@@ -1,0 +1,1622 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<book>
+    <bookinfo>
+        <title>Axiom User Guide</title>
+        <releaseinfo>&version;
+        </releaseinfo>
+
+        <legalnotice>
+            <para>
+                Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See
+                the NOTICE file distributed with this work for additional information regarding copyright ownership. The
+                ASF licenses this file to you under the Apache License, Version 2.0 (the "License"); you may not use
+                this file except in compliance with the License. You may obtain a copy of the License at
+            </para>
+            <para>
+                <ulink url="http://www.apache.org/licenses/LICENSE-2.0"/>
+            </para>
+            <para>
+                Unless required by applicable law or agreed to in writing, software distributed under the License is
+                distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+                implied. See the License for the specific language governing permissions and limitations under the
+                License.
+            </para>
+        </legalnotice>
+    </bookinfo>
+
+    <toc/>
+
+    <chapter>
+        <title>Introduction</title>
+        <section>
+            <title>What is Axiom?</title>
+            <para>
+                Axiom stands for <firstterm>Axis Object Model</firstterm> and refers to the XML infoset model
+                that is initially developed for Apache Axis2. XML infoset refers to the information included inside the
+                XML, and for programmatic manipulation it is convenient to have a representation of this XML infoset in
+                a language specific manner. For an object oriented language the obvious choice is a model made up of
+                objects. <ulink url="http://www.w3.org/DOM/">DOM</ulink> and <ulink url="http://www.jdom.org/">JDOM</ulink>
+                are two such XML models. Axiom is conceptually similar to such an XML model by its external behavior but
+                deep down it is very much different. The objective of this tutorial is to introduce the basics of Axiom and
+                explain the best practices to be followed while using Axiom. However, before diving in to the deep end of
+                Axiom it is better to skim the surface and see what it is all about!
+            </para>
+        </section>
+        <section>
+            <title>For whom is this Tutorial?</title>
+            <para>
+                This tutorial can be used by anyone who is interested in Axiom and needs to
+                gain a deeper knowledge about the model. However, it is assumed that the
+                reader has a basic understanding of the concepts of XML (such as
+                <ulink src="http://www.w3.org/TR/REC-xml-names/">Namespaces</ulink>) and a working
+                knowledge of tools such as <ulink href="http://ant.apache.org/">Ant</ulink>.
+                Knowledge in similar object models such as DOM will be quite helpful in
+                understanding Axiom, mainly to highlight the differences and similarities
+                between the two, but such knowledge is not assumed. Several links are listed
+                in <xref linkend="links"/> that will help understand the basics of
+                XML.
+            </para>
+        </section>
+        <section>
+            <title>What is Pull Parsing?</title>
+            <para>
+                Pull parsing is a recent trend in XML processing. The previously popular XML
+                processing frameworks such as
+                <ulink url="http://en.wikipedia.org/wiki/Simple_API_for_XML">SAX</ulink> and
+                <ulink url="http://en.wikipedia.org/wiki/Document_Object_Model">DOM</ulink> were
+                "push-based" which means the control of the parsing was in the hands of the
+                parser itself. This approach is fine and easy to use, but it was not
+                efficient in handling large XML documents since a complete memory model will
+                be generated in the memory. Pull parsing inverts the control and hence the
+                parser only proceeds at the users command. The user can decide to store or
+                discard events generated from the parser. Axiom is based on pull parsing. To
+                learn more about XML pull parsing see the
+                <ulink url="http://www.bearcave.com/software/java/xml/xmlpull.html">XML pull
+                parsing introduction</ulink>.
+            </para>
+        </section>
+        <section>
+            <title>A Bit of History</title>
+            <para>
+                As mentioned earlier, Axiom was initially developed as part of Axis and simply
+                called <firstterm>OM</firstterm>.
+                The original OM was proposed as a store for the pull parser events for
+                later processing, at the Axis summit held in Colombo, Sri Lanka, in September
+                2004. However, this approach was soon improved and OM was pursued as a
+                complete <ulink url="http://dret.net/glossary/xmlinfoset">XML infoset</ulink> model
+                due to its flexibility. Several implementation techniques were attempted
+                during the initial phases. The two most promising techniques were the table
+                based technique and the link list based technique. During the intermediate
+                performance tests the link list based technique proved to be much more memory
+                efficient for smaller and mid sized XML documents. The advantage of the table
+                based OM was only visible for the large and very large XML documents, and
+                hence, the link list based technique was chosen as the most suitable. Initial
+                efforts were focused on implementing the XML infoset (XML Information Set)
+                items which are relevant to the SOAP specification (DTD support, Processing
+                Instruction support, etc were not considered). The advantage of having a
+                tight integration was evident at this stage and this resulted in having SOAP
+                specific interfaces as part of OM rather than a layer on top of it. OM was
+                deliberately made
+                <ulink url="http://en.wikipedia.org/wiki/Application_programming_interface">API</ulink>
+                centric. It allows the implementations to take place independently and
+                swapped without affecting the program later.
+            </para>
+        </section>
+        <section>
+            <title>Features of Axiom</title>
+            <para>
+                Axiom is a lightweight, deferred built XML infoset representation based on
+                StAX (<ulink url="http://www.jcp.org/en/jsr/detail?id=173">JSR 173</ulink>), which
+                is the standard streaming pull parser API. The object model can be
+                manipulated as flexibly as any other object model (Such as
+                <ulink url="http://www.jdom.org/">JDOM</ulink>), but underneath, the objects will be
+                created only when they are absolutely required. This leads to much less
+                memory intensive programming. Following is a short feature overview of OM.
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        <emphasis role="bold">Lightweight</emphasis>: Axiom is specifically targeted to be
+                        lightweight. This is achieved by reducing the depth of the hierarchy,
+                        number of methods and the attributes enclosed in the objects. This makes
+                        the objects less memory intensive.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <emphasis role="bold">Deferred building</emphasis>: By far this is the most important
+                        feature of Axiom. The objects are not made unless a need arises for them.
+                        This passes the control of building over to the object model itself
+                        rather than an external builder.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <emphasis role="bold">Pull based</emphasis>: For a deferred building mechanism a pull
+                        based parser is required. Axiom is based on
+                        <ulink url="http://today.java.net/pub/a/today/2006/07/20/introduction-to-stax.html">StAX</ulink>,
+                        the standard pull parser API.
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <important>
+                <para>
+                    Axiom is tightly bound to StAX API. To work with Axiom
+                    a StAX compliant parser and the API <emphasis>must</emphasis> be present in the
+                    classpath.
+                </para>
+            </important>
+            <para>
+                The Following image shows how Axiom API is viewed by the user
+            </para>
+            <figure>
+                <title>Architecture overview</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="architecture.jpg" format="JPG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>
+                OM Builder wraps the raw xml character stream through the StAX reader API.
+                Hence, the complexities of the pull event stream is transparent to the
+                user.
+            </para>
+        </section>
+        <section>
+            <title>A Bit About Caching</title>
+            <para>
+                Since Axiom is a deferred built object model, It incorporates the concept of
+                caching. Caching refers to the creation of the objects while parsing the pull
+                stream. The reason why this is so important is because caching can be turned
+                off in certain situations. If so the  parser proceeds without building the
+                object structure. User can extract the raw pull stream from Axiom and use that
+                instead of the object model. In this case it is sometimes beneficial to switch off
+                caching. <xref linkend="advanced"/> explains
+                more on accessing the raw pull stream and switching on and off the
+                caching.
+            </para>
+        </section>
+        <section>
+            <title>Where Does SOAP Come into Play?</title>
+            <para>
+                In a nutshell <ulink url="http://www.w3schools.com/SOAP/soap_intro.asp">SOAP</ulink> is an
+                information exchange protocol based on XML. SOAP has a defined set of XML
+                elements that should be used in messages. Since Axis2 is a "SOAP Engine" and
+                Axiom is built for Axis2, a set of SOAP specific objects were also defined along
+                with Axiom. These SOAP Objects are extensions of the general object model classes.
+            </para>
+        </section>
+    </chapter>
+
+    <chapter>
+        <title>Working with Axiom</title>
+        <section>
+            <title>Obtaining the Axiom Binary</title>
+            <para>
+                There are several methods through which the Axiom binary can be obtained:
+            </para>
+            <orderedlist>
+                <listitem>
+                    <para>
+                        If your project uses Maven, then it is sufficient to add Axiom as a dependency,
+                        as described in <xref linkend="using-maven2"/>. Releases are available from
+                        the central repository, and snapshots are available from
+                        <literal>http://repository.apache.org/snapshots/</literal>. 
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        A prebuilt binary distribution can be
+                        <ulink url="http://ws.apache.org/axiom/download.cgi">downloaded</ulink>
+                        from the site. Source distributions are also available. They can be built
+                        using Maven 2, by executing <command>mvn install</command> in the root
+                        directory of the distribution.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        It is also possible to check out the source code for the current development
+                        version (trunk) or previous releases from the Subversion repository and build it
+                        using Maven 2. Detailed information on getting the source code
+                        from the Subversion repository is found
+                        <ulink url="http://ws.apache.org/axiom/source-repository.html">here</ulink>.
+                    </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                Once the Axiom binary is obtained by any of the above ways, it should be
+                included in the classpath for any of the Axiom based programs to work.
+                Subsequent sections of this guide assume that this build step is complete
+                and <filename>axiom-api-&version;.jar</filename> and <filename>axiom-impl-&version;.jar</filename> are
+                present in the classpath along with the StAX API jar file and a StAX
+                implementation.
+            </para>
+        </section>
+        <section>
+            <title>Creating an object model programmatically</title>
+            <para>
+                An object model instance can be created programmatically by instantiating the objects
+                representing the individual nodes of the document and then assembling them into a
+                tree structure. Axiom defines a set of interfaces representing the different node types.
+                E.g. <classname>OMElement</classname> represents an element, while <classname>OMText</classname>
+                represents character data that appears inside an element.
+                Axiom requires that all node instances are created using a factory.
+                The reason for this is to cater for different implementations of the Axiom API,
+                as shown in <xref linkend="fig_api"/>.
+            </para>
+            <figure id="fig_api">
+                <title>The Axiom API with different implementations</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="api.jpg" format="JPG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>
+                Two implementations are currently shipped with Axiom:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        The Linked List implementation (LLOM). This is the standard implementation. As the
+                        name implies, it uses linked lists to store collections of nodes.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        DOOM (DOM over OM), which adds support for the DOM API.
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                For each implementation, there are actually three factories: one for plain XML, and the other
+                ones for the two SOAP versions. The factories for the default implementation can be obtained
+                by calling the appropriate static methods in <classname>OMAbstractFactory</classname>.
+                E.g. <methodname>OMAbstractFactory.getOMFactory()</methodname> will return the proper
+                factory for plain XML. <xref linkend="list2"/> shows how this factory is used to create
+                several <classname>OMElement</classname> instances.
+            </para>
+            <example id="list2">
+                <title>Creating an object model programmatically</title>
+<programlisting>//create a factory
+OMFactory factory = OMAbstractFactory.getOMFactory();
+//use the factory to create two namespace objects
+OMNamespace ns1 = factory.createOMNamespace("bar","x");
+OMNamespace ns2 = factory.createOMNamespace("bar1","y");
+//use the factory to create three elements
+OMElement root = factory.createOMElement("root",ns1);
+OMElement elt11 = factory.createOMElement("foo1",ns1);
+OMElement elt12 = factory.createOMElement("foo2",ns1);</programlisting>
+            </example>
+            <para>
+                The Axiom API defines several methods to assemble individual objects into a tree
+                structure. The most prominent ones are the following two methods available on
+                <classname>OMElement</classname> instances:
+            </para>
+<programlisting>public void addChild(OMNode omNode);
+public void addAttribute(OMAttribute attr);</programlisting>
+            <para>
+                <methodname>addChild</methodname> will always add the child as the last child of the parent.
+                <xref linkend="ex-addChild"/> shows how this method is used to assemble the three elements
+                created in <xref linkend="list2"/> into a tree structure.
+            </para>
+            <example id="ex-addChild">
+                <title>Usage of <methodname>addChild</methodname></title>
+<programlisting>//set the children
+elt11.addChild(elt21);
+elt12.addChild(elt22);
+root.addChild(elt11);
+root.addChild(elt12);</programlisting>
+            </example>
+            <para>
+                A given node can be removed from the tree by calling the <methodname>detach()</methodname>
+                method. A node can also be removed from the tree by calling the remove
+                method of the returned iterator which will also call the detach method of
+                the particular node internally.
+            </para>
+        </section>
+        <section>
+            <title>Creating an object model by parsing an XML document</title>
+            <para>
+                Creating an object model from an existing document involves a second concept, namely
+                that of a <firstterm>builder</firstterm>. The responsibility of the builder is to
+                instantiate nodes corresponding to the information items in the document being parsed.
+                Note that as for programmatically created object models, this still involves the
+                factory, but it is now the builder that will call the <methodname>createXxx</methodname>
+                methods of the factory.
+            </para>
+            <para>
+                There are different types of builders, corresponding to different types of
+                input documents, namely: plain XML, SOAP, XOP and MTOM. The appropriate type of
+                builder should be created using the corresponding static method in
+                <classname>OMXMLBuilderFactory</classname>. <xref linkend="list1"/> shows the
+                correct method of creating an object model for a plain XML document from an input stream.
+            </para>
+            <note>
+                <para>
+                    As explained in <xref linkend="OMXMLBuilderFactory"/>, this is the recommended way
+                    of creating a builder starting with Axiom 1.2.11. In previous versions, this was done
+                    by instantiating <classname>StAXOMBuilder</classname> or one of its subclasses directly.
+                    This approach is still supported as well.
+                </para>
+            </note>
+            <example id="list1">
+                <title>Creating an object model from an input stream</title>
+<programlisting>//create the input stream
+InputStream in = new FileInputStream(file);
+
+//create the builder
+OMXMLParserWrapper builder = OMXMLBuilderFactory.createOMBuilder(in);
+
+//get the root element
+OMElement documentElement = builder.getDocumentElement();</programlisting>
+            </example>
+            <para>
+                Several differences exist between
+                a programmatically created <classname>OMNode</classname> and <classname>OMNode</classname> instances created by a builder. The most
+                important difference is that the former will have no builder object enclosed,
+                where as the latter always carries a reference to its builder.
+            </para>
+            <para>
+                As stated earlier, since the object model is built as and
+                when required, each and every <classname>OMNode</classname> should have a reference to its builder.
+                If this information is not available, it is due to the object being created
+                without a builder. This difference becomes evident when the user tries to get
+                a non caching pull parser from the <classname>OMElement</classname>. This will be discussed in more
+                detail in <xref linkend="advanced"/>.
+            </para>
+            <para>
+                In order to understand the requirement of the builder reference in each
+                and every <classname>OMNode</classname>, consider the following scenario. Assume that the parent
+                element is built but the children elements are not. If the parent is asked to
+                iterate through its children, this information is not readily available to
+                the parent element and it should build its children first before attempting
+                to iterate them. In order to provide a reference of the builder, each and
+                every node of the object model should carry the reference to its builder. Each
+                and every <classname>OMNode</classname> carries a flag that states its build status. Apart from this
+                restriction there are no other constraints that keep the programmer away from
+                mixing up programmatically made <classname>OMNode</classname> objects with <classname>OMNode</classname> objects built from
+                builders.
+            </para>
+            <para>
+                The SOAP object hierarchy is made in the most natural way for a
+                programmer. An inspection of the API will show that it is quite close to the
+                SAAJ API but with no bindings to DOM or any other model. The SOAP classes
+                extend basic Axiom classes (such as the <classname>OMElement</classname>) hence, one can access a SOAP
+                document either with the abstraction of SOAP or drill down to the underlying
+                XML Object model with a simple casting.
+            </para>
+        </section>
+        <section>
+            <title>Namespaces</title>
+            <para>
+                Namespaces are a tricky part of any XML object model and is the same in
+                Axiom. However, the interface to the namespace have been made very simple.
+                <classname>OMNamespace</classname> is the class that represents a namespace with intentionally
+                removed setter methods. This makes the <classname>OMNamespace</classname> immutable and allows
+                the underlying implementation to share the objects without any
+                difficulty.
+            </para>
+            <para>
+                Following are the important methods available in <classname>OMElement</classname> to handle
+                namespaces.
+            </para>
+<programlisting>public OMNamespace declareNamespace(String uri, String prefix);
+public OMNamespace declareNamespace(OMNamespace namespace);
+public OMNamespace findNamespace(String uri, String prefix) throws OMException;</programlisting>
+            <para>
+                The <methodname>declareNamespaceXX</methodname> methods are fairly straightforward. Add a namespace
+                to namespace declarations section. Note that a namespace declaration that has
+                already being added will not be added twice. <methodname>findNamespace</methodname> is a very handy
+                method to locate a namespace object higher up the object tree. It searches
+                for a matching namespace in its own declarations section and jumps to the
+                parent if it's not found. The search progresses up the tree until a matching
+                namespace is found or the root has been reached.
+            </para>
+            <para>
+                During the serialization a directly created namespace from the factory
+                will only be added to the declarations when that prefix is encountered by the
+                serializer. More of the serialization matters will be discussed in
+                <xref linkend="serializer"/>.
+            </para>
+            <para>
+                The following simple code segment shows how the namespaces are dealt in OM
+            </para>
+            <example id="list6">
+                <title>Creating an OM document with namespaces</title>
+<programlisting>OMFactory factory = OMAbstractFactory.getOMFactory();
+OMNamespace ns1 = factory.createOMNamespace("bar","x");
+OMElement root = factory.createOMElement("root",ns1);
+OMNamespace ns2 = root.declareNamespace("bar1","y");
+OMElement elt1 = factory.createOMElement("foo",ns1);
+OMElement elt2 = factory.createOMElement("yuck",ns2);
+OMText txt1 = factory.createOMText(elt2,"blah");
+elt2.addChild(txt1);
+elt1.addChild(elt2);
+root.addChild(elt1);</programlisting>
+            </example>
+            <para>
+                Serialization of the root element produces the following XML:
+            </para>
+<screen>&lt;x:root xmlns:x="bar" xmlns:y="bar1"&gt;&lt;x:foo&gt;&lt;y:yuck&gt;blah&lt;/y:yuck&gt;&lt;/x:foo&gt;&lt;/x:root&gt;</screen>
+        </section>
+        <section>
+            <title>Traversing</title>
+            <para>
+                Traversing the object structure can be done in the usual way by using the
+                list of children. Note however, that the child nodes are returned as an
+                iterator. The Iterator supports the 'Axiom way' of accessing elements and is
+                more convenient than a list for sequential access. The following code sample
+                shows how the children can be accessed. The children are of the type <classname>OMNode</classname>
+                that can either be <classname>OMText</classname> or <classname>OMElement</classname>.
+            </para>
+<programlisting>Iterator children = root.getChildren();
+while(children.hasNext()){
+        OMNode node = (OMNode)children.next();
+}</programlisting>
+            <para>
+                Apart from this, every <classname>OMNode</classname> has links to its siblings. If more thorough
+                navigation is needed the <methodname>getNextOMSibling()</methodname>
+                and <methodname>getPreviousOMSibling()</methodname> methods can be
+                used. A more selective set can be chosen by using the
+                <methodname>getChildrenWithName(QName)</methodname> methods.
+                The <methodname>getChildWithName(Qname)</methodname> method
+                returns the first child that matches the given <classname>QName</classname> and
+                <methodname>getChildrenWithName(QName)</methodname> returns a collection containing all the matching
+                children. The advantage of these iterators is that they won't build the whole
+                object structure at once, until its required.
+            </para>
+            <important>
+                <para>
+                    As explained in <xref linkend="iterator-changes"/>, in Axiom 1.2.10 and earlier, 
+                    all iterator implementations internally stayed one
+                    step ahead of their apparent location. This could have the side effect of building elements
+                    that are not intended to be built at all.
+                </para>
+            </important>
+        </section>
+        <section id="serializer">
+            <title>Serializer</title>
+            <para>
+                An Axiom tree can be serialized either as the pure object model or the pull event
+                stream. The serialization uses a <classname>XMLStreamWriter</classname> object to write out the
+                output and hence, the same serialization mechanism can be used to write
+                different types of outputs (such as text, binary, etc.).
+            </para>
+            <para>
+                A caching flag is provided by Axiom to control the building of the in-memory
+                object model. The <classname>OMNode</classname> has two methods,
+                <methodname>serializeAndConsume</methodname> and <methodname>serialize</methodname>. When
+                <methodname>serializeAndConsume</methodname> is called the cache flag is reset and the serializer does
+                not cache the stream. Hence, the object model will not be built if the cache
+                flag is not set.
+            </para>
+            <para>
+                The serializer serializes namespaces in the following way:
+            </para>
+            <orderedlist>
+                <listitem>
+                    <para>
+                        When a namespace that is in the scope but not yet declared is
+                        encountered, it will then be declared.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        When a namespace that is in scope and already declared is encountered,
+                        the existing declarations prefix is used.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        When the namespaces are declared explicitly using the elements
+                        <methodname>declareNamespace()</methodname> method, they will be serialized even if those
+                        namespaces are not used in that scope.
+                    </para>
+                </listitem>
+            </orderedlist>
+            <para>
+                Because of this behavior, if a fragment of the XML is serialized, it will
+                also be <emphasis>namespace qualified</emphasis> with the necessary namespace
+                declarations.
+            </para>
+            <para>
+                Here is an example that shows how to write the output to the console, with
+                reference to the earlier code sample- <xref linkend="list1"/>
+                that created a SOAP envelope.
+            </para>
+<programlisting>XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(System.out);
+//dump the output to console with caching
+envelope.serialize(writer); 
+writer.flush();</programlisting>
+            <para>
+                or simply
+            </para>
+<programlisting>System.out.println(root.toStringWithConsume());</programlisting>
+            <para>
+                The above mentioned features of the serializer forces a correct
+                serialization even if only a part of the Axiom tree is serialized. The following
+                serializations show how the serialization mechanism takes the trouble to
+                accurately figure out the namespaces. The example is from <xref linkend="list6"/>
+                which creates a small object model programmatically.
+                Serialization of the root element produces the following:
+            </para>
+<screen>&lt;x:root xmlns:x="bar" xmlns:y="bar1"&gt;&lt;x:foo&gt;&lt;y:yuck&gt;blah&lt;/y:yuck&gt;&lt;/x:foo&gt;&lt;/x:root&gt;</screen>
+            <para>
+                However, serialization of only the foo element produces the following:
+            </para>
+<screen>&lt;x:foo xmlns:x="bar"&gt;&lt;y:yuck xmlns:y="bar1"&gt;blah&lt;/y:yuck&gt;&lt;/x:foo&gt;</screen>
+            <para>
+                Note how the serializer puts the relevant namespace declarations in place.
+            </para>
+        </section>
+        <section>
+            <title>Complete Code for the Axiom based Document Building and Serialization</title>
+            <para>
+                The following code segment shows how to use Axiom for completely building
+                a document and then serializing it into text pushing the output to the
+                console. Only the important sections are shown here. The complete program
+                listing can be found in <xref linkend="appendix"/>.
+            </para>
+<programlisting>//create the input stream
+InputStream in = new FileInputStream(file);
+
+//create the builder
+OMXMLParserWrapper builder = OMXMLBuilderFactory.createOMBuilder(in);
+
+//get the root element
+OMElement documentElement = builder.getDocumentElement();
+
+//dump the out put to console with caching
+System.out.println(documentElement.toStringWithConsume());</programlisting>
+        </section>
+        <section id="StAXUtils">
+            <title>Creating stream readers and writers using <classname>StAXUtils</classname></title>
+            <para>
+                The normal way to create <classname>XMLStreamReader</classname> and
+                <classname>XMLStreamWriter</classname> instances is to first request a
+                <classname>XMLInputFactory</classname> or <classname>XMLOutputFactory</classname>
+                instance from the StAX API and then use the factory methods to create the
+                reader or writer.
+            </para>
+            <para>
+                Doing this every time a reader or writer is created is cumbersome and also
+                introduces some overhead because on every invocation the <methodname>newInstance</methodname>
+                methods in <classname>XMLInputFactory</classname> and <classname>XMLOutputFactory</classname>
+                go through the process of looking up the StAX implementation to use and creating
+                a new instance of the factory. The only case where this is really needed is when
+                it is necessary to configure the factory in a special way (by setting properties on it).
+            </para>
+            <para>
+                Axiom has a utility class called <classname>StAXUtils</classname> that provides
+                methods to easily create readers and writers configured with default settings.
+                It also keeps the created factories in a cache to improve performance. The caching
+                occurs by (context) class loader and it is therefore safe to use <classname>StAXUtils</classname>
+                in a runtime environment with a complex class loader hierarchy.
+            </para>
+            <caution>
+                <para>
+                    Axiom 1.2.8 implicitly assumed that <classname>XMLInputFactory</classname> and
+                    <classname>XMLOutputFactory</classname> instances are thread safe. This is the case
+                    for Woodstox (which is the default StAX implementation used by Axiom), but not
+                    e.g. for the StAX implementation shipped with Sun's Java 6 runtime environment.
+                    Therefore, when using Axiom versions prior to 1.2.9, you should avoid using <classname>StAXUtils</classname>
+                    together with a StAX implementation other than Woodstox, especially in a highly
+                    concurrent environment. The issue has been fixed in Axiom 1.2.9. See
+                    <ulink url="https://issues.apache.org/jira/browse/WSCOMMONS-489">WSCOMMONS-489</ulink>
+                    for more details.
+                </para>
+            </caution>
+            <para>
+                <classname>StAXUtils</classname> also enables a property file based configuration
+                mechanism to change the default factory settings at assembly or deployment time of
+                the application using Axiom. This is described in more details in
+                <xref linkend="factory.properties"/>.
+            </para>
+            <important>
+                <para>
+                    The <methodname>getInputFactory</methodname> and <methodname>getOutputFactory</methodname>
+                    methods in <classname>StAXUtils</classname> give access to the cached factories.
+                    In versions prior to 1.2.9, Axiom didn't restrict access to the <methodname>setProperty</methodname> method
+                    of these factories. In principle this makes it possible to change the configuration
+                    of these factories for the whole application. However, since this depends on the
+                    implementation details of <classname>StAXUtils</classname> (e.g. how factories
+                    are cached) and since there is a proper configuration mechanism for that purpose,
+                    using this possibility is strongly discouraged. Starting with version 1.2.9, Axiom
+                    restricts access to <methodname>setProperty</methodname> to prevent tampering with
+                    the cached factories.
+                </para>
+            </important>
+            <para>
+                The methods in <classname>StAXUtils</classname> to create readers and writers
+                are rather self-explaining. For example to create an <classname>XMLStreamReader</classname>
+                from an <classname>InputStream</classname>, use the following code:
+            </para>
+<programlisting>InputStream in = ...
+XMLStreamReader reader = StAXUtils.createXMLStreamReader(in);</programlisting>
+        </section>
+        <section>
+            <title>Releasing the parser</title>
+            <para>
+                As we have seen previously, when creating an object model from a stream, all nodes keep a
+                reference to the builder and thus to the underlying parser. Since an XML parser instance is
+                a heavyweight object, it is important to release it as soon as it is no longer required.
+                The <methodname>close</methodname> method defined by the <classname>OMSerializable</classname>
+                interface it used for that. Note that it doesn't matter an which node this method is
+                called; it will always close and release the parser for the whole tree. The
+                <varname>build</varname> parameter of the <methodname>close</methodname> method specifies
+                if the node should be built before closing the parser.
+            </para>
+            <para>
+                To illustrate this, consider <xref linkend="list1"/>. After finishing the processing of the
+                object model and assuming that it will not access the object model afterwards, the code should
+                be completed by the following instruction:
+            </para>
+<programlisting>documentElement.close(false);</programlisting>
+            <para>
+                Closing the parser is especially important in applications that process large numbers of
+                XML documents. In addition, some StAX implementation are able to <quote>recycle</quote>
+                parsers, i.e. to reset a parser instance and to reuse it on another input stream. However, this
+                can only work if the parser has been closed explicitly or if the instance has been marked for
+                finalization by the Java VM. Closing the parser explicitly as shown above will reduce the
+                memory footprint of the application if this type of parser is used. 
+            </para>
+        </section>
+        <section>
+            <title>Exception handling</title>
+            <para>
+                The fact that Axiom uses deferred building means that a call to a method in one
+                of the object model classes may cause Axiom to read events from the underlying
+                StAX parser, unless the node has already been built or if it was created
+                programmatically. If an I/O error occurs or if the XML document being read is
+                not well formed, an exception will be reported by the parser. This exception is
+                propagated to the user code as an <classname>OMException</classname>.
+            </para>
+            <para>
+                Note that <classname>OMException</classname> is an unchecked exception.
+                Strictly speaking this is in violation of the principle that unchecked exceptions
+                should be reserved for problems resulting from programming problems.
+                There are however several compelling reasons to use unchecked exceptions in this
+                case:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        The same API is used to work with programmatically created object models
+                        and with object models created from an XML document. On a programmatically
+                        created object model, an <classname>OMException</classname> in general
+                        indicates a programming problem. Moreover one of the design goals of Axiom
+                        is to give the user code the illusion that it is interacting with a complete
+                        in-memory representation of an XML document, even if behind the scenes
+                        Axiom will only create the objects on demand. Using checked exceptions
+                        would break that abstraction.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        In most cases, code interacting with the object model will not be able
+                        to recover from an <classname>OMException</classname>. Consider for example
+                        a utility method that receives an <classname>OMElement</classname> as input
+                        and that is supposed to extract some data from this information item.
+                        When a parsing error occurs while iterating over the children of that
+                        element, there is nothing the utility method could do to recover from this
+                        error.
+                    </para>
+                    <para>
+                        The only place where it makes sense to catch this type of exception and to
+                        attempt to recover from it is in the code that creates the
+                        <classname>XMLStreamReader</classname> and builder. It is clear that
+                        it would not be reasonable to force developers to declare a checked exception
+                        on every method that interacts with an Axiom object model only to allow
+                        propagation of that exception to the code that initially created the parser.
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                The situation is actually quite similar to that encountered in three-tier
+                applications, where the DAO layer in general wraps checked exceptions from
+                the database in an unchecked exception because the business logic and the
+                presentation tier will not be able to recover from these errors.
+            </para>
+            <para>
+                When catching an <classname>OMException</classname> special attention should
+                be paid if the code handling the exception again tries to access the object model.
+                Indeed this will inevitably result in another exception being triggered, unless the
+                code only accesses those parts of the tree that have been built successfully.
+                E.g. the following code will give unexpected results because the call to
+                <methodname>serializeAndConsume</methodname> will almost certainly trigger another
+                exception:
+            </para>
+<programlisting>OMElement element = ...
+try {
+    ...
+} catch (OMException ex) {
+    ex.printStackTrace();
+    element.serializeAndConsume(System.out);
+}</programlisting>
+            <caution>
+                <para>
+                    In Axiom versions prior to 1.2.8, an attempt to access the object model after
+                    an exception has been reported by the underlying parser may result in an
+                    <classname>OutOfMemoryError</classname> or cause Axiom to lock itself up in
+                    an infinite loop. The reason for this is that in some cases, after throwing an
+                    exception, the Woodstox parser (which is the default StAX implementation used
+                    by Axiom) is left in an inconsistent state in which it will return an infinite
+                    sequence of events. Starting with Axiom 1.2.8, the object model builder
+                    will never attempt to read new events from a parser that has previously reported
+                    an I/O or parsing error. These versions of Axiom are therefore safe; see
+                    <ulink url="https://issues.apache.org/jira/browse/WSCOMMONS-372">WSCOMMONS-372</ulink>
+                    for more details.
+                </para>
+            </caution>
+            <note>
+                <para>
+                    The discussion in this section suggests that Axiom should make a
+                    clear distinction between exceptions caused by parser errors and
+                    exceptions caused by programming problems or other errors, e.g.
+                    by using distinct subclasses of <classname>OMException</classname>.
+                    This is currently not the case. This issue may be addressed in a future
+                    version of Axiom.
+                </para>
+            </note>
+        </section>
+    </chapter>
+
+    <chapter id="advanced">
+        <title>Advanced Operations with Axiom</title>
+        <section>
+            <title>Accessing the Pull Parser</title>
+            <para>
+                Axiom is tightly integrated with StAX and the
+                <methodname>getXMLStreamReader()</methodname> and <methodname>getXMLStreamReaderWithoutCaching()</methodname> methods in the
+                <classname>OMElement</classname> provides a <classname>XMLStreamReader</classname>
+                object. This <classname>XMLStreamReader</classname> instance
+                has a special capability of switching between the underlying stream and the
+                Axiom object tree if the cache setting is off. However, this functionality is
+                completely transparent to the user. This is further explained in the
+                following paragraphs.
+            </para>
+            <para>
+                Axiom has the concept of caching, and the Axiom tree is the actual cache of the events
+                fired. However, the requester can choose to get the pull events from the
+                underlying stream rather than the Axiom tree. This can be achieved by getting
+                the pull parser with the cache off. If the pull parser was obtained without
+                switching off cache, the new events fired will be cached and the tree
+                updated. This returned pull parser will switch between the object structure
+                and the stream underneath, and the users need not worry about the differences
+                caused by the switching. The exact pull stream the original document would
+                have provided would be produced even if the Axiom tree was fully or partially
+                built. The <methodname>getXMLStreamReaderWithoutCaching()</methodname> method is very useful when the
+                events need to be handled in a pull based manner without any intermediate
+                models. This makes such operations faster and efficient.
+            </para>
+            <important>
+                <para>
+                    For consistency reasons once the cache is
+                    switched off it cannot be switched on again.
+                </para>
+            </important>
+        </section>
+    </chapter>
+
+    <chapter>
+        <title>Integrating Axiom into your project</title>
+        <section id="using-maven2">
+            <title>Using Axiom in a Maven 2 project</title>
+            <section>
+                <title>Adding Axiom as a dependency</title>
+                <para>
+                    If your project uses Maven 2, it is fairly easy to add Axiom to your project.
+                    Simply add the following entries to the <sgmltag class="element">dependencies</sgmltag>
+                    section of <filename>pom.xml</filename>:
+                </para>
+<programlisting><![CDATA[<dependency>
+    <groupId>org.apache.ws.commons.axiom</groupId>
+    <artifactId>axiom-api</artifactId>
+    <version>]]>&version;<![CDATA[</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.ws.commons.axiom</groupId>
+    <artifactId>axiom-impl</artifactId>
+    <version>]]>&version;<![CDATA[</version>
+</dependency>]]></programlisting>
+                <para>
+                    All Axiom releases are deployed to the Maven central repository and there is no need
+                    to add an entry to the <sgmltag class="element">repositories</sgmltag> section.
+                    However, if you want to work with the development (snapshot) version of Axiom, it
+                    is necessary to add the Apache Snapshot Repository:
+                </para>
+<programlisting><![CDATA[<repository>
+    <id>apache.snapshots</id>
+    <name>Apache Snapshot Repository</name>
+    <url>http://repository.apache.org/snapshots/</url>
+    <releases>
+        <enabled>false</enabled>
+    </releases>
+</repository>]]></programlisting>
+                <tip>
+                    <para>
+                        If you are working on another Apache project, you don't need to add the snapshot repository
+                        in the POM file since it is already declared in the <literal>org.apache:apache</literal>
+                        parent POM.
+                    </para>
+                </tip>
+            </section>
+            <section>
+                <title>Managing the JAF and JavaMail dependencies</title>
+                <para>
+                    Axiom requires the Java Activation Framework (JAF) and the JavaMail API to work. There are two
+                    commonly used incarnations of these libraries: one is Sun's reference implementation, the other
+                    is part of the <ulink url="http://geronimo.apache.org/">Geronimo</ulink> project. Axiom declares
+                    dependencies on the Geronimo versions (though that might
+                    <ulink url="https://issues.apache.org/jira/browse/WSCOMMONS-417">change</ulink> in the future).
+                    If your project uses another library that depends on JAF and/or JavaMail, but that refers
+                    to Sun's implementation, your project will end up with dependencies on two different
+                    artifacts implementing the same API.
+                </para>
+                <para>
+                    If you prefer Sun's implementations, then you should change the declaration of the
+                    Axiom dependencies in your POM file as follow:
+                </para> 
+<programlisting><![CDATA[
+<dependency>
+    <groupId>org.apache.ws.commons.axiom</groupId>
+    <artifactId>axiom-]]><replaceable>xxx</replaceable><![CDATA[</artifactId>
+    <version>]]>&version;<![CDATA[</version>
+    <exclusions>
+        <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+        </exclusion>
+        <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javamail_1.4_spec</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+]]></programlisting>
+                <para>
+                    If you prefer Geronimo's implementation, then you need to identify the libraries
+                    depending on Sun's artifacts (<literal>javax.activation:activation</literal> and
+                    <literal>javax.mail:mail</literal>) and add the relevant exclusions. You can use
+                    <userinput>mvn dependency:tree</userinput> to easily identify where a transitive dependency
+                    comes from.
+                </para>
+                <para>
+                    The choice between Sun's and Geronimo's implementation is to a large extend
+                    a question of belief. Note however that the <literal>geronimo-javamail_1.4_spec</literal>
+                    artifact used by Axiom only contains the JavaMail API, while Sun's library
+                    bundles the API together with the providers for IMAP and POP3. Depending on your
+                    use case that might be an advantage or disadvantage.
+                </para>
+            </section>
+        </section>
+        <section>
+            <title>Applying application wide configuration</title>
+            <para>
+                Sometimes it is necessary to customize some particular aspects of Axiom for an entire
+                application. There are several things that can be configured through system properties
+                and/or property files. This is also important when using third party applications or
+                libraries that depend on Axiom.
+            </para>
+            <section id="factory.properties">
+                <title>Changing the default StAX factory settings</title>
+                <note>
+                    <para>
+                        The information in this section only applies to
+                        <classname>XMLStreamReader</classname> or <classname>XMLStreamWriter</classname>
+                        instances created using <classname>StAXUtils</classname>
+                        (see <xref linkend="StAXUtils"/>). Readers and writers created using the
+                        standard StAX APIs will keep their default settings as defined by the
+                        implementation (or dictated by the StAX specifications).
+                    </para>
+                </note>
+                <note>
+                    <para>
+                        The feature described in this section was introduced in Axiom 1.2.9.
+                    </para>
+                </note>
+                <para>
+                    When creating a new <classname>XMLInputFactory</classname> (resp.
+                    <classname>XMLInputFactory</classname>), <classname>StAXUtils</classname>
+                    looks for a property file named <filename>XMLInputFactory.properties</filename>
+                    (resp. <filename>XMLOutputFactory.properties</filename>) in the classpath,
+                    using the same class loader as the one from which the factory is loaded
+                    (by default this is the context classloader).
+                    If a corresponding resource is found, the properties in that file
+                    are applied to the factory using the <methodname>XMLInputFactory#setProperty</methodname>
+                    (resp. <methodname>XMLOutputFactory#setProperty</methodname>) method.
+                </para>
+                <para>
+                    This feature can be used to set factory properties of type <classname>Boolean</classname>,
+                    <classname>Integer</classname> and <classname>String</classname>. The following
+                    sections present some sample use cases.
+                </para>
+                <section>
+                    <title>Changing the serialization of the CR-LF character sequence</title>
+                    <para>
+                        Section 2.11 of <biblioref linkend="bib.xml"/> specifies that an <quote>XML processor
+                        must behave as if it normalized all line breaks in external parsed entities (including
+                        the document entity) on input, before parsing, by translating both the two-character
+                        sequence #xD #xA and any #xD that is not followed by #xA to a single #xA
+                        character.</quote> This implies that when a Windows style line ending, i.e. a CR-LF
+                        character sequence is serialized literally into an XML document, the CR character
+                        will be lost during deserialization. Depending on the use case this may or may not
+                        be desirable.
+                    </para>
+                    <para>
+                        The only way to strictly preserve CR characters is to serialize them as
+                        character entities, i.e. <sgmltag class="genentity">#xD</sgmltag>. This is the default
+                        behavior of Woodstox. This can be easily checked using the following Java snippet:
+                    </para>
+<programlisting>OMFactory factory = OMAbstractFactory.getOMFactory();
+OMElement element = factory.createOMElement("root", null);
+element.setText("Test\r\nwith CRLF");
+element.serialize(System.out);</programlisting>
+                    <para>
+                        This code produces the following output:
+                    </para>
+<screen><![CDATA[<root>Test&#xd;
+with CRLF</root>]]></screen>
+                    <note>
+                        <para>
+                            From Axiom's point of view this is actually a reasonable behavior.
+                            The reason is that when creating an <classname>OMText</classname> node programmatically,
+                            it is easy for the user code to normalize the text content to avoid the
+                            appearance of the character entity. On the other hand, if the default
+                            behavior was to serialize CR-LF literally (implying that the CR character
+                            will be lost during deserialization), it would be difficult (if not
+                            impossible) for user code that needs to strictly preserve the text data
+                            to construct the object model in such a way as to force serialization of
+                            the CR as character entity.
+                        </para>
+                    </note>
+                    <para>
+                        In some cases this behavior may be undesirable<footnote><para>See
+                        <ulink url="http://jira.codehaus.org/browse/WSTX-94">WSTX-94</ulink> for a discussion
+                        about this.</para></footnote>. Fortunately Woodstox allows to modify this behavior
+                        by changing the value of the <varname>com.ctc.wstx.outputEscapeCr</varname> property
+                        on the <classname>XMLOutputFactory</classname>. If Axiom is used (and in particular
+                        <classname>StAXUtils</classname>) than this can be achieved by adding
+                        a <filename>XMLOutputFactory.properties</filename> file with the following content
+                        to the classpath (in the default package):
+                    </para>
+<programlisting>com.ctc.wstx.outputEscapeCr=false</programlisting>
+                    <para>
+                        Now the output of the Java snippet shown above will be:
+                    </para>
+<screen><![CDATA[<root>Test
+with CRLF</root>]]></screen>
+                </section>
+                <section>
+                    <title>Preserving CDATA sections during parsing</title>
+                    <para>
+                        By default, <classname>StAXUtils</classname> creates StAX parsers in coaelescing mode.
+                        In this mode, the parser will never return two character data events in sequence, while
+                        in non coaelescing mode, the parser is allowed to break up character data into smaller
+                        chunks and to return multiple consecutive character events, which may improve throughput
+                        for documents containing large text nodes.
+                        It should be noted that <classname>StAXUtils</classname> overrides the default settings
+                        mandated by the StAX specification, which specifies that by default, a StAX parser must
+                        be in non coalescing mode. The primary reason is compatibility: older versions of
+                        Woodstox had coalescing switched on by default.
+                    </para>
+                    <para>
+                        A side effect of the default settings chosen by Axiom is that by default, CDATA sections
+                        are not reported by parser created by
+                        <classname>StAXUtils</classname>. The reason is that in coalescing mode, the parser will
+                        not only coaelsce adjacent text nodes, but also CDATA sections. Applications that require
+                        correct reporting of CDATA sections should therefore disable coalescing. This can be
+                        achieved by creating a <filename>XMLInputFactory.properties</filename> file with the
+                        following content:
+                    </para>
+<programlisting>javax.xml.stream.isCoalescing=false</programlisting>
+                </section>
+            </section>
+        </section>
+        <section>
+            <title>Migrating from older Axiom versions</title>
+            <para>
+                This section provides information about changes in Axiom that might impact existing
+                code when migrating from an older version of Axiom. Note that this section is not
+                meant as a change log that lists all changes or new features. Also, before upgrading
+                to a newer Axiom version, you should always check if your code uses methods or classes
+                that have been deprecated. You should fix all deprecation warnings before changing the
+                Axiom version. In general the Javadoc of the deprecated class or method gives you
+                a hint on how to change your code.
+            </para>
+            <section>
+                <title>Changes in Axiom 1.2.9</title>
+                <section>
+                    <title>System properties used by <classname>OMAbstractFactory</classname></title>
+                    <para>
+                        Prior to Axiom 1.2.9, <classname>OMAbstractFactory</classname> used system properties
+                        as defined in the following table to determine the factory implementations to use:
+                    </para>
+                    <segmentedlist>
+                        <?dbhtml list-presentation="table"?>
+                        <segtitle>Object model</segtitle>
+                        <segtitle>Method</segtitle>
+                        <segtitle>System property</segtitle>
+                        <segtitle>Default</segtitle>
+                        <seglistitem>
+                            <seg>Plain XML</seg>
+                            <seg><methodname>getOMFactory()</methodname></seg>
+                            <seg><varname>om.factory</varname></seg>
+                            <seg><literal>org.apache.axiom.om.impl.llom.factory.OMLinkedListImplFactory</literal></seg>
+                        </seglistitem>
+                        <seglistitem>
+                            <seg>SOAP 1.1</seg>
+                            <seg><methodname>getSOAP11Factory()</methodname></seg>
+                            <seg><varname>soap11.factory</varname></seg>
+                            <seg><literal>org.apache.axiom.soap.impl.llom.soap11.SOAP11Factory</literal></seg>
+                        </seglistitem>
+                        <seglistitem>
+                            <seg>SOAP 1.2</seg>
+                            <seg><methodname>getSOAP12Factory()</methodname></seg>
+                            <seg><varname>soap12.factory</varname></seg>
+                            <seg><literal>org.apache.axiom.soap.impl.llom.soap12.SOAP12Factory</literal></seg>
+                        </seglistitem>
+                    </segmentedlist>
+                    <para>
+                        This in principle allowed to mix default factory implementations from different implementations
+                        of the Axiom API (e.g. an OMFactory from the LLOM implementation and SOAP factories from DOOM).
+                        This however doesn't make sense. The system properties as described above are no longer
+                        supported in 1.2.9 and the default Axiom implementation is chosen using the new
+                        <varname>org.apache.axiom.om.OMMetaFactory</varname> system property. For LLOM, you should set:
+                    </para>
+<programlisting>org.apache.axiom.om.OMMetaFactory=org.apache.axiom.om.impl.llom.factory.OMLinkedListMetaFactory</programlisting>
+                    <para>
+                        This is the default and is equivalent to the defaults in 1.2.8. For DOOM, you should set:
+                    </para>
+<programlisting>org.apache.axiom.om.OMMetaFactory=org.apache.axiom.om.impl.dom.factory.OMDOMMetaFactory</programlisting>
+                </section>
+                <section>
+                    <title>Factories returned by <classname>StAXUtils</classname></title>
+                    <para>
+                        In versions prior to 1.2.9, the <classname>XMLInputFactory</classname> and
+                        <classname>XMLOutputFactory</classname> instances returned by <classname>StAXUtils</classname>
+                        were mutable, i.e. it was possible to change the properties of these factories. This is obviously
+                        an issue since the factory instances are cached and can be shared among several thread.
+                        To avoid programming errors, starting from 1.2.9, the factories are immutable and any attempt to
+                        change their state will result in an <classname>IllegalStateException</classname>.
+                    </para>
+                    <para>
+                        Note that the possibility to change the properties of these factories could be used to apply
+                        application wide settings. Starting with 1.2.9, Axiom has a proper mechanism to allow this.
+                        This feature is described in <xref linkend="factory.properties"/>.
+                    </para>
+                </section>
+                <section>
+                    <title>Changes in XOP/MTOM handling</title>
+                    <para>
+                        In Axiom 1.2.8, <classname>XMLStreamReader</classname> instances provided by Axiom could
+                        belong to one of three different categories:
+                    </para>
+                    <orderedlist>
+                        <listitem>
+                            <para>
+                                <classname>XMLStreamReader</classname> instances delivering plain XML.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <classname>XMLStreamReader</classname> instances delivering plain XML and
+                                implementing a custom extension to retrieve optimized binary data.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <classname>XMLStreamReader</classname> instances representing XOP
+                                encoded data.
+                            </para>
+                        </listitem>
+                    </orderedlist>
+                    <para>
+                        As explained in <ulink url="https://issues.apache.org/jira/browse/WSCOMMONS-485">WSCOMMONS-485</ulink>
+                        and <ulink url="https://issues.apache.org/jira/browse/WSCOMMONS-488">WSCOMMONS-488</ulink>,
+                        in Axiom 1.2.8, the type of stream reader provided by the API was not always well defined.
+                        Sometimes the type of the stream reader even depended on the state of the Axiom tree
+                        (i.e. whether some part of it has been accessed or not).
+                    </para>
+                    <para>
+                        In release 1.2.9 the behavior of Axiom was changed such that it never delivers XOP
+                        encoded data unless explicitly requested to do so. By default, any <classname>XMLStreamReader</classname>
+                        provided by Axiom now represents plain XML data and optionally implements the
+                        <classname>DataHandlerReader</classname> extension to retrieve optimized
+                        binary data. An XOP encoded stream can be requested from the <methodname>getXOPEncodedStream</methodname>
+                        method in <classname>XOPUtils</classname>.
+                    </para>
+                </section>
+            </section>
+            <section id="changes-1.2.11">
+                <title>Changes in Axiom 1.2.11</title>
+                <section id="OMXMLBuilderFactory">
+                    <title>Resurrection of the <classname>OMXMLBuilderFactory</classname> API</title>
+                    <para>
+                        Historically, <classname>org.apache.axiom.om.impl.llom.factory.OMXMLBuilderFactory</classname> was used to
+                        create Axiom trees from XML documents. Unfortunately, this class is located in the wrong package and JAR
+                        (it is implementation independent but belongs to LLOM). In Axiom 1.2.10, the standard way to create an Axiom tree
+                        was therefore to instantiate <classname>StAXOMBuilder</classname> or one of its subclasses directly. However, this
+                        is not optimal for two reasons:
+                    </para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>
+                                It relies on the assumption that every implementation of the Axiom API necessarily uses
+                                <classname>StAXOMBuilder</classname>. This means that an implementation doesn't have the freedom to
+                                provide its own builder implementation (e.g. in order to implement some special optimizations).
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                <classname>StAXOMBuilder</classname> and its subclasses belong to packages which have
+                                <literal>impl</literal> in their names. This tends to blur the distinction between the public
+                                API and internal implementation classes.
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                    <para>
+                        Therefore, in Axiom 1.2.11, a new abstract API for creating builder instances was introduced.
+                        It is again called <classname>OMXMLBuilderFactory</classname>, but located in the
+                        <package>org.apache.axiom.om</package> package. The methods defined by this new API are similar
+                        to the ones in the original (now deprecated) <classname>OMXMLBuilderFactory</classname>, so that
+                        migration should be easy.
+                    </para>
+                </section>
+                <section id="iterator-changes">
+                    <title>Changes in the behavior of certain iterators</title>
+                    <para>
+                        In Axiom 1.2.10 and previous versions, iterators returned by methods such as <methodname>OMIterator#getChildren()</methodname>
+                        internally stayed one step ahead of the node returned by the <methodname>next()</methodname> method.
+                        This meant that sometimes, using such an iterator had the side effect of building elements that
+                        were not intended to be built.
+                        In Axiom 1.2.11 this behavior was changed such that <methodname>next()</methodname> no longer builds the nodes
+                        it returns. In a few cases, this change may cause issues in existing code. One known instance
+                        is the following construct (which was used internally by Axiom itself):
+                    </para>
+<programlisting>while (children.hasNext()) { 
+    OMNodeEx omNode = (OMNodeEx) children.next(); 
+    omNode.internalSerializeAndConsume(writer); 
+}</programlisting>
+                    <para>
+                        One would expect that the effect of this code is to consume the child nodes. However, in Axiom 1.2.10 this
+                        is not the case because <methodname>next()</methodname> actually builds the node.
+                        Note that the code actually doesn't make sense because once a child node has been consumed, it is
+                        no longer possible to retrieve the next sibling. Since in Axiom 1.2.11 the call to <methodname>next()</methodname>
+                        no longer builds the child node, this code will indeed trigger an exception.
+                    </para>
+                    <para>
+                        Another example is the following piece of code which removes all child elements with a given name:
+                    </para>
+<programlisting>Iterator iterator = element.getChildrenWithName(qname);
+while (iterator.hasNext()) {
+    OMElement child = (OMElement)iterator.next();
+    child.detach();
+}</programlisting>
+                    <para>
+                        In Axiom 1.2.10 this works as expected. Indeed, since the iterator stays one node ahead, the current
+                        node can be safely removed using the <methodname>detach()</methodname> method.
+                        In Axiom 1.2.11, this is no longer the case and the following code (which also works
+                        with previous versions) should be used instead:
+                    </para>
+<programlisting>Iterator iterator = element.getChildrenWithName(qname);
+while (iterator.hasNext()) {
+    iterator.next();
+    iterator.remove();
+}</programlisting>
+                    <para>
+                        Note that this is actually compatible with the behavior of the Java 2 collection framework, where
+                        a <classname>ConcurrentModificationException</classname> may be thrown if a thread modifies a
+                        collection directly while it is iterating over the collection with an iterator.
+                    </para>
+                </section>
+            </section>
+        </section>
+    </chapter>
+
+    <chapter>
+        <title>Common mistakes, problems and anti-patterns</title>
+        <para>
+            This chapter presents some of the common mistakes and problems people face when writing code
+            using Axiom, as well as anti-patterns that should be avoided.
+        </para>
+        <section>
+            <title>Violating the <classname>javax.activation.DataSource</classname> contract</title>
+            <para>
+                When working with binary (base64) content, it is sometimes necessary to write a
+                custom <classname>DataSource</classname> implementation to wrap binary data that is
+                available in a different form (and for which Axiom or the Java Activation Framework
+                has no out-of-the-box data source implementation). Data sources are also sometimes
+                (but less frequently) used in conjunction with <classname>OMSourcedElement</classname>
+                and <classname>OMDataSource</classname>.
+            </para>
+            <para>
+                The documentation of the <classname>DataSource</classname> is very clear on the expected
+                behavior of the <methodname>getInputStream</methodname> method:
+            </para>
+<programlisting>/**
+ * This method returns an InputStream representing
+ * the data and throws the appropriate exception if it can
+ * not do so. Note that a new InputStream object must be
+ * returned each time this method is called, and the stream must be
+ * positioned at the beginning of the data.
+ *
+ * @return an InputStream
+ */
+public InputStream getInputStream() throws IOException;</programlisting>
+            <para>
+                A common mistake is to implement the data source in a way that makes
+                <methodname>getInputStream</methodname> <quote>destructive</quote>. Consider
+                the implementation shown in <xref linkend="InputStreamDataSource"/><footnote><para>The example
+                shown is actually a simplified version of code that is 
+                <ulink url="http://svn.apache.org/repos/asf/webservices/axis2/tags/java/v1.5/modules/kernel/src/org/apache/axis2/builder/unknowncontent/InputStreamDataSource.java">part of Axis2 1.5</ulink>.</para></footnote>.
+                It is clear that this data source can only be read once and that any subsequent call to
+                <methodname>getInputStream</methodname> will return an already closed input stream.
+            </para>
+            <example id="InputStreamDataSource">
+                <title><classname>DataSource</classname> implementation that violates the interface contract</title>
+<programlisting>public class InputStreamDataSource implements DataSource {
+    private final InputStream is;
+
+    public InputStreamDataSource(InputStream is) {
+        this.is = is;
+    }
+
+    public String getContentType() {
+        return "application/octet-stream";
+    }
+
+    public InputStream getInputStream() throws IOException {
+        return is;
+    }
+
+    public String getName() {
+        return null;
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+        throw new UnsupportedOperationException();
+    }
+}</programlisting>
+            </example>
+            <para>
+                What makes this mistake so vicious is that very likely it will not cause
+                problems immediately. The reason is that Axiom is optimized to read the data
+                only when necessary, which in most cases means only once! However, in some cases
+                it is unavoidable to read the data several times. When that happens, the broken
+                <classname>DataSource</classname> implementation will cause problems that may
+                be extremely hard to debug.
+            </para>
+            <para>
+                Imagine for example<footnote><para>For another example, see
+                <ulink url="http://markmail.org/thread/omx7umk5fnpb6dnc"/>.</para></footnote>
+                that the implementation shown above is used to produce an
+                MTOM message. At first this will work without any problems because the data
+                source is read only once when serializing the message. If later on the MTOM
+                threshold feature is enabled, the broken implementation will (in the worst case)
+                cause the corresponding MIME parts to be empty or (in the best case) trigger an
+                I/O error because Axiom attempts to read from an already closed stream.
+                The reason for this is that when an MTOM threshold is set, Axiom reads the data
+                source twice: once to determine if its size exceeds the
+                threshold<footnote><para>To do this, Axiom doesn't read the entire data source,
+                but only reads up to the threshold.</para></footnote> and once during
+                serialization of the message.
+            </para>
+        </section>
+        <section>
+            <title>Issues that <quote>magically</quote> disappear</title>
+            <para>
+                Quite frequently users post messages on the Axiom related mailing lists about
+                issues that seem to disappear by <quote>magic</quote> when they try to debug
+                them. The reason why this can happen is simple. As explained earlier, Axiom uses
+                deferred building, but at the same time does its best to hide that from the user,
+                so that he doesn't need to worry about whether the object model has already been
+                built or not. On the other hand, when serializing the object model to XML or when
+                requesting a pull parser (<classname>XMLStreamReader</classname>) from a node,
+                the code paths taken may be radically different depending on whether or not
+                the corresponding part of the tree has already been built. This is especially
+                true when caching is disabled.
+            </para>
+            <para>
+                While the end result should be the same in all cases, it is also clear that
+                in some circumstances an issue that occurs with an incompletely built tree may
+                disappear if there is something that causes Axiom to build the rest of the object
+                model. What is important to understand is that the <quote>something</quote> may
+                be as trivial as a call to the <methodname>toString</methodname> method of an
+                <classname>OMNode</classname>! The fact that adding
+                <methodname>System.out.println</methodname> statements or logging instructions
+                is a common debugging technique then explains why issues sometimes seem to
+                <quote>magically</quote> disappear during debugging.
+            </para>
+            <para>
+                Finally, it should be noted that inspecting an <classname>OMNode</classname>
+                in a debugger also causes a call to the <methodname>toString</methodname>
+                method on that object. This means that by just clicking on something in the
+                <quote>Variables</quote> window of your debugger, you may completely change the
+                state of the process that is being debugged!
+            </para>
+        </section>
+        <section>
+            <title>The OM-inside-OMDataSource anti-pattern</title>
+            <section>
+                <title>Weak version</title>
+                <para>
+                    <classname>OMDataSource</classname> objects are used in conjunction with
+                    <classname>OMSourcedElement</classname> to build Axiom object model instances
+                    that contain information items that are represented using a framework or API
+                    other than Axiom. Wrapping this <quote>foreign</quote> data in an
+                    <classname>OMDataSource</classname> and adding it to the Axiom object model
+                    using an <classname>OMSourcedElement</classname> in most cases avoids the
+                    conversion of the data to the <quote>native</quote> Axiom object
+                    model<footnote><para>An exception is when code tries to access the children
+                    of the <classname>OMSourcedElement</classname>. In this case, the
+                    <classname>OMSourcedElement</classname> will be <firstterm>expanded</firstterm>,
+                    i.e. the data will be converted to the native Axiom object model.</para></footnote>. 
+                    The <classname>OMDataSource</classname> contract requires the implementation
+                    to support two different ways of providing the data, both relying on StAX:
+                </para>
+                <itemizedlist>
+                    <listitem>
+                        <para>
+                            The implementation must be able to provide a pull parser
+                            (<classname>XMLStreamReader</classname>) from which the infoset can be
+                            read.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            The data source must be able to serialize the infoset to an
+                            <classname>XMLStreamWriter</classname> (push).
+                        </para>
+                    </listitem>
+                </itemizedlist>
+                <para>
+                    For the consumer of an event based representation of an XML infoset, it is in
+                    general easier to work in pull mode. That is the reason why StAX has gained
+                    popularity over push based approaches such as SAX. On the other hand for a producer
+                    such as an <classname>OMDataSource</classname> implementation, it's exactly the
+                    other way round: it is far easier to serialize an infoset to an
+                    <classname>XMLStreamWriter</classname> (push) than to build an
+                    <classname>XMLStreamReader</classname> from which a consumer can read (pull) events.
+                </para>
+                <para>
+                    Experience indeed shows that the most challenging part in creating an
+                    <classname>OMDataSource</classname> implementation is to write the
+                    <methodname>getReader</methodname> method. To avoid that difficulty some
+                    implementations simply build an Axiom tree and return the
+                    <classname>XMLStreamReader</classname> provided by
+                    <methodname>OMElement#getXMLStreamReader()</methodname>. For example, some ADB
+                    (Axis2 Data Binding) versions use the following code<footnote><para>For the complete
+                    code, see <ulink url="http://svn.apache.org/repos/asf/webservices/axis2/tags/java/v1.5/modules/adb/src/org/apache/axis2/databinding/ADBDataSource.java"/>.</para></footnote>:
+                </para>
+                <example id="adb-getReader">
+                    <title><methodname>OMDataSource#getReader()</methodname> implementation used by ADB</title>
+<programlisting>public XMLStreamReader getReader() throws XMLStreamException {
+    MTOMAwareOMBuilder mtomAwareOMBuilder = new MTOMAwareOMBuilder();
+    serialize(mtomAwareOMBuilder);
+    return mtomAwareOMBuilder.getOMElement().getXMLStreamReader();
+}</programlisting>
+                </example>
+                <para>
+                    The <classname>MTOMAwareOMBuilder</classname> class referenced by this code is a special
+                    implementation of <classname>XMLStreamWriter</classname> that builds an Axiom tree from the
+                    sequence of events send to it. The code than uses this Axiom tree to get the
+                    <classname>XMLStreamReader</classname> implementation. While this is a functionally correct
+                    implementation of the <methodname>getReader</methodname> method, it is not a good
+                    solution from a performance perspective and also contradicts some of the ideas on
+                    which Axiom is based, namely that the object model should only be built when necessary.
+                </para>
+                <para>
+                    Indeed, it should not be necessary to build an intermediary tree when requesting a pull
+                    parser from the <classname>OMDataSource</classname> because all the required information
+                    is already present in the ADB beans. Worse, if the <classname>OMSourcedElement</classname>
+                    is expanded, the object model instance will be built twice: once by the
+                    <methodname>getReader</methodname> and once by Axiom itself!
+                </para>
+                <para>
+                    While constructing an Axiom tree inside the <methodname>getReader</methodname> method is clearly
+                    an anti-pattern, at least in the case of ADB it is not as bad as it seems at first glance.
+                    The reason is that in the case which is the most relevant for performance
+                    (which is sending a Web Service response prepared using ADB), Axiom will only invoke
+                    the <methodname>serialize</methodname> method and not make use of
+                    <methodname>getReader</methodname>.
+                </para>
+                <note>
+                    <para>
+                        At the time of writing there is no general solution available to avoid the
+                        weak version of the OM-inside-OMDataSource anti-pattern in cases where it would be far
+                        too difficult to build a proper <classname>XMLStreamReader</classname>
+                        implementation. Future versions of Axiom may implement a solution that
+                        avoids the complexity of implementing <classname>XMLStreamReader</classname>
+                        without too much performance trade-offs.
+                    </para>
+                </note>
+            </section>
+            <section>
+                <title>Strong version</title>
+                <para>
+                    There is also a stronger version of the anti-pattern which consists in
+                    implementing the <methodname>serialize</methodname> method by building an Axiom tree
+                    and then serializing the tree to the <classname>XMLStreamWriter</classname>.
+                    Except for very special cases, there is <emphasis role="strong">no valid reason
+                    whatsoever</emphasis> to do this! To see why this is so, consider the two
+                    possible cases:
+                </para>
+                <orderedlist>
+                    <listitem>
+                        <para>
+                            The <classname>OMDataSource</classname> already implements the
+                            <methodname>getReader</methodname> method in a proper way, i.e. without
+                            building an intermediary Axiom tree. To properly implement
+                            <methodname>serialize</methodname>, it is then sufficient
+                            to pull the events from the reader returned by a call to
+                            <methodname>getReader</methodname> and copy them to the
+                            <classname>XMLStreamReader</classname>. The easiest and most efficient
+                            way to do this is using <classname>StreamingOMSerializer</classname>:
+                        </para>
+                        <example id="OMDataSource-serialize">
+                            <title>Proper implementation of the <methodname>OMDataSource#serialize</methodname> method</title>
+<programlisting>public void serialize(XMLStreamWriter xmlWriter) throws XMLStreamException {
+    StreamingOMSerializer serializer = new StreamingOMSerializer();
+    serializer.serialize(getReader(), xmlWriter);
+}</programlisting>
+                        </example>
+                        <para>
+                            There is thus no need to build an intermediary object model in this case.
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            The <methodname>getReader</methodname> method also uses an intermediary
+                            Axiom tree<footnote><para>See e.g.
+                            <ulink url="http://svn.apache.org/repos/asf/webservices/axis2/tags/java/v1.5/modules/kernel/src/org/apache/axis2/builder/unknowncontent/UnknownContentOMDataSource.java"/>.</para></footnote>.
+                            In that case it doesn't make sense to use an <classname>OMSourcedElement</classname>
+                            in the first place! At least it doesn't make sense if one assumes that
+                            in general the <classname>OMSourcedElement</classname> will either be
+                            serialized or its content accessed after being added to the tree. Indeed,
+                            in this case the Axiom tree will be built at least once (if not multiple times),
+                            so that the code might as well use a normal <classname>OMElement</classname>.
+                        </para>
+                        <para>
+                            This only leaves the very special case where the <classname>OMSourcedElement</classname>
+                            is in general neither accessed nor serialized, either because it will usually be somehow
+                            discarded or because the code uses <methodname>OMDataSourceExt#getObject()</methodname>
+                            to retrieve the raw data. Even in that case one can argue that in general
+                            it should not be too hard to implement at least the <methodname>serialize</methodname>
+                            method properly by transforming the raw or foreign data directly to StAX events written to the
+                            <classname>XMLStreamWriter</classname>.
+                        </para>
+                        <note>
+                            <para>
+                                Implementing the <methodname>serialize</methodname> method to serialize
+                                directly to an <classname>XMLStreamWriter</classname>
+                                instead of using an intermediary Axiom tree of course still leaves the question about
+                                the <methodname>getReader</methodname> method open.
+                                Since we are assuming that implementing <methodname>getReader</methodname>
+                                properly would be too complex (otherwise one could use the code shown in
+                                <xref linkend="OMDataSource-serialize"/> to avoid the
+                                OM-inside-OMDataSource anti-pattern entirely), one is forced to
+                                use the code shown in <xref linkend="adb-getReader"/> (and thus the weaker version of
+                                the anti-pattern). However this code depends on the <classname>MTOMAwareOMBuilder</classname>
+                                class which is part of <literal>axis2-adb</literal>. In some cases, depending on
+                                that library may not be an option. Therefore this class should probably
+                                be moved to Axiom.
+                            </para>
+                        </note>
+                    </listitem>
+                </orderedlist>
+                <para>
+                    QED
+                </para>
+            </section>
+        </section>
+    </chapter>
+
+    <chapter id="appendix">
+        <title>Appendix</title>
+        <section>
+            <title>Program Listing for Build and Serialize</title>
+<programlisting>import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMXMLBuilderFactory;
+import org.apache.axiom.om.OMXMLParserWrapper;
+
+import javax.xml.stream.XMLStreamException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+public class TestOMBuilder {
+
+    /**
+     * Pass the file name as an argument
+     * @param args
+     */
+    public static void main(String[] args) {
+        try {
+            //create the input stream
+            InputStream in = new FileInputStream(args[0]);
+            //create the builder
+            OMXMLParserWrapper builder = OMXMLBuilderFactory.createOMBuilder(in);
+            //get the root element
+            OMElement documentElement = builder.getDocumentElement();
+
+            //dump the out put to console with caching
+            System.out.println(documentElement.toStringWithConsume()); 
+
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}</programlisting>
+        </section>
+        <section id="links">
+            <title>Links</title>
+            <para>
+                For basics in XML
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        <ulink url="http://www-128.ibm.com/developerworks/xml/newto/index.html">Developerworks Introduction to XML</ulink>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <ulink url="http://www.bearcave.com/software/java/xml/xmlpull.html">Introduction to Pull parsing</ulink>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <ulink url="http://today.java.net/pub/a/today/2006/07/20/introduction-to-stax.html">Introduction to StAX</ulink>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <ulink url="http://www.jaxmag.com/itr/online_artikel/psecom,id,726,nodeid,147.html">Fast and Lightweight Object Model for XML</ulink>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <ulink url="http://www-128.ibm.com/developerworks/library/x-axiom/">Get the most out of XML processing with AXIOM</ulink>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </section>
+    </chapter>
+
+    <bibliography>
+        <title>References</title>
+        <bibliodiv>
+            <title>Specifications</title>
+            <biblioentry id="bib.xml">
+                <abbrev>XML</abbrev>
+                <title><ulink url="http://www.w3.org/TR/2008/REC-xml-20081126/">Extensible Markup Language (XML) 1.0 (Fifth Edition)</ulink></title>
+                <publishername>W3C Recommendation</publishername>
+                <pubdate>26 November 2008</pubdate>
+            </biblioentry>
+        </bibliodiv>
+    </bibliography>
+</book>

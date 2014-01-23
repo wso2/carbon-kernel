@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<wsdl:definitions targetNamespace="http://ws.sosnoski.com/library/wsdl"
+    xmlns:wns="http://ws.sosnoski.com/library/wsdl"
+    xmlns:tns="http://ws.sosnoski.com/library/types"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+  
+    <schema elementFormDefault="qualified"
+        targetNamespace="http://ws.sosnoski.com/library/types"
+        xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        
+      <element name="getBook">
+        <complexType>
+          <sequence>
+            <element name="isbn" type="xsd:string"/>
+          </sequence>
+        </complexType>
+      </element>
+      
+      <element name="getBookResponse">
+        <complexType>
+          <sequence>
+            <element name="getBookReturn" minOccurs="0" type="tns:BookInformation"/>
+          </sequence>
+        </complexType>
+      </element>
+      
+      <element name="getBooksByType">
+        <complexType>
+          <sequence>
+            <element name="type" type="xsd:string"/>
+          </sequence>
+        </complexType>
+      </element>
+      
+      <element name="getBooksByTypeResponse">
+        <complexType>
+          <sequence>
+            <element name="getBooksByTypeReturn" minOccurs="0" maxOccurs="unbounded" type="tns:BookInformation"/>
+          </sequence>
+        </complexType>
+      </element>
+      
+      <element name="getTypes">
+        <complexType>
+          <sequence/>
+        </complexType>
+      </element>
+      
+      <element name="getTypesResponse">
+        <complexType>
+          <sequence>
+            <element name="getTypesReturn" maxOccurs="unbounded" type="tns:TypeInformation"/>
+          </sequence>
+        </complexType>
+      </element>
+      
+      <element name="addBook">
+        <complexType>
+          <sequence>
+            <element name="type" type="xsd:string"/>
+            <element name="isbn" type="xsd:string"/>
+            <element name="author" minOccurs="0" maxOccurs="unbounded" type="xsd:string"/>
+            <element name="title" type="xsd:string"/>
+          </sequence>
+        </complexType>
+      </element>
+      
+      <element name="addBookResponse">
+        <complexType>
+          <sequence>
+            <element name="addBookReturn" type="xsd:boolean"/>
+          </sequence>
+        </complexType>
+      </element>
+      
+      <element name="addBookInstance">
+        <complexType>
+          <sequence>
+            <element name="book" type="tns:BookInformation"/>
+          </sequence>
+        </complexType>
+      </element>
+      
+      <element name="addBookInstanceResponse">
+        <complexType>
+          <sequence/>
+        </complexType>
+      </element>
+      
+      <complexType name="BookInformation">
+        <sequence>
+          <element name="author" minOccurs="0" maxOccurs="unbounded" type="string"/>
+          <element name="title" type="string"/>
+        </sequence>
+        <attribute name="type" use="required" type="string"/>
+        <attribute name="isbn" use="required" type="string"/>
+      </complexType>
+      
+      <complexType name="TypeInformation">
+        <simpleContent>
+          <extension base="xsd:string">
+            <attribute name="count" use="required" type="int"/>
+            <attribute name="name" use="required" type="string"/>
+          </extension>
+        </simpleContent>
+      </complexType>
+      
+    </schema>
+
+  </wsdl:types>
+
+  <wsdl:message name="getBookRequest">
+    <wsdl:part element="tns:getBook" name="parameters"/>
+  </wsdl:message>
+
+  <wsdl:message name="getBookResponse">
+    <wsdl:part element="tns:getBookResponse" name="parameters"/>
+  </wsdl:message>
+
+  <wsdl:message name="getBooksByTypeRequest">
+    <wsdl:part element="tns:getBooksByType" name="parameters"/>
+  </wsdl:message>
+
+  <wsdl:message name="getBooksByTypeResponse">
+    <wsdl:part element="tns:getBooksByTypeResponse" name="parameters"/>
+  </wsdl:message>
+  
+  <wsdl:message name="getTypesRequest">
+    <wsdl:part element="tns:getTypes" name="parameters"/>
+  </wsdl:message>
+
+  <wsdl:message name="getTypesResponse">
+    <wsdl:part element="tns:getTypesResponse" name="parameters"/>
+  </wsdl:message>
+
+  <wsdl:message name="addBookRequest">
+    <wsdl:part element="tns:addBook" name="parameters"/>
+  </wsdl:message>
+  
+  <wsdl:message name="addBookResponse">
+    <wsdl:part element="tns:addBookResponse" name="parameters"/>
+  </wsdl:message>
+
+  <wsdl:message name="addBookInstanceRequest">
+    <wsdl:part element="tns:addBookInstance" name="parameters"/>
+  </wsdl:message>
+  
+  <wsdl:message name="addBookInstanceResponse">
+    <wsdl:part element="tns:addBookInstanceResponse" name="parameters"/>
+  </wsdl:message>
+
+  <wsdl:portType name="Library">
+
+    <wsdl:operation name="getBook">
+      <wsdl:input message="wns:getBookRequest" name="getBookRequest"/>
+      <wsdl:output message="wns:getBookResponse" name="getBookResponse"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="getBooksByType">
+      <wsdl:input message="wns:getBooksByTypeRequest" name="getBooksByTypeRequest"/>
+      <wsdl:output message="wns:getBooksByTypeResponse" name="getBooksByTypeResponse"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="getTypes">
+      <wsdl:input message="wns:getTypesRequest" name="getTypesRequest"/>
+      <wsdl:output message="wns:getTypesResponse" name="getTypesResponse"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="addBook">
+      <wsdl:input message="wns:addBookRequest" name="addBookRequest"/>
+      <wsdl:output message="wns:addBookResponse" name="addBookResponse"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="addBookInstance">
+      <wsdl:input message="wns:addBookInstanceRequest" name="addBookInstanceRequest"/>
+      <wsdl:output message="wns:addBookInstanceResponse" name="addBookInstanceResponse"/>
+    </wsdl:operation>
+
+  </wsdl:portType>
+
+  <wsdl:binding name="LibrarySoapBinding" type="wns:Library">
+
+    <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+    <wsdl:operation name="getBook">
+    
+      <wsdlsoap:operation soapAction=""/>
+      
+      <wsdl:input name="getBookRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      
+      <wsdl:output name="getBookResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+      
+    </wsdl:operation>
+
+    <wsdl:operation name="getBooksByType">
+    
+      <wsdlsoap:operation soapAction=""/>
+      
+      <wsdl:input name="getBooksByTypeRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+      
+      <wsdl:output name="getBooksByTypeResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+      
+    </wsdl:operation>
+
+    <wsdl:operation name="getTypes">
+    
+      <wsdlsoap:operation soapAction=""/>
+      
+      <wsdl:input name="getTypesRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+
+      <wsdl:output name="getTypesResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+
+    </wsdl:operation>
+
+    <wsdl:operation name="addBook">
+
+      <wsdlsoap:operation soapAction=""/>
+
+      <wsdl:input name="addBookRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+
+      <wsdl:output name="addBookResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+
+    </wsdl:operation>
+
+    <wsdl:operation name="addBookInstance">
+
+      <wsdlsoap:operation soapAction=""/>
+
+      <wsdl:input name="addBookInstanceRequest">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:input>
+
+      <wsdl:output name="addBookInstanceResponse">
+        <wsdlsoap:body use="literal"/>
+      </wsdl:output>
+
+    </wsdl:operation>
+
+  </wsdl:binding>
+
+  <wsdl:service name="library">
+
+    <wsdl:port binding="wns:LibrarySoapBinding" name="library">
+      <wsdlsoap:address location="http://127.0.0.1:5555/axis2/services/library"/>
+    </wsdl:port>
+
+  </wsdl:service>
+
+</wsdl:definitions>

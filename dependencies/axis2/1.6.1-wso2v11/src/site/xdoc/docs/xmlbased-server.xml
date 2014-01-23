@@ -1,0 +1,198 @@
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 14 June 2007), see www.w3.org" />
+<meta http-equiv="content-type" content="" />
+<title>Writing Web Services Using Axis2's Primary APIs</title>
+</head>
+<body>
+<a name="Writing_Web_Services_Using Axis2's_Primary_APIs"></a>
+<h1>Writing Web Services Using Apache Axis2's Primary APIs</h1>
+<p>Apache Axis2 dispatches a component called
+<strong>MessageReceiver</strong> when Receiving a Message to the
+server. Apache Axis2 provides different implementations of this
+class and it can be configured by adding a messageReceiver tag to
+services.xml. Apache Axis2 provides an implementation for a class
+of Message receivers called RawXml Message receivers. They work at
+the XML level and can only handle OMElements as parameters. This
+section explains how to write a service using them.</p>
+<p>In our example, the Web service will have two operations.</p>
+<pre>
+public void ping(OMElement element){} //IN-ONLY operation, just accepts the OMElement and does some processing.
+public OMElement echo(OMElement element){}//IN-OUT operation, accepts an OMElement and  
+                                          // sends back the same again 
+</pre>
+<a name="How_to_write_the_Web_Service_" id=
+"How_to_write_the_Web_Service_"></a>
+<h4>How to Write a Web Service?</h4>
+Writing a new Web service with Apache Axis2 involves four steps:
+<ol>
+<li>Write the Implementation Class.</li>
+<li>Write a services.xml file to explain the Web service.</li>
+<li>Create a *.aar archive (Axis Archive) for the Web service.</li>
+<li>Deploy the Web service.</li>
+</ol>
+<a name="Step1_:Write_the_Implementation_Class" id=
+"Step1_:Write_the_Implementation_Class"></a>
+<h4>Step1: Write the Implementation Class</h4>
+<p>An implementation class has the business logic for the Web
+service and implements the operations provided by the Web service.
+Unless you have data binding, the signature of the methods can have
+only one parameter of the type OMElement. <i>OM stands for Object
+Model (also known as AXIOM - AXis Object Model) and refers to the
+XML infoset model that is initially developed for Apache Axis2. DOM
+and JDOM are two such XML models conceptually similar to OM as an
+XML model by its external behavior, but considering the deep down
+implementation OM is very much different to others. OMElement is
+the basic representation of the XML infoset element in OM.For more
+details on OMElement see the <a href=
+"http://ws.apache.org/axiom/userguide/userguide.html">Axiom
+User Guide</a>.</i></p>
+<pre>
+public class MyService{
+    public void ping(OMElement element){
+        // Business Logic     
+        ......
+    }
+    public OMElement echo(OMElement element){
+     ......
+    }
+}
+</pre>
+<a name="Step2_:Write_the_services_xml_file" id=
+"Step2_:Write_the_services_xml_file"></a>
+<h4>Step2: Write the services.xml file</h4>
+<p>"services.xml" has the configuration for a Web service. Each Web
+service, deployed in Apache Axis2 , must have its configuration in
+"services.xml". The configuration for MyService is as follows:</p>
+<pre>
+&lt;service &gt;
+    &lt;description&gt;
+        This is a sample Web service with two operations, echo and ping.
+    &lt;/description&gt;
+    &lt;parameter name="ServiceClass"&gt;userguide.example1.MyService&lt;/parameter&gt;
+    &lt;operation name="echo"&gt;
+        &lt;messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/&gt;
+        &lt;actionMapping&gt;urn:echo&lt;/actionMapping&gt;
+    &lt;/operation&gt;
+     &lt;operation name="ping"&gt;
+        &lt;messageReceiver class="org.apache.axis2.receivers.RawXMLINOnlyMessageReceiver"/&gt;
+        &lt;actionMapping&gt;urn:ping&lt;/actionMapping&gt;
+    &lt;/operation&gt;
+ &lt;/service&gt;
+</pre>
+<p>The above XML tags can be explained as follows:</p>
+<p>1. The description of the service class is provided in the
+description tag.</p>
+<pre>
+&lt;service &gt;
+    &lt;description&gt;
+        This is a sample Web service with two operations, echo and ping.
+    &lt;/description&gt;
+</pre>
+<p>2. The name of the service class is provided as a parameter.</p>
+<pre>
+&lt;parameter name="serviceClass"&gt;userguide.example1.MyService&lt;/parameter&gt;
+</pre>
+<p>3. The "operation" XML tag describes the operations that are
+available in this service with respective message receivers.</p>
+<pre>
+   &lt;operation name="echo"&gt;
+            &lt;messageReceiver class="org.apache.axis2.receivers.RawXMLINOutMessageReceiver"/&gt;
+            &lt;actionMapping&gt;urn:echo&lt;/actionMapping&gt;
+   &lt;/operation&gt;
+   &lt;operation name="ping"&gt;
+       &lt;messageReceiver class="org.apache.axis2.receivers.RawXMLINOnlyMessageReceiver"/&gt;
+       &lt;actionMapping&gt;urn:ping&lt;/actionMapping&gt;
+   &lt;/operation&gt;
+</pre>
+<p>4. Every operation must map to a corresponding MessageReceiver
+class. After a message is processed by the handlers, the Axis2
+engine hands it over to a MessageReceiver.</p>
+<p>5. For the "echo" operation, we have used a
+<strong>RawXMLINOutMessageReceiver</strong> since it is an IN-OUT
+operation. For the IN-ONLY operation "ping", we have used
+<strong>RawXMLINOnlyMessageReceiver</strong> as the message
+receiver.</p>
+<p>6. The actionMapping is required only if you want to enable
+WS-Addressing. This will be used later in this user guide.</p>
+<p>7. You can write a services.xml file to include a group of
+services instead of a single service. This makes the management and
+deployment of a set of related services very easy. At runtime, you
+can share information between these services within a single
+interaction using the ServiceGroupContext. If you hope to use this
+functionality, the services.xml file should have the following
+format.</p>
+<pre>
+&lt;ServiceGroup&gt;
+  &lt;service name="Service1"&gt;
+    &lt;!-- details for Service1 --&gt;
+  &lt;/service&gt;
+  &lt;service name="Service2"&gt;
+    &lt;!-- details for Service2 --&gt;
+  &lt;/service&gt;
+  &lt;module ref="ModuleName" /&gt;
+  &lt;parameter name="serviceGroupParam1"&gt;value 1&lt;/parameter&gt;
+&lt;/serviceGroup&gt;
+</pre>
+<p>Note : The name of the service is a compulsory attribute.</p>
+<a name="Step3_:Create_the_Web_Service_Archive" id=
+"Step3_:Create_the_Web_Service_Archive"></a>
+<h4>Step3: Create the Web Service Archive</h4>
+<p>Apache Axis2 uses the ".aar" (Axis Archive) file as the
+deployment package for Web services. Therefore, for MyService we
+will use "MyService.aar" with the "services.xml" packaged in the
+META-INF in the directory structure shown below. Please note that
+the name of the archive file will be the same as that of the
+service only if the services.xml contains only one service
+element.</p>
+<p><img src="images/userguide/ServiceItems.jpg" name="Graphic1"
+align="bottom" width="176" height="91" border="0" id=
+"Graphic1" /></p>
+<p>To create the archive file, you can create a .jar file
+containing all the necessary files and then rename it to a .aar
+file. This archive file can be found in the
+"Axis2_HOME/samples/userguide" directory. This file has to be
+deployed now.</p>
+<a name="Step4_:Deploy_the_Web_Service" id=
+"Step4_:Deploy_the_Web_Service"></a>
+<h4>Step4: Deploy the Web Service</h4>
+<p>The service can be deployed by dropping the ".aar" file into the
+"services" directory in "/webapps/axis2/WEB-INF" of your servlet
+container. Start the servlet container (if you have not already
+started), click the link "Services" on the <a href=
+"http://localhost:8080/axis2/">Home Page of Axis2
+Web Application</a> (http://localhost:8080/axis2) and see whether
+MyService is deployed properly. If you can see the following
+output, then you have successfully deployed MyService on Apache
+Axis2. Congratulations !!</p>
+<p align="center"><img src="images/userguide/MyServiceDeployed.jpg"
+name="Graphic2" align="bottom" border="0" id="Graphic2" /></p>
+<p>Note: Apache Axis2 provides an easy way to deploy Web services
+using the "Upload Service" tool on the Axis2 Web Application's
+Administration module. Please refer to the <a href=
+"webadminguide.html">Web Administration Guide</a>
+for more information.</p>
+</body>
+</html>

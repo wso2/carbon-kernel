@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one
+  ~ or more contributor license agreements. See the NOTICE file
+  ~ distributed with this work for additional information
+  ~ regarding copyright ownership. The ASF licenses this file
+  ~ to you under the Apache License, Version 2.0 (the
+  ~ "License"); you may not use this file except in compliance
+  ~ with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied. See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>8</version>
+    </parent>
+    <groupId>org.apache.ws.commons.axiom</groupId>
+    <artifactId>axiom-parent</artifactId>
+    <name>Axiom Parent POM</name>
+    <version>1.2.11-wso2v5</version>
+    <packaging>pom</packaging>
+    <description>Axiom Parent POM</description>
+    <url>http://ws.apache.org/axiom/</url>
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://issues.apache.org/jira/browse/AXIOM</url>
+    </issueManagement>
+    <mailingLists>
+        <mailingList>
+            <name>Users</name>
+            <subscribe>users-subscribe@ws.apache.org</subscribe>
+            <unsubscribe>users-unsubscribe@ws.apache.org</unsubscribe>
+            <post>users@ws.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/ws-users/</archive>
+        </mailingList>
+        <mailingList>
+            <name>Developers</name>
+            <subscribe>dev-subscribe@ws.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@ws.apache.org</unsubscribe>
+            <post>dev@ws.apache.org</post>
+            <archive>http://mail-archives.apache.org/mod_mbox/ws-dev/</archive>
+        </mailingList>
+        <mailingList>
+            <name>Commits</name>
+            <subscribe>commits-subscribe@ws.apache.org</subscribe>
+            <unsubscribe>commits-unsubscribe@ws.apache.org</unsubscribe>
+            <archive>http://mail-archives.apache.org/mod_mbox/ws-commits/</archive>
+        </mailingList>
+        <mailingList>
+            <name>WS Commons Developers (old)</name>
+            <archive>http://mail-archives.apache.org/mod_mbox/ws-commons-dev/</archive>
+        </mailingList>
+    </mailingLists>
+    <inceptionYear>2004</inceptionYear>
+    <developers>
+        <developer>
+            <name>Saminda Abeyruwan</name>
+            <id>saminda</id>
+            <email>saminda AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Afkham Azeez</name>
+            <id>azeez</id>
+            <email>azeez AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Eran Chinthaka</name>
+            <id>chinthaka</id>
+            <email>chinthaka AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~chinthaka</url>
+        </developer>
+        <developer>
+            <name>Glen Daniels</name>
+            <id>gdaniels</id>
+            <email>gdaniels AT apache.org</email>
+            <organization>Sonic Software</organization>
+        </developer>
+        <developer>
+            <name>Jaliya Ekanayake</name>
+            <id>jaliya</id>
+            <email>jaliya AT opensource.lk</email>
+            <organization>Virtusa / Lanka Software Foundation</organization>
+            <url>http://www.apache.org/~jaliya</url>
+        </developer>
+        <developer>
+            <name>Nandana Mihindukulasooriya</name>
+            <id>nandana</id>
+            <email>nandana AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Ruchith Fernando</name>
+            <id>ruchith</id>
+            <email>ruchith AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <id>thilina</id>
+            <name>Thilina Gunarathne</name>
+            <email>thilina AT wso2.com</email>
+            <url>http://www.apache.org/~thilina</url>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Chathura Herath</name>
+            <id>chathura</id>
+            <email>chathura AT opensource.lk</email>
+            <organization>LSF/MIT</organization>
+            <url>http://www.apache.org/~chathura</url>
+        </developer>
+        <developer>
+            <name>Deepal Jayasinghe</name>
+            <id>deepal</id>
+            <email>deepal AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~deepal</url>
+        </developer>
+        <developer>
+            <name>Chatra Nakkawita</name>
+            <id>chatra</id>
+            <email>chatra AT WSO2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+        <developer>
+            <name>Srinath Perera</name>
+            <id>hemapani</id>
+            <email>hemapani AT apache.org</email>
+            <organization>Lanka Software Foundation</organization>
+            <url>http://www.apache.org/~hemapani</url>
+        </developer>
+        <developer>
+            <name>Ajith Ranabahu</name>
+            <id>ajith</id>
+            <email>ajith AT wso2.com</email>
+            <organization>WSO2</organization>
+            <url>http://www.apache.org/~ajith</url>
+        </developer>
+        <developer>
+            <name>Venkat Reddy</name>
+            <id>venkat</id>
+            <email>vreddyp AT gmail.com</email>
+            <organization>Computer Associates</organization>
+        </developer>
+        <developer>
+            <name>Rich Scheuerle</name>
+            <id>scheu</id>
+            <email>scheu AT us.ibm.com</email>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Ashutosh Shahi</name>
+            <id>ashu</id>
+            <email>Ashutosh.Shahi AT ca.com</email>
+            <organization>Computer Associates</organization>
+        </developer>
+        <developer>
+            <name>Aleksander Slominski</name>
+            <id>alek</id>
+            <email>aslom AT cs.indiana.edu</email>
+            <organization>Indiana University Extreme! Computing Lab</organization>
+        </developer>
+        <developer>
+            <name>Davanum Srinivas</name>
+            <id>dims</id>
+            <email>davanum AT gmail.com</email>
+            <organization>IBM</organization>
+        </developer>
+        <developer>
+            <name>Jayachandra Sekhara Rao Sunkara</name>
+            <id>jaya</id>
+            <email>jayachandra AT gmail.com</email>
+            <organization>Computer Associates</organization>
+        </developer>
+        <developer>
+            <name>Andreas Veithen</name>
+            <id>veithen</id>
+            <email>veithen AT apache.org</email>
+            <url>http://www.linkedin.com/in/aveithen</url>
+        </developer>
+        <developer>
+            <name>Dasarath Weerathunga</name>
+            <id>dasarath</id>
+            <email>dasarath AT opensource.lk</email>
+            <organization>Lanka Software Foundation</organization>
+        </developer>
+        <developer>
+            <name>Sanjiva Weerawarana</name>
+            <id>sanjiva</id>
+            <email>sanjiva AT wso2.com</email>
+            <organization>WSO2</organization>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Dharshana Dias</name>
+            <email />
+            <organization>Lanka Software Foundation / University of Moratuwa</organization>
+        </contributor>
+        <contributor>
+            <name>Anushka Kumara</name>
+            <email>anushkakumar AT gmail.com</email>
+            <organization>Lanka Software Foundation / University of Moratuwa</organization>
+        </contributor>
+        <contributor>
+            <name>Chinthaka Thilakarathne</name>
+            <email />
+            <organization>Lanka Software Foundation / University of Moratuwa</organization>
+        </contributor>
+        <contributor>
+            <name>Jochen Wiedmann</name>
+            <email>jochen.wiedmann AT gmail.com</email>
+        </contributor>
+    </contributors>
+    <scm>
+        <connection>scm:svn:http://svn.apache.org/repos/asf/webservices/commons/tags/axiom/1.2.11/modules/axiom-parent</connection>
+        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/webservices/commons/tags/axiom/1.2.11/modules/axiom-parent</developerConnection>
+        <url>http://svn.apache.org/viewvc/webservices/commons/tags/axiom/1.2.11/modules/axiom-parent</url>
+    </scm>
+    <build>
+
+	<extensions>
+      	    <extension>
+        	<groupId>org.apache.maven.wagon</groupId>
+        	<artifactId>wagon-ssh</artifactId>
+        	<version>2.1</version>
+      	    </extension>
+    	</extensions>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-scr-plugin</artifactId>
+                    <version>1.2.0</version>
+                    <executions>
+                        <execution>
+                            <id>generate-scr-scrdescriptor</id>
+                            <goals>
+                                <goal>scr</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>1.4.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.4.3</version>
+                    <configuration>
+                        <includes>
+                            <include>**/*Test.java</include>
+                        </includes>
+                        <systemProperties>
+                            <property>
+                                <name>java.awt.headless</name>
+                                <value>true</value>
+                            </property>
+                            <!-- property>
+                                <name>javax.xml.stream.XMLInputFactory</name>
+                                <value>com.bea.xml.stream.MXParserFactory</value>
+                            </property>
+                            <property>
+                                <name>javax.xml.stream.XMLOutputFactory</name>
+                                <value>com.bea.xml.stream.XMLOutputFactoryBase</value>
+                            </property -->
+                        </systemProperties>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <skip>false</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <!-- Use the same ID as in org.apache:apache; otherwise, the goal
+                             will be executed twice when the apache-release profile is
+                             activated -->
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jvnet.maven.incrementalbuild</groupId>
+                <artifactId>incremental-build-plugin</artifactId>
+                <version>1.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>incremental-build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-activation_1.1_spec</artifactId>
+                <version>1.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-javamail_1.4_spec</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>1.1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>avalon-framework</artifactId>
+                        <groupId>avalon-framework</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>logkit</artifactId>
+                        <groupId>logkit</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>${stax.impl.groupid}</groupId>
+                <artifactId>${stax.impl.artifact}</artifactId>
+                <version>${stax.impl.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>stax</groupId>
+                        <artifactId>stax-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>jaxen</groupId>
+                <artifactId>jaxen</artifactId>
+                <version>1.1.1</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>dom4j</artifactId>
+                        <groupId>dom4j</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>xom</artifactId>
+                        <groupId>xom</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>jdom</artifactId>
+                        <groupId>jdom</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xmlParserAPIs</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>3.8.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>xmlunit</groupId>
+                <artifactId>xmlunit</artifactId>
+                <version>1.1</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <reporting>
+        <plugins>
+            <!-- We don't need to generate the site in sub-modules;
+                 skip report generation -->
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>2.0.1</version>
+                <configuration>
+                    <generateReports>false</generateReports>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+    <distributionManagement>
+
+	<repository>
+            <id>wso2-maven2-repository</id>
+            <name>WSO2 Maven2 Repository</name>
+            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/</url>
+        </repository>
+	 <snapshotRepository>
+            <id>wso2-maven2-snapshot-repository</id>
+            <name>WSO2 Maven2 Snapshot Repository</name>
+            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/snapshots/maven2/</url>
+        </snapshotRepository>
+        <!--<snapshotRepository>
+            <id>apache.snapshots.https</id>
+            <name>${distMgmtSnapshotsName}</name>
+            <url>${distMgmtSnapshotsUrl}</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <site>
+            <id>website</id>
+            <url>scpexe://people.apache.org/www/ws.apache.org/commons/axiom</url>
+        </site>-->
+    </distributionManagement>
+    <properties>
+        <stax.impl.groupid>org.codehaus.woodstox</stax.impl.groupid>
+        <stax.impl.artifact>wstx-asl</stax.impl.artifact>
+        <stax.impl.version>3.2.9</stax.impl.version>
+        <failIfNoTests>false</failIfNoTests>
+        <!--
+        <stax.impl.groupid>com.sun.xml.stream</stax.impl.groupid>
+        <stax.impl.artifact>sjsxp</stax.impl.artifact>
+        <stax.impl.version>1.0.1</stax.impl.version>
+        -->
+        <!--
+        <stax.impl.groupid>stax</stax.impl.groupid>
+        <stax.impl.artifact>stax</stax.impl.artifact>
+        <stax.impl.version>1.2.0</stax.impl.version>
+        -->
+    </properties>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>repository.dev.java.net-maven2</id>
+            <name>Java.net Repository for Maven</name>
+            <url>http://download.java.net/maven/2/</url>
+            <layout>default</layout>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

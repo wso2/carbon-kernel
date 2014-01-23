@@ -1,0 +1,1 @@
+This folder contains standard (third party) schemas. Please don't modify them.

@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//Apache Software Foundation//DTD XDOC 1.0//EN"
+        "http://www.apache.org/dtds/xdoc_1_0.dtd">
+<!--
+~ Licensed to the Apache Software Foundation (ASF) under one
+~ or more contributor license agreements. See the NOTICE file
+~ distributed with this work for additional information
+~ regarding copyright ownership. The ASF licenses this file
+~ to you under the Apache License, Version 2.0 (the
+~ "License"); you may not use this file except in compliance
+~ with the License. You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing,
+~ software distributed under the License is distributed on an
+~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+~ KIND, either express or implied. See the License for the
+~ specific language governing permissions and limitations
+~ under the License.
+-->
+<document>
+    <properties>
+        <title>new document</title>
+    </properties>
+
+    <body>
+        <section name="Introduction">The SMS Transport will allow send and receive
+            messages in the form of SMSs used in mobile phones.Using this transport
+            the users will be able to invoke webservices using a SMS and get the
+            responce.SMS Transport is mainly focus on enableing SMPP protocal support
+            for the Axis2 so that It can connect with a SMSC to send/receive SMS.It
+            will also have a GSM implimentation that will enable users to connect a
+            GSM modem and send/receive sms s using that.The configuration parameters
+            will be different depend on the implimentaion that the user will be using
+            (SMPP/ GSM) Follwoing up section will be discuss more details about the
+            configuration ,usage and Extenting of the SMS Transport
+        </section>
+
+        <section name="Transport Listener" onclick="">
+            <subsection
+                    name="Configuration"><pre>&lt;transportReceiver name="sms"
+                class="org.apache.axis2.transport.sms.SMSMessageReciever"&gt;</pre>In
+                order to use the sms Transport Listener It must be Configured in the
+                Axis2.xml.It will be having set of parameters to be configured depending
+                on the implementation that a user needed.(SMPP/GSM)
+                <br/>
+                <p>
+                    <br/>
+                    Parameters Needed for the SMPP and GSM implementation are Explined
+                    bellow.
+                    <br/>
+                    <br/>
+                    <b>SMPP Configuration</b>
+                </p>
+                When using the SMPP
+                implimentaiton It will connect with a SMSC (Short Message Service center)
+                and Listening to the incomming messsages on a TCP connection.This
+                implimentaion can be used when the data traffic is so high.
+                <table
+                        class="bodyTable">
+                    <tr>
+                        <th>Parameter</th>
+
+                        <th>Required</th>
+
+                        <th>Description</th>
+                    </tr>
+
+                    <tr>
+                        <td>systemType</td>
+
+                        <td>No</td>
+
+                        <td>To inform the binding SMSC about the system Type That connecting
+                            to it.The Default value is "cp". .Some SMSC s does not require this
+                            to connect.
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>systemId</td>
+
+                        <td>Yes</td>
+
+                        <td>The system_id parameter is used to identify an ESME (In this
+                            case Axis2 )or an SMSC at bind time. An ESME system_id identifies
+                            the ESME or ESME agent to the SMSC. The SMSC system_id provides an
+                            identification of the SMSC to the ESME.
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <em>Password</em>
+                        </td>
+
+                        <td>Yes</td>
+
+                        <td>The password parameter is used by the SMSC to authenticate the
+                            identity of the binding ESME (In this Case Axis2). The Service
+                            Provider may require ESME’s to provide a password when binding to
+                            the SMSC. This password is normally issued by the SMSC system
+                            administrator.
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>host</td>
+
+                        <td>No</td>
+
+                        <td>The IP address of the host that SMSC is located.The default is
+                            Local host - 127.0.0.1
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>port</td>
+
+                        <td>No</td>
+
+                        <td>The port Number that Axis2 must connect with the SMSC.The
+                            Default port is 2775
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>phoneNumber</td>
+
+                        <td>No</td>
+
+                        <td>The phone Number that Axis2 Application given from the Service
+                            provider.
+                        </td>
+                    </tr>
+                </table>
+                <br/>
+                <b>GSM Configuration</b>
+                <br/>GSM implementation can be
+                used to send receive SMS using a GSM modem connected.Its use the
+                <a
+                        href="http://smslib.org/">SMSLib
+                </a>
+                library so that all SMSLib supported
+                GSM modems will be working with the GSM implimentation.This implementation
+                can only be used when the Data Traffic is very low (about 6 messages per
+                minute) since The Message Send / receive rate supported by GSM modems is
+                normally very low.Other than Following Parameters in the table to use the
+                GSMImplimentation User must specify the implementation Class of the GSM
+                implementation as a Parameter
+                <pre>&lt;parameter name="smsImplClass"&gt;org.apache.axis2.transport.sms.gsm.GSMImplManager&lt;/parameter&gt;</pre>
+                <table class="bodyTable">
+                    <tr>
+                        <th>Parameter</th>
+
+                        <th>Required</th>
+
+                        <th>Description</th>
+                    </tr>
+
+                    <tr>
+                        <td>gateway_id</td>
+
+                        <td>Yes</td>
+
+                        <td>Gateway id is the Id that is used to identify the device that
+                            you are going to use as the gateway.
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>com_port</td>
+
+                        <td>Yes</td>
+
+                        <td>The communication port that the device is connected.As a Example
+                            in a Linux machine if the device is connected through a USB the port
+                            will be some thing like "/dev/ttyUSB0"
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <em>baud_rate</em>
+                        </td>
+
+                        <td>Yes</td>
+
+                        <td>The Baud rate of the device.This can be found out by looking in
+                            to device details.
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>manufacturer</td>
+
+                        <td>Yes</td>
+
+                        <td>The Name of the Manufacturer that the device manufactured
+                            by.Example manufactures are "NOKIA" , "HUAWEI"
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>model</td>
+
+                        <td>Yes</td>
+
+                        <td>The model id of the device.</td>
+                    </tr>
+
+                    <tr>
+                        <td>modem_poll_interval</td>
+
+                        <td>No</td>
+
+                        <td>This is the interval that the application will poll the devices
+                            message storage to get the incoming messages.The default value is 5
+                            seconds.
+                        </td>
+                    </tr>
+                </table>
+            </subsection>
+        </section>
+
+        <section name="TransportSender">
+            <subsection name="Configuration"><pre>&lt;transportSender name="sms"
+                class="org.apache.axis2.transport.sms.SMSSender"&gt;</pre>In
+                order to use the sms Sender It must be Configured in the Axis2.xml.It will
+                be having set of parameters to be configured depending on the
+                implementation that a user needed.(SMPP/GSM)
+            </subsection>
+            The Configuration
+            Parameters for the GSM and SMPP implimentations are same as the above
+            discribed for the Transport Listender.
+        </section>
+
+        <section name="Extending SMS Transport">The SMS Transport is Designed to
+            be extended to use with Other SMS implementations as well.It has two
+            logical layers one is the SMS Layer which has all Axis2 dependent code and
+            Other one is The Implementation layer which only contain the
+            implementation logic related to the specific implimentation.So the
+            Developers who need to write a another implementation can reuse the SMS
+            layer and focus oly about thire implementation logic.
+            <subsection
+                    name="SMSMessageBuilder">SMSMessageBuilder determines the message format
+                that Axis2 accepting from the incoming SMS.In the Default
+                SMSMessageBuilder implementation its supported for the RPC type SMS format
+                for the incoming SMS to invoke a Webservice its :<b>
+                    "ServiceName":"Operation Name":
+                    "Parameter_1=value_1":......:"Parameter_N=value_N"</b>.Developers can add
+                another Builder to accept another formats by implementing the
+                SMSMessageBuilder interface and Specifying it as a Parameter in the
+                TransportListener
+                <pre>&lt;parameter name="builderClass"&gt;Class Name&lt;/parameter&gt;</pre>
+            </subsection>
+            <subsection name="SMSMessageFormatter">SMSMessageFormatter
+                formats the out put SMS Message Form the Axis2 MessageContext.Developers
+                can Add a custom MessageFormatter by Implementing the SMSMessageFormatter
+                interface and Specifying it as a Parameter in the TransportSender.
+                <pre>&lt;parameter name="formatterClass"&gt;Class Name&lt;/parameter&gt;</pre>
+            </subsection>
+            <subsection
+                    name="Implimentation">SMS Trasnport also allows Developers to add another
+                SMS implementations to the SMS Transport.To Add a another Implementation
+                It should have an Implementation manager that implements the
+                SMSImplManager interface.In that Implementation Developers can add their
+                custom implementation logic without worring about the Axis2
+                Dependensies.To add a Implementation Manager It must be Specified as a
+                parameter in Transport Receiver and sender
+                <pre>&lt;parameter name="smsImplClass"&gt;Class Name&lt;/parameter&gt;</pre>
+            </subsection>
+        </section>
+    </body>
+</document>
