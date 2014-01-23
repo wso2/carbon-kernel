@@ -1,3 +1,22 @@
+/*
+ *  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ */
+
 package org.wso2.carbon.deployment.deployers;
 
 import org.apache.commons.logging.Log;
@@ -73,7 +92,7 @@ public class CustomDeployer implements Deployer {
             throw new CarbonDeploymentException("Error while Un Deploying : " + key +
                                                 "is not a String value");
         }
-        log.info("Un Deploying : " + key);
+        log.info("Undeploying : " + key);
         try {
             File fileToUndeploy = new File(testDir + File.separator + key);
             log.info("File to undeploy : " + fileToUndeploy.getAbsolutePath());

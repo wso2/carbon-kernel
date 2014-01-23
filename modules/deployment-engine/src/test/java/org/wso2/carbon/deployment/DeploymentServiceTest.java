@@ -26,68 +26,58 @@ import org.wso2.carbon.deployment.deployers.CustomDeployer;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.deployment.service.CustomDeploymentService;
 
 import java.io.File;
-import java.util.ArrayList;
 
-public class DeploymentEngineTest extends BaseTest {
+public class DeploymentServiceTest extends BaseTest{
+
     private final static String CARBON_REPO = "carbon-repo";
     private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
+    private CustomDeploymentService deploymentService;
     private DeploymentEngine deploymentEngine;
     private CustomDeployer customDeployer;
-    private ArrayList artifactsList = new ArrayList();
+    String artifactPath;
 
     /**
      * @param testName
      */
-    public DeploymentEngineTest(String testName) {
+    public DeploymentServiceTest(String testName) {
         super(testName);
-
     }
 
     @BeforeTest
-    public void setup() throws CarbonDeploymentException {
+    public void setup() throws DeploymentEngineException, DeployerRegistrationException {
         customDeployer = new CustomDeployer();
-        Artifact artifact = new Artifact(new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
-                                         + File.separator + "sample1.txt"));
-        artifact.setType(new ArtifactType("txt"));
-        artifactsList.add(artifact);
+        artifactPath = getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
+                                                  + File.separator + "sample1.txt";
+        deploymentEngine = new DeploymentEngine(getTestResourceFile(CARBON_REPO).getAbsolutePath());
+        deploymentEngine.start();
+        deploymentEngine.registerDeployer(customDeployer);
     }
 
     @Test
-    public void testCarbonDeploymentEngine() throws DeploymentEngineException {
-        deploymentEngine = new DeploymentEngine(getTestResourceFile(CARBON_REPO).getAbsolutePath());
-        deploymentEngine.start();
+    public void testDeploymentService() {
+        deploymentService = new CustomDeploymentService(deploymentEngine);
     }
 
-    @Test(dependsOnMethods = {"testCarbonDeploymentEngine"})
-    public void testAddDeployer() throws DeployerRegistrationException {
-        deploymentEngine.registerDeployer(customDeployer);
-        Assert.assertNotNull(deploymentEngine.getDeployer(customDeployer.getArtifactType()));
-    }
-
-    @Test(dependsOnMethods = {"testAddDeployer"})
-    public void testDeployArtifacts() {
-        deploymentEngine.deployArtifacts(artifactsList);
+    @Test(dependsOnMethods = {"testDeploymentService"})
+    public void testDeploy() throws CarbonDeploymentException {
+        deploymentService.deploy(artifactPath, customDeployer.getArtifactType());
         Assert.assertTrue(CustomDeployer.sample1Deployed);
     }
 
-    @Test(dependsOnMethods = {"testDeployArtifacts"})
-    public void testUpdateArtifacts() {
-        deploymentEngine.updateArtifacts(artifactsList);
+    @Test(dependsOnMethods = {"testDeploy"})
+    public void testUpdate() throws CarbonDeploymentException {
+        deploymentService.redeploy(new File(artifactPath).getName(),
+                                   customDeployer.getArtifactType());
         Assert.assertTrue(CustomDeployer.sample1Updated);
     }
 
-    @Test(dependsOnMethods = {"testUpdateArtifacts"})
-    public void testUndeployArtifacts() {
-        deploymentEngine.undeployArtifacts(artifactsList);
+    @Test(dependsOnMethods = {"testUpdate"})
+    public void testUndeploy() throws CarbonDeploymentException {
+        deploymentService.undeploy(new File(artifactPath).getName(),
+                                   customDeployer.getArtifactType());
         Assert.assertFalse(CustomDeployer.sample1Deployed);
     }
-
-    @Test(dependsOnMethods = {"testUndeployArtifacts"})
-    public void testRemoveDeployer() throws DeployerRegistrationException {
-        deploymentEngine.unRegisterDeployer(customDeployer);
-        Assert.assertNull(deploymentEngine.getDeployer(customDeployer.getArtifactType()));
-    }
-
 }
