@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~      http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-kernel</artifactId>
+        <version>4.3.0-SNAPSHOT</version>
+	<relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.core</artifactId>
+    <version>4.3.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon - Kernel</name>
+    <description>OSGi Bundle for Carbon Core</description>
+    <url>http://wso2.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.hazelcast.wso2</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.http.helper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+            <version>132</version>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan.wso2</groupId>
+            <artifactId>infinispan-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>javax.cache.wso2</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.registry.core</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.geronimo.specs</groupId>
+                    <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.user.core</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections.wso2</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2.wso2</groupId>
+            <artifactId>axis2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+            <version>4.3.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.neethi.wso2</groupId>
+            <artifactId>neethi</artifactId>
+            <version>${orbit.version.neethi}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.neethi</groupId>
+                    <artifactId>neethi</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.wso2</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>${orbit.version.httpcore}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.ha.wso2</groupId>
+            <artifactId>tomcat-ha</artifactId>
+            <version>${orbit.version.tomcat}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-coyote</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>wsdl4j.wso2</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>${orbit.version.wsdl4j}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database.wso2</groupId>
+            <artifactId>h2-database-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache.wso2</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>1.5.0.wso2v2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>backport-util-concurrent.wso2</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <version>${orbit.version.spring}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/mime-mappings.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/component.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
+                        <Bundle-SymbolicName>org.wso2.carbon.core</Bundle-SymbolicName>
+                        <Bundle-Activator>org.wso2.carbon.core.internal.CarbonCoreActivator</Bundle-Activator>
+                        <Private-Package>
+                            org.wso2.carbon.core.internal
+                        </Private-Package>
+                        <Export-Package>
+                            !org.wso2.carbon.core.internal,
+                            org.wso2.carbon.core.*; version="${carbon.platform.package.export.version}",
+                        </Export-Package>
+                        <Import-Package>
+                            !javax.xml.namespace,
+                            org.apache.axis2.*; version="${imp.pkg.version.axis2}",
+                            org.apache.axiom.*; version="${imp.pkg.version.axiom}",
+                            org.apache.neethi.*; version="${neethi.osgi.version.range}",
+                            javax.xml.namespace; version=0.0.0,
+                            javax.servlet; version="${imp.pkg.version.javax.servlet}",
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            javax.xml.stream.*; version=1.0.1,
+                            org.wso2.carbon.registry.core.service,
+                            org.wso2.carbon.user.core.*; version=0.0.0,
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Embed-Dependency>
+                            bcprov-jdk15|naming-factory|naming-resources|commons-collections;scope=compile|runtime;inline=false
+                        </Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Axis2Deployer>PersistenceMetaDataDeployer</Axis2Deployer>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                    <argLine>-enableassertions</argLine>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <excludes>
+                        <exclude>**/BaseTestCase.java</exclude>
+                        <!--excluding failing unit tests temporarily-->
+                        <exclude>**/PersistenceUtilsTest.java</exclude>
+                        <exclude>**/PersistenceManagerTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>create_aar</id>
+                        <phase>generate-test-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <!-- Adding the version sample -->
+                                <mkdir dir="target/version/META-INF"/>
+                                <copy todir="target/version/META-INF">
+                                    <fileset dir="src/main/java/org/wso2/carbon/core/services/version/META-INF">
+                                        <include name="*.*"/>
+                                    </fileset>
+                                </copy>
+                                <jar destfile="target/Version.aar" basedir="target/version"/>
+                                <delete dir="target/version"/>
+
+                                <mkdir dir="target/echo/META-INF"/>
+                                <copy todir="target/echo/META-INF">
+                                    <fileset dir="src/main/java/org/wso2/carbon/core/services/echo/META-INF">
+                                        <include name="*.*"/>
+                                    </fileset>
+                                </copy>
+                                <jar destfile="target/Echo.aar" basedir="target/echo"/>
+                                <delete dir="target/echo"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

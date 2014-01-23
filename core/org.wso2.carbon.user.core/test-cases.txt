@@ -1,0 +1,24 @@
+
+Test Cases
+==========
+1) Start the server.
+	- Add/edit/delete users and roles.
+
+2) Check login to the console by giving the following.
+	- Authorized user entering correct user name/password
+	- Unauthorized user trying to login
+	- Wrong password correct username
+	- Wrong username correct password
+
+3) Configure the Active directory user store and perform the above 2nd step. This is a read only mode.
+In addition perform the below.
+	- Restart the server
+	- Check hybrid roles
+	- Edit hybrid roles
+	- Edit permission of hybrid roles
+	- 
+
+4) Configure the LDAP and perform the above 2nd step. Test for two flavours of LDAP. Apache DS and OpenLDAP. This is a read only mode.
+
+5) Configure a MySQL user store and test the above scenario
+	

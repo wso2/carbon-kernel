@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~      http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-kernel</artifactId>
+        <version>4.3.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.tomcat</artifactId>
+    <version>4.3.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon - carbon tomcat bundle</name>
+    <description>Carbon tomcat bundle</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.http.servlet</artifactId>
+            <version>1.0.200.v20090520-1800</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>javax.servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.wso2</groupId>
+            <artifactId>tomcat</artifactId>
+            <version>${orbit.version.tomcat}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+             <groupId>org.wso2.carbon</groupId>
+             <artifactId>org.wso2.carbon.utils</artifactId>
+             <version>${project.version}</version>
+         </dependency>
+        <dependency>
+            <groupId>org.wso2.securevault</groupId>
+            <artifactId>org.wso2.securevault</artifactId>
+            <version>${securevault.version}</version>
+        </dependency>        
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Bundle-Activator>org.wso2.carbon.tomcat.internal.TomcatBundleActivator</Bundle-Activator>
+                        <Private-Package>
+                            org.wso2.carbon.tomcat.internal,
+                            org.wso2.carbon.tomcat.jndi
+                        </Private-Package>
+                        <Export-Package>
+                            !org.wso2.carbon.tomcat.internal.*,
+                            org.wso2.carbon.tomcat.*,
+                            org.wso2.carbon.tomcat.api.*,
+                            org.wso2.carbon.tomcat.server.*,
+                            org.wso2.carbon.tomcat.ext.valves.*,
+                            org.wso2.carbon.tomcat.ext.service.*,
+                            org.wso2.carbon.tomcat.ext.realms.*
+                        </Export-Package>
+                        <Import-Package>
+                            org.apache.tomcat.*;version="[1.7.0,2.0.0)",
+                            org.apache.catalina.*;version="[1.7.0,2.0.0)",
+                            org.apache.naming.*;version="[1.7.0,2.0.0)",
+                            org.wso2.carbon.tomcat.ext.*,
+                            *;resolution:=optional
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

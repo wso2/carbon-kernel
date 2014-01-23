@@ -347,7 +347,7 @@
 
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
         <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
-        <orbit.version.poi>3.9.0.wso2v1</orbit.version.poi>
+        <orbit.version.poi>3.9.0.wso2v2</orbit.version.poi>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <orbit.version.commons.collection>3.2.0.wso2v1</orbit.version.commons.collection>
         <orbit.version.commons.io>2.0.0.wso2v2</orbit.version.commons.io>
@@ -364,7 +364,7 @@
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
         <version.tomcat>7.0.34</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v2</orbit.version.tomcat>
         <orbit.version.tribes>7.0.34.wso2v1</orbit.version.tribes>
         <orbit.version.hazelcast>3.0.1.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
@@ -414,7 +414,7 @@
 
         <orbit.version.httpcore>4.1.0-wso2v1</orbit.version.httpcore>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
-        <orbit.version.poi>3.9.0.wso2v1</orbit.version.poi>
+        <orbit.version.poi>3.9.0.wso2v2</orbit.version.poi>
         <orbit.version.commons.httpclient>3.1.0.wso2v2</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>

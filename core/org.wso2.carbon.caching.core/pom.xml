@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~      http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+-->
+        
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-kernel</artifactId>
+        <version>4.3.0-SNAPSHOT</version>
+       	<relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.caching.core</artifactId>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon - Caching</name>
+    <description>OSGi Bundle for the Caching implementation for Carbon</description>
+    <url>http://wso2.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.jsr107cache</groupId>
+            <artifactId>jsr107cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan.wso2</groupId>
+            <artifactId>infinispan-core</artifactId>
+        </dependency>
+        <dependency>
+           <groupId>org.jboss.marshalling.wso2</groupId>
+           <artifactId>marshalling</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging.wso2</groupId>
+            <artifactId>jboss-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jgroups.wso2</groupId>
+            <artifactId>jgroups</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.user.api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.base</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache.wso2</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>1.5.0.wso2v1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom.wso2</groupId>
+            <artifactId>axiom</artifactId>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>wso2-nexus</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+        </repository>
+        <!--moved to nexus
+
+    <repository>
+            <id>jboss-maven-repository</id>
+        <name>JBoss Maven Repository </name>
+        <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+        </repository>
+
+        -->
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
+                        <Bundle-SymbolicName>org.wso2.carbon.caching.core</Bundle-SymbolicName>
+                        <Export-Package>
+                            org.wso2.carbon.caching.core; version=1.0.0,
+                            org.wso2.carbon.caching.core.permissiontree; version=1.0.0,
+			                org.wso2.carbon.caching.core.identity; version=1.0.0,
+                            org.wso2.carbon.caching.core.authorization; version=1.0.0,
+                            org.wso2.carbon.caching.core.registry; version=1.0.0,
+                            org.wso2.carbon.caching.core.realm; version=1.0.0,
+                            org.wso2.carbon.caching.core.rolesofuser; version=1.0.0,
+                            org.wso2.carbon.caching.infinispan,
+                        </Export-Package>
+                        <Import-Package>
+                            !org.wso2.carbon.caching.core,
+	                    javax.xml.stream.*; version="1.0.1",
+                            org.infinispan.*; version="1.0.0",
+                            org.apache.axiom.*; version="${imp.pkg.version.axiom}",
+                            *;resolution:=optional
+                        </Import-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
