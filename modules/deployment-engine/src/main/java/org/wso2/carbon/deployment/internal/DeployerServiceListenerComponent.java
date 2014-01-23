@@ -41,7 +41,7 @@ import org.wso2.carbon.deployment.spi.Deployer;
         cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
         policy = ReferencePolicy.DYNAMIC,
         bind = "registerDeployer",
-        unbind = "unRegisterDeployer"
+        unbind = "unregisterDeployer"
 )
 public class DeployerServiceListenerComponent {
     private static Log log = LogFactory.getLog(DeployerServiceListenerComponent.class);
@@ -60,9 +60,9 @@ public class DeployerServiceListenerComponent {
 
     }
 
-    protected void unRegisterDeployer(Deployer deployer) {
+    protected void unregisterDeployer(Deployer deployer) {
         try {
-            carbonDeploymentEngine.unRegisterDeployer(deployer);
+            carbonDeploymentEngine.unregisterDeployer(deployer);
         } catch (Exception e) {
             log.error("Error while removing deployer from deployment engine", e);
         }

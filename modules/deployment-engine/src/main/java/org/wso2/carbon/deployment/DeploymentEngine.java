@@ -152,10 +152,10 @@ public class DeploymentEngine {
      *
      * @param deployer the deployer instance to un-register
      */
-    public void unRegisterDeployer(Deployer deployer) throws DeployerRegistrationException {
+    public void unregisterDeployer(Deployer deployer)throws DeploymentEngineException {
         ArtifactType type = deployer.getArtifactType();
         if (type == null) {
-            throw new DeployerRegistrationException("Artifact Type for Deployer : " + deployer +
+            throw new DeploymentEngineException("Artifact Type for Deployer : " + deployer +
                                                     " is null");
         }
 

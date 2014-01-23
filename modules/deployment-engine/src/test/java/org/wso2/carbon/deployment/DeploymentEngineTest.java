@@ -85,8 +85,8 @@ public class DeploymentEngineTest extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"testUndeployArtifacts"})
-    public void testRemoveDeployer() throws DeployerRegistrationException {
-        deploymentEngine.unRegisterDeployer(customDeployer);
+    public void testRemoveDeployer() throws DeploymentEngineException {
+        deploymentEngine.unregisterDeployer(customDeployer);
         Assert.assertNull(deploymentEngine.getDeployer(customDeployer.getArtifactType()));
     }
 
