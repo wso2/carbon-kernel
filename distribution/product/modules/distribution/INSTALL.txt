@@ -1,0 +1,48 @@
+Installing  WSO2 Carbon ${carbon.version}
+
+1. The directory containing this INSTALL file will the root and it will be
+   treated as Carbon home directory and let it be CARBON_HOME.
+
+2. All the shell scripts and .bat files are available in CARBON_HOME/bin directory.
+
+3. To start Carbon, use wso2server.sh in all *nix
+   system & wso2server.bat file on Windows operating systems.
+
+4. Either of the following commands can be used to start Carbon
+      i)  ./wso2server.sh {start|stop|restart|version}
+     ii)  wso2server.bat {start|stop|version}
+
+     Usage: wso2server.sh [command] [system-properties]
+
+     command:
+        --debug <port> 	Start the server in remote debugging mode.
+                port: The remote debugging port.
+        --start		Start Carbon using nohup in the background
+        --stop		Stop the Carbon server process
+        --restart	Restart the Carbon server process
+        --version			What version of the product are you running?
+
+     system-properties:
+        -DhttpPort=<httpPort>		Overrides the HTTP port defined in the mgt-transports.xml file
+        -DhttpsPort=<httpsPort>		Overrides the HTTPS port defined in the mgt-transports.xml file
+        -DosgiConsole=[port]		Start Carbon with Equinox OSGi console.
+                                    If the optional 'port' parameter is provided, a telnet port will be opened
+        -DosgiDebugOptions=[options-file]
+                                    Start Carbon with OSGi debugging enabled.
+                                    If the optional 'options-file is provided, the OSGi debug options will be loaded from it.
+        -Dsetup				        Clean the Registry & other configuration, recreate DB, re-populate the configuration, and start Carbon
+        -DserverRoles=<roles>		A comma separated list of roles. Used in deploying cApps
+        -Dcarbon.use.registry.repo	Use registry based repository.
+        -DdisableHttpLog		    Disable HTTP access logging
+        -DworkerNode			    Set this system property when starting as a worker node.
+                                    This is required in clustered setups with master and worker nodes.
+
+
+Hardware and Software Requirements
+-------------------
+For more details see
+http://docs.wso2.org/wiki/display/Carbon420/Installing+the+Product
+
+
+
+

@@ -1,0 +1,42 @@
+<!--
+  ~ Copyright 2005-2011 WSO2, Inc. (http://wso2.com)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<cache xmlns="http://wso2.org/ns/2010/09/caching">
+
+    <!-- The fully qualified class name of the cache manager. -->
+
+    <!--cacheManager>org.wso2.carbon.caching.core.ehcache.EhcacheManager</cacheManager-->
+    <cacheManager>org.wso2.carbon.caching.infinispan.InfinispanCacheManager</cacheManager>
+
+    <!-- 
+         The cache manager specific configuration
+         Below is the configuration for the org.wso2.carbon.caching.infinispan.InfinispanCacheManager cache manager.
+         clustering: Use this element to enable clustering. Optionally, the cluster can be given a name.
+                     Please note that if you are planning to create more than one deployment of a cluster
+                     on a single network the clusters should have different names.
+         cacheMode:  The cache mode, distributed|replicated|invalidation|local
+         sync:       Synchronous or Asynchronous mode. This setting is ignored for local cache.
+         l1:         The L1 cache (near-cache) configuration for distributed caches.
+    -->
+
+    <maxExpirationMillis>90000</maxExpirationMillis>
+    <maxIdleExpirationMillis>90000</maxIdleExpirationMillis>
+
+    <maxEntries>100</maxEntries>
+    <!-- Un-comment the configuration below to use a replicated cache in a cluster. -->
+
+
+</cache>

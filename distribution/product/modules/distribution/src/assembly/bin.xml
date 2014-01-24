@@ -1,0 +1,176 @@
+<!--
+ ~ Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<assembly>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <fileSets>
+        <fileSet>
+            <directory>target/wso2carbon-core-${carbon.product.version}</directory>
+            <outputDirectory>wso2carbon-${carbon.product.version}</outputDirectory>
+            <excludes>
+                <exclude>**/*.sh</exclude>
+                <exclude>**/wso2server.bat</exclude>
+                <exclude>**/axis2services/sample01.aar</exclude>
+                <exclude>**/axis2services/echo/**</exclude>
+                <exclude>**/axis2services/version/**</exclude>
+                <exclude>**/pom.xml</exclude>
+                <exclude>**/version.txt</exclude>
+                <exclude>**/README*</exclude>
+                <exclude>**/LICENSE.txt</exclude>
+                <exclude>**/INSTALL.txt</exclude>
+                <exclude>**/release-notes.html</exclude>
+                <exclude>**/carbon.xml</exclude>
+                <exclude>**/axis2/axis2.xml</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>target/wso2carbon-core-${carbon.product.version}</directory>
+            <outputDirectory>wso2carbon-${carbon.product.version}</outputDirectory>
+            <excludes>
+                <exclude>**/wso2server.bat</exclude>
+            </excludes>
+            <includes>
+                <include>**/*.sh</include>
+            </includes>
+            <fileMode>755</fileMode>
+        </fileSet>
+                <!--  copying samples -->
+        <fileSet>
+            <directory>../../../../samples</directory>
+            <outputDirectory>wso2carbon-${carbon.product.version}/samples</outputDirectory>
+            <excludes>
+                <exclude>**/target/**</exclude>
+                <exclude>**/.svn/**</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+    
+    <files>
+        <file>
+            <source>INSTALL.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>LICENSE.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>release-notes.html</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/bin/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/bin/version.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/conf/carbon.xml</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/conf/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/conf/axis2/axis2.xml</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/conf/axis2/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/conf/README</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/conf/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/bin/wso2server.bat</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+
+	 <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+	 <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/lib/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/lib/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+	 <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/webapp-mode/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/webapp-mode/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+	 <file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/components/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/components/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+	<file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/database/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/database/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+	<file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/deployment/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/deployment/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+	<file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/logs/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/logs/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+	<file>
+            <source>target/wso2carbon-core-${carbon.product.version}/repository/resources/README.txt</source>
+            <outputDirectory>wso2carbon-${carbon.product.version}/repository/resources/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+    </files>
+</assembly>

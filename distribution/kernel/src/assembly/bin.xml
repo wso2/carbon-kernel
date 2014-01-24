@@ -1,0 +1,165 @@
+<!--
+ ~ Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<assembly>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>wso2carbon-core-${pom.version}</baseDirectory>
+    <id>carbon</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+        <fileSet>
+            <directory>target/repository</directory>
+            <outputDirectory>repository</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>carbon-home</directory>
+            <outputDirectory></outputDirectory>
+            <excludes>
+                <exclude>**/*.sh</exclude>
+                <exclude>**/native/*</exclude>
+                <exclude>**/wso2carbon-version.txt</exclude>
+                <exclude>**/carbon.xml</exclude>
+                <exclude>INSTALL.txt</exclude>
+                <exclude>README.txt</exclude>
+                <exclude>LICENSE.txt</exclude>
+                <exclude>release-notes.html</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>carbon-home</directory>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>**/*.sh</include>
+                <include>**/native/*</include>
+            </includes>
+            <fileMode>755</fileMode>
+
+        </fileSet>
+
+        <!-- copy scripts for embedded database -->
+        <fileSet>
+            <directory>src/scripts</directory>
+            <outputDirectory>resources/dbscripts</outputDirectory>
+        </fileSet>
+        <!-- Copying p2 profile and osgi bundles-->
+        <fileSet>
+            <directory>target/WSO2Carbon</directory>
+            <outputDirectory>repository/components</outputDirectory>
+            <fileMode>644</fileMode>
+            <excludes>
+                <exclude>**/eclipse.ini</exclude>
+                <exclude>**/*.lock</exclude>
+                <exclude>**/.data</exclude>
+                <exclude>**/.settings</exclude>
+                <exclude>libcairo-swt.so</exclude>
+                <exclude>eclipse</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+
+    <files>
+        <!--Copy the version service-->
+        <file>
+            <source>../../core/org.wso2.carbon.core/target/Version.aar</source>
+            <outputDirectory>repository/deployment/server/axis2services</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+	<!--Copy the echo service-->
+        <file>
+            <source>../../core/org.wso2.carbon.core/target/Echo.aar</source>
+            <outputDirectory>repository/deployment/server/axis2services</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+
+        <file>
+            <source>carbon-home/repository/conf/etc/launch.ini</source>
+            <outputDirectory>webapp-mode/WEB-INF/eclipse</outputDirectory>
+            <fileMode>644</fileMode>
+        </file>
+
+
+        <file>
+            <source>carbon-home/bin/wso2carbon-version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <fileMode>644</fileMode>
+	    <filtered>true</filtered>
+        </file>
+
+	<file>
+            <source>carbon-home/repository/conf/carbon.xml</source>
+            <outputDirectory>repository/conf/</outputDirectory>
+            <fileMode>644</fileMode>
+	    <filtered>true</filtered>
+        </file>
+
+    </files>
+
+    <dependencySets>
+       <dependencySet>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:org.wso2.carbon.bootstrap:jar</include>
+                <include>ws-commons:tcpmon:jar</include>
+                <include>org.apache.tomcat:tomcat-juli:jar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib/endorsed</outputDirectory>
+            <includes>
+                <include>xerces.wso2:xercesImpl:jar</include>
+                <include>xalan.wso2:xalan:jar</include>
+                <include>xml-apis.wso2:xml-apis:jar</include>
+                <include>org.apache.geronimo.specs:geronimo-jaxws_2.2_spec:jar</include>
+                <include>org.apache.geronimo.specs.wso2:geronimo-jms_1.1_spec:jar</include>
+                <include>org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec:jar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
+                <include>org.wso2.ciphertool:org.wso2.ciphertool:jar</include>
+                <include>commons-lang.wso2:commons-lang:jar</include>
+ 		        <include>ant-contrib:ant-contrib:jar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>repository/deployment/client/modules
+            </outputDirectory>
+            <includes>
+                <include>org.apache.axis2:addressing:mar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>webapp-mode/WEB-INF/lib</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:org.wso2.carbon.bridge:jar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>webapp-mode/bundles</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:org.wso2.carbon.servletbridge:jar</include>
+                <include>org.wso2.carbon:org.wso2.carbon.http.bridge:jar</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+</assembly>
