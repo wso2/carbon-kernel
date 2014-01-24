@@ -64,7 +64,7 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.cluster.mgt.core</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.user.core</bundleDef>
-                                <bundleDef>org.apache.ws.security.wso2:wss4j:1.5.11.wso2v6</bundleDef>
+                                <bundleDef>org.apache.ws.security.wso2:wss4j:${wss4j.osgi.version}</bundleDef>
                                 <bundleDef>org.apache.poi.wso2:poi-ooxml:${orbit.version.poi}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.p2.touchpoint:${carbon.platform.version}</bundleDef>
                             </bundles>
