@@ -21,8 +21,8 @@ package org.wso2.carbon.deployment.service;
 
 import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.ArtifactType;
+import org.wso2.carbon.deployment.CarbonDeploymentService;
 import org.wso2.carbon.deployment.DeploymentEngine;
-import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;
 
@@ -30,16 +30,22 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class CustomDeploymentService implements DeploymentService {
+public class CustomDeploymentService extends CarbonDeploymentService {
 
     private DeploymentEngine deploymentEngine;
 
     public CustomDeploymentService(DeploymentEngine deploymentEngine) {
+        super(deploymentEngine);
         this.deploymentEngine = deploymentEngine;
     }
     @Override
     public void deploy(String artifactPath, ArtifactType artifactType)
             throws CarbonDeploymentException {
+        try {
+            super.deploy("fake/path", artifactType);
+        } catch (CarbonDeploymentException e) {
+            //ignore
+        }
         Artifact artifact = new Artifact(new File(artifactPath));
         artifact.setType(artifactType);
         ArrayList artifactList = new ArrayList();
@@ -54,6 +60,11 @@ public class CustomDeploymentService implements DeploymentService {
 
     @Override
     public void undeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException {
+        try {
+            super.undeploy("fake.key", artifactType);
+        } catch (CarbonDeploymentException e) {
+            // ignore
+        }
         Deployer deployer = deploymentEngine.getDeployer(artifactType);
 
         if (deployer == null) {
@@ -64,6 +75,12 @@ public class CustomDeploymentService implements DeploymentService {
 
     @Override
     public void redeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException {
+
+        try {
+            super.redeploy("fake.key", artifactType);
+        } catch (CarbonDeploymentException e) {
+            // ignore
+        }
         Deployer deployer = deploymentEngine.getDeployer(artifactType);
         if (deployer == null) {
             throw new CarbonDeploymentException("Unknown artifactType : " + artifactType);

@@ -20,6 +20,7 @@
 package org.wso2.carbon.deployment;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.deployment.deployers.CustomDeployer;
@@ -29,15 +30,17 @@ import org.wso2.carbon.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.deployment.service.CustomDeploymentService;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
-public class DeploymentServiceTest extends BaseTest{
+public class DeploymentServiceTest extends BaseTest {
 
     private final static String CARBON_REPO = "carbon-repo";
     private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private CustomDeploymentService deploymentService;
     private DeploymentEngine deploymentEngine;
     private CustomDeployer customDeployer;
-    String artifactPath;
+    private String artifactPath;
 
     /**
      * @param testName
@@ -50,7 +53,7 @@ public class DeploymentServiceTest extends BaseTest{
     public void setup() throws DeploymentEngineException, DeployerRegistrationException {
         customDeployer = new CustomDeployer();
         artifactPath = getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
-                                                  + File.separator + "sample1.txt";
+                       + File.separator + "sample1.txt";
         deploymentEngine = new DeploymentEngine(getTestResourceFile(CARBON_REPO).getAbsolutePath());
         deploymentEngine.start();
         deploymentEngine.registerDeployer(customDeployer);
@@ -79,5 +82,11 @@ public class DeploymentServiceTest extends BaseTest{
         deploymentService.undeploy(new File(artifactPath).getName(),
                                    customDeployer.getArtifactType());
         Assert.assertFalse(CustomDeployer.sample1Deployed);
+    }
+
+    @AfterTest
+    public void cleanupTempfile() throws IOException {
+        Utils.deleteDir(new File(getTestResourceFile(CARBON_REPO).getAbsolutePath() +
+                                 File.separator + "file:text-files"));
     }
 }

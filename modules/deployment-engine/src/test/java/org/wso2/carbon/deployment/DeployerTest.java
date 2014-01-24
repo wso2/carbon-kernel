@@ -26,8 +26,9 @@ import org.wso2.carbon.deployment.deployers.CustomDeployer;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 
 import java.io.File;
+import java.util.HashMap;
 
-public class CustomDeployerTest extends BaseTest {
+public class DeployerTest extends BaseTest {
     private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private CustomDeployer customDeployer;
     private Artifact artifact;
@@ -36,7 +37,7 @@ public class CustomDeployerTest extends BaseTest {
     /**
      * @param testName
      */
-    public CustomDeployerTest(String testName) {
+    public DeployerTest(String testName) {
         super(testName);
     }
 
@@ -46,6 +47,8 @@ public class CustomDeployerTest extends BaseTest {
         customDeployer.init();
         artifact = new Artifact(new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
                                                + File.separator + "sample1.txt"));
+        artifact.setVersion("1.0.0");
+        artifact.setProperties(new HashMap<String, Object>());
     }
 
     @Test

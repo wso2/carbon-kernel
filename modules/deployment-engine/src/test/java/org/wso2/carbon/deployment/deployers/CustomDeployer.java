@@ -123,4 +123,12 @@ public class CustomDeployer implements Deployer {
     public ArtifactType getArtifactType() {
         return artifactType;
     }
+
+    public void setArtifactType(ArtifactType artifactType) {
+        this.artifactType = artifactType;
+    }
+
+    public void setLocation(URL directoryLocation) {
+        this.directoryLocation = directoryLocation;
+    }
 }

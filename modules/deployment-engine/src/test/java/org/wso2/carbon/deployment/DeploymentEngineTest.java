@@ -26,6 +26,7 @@ import org.wso2.carbon.deployment.deployers.CustomDeployer;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.deployment.service.CustomDeploymentService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,7 +36,8 @@ public class DeploymentEngineTest extends BaseTest {
     private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private DeploymentEngine deploymentEngine;
     private CustomDeployer customDeployer;
-    private ArrayList artifactsList = new ArrayList();
+    private ArrayList artifactsList;
+    private RepositoryScanner repositoryScanner;
 
     /**
      * @param testName
@@ -48,6 +50,7 @@ public class DeploymentEngineTest extends BaseTest {
     @BeforeTest
     public void setup() throws CarbonDeploymentException {
         customDeployer = new CustomDeployer();
+        artifactsList = new ArrayList();
         Artifact artifact = new Artifact(new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
                                          + File.separator + "sample1.txt"));
         artifact.setType(new ArtifactType("txt"));
@@ -55,15 +58,61 @@ public class DeploymentEngineTest extends BaseTest {
     }
 
     @Test
+    public void testUninitializedDeploymentEngine() {
+        try {
+            DeploymentEngine engine = new DeploymentEngine("/fake/path");
+            engine.start();
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("Cannot find repository : /fake/path"));
+        }
+    }
+
+    @Test
     public void testCarbonDeploymentEngine() throws DeploymentEngineException {
         deploymentEngine = new DeploymentEngine(getTestResourceFile(CARBON_REPO).getAbsolutePath());
         deploymentEngine.start();
+        repositoryScanner = new RepositoryScanner(deploymentEngine);
+    }
+
+    @Test
+    public void testDummyDeployer1() {
+        try {
+            deploymentEngine.registerDeployer(null);
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("Deployer Class Name is null"));
+        }
+    }
+    @Test
+    public void testDummyDeployer2() {
+        try {
+            CustomDeployer dummy = new CustomDeployer();
+            dummy.setLocation(null);
+            deploymentEngine.registerDeployer(dummy);
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("missing 'directory' attribute"));
+        }
+    }
+    @Test
+    public void testDummyDeployer3() {
+        try {
+            CustomDeployer dummy = new CustomDeployer();
+            dummy.setArtifactType(null);
+            deploymentEngine.registerDeployer(dummy);
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("Artifact Type"));
+        }
     }
 
     @Test(dependsOnMethods = {"testCarbonDeploymentEngine"})
     public void testAddDeployer() throws DeployerRegistrationException {
         deploymentEngine.registerDeployer(customDeployer);
         Assert.assertNotNull(deploymentEngine.getDeployer(customDeployer.getArtifactType()));
+    }
+
+    @Test(dependsOnMethods = {"testAddDeployer"})
+    public void testRepositoryScanner() {
+        repositoryScanner.scan();
+        Assert.assertTrue(CustomDeployer.sample1Deployed);
     }
 
     @Test(dependsOnMethods = {"testAddDeployer"})
@@ -84,6 +133,16 @@ public class DeploymentEngineTest extends BaseTest {
         Assert.assertFalse(CustomDeployer.sample1Deployed);
     }
 
+    @Test
+    public void testRemoveDummyDeployer() {
+        try {
+            CustomDeployer dummy = new CustomDeployer();
+            dummy.setArtifactType(null);
+            deploymentEngine.unregisterDeployer(dummy);
+        } catch (Exception e) {
+            Assert.assertTrue(e.getMessage().contains("Artifact Type"));
+        }
+    }
     @Test(dependsOnMethods = {"testUndeployArtifacts"})
     public void testRemoveDeployer() throws DeploymentEngineException {
         deploymentEngine.unregisterDeployer(customDeployer);
