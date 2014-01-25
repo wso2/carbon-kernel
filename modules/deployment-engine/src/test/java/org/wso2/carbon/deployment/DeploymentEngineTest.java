@@ -63,7 +63,7 @@ public class DeploymentEngineTest extends BaseTest {
             DeploymentEngine engine = new DeploymentEngine("/fake/path");
             engine.start();
         } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("Cannot find repository : /fake/path"));
+            Assert.assertTrue(e.getMessage().contains("Cannot find repository"));
         }
     }
 
