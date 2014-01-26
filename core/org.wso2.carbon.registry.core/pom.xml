@@ -503,14 +503,14 @@
         <dependency>
             <groupId>net.sf.ehcache.wso2</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.5.0.wso2v2</version>
+            <version>${version.ehcache}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
-            <version>${orbit.version.spring}</version>
-            <scope>test</scope>
+            <version>${version.backport.util.concurrent}</version>
+  	   <scope>test</scope>
         </dependency>
     </dependencies>
 

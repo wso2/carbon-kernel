@@ -28,6 +28,7 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <artifactId>axis2-json</artifactId>
+    <version>1.6.1-wso2v11</version>
     <name>Apache Axis2 - JSON</name>
     <description>Axis2 JSON module</description>
     <dependencies>

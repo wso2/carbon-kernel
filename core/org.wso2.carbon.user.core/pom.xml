@@ -93,7 +93,7 @@
         <dependency>
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
-            <version>${orbit.version.spring}</version>
+            <version>${version.backport.util.concurrent}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

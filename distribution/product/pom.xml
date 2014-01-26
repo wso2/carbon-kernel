@@ -44,7 +44,7 @@
         <module>modules/styles</module>
         <module>modules/features/org.wso2.carbon.styles.feature</module>
         <module>modules/p2-profile-gen</module>
-	    <module>modules/distribution</module>
+	<module>modules/distribution</module>
     </modules>
 
     <dependencyManagement>

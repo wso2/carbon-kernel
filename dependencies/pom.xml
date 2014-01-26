@@ -35,12 +35,17 @@
     </build>
 
     <modules>
+        <module>carbon-p2-plugin</module>
         <module>axis2/1.6.1-wso2v11</module>
         <module>axiom/1.2.11-wso2v5</module>
         <module>transports/1.1.0-wso2v10</module>
         <module>wss4j/1.5.11-wso2v7</module>
         <module>orbit/axis2</module>
         <module>orbit/axiom</module>
+        <module>orbit/axis2-client</module>
+        <module>orbit/axis2-jaxbri</module>
+        <module>orbit/axis2-jibx</module>
+        <module>orbit/axis2-json</module>
         <module>orbit/wss4j</module>
     </modules>
     <dependencyManagement>

@@ -125,7 +125,7 @@
                                 <bundleDef>commons-httpclient.wso2:commons-httpclient:3.1.0.wso2v2</bundleDef>
                                 <bundleDef>commons-io.wso2:commons-io:2.0.0.wso2v2</bundleDef>
                                 <bundleDef>commons-collections.wso2:commons-collections:3.2.0.wso2v1</bundleDef>
-                                <bundleDef>org.apache.httpcomponents.wso2:httpcore:4.3.0.wso2v1</bundleDef>
+                                <bundleDef>org.apache.httpcomponents.wso2:httpcore:${orbit.version.httpcore}</bundleDef>
                                 <bundleDef>org.compass-project.wso2:compass:2.0.1.wso2v2</bundleDef>
                                 <bundleDef>org.wso2.commons.wso2:authenticator:0.7.0.wso2v1</bundleDef>
                                 <bundleDef>commons-lang.wso2:commons-lang:2.6.0.wso2v1</bundleDef>
@@ -135,7 +135,7 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.addressing</bundleDef>
                                 <bundleDef>com.sun.xml.bind.wso2:jaxb:2.2.5.wso2v1</bundleDef>
 		                <bundleDef>com.jezhumble.wso2:javasysmon:0.3.3.wso2v1</bundleDef>
-                                <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${orbit.version.tomcat}</bundleDef>
+                                <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${jdbc-pool.version}</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.apache.jasper.glassfish:${version.equinox.jasper}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.apache.jasper.fragment:${project.version}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.jasper.patch:${project.version}</bundleDef>
