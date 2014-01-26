@@ -210,7 +210,7 @@
         <version.apache.felix.gogo.runtime>0.8.0.v201108120515</version.apache.felix.gogo.runtime>
         <version.apache.felix.gogo.command>0.8.0.v201108120515</version.apache.felix.gogo.command>
 
-        <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
 
         <axis2.osgi.version>1.6.1.wso2v11</axis2.osgi.version>
         <axis2.osgi.version.range>[1.6.1.wso2v11, 1.7.0)</axis2.osgi.version.range>

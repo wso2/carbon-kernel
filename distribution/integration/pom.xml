@@ -53,13 +53,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.tomcat</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.400}</version-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>wso2carbon-core</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.405}</version-->
             <type>zip</type>
             <exclusions>
                 <exclusion>
@@ -72,19 +70,16 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.400}</version-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.405}</version-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.base</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.400}</version-->
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -100,19 +95,16 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.400}</version-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server.admin</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.400}</version-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server.admin.ui</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.400}</version-->
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.wso2</groupId>
@@ -123,7 +115,6 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.commons.stub</artifactId>
             <version>${project.version}</version>
-            <!--version>${carbon.kernel.version.400}</version-->
         </dependency>
 	<dependency>
             <groupId>org.wso2.carbon</groupId>
