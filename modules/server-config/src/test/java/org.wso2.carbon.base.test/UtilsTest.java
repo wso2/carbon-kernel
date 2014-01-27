@@ -21,25 +21,9 @@ public class UtilsTest extends BaseTest {
         carbonHome = BaseTest.carbonHome;
     }
 
-    @Test (expectedExceptions = Exception.class)
-    public void testGetCarbonConfigDirPath() {
-        Utils.getCarbonConfigDirPath();
-    }
-
-    @Test (expectedExceptions = Exception.class)
-    public void testGetCarbonHome() {
-        // this will throw null since it require system property carbon.home
-        Utils.getCarbonHome();
-    }
-
     @Test
     public void testCarbonHome() {
         Assert.assertEquals(carbonHome, getCarbonHome().getAbsolutePath());
-    }
-
-    @Test (expectedExceptions = Exception.class)
-    public void testGetServerXml() {
-        Utils.getServerXml();
     }
 
     @Test
