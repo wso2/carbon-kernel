@@ -1,7 +1,7 @@
 WSO2 Carbon Kernel ${carbon.version} M1
 -----------------------------
 
-Welcome to the WSO2 Carbon Kernel ${carbon.version} M1 release
+Welcome to the WSO2 Carbon Kernel ${carbon.version} M2 release
 
 Carbon kernel 5 is the next generation of WSO2 Carbon kernel, re-architected from the ground up with the latest technologies and patterns to overcome the existing architectural limitations as well as to get rid of the dependencies to the legacy technologies like Apache Axis2.
 
@@ -10,6 +10,7 @@ What's New In This Release
 1. Equinox Kepler based light-weight OSGi runtime.
 2. New Carbon launcher implementation 
 3. Centralized logging back-end (based on Log4j) which supports multiple logging APIs.
+4. Carbon based Deployment Framework
 
 Installation & Running
 ----------------------
