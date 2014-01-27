@@ -37,60 +37,6 @@ public class Utils {
 
 	}
 
-	/**
-	 * Method to test whether a given user has permission to execute the given
-	 * method.
-	 */
-	public static void checkSecurity() {
-		SecurityManager secMan = System.getSecurityManager();
-		if (secMan != null) {
-			secMan.checkPermission(new ManagementPermission("control"));
-		}
-	}
-
-	/**
-	 * Method to test whether a given user has permission to execute the given
-	 * method.
-	 * 
-	 * @param allowedClasses
-	 *            the classes that are allowed to make calls irrespective of the
-	 *            user having desired permissions.
-	 */
-	public static void checkSecurity(List<String> allowedClasses) {
-		SecurityManager secMan = System.getSecurityManager();
-		if (secMan != null) {
-			StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-			String callingClass = trace[3].getClassName();
-			if (!allowedClasses.contains(callingClass)) {
-				secMan.checkPermission(new ManagementPermission("control"));
-			}
-		}
-	}
-
-	/**
-	 * Method to test whether a given user has permission to execute the given
-	 * method.
-	 * 
-	 * @param allowedMethods
-	 *            the methods that are allowed to make calls irrespective of the
-	 *            user having desired permissions.
-	 */
-	public static void checkSecurity(Map<String, String> allowedMethods) {
-		SecurityManager secMan = System.getSecurityManager();
-		if (secMan != null) {
-			StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-			for (int i = 3; i < trace.length; i++) {
-				String callingClass = trace[i].getClassName();
-				String methodName = trace[i].getMethodName();
-				if (allowedMethods.keySet().contains(callingClass)
-						&& allowedMethods.get(callingClass).equals(methodName)) {
-					return;
-				}
-			}
-			secMan.checkPermission(new ManagementPermission("control"));
-		}
-	}
-
 	public static String getServerXml() {
 		String carbonXML = System
 				.getProperty(Constants.CARBON_CONFIG_DIR_PATH);

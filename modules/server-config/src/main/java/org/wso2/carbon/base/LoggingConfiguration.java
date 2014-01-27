@@ -27,6 +27,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Dictionary;
 import java.util.Properties;
 
 public class LoggingConfiguration {

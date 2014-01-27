@@ -26,6 +26,9 @@ import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.ServerConfigurationException;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,13 +46,8 @@ public class ServerConfigurationTest extends BaseTest {
         super(testName);
     }
 
-    @BeforeSuite
-    public void doBeforeEachTest() throws ServerConfigurationException {
-
-    }
-
     @Test
-    public void testServerConfigInit() throws ServerConfigurationException {
+    public void testServerConfigInit1() throws ServerConfigurationException {
 
         String nameProp = "Name";
         String nameValue = "${product.name}";
@@ -71,7 +69,65 @@ public class ServerConfigurationTest extends BaseTest {
 
         File configFile = new File(getTestResourceFile(CONFIG_FILE).getAbsolutePath());
         ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
-        serverConfiguration.init(configFile.getAbsolutePath());
+        serverConfiguration.forceInit(configFile.getAbsolutePath());
+
+        String[] nameProperties = serverConfiguration.getProperties(nameProp);
+        String[] versionProperties = serverConfiguration.getProperties(versionProp);
+        String[] packageProperties = serverConfiguration.getProperties(packageProp);
+        String[] portOffsetProperties = serverConfiguration.getProperties(offsetProp);
+        String[] PortJMXRegProperties = serverConfiguration.getProperties(RMIRegistryPortProp);
+        String[] portJMXServerProperties = serverConfiguration.getProperties(RMIServerPortProp);
+
+        for (String prop : nameProperties) {
+            Assert.assertEquals(nameValue, nameProperties[0]);
+        }
+
+        for (String prop : versionProperties) {
+            Assert.assertEquals(versionValue, versionProperties[0]);
+        }
+
+        for (String prop : packageProperties) {
+            Assert.assertEquals(packageValue, packageProperties[0]);
+        }
+
+        for (String prop : portOffsetProperties) {
+            Assert.assertEquals(offsetValue, portOffsetProperties[0]);
+        }
+
+        for (String prop : PortJMXRegProperties) {
+            Assert.assertEquals(RMIRegistryPortValue, PortJMXRegProperties[0]);
+        }
+
+        for (String prop : portJMXServerProperties) {
+            Assert.assertEquals(RMIServerPortValue, portJMXServerProperties[0]);
+        }
+    }
+
+    @Test
+    public void testServerConfigInit2() throws ServerConfigurationException, FileNotFoundException {
+
+        String nameProp = "Name";
+        String nameValue = "${product.name}";
+
+        String versionProp = "Version";
+        String versionValue = "${product.version}";
+
+        String packageProp = "Package";
+        String packageValue = "org.wso2.carbon";
+
+        String offsetProp = "Ports.Offset";
+        String offsetValue = "0";
+
+        String RMIRegistryPortProp = "Ports.JMX.RMIRegistryPort";
+        String RMIRegistryPortValue = "9999";
+
+        String RMIServerPortProp = "Ports.JMX.RMIServerPort";
+        String RMIServerPortValue = "11111";
+
+        File configFile = new File(getTestResourceFile(CONFIG_FILE).getAbsolutePath());
+        InputStream inputStream =  new FileInputStream(configFile);
+        ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
+        serverConfiguration.forceInit(inputStream);
 
         String[] nameProperties = serverConfiguration.getProperties(nameProp);
         String[] versionProperties = serverConfiguration.getProperties(versionProp);
