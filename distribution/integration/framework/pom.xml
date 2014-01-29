@@ -56,6 +56,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>wso2carbon-core</artifactId>
+	    <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
                 <exclusion>
