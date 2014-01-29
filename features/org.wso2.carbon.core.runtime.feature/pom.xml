@@ -110,86 +110,6 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>cm</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.console</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.core</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.director</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.director.app</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.directorywatcher</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.engine</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.extensionlocation</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.metadata</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.reconciler.dropins</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.repository</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.updatechecker</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.updatesite</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.equinox</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.preferences</artifactId>
@@ -250,14 +170,6 @@
             <groupId>org.eclipse</groupId>
             <artifactId>org.sat4j.pb</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.osgi</groupId>-->
-            <!--<artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.eclipse.ecf.provider.filetransfer</groupId>-->
-            <!--<artifactId>httpclient</artifactId>-->
-        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -268,7 +180,7 @@
                 <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>4-p2-feature-generation</id>
+                        <id>1-p2-feature-generation</id>
                         <phase>package</phase>
                         <goals>
                             <goal>p2-feature-gen</goal>

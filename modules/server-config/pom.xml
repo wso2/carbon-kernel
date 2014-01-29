@@ -50,7 +50,7 @@
                             org.wso2.carbon.base.*; version="${carbon.kernel.package.export.version}"
                         </Export-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*;version="${commons.logging.import.version.range}",
+                            org.slf4j.*;version="${slf4j.logging.import.version.range}",
                             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
                             org.osgi.service.cm.*; version="[1.4.0, 1.5.0)",
                             org.osgi.util.tracker; version="[1.5.1, 1.6.0)",

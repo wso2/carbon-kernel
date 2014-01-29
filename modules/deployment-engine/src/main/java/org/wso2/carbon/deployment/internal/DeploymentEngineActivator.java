@@ -19,11 +19,11 @@
 
 package org.wso2.carbon.deployment.internal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.CarbonDeploymentService;
@@ -32,17 +32,13 @@ import org.wso2.carbon.deployment.exception.DeploymentEngineException;
 
 /**
  * The bundle activator which activates the carbon deployment engine
- *
  */
-public class DeploymentEngineActivator implements BundleActivator{
-    private static Log log = LogFactory.getLog(DeploymentEngineActivator.class);
+public class DeploymentEngineActivator implements BundleActivator {
+    private static Logger logger = LoggerFactory.getLogger(DeploymentEngineActivator.class);
     private ServiceRegistration serviceRegistration;
 
 
     public void start(BundleContext bundleContext) throws Exception {
-        if (log.isDebugEnabled()) {
-            log.debug("Starting Carbon Deployment Engine");
-        }
         try {
             // Initialize deployment engine and scan it
             ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
@@ -50,6 +46,7 @@ public class DeploymentEngineActivator implements BundleActivator{
                     getFirstProperty("Deployment.RepositoryLocation");
             DeploymentEngine carbonDeploymentEngine =
                     new DeploymentEngine(carbonRepositoryLocation);
+            logger.debug("Starting Carbon Deployment Engine {}", carbonDeploymentEngine);
             carbonDeploymentEngine.start();
 
             // Add deployment engine to the data holder for later usages/references of this object
@@ -61,12 +58,11 @@ public class DeploymentEngineActivator implements BundleActivator{
                     new CarbonDeploymentService(carbonDeploymentEngine);
             serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
                                                                 deploymentService, null);
-            if (log.isDebugEnabled()) {
-                log.debug("Started Carbon Deployment Engine");
-            }
+
+            logger.debug("Started Carbon Deployment Engine");
         } catch (DeploymentEngineException e) {
             String msg = "Could not initialize carbon deployment engine";
-            log.fatal(msg, e);
+            logger.error(msg, e);
         }
     }
 

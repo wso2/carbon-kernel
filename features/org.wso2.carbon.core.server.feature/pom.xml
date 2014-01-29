@@ -23,7 +23,7 @@
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
         <version>5.0.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -41,7 +41,7 @@
                 <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>4-p2-feature-generation</id>
+                        <id>1-p2-feature-generation</id>
                         <phase>package</phase>
                         <goals>
                             <goal>p2-feature-gen</goal>
@@ -51,13 +51,14 @@
                             <propertiesFile>../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
-                                    <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
-                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:server
+                                    </propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false
+                                    </propertyDef>
                                 </properties>
                             </adviceFile>
                             <bundles>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.deployment</bundleDef>
-                                <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.samples.helloworld</bundleDef>
                             </bundles>

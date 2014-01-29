@@ -37,34 +37,17 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.launcher</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.logging</artifactId>-->
-            <!--<version>${project.parent.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.base</artifactId>-->
-            <!--<version>${project.parent.version}</version>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-juli</artifactId>
-        </dependency>
-
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.4.1</version>
                 <executions>
                     <execution>
                         <id>auto-clean</id>
@@ -78,7 +61,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.0-alpha-4</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
@@ -120,10 +102,10 @@
                             <publishArtifactRepository>true</publishArtifactRepository>
                             <featureArtifacts>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.core.server.feature:5.0.0-SNAPSHOT
+                                    org.wso2.carbon:org.wso2.carbon.core.server.feature:${project.version}
                                 </featureArtifactDef>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.core.runtime.feature:5.0.0-SNAPSHOT
+                                    org.wso2.carbon:org.wso2.carbon.core.runtime.feature:${project.version}
                                 </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>
@@ -174,7 +156,7 @@
                             <features>
                                 <feature>
                                     <id>org.wso2.carbon.core.server.feature.group</id>
-                                    <version>5.0.0-SNAPSHOT</version>
+                                    <version>${project.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -184,7 +166,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -226,10 +207,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
                 <executions>
                     <execution>
-                        <id>2-dist</id>
+                        <id>distribution</id>
                         <phase>package</phase>
                         <goals>
                             <goal>attached</goal>

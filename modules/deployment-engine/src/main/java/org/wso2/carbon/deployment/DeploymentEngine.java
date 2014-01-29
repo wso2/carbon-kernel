@@ -19,8 +19,8 @@
 
 package org.wso2.carbon.deployment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DeploymentEngine {
 
-    private static final Log log = LogFactory.getLog(DeploymentEngine.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeploymentEngine.class);
 
     /**
      * The repository scanner associated with this engine
@@ -235,7 +235,7 @@ public class DeploymentEngine {
                 }
             } catch (CarbonDeploymentException e) {
                 //TODO : Handle faulty artifact deployment
-                log.error(e);
+                logger.error("Error while deploying artifacts", e);
             }
         }
     }
@@ -258,7 +258,7 @@ public class DeploymentEngine {
                 }
             } catch (CarbonDeploymentException e) {
                 //TODO : Handle faulty artifact deployment
-                log.error(e);
+                logger.error("Error while updating artifacts", e);
             }
         }
     }
@@ -289,7 +289,7 @@ public class DeploymentEngine {
                                                         "the type : " + artifactToUnDeploy.getType());
                 }
             } catch (CarbonDeploymentException e) {
-                log.error(e);
+                logger.error("Error while undeploying artifacts", e);
             }
         }
     }

@@ -19,20 +19,18 @@
 
 package org.wso2.carbon.deployment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class Utils {
-    private static final Log log = LogFactory.getLog(Utils.class);
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     /**
      * Checks if a file has been modified by comparing the last update date of
@@ -117,7 +115,7 @@ public class Utils {
             try {
                 in.close();
             } catch (IOException e) {
-                log.warn("Unable to close the InputStream " + e.getMessage(), e);
+                logger.warn("Unable to close the InputStream " + e.getMessage(), e);
             }
 
             try {
@@ -125,7 +123,7 @@ public class Utils {
                     out.close();
                 }
             } catch (IOException e) {
-                log.warn("Unable to close the OutputStream " + e.getMessage(), e);
+                logger.warn("Unable to close the OutputStream " + e.getMessage(), e);
             }
         }
     }

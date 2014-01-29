@@ -29,7 +29,6 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>

@@ -19,8 +19,8 @@
 
 package org.wso2.carbon.deployment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.spi.Deployer;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * the relevant artifact lists (deploy, undeploy, sweep)
  */
 public class RepositoryScanner {
-    private static final Log log = LogFactory.getLog(RepositoryScanner.class);
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryScanner.class);
     /**
      * A list which holds the artifacts to be deployed
      */
@@ -67,6 +67,7 @@ public class RepositoryScanner {
      * Scans the repository on the given deployment engine.
      */
     public void scan() {
+        logger.debug("Starting scanning of deployer directories");
         mark();
         sweep();
     }

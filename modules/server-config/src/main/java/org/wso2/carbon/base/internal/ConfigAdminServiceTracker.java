@@ -18,17 +18,17 @@
 
 package org.wso2.carbon.base.internal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.base.LoggingConfiguration;
 
 public class ConfigAdminServiceTracker extends ServiceTracker {
     private static final String CONFIG_ADMIN_SERVICE_NAME = ConfigurationAdmin.class.getName();
-    private static final Log log = LogFactory.getLog(ConfigAdminServiceTracker.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigAdminServiceTracker.class);
     private LoggingConfiguration loggingConfiguration;
 
     ConfigAdminServiceTracker(BundleContext bundleContext, LoggingConfiguration configuration) {
@@ -44,7 +44,7 @@ public class ConfigAdminServiceTracker extends ServiceTracker {
         try {
             loggingConfiguration.registerConfigurations(null);
         } catch (Throwable e) {
-            log.error("Cannot load logging configuration", e);
+            logger.error("Cannot load logging configuration", e);
         }
         return service;
     }

@@ -15,8 +15,8 @@
  */
 package org.wso2.carbon.base;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -46,8 +46,7 @@ import java.util.Stack;
 @SuppressWarnings("unused")
 public class ServerConfiguration implements ServerConfigurationService {
 
-    private static Log log = LogFactory
-            .getLog(ServerConfigurationService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerConfiguration.class);
 
     private Map<String, List<String>> configuration = new HashMap<String, List<String>>();
     private boolean isInitialized;
@@ -110,13 +109,13 @@ public class ServerConfiguration implements ServerConfigurationService {
             isInitialized = true;
             isLoadedConfigurationPreserved = false;
         } catch (ParserConfigurationException e) {
-            log.fatal("Problem in parsing the configuration file ", e);
+            logger.error("Problem in parsing the configuration file ", e);
             throw new ServerConfigurationException(e);
         } catch (SAXException e) {
-            log.fatal("Problem in parsing the configuration file ", e);
+            logger.error("Problem in parsing the configuration file ", e);
             throw new ServerConfigurationException(e);
         } catch (IOException e) {
-            log.fatal("Problem in parsing the configuration file ", e);
+            logger.error("Problem in parsing the configuration file ", e);
             throw new ServerConfigurationException(e);
         }
     }
@@ -157,13 +156,13 @@ public class ServerConfiguration implements ServerConfigurationService {
                     if (xmlInputStream == null) {
                         String msg = "Configuration File cannot be loaded from "
                                      + configurationXMLLocation;
-                        log.fatal(msg, e1);
+                        logger.error(msg, e1);
                         throw new ServerConfigurationException(msg, e1);
 
                     }
                 }
             } catch (IOException e) {
-                log.fatal("Configuration File cannot be loaded from "
+                logger.error("Configuration File cannot be loaded from "
                           + configurationXMLLocation, e);
                 throw new ServerConfigurationException(e);
             }
@@ -173,7 +172,7 @@ public class ServerConfiguration implements ServerConfigurationService {
                 try {
                     xmlInputStream.close();
                 } catch (IOException e) {
-                    log.warn("Cannot close input stream", e);
+                    logger.warn("Cannot close input stream", e);
                 }
             }
         }
