@@ -50,7 +50,6 @@
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-aar-maven-plugin</artifactId>
                 <version>1.6.1-wso2v11</version>
-                <!--<version>${orbit.version.axis2}</version>-->
                 <extensions>true</extensions>
                 <configuration>
                     <fileSet>
@@ -61,7 +60,6 @@
                     </fileSet>
                     <aarName>SecVerifier</aarName>
                 </configuration>
-
             </plugin>
         </plugins>
     </build>
