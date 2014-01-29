@@ -19,8 +19,8 @@
 
 package org.wso2.carbon.deployment.deployers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.Artifact;
@@ -33,8 +33,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class CustomDeployer implements Deployer {
-    private static Log log = LogFactory.getLog(CustomDeployer.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(CustomDeployer.class);
     /**
      * Has init() been called?
      */
@@ -59,17 +58,17 @@ public class CustomDeployer implements Deployer {
         try {
             directoryLocation = new URL("file:text-files");
         } catch (MalformedURLException e) {
-            log.error(e);
+            logger.error("Error while initializing directoryLocation", e);
         }
     }
 
     public void init() {
-        log.info("Initializing Deployer");
+        logger.info("Initializing Deployer");
         initCalled = true;
     }
 
     public String deploy(Artifact artifact) throws CarbonDeploymentException {
-        log.info("Deploying : " + artifact.getName());
+        logger.info("Deploying : " + artifact.getName());
         String key = null;
         try {
             FileInputStream fis = new FileInputStream(artifact.getFile());
@@ -92,10 +91,10 @@ public class CustomDeployer implements Deployer {
             throw new CarbonDeploymentException("Error while Un Deploying : " + key +
                                                 "is not a String value");
         }
-        log.info("Undeploying : " + key);
+        logger.info("Undeploying : " + key);
         try {
             File fileToUndeploy = new File(testDir + File.separator + key);
-            log.info("File to undeploy : " + fileToUndeploy.getAbsolutePath());
+            logger.info("File to undeploy : " + fileToUndeploy.getAbsolutePath());
             FileInputStream fis = new FileInputStream(fileToUndeploy);
             int x = fis.available();
             byte b[] = new byte[x];
@@ -110,7 +109,7 @@ public class CustomDeployer implements Deployer {
     }
 
     public String update(Artifact artifact) throws CarbonDeploymentException {
-        log.info("Updating : " + artifact.getName());
+        logger.info("Updating : " + artifact.getName());
         sample1Updated = true;
         return  artifact.getName();
     }
