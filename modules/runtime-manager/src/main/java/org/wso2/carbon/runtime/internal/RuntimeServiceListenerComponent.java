@@ -19,10 +19,10 @@
 
 package org.wso2.carbon.runtime.internal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.runtime.RuntimeManager;
 import org.wso2.carbon.runtime.spi.Runtime;
 
@@ -40,7 +40,7 @@ import org.wso2.carbon.runtime.spi.Runtime;
 )
 
 public class RuntimeServiceListenerComponent {
-    private static Log log = LogFactory.getLog(RuntimeServiceListenerComponent.class);
+    private static Logger logger = LoggerFactory.getLogger(RuntimeServiceListenerComponent.class);
     private RuntimeManager runtimeManager = DataHolder.getInstance().getRuntimeManager();
 
     /**
@@ -51,7 +51,7 @@ public class RuntimeServiceListenerComponent {
         try {
             runtimeManager.registerRuntime(runtime);
         } catch (Exception e) {
-            log.error("Error while adding runtime to the Runtime manager", e);
+            logger.error("Error while adding runtime to the Runtime manager", e);
         }
     }
 
@@ -63,7 +63,7 @@ public class RuntimeServiceListenerComponent {
         try {
             runtimeManager.unRegisterRuntime(runtime);
         } catch (Exception e) {
-            log.error("Error while removing runtime from Runtime manager", e);
+            logger.error("Error while removing runtime from Runtime manager", e);
         }
     }
 

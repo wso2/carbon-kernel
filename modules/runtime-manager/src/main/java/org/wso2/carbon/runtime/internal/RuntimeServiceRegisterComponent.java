@@ -26,6 +26,8 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.osgi.framework.*;
 import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.runtime.CarbonRuntimeService;
 import org.wso2.carbon.runtime.api.RuntimeService;
 
@@ -47,8 +49,7 @@ import java.util.TimerTask;
 )
 
 public class RuntimeServiceRegisterComponent implements ServiceListener {
-
-    private static Log log = LogFactory.getLog(RuntimeServiceRegisterComponent.class);
+    private static Logger logger = LoggerFactory.getLogger(RuntimeServiceRegisterComponent.class);
     private ServiceRegistration serviceRegistration;
 
     private static BundleContext bundleContext;
@@ -79,9 +80,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
                     for (ServiceReference reference : serviceReferences) {
                         String service = ((String[]) reference.getProperty(Constants.OBJECTCLASS))[0];
                         requiredRuntimes.remove(service);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Removed pending service " + service);
-                        }
+                        logger.debug("Removed pending service " + service);
                     }
                 }
                 if (requiredRuntimes.isEmpty()) {
@@ -91,7 +90,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
                 }
             }
         } catch (Throwable e) {
-            log.fatal("Cannot initialize RuntimeManager Component", e);
+            logger.error("Cannot initialize RuntimeManager Component", e);
         }
     }
 
@@ -125,7 +124,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
                     for (String service : requiredRuntimes) {
                         services.append(service).append(",");
                     }
-                    log.warn("Waiting for required Runtime services : " + services.toString());
+                    logger.warn("Waiting for required Runtime services : " + services.toString());
                 }
             }
         }, 60000, 60000);
@@ -137,9 +136,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
             String service =
                     ((String[]) serviceEvent.getServiceReference().getProperty(Constants.OBJECTCLASS))[0];
             requiredRuntimes.remove(service);
-            if (log.isDebugEnabled()) {
-                log.debug("Removed pending service " + service);
-            }
+            logger.debug("Removed pending service " + service);
             if (requiredRuntimes.isEmpty()) {
                 completeRuntimeInitialization(bundleContext);
             }
@@ -157,9 +154,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
                 new CarbonRuntimeService(DataHolder.getInstance().getRuntimeManager());
         serviceRegistration = bundleContext.registerService(RuntimeService.class.getName(),
                 runtimeService, null);
-        if (log.isDebugEnabled()) {
-            log.debug("Registered Runtime Service : " + CarbonRuntimeService.class.getName());
-        }
+        logger.debug("Registered Runtime Service : " + CarbonRuntimeService.class.getName());
     }
 
 }

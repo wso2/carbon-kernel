@@ -21,6 +21,8 @@ package org.wso2.carbon.runtime;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.runtime.api.RuntimeService;
 import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 import org.wso2.carbon.runtime.spi.Runtime;
@@ -32,7 +34,7 @@ import java.util.List;
  */
 
 public class CarbonRuntimeService implements RuntimeService {
-    private static final Log log = LogFactory.getLog(CarbonRuntimeService.class);
+    private static Logger logger = LoggerFactory.getLogger(CarbonRuntimeService.class);
     RuntimeManager runtimeManager;
 
     public CarbonRuntimeService(RuntimeManager runtimeManager) {
