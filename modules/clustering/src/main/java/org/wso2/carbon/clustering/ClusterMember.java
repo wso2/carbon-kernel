@@ -168,39 +168,39 @@ public class ClusterMember implements Serializable {
         this.remoteHost = remoteHost;
     }
 
-//    public boolean equals(Object o) {
-//        if (this == o) {
-//            return true;
-//        }
-//        if (o == null || getClass() != o.getClass()) {
-//            return false;
-//        }
-//
-//        Member member = (Member) o;
-//
-//        boolean isIdenticalPorts = (port == member.getPort() &&
-//                                    httpPort == member.getHttpPort() &&
-//                                    httpsPort == member.getHttpsPort());
-//
-//        return (isIdenticalPorts &&
-//                (remoteHost != null ? remoteHost.equals(member.getRemoteHost()) :
-//                 member.getRemoteHost() == null) && (hostName != null ? hostName.equals(member.getHostName()) :
-//                                                     member.getHostName() == null));
-//    }
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
-//    public int hashCode() {
-//        int result;
-//        result = (hostName != null ? hostName.hashCode() : 0);
-//        result = 31 * result + port;
-//        return result;
-//    }
-//
-//    public String toString() {
-//        return "Host:" + hostName + ", Remote Host:" + remoteHost + ", Port: " + port +
-//               ", HTTP:" + httpPort + ", HTTPS:" + httpsPort +
-//               ", Domain: " + domain + ", Sub-domain:" + properties.getProperty("subDomain") +
-//               ", Active:" + isActive;
-//    }
+        ClusterMember member = (ClusterMember) o;
+
+        boolean isIdenticalPorts = (port == member.getPort() &&
+                                    httpPort == member.getHttpPort() &&
+                                    httpsPort == member.getHttpsPort());
+
+        return (isIdenticalPorts &&
+                (remoteHost != null ? remoteHost.equals(member.getRemoteHost()) :
+                 member.getRemoteHost() == null) && (hostName != null ? hostName.equals(member.getHostName()) :
+                                                     member.getHostName() == null));
+    }
+
+    public int hashCode() {
+        int result;
+        result = (hostName != null ? hostName.hashCode() : 0);
+        result = 31 * result + port;
+        return result;
+    }
+
+    public String toString() {
+        return "Host:" + hostName + ", Remote Host:" + remoteHost + ", Port: " + port +
+               ", HTTP:" + httpPort + ", HTTPS:" + httpsPort +
+               ", Domain: " + domain + ", Sub-domain:" + properties.getProperty("subDomain") +
+               ", Active:" + isActive;
+    }
 
     private String id;
     private InetSocketAddress inetSocketAddress;
@@ -218,21 +218,21 @@ public class ClusterMember implements Serializable {
         return id;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ClusterMember that = (ClusterMember) o;
-        return id.equals(that.id);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) {
+//            return true;
+//        }
+//        if (o == null || getClass() != o.getClass()) {
+//            return false;
+//        }
+//        ClusterMember that = (ClusterMember) o;
+//        return id.equals(that.id);
+//
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return id.hashCode();
+//    }
 }
