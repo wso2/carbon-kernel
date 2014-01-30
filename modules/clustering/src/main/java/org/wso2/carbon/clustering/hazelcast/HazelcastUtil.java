@@ -20,7 +20,6 @@ package org.wso2.carbon.clustering.hazelcast;
 import com.hazelcast.core.Member;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
-import org.wso2.carbon.clustering.api.Cluster;
 
 import java.util.ArrayList;
 import java.util.List;

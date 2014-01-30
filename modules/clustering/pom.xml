@@ -25,7 +25,6 @@
         <dependency>
             <groupId>com.hazelcast.wso2</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>3.0.1.wso2v1</version>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
@@ -67,7 +66,8 @@
                             com.hazelcast.core.*,
                             com.hazelcast.config.*,
                             javax.xml.parsers.*,
-                            org.w3c.dom.*
+                            org.w3c.dom.*,
+                            org.xml.sax.*
                         </Import-Package>
                     </instructions>
                 </configuration>

@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.exception.ClusteringException;
 import org.wso2.carbon.clustering.ControlCommand;
-//import org.apache.axis2.context.ConfigurationContext;
 
 
 /**

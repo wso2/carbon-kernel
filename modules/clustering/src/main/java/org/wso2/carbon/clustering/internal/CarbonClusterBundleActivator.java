@@ -5,6 +5,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterUtil;
+import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastClusteringAgent;
 import org.wso2.carbon.clustering.spi.ClusteringAgent;
 
@@ -18,9 +19,13 @@ public class CarbonClusterBundleActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
         DataHolder.getInstance().setBundleContext(bundleContext);
         if (ClusterUtil.shouldInitialize("hazelcast")) {
-            clusteringAgent = new HazelcastClusteringAgent();
-            logger.info("Initializing Clustering Agent");
-            clusteringAgent.init();
+            try {
+                clusteringAgent = new HazelcastClusteringAgent();
+                logger.info("Initializing Clustering Agent");
+                clusteringAgent.init();
+            } catch (ClusterInitializationException e) {
+                logger.error("Error while initializing clustering", e);
+            }
         }
     }
 

@@ -544,6 +544,11 @@
                 <artifactId>cm</artifactId>
                 <version>${version.org.eclipse.equinox.cm}</version>
             </dependency>
+            <dependency>
+                <groupId>com.hazelcast.wso2</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>${orbit.hazelcast.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -671,6 +676,6 @@
         <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>
-        <version.tomcat>7.0.42</version.tomcat>
+        <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
     </properties>
 </project>
