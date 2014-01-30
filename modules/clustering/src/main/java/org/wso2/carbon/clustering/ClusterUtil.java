@@ -187,7 +187,7 @@ public class ClusterUtil {
 
             String clusterAgent = doc.getDocumentElement().getAttribute("agent");
             boolean isEnabled = Boolean.parseBoolean(doc.getDocumentElement().
-                    getAttribute("enabled"));
+                    getAttribute("enable"));
 
             if (clusterAgent != null && agentName.equals(clusterAgent) && isEnabled) {
                 initialize = true;

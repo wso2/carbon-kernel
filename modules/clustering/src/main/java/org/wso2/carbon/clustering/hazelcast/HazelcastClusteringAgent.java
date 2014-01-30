@@ -29,8 +29,10 @@ import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.api.Cluster;
+import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.ClusteringException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
@@ -69,13 +71,12 @@ public class HazelcastClusteringAgent /*extends ParameterAdapter*/ implements Cl
     private HazelcastInstance primaryHazelcastInstance;
 
     private HazelcastMembershipScheme membershipScheme;
-//    private ConfigurationContext configurationContext;
+    //    private ConfigurationContext configurationContext;
     private ITopic<ClusterMessage> clusteringMessageTopic;
     private List<ClusterMessage> sentMsgsBuffer = new CopyOnWriteArrayList<ClusterMessage>();
 
     // key - msg UUID, value - timestamp(msg received time)
     private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<String, Long>();
-
 
 
     /**
@@ -88,7 +89,15 @@ public class HazelcastClusteringAgent /*extends ParameterAdapter*/ implements Cl
 
     public void init() throws ClusterInitializationException {
 //        MemberUtils.init(parameters, configurationContext);
-
+        ClusterConfiguration clusterConfiguration = ClusterConfiguration.getInstance();
+        try {
+            clusterConfiguration.init();
+        } catch (ClusterConfigurationException e) {
+            String msg = "Error while building cluster configuration";
+            logger.error(msg, e);
+            throw new ClusterInitializationException(msg, e);
+        }
+        MemberUtils.init();
         primaryHazelcastConfig = new Config();
         setHazelcastProperties();
 
@@ -212,7 +221,7 @@ public class HazelcastClusteringAgent /*extends ParameterAdapter*/ implements Cl
             }
         });
 
-        if(carbonLocalMember.getProperties().get("subDomain") == null){
+        if (carbonLocalMember.getProperties().get("subDomain") == null) {
             carbonLocalMember.getProperties().put("subDomain", "__$default");  // Set the default subDomain
         }
         MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain).put(localMember.getUuid(),
@@ -260,13 +269,12 @@ public class HazelcastClusteringAgent /*extends ParameterAdapter*/ implements Cl
      * @return The clustering domain to which this node belongs to
      */
     private String getClusterDomain() {
-//        Parameter domainParam = getParameter(ClusteringConstants.Parameters.DOMAIN);
         String domain = null;
-//        if (domainParam != null) {
-//            domain = ((String) domainParam.getValue());
-//        } else {
-//            domain = ClusteringConstants.DEFAULT_DOMAIN;
-//        }
+        ClusterConfiguration clusterConfiguration = ClusterConfiguration.getInstance();
+        domain = clusterConfiguration.getFirstProperty("domain");
+        if (domain == null) {
+            domain = ClusteringConstants.DEFAULT_DOMAIN;
+        }
         return domain;
     }
 
@@ -284,9 +292,9 @@ public class HazelcastClusteringAgent /*extends ParameterAdapter*/ implements Cl
             membershipScheme.init();
         } else if (scheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME)) {
             membershipScheme = new AWSBasedMembershipScheme(/*parameters, */primaryDomain,
-                                                           primaryHazelcastConfig,
-                                                           primaryHazelcastInstance,
-                                                           sentMsgsBuffer);
+                                                            primaryHazelcastConfig,
+                                                            primaryHazelcastInstance,
+                                                            sentMsgsBuffer);
             membershipScheme.init();
         } else {
             String msg = "Invalid membership scheme '" + scheme +

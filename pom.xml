@@ -591,6 +591,11 @@
                 <artifactId>plexus-utils</artifactId>
                 <version>${version.plexus.utils}</version>
             </dependency>
+            <dependency>
+                <groupId>com.hazelcast.wso2</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>${orbit.hazelcast.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -729,5 +734,6 @@
         <version.maven.compat>3.0</version.maven.compat>
         <version.plexus.utils>3.0.17</version.plexus.utils>
         <version.plexus.archiver>1.2</version.plexus.archiver>
+        <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
     </properties>
 </project>

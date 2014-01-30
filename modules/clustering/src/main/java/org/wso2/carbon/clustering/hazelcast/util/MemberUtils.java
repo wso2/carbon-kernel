@@ -20,29 +20,15 @@ package org.wso2.carbon.clustering.hazelcast.util;
 import com.hazelcast.config.TcpIpConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-//import org.apache.axiom.om.OMAttribute;
-//import org.apache.axiom.om.OMElement;
-//import org.apache.axis2.clustering.ClusteringConstants;
-//import org.apache.axis2.clustering.Member;
-//import org.apache.axis2.context.ConfigurationContext;
-//import org.apache.axis2.description.Parameter;
-//import org.apache.axis2.description.TransportInDescription;
-//import org.apache.axis2.engine.AxisConfiguration;
-//import org.apache.axis2.util.JavaUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterMember;
 
-import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Properties;
 
 /**

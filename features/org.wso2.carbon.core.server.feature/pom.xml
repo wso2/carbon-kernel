@@ -49,8 +49,11 @@
             <artifactId>org.wso2.carbon.samples.helloworld</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+    <groupId>com.hazelcast.wso2</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -80,6 +83,8 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.samples.helloworld
                                 </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.clustering</bundleDef>
+                                <bundleDef>com.hazelcast.wso2:hazelcast</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
