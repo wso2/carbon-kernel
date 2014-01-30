@@ -29,6 +29,7 @@
                 <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
                 <module>modules/samples/hello-world-bundle</module>
+                <module>modules/runtime-manager</module>
                 <module>features</module>
                 <module>distribution</module>
             </modules>
