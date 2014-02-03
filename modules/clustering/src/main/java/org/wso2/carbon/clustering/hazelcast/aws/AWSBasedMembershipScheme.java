@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMessage;
+import org.wso2.carbon.clustering.exception.MembershipFailedException;
+import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
@@ -74,51 +76,61 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     }
 
     @Override
-    public void init() {
-        nwConfig.getJoin().getMulticastConfig().setEnabled(false);
-        nwConfig.getJoin().getTcpIpConfig().setEnabled(false);
-        AwsConfig awsConfig = nwConfig.getJoin().getAwsConfig();
-        awsConfig.setEnabled(true);
+    public void init() throws MembershipInitializationException {
+        try {
+            nwConfig.getJoin().getMulticastConfig().setEnabled(false);
+            nwConfig.getJoin().getTcpIpConfig().setEnabled(false);
+            AwsConfig awsConfig = nwConfig.getJoin().getAwsConfig();
+            awsConfig.setEnabled(true);
 
-        String accessKey = getProperty(AWSConstants.ACCESS_KEY);
-        String secretKey = getProperty(AWSConstants.SECRET_KEY);
-        String securityGroup = getProperty(AWSConstants.SECURITY_GROUP);
-        String connTimeout = getProperty(AWSConstants.CONNECTION_TIMEOUT);
-        String hostHeader = getProperty(AWSConstants.HOST_HEADER);
-        String region = getProperty(AWSConstants.REGION);
-        String tagKey = getProperty(AWSConstants.TAG_KEY);
-        String tagValue = getProperty(AWSConstants.TAG_VALUE);
+            String accessKey = getProperty(AWSConstants.ACCESS_KEY);
+            String secretKey = getProperty(AWSConstants.SECRET_KEY);
+            String securityGroup = getProperty(AWSConstants.SECURITY_GROUP);
+            String connTimeout = getProperty(AWSConstants.CONNECTION_TIMEOUT);
+            String hostHeader = getProperty(AWSConstants.HOST_HEADER);
+            String region = getProperty(AWSConstants.REGION);
+            String tagKey = getProperty(AWSConstants.TAG_KEY);
+            String tagValue = getProperty(AWSConstants.TAG_VALUE);
 
-        if (accessKey != null) {
-            awsConfig.setAccessKey(accessKey.trim());
-        }
-        if (secretKey != null) {
-            awsConfig.setSecretKey(secretKey.trim());
-        }
-        if (securityGroup != null) {
-            awsConfig.setSecurityGroupName(securityGroup.trim());
-        }
-        if (connTimeout != null) {
-            awsConfig.setConnectionTimeoutSeconds(Integer.parseInt(connTimeout.trim()));
-        }
-        if (hostHeader != null) {
-            awsConfig.setHostHeader(hostHeader.trim());
-        }
-        if (region != null) {
-            awsConfig.setRegion(region.trim());
-        }
-        if (tagKey != null) {
-            awsConfig.setTagKey(tagKey.trim());
-        }
-        if (tagValue != null) {
-            awsConfig.setTagValue(tagValue.trim());
+            if (accessKey != null) {
+                awsConfig.setAccessKey(accessKey.trim());
+            }
+            if (secretKey != null) {
+                awsConfig.setSecretKey(secretKey.trim());
+            }
+            if (securityGroup != null) {
+                awsConfig.setSecurityGroupName(securityGroup.trim());
+            }
+            if (connTimeout != null) {
+                awsConfig.setConnectionTimeoutSeconds(Integer.parseInt(connTimeout.trim()));
+            }
+            if (hostHeader != null) {
+                awsConfig.setHostHeader(hostHeader.trim());
+            }
+            if (region != null) {
+                awsConfig.setRegion(region.trim());
+            }
+            if (tagKey != null) {
+                awsConfig.setTagKey(tagKey.trim());
+            }
+            if (tagValue != null) {
+                awsConfig.setTagValue(tagValue.trim());
+            }
+        } catch (Exception e) {
+            throw new MembershipInitializationException("Error while trying initialize " +
+                                                        "AWS membership scheme", e);
         }
 
     }
 
     @Override
-    public void joinGroup() {
-        primaryHazelcastInstance.getCluster().addMembershipListener(new AWSMembershipListener());
+    public void joinGroup() throws MembershipFailedException {
+        try {
+            primaryHazelcastInstance.getCluster().addMembershipListener(new AWSMembershipListener());
+        } catch (Exception e) {
+            throw new MembershipFailedException("Error while trying join aws " +
+                                                "membership scheme", e);
+        }
     }
 
     public String getProperty(String name) {

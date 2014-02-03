@@ -28,6 +28,7 @@ import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
@@ -59,7 +60,7 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     }
 
     @Override
-    public void init() throws ClusterConfigurationException {
+    public void init() {
         config.setEnabled(true);
         configureMulticastParameters();
     }
@@ -88,8 +89,14 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     }
 
     @Override
-    public void joinGroup(){
-        primaryHazelcastInstance.getCluster().addMembershipListener(new MulticastMembershipListener());
+    public void joinGroup() throws MembershipFailedException {
+        try {
+            primaryHazelcastInstance.getCluster().
+                    addMembershipListener(new MulticastMembershipListener());
+        } catch (Exception e) {
+            throw new MembershipFailedException("Error while trying join multicast " +
+                                                "membership scheme", e);
+        }
     }
 
     @Override

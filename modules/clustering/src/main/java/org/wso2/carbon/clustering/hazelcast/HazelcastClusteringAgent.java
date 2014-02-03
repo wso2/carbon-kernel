@@ -35,6 +35,8 @@ import org.wso2.carbon.clustering.ClusterUtil;
 import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
+import org.wso2.carbon.clustering.exception.MembershipFailedException;
+import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.spi.ClusteringAgent;
 import org.wso2.carbon.clustering.ClusteringConstants;
@@ -142,7 +144,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
 
         try {
             configureMembershipScheme(nwConfig);
-        } catch (ClusterConfigurationException e) {
+        } catch (ClusterConfigurationException | MembershipInitializationException e) {
             throw new ClusterInitializationException(e);
         }
         MapConfig mapConfig = new MapConfig("carbon-map-config");
@@ -181,7 +183,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         membershipScheme.setLocalMember(localMember);
         try {
             membershipScheme.joinGroup();
-        } catch (ClusterConfigurationException e) {
+        } catch (MembershipFailedException e) {
             throw new ClusterInitializationException(e);
         }
         localMember = primaryHazelcastInstance.getCluster().getLocalMember();
@@ -277,28 +279,32 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     }
 
     private void configureMembershipScheme(NetworkConfig nwConfig)
-            throws ClusterConfigurationException {
+            throws ClusterConfigurationException, MembershipInitializationException {
         String scheme = getMembershipScheme();
         logger.info("Using " + scheme + " based membership management scheme");
-        if (scheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
-            wkaMembers = ClusterUtil.loadWellKnownMembers(clusterConfiguration);
-            membershipScheme = new WKABasedMembershipScheme(clusterConfiguration, primaryDomain,
-                                                            wkaMembers, primaryHazelcastConfig,
-                                                            sentMsgsBuffer);
-            membershipScheme.init();
-        } else if (scheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)) {
-            membershipScheme = new MulticastBasedMembershipScheme(clusterConfiguration,
-                                                                  primaryDomain,
-                                                                  nwConfig.getJoin().
-                                                                          getMulticastConfig(),
-                                                                  sentMsgsBuffer);
-            membershipScheme.init();
-        } else if (scheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME)) {
-            membershipScheme = new AWSBasedMembershipScheme(clusterConfiguration, primaryDomain,
-                                                            primaryHazelcastConfig,
-                                                            primaryHazelcastInstance,
-                                                            sentMsgsBuffer);
-            membershipScheme.init();
+        switch (scheme) {
+            case ClusteringConstants.MembershipScheme.WKA_BASED:
+                wkaMembers = ClusterUtil.loadWellKnownMembers(clusterConfiguration);
+                membershipScheme = new WKABasedMembershipScheme(clusterConfiguration, primaryDomain,
+                                                                wkaMembers, primaryHazelcastConfig,
+                                                                sentMsgsBuffer);
+                membershipScheme.init();
+                break;
+            case ClusteringConstants.MembershipScheme.MULTICAST_BASED:
+                membershipScheme = new MulticastBasedMembershipScheme(clusterConfiguration,
+                                                                      primaryDomain,
+                                                                      nwConfig.getJoin().
+                                                                              getMulticastConfig(),
+                                                                      sentMsgsBuffer);
+                membershipScheme.init();
+                break;
+            case HazelcastConstants.AWS_MEMBERSHIP_SCHEME:
+                membershipScheme = new AWSBasedMembershipScheme(clusterConfiguration, primaryDomain,
+                                                                primaryHazelcastConfig,
+                                                                primaryHazelcastInstance,
+                                                                sentMsgsBuffer);
+                membershipScheme.init();
+                break;
         }
     }
 

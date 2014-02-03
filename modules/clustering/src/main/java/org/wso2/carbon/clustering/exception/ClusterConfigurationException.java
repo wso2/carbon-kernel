@@ -1,6 +1,5 @@
 package org.wso2.carbon.clustering.exception;
 
-
 public class ClusterConfigurationException extends Exception {
     public ClusterConfigurationException(String message) {
         super (message);
