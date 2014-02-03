@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding ="UTF-8"?>
-<!DOCTYPE root [
-  <!ELEMENT root (child*)>
-  <!ELEMENT child (#PCDATA)>
-  <!ENTITY test "test">
-]>
-<root>
-    <child>X<!--X--><?x?>&test;<![CDATA[X]]></child>
-</root>

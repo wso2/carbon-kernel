@@ -1,6 +1,0 @@
-<serviceGroup>
-    <service name="echo2">
-	<module ref="sample-logging"/>
-	<parameter name="ServiceClass">org.apache.axis2.Echo2</parameter>
-    </service>
-</serviceGroup>

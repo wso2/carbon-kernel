@@ -14,7 +14,7 @@ below is and where the actual text of the license can be found.
 Name                                                                            Type           License   
 ---------------------------------------------------------------------------------------------------------
 abdera_1.0.0.wso2v3.jar                                                         bundle         apache2   
-addressing-1.6.1-wso2v10.mar                                                    bundle         apache2   
+addressing-1.6.1-wso2v11-SNAPSHOT.mar                                                    bundle         apache2   
 ajaxtags_1.3.0.beta-rc7-wso2v1.jar                                              bundle         apache2   
 annogen_0.1.0.wso2v1.jar                                                        bundle         apache2   
 ant-contrib-1.0b3.jar                                                           jar            apache2   
@@ -22,9 +22,9 @@ antlr_3.2.0.wso2v1.jar                                                          
 ant_1.7.0.wso2v1.jar                                                            bundle         apache2   
 authenticator_0.7.0.wso2v1.jar                                                  bundle         apache2   
 axiom_1.2.11.wso2v4.jar                                                         bundle         apache2   
-axis2-json_1.6.1.wso2v10.jar                                                    bundle         apache2   
-axis2-transport-jms_1.1.0.wso2v9.jar                                            bundle         apache2   
-axis2_1.6.1.wso2v10.jar                                                         bundle         apache2   
+axis2-json_1.6.1.wso2v11-SNAPSHOT.jar                                                    bundle         apache2   
+axis2-transport-jms_1.1.0.wso2v10-SNAPSHOT.jar                                            bundle         apache2   
+axis2_1.6.1.wso2v11-SNAPSHOT.jar                                                         bundle         apache2   
 backport-util-concurrent_3.1.0.wso2v1.jar                                       bundle         public    
 bcprov-jdk15-132.jar                                                            jarinbundle    bouncy    
 commons-beanutils-1.7.0.jar                                                     jarinbundle    apache2   
@@ -192,7 +192,7 @@ tomcat_7.0.34.wso2v1.jar                                                        
 tribes_7.0.34.wso2v1.jar                                                        bundle         apache2   
 woden_1.0.0.M8-wso2v1.jar                                                       bundle         apache2   
 wsdl4j_1.6.2.wso2v4.jar                                                         bundle         cpl1      
-wss4j_1.5.11.wso2v6.jar                                                         bundle         apache2   
+wss4j_1.5.11.wso2v7-SNAPSHOT.jar                                                bundle         apache2   
 xalan-2.7.1.wso2v1.jar                                                          bundle         apache2   
 xercesImpl-2.8.1.wso2v2.jar                                                     bundle         apache2   
 xml-apis-1.3.04.wso2v2.jar                                                      bundle         apache2   

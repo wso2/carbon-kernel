@@ -1,1 +1,0 @@
-keytool -genkey -keyalg rsa -keysize 2048 -validity 730 -alias dims -keystore .keystore

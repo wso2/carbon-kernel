@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
     <version>4.3.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Aggregate Pom</name>
-    <description>WSO2 Carbon Platform with all its dependents, components, features and products
+    <description>WSO2 Carbon Platform with all its components, features and products
     </description>
     <url>http://wso2.org</url>
 
@@ -18,6 +18,7 @@
             <name>WSO2 Maven2 Repository</name>
             <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/</url>
         </repository>
+
         <snapshotRepository>
             <id>wso2-maven2-snapshot-repository</id>
             <name>WSO2 Maven2 Snapshot Repository</name>
@@ -43,7 +44,6 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>dependencies</module>
 		<module>parent</module>
                 <module>service-stubs</module>
                 <module>core</module>
