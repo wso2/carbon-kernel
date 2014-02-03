@@ -15,11 +15,12 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.carbon.clustering.hazelcast;
+package org.wso2.carbon.clustering.hazelcast.util;
 
 import com.hazelcast.core.Member;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
+import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
 
 import java.util.ArrayList;
 import java.util.List;

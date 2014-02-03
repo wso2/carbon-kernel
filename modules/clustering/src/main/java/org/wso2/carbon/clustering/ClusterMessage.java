@@ -17,8 +17,7 @@
 */
 package org.wso2.carbon.clustering;
 
-import org.wso2.carbon.clustering.exception.ClusteringException;
-import org.wso2.carbon.clustering.hazelcast.util.UUIDGenerator;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 import java.io.Serializable;
 
@@ -27,7 +26,7 @@ import java.io.Serializable;
  */
 public abstract class ClusterMessage implements Serializable {
 
-    private String uuid = UUIDGenerator.getUUID();
+    private String uuid = java.util.UUID.randomUUID().toString();
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
@@ -41,5 +40,5 @@ public abstract class ClusterMessage implements Serializable {
         return 0;
     }
 
-    public abstract void execute() throws ClusteringException;
+    public abstract void execute() throws MessageFailedException;
 }

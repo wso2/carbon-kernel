@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
-import org.wso2.carbon.clustering.exception.ClusteringException;
+import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
-import org.wso2.carbon.clustering.hazelcast.HazelcastUtil;
+import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
 
 import java.util.List;
@@ -59,12 +59,12 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     }
 
     @Override
-    public void init() throws ClusteringException {
+    public void init() throws ClusterConfigurationException {
         config.setEnabled(true);
         configureMulticastParameters();
     }
 
-    private void configureMulticastParameters() throws ClusteringException {
+    private void configureMulticastParameters() {
         String mcastAddress = getProperty(MulticastConstants.MULTICAST_ADDRESS);
         if (mcastAddress != null) {
             config.setMulticastGroup(mcastAddress);

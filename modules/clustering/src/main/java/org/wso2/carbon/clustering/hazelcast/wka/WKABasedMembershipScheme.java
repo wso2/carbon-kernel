@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
-import org.wso2.carbon.clustering.exception.ClusteringException;
+import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
-import org.wso2.carbon.clustering.hazelcast.HazelcastUtil;
+import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
 
 import java.net.InetSocketAddress;
@@ -113,7 +113,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
 
 
     @Override
-    public void joinGroup() throws ClusteringException {
+    public void joinGroup() throws ClusterConfigurationException {
         primaryHazelcastInstance.getCluster().addMembershipListener(new WKAMembershipListener());
         allMembers = MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain);
         allMembers.addEntryListener(new MemberEntryListener(), true);

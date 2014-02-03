@@ -21,8 +21,8 @@ import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.exception.ClusteringException;
 import org.wso2.carbon.clustering.ClusterMessage;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 import java.util.List;
 import java.util.Map;
@@ -32,14 +32,11 @@ import java.util.Map;
  */
 public class HazelcastClusterMessageListener implements MessageListener<ClusterMessage> {
     private static Logger logger = LoggerFactory.getLogger(HazelcastClusterMessageListener.class);
-//    private ConfigurationContext configurationContext;
     private final Map<String, Long> recdMsgsBuffer;
     private final List<ClusterMessage> sentMsgsBuffer;
 
-    public HazelcastClusterMessageListener(/*ConfigurationContext configurationContext,*/
-                                           final Map<String, Long> recdMsgsBuffer,
+    public HazelcastClusterMessageListener(final Map<String, Long> recdMsgsBuffer,
                                            final List<ClusterMessage> sentMsgsBuffer) {
-//        this.configurationContext = configurationContext;
         this.recdMsgsBuffer = recdMsgsBuffer;
         this.sentMsgsBuffer = sentMsgsBuffer;
     }
@@ -50,10 +47,10 @@ public class HazelcastClusterMessageListener implements MessageListener<ClusterM
             ClusterMessage msg = clusteringMessage.getMessageObject();
             if (!sentMsgsBuffer.contains(msg)) { // Ignore own messages
                 logger.info("Received ClusteringMessage: " + msg);
-                msg.execute(/*configurationContext*/);
+                msg.execute();
                 recdMsgsBuffer.put(msg.getUuid(), System.currentTimeMillis());
             }
-        } catch (ClusteringException e) {
+        } catch (MessageFailedException e) {
             logger.error("Cannot process ClusteringMessage", e);
         }
     }

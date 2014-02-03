@@ -28,11 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMessage;
-import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
-import org.wso2.carbon.clustering.hazelcast.HazelcastUtil;
-import org.wso2.carbon.clustering.internal.DataHolder;
+import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 
 import java.util.List;
 
@@ -76,7 +74,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     }
 
     @Override
-    public void init(){
+    public void init() {
         nwConfig.getJoin().getMulticastConfig().setEnabled(false);
         nwConfig.getJoin().getTcpIpConfig().setEnabled(false);
         AwsConfig awsConfig = nwConfig.getJoin().getAwsConfig();

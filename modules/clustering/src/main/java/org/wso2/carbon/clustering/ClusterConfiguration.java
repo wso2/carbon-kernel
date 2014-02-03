@@ -62,8 +62,7 @@ public class ClusterConfiguration {
      *
      * @throws ClusterConfigurationException if the operation failed.
      */
-    public synchronized void init()
-            throws ClusterConfigurationException {
+    public synchronized void build() throws ClusterConfigurationException {
         if (isInitialized) {
             return;
         }
