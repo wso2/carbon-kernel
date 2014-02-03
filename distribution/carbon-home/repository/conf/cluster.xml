@@ -12,21 +12,13 @@
                 is deemed to have left the cluster, it will be detected by the Group Membership
                 Service (GMS) using a TCP ping mechanism.
     -->
-    <membeship-scheme>mutilcast</membeship-scheme>
+    <membership-scheme>multicast</membership-scheme>
     <!--
      The clustering domain/group. Nodes in the same group will belong to the same multicast
      domain. There will not be interference between nodes in different groups.
     -->
     <domain>wso2.carbon.domain</domain>
 
-    <multicast>
-        <address>228.0.0.4</address>
-        <port>45564</port>
-        <ttl>100</ttl>
-        <timeout>60</timeout>
-    </multicast>
-
-    -->
     <!-- The host name or IP address of this member -->
 
     <local-member-host>127.0.0.1</local-member-host>
@@ -45,15 +37,25 @@
         <mgt-console-url>https://${hostName}:${httpsPort}/</mgt-console-url>
     </properties>
 
-    <!--
-       The list of static or well-known members. These entries will only be valid if the
-       "membershipScheme" above is set to "wka"
-    -->
-    <members>
-        <member>
-            <host-name>127.0.0.1</host-name>
-            <port>4000</port>
-        </member>
-    </members>
+
+    <!-- multicast membership scheme related properties-->
+    <multicast>
+        <address>228.0.0.4</address>
+        <port>45564</port>
+        <ttl>100</ttl>
+        <timeout>60</timeout>
+    </multicast>
+
+    <!-- wka membership scheme related properties-->
+    <wka>
+        <!-- The list of static or well-known members.-->
+        <members>
+            <member>
+                <host-name>127.0.0.1</host-name>
+                <port>4000</port>
+            </member>
+        </members>
+    </wka>
+
 
 </clustering>

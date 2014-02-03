@@ -4,87 +4,57 @@ package org.wso2.carbon.clustering;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.wso2.carbon.clustering.spi.ClusteringAgent;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.wso2.carbon.clustering.hazelcast.wka.WKAConstants;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 public class ClusterUtil {
 
     private static Logger logger = LoggerFactory.getLogger(ClusterUtil.class);
 
 
-    /**
-     * Build the cluster configuration
-     *
-     * @param clusteringAgent ClusterAgent
-     */
-    public static void buildCluster(ClusteringAgent clusteringAgent/*, CarbonConfiguration carbonConfig*/) {
+    public static List<ClusterMember> loadWellKnownMembers(
+            ClusterConfiguration clusterConfiguration) {
+        List<ClusterMember> members = new ArrayList<ClusterMember>();
+        List<Object> membersList = clusterConfiguration.getElement("wka.members.member");
 
-        Document clusterDocument = null;
-        logger.info("Clustering has been enabled");
-
-        try {
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//            clusterDocument = dBuilder.parse(xmlInputStream);
-
-
-//            clusteringAgent.setConfigurationContext(/*configCtx*/);
-
-            //loading the parameters.
-//            processParameters(clusterDocument.getgetChildrenWithName(new QName(TAG_PARAMETER)),
-//                              clusteringAgent,
-//                              null);
-
-            // loading the members
-            loadWellKnownMembers(clusteringAgent, clusterDocument);
-
-
-//            carbonConfig.setClusteringAgent(clusteringAgent);
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
+        for (Object member : membersList) {
+            if (member instanceof Node) {
+                NodeList nodeList = ((Node) member).getChildNodes();
+                String hostName = null;
+                String port = null;
+                for (int count = 0; count < nodeList.getLength(); count++) {
+                    Node node = nodeList.item(count);
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+                        if (WKAConstants.HOST_NAME.equals(node.getNodeName())) {
+                            logger.debug("WKA Member host name {}", node.getTextContent());
+                            hostName = node.getTextContent();
+                        } else if (WKAConstants.PORT.equals(node.getNodeName())) {
+                            logger.debug("WKA Member port {}", node.getTextContent());
+                            port = node.getTextContent();
+                        }
+                    }
+                }
+                if (hostName != null && port != null) {
+                    members.add(new ClusterMember(replaceVariables(hostName),
+                                                  Integer.parseInt(replaceVariables(port))));
+                }
+            }
         }
+        return members;
     }
 
-//    private boolean isEnabled(OMElement element) {
-//        boolean enabled = true;
-//        OMAttribute enableAttr = element.getAttribute(new QName("enable"));
-//        if (enableAttr != null) {
-//            enabled = Boolean.parseBoolean(enableAttr.getAttributeValue().trim());
-//        }
-//        return enabled;
-//    }
-
-
-    private static void loadWellKnownMembers(ClusteringAgent clusteringAgent,
-                                             Document clusterDocument) {
-//        clusteringAgent.setStaticMembers(new ArrayList<ClusterMember>());
-//        Parameter membershipSchemeParam = clusteringAgent.getParameter("membershipScheme");
-//        if (membershipSchemeParam != null) {
-//            String membershipScheme = ((String) membershipSchemeParam.getValue()).trim();
-//            if (membershipScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
-//                List<Member> members = new ArrayList<Member>();
-//                OMElement membersEle =
-//                        clusterElement.getFirstChildWithName(new QName("members"));
-//                if (membersEle != null) {
-//                    for (Iterator iter = membersEle.getChildrenWithLocalName("member"); iter.hasNext();) {
-//                        OMElement memberEle = (OMElement) iter.next();
-//                        String hostName =
-//                                memberEle.getFirstChildWithName(new QName("hostName")).getText().trim();
-//                        String port =
-//                                memberEle.getFirstChildWithName(new QName("port")).getText().trim();
-//                        members.add(new Member(replaceVariables(hostName),
-//                                               Integer.parseInt(replaceVariables(port))));
-//                    }
-//                }
-//                clusteringAgent.setStaticMembers(members);
-//            }
-//        }
-    }
-
-    private String replaceVariables(String text) {
+    private static String replaceVariables(String text) {
         int indexOfStartingChars;
         int indexOfClosingBrace;
 
@@ -108,72 +78,6 @@ public class ClusterUtil {
         return text;
     }
 
-//    protected void processParameters(Iterator parameters,
-//                                     ParameterInclude parameterInclude,
-//                                     ParameterInclude parent) {
-//        while (parameters.hasNext()) {
-//            // this is to check whether some one has locked the parmeter at the
-//            // top level
-//            OMElement parameterElement = (OMElement) parameters.next();
-//            Parameter parameter = new Parameter();
-//            // setting parameterElement
-//            parameter.setParameterElement(parameterElement);
-//            // setting parameter Name
-//            OMAttribute paramName = parameterElement.getAttribute(new QName(ATTRIBUTE_NAME));
-//            if (paramName == null) {
-//                throw new DeploymentException(Messages.getMessage(
-//                        DeploymentErrorMsgs.BAD_PARAMETER_ARGUMENT,
-//                        parameterElement.toString()));
-//            }
-//            parameter.setName(paramName.getAttributeValue());
-//            // setting parameter Value (the child element of the parameter)
-//            OMElement paramValue = parameterElement.getFirstElement();
-//            if (paramValue != null) {
-//                parameter.setValue(parameterElement);
-//                parameter.setParameterType(Parameter.OM_PARAMETER);
-//            } else {
-//                String paratextValue = parameterElement.getText();
-//
-//                parameter.setValue(paratextValue);
-//                parameter.setParameterType(Parameter.TEXT_PARAMETER);
-//            }
-//            // setting locking attribute
-//            OMAttribute paramLocked = parameterElement.getAttribute(new QName(
-//                    ATTRIBUTE_LOCKED));
-//            Parameter parentParam = null;
-//            if (parent != null) {
-//                parentParam = parent.getParameter(parameter.getName());
-//            }
-//            if (paramLocked != null) {
-//                String lockedValue = paramLocked.getAttributeValue();
-//                if (BOOLEAN_TRUE.equals(lockedValue)) {
-//                    // if the parameter is locked at some level parameter value
-//                    // replace by that
-//                    if ((parent != null)
-//                        && parent.isParameterLocked(parameter.getName())) {
-//                        throw new DeploymentException(Messages.getMessage(
-//                                DeploymentErrorMsgs.PARAMETER_LOCKED, parameter.getName()));
-//                    } else {
-//                        parameter.setLocked(true);
-//                    }
-//                } else {
-//                    parameter.setLocked(false);
-//                }
-//            }
-//            try {
-//                if (parent != null) {
-//                    if ((parentParam == null)
-//                        || !parent.isParameterLocked(parameter.getName())) {
-//                        parameterInclude.addParameter(parameter);
-//                    }
-//                } else {
-//                    parameterInclude.addParameter(parameter);
-//                }
-//            } catch (AxisFault axisFault) {
-//                throw new DeploymentException(axisFault);
-//            }
-//        }
-//    }
 
     public static boolean shouldInitialize(String agentName) {
         boolean initialize = false;
@@ -196,6 +100,29 @@ public class ClusterUtil {
             logger.error("Error while loading cluster configuration file", e);
         }
         return initialize;
+    }
+
+    public static String getIpAddress() throws SocketException {
+        Enumeration e = NetworkInterface.getNetworkInterfaces();
+        String address = "127.0.0.1";
+
+        while (e.hasMoreElements()) {
+            NetworkInterface netface = (NetworkInterface) e.nextElement();
+            Enumeration addresses = netface.getInetAddresses();
+
+            while (addresses.hasMoreElements()) {
+                InetAddress ip = (InetAddress) addresses.nextElement();
+                if (!ip.isLoopbackAddress() && isIP(ip.getHostAddress())) {
+                    return ip.getHostAddress();
+                }
+            }
+        }
+
+        return address;
+    }
+
+    private static boolean isIP(String hostAddress) {
+        return hostAddress.split("[.]").length == 4;
     }
 
 }

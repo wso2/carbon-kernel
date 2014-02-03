@@ -24,6 +24,9 @@ public final class WKAConstants {
 
     public static final String CONNECTION_TIMEOUT = "connTimeout";
 
+    public static final String HOST_NAME= "host-name";
+    public static final String PORT= "port";
+
     private WKAConstants() {
     }
 }

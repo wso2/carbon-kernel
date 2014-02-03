@@ -24,6 +24,7 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.ClusteringException;
@@ -40,18 +41,18 @@ import java.util.Map;
  */
 public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(MulticastBasedMembershipScheme.class);
-//    private final Map<String, Parameter> parameters;
+    private ClusterConfiguration clusterConfiguration;
     private String primaryDomain;
     private MulticastConfig config;
     private final List<ClusterMessage> messageBuffer;
     private HazelcastCarbonCluster carbonCluster;
     private HazelcastInstance primaryHazelcastInstance;
 
-    public MulticastBasedMembershipScheme(/*Map<String, Parameter> parameters,*/
+    public MulticastBasedMembershipScheme(ClusterConfiguration clusterConfiguration,
                                           String primaryDomain,
                                           MulticastConfig config,
                                           List<ClusterMessage> messageBuffer) {
-//        this.parameters = parameters;
+        this.clusterConfiguration = clusterConfiguration;
         this.primaryDomain = primaryDomain;
         this.config = config;
         this.messageBuffer = messageBuffer;
@@ -64,27 +65,27 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     }
 
     private void configureMulticastParameters() throws ClusteringException {
-//        Parameter mcastAddress = getParameter(MulticastConstants.MULTICAST_ADDRESS);
-//        if (mcastAddress != null) {
-//            config.setMulticastGroup((String) mcastAddress.getValue());
-//        }
-//        Parameter mcastPort = getParameter(MulticastConstants.MULTICAST_PORT);
-//        if (mcastPort != null) {
-//            config.setMulticastPort(Integer.parseInt(((String) (mcastPort.getValue())).trim()));
-//        }
-//        Parameter mcastTimeout = getParameter(MulticastConstants.MULTICAST_TIMEOUT);
-//        if (mcastTimeout != null) {
-//            config.setMulticastTimeoutSeconds(Integer.parseInt(((String) (mcastTimeout.getValue())).trim()));
-//        }
-//        Parameter mcastTTL = getParameter(MulticastConstants.MULTICAST_TTL);
-//        if (mcastTTL != null) {
-//            config.setMulticastTimeToLive(Integer.parseInt(((String) (mcastTTL.getValue())).trim()));
-//        }
+        String mcastAddress = getProperty(MulticastConstants.MULTICAST_ADDRESS);
+        if (mcastAddress != null) {
+            config.setMulticastGroup(mcastAddress);
+        }
+        String mcastPort = getProperty(MulticastConstants.MULTICAST_PORT);
+        if (mcastPort != null) {
+            config.setMulticastPort(Integer.parseInt(mcastPort.trim()));
+        }
+        String mcastTimeout = getProperty(MulticastConstants.MULTICAST_TIMEOUT);
+        if (mcastTimeout != null) {
+            config.setMulticastTimeoutSeconds(Integer.parseInt(mcastTimeout.trim()));
+        }
+        String mcastTTL = getProperty(MulticastConstants.MULTICAST_TTL);
+        if (mcastTTL != null) {
+            config.setMulticastTimeToLive(Integer.parseInt(mcastTTL.trim()));
+        }
     }
-//
-//    public Parameter getParameter(String name) {
-//        return parameters.get(name);
-//    }
+
+    private String getProperty(String name) {
+        return clusterConfiguration.getFirstProperty(name);
+    }
 
     @Override
     public void joinGroup(){
@@ -119,7 +120,8 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
 
             // send all cluster messages
             carbonCluster.addMember(HazelcastUtil.toClusterMember(member));
-            logger.info("Member joined [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            logger.info("Member joined [" + member.getUuid() + "]: " + member.
+                    getInetSocketAddress().toString());
             // Wait for sometime for the member to completely join before replaying messages
             try {
                 Thread.sleep(5000);
@@ -132,7 +134,8 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
         public void memberRemoved(MembershipEvent membershipEvent) {
             Member member = membershipEvent.getMember();
             carbonCluster.removeMember(HazelcastUtil.toClusterMember(member));
-            logger.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            logger.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().
+                    toString());
             members.remove(member.getUuid());
         }
     }

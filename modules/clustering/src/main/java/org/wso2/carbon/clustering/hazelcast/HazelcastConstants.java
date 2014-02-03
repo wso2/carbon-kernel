@@ -22,14 +22,16 @@ package org.wso2.carbon.clustering.hazelcast;
  */
 public final class HazelcastConstants {
 
-    public static final String LOCAL_MEMBER_PORT = "localMemberPort";
-    public static final String LOCAL_MEMBER_HOST = "localMemberHost";
-    public static final String MGT_CENTER_URL = "mgtCenterURL";
-    public static final String LICENSE_KEY = "licenseKey";
+    public static final String MGT_CENTER_URL = "mgt-center-url";
+    public static final String LICENSE_KEY = "license-key";
     public static final String CLUSTERING_MESSAGE_TOPIC = "$clustering.message.topic";
-    public static final String GROUP_MGT_CMD_TOPIC = ".group.mgt.cmd.topic";
     public static final String CONTROL_COMMAND_TOPIC = "$control.$command.$topic";
-    public static final String GROUP_PASSWORD = "groupPassword";
+    public static final String GROUP_PASSWORD = "group-password";
+
+    public static final String MAX_NO_HEARTBEAT_SECONDS= "hazelcast.max-no.heartbeat-seconds";
+    public static final String MAX_NO_MASTER_CONFIRMATION_SECONDS= "hazelcast.max-no.master-confirmation-seconds";
+    public static final String MERGE_FIRST_RUN_DELAY_SECONDS= "hazelcast.merge.first-run-delay-seconds";
+    public static final String MERGE_NEXT_RUN_DELAY_SECONDS= "hazelcast.merge.next-run-delay-seconds";
 
     public static final String REPLAY_MESSAGE_QUEUE = "$ReplayMessageQueue:";
 
@@ -37,4 +39,5 @@ public final class HazelcastConstants {
 
     private HazelcastConstants() {
     }
+
 }

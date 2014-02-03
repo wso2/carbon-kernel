@@ -7,6 +7,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wso2.carbon.base.Utils;
+import org.wso2.carbon.base.exception.ConfigurationInitializationException;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.xml.sax.SAXException;
 
@@ -31,10 +33,8 @@ public class ClusterConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(ClusterConfiguration.class);
 
-    private Map<String, List<String>> configuration = new HashMap<String, List<String>>();
+    private Map<String, List<Object>> configuration = new HashMap<String, List<Object>>();
     private boolean isInitialized;
-    private boolean isLoadedConfigurationPreserved = false;
-    private String documentXML;
 
     /**
      * Stores the singleton server configuration instance.
@@ -60,52 +60,6 @@ public class ClusterConfiguration {
      * This initializes the server configuration. This method should only be
      * called once, for successive calls, it will be checked.
      *
-     * @param xmlInputStream the server configuration file stream.
-     * @throws ClusterConfigurationException if the operation failed.
-     */
-    public synchronized void init(InputStream xmlInputStream)
-            throws ClusterConfigurationException {
-        if (isInitialized) {
-            return;
-        }
-
-        if (!isLoadedConfigurationPreserved) {
-            configuration.clear();
-        }
-
-        try {
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlInputStream);
-            Stack<String> nameStack = new Stack<String>();
-            if (doc.hasChildNodes()) {
-                NodeList nodeList = doc.getChildNodes();
-                for (int count = 0; count < nodeList.getLength(); count++) {
-                    Node tempNode = nodeList.item(count);
-                    // make sure it's element node.
-                    if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
-                        NodeList chiledNodeList = tempNode.getChildNodes();
-                        readChildElements(chiledNodeList, nameStack);
-                    }
-                }
-            }
-            isInitialized = true;
-            isLoadedConfigurationPreserved = false;
-        } catch (ParserConfigurationException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ClusterConfigurationException(e);
-        } catch (SAXException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ClusterConfigurationException(e);
-        } catch (IOException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ClusterConfigurationException(e);
-        }
-    }
-
-    /**
-     * This initializes the server configuration. This method should only be
-     * called once, for successive calls, it will be checked.
-     *
      * @throws ClusterConfigurationException if the operation failed.
      */
     public synchronized void init()
@@ -119,35 +73,12 @@ public class ClusterConfiguration {
 
         InputStream xmlInputStream = null;
         try {
-            try {
-                // URL will parse the location according to respective RFC's and
-                // open a connection.
-                URL urlXMLLocation = new URL(configurationXMLLocation);
-                xmlInputStream = urlXMLLocation.openStream();
-            } catch (MalformedURLException e) {
-                File f = new File(configurationXMLLocation);
-                try {
-                    xmlInputStream = new FileInputStream(f);
-                } catch (FileNotFoundException e1) {
-                    // As a last resort test in the classpath
-                    ClassLoader cl = ClusterConfigurationException.class
-                            .getClassLoader();
-                    xmlInputStream = cl
-                            .getResourceAsStream(configurationXMLLocation);
-                    if (xmlInputStream == null) {
-                        String msg = "Configuration File cannot be loaded from "
-                                     + configurationXMLLocation;
-                        logger.error(msg, e1);
-                        throw new ClusterConfigurationException(msg, e1);
-
-                    }
-                }
-            } catch (IOException e) {
-                logger.error("Configuration File cannot be loaded from "
-                             + configurationXMLLocation, e);
-                throw new ClusterConfigurationException(e);
-            }
-            init(xmlInputStream);
+            xmlInputStream = Utils.parseXmlConfiguration(configurationXMLLocation);
+            Utils.buildXmlConfiguration(xmlInputStream, configuration);
+            isInitialized = true;
+        } catch (ConfigurationInitializationException e) {
+            throw new ClusterConfigurationException("Error while building cluster configuration",
+                                                    e);
         } finally {
             if (xmlInputStream != null) {
                 try {
@@ -160,115 +91,6 @@ public class ClusterConfiguration {
     }
 
     /**
-     * Method to forcibly initialize the server configuration. If there is any
-     * configuration loaded, it will not be preserved.
-     *
-     * @param xmlInputStream the server configuration file stream.
-     * @throws ClusterConfigurationException if the operation failed.
-     */
-    public synchronized void forceInit(InputStream xmlInputStream)
-            throws ClusterConfigurationException {
-        isInitialized = false;
-        init(xmlInputStream);
-    }
-
-    /**
-     * Method to forcibly initialize the server configuration.
-     *
-     * @param configurationXMLLocation       the location of the server configuration file (carbon.xml).
-     * @param isLoadedConfigurationPreserved whether the currently loaded configuration is preserved.
-     * @throws ClusterConfigurationException if the operation failed.
-     */
-    public synchronized void forceInit(String configurationXMLLocation,
-                                       boolean isLoadedConfigurationPreserved)
-            throws ClusterConfigurationException {
-        isInitialized = false;
-        this.isLoadedConfigurationPreserved = isLoadedConfigurationPreserved;
-        init();
-    }
-
-    private void readChildElements(NodeList nodeList,
-                                   Stack<String> nameStack) {
-        for (int count = 0; count < nodeList.getLength(); count++) {
-            Node tempNode = nodeList.item(count);
-            if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
-                nameStack.push(tempNode.getNodeName());
-                if (elementHasText(tempNode)) {
-                    String key = getKey(nameStack);
-                    String value = replaceSystemProperty(tempNode.getFirstChild().getNodeValue());
-                    addToConfiguration(key, value);
-                }
-                readChildElements(tempNode.getChildNodes(), nameStack);
-                nameStack.pop();
-            }
-        }
-    }
-
-    private void addToConfiguration(String key, String value) {
-        List<String> list = configuration.get(key);
-        if (list == null) {
-            list = new ArrayList<String>();
-            list.add(value);
-            configuration.put(key, list);
-        } else {
-            if (!list.contains(value)) {
-                list.add(value);
-            }
-        }
-    }
-
-    private void overrideConfiguration(String key, String value) {
-        List<String> list = new ArrayList<String>();
-        list.add(value);
-        configuration.put(key, list);
-    }
-
-    private String replaceSystemProperty(String text) {
-        int indexOfStartingChars = -1;
-        int indexOfClosingBrace;
-
-        // The following condition deals with properties.
-        // Properties are specified as ${system.property},
-        // and are assumed to be System properties
-        while (indexOfStartingChars < text.indexOf("${")
-               && (indexOfStartingChars = text.indexOf("${")) != -1
-               && (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a
-            // property
-            // used?
-            String sysProp = text.substring(indexOfStartingChars + 2,
-                                            indexOfClosingBrace);
-            String propValue = System.getProperty(sysProp);
-            if (propValue != null) {
-                text = text.substring(0, indexOfStartingChars) + propValue
-                       + text.substring(indexOfClosingBrace + 1);
-            }
-            if (sysProp.equals("carbon.home") && propValue != null
-                && propValue.equals(".")) {
-
-                text = new File(".").getAbsolutePath() + File.separator + text;
-
-            }
-        }
-        return text;
-    }
-
-    private String getKey(Stack<String> nameStack) {
-        StringBuffer key = new StringBuffer();
-        for (int i = 0; i < nameStack.size(); i++) {
-            String name = nameStack.elementAt(i);
-            key.append(name).append(".");
-        }
-        key.deleteCharAt(key.lastIndexOf("."));
-
-        return key.toString();
-    }
-
-    private boolean elementHasText(Node element) {
-        String text = element.getFirstChild().getNodeValue();
-        return text != null && text.trim().length() != 0;
-    }
-
-    /**
      * There can be multiple objects with the same key. This will return the
      * first String from them
      *
@@ -276,28 +98,18 @@ public class ClusterConfiguration {
      * @return value corresponding to the given key
      */
     public String getFirstProperty(String key) {
-        List<String> value = configuration.get(key);
+        List<Object> valueList = configuration.get(key);
+        if (valueList == null || !(valueList.get(0) instanceof String)) {
+            return null;
+        }
+        return (String) valueList.get(0);
+    }
+
+    public List<Object> getElement(String key) {
+        List<Object> value = configuration.get(key);
         if (value == null) {
             return null;
         }
-        return value.get(0);
-    }
-
-    /**
-     * There can be multiple object corresponding to the same object.
-     *
-     * @param key the search key
-     * @return the properties corresponding to the <code>key</code>
-     */
-    public String[] getProperties(String key) {
-        List<String> values = configuration.get(key);
-        if (values == null) {
-            return new String[0];
-        }
-        return values.toArray(new String[values.size()]);
-    }
-
-    public Element getDocumentElement() {
-        return null;
+        return value;
     }
 }
