@@ -144,13 +144,7 @@ public class Utils {
                     }
                 }
             }
-        } catch (ParserConfigurationException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ConfigurationInitializationException(e);
-        } catch (SAXException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ConfigurationInitializationException(e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | IOException | SAXException e) {
             logger.error("Problem in parsing the configuration file ", e);
             throw new ConfigurationInitializationException(e);
         }

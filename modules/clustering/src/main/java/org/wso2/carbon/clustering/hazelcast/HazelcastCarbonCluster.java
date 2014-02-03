@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * TODO: class description
+ * The cluster api implementation based on hazelcast
  */
 public class HazelcastCarbonCluster implements Cluster {
     private static Logger logger = LoggerFactory.getLogger(HazelcastCarbonCluster.class);
