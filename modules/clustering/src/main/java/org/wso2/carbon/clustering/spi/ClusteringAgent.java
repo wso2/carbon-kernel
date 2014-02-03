@@ -22,7 +22,6 @@ package org.wso2.carbon.clustering.spi;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
-import org.wso2.carbon.clustering.exception.ClusteringException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 import java.util.List;
@@ -37,17 +36,7 @@ public interface ClusteringAgent {
     /**
      * Shutdown the agent which will remove this node from cluster
      */
-    void shutdown() throws ClusteringException;
-
-    /**
-     * Get the list of static members
-     */
-    List<ClusterMember> getStaticMembers();
-
-    /**
-     * Get the number of members alive.
-     */
-    int getAliveMemberCount();
+    void shutdown();
 
     /**
      * Send a message to all members in the cluster

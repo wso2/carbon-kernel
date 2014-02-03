@@ -35,7 +35,6 @@ import org.wso2.carbon.clustering.ClusterUtil;
 import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
-import org.wso2.carbon.clustering.exception.ClusteringException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.spi.ClusteringAgent;
 import org.wso2.carbon.clustering.ClusteringConstants;
@@ -88,10 +87,9 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     private String primaryDomain;
 
     public void init() throws ClusterInitializationException {
-        MemberUtils.init();
         clusterConfiguration = ClusterConfiguration.getInstance();
         try {
-            clusterConfiguration.init();
+            clusterConfiguration.build();
         } catch (ClusterConfigurationException e) {
             String msg = "Error while building cluster configuration";
             logger.error(msg, e);
@@ -129,7 +127,9 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
             try {
                 localMemberHost = ClusterUtil.getIpAddress();
             } catch (SocketException e) {
-                logger.error("Could not set local member host", e);
+                String msg = "Could not set local member host";
+                logger.error(msg, e);
+                throw new ClusterInitializationException(msg, e);
             }
         }
         nwConfig.setPublicAddress(localMemberHost);
@@ -142,7 +142,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
 
         try {
             configureMembershipScheme(nwConfig);
-        } catch (ClusteringException e) {
+        } catch (ClusterConfigurationException e) {
             throw new ClusterInitializationException(e);
         }
         MapConfig mapConfig = new MapConfig("carbon-map-config");
@@ -181,7 +181,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         membershipScheme.setLocalMember(localMember);
         try {
             membershipScheme.joinGroup();
-        } catch (ClusteringException e) {
+        } catch (ClusterConfigurationException e) {
             throw new ClusterInitializationException(e);
         }
         localMember = primaryHazelcastInstance.getCluster().getLocalMember();
@@ -206,8 +206,8 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                     logger.info("Received replayed message: " + msg.getUuid());
                     try {
                         msg.execute();
-                    } catch (ClusteringException clusteringFault) {
-                        clusteringFault.printStackTrace();
+                    } catch (MessageFailedException e) {
+                        logger.error("Message execution failed", e);
                     }
                     recdMsgsBuffer.put(msg.getUuid(), System.currentTimeMillis());
                 }
@@ -227,7 +227,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     }
 
     private void setHazelcastProperties() {
-        //TODO : We have to merge this seperate property file with cluster.xml
+        //TODO : We have to merge this separate property file with cluster.xml
         String hazelcastPropsFileName =
                 System.getProperty("carbon.home") + File.separator + "repository" +
                 File.separator + "conf" + File.separator + "hazelcast.properties";
@@ -272,16 +272,12 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         return domain;
     }
 
-    /**
-     * Get the clustering domain to which this node belongs to
-     *
-     * @return The clustering domain to which this node belongs to
-     */
     private String getClusterProperty(String property) {
         return clusterConfiguration.getFirstProperty(property);
     }
 
-    private void configureMembershipScheme(NetworkConfig nwConfig) throws ClusteringException {
+    private void configureMembershipScheme(NetworkConfig nwConfig)
+            throws ClusterConfigurationException {
         String scheme = getMembershipScheme();
         logger.info("Using " + scheme + " based membership management scheme");
         if (scheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
@@ -303,11 +299,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                                                             primaryHazelcastInstance,
                                                             sentMsgsBuffer);
             membershipScheme.init();
-        } else {
-            String msg = "Invalid membership scheme '" + scheme +
-                         "'. Supported schemes are multicast & wka";
-            logger.error(msg);
-            throw new ClusteringException(msg);
         }
     }
 
@@ -315,10 +306,10 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
      * Get the membership scheme applicable to this cluster
      *
      * @return The membership scheme. Only "wka" & "multicast" are valid return values.
-     * @throws org.wso2.carbon.clustering.exception.ClusteringException
-     *          If the membershipScheme specified in the axis2.xml file is invalid
+     * @throws ClusterConfigurationException
+     *          If the membershipScheme specified in the cluster.xml file is invalid
      */
-    private String getMembershipScheme() throws ClusteringException {
+    private String getMembershipScheme() throws ClusterConfigurationException {
         String membershipSchemeParam =
                 getClusterProperty(ClusteringConstants.MEMBERSHIP_SCHEME);
         String mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
@@ -333,7 +324,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                          ClusteringConstants.MembershipScheme.WKA_BASED + " & " +
                          HazelcastConstants.AWS_MEMBERSHIP_SCHEME;
             logger.error(msg);
-            throw new ClusteringException(msg);
+            throw new ClusterConfigurationException(msg);
         }
         return mbrScheme;
     }
@@ -343,15 +334,11 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     }
 
 
-    public void shutdown() throws ClusteringException {
+    public void shutdown() {
         try {
             Hazelcast.shutdownAll();
         } catch (Exception ignored) {
         }
-    }
-
-    public void setStaticMembers(List<ClusterMember> wkaMembers) {
-        this.wkaMembers = wkaMembers;
     }
 
     public List<ClusterMember> getStaticMembers() {

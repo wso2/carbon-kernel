@@ -76,6 +76,14 @@ public class ClusterMember implements Serializable {
     private String remoteHost;
 
 
+    private String id;
+    private InetSocketAddress inetSocketAddress;
+
+    public ClusterMember(String id, InetSocketAddress inetSocketAddress) {
+        this.id = id;
+        this.inetSocketAddress = inetSocketAddress;
+    }
+
     public ClusterMember(String hostName, int port) {
         this.hostName = hostName;
         this.port = port;
@@ -168,6 +176,23 @@ public class ClusterMember implements Serializable {
         this.remoteHost = remoteHost;
     }
 
+
+    public InetSocketAddress getInetSocketAddress() {
+        return inetSocketAddress;
+    }
+
+    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
+        this.inetSocketAddress = inetSocketAddress;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -201,38 +226,4 @@ public class ClusterMember implements Serializable {
                ", Domain: " + domain + ", Sub-domain:" + properties.getProperty("subDomain") +
                ", Active:" + isActive;
     }
-
-    private String id;
-    private InetSocketAddress inetSocketAddress;
-
-    public ClusterMember(String id, InetSocketAddress inetSocketAddress) {
-        this.id = id;
-        this.inetSocketAddress = inetSocketAddress;
-    }
-
-    public InetSocketAddress getInetSocketAddress() {
-        return inetSocketAddress;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) {
-//            return true;
-//        }
-//        if (o == null || getClass() != o.getClass()) {
-//            return false;
-//        }
-//        ClusterMember that = (ClusterMember) o;
-//        return id.equals(that.id);
-//
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return id.hashCode();
-//    }
 }

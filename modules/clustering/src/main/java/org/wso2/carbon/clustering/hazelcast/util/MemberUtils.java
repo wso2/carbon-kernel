@@ -22,13 +22,18 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMember;
+import org.wso2.carbon.clustering.hazelcast.wka.WKAConstants;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -36,18 +41,10 @@ import java.util.Properties;
  */
 public final class MemberUtils {
     private static Logger logger = LoggerFactory.getLogger(MemberUtils.class);
-    //    private static Map<String, Parameter> parameters;
-//    private static ConfigurationContext configurationContext;
-    private static boolean isInitialized;
 
-    public static void init(/*Map<String, Parameter> parameters, ConfigurationContext configurationContext*/) {
-//        MemberUtils.parameters = parameters;
-//        MemberUtils.configurationContext = configurationContext;
-        isInitialized = true;
-    }
 
     public static boolean canConnect(ClusterMember wkaMember) {
-        logger.debug("Trying to connect to WKA member {} ...", wkaMember);
+        logger.debug("Trying to connect to WKA member {} ...", wkaMember.getInetSocketAddress());
         try {
             InetAddress addr = InetAddress.getByName(wkaMember.getHostName());
             SocketAddress sockAddr = new InetSocketAddress(addr, wkaMember.getPort());
@@ -75,24 +72,14 @@ public final class MemberUtils {
     public static ClusterMember getLocalMember(String domain,
                                                String localMemberHost,
                                                int localMemberPort) {
-        if (!isInitialized) {
-            throw new IllegalStateException("MemberUtils not initialized. Call MemberUtils.init() first");
-        }
-        ClusterMember member =
-                new ClusterMember(localMemberHost,
-                                  localMemberPort);
+        ClusterMember member =  new ClusterMember(localMemberHost, localMemberPort);
         Properties memberInfo = new Properties();
-//        AxisConfiguration axisConfig = configurationContext.getAxisConfiguration();
-//        TransportInDescription httpTransport = axisConfig.getTransportIn("http");
+
+//      TODO : Since we are not depending on confContext, How to get http/s ports?
 //        int portOffset = 0;
-//        Parameter param = getParameter(ClusteringConstants.Parameters.AVOID_INITIATION);
-//        if (param != null && !JavaUtils.isTrueExplicitly(param.getValue())) {
-//            //AvoidInitialization = false, Hence we set the portOffset
 //            if (System.getElement("portOffset") != null) {
 //                portOffset = Integer.parseInt(System.getElement("portOffset"));
-//            }
 //        }
-//
 //        if (httpTransport != null) {
 //            Parameter port = httpTransport.getParameter("port");
 //            if (port != null) {
@@ -115,39 +102,38 @@ public final class MemberUtils {
 //                                   (String) isActiveParam.getValue());
 //        }
 //
-//        if (localMemberHost != null) {
-//            memberInfo.setProperty("hostName", localMemberHost);
-//        }
-//
-//        Parameter propsParam = getParameter("properties");
-//        if (propsParam != null) {
-//            OMElement paramEle = propsParam.getParameterElement();
-//            for (Iterator iter = paramEle.getChildrenWithLocalName("property"); iter.hasNext(); ) {
-//                OMElement propEle = (OMElement) iter.next();
-//                OMAttribute nameAttrib = propEle.getAttribute(new QName("name"));
-//                if (nameAttrib != null) {
-//                    String attribName = nameAttrib.getAttributeValue();
-//                    attribName = replaceProperty(attribName, memberInfo);
-//
-//                    OMAttribute valueAttrib = propEle.getAttribute(new QName("value"));
-//                    if (valueAttrib != null) {
-//                        String attribVal = valueAttrib.getAttributeValue();
-//                        attribVal = replaceProperty(attribVal, memberInfo);
-//                        memberInfo.setProperty(attribName, attribVal);
-//                    }
-//                }
-//            }
-//        }
+        if (localMemberHost != null) {
+            memberInfo.setProperty("hostName", localMemberHost);
+        }
+        ClusterConfiguration clusterConfiguration = ClusterConfiguration.getInstance();
+        List<Object> propsParam = clusterConfiguration.getElement("properties");
+        if (propsParam != null) {
+            for (Object property : propsParam) {
+                if (property instanceof Node) {
+                    NodeList nodeList = ((Node) property).getChildNodes();
+                    for (int count = 0; count < nodeList.getLength(); count++) {
+                        Node node = nodeList.item(count);
+                        if (node.getNodeType() == Node.ELEMENT_NODE) {
+                            String attributeName = node.getNodeName();
+                            if (attributeName != null) {
+                                attributeName = replaceProperty(attributeName, memberInfo);
+                            }
+                            String attributeValue = node.getTextContent();
+                            if (attributeValue != null) {
+                                attributeValue = replaceProperty(attributeValue, memberInfo);
+                                memberInfo.setProperty(attributeName, attributeValue);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         memberInfo.remove("hostName"); // this was needed only to populate other properties. No need to send it.
         member.setProperties(memberInfo);
         member.setDomain(domain);
         return member;
     }
-
-//    private static Parameter getParameter(String name) {
-//        return parameters.get(name);
-//    }
 
     private static String replaceProperty(String text, Properties props) {
         int indexOfStartingChars = -1;

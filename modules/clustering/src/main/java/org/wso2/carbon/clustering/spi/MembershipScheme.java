@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.clustering.spi;
 
-import org.wso2.carbon.clustering.exception.ClusteringException;
+import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 
 /**
  * A representation of a membership scheme such as "multicast based" or "well-known address (WKA)
@@ -26,15 +26,15 @@ public interface MembershipScheme {
     /**
      * Initialize this membership scheme
      *
-     * @throws org.wso2.carbon.clustering.exception.ClusteringException If an error occurs while initializing
+     * @throws ClusterConfigurationException If an error occurs while initializing
      */
-    void init() throws ClusteringException;
+    void init() throws ClusterConfigurationException;
 
     /**
      * JOIN the group
      *
-     * @throws org.wso2.carbon.clustering.exception.ClusteringException If an error occurs while joining the group
+     * @throws ClusterConfigurationException If an error occurs while joining the group
      */
-    void joinGroup() throws ClusteringException;
+    void joinGroup() throws ClusterConfigurationException;
 
 }

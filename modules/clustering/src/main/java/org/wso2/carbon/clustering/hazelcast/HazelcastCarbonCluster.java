@@ -50,7 +50,7 @@ public class HazelcastCarbonCluster implements Cluster {
         try {
             clusteringAgent.sendMessage(clusterMessage);
         } catch (MessageFailedException e) {
-            e.printStackTrace();
+            logger.error("Error while sending message to cluster", e);
         }
     }
 
@@ -59,7 +59,7 @@ public class HazelcastCarbonCluster implements Cluster {
         try {
             clusteringAgent.sendMessage(clusterMessage, members);
         } catch (MessageFailedException e) {
-            e.printStackTrace();
+            logger.error("Error while sending message to cluster members", e);
         }
     }
 

@@ -21,8 +21,8 @@ import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.exception.ClusteringException;
 import org.wso2.carbon.clustering.ControlCommand;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 
 /**
@@ -30,18 +30,13 @@ import org.wso2.carbon.clustering.ControlCommand;
  */
 public class HazelcastControlCommandListener implements MessageListener<ControlCommand> {
     private static Logger logger = LoggerFactory.getLogger(HazelcastControlCommandListener.class);
-//    private ConfigurationContext configurationContext;
-
-    public HazelcastControlCommandListener(/*ConfigurationContext configurationContext*/) {
-//        this.configurationContext = configurationContext;
-    }
 
     @Override
     public void onMessage(Message<ControlCommand> controlCommand) {
         try {
             logger.info("Received ControlCommand: " + controlCommand.getMessageObject());
-            controlCommand.getMessageObject().execute(/*configurationContext*/);
-        } catch (ClusteringException e) {
+            controlCommand.getMessageObject().execute();
+        } catch (MessageFailedException e) {
             logger.error("Cannot process ControlCommand", e);
         }
     }

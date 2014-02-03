@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.clustering;
 
-import org.wso2.carbon.clustering.exception.ClusteringException;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 /**
  * Represents a Control command sent from one Node to another
@@ -29,7 +29,7 @@ public abstract class ControlCommand extends ClusterMessage {
     /**
      * Execute this command
      *
-     * @throws org.wso2.carbon.clustering.exception.ClusteringException
+     * @throws MessageFailedException on error
      */
-    public abstract void execute() throws ClusteringException;
+    public abstract void execute() throws MessageFailedException;
 }
