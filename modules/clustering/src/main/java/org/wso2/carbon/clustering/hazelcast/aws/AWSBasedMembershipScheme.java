@@ -26,6 +26,7 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
@@ -40,19 +41,19 @@ import java.util.List;
  */
 public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(AWSBasedMembershipScheme.class);
-//    private final Map<String, Parameter> parameters;
+    private ClusterConfiguration clusterConfiguration;
     private final String primaryDomain;
     private final NetworkConfig nwConfig;
     private HazelcastInstance primaryHazelcastInstance;
     private final List<ClusterMessage> messageBuffer;
     private HazelcastCarbonCluster carbonCluster;
 
-    public AWSBasedMembershipScheme(/*Map<String, Parameter> parameters,*/
+    public AWSBasedMembershipScheme(ClusterConfiguration clusterConfiguration,
                                     String primaryDomain,
                                     Config config,
                                     HazelcastInstance primaryHazelcastInstance,
                                     List<ClusterMessage> messageBuffer) {
-//        this.parameters = parameters;
+        this.clusterConfiguration = clusterConfiguration;
         this.primaryDomain = primaryDomain;
         this.primaryHazelcastInstance = primaryHazelcastInstance;
         this.messageBuffer = messageBuffer;
@@ -71,7 +72,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
 
     @Override
     public void setLocalMember(Member localMember) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // Nothing to do
     }
 
     @Override
@@ -81,39 +82,39 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         AwsConfig awsConfig = nwConfig.getJoin().getAwsConfig();
         awsConfig.setEnabled(true);
 
-//        Parameter accessKey = getParameter(AWSConstants.ACCESS_KEY);
-//        Parameter secretKey = getParameter(AWSConstants.SECRET_KEY);
-//        Parameter securityGroup = getParameter(AWSConstants.SECURITY_GROUP);
-//        Parameter connTimeout = getParameter(AWSConstants.CONNECTION_TIMEOUT);
-//        Parameter hostHeader = getParameter(AWSConstants.HOST_HEADER);
-//        Parameter region = getParameter(AWSConstants.REGION);
-//        Parameter tagKey = getParameter(AWSConstants.TAG_KEY);
-//        Parameter tagValue = getParameter(AWSConstants.TAG_VALUE);
-//
-//        if (accessKey != null) {
-//            awsConfig.setAccessKey(((String)accessKey.getValue()).trim());
-//        }
-//        if (secretKey != null) {
-//            awsConfig.setSecretKey(((String)secretKey.getValue()).trim());
-//        }
-//        if (securityGroup != null) {
-//            awsConfig.setSecurityGroupName(((String)securityGroup.getValue()).trim());
-//        }
-//        if (connTimeout != null) {
-//            awsConfig.setConnectionTimeoutSeconds(Integer.parseInt(((String) connTimeout.getValue()).trim()));
-//        }
-//        if (hostHeader != null) {
-//            awsConfig.setHostHeader(((String)hostHeader.getValue()).trim());
-//        }
-//        if (region != null) {
-//            awsConfig.setRegion(((String)region.getValue()).trim());
-//        }
-//        if (tagKey != null) {
-//            awsConfig.setTagKey(((String)tagKey.getValue()).trim());
-//        }
-//        if (tagValue != null) {
-//            awsConfig.setTagValue(((String)tagValue.getValue()).trim());
-//        }
+        String accessKey = getProperty(AWSConstants.ACCESS_KEY);
+        String secretKey = getProperty(AWSConstants.SECRET_KEY);
+        String securityGroup = getProperty(AWSConstants.SECURITY_GROUP);
+        String connTimeout = getProperty(AWSConstants.CONNECTION_TIMEOUT);
+        String hostHeader = getProperty(AWSConstants.HOST_HEADER);
+        String region = getProperty(AWSConstants.REGION);
+        String tagKey = getProperty(AWSConstants.TAG_KEY);
+        String tagValue = getProperty(AWSConstants.TAG_VALUE);
+
+        if (accessKey != null) {
+            awsConfig.setAccessKey(accessKey.trim());
+        }
+        if (secretKey != null) {
+            awsConfig.setSecretKey(secretKey.trim());
+        }
+        if (securityGroup != null) {
+            awsConfig.setSecurityGroupName(securityGroup.trim());
+        }
+        if (connTimeout != null) {
+            awsConfig.setConnectionTimeoutSeconds(Integer.parseInt(connTimeout.trim()));
+        }
+        if (hostHeader != null) {
+            awsConfig.setHostHeader(hostHeader.trim());
+        }
+        if (region != null) {
+            awsConfig.setRegion(region.trim());
+        }
+        if (tagKey != null) {
+            awsConfig.setTagKey(tagKey.trim());
+        }
+        if (tagValue != null) {
+            awsConfig.setTagValue(tagValue.trim());
+        }
 
     }
 
@@ -122,9 +123,9 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         primaryHazelcastInstance.getCluster().addMembershipListener(new AWSMembershipListener());
     }
 
-//    public Parameter getParameter(String name) {
-//        return parameters.get(name);
-//    }
+    public String getProperty(String name) {
+        return clusterConfiguration.getFirstProperty(name);
+    }
 
     private class AWSMembershipListener implements MembershipListener {
         @Override
@@ -132,7 +133,8 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
             Member member = membershipEvent.getMember();
             // send all cluster messages
             carbonCluster.addMember(HazelcastUtil.toClusterMember(member));
-            logger.info("Member joined [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            logger.info("Member joined [" + member.getUuid() + "]: " +
+                        member.getInetSocketAddress().toString());
             // Wait for sometime for the member to completely join before replaying messages
             try {
                 Thread.sleep(5000);
@@ -145,7 +147,8 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         public void memberRemoved(MembershipEvent membershipEvent) {
             Member member = membershipEvent.getMember();
             carbonCluster.removeMember(HazelcastUtil.toClusterMember(member));
-            logger.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
+            logger.info("Member left [" + member.getUuid() + "]: " +
+                        member.getInetSocketAddress().toString());
         }
     }
 }

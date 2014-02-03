@@ -29,6 +29,7 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.ClusteringException;
@@ -46,7 +47,7 @@ import java.util.List;
  */
 public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(WKABasedMembershipScheme.class);
-//    private Map<String, Parameter> parameters;
+    private ClusterConfiguration clusterConfiguration;
     private String primaryDomain;
     private List<ClusterMember> wkaMembers = new ArrayList<ClusterMember>();
     private final List<ClusterMessage> messageBuffer;
@@ -71,12 +72,12 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
         this.localMember = localMember;
     }
 
-    public WKABasedMembershipScheme(/*Map<String, Parameter> parameters,*/
+    public WKABasedMembershipScheme(ClusterConfiguration clusterConfiguration,
                                     String primaryDomain,
                                     List<ClusterMember> wkaMembers,
                                     Config config,
                                     List<ClusterMessage> messageBuffer) {
-//        this.parameters = parameters;
+        this.clusterConfiguration = clusterConfiguration;
         this.primaryDomain = primaryDomain;
         this.wkaMembers = wkaMembers;
         this.messageBuffer = messageBuffer;
@@ -102,17 +103,14 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     }
 
     private void configureWKAParameters() {
-//        Parameter connTimeout = getParameter(WKAConstants.CONNECTION_TIMEOUT);
-//        TcpIpConfig tcpIpConfig = nwConfig.getJoin().getTcpIpConfig();
-//        if (connTimeout != null) {
-//            tcpIpConfig.
-//                    setConnectionTimeoutSeconds(Integer.parseInt(((String) (connTimeout.getValue())).trim()));
-//        }
+        String connTimeout = clusterConfiguration.getFirstProperty(WKAConstants.CONNECTION_TIMEOUT);
+        TcpIpConfig tcpIpConfig = nwConfig.getJoin().getTcpIpConfig();
+        if (connTimeout != null) {
+            tcpIpConfig.
+                    setConnectionTimeoutSeconds(Integer.parseInt(connTimeout.trim()));
+        }
     }
 
-//    public Parameter getParameter(String name) {
-//        return parameters.get(name);
-//    }
 
     @Override
     public void joinGroup() throws ClusteringException {

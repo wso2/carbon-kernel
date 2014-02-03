@@ -88,8 +88,8 @@ public final class MemberUtils {
 //        Parameter param = getParameter(ClusteringConstants.Parameters.AVOID_INITIATION);
 //        if (param != null && !JavaUtils.isTrueExplicitly(param.getValue())) {
 //            //AvoidInitialization = false, Hence we set the portOffset
-//            if (System.getProperty("portOffset") != null) {
-//                portOffset = Integer.parseInt(System.getProperty("portOffset"));
+//            if (System.getElement("portOffset") != null) {
+//                portOffset = Integer.parseInt(System.getElement("portOffset"));
 //            }
 //        }
 //
