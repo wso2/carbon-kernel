@@ -82,7 +82,7 @@ public class CarbonRuntimeService implements RuntimeService {
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */
     @Override
-    public void endMaintenance() {
+    public void endMaintenance() throws RuntimeServiceException {
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
             runtime.stopMaintenance();
