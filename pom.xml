@@ -50,6 +50,45 @@
 			</releases>
 		</repository>
    </repositories> 
+   
+   <pluginRepositories>
+        <pluginRepository>
+            <id>wso2.releases</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </pluginRepository>
+        
+        <pluginRepository>
+            <id>wso2.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository> 
+        
+        <pluginRepository>
+			<id>wso2-nexus</id>
+			<name>WSO2 internal Repository</name>
+			<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
+		</pluginRepository>
+        
+   </pluginRepositories>
+
 
    <distributionManagement>
 	<repository>
@@ -89,6 +128,16 @@
                 <module>features</module>
                 <module>samples</module>
                 <module>distribution</module>
+            </modules>
+        </profile>
+         <profile>
+            <id>maven-release</id>
+            <modules>
+                <module>service-stubs</module>
+                <module>parent</module>
+                <module>core</module>
+                <module>features</module>
+                <module>samples</module>
             </modules>
         </profile>
         <profile>
