@@ -25,8 +25,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.clustering.ClusterConfiguration;
+import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.hazelcast.wka.WKAConstants;
+import org.wso2.carbon.clustering.internal.DataHolder;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -71,7 +73,8 @@ public final class MemberUtils {
 
     public static ClusterMember getLocalMember(String domain,
                                                String localMemberHost,
-                                               int localMemberPort) {
+                                               int localMemberPort,
+                                               ClusterContext clusterContext) {
         ClusterMember member =  new ClusterMember(localMemberHost, localMemberPort);
         Properties memberInfo = new Properties();
 
@@ -105,7 +108,7 @@ public final class MemberUtils {
         if (localMemberHost != null) {
             memberInfo.setProperty("hostName", localMemberHost);
         }
-        ClusterConfiguration clusterConfiguration = ClusterConfiguration.getInstance();
+        ClusterConfiguration clusterConfiguration = clusterContext.getClusterConfiguration();
         List<Object> propsParam = clusterConfiguration.getElement("properties");
         if (propsParam != null) {
             for (Object property : propsParam) {

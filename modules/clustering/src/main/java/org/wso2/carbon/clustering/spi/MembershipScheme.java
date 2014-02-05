@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.clustering.spi;
 
+import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 
@@ -27,9 +28,11 @@ public interface MembershipScheme {
     /**
      * Initialize this membership scheme
      *
+     * @param clusterContext the cluster context to be used within the membership scheme
      * @throws MembershipInitializationException If an error occurs while initializing
      */
-    void init() throws MembershipInitializationException;
+    void init(ClusterContext clusterContext) throws MembershipInitializationException;
+
 
     /**
      * JOIN the group

@@ -36,25 +36,6 @@ public class ClusterConfiguration {
     private Map<String, List<Object>> configuration = new HashMap<String, List<Object>>();
     private boolean isInitialized;
 
-    /**
-     * Stores the singleton server configuration instance.
-     */
-    private static ClusterConfiguration instance = new ClusterConfiguration();
-
-    /**
-     * Method to retrieve an instance of the server configuration.
-     *
-     * @return instance of the server configuration
-     */
-    public static ClusterConfiguration getInstance() {
-        // Need permissions in order to instantiate ServerConfiguration
-        return instance;
-    }
-
-    // Private constructor preventing creation of duplicate instances.
-
-    private ClusterConfiguration() {
-    }
 
     /**
      * This initializes the server configuration. This method should only be

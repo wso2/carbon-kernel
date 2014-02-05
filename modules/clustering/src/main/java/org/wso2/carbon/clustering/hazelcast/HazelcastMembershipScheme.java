@@ -19,6 +19,7 @@ package org.wso2.carbon.clustering.hazelcast;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
+import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.spi.MembershipScheme;
 
 /**
@@ -30,5 +31,4 @@ public interface HazelcastMembershipScheme extends MembershipScheme {
 
     void setLocalMember(Member localMember);
 
-    void setCarbonCluster(HazelcastCarbonCluster hazelcastCarbonCluster);
 }

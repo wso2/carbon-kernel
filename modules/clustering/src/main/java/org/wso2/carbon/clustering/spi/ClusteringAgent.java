@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.clustering.spi;
 
+import org.wso2.carbon.clustering.ClusterConfiguration;
+import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
@@ -31,7 +33,7 @@ public interface ClusteringAgent {
     /**
      * Initialize the agent which will initialize this node, and join the cluster
      */
-    void init() throws ClusterInitializationException;
+    void init(ClusterContext clusterContext) throws ClusterInitializationException;
 
     /**
      * Shutdown the agent which will remove this node from cluster
