@@ -30,12 +30,12 @@ import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterConfiguration;
+import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
-import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
-import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
+import org.wso2.carbon.clustering.CarbonCluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
@@ -58,15 +58,10 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     private IMap<String, ClusterMember> allMembers;
     private volatile HazelcastInstance primaryHazelcastInstance;
     private com.hazelcast.core.Member localMember;
-    private HazelcastCarbonCluster carbonCluster;
+    private ClusterContext clusterContext;
 
     public void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance) {
         this.primaryHazelcastInstance = primaryHazelcastInstance;
-    }
-
-    @Override
-    public void setCarbonCluster(HazelcastCarbonCluster hazelcastCarbonCluster) {
-        this.carbonCluster = hazelcastCarbonCluster;
     }
 
     @Override
@@ -74,12 +69,10 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
         this.localMember = localMember;
     }
 
-    public WKABasedMembershipScheme(ClusterConfiguration clusterConfiguration,
-                                    String primaryDomain,
+    public WKABasedMembershipScheme(String primaryDomain,
                                     List<ClusterMember> wkaMembers,
                                     Config config,
                                     List<ClusterMessage> messageBuffer) {
-        this.clusterConfiguration = clusterConfiguration;
         this.primaryDomain = primaryDomain;
         this.wkaMembers = wkaMembers;
         this.messageBuffer = messageBuffer;
@@ -87,7 +80,9 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     }
 
     @Override
-    public void init() throws MembershipInitializationException {
+    public void init(ClusterContext clusterContext) throws MembershipInitializationException {
+        this.clusterContext = clusterContext;
+        this.clusterConfiguration = clusterContext.getClusterConfiguration();
         try {
             nwConfig.getJoin().getMulticastConfig().setEnabled(false);
             TcpIpConfig tcpIpConfig = nwConfig.getJoin().getTcpIpConfig();
@@ -148,8 +143,8 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
             if (primaryHazelcastInstance.getCluster().getLocalMember().equals(member)) {
                 return;
             }
-            carbonCluster.addMember(HazelcastUtil.toClusterMember(member));
-            HazelcastUtil.sendMessagesToMember(messageBuffer, member, carbonCluster);
+            clusterContext.addMember(HazelcastUtil.toClusterMember(member));
+            HazelcastUtil.sendMessagesToMember(messageBuffer, member);
             logger.info("Member joined [" + member.getUuid() + "]: " +
                      member.getInetSocketAddress().toString());
         }
@@ -175,7 +170,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
                     break;
                 }
             }
-            carbonCluster.removeMember(HazelcastUtil.toClusterMember(hazelcastMember));
+            clusterContext.removeMember(HazelcastUtil.toClusterMember(hazelcastMember));
             if (!isWKAMember) {
                 allMembers.remove(uuid);
             }

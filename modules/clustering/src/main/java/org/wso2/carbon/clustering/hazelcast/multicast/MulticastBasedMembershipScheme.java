@@ -25,11 +25,10 @@ import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterConfiguration;
+import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
-import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
-import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
@@ -46,22 +45,22 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     private String primaryDomain;
     private MulticastConfig config;
     private final List<ClusterMessage> messageBuffer;
-    private HazelcastCarbonCluster carbonCluster;
+    private ClusterContext clusterContext;
     private HazelcastInstance primaryHazelcastInstance;
 
-    public MulticastBasedMembershipScheme(ClusterConfiguration clusterConfiguration,
-                                          String primaryDomain,
+    public MulticastBasedMembershipScheme(String primaryDomain,
                                           MulticastConfig config,
                                           List<ClusterMessage> messageBuffer) {
-        this.clusterConfiguration = clusterConfiguration;
         this.primaryDomain = primaryDomain;
         this.config = config;
         this.messageBuffer = messageBuffer;
     }
 
     @Override
-    public void init() {
+    public void init(ClusterContext clusterContext) {
         config.setEnabled(true);
+        this.clusterContext = clusterContext;
+        this.clusterConfiguration = clusterContext.getClusterConfiguration();
         configureMulticastParameters();
     }
 
@@ -109,11 +108,6 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
         // Nothing to do
     }
 
-    @Override
-    public void setCarbonCluster(HazelcastCarbonCluster hazelcastCarbonCluster) {
-        this.carbonCluster = hazelcastCarbonCluster;
-    }
-
     private class MulticastMembershipListener implements MembershipListener {
         private Map<String, ClusterMember> members;
 
@@ -126,7 +120,7 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
             Member member = membershipEvent.getMember();
 
             // send all cluster messages
-            carbonCluster.addMember(HazelcastUtil.toClusterMember(member));
+            clusterContext.addMember(HazelcastUtil.toClusterMember(member));
             logger.info("Member joined [" + member.getUuid() + "]: " + member.
                     getInetSocketAddress().toString());
             // Wait for sometime for the member to completely join before replaying messages
@@ -134,13 +128,13 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
                 Thread.sleep(5000);
             } catch (InterruptedException ignored) {
             }
-            HazelcastUtil.sendMessagesToMember(messageBuffer, member, carbonCluster);
+            HazelcastUtil.sendMessagesToMember(messageBuffer, member);
         }
 
         @Override
         public void memberRemoved(MembershipEvent membershipEvent) {
             Member member = membershipEvent.getMember();
-            carbonCluster.removeMember(HazelcastUtil.toClusterMember(member));
+            clusterContext.removeMember(HazelcastUtil.toClusterMember(member));
             logger.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().
                     toString());
             members.remove(member.getUuid());

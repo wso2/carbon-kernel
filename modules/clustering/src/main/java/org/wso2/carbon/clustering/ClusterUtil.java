@@ -78,30 +78,6 @@ public class ClusterUtil {
         return text;
     }
 
-
-    public static boolean shouldInitialize(String agentName) {
-        boolean initialize = false;
-        try {
-            String carbonHome = System.getProperty("carbon.home");
-            String clusterXmlLocation = carbonHome + File.separator + "repository" +
-                                        File.separator + "conf" + File.separator + "cluster.xml";
-            File xmlFile = new File(clusterXmlLocation);
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-
-            String clusterAgent = doc.getDocumentElement().getAttribute("agent");
-            boolean isEnabled = Boolean.parseBoolean(doc.getDocumentElement().
-                    getAttribute("enable"));
-
-            if (clusterAgent != null && agentName.equals(clusterAgent) && isEnabled) {
-                initialize = true;
-            }
-        } catch (Exception e) {
-            logger.error("Error while loading cluster configuration file", e);
-        }
-        return initialize;
-    }
-
     public static String getIpAddress() throws SocketException {
         Enumeration e = NetworkInterface.getNetworkInterfaces();
         String address = "127.0.0.1";

@@ -20,7 +20,8 @@ package org.wso2.carbon.clustering.hazelcast.util;
 import com.hazelcast.core.Member;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
-import org.wso2.carbon.clustering.hazelcast.HazelcastCarbonCluster;
+import org.wso2.carbon.clustering.CarbonCluster;
+import org.wso2.carbon.clustering.internal.DataHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,8 @@ public class HazelcastUtil {
      * Replay messages to a newly joining member
      */
     public static void sendMessagesToMember(List<ClusterMessage> messageBuffer,
-                                            Member member,
-                                            HazelcastCarbonCluster carbonCluster){
+                                            Member member){
+        CarbonCluster carbonCluster = DataHolder.getInstance().getCarbonCluster();
         for (ClusterMessage clusterMessage : messageBuffer) {
             ArrayList<ClusterMember> members = new ArrayList<ClusterMember>();
             members.add(HazelcastUtil.toClusterMember(member));
