@@ -19,8 +19,6 @@
 
 package org.wso2.carbon.runtime;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.runtime.api.RuntimeService;
@@ -73,7 +71,7 @@ public class CarbonRuntimeService implements RuntimeService {
     public void beginMaintenance() throws RuntimeServiceException {
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
-            runtime.startMaintenance();
+            runtime.beginMaintenance();
         }
     }
 
@@ -85,7 +83,7 @@ public class CarbonRuntimeService implements RuntimeService {
     public void endMaintenance() {
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
-            runtime.stopMaintenance();
+            runtime.endMaintenance();
         }
     }
 

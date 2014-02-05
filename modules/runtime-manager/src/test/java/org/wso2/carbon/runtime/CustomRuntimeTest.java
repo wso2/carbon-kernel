@@ -33,13 +33,13 @@ public class CustomRuntimeTest {
 
     @Test(dependsOnMethods = {"dependsOnMethods"})
     public void testRuntimeStartMaintenance() throws RuntimeServiceException {
-        customRuntime.startMaintenance();
+        customRuntime.beginMaintenance();
         Assert.assertEquals(customRuntime.getState(), RuntimeState.INACTIVE);
     }
 
     @Test(dependsOnMethods = {"dependsOnMethods"})
     public void testRuntimeStopMaintenance() throws RuntimeServiceException {
-        customRuntime.stopMaintenance();
+        customRuntime.endMaintenance();
         Assert.assertEquals(customRuntime.getState(), RuntimeState.INACTIVE);
     }
 

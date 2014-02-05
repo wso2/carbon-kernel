@@ -31,13 +31,13 @@ public class CustomRuntime implements Runtime {
     }
 
     @Override
-    public void startMaintenance() {
+    public void beginMaintenance() {
         log.info("Stopping Runtime");
         state = RuntimeState.MAINTENANCE;
     }
 
     @Override
-    public void stopMaintenance() {
+    public void endMaintenance() {
         log.info("Stopping Runtime");
         state = RuntimeState.INACTIVE;
     }

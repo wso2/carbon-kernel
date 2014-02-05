@@ -56,14 +56,14 @@ public interface Runtime {
      *
      * This will contain all the code that need to be called when runtime starting its MAINTENANCE state
      */
-    void startMaintenance();
+    void beginMaintenance();
 
     /**
      * Put the Runtime into INACTIVE state form MAINTENANCE state
      *
      * This will contain all the code that need to be called when runtime stops its maintenance mode
      */
-    void stopMaintenance();
+    void endMaintenance();
 
     /**
      * Return the current state of the runtime
