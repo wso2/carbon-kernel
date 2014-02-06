@@ -7,9 +7,11 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.CarbonCluster;
+import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.api.Cluster;
@@ -40,21 +42,36 @@ public class CarbonClusterServiceComponent {
     private static Logger logger = LoggerFactory.getLogger(CarbonClusterServiceComponent.class);
 
     private DataHolder dataHolder = DataHolder.getInstance();
-    private ClusterContext clusterContext = DataHolder.getInstance().getClusterContext();
+    private ClusterContext clusterContext;
     private ServiceRegistration serviceRegistration;
     private String clusteringAgentType;
+    private BundleContext bundleContext;
+    private ClusteringAgent clusteringAgent;
+
+    public CarbonClusterServiceComponent() {
+        clusterContext = new ClusterContext(new ClusterConfiguration());
+    }
 
     @Activate
-    protected void start() {
+    protected void start(ComponentContext componentContext) {
+        bundleContext = componentContext.getBundleContext();
+        dataHolder.setBundleContext(bundleContext);
+        if (clusteringAgent != null) {
+            initializeCluster(clusteringAgent);
+        }
     }
 
     protected void setClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
         String registeredAgentType = (String) ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
-        if (clusterContext.shouldInitialize(registeredAgentType)) {
-            initializeCluster(clusteringAgent);
+        if (registeredAgentType != null && clusterContext.shouldInitialize(registeredAgentType)) {
+            if (bundleContext != null) {
+                initializeCluster(clusteringAgent);
+            } else {
+                this.clusteringAgent = clusteringAgent;
+            }
             clusteringAgentType = registeredAgentType;
         } else {
-            logger.error("Unsupported clustering agent type {}", registeredAgentType);
+            logger.error("Unsupported clustering agent type : {}", registeredAgentType);
         }
     }
 
@@ -73,9 +90,7 @@ public class CarbonClusterServiceComponent {
 
             // Initialize and register carbon cluster service
             CarbonCluster carbonCluster = new CarbonCluster(clusteringAgent);
-            BundleContext bundleContext = dataHolder.getBundleContext();
-            serviceRegistration = bundleContext.registerService(Cluster.class,
-                                                                carbonCluster, null);
+            serviceRegistration = bundleContext.registerService(Cluster.class, carbonCluster, null);
             dataHolder.setCarbonCluster(carbonCluster);
         } catch (ClusterInitializationException e) {
             logger.error("Error while initializing cluster", e);

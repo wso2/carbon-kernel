@@ -55,9 +55,6 @@
                     <instructions>
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Activator>
-                            org.wso2.carbon.clustering.internal.CarbonClusterBundleActivator
-                        </Bundle-Activator>
                         <Private-Package>
                             org.wso2.carbon.clustering.internal
                         </Private-Package>
@@ -68,6 +65,7 @@
                         <Import-Package>
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
                             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+                            org.osgi.service.component.*;version="[1.0.0, 2.0.0)",
                             org.wso2.carbon.base.*;version="${carbon.kernel.package.import.version.range}",
                             com.hazelcast.core.*,
                             com.hazelcast.config.*,
