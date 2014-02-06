@@ -27,6 +27,9 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterConfiguration;
@@ -62,10 +65,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * This is the main ClusteringAgent class which is based on Hazelcast
- */
-
+@Component (
+        name = "org.wso2.carbon.clustering.hazelcast.HazelCastClusteringAgentServiceComponent",
+        description = "The main ClusteringAgent class which is based on Hazelcast",
+        immediate = true
+)
+@Service
+@Property (name = "agentType", value = "hazelcast")
 public class HazelcastClusteringAgent implements ClusteringAgent {
     private static Logger logger = LoggerFactory.getLogger(HazelcastClusteringAgent.class);
 

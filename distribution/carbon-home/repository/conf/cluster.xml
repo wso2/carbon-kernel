@@ -1,4 +1,4 @@
-<cluster agent="hazelcast" enable="false">
+<cluster agentType="hazelcast" enable="false">
     <!--
        The membership scheme used in this setup. The only values supported at the moment are
        "multicast" and "wka"
