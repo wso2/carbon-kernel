@@ -20,7 +20,6 @@
 package org.wso2.carbon.runtime;
 
 import org.testng.Assert;
-import org.testng.TestException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.runtime.exception.RuntimeServiceException;
@@ -48,16 +47,51 @@ public class RuntimeServiceTest {
         }
     }
 
-//    @Test(dependsOnMethods = {"testBeforeInitRuntime"}, description = "Start runtime before init", expectedExceptions = TestException.class)
-//    public void testStartBeforeInitRuntime() throws RuntimeServiceException {
-//        try {
-//            customRuntimeService.startRuntimes();
-//        } catch (RuntimeException e) {
-//
-//        }
-//    }
-
     @Test(dependsOnMethods = {"testBeforeInitRuntime"})
+    public void testStartBeforeInitRuntime() {
+        boolean serverStarted = false;
+        try {
+            customRuntimeService.startRuntimes();
+            serverStarted = true;
+        } catch (RuntimeServiceException e) {
+            Assert.assertFalse(serverStarted);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testStartBeforeInitRuntime"})
+    public void testStopBeforeInitRuntime() {
+        boolean serverStopped = false;
+        try {
+            customRuntimeService.stopRuntimes();
+            serverStopped = true;
+        } catch (RuntimeServiceException e) {
+            Assert.assertFalse(serverStopped);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testStopBeforeInitRuntime"})
+    public void testBeginMaintenanceBeforeInitRuntime() {
+        boolean startMaintenance = false;
+        try {
+            customRuntimeService.beginMaintenance();
+            startMaintenance = true;
+        } catch (RuntimeServiceException e) {
+            Assert.assertFalse(startMaintenance);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testBeginMaintenanceBeforeInitRuntime"})
+    public void testEndMaintenanceBeforeInitRuntime() {
+        boolean endMaintenance = false;
+        try {
+            customRuntimeService.endMaintenance();
+            endMaintenance = true;
+        } catch (RuntimeServiceException e) {
+            Assert.assertFalse(endMaintenance);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testStartBeforeInitRuntime"})
     public void testInitRuntime() {
         try {
             for (Runtime runtime : runtimeManager.getRuntimeList()) {
@@ -82,6 +116,17 @@ public class RuntimeServiceTest {
     }
 
     @Test(dependsOnMethods = {"testStartRuntime"})
+    public void testStartOnAlreadyStartedRuntime() {
+        boolean serverStarted = false;
+        try {
+            customRuntimeService.startRuntimes();
+            serverStarted = true;
+        } catch (RuntimeServiceException e) {
+            Assert.assertFalse(serverStarted);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testStartRuntime"})
     public void testBeginMaintenance() {
         try {
             customRuntimeService.beginMaintenance();
@@ -94,6 +139,17 @@ public class RuntimeServiceTest {
     }
 
     @Test(dependsOnMethods = {"testBeginMaintenance"})
+    public void testStartOnMaintenanceRuntime() {
+        boolean serverStarted = false;
+        try {
+            customRuntimeService.startRuntimes();
+            serverStarted = true;
+        } catch (RuntimeServiceException e) {
+            Assert.assertFalse(serverStarted);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testStartOnMaintenanceRuntime"})
     public void testEndMaintenance() {
         try {
             customRuntimeService.endMaintenance();
