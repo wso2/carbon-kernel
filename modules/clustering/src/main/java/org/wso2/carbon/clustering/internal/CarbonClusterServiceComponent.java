@@ -2,94 +2,92 @@ package org.wso2.carbon.clustering.internal;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.CarbonCluster;
 import org.wso2.carbon.clustering.ClusterContext;
-import org.wso2.carbon.clustering.api.MembershipListener;
+import org.wso2.carbon.clustering.ClusteringConstants;
+import org.wso2.carbon.clustering.api.Cluster;
+import org.wso2.carbon.clustering.exception.ClusterInitializationException;
+import org.wso2.carbon.clustering.spi.ClusteringAgent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
-@Component (
+
+@Component(
         name = "org.wso2.carbon.clustering.internal.CarbonClusterServiceComponent",
-        description = "This service  component is responsible for retrieving the MembershipListener " +
-                      "OSGi service and add them to clustering module",
+        description = "This service  component is responsible for retrieving the ClusteringAgent " +
+                      "OSGi service and initialize the cluster",
         immediate = true
 )
 
+@Reference(
+        name = "carbon.clustering.agent.service.listener",
+        referenceInterface = ClusteringAgent.class,
+        cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+        policy = ReferencePolicy.DYNAMIC,
+        bind = "setClusteringAgent",
+        unbind = "unsetClusteringAgent"
+)
+
 public class CarbonClusterServiceComponent {
+
     private static Logger logger = LoggerFactory.getLogger(CarbonClusterServiceComponent.class);
-    private boolean isClusterContextAvailable = false;
-    private List<MembershipListener> membershipListeners = new ArrayList<>();
 
-    @Reference (
-            name = "carbon.cluster.context.listener",
-            referenceInterface = ClusterContext.class,
-            cardinality = ReferenceCardinality.MANDATORY_UNARY,
-            policy = ReferencePolicy.STATIC,
-            bind = "setClusterContext",
-            unbind = "unsetClusterContext"
-    )
-    private ClusterContext clusterContext;
-
-    @Reference (
-            name = "carbon.cluster.membership.listener",
-            referenceInterface = MembershipListener.class,
-            cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-            policy = ReferencePolicy.DYNAMIC,
-            bind = "addMembershipListener",
-            unbind = "removeMembershipListener"
-    )
-    private MembershipListener membershipListener;
+    private DataHolder dataHolder = DataHolder.getInstance();
+    private ClusterContext clusterContext = DataHolder.getInstance().getClusterContext();
+    private ServiceRegistration serviceRegistration;
+    private String clusteringAgentType;
 
     @Activate
     protected void start() {
-        if (!membershipListeners.isEmpty()) {
-            for (MembershipListener listener : membershipListeners) {
-                clusterContext.addMembershipListener(listener);
-            }
-        }
     }
 
-    @Deactivate
-    protected void stop() {
-        if (!membershipListeners.isEmpty()) {
-            for (MembershipListener listener : membershipListeners) {
-                clusterContext.removeMembershipListener(listener);
-            }
-        }
-    }
-
-    protected void setClusterContext(ClusterContext clusterContext) {
-        this.clusterContext = clusterContext;
-        isClusterContextAvailable = true;
-    }
-
-    protected void unsetClusterContext(ClusterContext clusterContext) {
-        this.clusterContext = null;
-        isClusterContextAvailable = false;
-    }
-
-    protected void addMembershipListener(MembershipListener membershipListener) {
-        if (isClusterContextAvailable) {
-            logger.info("Adding MembershipListener");
-            clusterContext.addMembershipListener(membershipListener);
+    protected void setClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
+        String registeredAgentType = (String) ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
+        if (clusterContext.shouldInitialize(registeredAgentType)) {
+            initializeCluster(clusteringAgent);
+            clusteringAgentType = registeredAgentType;
         } else {
-            membershipListeners.add(membershipListener);
+            logger.error("Unsupported clustering agent type {}", registeredAgentType);
         }
     }
 
-    protected void removeMembershipListener(MembershipListener membershipListener) {
-        if (isClusterContextAvailable) {
-            logger.info("Removing MembershipListener");
-            clusterContext.removeMembershipListener(membershipListener);
-        } else {
-            membershipListeners.remove(membershipListener);
+    protected void unsetClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
+        String registeredAgentType = (String) ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
+        if (clusteringAgentType.equals(registeredAgentType)) {
+            terminateCluster(clusteringAgent);
+        }
+    }
+
+    private void initializeCluster(ClusteringAgent clusteringAgent) {
+        try {
+            // Initialize the clustering agent
+            logger.info("Initializing clustering agent");
+            clusteringAgent.init(clusterContext);
+
+            // Initialize and register carbon cluster service
+            CarbonCluster carbonCluster = new CarbonCluster(clusteringAgent);
+            BundleContext bundleContext = dataHolder.getBundleContext();
+            serviceRegistration = bundleContext.registerService(Cluster.class,
+                                                                carbonCluster, null);
+            dataHolder.setCarbonCluster(carbonCluster);
+        } catch (ClusterInitializationException e) {
+            logger.error("Error while initializing cluster", e);
+        }
+    }
+
+    private void terminateCluster(ClusteringAgent clusteringAgent) {
+        try {
+            logger.info("Shutting down clustering agent");
+            serviceRegistration.unregister();
+            clusteringAgent.shutdown();
+        } catch (Exception ignore) {
         }
     }
 }

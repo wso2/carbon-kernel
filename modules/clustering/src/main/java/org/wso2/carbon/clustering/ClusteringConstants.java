@@ -28,6 +28,8 @@ public final class ClusteringConstants {
     private ClusteringConstants() {
     }
 
+    public static final String CLUSTER_AGENT_TYPE = "agentType";
+
     /**
      * The default domain to which this member belongs to. This node may be running in application
      * or loadBalance mode

@@ -58,7 +58,7 @@ public class ClusterContext {
         return clusterConfiguration;
     }
 
-    public boolean shouldInitialize(String agentName) {
+    public boolean shouldInitialize(String agentType) {
         boolean initialize = false;
         try {
             String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
@@ -68,11 +68,12 @@ public class ClusterContext {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
 
-            String clusterAgent = doc.getDocumentElement().getAttribute("agent");
+            String clusterAgent = doc.getDocumentElement().
+                    getAttribute(ClusteringConstants.CLUSTER_AGENT_TYPE);
             boolean isEnabled = Boolean.parseBoolean(doc.getDocumentElement().
                     getAttribute("enable"));
 
-            if (clusterAgent != null && agentName.equals(clusterAgent) && isEnabled) {
+            if (clusterAgent != null && agentType.equals(clusterAgent) && isEnabled) {
                 try {
                     clusterConfiguration.build();
                     initialize = true;
