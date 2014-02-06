@@ -25,16 +25,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.runtime.RuntimeManager;
 
-public class RuntimeActivator  implements BundleActivator {
+public class RuntimeActivator implements BundleActivator {
 
     private static Logger logger = LoggerFactory.getLogger(RuntimeActivator.class);
 
 
     public void start(BundleContext bundleContext) throws Exception {
-            logger.debug("Starting Carbon Runtime Manager");
-            RuntimeManager runtimeManager = new RuntimeManager();
-            // Add runtime manager to the data holder for later usages/references of this object
-            DataHolder.getInstance().setRuntimeManager(runtimeManager);
+        logger.debug("Starting Carbon Runtime Manager");
+        RuntimeManager runtimeManager = new RuntimeManager();
+        // Add runtime manager to the data holder for later usages/references of this object
+        DataHolder.getInstance().setRuntimeManager(runtimeManager);
     }
 
     public void stop(BundleContext bundleContext) throws Exception {

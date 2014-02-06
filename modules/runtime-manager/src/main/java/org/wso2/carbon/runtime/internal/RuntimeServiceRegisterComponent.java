@@ -146,6 +146,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
     /**
      * Complete Runtime initialization if all required runtime get registered
      * Then the RuntimeService will be registered
+     *
      * @param bundleContext : bundle context object
      */
     private void completeRuntimeInitialization(BundleContext bundleContext) {

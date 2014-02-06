@@ -27,15 +27,16 @@ import org.wso2.carbon.runtime.RuntimeManager;
 
 public class DataHolder {
 
-    private  static DataHolder instance = new DataHolder();
+    private static DataHolder instance = new DataHolder();
     private RuntimeManager runtimeManager = null;
 
-    public  static DataHolder getInstance() {
+    public static DataHolder getInstance() {
         return instance;
     }
 
     /**
      * Getter method of RuntimeManager instance
+     *
      * @return
      */
     public RuntimeManager getRuntimeManager() {
@@ -44,6 +45,7 @@ public class DataHolder {
 
     /**
      * setter method of RuntimeManager
+     *
      * @param runtimeManager - RuntimeManager instance to be set
      */
     public void setRuntimeManager(RuntimeManager runtimeManager) {

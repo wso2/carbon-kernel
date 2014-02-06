@@ -50,23 +50,22 @@ public class CustomRuntimeTest {
         Assert.assertEquals(customRuntime.getState(), RuntimeState.ACTIVE);
     }
 
-    @Test(dependsOnMethods = {"dependsOnMethods"})
+    @Test(dependsOnMethods = {"testRuntimeStart"})
     public void testRuntimeStartMaintenance() throws RuntimeServiceException {
         customRuntime.beginMaintenance();
-        Assert.assertEquals(customRuntime.getState(), RuntimeState.INACTIVE);
+        Assert.assertEquals(customRuntime.getState(), RuntimeState.MAINTENANCE);
     }
 
-    @Test(dependsOnMethods = {"dependsOnMethods"})
+    @Test(dependsOnMethods = {"testRuntimeStartMaintenance"})
     public void testRuntimeStopMaintenance() throws RuntimeServiceException {
         customRuntime.endMaintenance();
         Assert.assertEquals(customRuntime.getState(), RuntimeState.INACTIVE);
     }
 
-    @Test(dependsOnMethods = {"dependsOnMethods"})
+    @Test(dependsOnMethods = {"testRuntimeStopMaintenance"})
     public void testRuntimeStop() throws RuntimeServiceException {
         customRuntime.stop();
-        Assert.assertEquals(customRuntime.getState(), RuntimeState.ACTIVE);
+        Assert.assertEquals(customRuntime.getState(), RuntimeState.INACTIVE);
     }
-
 
 }

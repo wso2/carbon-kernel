@@ -20,11 +20,12 @@
 package org.wso2.carbon.runtime.spi;
 
 import org.wso2.carbon.runtime.RuntimeState;
+import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 
 /**
  * This interface is used to plug custom runtime into carbon, by extending this interface you
  * can integrate your Runtime instance on carbon server
- *
+ * <p/>
  * A developer who wants to integrate a custom runtime should implement this.
  */
 
@@ -32,47 +33,49 @@ public interface Runtime {
 
     /**
      * Initialize the Runtime
-     *
+     * <p/>
      * This will contain all the code that need to be called when the runtime initialization
      */
-    void init();
+    void init() throws RuntimeServiceException;
 
     /**
      * Start the Runtime
-     *
+     * <p/>
      * This will contain all the code that need to be called during runtime start
      */
-    void start();
+    void start() throws RuntimeServiceException;
 
     /**
      * Stop the Runtime
-     *
+     * <p/>
      * This will contain all the code that need to be called when runtime need to be stopped
      */
-    void stop();
+    void stop() throws RuntimeServiceException;
 
     /**
      * Put the Runtime into maintenance mode
-     *
+     * <p/>
      * This will contain all the code that need to be called when runtime starting its MAINTENANCE state
      */
-    void beginMaintenance();
+    void beginMaintenance() throws RuntimeServiceException;
 
     /**
      * Put the Runtime into INACTIVE state form MAINTENANCE state
-     *
+     * <p/>
      * This will contain all the code that need to be called when runtime stops its maintenance mode
      */
-    void endMaintenance();
+    void endMaintenance() throws RuntimeServiceException;
 
     /**
      * Return the current state of the runtime
+     *
      * @return RuntimeState - current state
      */
     Enum<RuntimeState> getState();
 
     /**
      * Set current state of a runtime
+     *
      * @param runtimeState - new state
      */
     void setState(RuntimeState runtimeState);

@@ -33,6 +33,7 @@ public class RuntimeManager {
 
     /**
      * Register runtime instance on RuntimeManager
+     *
      * @param runtime - runtime to be registered
      */
     public void registerRuntime(Runtime runtime) {
@@ -41,6 +42,7 @@ public class RuntimeManager {
 
     /**
      * Un-register runtime instance on RuntimeManager
+     *
      * @param runtime - runtime to be un-registered
      */
     public void unRegisterRuntime(Runtime runtime) {
@@ -49,6 +51,7 @@ public class RuntimeManager {
 
     /**
      * Return registered runtime list
+     *
      * @return
      */
     public List<Runtime> getRuntimeList() {

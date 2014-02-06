@@ -45,6 +45,7 @@ public class RuntimeServiceListenerComponent {
 
     /**
      * Register the runtime instance
+     *
      * @param runtime - runtime instance
      */
     protected void registerRuntime(Runtime runtime) {
@@ -57,6 +58,7 @@ public class RuntimeServiceListenerComponent {
 
     /**
      * Un-register the runtime instance
+     *
      * @param runtime - runtime instance
      */
     protected void unRegisterRuntime(Runtime runtime) {

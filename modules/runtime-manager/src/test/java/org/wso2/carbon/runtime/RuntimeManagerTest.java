@@ -19,5 +19,38 @@
 
 package org.wso2.carbon.runtime;
 
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import org.wso2.carbon.runtime.exception.RuntimeServiceException;
+import org.wso2.carbon.runtime.runtime.CustomRuntime;
+import org.wso2.carbon.runtime.spi.*;
+import org.wso2.carbon.runtime.spi.Runtime;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class RuntimeManagerTest {
+    RuntimeManager runtimeManager;
+    CustomRuntime customRuntime;
+    private List<Runtime> runtimeList = new ArrayList<Runtime>();
+
+    @BeforeTest
+    public void setup() throws RuntimeServiceException {
+        customRuntime = new CustomRuntime();
+        runtimeManager = new RuntimeManager();
+    }
+
+    @Test
+    public void testRegisterRuntime() {
+        runtimeManager.registerRuntime(customRuntime);
+        Assert.assertEquals(1, runtimeManager.getRuntimeList().size());
+    }
+
+    @Test(dependsOnMethods = {"testRegisterRuntime"})
+    public void testUnRegisterRuntime() {
+        runtimeManager.unRegisterRuntime(customRuntime);
+        Assert.assertEquals(0, runtimeManager.getRuntimeList().size());
+    }
+
 }

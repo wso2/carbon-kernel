@@ -19,18 +19,102 @@
 
 package org.wso2.carbon.runtime;
 
+import org.testng.Assert;
+import org.testng.TestException;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 import org.wso2.carbon.runtime.runtime.CustomRuntime;
+import org.wso2.carbon.runtime.service.CustomRuntimeService;
+import org.wso2.carbon.runtime.spi.Runtime;
 
-public class RuntimeServiceTest extends CarbonRuntimeService {
-
-    public RuntimeServiceTest(RuntimeManager runtimeManager) {
-        super(runtimeManager);
-    }
+public class RuntimeServiceTest {
+    CustomRuntime customRuntime;
+    RuntimeManager runtimeManager;
+    CustomRuntimeService customRuntimeService;
 
     @BeforeTest
     public void setup() {
-        CustomRuntime customRuntime = new CustomRuntime();
+        customRuntime = new CustomRuntime();
+        runtimeManager = new RuntimeManager();
+        runtimeManager.registerRuntime(customRuntime);
+        customRuntimeService = new CustomRuntimeService(runtimeManager);
+    }
+
+    @Test
+    public void testBeforeInitRuntime() {
+        for (Runtime runtime : runtimeManager.getRuntimeList()) {
+            Assert.assertEquals(RuntimeState.PENDING, runtime.getState());
+        }
+    }
+
+//    @Test(dependsOnMethods = {"testBeforeInitRuntime"}, description = "Start runtime before init", expectedExceptions = TestException.class)
+//    public void testStartBeforeInitRuntime() throws RuntimeServiceException {
+//        try {
+//            customRuntimeService.startRuntimes();
+//        } catch (RuntimeException e) {
+//
+//        }
+//    }
+
+    @Test(dependsOnMethods = {"testBeforeInitRuntime"})
+    public void testInitRuntime() {
+        try {
+            for (Runtime runtime : runtimeManager.getRuntimeList()) {
+                runtime.init();
+                Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
+            }
+        } catch (RuntimeServiceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(dependsOnMethods = {"testInitRuntime"})
+    public void testStartRuntime() {
+        try {
+            customRuntimeService.startRuntimes();
+            for (Runtime runtime : runtimeManager.getRuntimeList()) {
+                Assert.assertEquals(RuntimeState.ACTIVE, runtime.getState());
+            }
+        } catch (RuntimeServiceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(dependsOnMethods = {"testStartRuntime"})
+    public void testBeginMaintenance() {
+        try {
+            customRuntimeService.beginMaintenance();
+            for (Runtime runtime : runtimeManager.getRuntimeList()) {
+                Assert.assertEquals(RuntimeState.MAINTENANCE, runtime.getState());
+            }
+        } catch (RuntimeServiceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(dependsOnMethods = {"testBeginMaintenance"})
+    public void testEndMaintenance() {
+        try {
+            customRuntimeService.endMaintenance();
+            for (Runtime runtime : runtimeManager.getRuntimeList()) {
+                Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
+            }
+        } catch (RuntimeServiceException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test(dependsOnMethods = {"testEndMaintenance"})
+    public void testEndRuntime() {
+        try {
+            customRuntimeService.stopRuntimes();
+            for (Runtime runtime : runtimeManager.getRuntimeList()) {
+                Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
+            }
+        } catch (RuntimeServiceException e) {
+            e.printStackTrace();
+        }
     }
 
 }

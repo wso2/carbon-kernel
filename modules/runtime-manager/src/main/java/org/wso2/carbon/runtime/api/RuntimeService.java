@@ -30,24 +30,28 @@ public interface RuntimeService {
 
     /**
      * Users can call this method to start all registered runtime
+     *
      * @throws RuntimeServiceException - on error while starting registered runtime
      */
     void startRuntimes() throws RuntimeServiceException;
 
     /**
      * Users can call this method to stop all registered runtime
+     *
      * @throws RuntimeServiceException
      */
     void stopRuntimes() throws RuntimeServiceException;
 
     /**
      * Users can call this method to put all registered runtime into MAINTENANCE state
+     *
      * @throws RuntimeServiceException
      */
     void beginMaintenance() throws RuntimeServiceException;
 
     /**
      * Users can call this method to put all registered runtime into INACTIVE state
+     *
      * @throws RuntimeServiceException
      */
     void endMaintenance() throws RuntimeServiceException;

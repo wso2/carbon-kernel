@@ -41,49 +41,73 @@ public class CarbonRuntimeService implements RuntimeService {
 
     /**
      * Starts registered runtime
+     *
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */
     @Override
     public void startRuntimes() throws RuntimeServiceException {
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
-            runtime.start();
+            if (runtime.getState() == RuntimeState.INACTIVE) {
+                runtime.start();
+            } else if (runtime.getState() == RuntimeState.PENDING) {
+                throw new RuntimeServiceException("Runtime not initialized." + runtime.getClass().getName());
+            } else if (runtime.getState() == RuntimeState.MAINTENANCE) {
+                throw new RuntimeServiceException("Runtime is in maintenance mode." + runtime.getClass().getName());
+            } else {
+                logger.error("Runtime already started : " + runtime.getClass().getName());
+            }
         }
     }
 
     /**
      * Stops registered runtime
+     *
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */
     @Override
     public void stopRuntimes() throws RuntimeServiceException {
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
-            runtime.stop();
+            if (runtime.getState() == RuntimeState.PENDING) {
+                throw new RuntimeServiceException("Runtime not initialized." + runtime.getClass().getName());
+            } else {
+                runtime.stop();
+            }
         }
     }
 
     /**
      * Puts registered runtime into MAINTENANCE state
+     *
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */
     @Override
     public void beginMaintenance() throws RuntimeServiceException {
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
-            runtime.beginMaintenance();
+            if (runtime.getState() == RuntimeState.PENDING) {
+                throw new RuntimeServiceException("Runtime not initialized." + runtime.getClass().getName());
+            } else {
+                runtime.beginMaintenance();
+            }
         }
     }
 
     /**
      * Puts registered runtime into MAINTENANCE state
+     *
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */
     @Override
     public void endMaintenance() throws RuntimeServiceException {
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
-            runtime.endMaintenance();
+            if (runtime.getState() == RuntimeState.PENDING) {
+                throw new RuntimeServiceException("Runtime not initialized." + runtime.getClass().getName());
+            } else {
+                runtime.endMaintenance();
+            }
         }
     }
 

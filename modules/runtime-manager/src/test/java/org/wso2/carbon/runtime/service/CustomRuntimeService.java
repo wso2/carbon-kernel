@@ -25,38 +25,29 @@ import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 import org.wso2.carbon.runtime.spi.Runtime;
 
 public class CustomRuntimeService extends CarbonRuntimeService {
-    RuntimeManager runtimeManager;
+//    CarbonRuntimeService carbonRuntimeService;
 
     public CustomRuntimeService(RuntimeManager runtimeManager) {
         super(runtimeManager);
-        this.runtimeManager = runtimeManager;
     }
 
     @Override
     public void startRuntimes() throws RuntimeServiceException {
-        for (Runtime runtime : runtimeManager.getRuntimeList()) {
-            runtime.start();
-        }
+        super.startRuntimes();
     }
 
     @Override
     public void stopRuntimes() throws RuntimeServiceException {
-        for (Runtime runtime : runtimeManager.getRuntimeList()) {
-            runtime.stop();
-        }
+        super.stopRuntimes();
     }
 
     @Override
     public void beginMaintenance() throws RuntimeServiceException {
-        for (Runtime runtime : runtimeManager.getRuntimeList()) {
-            runtime.startMaintenance();
-        }
+        super.beginMaintenance();
     }
 
     @Override
     public void endMaintenance() throws RuntimeServiceException {
-        for (Runtime runtime : runtimeManager.getRuntimeList()) {
-            runtime.stopMaintenance();
-        }
+        super.endMaintenance();
     }
 }
