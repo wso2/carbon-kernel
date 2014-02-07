@@ -36,6 +36,10 @@ public class ClusterConfiguration {
     private Map<String, List<Object>> configuration = new HashMap<String, List<Object>>();
     private boolean isInitialized;
 
+    String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
+                                      "repository" + File.separator + "conf" +
+                                      File.separator + "cluster.xml";
+
 
     /**
      * This initializes the server configuration. This method should only be
@@ -47,9 +51,6 @@ public class ClusterConfiguration {
         if (isInitialized) {
             return;
         }
-        String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
-                                          "repository" + File.separator + "conf" +
-                                          File.separator + "cluster.xml";
 
         InputStream xmlInputStream = null;
         try {
@@ -91,5 +92,27 @@ public class ClusterConfiguration {
             return null;
         }
         return value;
+    }
+
+    public boolean shouldInitialize(String agentType) throws ClusterConfigurationException {
+        boolean initialize = false;
+        try {
+            File xmlFile = new File(configurationXMLLocation);
+            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+
+            String clusterAgent = doc.getDocumentElement().
+                    getAttribute(ClusteringConstants.CLUSTER_AGENT_TYPE);
+
+            if (clusterAgent != null && agentType.equals(clusterAgent)) {
+                build();
+                initialize = true;
+            }
+        } catch (Exception e) {
+            String msg = "Error while loading cluster configuration file";
+            logger.error(msg, e);
+            throw new ClusterConfigurationException(msg, e);
+        }
+        return initialize;
     }
 }

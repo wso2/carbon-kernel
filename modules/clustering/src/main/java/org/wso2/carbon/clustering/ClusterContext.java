@@ -58,32 +58,4 @@ public class ClusterContext {
         return clusterConfiguration;
     }
 
-    public boolean shouldInitialize(String agentType) {
-        boolean initialize = false;
-        try {
-            String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
-                                              "repository" + File.separator + "conf" +
-                                              File.separator + "cluster.xml";
-            File xmlFile = new File(configurationXMLLocation);
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-
-            String clusterAgent = doc.getDocumentElement().
-                    getAttribute(ClusteringConstants.CLUSTER_AGENT_TYPE);
-            boolean isEnabled = Boolean.parseBoolean(doc.getDocumentElement().
-                    getAttribute("enable"));
-
-            if (clusterAgent != null && agentType.equals(clusterAgent) && isEnabled) {
-                try {
-                    clusterConfiguration.build();
-                    initialize = true;
-                } catch (ClusterConfigurationException e) {
-                    logger.error("Error while initializing cluster configuration", e);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error while loading cluster configuration file", e);
-        }
-        return initialize;
-    }
 }
