@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.CarbonCluster;
 import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
+import org.wso2.carbon.clustering.ClusterUtil;
 import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.api.Cluster;
+import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.spi.ClusteringAgent;
 
@@ -41,41 +43,50 @@ public class CarbonClusterServiceComponent {
     private static Logger logger = LoggerFactory.getLogger(CarbonClusterServiceComponent.class);
 
     private DataHolder dataHolder = DataHolder.getInstance();
-    private ClusterContext clusterContext;
     private ServiceRegistration serviceRegistration;
     private String clusteringAgentType;
 
-    public CarbonClusterServiceComponent() {
-        clusterContext = new ClusterContext(new ClusterConfiguration());
-    }
 
     @Activate
     protected void start() {
     }
 
     protected void setClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
-        Object clusterAgentTypeParam = ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
-        if (clusterAgentTypeParam != null) {
-            String registeredAgentType = (String) clusterAgentTypeParam;
-            if (clusterContext.shouldInitialize(registeredAgentType)) {
-                initializeCluster(clusteringAgent);
-                clusteringAgentType = registeredAgentType;
-            } else {
-                logger.error("Unsupported clustering agent type is registered : {} ",
-                             registeredAgentType);
+        if (ClusterUtil.isClusteringEnabled()) {
+            Object clusterAgentTypeParam = ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
+            if (clusterAgentTypeParam != null) {
+                ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
+                String registeredAgentType = (String) clusterAgentTypeParam;
+                try {
+                    if (clusterConfiguration.shouldInitialize(registeredAgentType)) {
+                        initializeCluster(clusteringAgent, clusterConfiguration);
+                        clusteringAgentType = registeredAgentType;
+                    } else {
+                        logger.error("Unsupported clustering agent type is registered : {} ",
+                                     registeredAgentType);
+                    }
+                } catch (ClusterConfigurationException e) {
+                    logger.error("Error while initializing cluster configuration", e);
+                }
             }
         }
     }
 
     protected void unsetClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
-        String registeredAgentType = (String) ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
-        if (clusteringAgentType.equals(registeredAgentType)) {
-            terminateCluster(clusteringAgent);
+        if (ClusterUtil.isClusteringEnabled()) {
+            String registeredAgentType = (String) ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
+            if (clusteringAgentType.equals(registeredAgentType)) {
+                terminateCluster(clusteringAgent);
+            }
         }
     }
 
-    private void initializeCluster(ClusteringAgent clusteringAgent) {
+    private void initializeCluster(ClusteringAgent clusteringAgent,
+                                   ClusterConfiguration clusterConfiguration) {
         try {
+            // Create cluster context with the given cluster configuration
+            ClusterContext clusterContext = new ClusterContext(clusterConfiguration);
+
             // Initialize the clustering agent
             logger.info("Initializing clustering agent");
             clusteringAgent.init(clusterContext);
