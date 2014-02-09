@@ -35,6 +35,7 @@
     <properties>
         <backend-server-url>https://${hostName}:${httpsPort}/services/</backend-server-url>
         <mgt-console-url>https://${hostName}:${httpsPort}/</mgt-console-url>
+        <sub-domain>worker</sub-domain>
     </properties>
 
 
