@@ -80,32 +80,7 @@ public final class MemberUtils {
         Properties memberInfo = new Properties();
 
 //      TODO : Since we are not depending on confContext, How to get http/s ports?
-//        int portOffset = 0;
-//            if (System.getElement("portOffset") != null) {
-//                portOffset = Integer.parseInt(System.getElement("portOffset"));
-//        }
-//        if (httpTransport != null) {
-//            Parameter port = httpTransport.getParameter("port");
-//            if (port != null) {
-//                int httpPort = Integer.valueOf((String) port.getValue()) + portOffset;
-//                member.setHttpPort(httpPort);
-//
-//            }
-//        }
-//        TransportInDescription httpsTransport = axisConfig.getTransportIn("https");
-//        if (httpsTransport != null) {
-//            Parameter port = httpsTransport.getParameter("port");
-//            if (port != null) {
-//                int httpsPort = Integer.valueOf((String) port.getValue()) + portOffset;
-//                member.setHttpsPort(httpsPort);
-//            }
-//        }
-//        Parameter isActiveParam = getParameter(ClusteringConstants.Parameters.IS_ACTIVE);
-//        if (isActiveParam != null) {
-//            memberInfo.setProperty(ClusteringConstants.Parameters.IS_ACTIVE,
-//                                   (String) isActiveParam.getValue());
-//        }
-//
+
         if (localMemberHost != null) {
             memberInfo.setProperty("hostName", localMemberHost);
         }

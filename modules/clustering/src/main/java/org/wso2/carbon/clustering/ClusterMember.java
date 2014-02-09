@@ -38,16 +38,6 @@ public class ClusterMember implements Serializable {
     private int port = -1;
 
     /**
-     * The HTTP port used by this member for servicing Web service requests. Used for load balancing
-     */
-    private int httpPort = -1;
-
-    /**
-     * The HTTPS port used by this member for servicing Web service requests. Used for load balancing
-     */
-    private int httpsPort = -1;
-
-    /**
      * Indicates whether this member is ACTIVE or PASSIVE
      */
     private boolean isActive = true;
@@ -91,7 +81,7 @@ public class ClusterMember implements Serializable {
     }
 
     /**
-     * Temporarilly suspend this member
+     * Temporarily suspend this member
      *
      * @param suspensionDurationMillis The time duration in millis in which this member should be suspended
      */
@@ -127,22 +117,6 @@ public class ClusterMember implements Serializable {
 
     public int getPort() {
         return port;
-    }
-
-    public int getHttpsPort() {
-        return httpsPort;
-    }
-
-    public void setHttpsPort(int httpsPort) {
-        this.httpsPort = httpsPort;
-    }
-
-    public int getHttpPort() {
-        return httpPort;
-    }
-
-    public void setHttpPort(int httpPort) {
-        this.httpPort = httpPort;
     }
 
     public boolean isActive() {
@@ -204,13 +178,12 @@ public class ClusterMember implements Serializable {
 
         ClusterMember member = (ClusterMember) o;
 
-        boolean isIdenticalPorts = (port == member.getPort() &&
-                                    httpPort == member.getHttpPort() &&
-                                    httpsPort == member.getHttpsPort());
+        boolean isIdenticalPorts = port == member.getPort();
 
         return (isIdenticalPorts &&
                 (remoteHost != null ? remoteHost.equals(member.getRemoteHost()) :
-                 member.getRemoteHost() == null) && (hostName != null ? hostName.equals(member.getHostName()) :
+                 member.getRemoteHost() == null) && (hostName != null ?
+                                                     hostName.equals(member.getHostName()) :
                                                      member.getHostName() == null));
     }
 
@@ -222,9 +195,7 @@ public class ClusterMember implements Serializable {
     }
 
     public String toString() {
-        return "Host:" + hostName + ", Remote Host:" + remoteHost + ", Port: " + port +
-               ", HTTP:" + httpPort + ", HTTPS:" + httpsPort +
-               ", Domain: " + domain + ", Sub-domain:" + properties.getProperty("subDomain") +
-               ", Active:" + isActive;
+        return "Host:" + hostName + ", Port: " + port + ", Domain: " + domain +
+               ", Sub-domain:" + properties.getProperty("sub-domain")+ ", Active:" + isActive;
     }
 }
