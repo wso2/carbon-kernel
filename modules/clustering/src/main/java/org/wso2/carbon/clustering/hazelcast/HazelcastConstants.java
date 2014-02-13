@@ -29,10 +29,13 @@ public final class HazelcastConstants {
     public static final String CONTROL_COMMAND_TOPIC = "$control.$command.$topic";
     public static final String GROUP_PASSWORD = "group-password";
 
-    public static final String MAX_NO_HEARTBEAT_SECONDS= "hazelcast.max-no.heartbeat-seconds";
-    public static final String MAX_NO_MASTER_CONFIRMATION_SECONDS= "hazelcast.max-no.master-confirmation-seconds";
-    public static final String MERGE_FIRST_RUN_DELAY_SECONDS= "hazelcast.merge.first-run-delay-seconds";
-    public static final String MERGE_NEXT_RUN_DELAY_SECONDS= "hazelcast.merge.next-run-delay-seconds";
+    public static final String MAX_NO_HEARTBEAT_SECONDS = "hazelcast.max.no.heartbeat.seconds";
+    public static final String MAX_NO_MASTER_CONFIRMATION_SECONDS =
+            "hazelcast.max.no.master.confirmation.seconds";
+    public static final String MERGE_FIRST_RUN_DELAY_SECONDS =
+            "hazelcast.merge.first.run.delay.seconds";
+    public static final String MERGE_NEXT_RUN_DELAY_SECONDS =
+            "hazelcast.merge.next.run.delay.secondss";
 
     public static final String REPLAY_MESSAGE_QUEUE = "$ReplayMessageQueue:";
 
