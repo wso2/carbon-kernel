@@ -42,6 +42,7 @@ import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
+import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.spi.ClusteringAgent;
 import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.ControlCommand;
@@ -223,34 +224,17 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     }
 
     private void setHazelcastProperties() {
-        //TODO : We have to merge this separate property file with cluster.xml
-        String hazelcastPropsFileName =
-                System.getProperty("carbon.home") + File.separator + "repository" +
-                File.separator + "conf" + File.separator + "hazelcast.properties";
         Properties hazelcastProperties = new Properties();
         // Setting some Hazelcast properties as per :
         // https://groups.google.com/forum/#!searchin/hazelcast/Azeez/hazelcast/x-skloPgl2o/PZN60s85XK0J
-        hazelcastProperties.setProperty("hazelcast.max.no.heartbeat.seconds", "600");
-        hazelcastProperties.setProperty("hazelcast.max.no.master.confirmation.seconds", "900");
-        hazelcastProperties.setProperty("hazelcast.merge.first.run.delay.seconds", "60");
-        hazelcastProperties.setProperty("hazelcast.merge.next.run.delay.seconds", "30");
-        if (new File(hazelcastPropsFileName).exists()) {
-            FileInputStream fileInputStream = null;
-            try {
-                fileInputStream = new FileInputStream(hazelcastPropsFileName);
-                hazelcastProperties.load(fileInputStream);
-            } catch (IOException e) {
-                logger.error("Cannot load properties from file " + hazelcastPropsFileName, e);
-            } finally {
-                if (fileInputStream != null) {
-                    try {
-                        fileInputStream.close();
-                    } catch (IOException e) {
-                        logger.error("Cannot close file " + hazelcastPropsFileName, e);
-                    }
-                }
-            }
-        }
+        hazelcastProperties.setProperty(HazelcastConstants.MAX_NO_HEARTBEAT_SECONDS, "600");
+        hazelcastProperties.setProperty(HazelcastConstants.MAX_NO_MASTER_CONFIRMATION_SECONDS,
+                                        "900");
+        hazelcastProperties.setProperty(HazelcastConstants.MERGE_FIRST_RUN_DELAY_SECONDS, "60");
+        hazelcastProperties.setProperty(HazelcastConstants.MERGE_NEXT_RUN_DELAY_SECONDS, "30");
+
+        HazelcastUtil.loadPropertiesFromConfig(clusterContext.getClusterConfiguration(),
+                                               hazelcastProperties);
         primaryHazelcastConfig.setProperties(hazelcastProperties);
     }
 

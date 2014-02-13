@@ -19,6 +19,10 @@
 package org.wso2.carbon.clustering.hazelcast.util;
 
 import com.hazelcast.core.Member;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.CarbonCluster;
@@ -26,6 +30,7 @@ import org.wso2.carbon.clustering.internal.DataHolder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * TODO: class description
@@ -39,12 +44,34 @@ public class HazelcastUtil {
      * Replay messages to a newly joining member
      */
     public static void sendMessagesToMember(List<ClusterMessage> messageBuffer,
-                                            Member member){
+                                            Member member) {
         CarbonCluster carbonCluster = DataHolder.getInstance().getCarbonCluster();
         for (ClusterMessage clusterMessage : messageBuffer) {
             ArrayList<ClusterMember> members = new ArrayList<ClusterMember>();
             members.add(HazelcastUtil.toClusterMember(member));
             carbonCluster.sendMessage(clusterMessage, members);
+        }
+    }
+
+    public static void loadPropertiesFromConfig(ClusterConfiguration clusterConfiguration,
+                                                Properties hazelcastProperties) {
+
+        List<Object> propsParam = clusterConfiguration.getElement("properties");
+        if (propsParam != null) {
+            for (Object property : propsParam) {
+                if (property instanceof Node) {
+                    NodeList nodeList = ((Node) property).getChildNodes();
+                    for (int count = 0; count < nodeList.getLength(); count++) {
+                        Node node = nodeList.item(count);
+                        if (node.getNodeType() == Node.ELEMENT_NODE &&
+                            "property".equals(node.getNodeName())) {
+                            String attributeName = ((Element) node).getAttribute("name");
+                            String attributeValue = node.getTextContent();
+                            hazelcastProperties.setProperty(attributeName, attributeValue);
+                        }
+                    }
+                }
+            }
         }
     }
 }
