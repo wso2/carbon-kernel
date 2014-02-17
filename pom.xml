@@ -619,6 +619,8 @@
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
         <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
         </osgi.framework.packages.import.version.range>
+        <osgi.service.tracker.import.version.range>[1.5.1, 1.6.0)
+        </osgi.service.tracker.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
