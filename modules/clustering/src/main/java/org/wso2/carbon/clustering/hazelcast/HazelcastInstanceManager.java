@@ -23,7 +23,9 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 /**
- * TODO: class description
+ * The singleton based instance provider for hazelcast instance.
+ *
+ * This is needed because there can be only one hazelcast instance in a cluster.
  */
 public class HazelcastInstanceManager {
     private static HazelcastInstanceManager instance = new HazelcastInstanceManager();

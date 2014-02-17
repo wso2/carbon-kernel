@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * TODO: class description
+ * Utility class for hazezcast based clustering implementation
  */
 public class HazelcastUtil {
     public static ClusterMember toClusterMember(Member hazelcastMember) {

@@ -31,6 +31,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The cluster context class which holds the runtime information of the cluster such as members,
+ * membership listeners
+ */
 public class ClusterContext {
 
     private static Logger logger = LoggerFactory.getLogger(CarbonCluster.class);
@@ -56,7 +60,8 @@ public class ClusterContext {
     public void addMember(ClusterMember clusterMember) {
         logger.debug("Adding new member {} ", clusterMember.getId());
         for (MembershipListener membershipListener : membershipListeners) {
-            membershipListener.memberAdded(new MembershipEvent(clusterMember, 1));
+            membershipListener.memberAdded(new MembershipEvent(clusterMember,
+                                                               MembershipEvent.MEMBER_ADDED));
         }
         primaryClusterMembers.add(clusterMember);
     }
@@ -64,7 +69,8 @@ public class ClusterContext {
     public void removeMember(ClusterMember clusterMember) {
         logger.debug("Removing member {} ", clusterMember.getId());
         for (MembershipListener membershipListener : membershipListeners) {
-            membershipListener.memberRemoved(new MembershipEvent(clusterMember, 2));
+            membershipListener.memberRemoved(new MembershipEvent(clusterMember,
+                                                                 MembershipEvent.MEMBER_REMOVED));
         }
         primaryClusterMembers.remove(clusterMember);
     }

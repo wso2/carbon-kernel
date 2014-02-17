@@ -23,6 +23,9 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Activator class for carbon cluster framework
+ */
 public class CarbonClusterBundleActivator implements BundleActivator {
     private static Logger logger = LoggerFactory.getLogger(CarbonClusterBundleActivator.class);
 

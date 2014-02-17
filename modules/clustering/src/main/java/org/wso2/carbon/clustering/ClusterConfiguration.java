@@ -34,6 +34,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * ClusterConfiguration which holds the static information of the cluster. This is will be build
+ * and populated using the cluster.xml
+ */
 public class ClusterConfiguration {
 
 
@@ -100,6 +104,14 @@ public class ClusterConfiguration {
         return value;
     }
 
+    /**
+     * This will return whether cluster agent should be initialized by checking the cluster
+     * "agentType" attribute in cluster xml with the registered value
+     *
+     * @param agentType the value of the registered agent type to check
+     * @return true if registered agentType match the cluster.xml property value
+     * @throws ClusterConfigurationException on error while reading the value
+     */
     public boolean shouldInitialize(String agentType) throws ClusterConfigurationException {
         boolean initialize = false;
         try {

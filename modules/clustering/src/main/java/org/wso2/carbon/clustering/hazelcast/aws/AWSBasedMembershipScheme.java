@@ -40,7 +40,7 @@ import org.wso2.carbon.clustering.internal.DataHolder;
 import java.util.List;
 
 /**
- * TODO: class description
+ * AWS - Amazon Web Service, based membership scheme supported with hazelcast based clustering
  */
 public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(AWSBasedMembershipScheme.class);

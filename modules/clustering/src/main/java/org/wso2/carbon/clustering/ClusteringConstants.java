@@ -20,7 +20,7 @@
 package org.wso2.carbon.clustering;
 
 /**
- * All constants used by the Axis2 clustering implementation
+ * All constants used by the carbon clustering implementation
  */
 public final class ClusteringConstants {
 

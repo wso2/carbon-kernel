@@ -19,7 +19,9 @@
 
 package org.wso2.carbon.clustering;
 
-
+/**
+ * An event class used when notifying the membership listeners for changes in current membership
+ */
 public class MembershipEvent {
     public static final int MEMBER_ADDED = 1;
 

@@ -19,7 +19,7 @@
 package org.wso2.carbon.clustering.hazelcast.aws;
 
 /**
- * TODO: class description
+ * Constants used with AWS based membership scheme
  */
 public class AWSConstants {
 

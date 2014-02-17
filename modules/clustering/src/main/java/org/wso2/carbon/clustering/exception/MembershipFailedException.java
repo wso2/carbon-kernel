@@ -19,6 +19,9 @@
 
 package org.wso2.carbon.clustering.exception;
 
+/**
+ * Used with errors during members joining the membership scheme
+ */
 public class MembershipFailedException extends Exception {
     public MembershipFailedException(String message) {
         super(message);

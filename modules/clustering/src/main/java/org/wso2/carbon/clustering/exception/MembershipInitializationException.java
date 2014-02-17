@@ -19,6 +19,9 @@
 
 package org.wso2.carbon.clustering.exception;
 
+/**
+ * Used with errors during membership scheme initialization in this node
+ */
 public class MembershipInitializationException extends Exception {
     public MembershipInitializationException(String message) {
         super(message);

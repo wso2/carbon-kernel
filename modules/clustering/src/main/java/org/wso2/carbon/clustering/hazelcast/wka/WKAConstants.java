@@ -19,7 +19,7 @@
 package org.wso2.carbon.clustering.hazelcast.wka;
 
 /**
- * TODO: class description
+ * WKA based membership discovery constants
  */
 public final class WKAConstants {
 
