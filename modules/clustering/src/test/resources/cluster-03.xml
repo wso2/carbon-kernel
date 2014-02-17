@@ -12,12 +12,12 @@
                 is deemed to have left the cluster, it will be detected by the Group Membership
                 Service (GMS) using a TCP ping mechanism.
     -->
-    <membership-scheme>multicast</membership-scheme>
+    <membership-scheme>wka</membership-scheme>
     <!--
      The clustering domain/group. Nodes in the same group will belong to the same multicast
      domain. There will not be interference between nodes in different groups.
     -->
-    <domain>wso2.multicast.domain</domain>
+    <domain>wso2.wka.domain</domain>
 
     <!-- The host name or IP address of this member -->
 
@@ -27,7 +27,7 @@
     The TCP port used by this member. This is the port through which other nodes will
     contact this member
      -->
-    <local-member-port>4002</local-member-port>
+    <local-member-port>4003</local-member-port>
 
     <!--
     Properties specific to this member
@@ -36,7 +36,7 @@
         <backend-server-url>https://${hostName}:${httpsPort}/services/</backend-server-url>
         <mgt-console-url>https://${hostName}:${httpsPort}/</mgt-console-url>
         <sub-domain>worker</sub-domain>
-        <property name="hazelcast.instance.name">instance2</property>
+        <property name="hazelcast.instance.name">instance3</property>
     </properties>
 
 
@@ -54,7 +54,7 @@
         <members>
             <member>
                 <host-name>127.0.0.1</host-name>
-                <port>4001</port>
+                <port>4003</port>
             </member>
         </members>
     </wka>
