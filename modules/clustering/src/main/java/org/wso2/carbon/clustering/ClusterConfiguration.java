@@ -46,11 +46,14 @@ public class ClusterConfiguration {
     private Map<String, List<Object>> configuration = new HashMap<String, List<Object>>();
     private boolean isInitialized;
 
-    String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
+    private String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
                                       "repository" + File.separator + "conf" +
                                       File.separator + "cluster.xml";
 
 
+    public void setClusterConfigurationXMLLocation(String configurationXMLLocation) {
+        this.configurationXMLLocation = configurationXMLLocation;
+    }
     /**
      * This initializes the server configuration. This method should only be
      * called once, for successive calls, it will be checked.
