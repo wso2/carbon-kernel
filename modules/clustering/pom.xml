@@ -39,6 +39,11 @@
             <artifactId>org.wso2.carbon.base</artifactId>
             <version>${carbon.kernel.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

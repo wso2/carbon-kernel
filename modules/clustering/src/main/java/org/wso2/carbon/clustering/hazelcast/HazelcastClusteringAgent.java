@@ -213,7 +213,9 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain).put(localMember.getUuid(),
                                                                                carbonLocalMember);
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
-        bundleContext.registerService(HazelcastInstance.class, primaryHazelcastInstance, null);
+        if (bundleContext != null) {
+            bundleContext.registerService(HazelcastInstance.class, primaryHazelcastInstance, null);
+        }
         ScheduledExecutorService msgCleanupScheduler = Executors.newScheduledThreadPool(1);
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
                                                    2, 2, TimeUnit.MINUTES);
