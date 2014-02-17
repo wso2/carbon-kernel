@@ -38,12 +38,21 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+/**
+ * Utility class for cluster module
+ */
 public class ClusterUtil {
 
     private static Logger logger = LoggerFactory.getLogger(ClusterUtil.class);
 
 
-    public static List<ClusterMember> loadWellKnownMembers(
+    /**
+     * Returns the well known members defined in the cluster.xml
+     *
+     * @param clusterConfiguration the clusterConfiguration instance
+     * @return List of well known members
+     */
+    public static List<ClusterMember> getWellKnownMembers(
             ClusterConfiguration clusterConfiguration) {
         List<ClusterMember> members = new ArrayList<ClusterMember>();
         List<Object> membersList = clusterConfiguration.getElement("wka.members.member");
@@ -121,6 +130,10 @@ public class ClusterUtil {
         return hostAddress.split("[.]").length == 4;
     }
 
+    /**
+     * This will check and return whether clustering is enabled or disabled in cluster.xml
+     * @return true if enabled, false if not
+     */
     public static boolean isClusteringEnabled() {
         boolean isEnabled = false;
         String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +

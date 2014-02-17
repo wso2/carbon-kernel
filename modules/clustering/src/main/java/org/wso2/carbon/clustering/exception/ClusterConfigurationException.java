@@ -19,6 +19,10 @@
 
 package org.wso2.carbon.clustering.exception;
 
+/**
+ * Exception which gets thrown when an error occur while trying read, build cluster.xml
+ */
+
 public class ClusterConfigurationException extends Exception {
     public ClusterConfigurationException(String message) {
         super (message);

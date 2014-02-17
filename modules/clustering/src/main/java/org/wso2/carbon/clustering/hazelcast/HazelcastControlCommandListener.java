@@ -27,7 +27,8 @@ import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 
 /**
- * TODO: class description
+ * The message listener using with hazelcast based distributed topics
+ * for sending/receiving cluster control messages from/to cluster
  */
 public class HazelcastControlCommandListener implements MessageListener<ControlCommand> {
     private static Logger logger = LoggerFactory.getLogger(HazelcastControlCommandListener.class);

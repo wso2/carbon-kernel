@@ -54,9 +54,6 @@ import org.wso2.carbon.clustering.hazelcast.multicast.MulticastBasedMembershipSc
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.clustering.hazelcast.wka.WKABasedMembershipScheme;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.SocketException;
 import java.util.List;
 import java.util.Map;
@@ -263,7 +260,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         logger.info("Using " + scheme + " based membership management scheme");
         switch (scheme) {
             case ClusteringConstants.MembershipScheme.WKA_BASED:
-                wkaMembers = ClusterUtil.loadWellKnownMembers(clusterContext.getClusterConfiguration());
+                wkaMembers = ClusterUtil.getWellKnownMembers(clusterContext.getClusterConfiguration());
                 membershipScheme = new WKABasedMembershipScheme(primaryDomain,
                                                                 wkaMembers, primaryHazelcastConfig,
                                                                 sentMsgsBuffer);

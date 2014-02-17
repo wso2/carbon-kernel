@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO: class description
+ * The message listener using with hazelcast based distributed topics
+ * for sending/receiving messages from/to cluster
  */
 public class HazelcastClusterMessageListener implements MessageListener<ClusterMessage> {
     private static Logger logger = LoggerFactory.getLogger(HazelcastClusterMessageListener.class);

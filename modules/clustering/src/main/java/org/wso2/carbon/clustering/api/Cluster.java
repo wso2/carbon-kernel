@@ -24,6 +24,9 @@ import org.wso2.carbon.clustering.ClusterMessage;
 
 import java.util.List;
 
+/**
+ * The Cluster API which is given an OSGi service to carbon platform.
+ */
 
 public interface Cluster {
     void sendMessage(ClusterMessage clusterMessage);

@@ -19,6 +19,9 @@
 
 package org.wso2.carbon.clustering.exception;
 
+/**
+ * Exception class used with errors occurring during cluster initialization
+ */
 public class ClusterInitializationException extends Exception {
     public ClusterInitializationException(String message) {
         super (message);

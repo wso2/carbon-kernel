@@ -19,6 +19,9 @@
 
 package org.wso2.carbon.clustering.exception;
 
+/**
+ * Exception used when there are errors occurring when sending cluster messages.
+ */
 public class MessageFailedException extends Exception {
 
     public MessageFailedException(String message) {

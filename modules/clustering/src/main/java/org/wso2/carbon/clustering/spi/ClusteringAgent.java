@@ -27,6 +27,15 @@ import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 import java.util.List;
 
+/**
+ * The ClusteringAgent which manages the cluster node in a cluster. This will basically do the
+ * starting, joining and shutdown the node with cluster. It also provide the functionality to
+ * send cluster messages to the cluster, or w set of cluster members in the cluster.
+ *
+ * Any new clustering implementation that need to be plugged into carbon, should implement this and
+ * register it as an OSGi service with the service level property (agentType) to uniquely identify
+ * it at runtime.
+ */
 public interface ClusteringAgent {
 
     /**
