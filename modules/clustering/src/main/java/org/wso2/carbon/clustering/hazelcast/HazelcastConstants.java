@@ -29,6 +29,7 @@ public final class HazelcastConstants {
     public static final String CONTROL_COMMAND_TOPIC = "$control.$command.$topic";
     public static final String GROUP_PASSWORD = "group-password";
 
+    public static final String INSTANCE_NAME = "hazelcast.instance.name";
     public static final String MAX_NO_HEARTBEAT_SECONDS = "hazelcast.max.no.heartbeat.seconds";
     public static final String MAX_NO_MASTER_CONFIRMATION_SECONDS =
             "hazelcast.max.no.master.confirmation.seconds";

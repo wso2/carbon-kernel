@@ -74,4 +74,30 @@ public class HazelcastUtil {
             }
         }
     }
+
+    public static String lookupHazelcastProperty(ClusterConfiguration clusterConfiguration,
+                                                 String propertyName) {
+        String propertyValue = null;
+        List<Object> propsParam = clusterConfiguration.getElement("properties");
+        if (propsParam != null) {
+            for (Object property : propsParam) {
+                if (property instanceof Node) {
+                    NodeList nodeList = ((Node) property).getChildNodes();
+                    for (int count = 0; count < nodeList.getLength(); count++) {
+                        Node node = nodeList.item(count);
+                        if (node.getNodeType() == Node.ELEMENT_NODE &&
+                            "property".equals(node.getNodeName())) {
+                            String attributeName = ((Element) node).getAttribute("name");
+                            if (attributeName != null && propertyName.equals(attributeName)) {
+                                propertyValue = node.getTextContent();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return propertyValue;
+    }
 }

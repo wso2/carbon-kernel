@@ -111,7 +111,13 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         }
 
         primaryDomain = getClusterDomain();
-        primaryHazelcastConfig.setInstanceName(primaryDomain + ".instance");
+        String instanceName = HazelcastUtil.
+                lookupHazelcastProperty(clusterContext.getClusterConfiguration(),
+                                        HazelcastConstants.INSTANCE_NAME);
+        if (instanceName == null) {
+            instanceName = primaryDomain + ".instance";
+        }
+        primaryHazelcastConfig.setInstanceName(instanceName);
         logger.info("Cluster domain: " + primaryDomain);
         GroupConfig groupConfig = primaryHazelcastConfig.getGroupConfig();
         groupConfig.setName(primaryDomain);
