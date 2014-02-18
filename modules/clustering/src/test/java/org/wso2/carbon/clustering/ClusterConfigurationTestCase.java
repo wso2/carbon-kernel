@@ -39,7 +39,7 @@ public class ClusterConfigurationTestCase extends BaseTest {
 
     @BeforeTest
     public void setup() {
-        clusterXMLLocation = getTestResourceFile("cluster-01.xml").getAbsolutePath();
+        clusterXMLLocation = getTestResourceFile("cluster-00.xml").getAbsolutePath();
         clusterConfiguration = new ClusterConfiguration();
         clusterConfiguration.setClusterConfigurationXMLLocation(clusterXMLLocation);
     }

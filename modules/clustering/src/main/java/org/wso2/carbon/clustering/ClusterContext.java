@@ -83,4 +83,8 @@ public class ClusterContext {
         return clusterConfiguration;
     }
 
+    public List<MembershipListener> getMembershipListeners() {
+        return membershipListeners;
+    }
+
 }
