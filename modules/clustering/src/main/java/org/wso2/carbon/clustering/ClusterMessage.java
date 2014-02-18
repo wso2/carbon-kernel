@@ -21,13 +21,14 @@ package org.wso2.carbon.clustering;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * A message sent to the cluster
  */
 public abstract class ClusterMessage implements Serializable {
 
-    private String uuid = java.util.UUID.randomUUID().toString();
+    private String uuid = UUID.randomUUID().toString();
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
