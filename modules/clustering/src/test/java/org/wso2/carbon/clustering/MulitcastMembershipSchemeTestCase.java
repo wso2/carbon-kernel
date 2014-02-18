@@ -23,45 +23,26 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.clustering.agent.CustomClusteringAgent;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 
 
-public class MulitcastMembershipSchemeTestCase extends BaseTest{
-    private CustomClusteringAgent clusteringAgent1;
-    private CustomClusteringAgent clusteringAgent2;
-    private ClusterContext clusterContext1;
-    private ClusterContext clusterContext2;
+public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest {
+
 
     @BeforeTest
     public void setup() throws ClusterConfigurationException {
-        String clusterXMLLocation1 = getTestResourceFile("cluster-01.xml").getAbsolutePath();
-        clusteringAgent1 = new CustomClusteringAgent();
-        ClusterConfiguration clusterConfiguration1 = new ClusterConfiguration();
-        clusterConfiguration1.setClusterConfigurationXMLLocation(clusterXMLLocation1);
-        clusterConfiguration1.build();
-        clusterContext1 = new ClusterContext(clusterConfiguration1);
-
-        String clusterXMLLocation2 = getTestResourceFile("cluster-02.xml").getAbsolutePath();
-        clusteringAgent2 = new CustomClusteringAgent();
-        ClusterConfiguration clusterConfiguration2 = new ClusterConfiguration();
-        clusterConfiguration2.setClusterConfigurationXMLLocation(clusterXMLLocation2);
-        clusterConfiguration2.build();
-        clusterContext2 = new ClusterContext(clusterConfiguration2);
+        setupMembershipScheme("cluster-01.xml", "cluster-02.xml");
     }
     @Test
     public void testMulticastMembershipScheme() throws ClusterInitializationException {
-        clusteringAgent1.init(clusterContext1);
-        clusteringAgent2.init(clusterContext2);
-
-        int noOfMembers = clusteringAgent1.getAliveMemberCount();
+        initializeMembershipScheme();
+        int noOfMembers = getNoOfMembers();
         Assert.assertEquals(noOfMembers, 2);
     }
 
     @AfterTest
     public void shutdownNodes() {
-        clusteringAgent1.shutdown();
-        clusteringAgent2.shutdown();
+        terminate();
     }
 }

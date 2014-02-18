@@ -109,9 +109,11 @@ public class CarbonClusterServiceComponent {
             logger.info("Initializing clustering agent");
             clusteringAgent.init(clusterContext);
 
+            dataHolder.setClusterContext(clusterContext);
+
             // Initialize and register carbon cluster service
             CarbonCluster carbonCluster = new CarbonCluster(clusteringAgent);
-            BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
+            BundleContext bundleContext = dataHolder.getBundleContext();
             serviceRegistration = bundleContext.registerService(Cluster.class, carbonCluster, null);
             dataHolder.setCarbonCluster(carbonCluster);
         } catch (ClusterInitializationException e) {
