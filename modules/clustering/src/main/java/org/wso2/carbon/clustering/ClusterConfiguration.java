@@ -44,7 +44,7 @@ public class ClusterConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(ClusterConfiguration.class);
 
     private Map<String, List<Object>> configuration = new HashMap<String, List<Object>>();
-    private boolean isInitialized;
+    private boolean isInitialized = false;
 
     private String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
                                       "repository" + File.separator + "conf" +

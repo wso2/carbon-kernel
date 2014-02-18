@@ -108,14 +108,17 @@ public class Utils {
             } catch (FileNotFoundException e1) {
                 // As a last resort test in the classpath
                 ClassLoader cl = Thread.currentThread().getClass().getClassLoader();
-                xmlInputStream = cl
-                        .getResourceAsStream(configurationXMLLocation);
-                if (xmlInputStream == null) {
-                    String msg = "Configuration File cannot be loaded from "
-                                 + configurationXMLLocation;
-                    logger.error(msg, e1);
-                    throw new ConfigurationInitializationException(msg, e1);
-
+                if (cl != null) {
+                    xmlInputStream = cl
+                            .getResourceAsStream(configurationXMLLocation);
+                    if (xmlInputStream == null) {
+                        String msg = "Configuration File cannot be loaded from "
+                                     + configurationXMLLocation;
+                        logger.error(msg, e1);
+                        throw new ConfigurationInitializationException(msg, e1);
+                    }
+                } else {
+                    throw new ConfigurationInitializationException(e1);
                 }
             }
         } catch (IOException e) {

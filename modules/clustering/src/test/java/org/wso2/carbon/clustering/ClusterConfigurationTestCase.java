@@ -22,15 +22,8 @@ package org.wso2.carbon.clustering;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
 
 public class ClusterConfigurationTestCase extends BaseTest {
 
@@ -45,16 +38,26 @@ public class ClusterConfigurationTestCase extends BaseTest {
     }
 
     @Test
-    public void testClusteringEnabled()
-            throws ParserConfigurationException, IOException, SAXException {
-        File xmlFile = new File(clusterXMLLocation);
-        DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document doc = dBuilder.parse(xmlFile);
+    public void testBuildClusterConfiguration() throws ClusterConfigurationException {
+        ClusterConfiguration sampleClusterConfiguration = new ClusterConfiguration();
+        sampleClusterConfiguration.setClusterConfigurationXMLLocation("fake/path");
+        try {
+            sampleClusterConfiguration.build();
+        } catch (ClusterConfigurationException e) {
+            Assert.assertTrue(e.getMessage().
+                    contains("Error while building cluster configuration"));
+        }
+        clusterConfiguration.build();
+    }
 
-        boolean isEnabled = Boolean.parseBoolean(doc.getDocumentElement().
-                getAttribute("enable"));
-
-        Assert.assertTrue(isEnabled);
+    @Test (dependsOnMethods = {"testBuildClusterConfiguration"})
+    public void testClusteringEnabled() {
+        Object obj = clusterConfiguration.getElement("cluster");
+        if (obj instanceof Element) {
+            Element rootElement = (Element) obj;
+            boolean isEnabled = Boolean.parseBoolean(rootElement.getAttribute("enable"));
+            Assert.assertTrue(isEnabled);
+        }
     }
 
     @Test

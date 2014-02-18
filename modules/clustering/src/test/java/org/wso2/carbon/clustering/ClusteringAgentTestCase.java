@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.agent.CustomClusteringAgent;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
+import org.wso2.carbon.clustering.hazelcast.HazelcastClusteringAgent;
+import org.wso2.carbon.clustering.spi.ClusteringAgent;
 
 public class ClusteringAgentTestCase extends BaseTest {
 
