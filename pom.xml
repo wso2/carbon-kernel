@@ -206,6 +206,11 @@
                 <version>${osgi.api.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi.compendium.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.eclipse.osgi</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>${equinox.osgi.version}</version>
@@ -569,6 +574,7 @@
 
         <!-- OSGi API version -->
         <osgi.api.version>5.0.0</osgi.api.version>
+        <osgi.compendium.version>4.0.1</osgi.compendium.version>
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 1.6.0)
         </osgi.service.tracker.import.version.range>
