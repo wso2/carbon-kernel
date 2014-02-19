@@ -28,8 +28,8 @@
                 <module>modules/launcher</module>
                 <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
-                <module>modules/samples/hello-world-bundle</module>
                 <module>modules/runtime-manager</module>
+                <module>modules/clustering</module>
                 <module>features</module>
                 <module>distribution</module>
             </modules>
@@ -545,6 +545,11 @@
                 <artifactId>cm</artifactId>
                 <version>${version.org.eclipse.equinox.cm}</version>
             </dependency>
+            <dependency>
+                <groupId>com.hazelcast.wso2</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>${orbit.hazelcast.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -565,6 +570,8 @@
         <!-- OSGi API version -->
         <osgi.api.version>5.0.0</osgi.api.version>
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
+        <osgi.service.tracker.import.version.range>[1.5.1, 1.6.0)
+        </osgi.service.tracker.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
@@ -672,6 +679,6 @@
         <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>
-        <version.tomcat>7.0.42</version.tomcat>
+        <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
     </properties>
 </project>
