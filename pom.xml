@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
     <version>5.0.0-SNAPSHOT</version>
     <name>WSO2 Carbon Kernel - Parent Pom</name>
-    <description>WSO2 Carbon Kernel with all its dependents, components, features 
+    <description>WSO2 Carbon Kernel with all its dependents, components, features
     </description>
     <url>http://wso2.org</url>
 
@@ -612,7 +612,7 @@
 
         <!--Logging API version range-->
         <commons.logging.import.version.range>[1.1.1, 1.2.0)</commons.logging.import.version.range>
-        <slf4j.logging.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.import.version.range>
+        <slf4j.logging.import.version.range>[1.7.1, 1.8.0)</slf4j.logging.import.version.range>
 
         <!-- OSGi API version -->
         <osgi.api.version>5.0.0</osgi.api.version>
@@ -622,6 +622,8 @@
         </osgi.framework.packages.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 1.6.0)
         </osgi.service.tracker.import.version.range>
+        <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
+        </osgi.framework.packages.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
