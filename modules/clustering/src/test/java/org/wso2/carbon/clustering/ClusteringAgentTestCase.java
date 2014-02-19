@@ -57,8 +57,7 @@ public class ClusteringAgentTestCase extends BaseTest {
     @Test (dependsOnMethods = {"testInitializeClusteringAgent"})
     public void testMembershipListener() {
         clusterContext.addMembershipListener(membershipListener);
-        ClusterMember clusterMember = new ClusterMember(UUID.randomUUID().toString(),
-                                          new InetSocketAddress("127.0.0.0", 4500));
+        ClusterMember clusterMember = new ClusterMember("127.0.0.0", 4500);
         clusterContext.addMember(clusterMember);
         String addedMember = clusterMember.getHostName() + ":" + clusterMember.getPort();
         Assert.assertEquals(membershipListener.getAddedMember(), addedMember);

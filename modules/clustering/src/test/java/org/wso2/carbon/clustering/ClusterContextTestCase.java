@@ -18,8 +18,7 @@ public class ClusterContextTestCase extends BaseTest {
 
     @BeforeTest
     public void setup() throws ClusterConfigurationException {
-        clusterMember = new ClusterMember(UUID.randomUUID().toString(),
-                                          new InetSocketAddress("127.0.0.0", 4000));
+        clusterMember = new ClusterMember("127.0.0.0", 4000);
         membershipListener = new CustomMembershipListener();
         ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
         clusterConfiguration.

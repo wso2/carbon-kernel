@@ -29,6 +29,7 @@ import org.wso2.carbon.clustering.CarbonCluster;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.DataHolder;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -38,7 +39,11 @@ import java.util.Properties;
  */
 public class HazelcastUtil {
     public static ClusterMember toClusterMember(Member hazelcastMember) {
-        return new ClusterMember(hazelcastMember.getUuid(), hazelcastMember.getInetSocketAddress());
+        InetSocketAddress inetSocketAddress = hazelcastMember.getInetSocketAddress();
+        ClusterMember clusterMember = new ClusterMember(inetSocketAddress.getHostName(),
+                                                        inetSocketAddress.getPort());
+        clusterMember.setId(hazelcastMember.getUuid());
+        return clusterMember;
     }
 
     /**
