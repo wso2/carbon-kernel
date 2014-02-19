@@ -21,6 +21,7 @@ package org.wso2.carbon.clustering.api;
 
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 import java.util.List;
 
@@ -31,19 +32,23 @@ import java.util.List;
 public interface Cluster {
     /**
      * Send the given cluster message to the whole cluster
+     *
      * @param clusterMessage the cluster message to be sent
      */
-    void sendMessage(ClusterMessage clusterMessage);
+    void sendMessage(ClusterMessage clusterMessage) throws MessageFailedException;
 
     /**
      * Send the given cluster message to a set of members in the cluster
+     *
      * @param clusterMessage the cluster message to be sent
-     * @param members the list of members to send the cluster message
+     * @param members        the list of members to send the cluster message
      */
-    void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members);
+    void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members)
+            throws MessageFailedException;
 
     /**
      * Return the list of currently available members in the cluster
+     *
      * @return the member list
      */
     List<ClusterMember> getMembers();

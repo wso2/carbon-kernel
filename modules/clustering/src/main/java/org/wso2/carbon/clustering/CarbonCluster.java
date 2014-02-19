@@ -41,21 +41,14 @@ public class CarbonCluster implements Cluster {
     }
 
     @Override
-    public void sendMessage(ClusterMessage clusterMessage) {
-        try {
-            clusteringAgent.sendMessage(clusterMessage);
-        } catch (MessageFailedException e) {
-            logger.error("Error while sending message to cluster", e);
-        }
+    public void sendMessage(ClusterMessage clusterMessage) throws MessageFailedException {
+        clusteringAgent.sendMessage(clusterMessage);
     }
 
     @Override
-    public void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members) {
-        try {
-            clusteringAgent.sendMessage(clusterMessage, members);
-        } catch (MessageFailedException e) {
-            logger.error("Error while sending message to cluster members", e);
-        }
+    public void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members)
+            throws MessageFailedException {
+        clusteringAgent.sendMessage(clusterMessage, members);
     }
 
     @Override

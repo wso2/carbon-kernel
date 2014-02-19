@@ -37,6 +37,7 @@ import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 import org.wso2.carbon.clustering.CarbonCluster;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
@@ -145,9 +146,14 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
                 return;
             }
             clusterContext.addMember(HazelcastUtil.toClusterMember(member));
-            HazelcastUtil.sendMessagesToMember(messageBuffer, member);
             logger.info("Member joined [" + member.getUuid() + "]: " +
-                     member.getInetSocketAddress().toString());
+                        member.getInetSocketAddress().toString());
+            try {
+                HazelcastUtil.sendMessagesToMember(messageBuffer, member);
+            } catch (MessageFailedException e) {
+                logger.error("Error while sending member joined message", e);
+            }
+
         }
 
         @Override
