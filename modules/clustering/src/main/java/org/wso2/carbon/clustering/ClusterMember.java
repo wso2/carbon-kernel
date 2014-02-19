@@ -66,24 +66,22 @@ public class ClusterMember implements Serializable {
 
     private String remoteHost;
 
-
     private String id;
+
     private InetSocketAddress inetSocketAddress;
 
-    public ClusterMember(String id, InetSocketAddress inetSocketAddress) {
-        this.id = id;
-        this.inetSocketAddress = inetSocketAddress;
-    }
 
     public ClusterMember(String hostName, int port) {
         this.hostName = hostName;
         this.port = port;
+        this.inetSocketAddress = new InetSocketAddress(hostName, port);
     }
 
     /**
      * Temporarily suspend this member
      *
-     * @param suspensionDurationMillis The time duration in millis in which this member should be suspended
+     * @param suspensionDurationMillis The time duration in millis in which this
+     *                                 member should be suspended
      */
     public void suspend(long suspensionDurationMillis) {
         this.suspendedTime = System.currentTimeMillis();
@@ -156,9 +154,6 @@ public class ClusterMember implements Serializable {
         return inetSocketAddress;
     }
 
-    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
-        this.inetSocketAddress = inetSocketAddress;
-    }
 
     public String getId() {
         return id;
