@@ -29,6 +29,7 @@ import java.util.UUID;
 public abstract class ClusterMessage implements Serializable {
 
     private String uuid = UUID.randomUUID().toString();
+    private long timestamp = System.currentTimeMillis();
 
     public void setUuid(String uuid) {
         this.uuid = uuid;
@@ -39,7 +40,7 @@ public abstract class ClusterMessage implements Serializable {
     }
 
     public long getTimestamp() {
-        return 0;
+        return timestamp;
     }
 
     public abstract void execute() throws MessageFailedException;
