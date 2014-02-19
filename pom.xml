@@ -26,6 +26,7 @@
             <modules>
                 <module>dependencies</module>
                 <module>modules/launcher</module>
+                <module>modules/kernel</module>
                 <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
                 <module>modules/samples/hello-world-bundle</module>
