@@ -29,9 +29,22 @@ import java.util.List;
  */
 
 public interface Cluster {
+    /**
+     * Send the given cluster message to the whole cluster
+     * @param clusterMessage the cluster message to be sent
+     */
     void sendMessage(ClusterMessage clusterMessage);
 
+    /**
+     * Send the given cluster message to a set of members in the cluster
+     * @param clusterMessage the cluster message to be sent
+     * @param members the list of members to send the cluster message
+     */
     void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members);
 
+    /**
+     * Return the list of currently available members in the cluster
+     * @return the member list
+     */
     List<ClusterMember> getMembers();
 }
