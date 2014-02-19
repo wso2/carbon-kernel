@@ -26,13 +26,16 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.agent.CustomClusteringAgent;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
-import org.wso2.carbon.clustering.hazelcast.HazelcastClusteringAgent;
-import org.wso2.carbon.clustering.spi.ClusteringAgent;
+import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
+
+import java.net.InetSocketAddress;
+import java.util.UUID;
 
 public class ClusteringAgentTestCase extends BaseTest {
 
     private CustomClusteringAgent clusteringAgent;
     private ClusterContext clusterContext;
+    private CustomMembershipListener membershipListener;
 
     @BeforeTest
     public void setup() throws ClusterConfigurationException {
@@ -42,12 +45,26 @@ public class ClusteringAgentTestCase extends BaseTest {
         clusterConfiguration.setClusterConfigurationXMLLocation(clusterXMLLocation);
         clusterConfiguration.build();
         clusterContext = new ClusterContext(clusterConfiguration);
+        membershipListener = new CustomMembershipListener();
     }
 
     @Test
     public void testInitializeClusteringAgent() throws ClusterInitializationException {
         clusteringAgent.init(clusterContext);
         Assert.assertTrue(clusteringAgent.isInitialized());
+    }
+
+    @Test (dependsOnMethods = {"testInitializeClusteringAgent"})
+    public void testMembershipListener() {
+        clusterContext.addMembershipListener(membershipListener);
+        ClusterMember clusterMember = new ClusterMember(UUID.randomUUID().toString(),
+                                          new InetSocketAddress("127.0.0.0", 4500));
+        clusterContext.addMember(clusterMember);
+        String addedMember = clusterMember.getHostName() + ":" + clusterMember.getPort();
+        Assert.assertEquals(membershipListener.getAddedMember(), addedMember);
+
+        clusterContext.removeMember(clusterMember);
+        Assert.assertEquals(membershipListener.getRemovedMember(), addedMember);
     }
 
     @AfterTest
