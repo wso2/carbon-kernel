@@ -33,6 +33,7 @@ import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 import org.wso2.carbon.clustering.CarbonCluster;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.internal.DataHolder;
@@ -148,7 +149,11 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
                 Thread.sleep(5000);
             } catch (InterruptedException ignored) {
             }
-            HazelcastUtil.sendMessagesToMember(messageBuffer, member);
+            try {
+                HazelcastUtil.sendMessagesToMember(messageBuffer, member);
+            } catch (MessageFailedException e) {
+                logger.error("Error while sending member joined message", e);
+            }
         }
 
         @Override

@@ -125,6 +125,8 @@ public class CarbonClusterServiceComponent {
         try {
             logger.info("Shutting down clustering agent");
             serviceRegistration.unregister();
+            dataHolder.setClusterContext(null);
+            dataHolder.setCarbonCluster(null);
             clusteringAgent.shutdown();
         } catch (Exception ignore) {
         }

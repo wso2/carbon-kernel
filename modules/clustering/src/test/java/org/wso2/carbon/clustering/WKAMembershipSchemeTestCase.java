@@ -25,6 +25,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
 
 
@@ -42,7 +43,7 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
     }
 
     @Test (dependsOnMethods = {"testWKAMembershipScheme"})
-    public void testSendMessage() {
+    public void testSendMessage() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         CustomClusterMessage clusterMessage = new CustomClusterMessage("WKAMessage");
         carbonCluster.sendMessage(clusterMessage);

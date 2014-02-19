@@ -26,6 +26,7 @@ import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.CarbonCluster;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.DataHolder;
 
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class HazelcastUtil {
      * Replay messages to a newly joining member
      */
     public static void sendMessagesToMember(List<ClusterMessage> messageBuffer,
-                                            Member member) {
+                                            Member member) throws MessageFailedException {
         CarbonCluster carbonCluster = DataHolder.getInstance().getCarbonCluster();
         for (ClusterMessage clusterMessage : messageBuffer) {
             ArrayList<ClusterMember> members = new ArrayList<ClusterMember>();
