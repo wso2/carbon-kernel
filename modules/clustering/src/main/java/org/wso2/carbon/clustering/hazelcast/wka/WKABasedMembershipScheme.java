@@ -101,11 +101,6 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
         }
     }
 
-    private boolean isLocalMember(ClusterMember member) {
-        return member.getHostName().equals(nwConfig.getPublicAddress()) &&
-               member.getPort() == nwConfig.getPort();
-    }
-
     private void configureWKAParameters() {
         String connTimeout = clusterConfiguration.getFirstProperty(WKAConstants.CONNECTION_TIMEOUT);
         TcpIpConfig tcpIpConfig = nwConfig.getJoin().getTcpIpConfig();

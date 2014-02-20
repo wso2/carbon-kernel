@@ -34,6 +34,7 @@ public interface Cluster {
      * Send the given cluster message to the whole cluster
      *
      * @param clusterMessage the cluster message to be sent
+     * @throws MessageFailedException on error
      */
     void sendMessage(ClusterMessage clusterMessage) throws MessageFailedException;
 
@@ -42,6 +43,7 @@ public interface Cluster {
      *
      * @param clusterMessage the cluster message to be sent
      * @param members        the list of members to send the cluster message
+     * @throws MessageFailedException on error
      */
     void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members)
             throws MessageFailedException;

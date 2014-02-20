@@ -32,7 +32,6 @@ import java.util.List;
  * The cluster api implementation
  */
 public class CarbonCluster implements Cluster {
-    private static Logger logger = LoggerFactory.getLogger(CarbonCluster.class);
 
     private ClusteringAgent clusteringAgent;
 

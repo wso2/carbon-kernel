@@ -24,13 +24,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.clustering.hazelcast.wka.WKAConstants;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -54,7 +51,7 @@ public class ClusterUtil {
      */
     public static List<ClusterMember> getWellKnownMembers(
             ClusterConfiguration clusterConfiguration) {
-        List<ClusterMember> members = new ArrayList<ClusterMember>();
+        List<ClusterMember> members = new ArrayList<>();
         List<Object> membersList = clusterConfiguration.getElement("wka.members.member");
 
         for (Object member : membersList) {

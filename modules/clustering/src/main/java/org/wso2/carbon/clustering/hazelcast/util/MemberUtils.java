@@ -28,8 +28,6 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
-import org.wso2.carbon.clustering.hazelcast.wka.WKAConstants;
-import org.wso2.carbon.clustering.internal.DataHolder;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -45,23 +43,6 @@ import java.util.Properties;
 public final class MemberUtils {
     private static Logger logger = LoggerFactory.getLogger(MemberUtils.class);
 
-
-    public static boolean canConnect(ClusterMember wkaMember) {
-        logger.debug("Trying to connect to WKA member {} ...", wkaMember.getInetSocketAddress());
-        try {
-            InetAddress addr = InetAddress.getByName(wkaMember.getHostName());
-            SocketAddress sockAddr = new InetSocketAddress(addr, wkaMember.getPort());
-            new Socket().connect(sockAddr, 10000);
-            return true;
-        } catch (IOException e) {
-            logger.error("Error occurred while trying connect", e);
-            String msg = e.getMessage();
-            if (!msg.contains("Connection refused") && !msg.contains("connect timed out")) {
-                logger.error("Cannot connect to WKA member " + wkaMember, e);
-            }
-        }
-        return false;
-    }
 
     public static void addMember(ClusterMember member,
                                  TcpIpConfig config) {
