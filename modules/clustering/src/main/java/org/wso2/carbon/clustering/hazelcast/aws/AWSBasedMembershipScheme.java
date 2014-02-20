@@ -32,11 +32,9 @@ import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
-import org.wso2.carbon.clustering.CarbonCluster;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
-import org.wso2.carbon.clustering.internal.DataHolder;
 
 import java.util.List;
 
@@ -46,17 +44,14 @@ import java.util.List;
 public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(AWSBasedMembershipScheme.class);
     private ClusterConfiguration clusterConfiguration;
-    private final String primaryDomain;
     private final NetworkConfig nwConfig;
     private HazelcastInstance primaryHazelcastInstance;
     private final List<ClusterMessage> messageBuffer;
     private ClusterContext clusterContext;
 
-    public AWSBasedMembershipScheme(String primaryDomain,
-                                    Config config,
+    public AWSBasedMembershipScheme(Config config,
                                     HazelcastInstance primaryHazelcastInstance,
                                     List<ClusterMessage> messageBuffer) {
-        this.primaryDomain = primaryDomain;
         this.primaryHazelcastInstance = primaryHazelcastInstance;
         this.messageBuffer = messageBuffer;
         this.nwConfig = config.getNetworkConfig();

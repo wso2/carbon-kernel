@@ -28,11 +28,10 @@ import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 public class ClusterConfigurationTestCase extends BaseTest {
 
     private ClusterConfiguration clusterConfiguration;
-    private String clusterXMLLocation;
 
     @BeforeTest
     public void setup() {
-        clusterXMLLocation = getTestResourceFile("cluster-00.xml").getAbsolutePath();
+        String clusterXMLLocation = getTestResourceFile("cluster-00.xml").getAbsolutePath();
         clusterConfiguration = new ClusterConfiguration();
         clusterConfiguration.setClusterConfigurationXMLLocation(clusterXMLLocation);
     }

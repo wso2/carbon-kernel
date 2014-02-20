@@ -28,8 +28,6 @@ import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
 
-import java.net.InetSocketAddress;
-import java.util.UUID;
 
 public class ClusteringAgentTestCase extends BaseTest {
 

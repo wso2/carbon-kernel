@@ -52,22 +52,14 @@ public class ClusterMember implements Serializable {
      */
     private Properties properties = new Properties();
 
-
     /**
-     * Time at which this member was suspended
+     * A unique id of this member
      */
-    private long suspendedTime = -1;
-
-    /**
-     * Time in millis which this member should be suspended
-     */
-    private long suspensionDuration = -1;
-
-
-    private String remoteHost;
-
     private String id;
 
+    /**
+     * InetAddres of this member
+     */
     private InetSocketAddress inetSocketAddress;
 
 
@@ -75,34 +67,6 @@ public class ClusterMember implements Serializable {
         this.hostName = hostName;
         this.port = port;
         this.inetSocketAddress = new InetSocketAddress(hostName, port);
-    }
-
-    /**
-     * Temporarily suspend this member
-     *
-     * @param suspensionDurationMillis The time duration in millis in which this
-     *                                 member should be suspended
-     */
-    public void suspend(long suspensionDurationMillis) {
-        this.suspendedTime = System.currentTimeMillis();
-        this.suspensionDuration = suspensionDurationMillis;
-    }
-
-    /**
-     * Check whether this member is suspended
-     *
-     * @return true if this member is still suspended, false oterwise
-     */
-    public boolean isSuspended() {
-        if (suspendedTime == -1) {
-            return false;
-        }
-        if (System.currentTimeMillis() - suspendedTime >= suspensionDuration) {
-            this.suspendedTime = -1;
-            this.suspensionDuration = -1;
-            return false;
-        }
-        return true;
     }
 
     public String getHostName() {
@@ -141,14 +105,6 @@ public class ClusterMember implements Serializable {
         return properties;
     }
 
-    public String getRemoteHost() {
-        return remoteHost;
-    }
-
-    public void setRemoteHost(String remoteHost) {
-        this.remoteHost = remoteHost;
-    }
-
 
     public InetSocketAddress getInetSocketAddress() {
         return inetSocketAddress;
@@ -175,9 +131,7 @@ public class ClusterMember implements Serializable {
 
         boolean isIdenticalPorts = port == member.getPort();
 
-        return (isIdenticalPorts &&
-                (remoteHost != null ? remoteHost.equals(member.getRemoteHost()) :
-                 member.getRemoteHost() == null) && (hostName != null ?
+        return (isIdenticalPorts && (hostName != null ?
                                                      hostName.equals(member.getHostName()) :
                                                      member.getHostName() == null));
     }

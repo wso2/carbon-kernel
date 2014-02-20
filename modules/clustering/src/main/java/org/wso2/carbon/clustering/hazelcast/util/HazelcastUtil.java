@@ -53,7 +53,7 @@ public class HazelcastUtil {
                                             Member member) throws MessageFailedException {
         CarbonCluster carbonCluster = DataHolder.getInstance().getCarbonCluster();
         for (ClusterMessage clusterMessage : messageBuffer) {
-            ArrayList<ClusterMember> members = new ArrayList<ClusterMember>();
+            ArrayList<ClusterMember> members = new ArrayList<>();
             members.add(HazelcastUtil.toClusterMember(member));
             carbonCluster.sendMessage(clusterMessage, members);
         }

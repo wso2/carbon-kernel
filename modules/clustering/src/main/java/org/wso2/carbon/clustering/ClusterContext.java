@@ -21,13 +21,8 @@ package org.wso2.carbon.clustering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.wso2.carbon.clustering.api.MembershipListener;
-import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,12 +43,12 @@ public class ClusterContext {
     }
 
     public void addMembershipListener(MembershipListener membershipListener) {
-        logger.debug("Adding new membership listener {} " ,membershipListener);
+        logger.debug("Adding new membership listener {} ", membershipListener);
         membershipListeners.add(membershipListener);
     }
 
     public void removeMembershipListener(MembershipListener membershipListener) {
-        logger.debug("Removing membership listener {} " ,membershipListener);
+        logger.debug("Removing membership listener {} ", membershipListener);
         membershipListeners.remove(membershipListener);
     }
 

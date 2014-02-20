@@ -79,17 +79,12 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
 
     private HazelcastMembershipScheme membershipScheme;
     private ITopic<ClusterMessage> clusteringMessageTopic;
-    private List<ClusterMessage> sentMsgsBuffer = new CopyOnWriteArrayList<ClusterMessage>();
+    private List<ClusterMessage> sentMsgsBuffer = new CopyOnWriteArrayList<>();
 
     // key - msg UUID, value - timestamp(msg received time)
-    private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<String, Long>();
+    private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<>();
     private ClusterContext clusterContext;
 
-
-    /**
-     * Static members
-     */
-    private List<ClusterMember> wkaMembers;
 
     private String primaryDomain;
 
@@ -249,7 +244,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
      * @return The clustering domain to which this node belongs to
      */
     private String getClusterDomain() {
-        String domain = null;
+        String domain;
         domain = getClusterProperty(ClusteringConstants.DOMAIN);
         if (domain == null) {
             domain = ClusteringConstants.DEFAULT_DOMAIN;
@@ -268,7 +263,8 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         logger.info("Using " + scheme + " based membership management scheme");
         switch (scheme) {
             case ClusteringConstants.MembershipScheme.WKA_BASED:
-                wkaMembers = ClusterUtil.getWellKnownMembers(clusterContext.getClusterConfiguration());
+                List<ClusterMember> wkaMembers = ClusterUtil.
+                        getWellKnownMembers(clusterContext.getClusterConfiguration());
                 membershipScheme = new WKABasedMembershipScheme(primaryDomain,
                                                                 wkaMembers, primaryHazelcastConfig,
                                                                 sentMsgsBuffer);
@@ -282,8 +278,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                 membershipScheme.init(clusterContext);
                 break;
             case HazelcastConstants.AWS_MEMBERSHIP_SCHEME:
-                membershipScheme = new AWSBasedMembershipScheme(primaryDomain,
-                                                                primaryHazelcastConfig,
+                membershipScheme = new AWSBasedMembershipScheme(primaryHazelcastConfig,
                                                                 primaryHazelcastInstance,
                                                                 sentMsgsBuffer);
                 membershipScheme.init(clusterContext);
@@ -318,20 +313,12 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         return mbrScheme;
     }
 
-    public Config getPrimaryHazelcastConfig() {
-        return primaryHazelcastConfig;
-    }
-
 
     public void shutdown() {
         try {
             Hazelcast.shutdownAll();
         } catch (Exception ignored) {
         }
-    }
-
-    public List<ClusterMember> getStaticMembers() {
-        return wkaMembers;
     }
 
     public int getAliveMemberCount() {

@@ -21,7 +21,6 @@ package org.wso2.carbon.clustering.internal;
 
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.clustering.CarbonCluster;
-import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
 
 public class DataHolder {
