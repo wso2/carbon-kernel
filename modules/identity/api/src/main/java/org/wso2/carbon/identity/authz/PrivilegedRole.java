@@ -22,37 +22,45 @@ package org.wso2.carbon.identity.authz;
 import java.util.Collections;
 import java.util.List;
 
+import org.wso2.carbon.identity.authn.IdentityStoreException;
 import org.wso2.carbon.identity.authn.PrivilegedGroup;
-import org.wso2.carbon.identity.authn.PrivilegedRWUser;
+import org.wso2.carbon.identity.authn.PrivilegedUser;
 import org.wso2.carbon.identity.authn.StoreIdentifier;
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
-import org.wso2.carbon.identity.authz.spi.AuthorizationStore;
+import org.wso2.carbon.identity.authz.spi.ReadOnlyAuthorizationStore;
 import org.wso2.carbon.identity.commons.EntityTree;
 import org.wso2.carbon.identity.commons.EntryIdentifier;
 
-public class PrivilegedRole extends Role {
+public abstract class PrivilegedRole<U extends PrivilegedUser, G extends PrivilegedGroup>
+		extends Role {
 
-	private AuthorizationStore authzStore;
-	private EntryIdentifier entryId;
+	private ReadOnlyAuthorizationStore authzStore;
+	private EntryIdentifier entryIdentifier;
+	// Id of the entry in AuthorizationStore for this role
+	private EntryIdentifier roleEntryIdentifier;
 
 	/**
 	 * 
 	 * @param authzStore
 	 * @param roleIdentifier
 	 */
-	public PrivilegedRole(AuthorizationStore authzStore,
-			RoleIdentifier roleIdentifier) {
+	public PrivilegedRole(RoleIdentifier roleIdentifier,
+			ReadOnlyAuthorizationStore authzStore)
+			throws AuthorizationStoreException {
 		super(roleIdentifier);
 		this.authzStore = authzStore;
+		this.roleEntryIdentifier = authzStore
+				.getRoleEntryId(getRoleIdentifier());
 	}
 
 	/**
 	 * 
 	 * @return
+	 * @throws IdentityStoreException
 	 */
-	public EntryIdentifier getEntryId() {
-		return entryId;
+	public EntryIdentifier getRoleEntryId() {
+		return roleEntryIdentifier;
 	}
 
 	/**
@@ -68,30 +76,10 @@ public class PrivilegedRole extends Role {
 
 	/**
 	 * 
-	 * @param permission
-	 * @throws AuthorizationStoreException
-	 */
-	public void addPermission(List<Permission> permission)
-			throws AuthorizationStoreException {
-		authzStore.addPermissionToRole(getRoleIdentifier(), permission);
-	}
-
-	/**
-	 * 
-	 * @param permission
-	 * @throws AuthorizationStoreException
-	 */
-	public void removePermission(List<Permission> permission)
-			throws AuthorizationStoreException {
-		authzStore.removePermissionFromRole(getRoleIdentifier(), permission);
-	}
-
-	/**
-	 * 
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedGroup> getGroups() throws AuthorizationStoreException {
+	public List<G> getGroups() throws AuthorizationStoreException {
 		return authzStore.getGroupsOfRole(getRoleIdentifier());
 	}
 
@@ -101,10 +89,10 @@ public class PrivilegedRole extends Role {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria)
+	public List<G> getGroups(GroupSearchCriteria searchCriteria)
 			throws AuthorizationStoreException {
-		List<PrivilegedGroup> groups = authzStore.getGroupsOfRole(
-				getRoleIdentifier(), searchCriteria);
+		List<G> groups = authzStore.getGroupsOfRole(getRoleIdentifier(),
+				searchCriteria);
 		return Collections.unmodifiableList(groups);
 	}
 
@@ -113,9 +101,8 @@ public class PrivilegedRole extends Role {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRWUser> getUsers() throws AuthorizationStoreException {
-		List<PrivilegedRWUser> users = authzStore
-				.getUsersOfRole(getRoleIdentifier());
+	public List<U> getUsers() throws AuthorizationStoreException {
+		List<U> users = authzStore.getUsersOfRole(getRoleIdentifier());
 		return Collections.unmodifiableList(users);
 	}
 
@@ -125,10 +112,10 @@ public class PrivilegedRole extends Role {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria)
+	public List<U> getUsers(UserSearchCriteria searchCriteria)
 			throws AuthorizationStoreException {
-		List<PrivilegedRWUser> users = authzStore.getUsersOfRole(
-				getRoleIdentifier(), searchCriteria);
+		List<U> users = authzStore.getUsersOfRole(getRoleIdentifier(),
+				searchCriteria);
 		return Collections.unmodifiableList(users);
 	}
 

@@ -19,38 +19,84 @@
 
 package org.wso2.carbon.identity.authn;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.wso2.carbon.identity.account.AccountException;
-import org.wso2.carbon.identity.authn.spi.IdentityStore;
+import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
+import org.wso2.carbon.identity.authn.spi.ReadWriteIdentityStore;
 import org.wso2.carbon.identity.authz.AuthorizationStoreException;
+import org.wso2.carbon.identity.authz.PrivilegedReadWriteRole;
 import org.wso2.carbon.identity.authz.RoleIdentifier;
-import org.wso2.carbon.identity.authz.spi.AuthorizationStore;
+import org.wso2.carbon.identity.authz.spi.ReadWriteAuthorizationStore;
+import org.wso2.carbon.identity.authz.spi.RoleSearchCriteria;
 import org.wso2.carbon.identity.claim.Claim;
 import org.wso2.carbon.identity.claim.DialectIdentifier;
 import org.wso2.carbon.identity.commons.EntryIdentifier;
+import org.wso2.carbon.identity.commons.IdentityException;
 import org.wso2.carbon.identity.credential.spi.Credential;
 import org.wso2.carbon.identity.profile.ProfileIdentifier;
 
-public class PrivilegedRWUser extends PrivilegedROUser {
+public class PrivilegedRWUser extends PrivilegedUser<PrivilegedReadWriteGroup, PrivilegedReadWriteRole> {
 
-	private IdentityStore identityStore;
-	private AuthorizationStore authzStore;
-	private EntryIdentifier entryIdentifier;
+	private ReadWriteIdentityStore identityStore;
+	private ReadWriteAuthorizationStore authzStore;
 
 	/**
 	 * 
 	 * @param identityStore
 	 * @param authzStore
 	 * @param userIdentifier
+	 * @throws IdentityException 
 	 */
-	public PrivilegedRWUser(IdentityStore identityStore, AuthorizationStore authzStore,
-			UserIdentifier userIdentifier) {
-		super(identityStore, authzStore, userIdentifier);
-		this.authzStore = authzStore;
+	public PrivilegedRWUser(UserIdentifier userIdentifier, ReadWriteIdentityStore identityStore, ReadWriteAuthorizationStore authzStore) throws IdentityException {
+		super(userIdentifier, identityStore, authzStore);
 		this.identityStore = identityStore;
+		this.authzStore = authzStore;
 	}
 
+	/**
+	 * 
+	 * @return
+	 * @throws IdentityStoreException
+	 */
+	public List<PrivilegedReadWriteGroup> getGroups() throws IdentityStoreException {
+		List<PrivilegedReadWriteGroup> groups = identityStore.getGroups(getUserIdentifier());
+		return Collections.unmodifiableList(groups);
+	}
+
+	/**
+	 * 
+	 * @param searchCriteria
+	 * @return
+	 * @throws IdentityStoreException 
+	 */
+	public List<PrivilegedReadWriteGroup> getGroups(GroupSearchCriteria searchCriteria) throws IdentityStoreException {
+		List<PrivilegedReadWriteGroup> groups = identityStore.getGroups(getUserIdentifier(), searchCriteria);
+		return Collections.unmodifiableList(groups);
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @throws AuthorizationStoreException
+	 */
+	public List<PrivilegedReadWriteRole> getRoles() throws AuthorizationStoreException {
+		List<PrivilegedReadWriteRole> roles = authzStore.getRoles(getUserIdentifier());
+		return Collections.unmodifiableList(roles);
+	}
+
+	/**
+	 * 
+	 * @param searchCriteria
+	 * @return
+	 * @throws AuthorizationStoreException
+	 */
+	public List<PrivilegedReadWriteRole> getRoles(RoleSearchCriteria searchCriteria) throws AuthorizationStoreException {
+		List<PrivilegedReadWriteRole> roles = authzStore.getRoles(getUserIdentifier(), searchCriteria);
+		return Collections.unmodifiableList(roles);
+	}
+	
 	/**
 	 * 
 	 * @param dialectIdentifier
@@ -105,18 +151,20 @@ public class PrivilegedRWUser extends PrivilegedROUser {
 	 * 
 	 * @param linkedEntryIdentifier
 	 * @throws AccountException
+	 * @throws IdentityStoreException 
 	 */
-	public void linkAccount(EntryIdentifier linkedEntryIdentifier) throws AccountException {
-		identityStore.getLinkedAccountStore().link(entryIdentifier, linkedEntryIdentifier);
+	public void linkAccount(EntryIdentifier linkedEntryIdentifier) throws AccountException, IdentityStoreException {
+		identityStore.getLinkedAccountStore().link(getUserEntryId(), linkedEntryIdentifier);
 	}
 
 	/**
 	 * 
 	 * @param linkedEntryIdentifier
 	 * @throws AccountException
+	 * @throws IdentityStoreException 
 	 */
-	public void unlinkAccount(EntryIdentifier linkedEntryIdentifier) throws AccountException {
-		identityStore.getLinkedAccountStore().unlink(entryIdentifier, linkedEntryIdentifier);
+	public void unlinkAccount(EntryIdentifier linkedEntryIdentifier) throws AccountException, IdentityStoreException {
+		identityStore.getLinkedAccountStore().unlink(getUserEntryId(), linkedEntryIdentifier);
 	}
 
 	/**

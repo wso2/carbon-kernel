@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.identity;
 
-import org.wso2.carbon.identity.account.spi.LinkedAccountStore;
+import org.wso2.carbon.identity.account.spi.ReadWriteLinkedAccountStore;
 import org.wso2.carbon.identity.authn.IdentityStoreManager;
 import org.wso2.carbon.identity.authz.AuthorizationStoreManager;
 import org.wso2.carbon.identity.claim.ClaimManager;
@@ -43,12 +43,14 @@ public interface IdentitySystem {
 	 * @return
 	 */
 	public IdentityStoreManager getIdentityStoreManager();
+//	public ReadWriteIdentityStoreManager getIdentityStoreManager();
 
 	/**
 	 * 
 	 * @return
 	 */
 	public AuthorizationStoreManager getAuthorizationStoreManager();
+//	public ReadWriteAuthorizationStoreManager getAuthorizationStoreManager();
 
 	/**
 	 * 
@@ -60,5 +62,5 @@ public interface IdentitySystem {
 	 * 
 	 * @return
 	 */
-	public LinkedAccountStore getLinkedAccountStore();
+	public ReadWriteLinkedAccountStore getLinkedAccountStore();
 }

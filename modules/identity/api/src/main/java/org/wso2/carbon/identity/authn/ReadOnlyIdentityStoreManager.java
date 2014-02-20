@@ -21,7 +21,7 @@ package org.wso2.carbon.identity.authn;
 
 import java.util.List;
 
-import org.wso2.carbon.identity.authn.spi.IdentityStore;
+import org.wso2.carbon.identity.authn.spi.ReadOnlyIdentityStore;
 
 public interface ReadOnlyIdentityStoreManager {
 
@@ -30,13 +30,13 @@ public interface ReadOnlyIdentityStoreManager {
 	 * @param storeIdentifier
 	 * @return
 	 */
-	public IdentityStore getIdentityStore(StoreIdentifier storeIdentifier);
+	public ReadOnlyIdentityStore getIdentityStore(StoreIdentifier storeIdentifier);
 
 	/**
 	 * 
 	 * @return
 	 */
-	public IdentityStore getPrimaryIdentityStore();
+	public ReadOnlyIdentityStore getPrimaryIdentityStore();
 
 	/**
 	 * 
