@@ -327,21 +327,29 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
 
 
     public void sendMessage(ClusterMessage clusteringMessage) throws MessageFailedException {
-        if (!sentMsgsBuffer.contains(clusteringMessage)) {
-            sentMsgsBuffer.add(clusteringMessage); // Buffer the message for replay
-        }
-        if (clusteringMessageTopic != null) {
-            clusteringMessageTopic.publish(clusteringMessage);
+        try {
+            if (!sentMsgsBuffer.contains(clusteringMessage)) {
+                sentMsgsBuffer.add(clusteringMessage); // Buffer the message for replay
+            }
+            if (clusteringMessageTopic != null) {
+                clusteringMessageTopic.publish(clusteringMessage);
+            }
+        } catch (Exception e) {
+            throw new MessageFailedException("Error while sending cluster message", e);
         }
     }
 
     @Override
     public void sendMessage(ClusterMessage msg, List<ClusterMember> members)
             throws MessageFailedException {
-        for (ClusterMember member : members) {
-            ITopic<ClusterMessage> msgTopic = primaryHazelcastInstance.
-                    getTopic(HazelcastConstants.REPLAY_MESSAGE_QUEUE + member.getId());
-            msgTopic.publish(msg);
+        try {
+            for (ClusterMember member : members) {
+                ITopic<ClusterMessage> msgTopic = primaryHazelcastInstance.
+                        getTopic(HazelcastConstants.REPLAY_MESSAGE_QUEUE + member.getId());
+                msgTopic.publish(msg);
+            }
+        } catch (Exception e) {
+            throw new MessageFailedException("Error while sending cluster message", e);
         }
     }
 
