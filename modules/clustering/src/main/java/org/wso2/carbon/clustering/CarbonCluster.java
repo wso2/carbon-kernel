@@ -18,8 +18,6 @@
  */
 package org.wso2.carbon.clustering;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.DataHolder;
@@ -53,6 +51,6 @@ public class CarbonCluster implements Cluster {
     @Override
     public List<ClusterMember> getMembers() {
         ClusterContext clusterContext = DataHolder.getInstance().getClusterContext();
-        return Collections.unmodifiableList(clusterContext.getPrimaryClusterMembers());
+        return Collections.unmodifiableList(clusterContext.getClusterMembers());
     }
 }

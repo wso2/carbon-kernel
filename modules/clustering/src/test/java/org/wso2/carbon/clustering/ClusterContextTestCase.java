@@ -47,13 +47,13 @@ public class ClusterContextTestCase extends BaseTest {
     @Test
     public void testAddMember() {
         clusterContext.addMember(clusterMember);
-        Assert.assertEquals(clusterContext.getPrimaryClusterMembers().get(0), clusterMember);
+        Assert.assertEquals(clusterContext.getClusterMembers().get(0), clusterMember);
     }
 
     @Test(dependsOnMethods = {"testAddMember"})
     public void testRemoveMember() {
         clusterContext.removeMember(clusterMember);
-        Assert.assertEquals(clusterContext.getPrimaryClusterMembers().size(), 0);
+        Assert.assertEquals(clusterContext.getClusterMembers().size(), 0);
     }
 
     @Test
