@@ -35,7 +35,7 @@ public class ClusterContext {
     private static Logger logger = LoggerFactory.getLogger(CarbonCluster.class);
 
     private List<MembershipListener> membershipListeners = new ArrayList<>();
-    private List<ClusterMember> primaryClusterMembers = new ArrayList<>();
+    private List<ClusterMember> clusterMembers = new ArrayList<>();
     private ClusterConfiguration clusterConfiguration;
 
     public ClusterContext(ClusterConfiguration clusterConfiguration) {
@@ -58,7 +58,7 @@ public class ClusterContext {
             membershipListener.memberAdded(new MembershipEvent(clusterMember,
                                                                MembershipEvent.MEMBER_ADDED));
         }
-        primaryClusterMembers.add(clusterMember);
+        clusterMembers.add(clusterMember);
     }
 
     public void removeMember(ClusterMember clusterMember) {
@@ -67,11 +67,11 @@ public class ClusterContext {
             membershipListener.memberRemoved(new MembershipEvent(clusterMember,
                                                                  MembershipEvent.MEMBER_REMOVED));
         }
-        primaryClusterMembers.remove(clusterMember);
+        clusterMembers.remove(clusterMember);
     }
 
-    public List<ClusterMember> getPrimaryClusterMembers() {
-        return primaryClusterMembers;
+    public List<ClusterMember> getClusterMembers() {
+        return clusterMembers;
     }
 
     public ClusterConfiguration getClusterConfiguration() {
