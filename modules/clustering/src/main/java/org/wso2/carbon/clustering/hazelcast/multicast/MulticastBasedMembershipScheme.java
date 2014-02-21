@@ -67,7 +67,7 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     }
 
     private void configureMulticastParameters() {
-        String mcastAddress = getProperty(MulticastConstants.MULTICAST_ADDRESS);
+        String mcastAddress = getProperty(MulticastConstants.MULTICAST_GROUP);
         if (mcastAddress != null) {
             config.setMulticastGroup(mcastAddress);
         }

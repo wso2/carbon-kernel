@@ -1,62 +1,55 @@
-<cluster agentType="hazelcast" enable="false">
-    <!--
-       The membership scheme used in this setup. The only values supported at the moment are
-       "multicast" and "wka"
-
-       1. multicast - membership is automatically discovered using multicasting
-       2. wka - Well-Known Address based multicasting. Membership is discovered with the help
-                of one or more nodes running at a Well-Known Address. New members joining a
-                cluster will first connect to a well-known node, register with the well-known node
-                and get the membership list from it. When new members join, one of the well-known
-                nodes will notify the others in the group. When a member leaves the cluster or
-                is deemed to have left the cluster, it will be detected by the Group Membership
-                Service (GMS) using a TCP ping mechanism.
-    -->
-    <membership-scheme>multicast</membership-scheme>
+<Cluster enable="false">
+    <!-- The agent implementation used with cluster framework-->
+    <Agent>hazelcast</Agent>
     <!--
      The clustering domain/group. Nodes in the same group will belong to the same multicast
      domain. There will not be interference between nodes in different groups.
     -->
-    <domain>wso2.carbon.domain</domain>
+    <Domain>wso2.carbon.domain</Domain>
 
-    <!-- The host name or IP address of this member -->
+    <!-- Properties specific to this member -->
+    <LocalMember>
+        <Host>127.0.0.1</Host>
+        <Port>4000</Port>
 
-    <local-member-host>127.0.0.1</local-member-host>
+        <Properties>
+            <Property name="backendServerUrl">https://${hostName}:${httpsPort}/services/</Property>
+            <Property name="mgtConsoleUrl">https://${hostName}:${httpsPort}/</Property>
+            <Property name="subDomain">worker</Property>
+        </Properties>
+    </LocalMember>
 
     <!--
-    The TCP port used by this member. This is the port through which other nodes will
-    contact this member
-     -->
-    <local-member-port>4000</local-member-port>
+        The membership scheme used in this setup. The only values supported at the moment are
+        "multicast" and "wka"
 
-    <!--
-    Properties specific to this member
+        1. multicast - membership is automatically discovered using multicasting
+        2. wka - Well-Known Address based multicasting. Membership is discovered with the help
+            of one or more nodes running at a Well-Known Address. New members joining a
+            cluster will first connect to a well-known node, register with the well-known node
+            and get the membership list from it. When new members join, one of the well-known
+            nodes will notify the others in the group. When a member leaves the cluster or
+            is deemed to have left the cluster, it will be detected by the Group Membership
+            Service (GMS) using a TCP ping mechanism.
     -->
-    <properties>
-        <backend-server-url>https://${hostName}:${httpsPort}/services/</backend-server-url>
-        <mgt-console-url>https://${hostName}:${httpsPort}/</mgt-console-url>
-        <sub-domain>worker</sub-domain>
-    </properties>
+    <MembershipScheme>
+        <!-- multicast membership scheme related properties-->
+        <Multicast>
+            <Group>228.0.0.4</Group>
+            <Port>45564</Port>
+            <TTL>100</TTL>
+            <!--<Timeout>60</Timeout>-->
+        </Multicast>
 
+        <!-- wka membership scheme related properties-->
+        <!--WKA>
+            <Members>
+                <Member>
+                    <Host>127.0.0.1</Host>
+                    <Port>4000</Port>
+                </Member>
+            </Members>
+        </WKA-->
+    </MembershipScheme>
 
-    <!-- multicast membership scheme related properties-->
-    <multicast>
-        <address>228.0.0.4</address>
-        <port>45564</port>
-        <ttl>100</ttl>
-        <timeout>60</timeout>
-    </multicast>
-
-    <!-- wka membership scheme related properties-->
-    <wka>
-        <!-- The list of static or well-known members.-->
-        <members>
-            <member>
-                <host-name>127.0.0.1</host-name>
-                <port>4000</port>
-            </member>
-        </members>
-    </wka>
-
-
-</cluster>
+</Cluster>

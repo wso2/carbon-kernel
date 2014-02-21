@@ -23,10 +23,10 @@ package org.wso2.carbon.clustering.hazelcast.multicast;
  */
 public final class MulticastConstants {
 
-    public static final String MULTICAST_ADDRESS = "mcastAddress";
-    public static final String MULTICAST_PORT = "mcastPort";
-    public static final String MULTICAST_TIMEOUT = "mcastTimeout";
-    public static final String MULTICAST_TTL = "mcastTTL";
+    public static final String MULTICAST_GROUP = "MembershipScheme.Multicast.Group";
+    public static final String MULTICAST_PORT = "MembershipScheme.Multicast.Port";
+    public static final String MULTICAST_TIMEOUT = "MembershipScheme.Multicast.Timeout";
+    public static final String MULTICAST_TTL = "MembershipScheme.Multicast.TTL";
 
     private MulticastConstants() {
     }
