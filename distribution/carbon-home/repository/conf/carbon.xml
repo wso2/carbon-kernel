@@ -22,7 +22,7 @@
     ${carbon.home} represents the carbon.home system property.
     Other system properties can be specified in a similar manner.
 -->
-<Server xmlns="http://wso2.org/projects/carbon/carbon.xml">
+<Server xmlns="http://wso2.org/projects/carbon">
 
     <!--
        Product Name
@@ -39,14 +39,10 @@
     -->
     <Version>${product.version}</Version>
 
-
-    <!-- uncommnet this line to subscribe to a bam instance automatically -->
-    <!--<BamServerURL>https://bamhost:bamport/services/</BamServerURL>-->
-
     <!--
        The fully qualified name of the server
     -->
-    <Package>org.wso2.carbon</Package>
+    <!--<Package>org.wso2.carbon</Package>-->
 
     <!--
        Ports used by this server
@@ -132,9 +128,13 @@
     <!--
        Default Feature Repository of WSO2 Carbon.
     -->
-    <FeatureRepository>
-        <RepositoryName>default repository</RepositoryName>
-        <RepositoryURL>${p2.repo.url}</RepositoryURL>
-    </FeatureRepository>
+    <!--<FeatureRepository>-->
+        <!--<RepositoryName>default repository</RepositoryName>-->
+        <!--<RepositoryURL>${p2.repo.url}</RepositoryURL>-->
+    <!--</FeatureRepository>-->
+
+    <Tenant>
+
+    </Tenant>
 
 </Server>
