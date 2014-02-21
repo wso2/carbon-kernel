@@ -27,7 +27,7 @@ public final class ClusteringConstants {
     private ClusteringConstants() {
     }
 
-    public static final String CLUSTER_AGENT_TYPE = "agentType";
+    public static final String CLUSTER_AGENT = "Agent";
 
     /**
      * The default domain to which this member belongs to. This node may be running in application
@@ -35,32 +35,32 @@ public final class ClusteringConstants {
      */
     public static final String DEFAULT_DOMAIN = "wso2.carbon.domain";
 
-    public static final String LOCAL_MEMBER_PORT = "local-member-port";
+    public static final String LOCAL_MEMBER_HOST = "LocalMember.Host";
 
-    public static final String LOCAL_MEMBER_HOST = "local-member-host";
+    public static final String LOCAL_MEMBER_PORT = "LocalMember.Port";
 
     /**
      * The membership scheme used in this setup. The only values supported at the moment are
      * "multicast" and "wka"
      */
-    public static final String MEMBERSHIP_SCHEME = "membership-scheme";
+    public static final String MEMBERSHIP_SCHEME = "MembershipScheme";
 
     /**
      * The clustering domain/group. Nodes in the same group will belong to the same multicast
      * domain. There will not be interference between nodes in different groups.
      */
-    public static final String DOMAIN = "domain";
+    public static final String DOMAIN = "Domain";
 
 
     public static final class MembershipScheme {
         /**
          * Multicast based membership discovery scheme
          */
-        public static final String MULTICAST_BASED = "multicast";
+        public static final String MULTICAST_BASED = "Multicast";
 
         /**
          * Well-Known Address based membership management scheme
          */
-        public static final String WKA_BASED = "wka";
+        public static final String WKA_BASED = "WKA";
     }
 }

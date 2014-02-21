@@ -23,10 +23,10 @@ package org.wso2.carbon.clustering.hazelcast.wka;
  */
 public final class WKAConstants {
 
-    public static final String CONNECTION_TIMEOUT = "connTimeout";
+    public static final String CONNECTION_TIMEOUT = "ConnTimeout";
 
-    public static final String HOST_NAME= "host-name";
-    public static final String PORT= "port";
+    public static final String HOST = "Host";
+    public static final String PORT = "Port";
 
     private WKAConstants() {
     }

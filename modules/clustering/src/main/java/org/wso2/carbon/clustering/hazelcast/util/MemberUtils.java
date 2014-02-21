@@ -23,6 +23,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.clustering.ClusterConfiguration;
@@ -66,7 +67,7 @@ public final class MemberUtils {
             memberInfo.setProperty("hostName", localMemberHost);
         }
         ClusterConfiguration clusterConfiguration = clusterContext.getClusterConfiguration();
-        List<Object> propsParam = clusterConfiguration.getElement("properties");
+        List<Object> propsParam = clusterConfiguration.getElement("LocalMember.Properties");
         if (propsParam != null) {
             for (Object property : propsParam) {
                 if (property instanceof Node) {
@@ -74,7 +75,7 @@ public final class MemberUtils {
                     for (int count = 0; count < nodeList.getLength(); count++) {
                         Node node = nodeList.item(count);
                         if (node.getNodeType() == Node.ELEMENT_NODE) {
-                            String attributeName = node.getNodeName();
+                            String attributeName = ((Element)node).getAttribute("name");
                             if (attributeName != null) {
                                 attributeName = replaceProperty(attributeName, memberInfo);
                             }

@@ -71,7 +71,7 @@ public class CarbonClusterServiceComponent {
 
     protected void setClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
         if (ClusterUtil.isClusteringEnabled()) {
-            Object clusterAgentTypeParam = ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
+            Object clusterAgentTypeParam = ref.get(ClusteringConstants.CLUSTER_AGENT);
             if (clusterAgentTypeParam != null) {
                 ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
                 String registeredAgentType = (String) clusterAgentTypeParam;
@@ -92,7 +92,7 @@ public class CarbonClusterServiceComponent {
 
     protected void unsetClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
         if (ClusterUtil.isClusteringEnabled()) {
-            String registeredAgentType = (String) ref.get(ClusteringConstants.CLUSTER_AGENT_TYPE);
+            String registeredAgentType = (String) ref.get(ClusteringConstants.CLUSTER_AGENT);
             if (clusteringAgentType.equals(registeredAgentType)) {
                 terminateCluster(clusteringAgent);
             }

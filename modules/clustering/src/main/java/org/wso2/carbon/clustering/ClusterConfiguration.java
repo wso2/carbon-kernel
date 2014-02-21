@@ -21,6 +21,8 @@ package org.wso2.carbon.clustering;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.wso2.carbon.base.Utils;
 import org.wso2.carbon.base.exception.ConfigurationInitializationException;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
@@ -47,13 +49,14 @@ public class ClusterConfiguration {
     private boolean isInitialized = false;
 
     private String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
-                                      "repository" + File.separator + "conf" +
-                                      File.separator + "cluster.xml";
+                                              "repository" + File.separator + "conf" +
+                                              File.separator + "cluster.xml";
 
 
     public void setClusterConfigurationXMLLocation(String configurationXMLLocation) {
         this.configurationXMLLocation = configurationXMLLocation;
     }
+
     /**
      * This initializes the server configuration. This method should only be
      * called once, for successive calls, it will be checked.
@@ -122,12 +125,17 @@ public class ClusterConfiguration {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
 
-            String clusterAgent = doc.getDocumentElement().
-                    getAttribute(ClusteringConstants.CLUSTER_AGENT_TYPE);
+            NodeList nodeList = doc.getDocumentElement().getChildNodes();
 
-            if (clusterAgent != null && agentType.equals(clusterAgent)) {
-                build();
-                initialize = true;
+            for (int count = 0; count <= nodeList.getLength(); count++) {
+                Node node = nodeList.item(count);
+                if (node.getNodeType() == Node.ELEMENT_NODE &&
+                    node.getNodeName().equals(ClusteringConstants.CLUSTER_AGENT) &&
+                    node.getTextContent().equals(agentType)) {
+                    build();
+                    initialize = true;
+                    break;
+                }
             }
         } catch (Exception e) {
             String msg = "Error while loading cluster configuration file";
