@@ -1,4 +1,9 @@
-<Cluster enable="false">
+<Cluster xsi:schemaLocation="http://wso2.com/schema/clustering/config cluster.xsd"
+         xmlns="http://wso2.com/schema/clustering/config"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <!--Indicates whether clustering should be enabled or disabled for this node-->
+    <Enable>true</Enable>
     <!-- The agent implementation used with cluster framework-->
     <Agent>hazelcast</Agent>
     <!--

@@ -22,8 +22,18 @@ package org.wso2.carbon.clustering;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.w3c.dom.Element;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import java.io.File;
+import java.io.IOException;
 
 public class ClusterConfigurationTestCase extends BaseTest {
 
@@ -34,6 +44,34 @@ public class ClusterConfigurationTestCase extends BaseTest {
         String clusterXMLLocation = getTestResourceFile("cluster-00.xml").getAbsolutePath();
         clusterConfiguration = new ClusterConfiguration();
         clusterConfiguration.setClusterConfigurationXMLLocation(clusterXMLLocation);
+    }
+
+    @Test
+    public void testClusterXmlValidation1()
+            throws ParserConfigurationException, IOException, SAXException {
+        Source xmlFile = new StreamSource(getTestResourceFile("xsd" + File.separator +
+                                                              "cluster.xml"));
+        SchemaFactory schemaFactory = SchemaFactory
+                .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = schemaFactory.newSchema(getTestResourceFile("xsd" + File.separator +
+                                                                    "cluster.xsd"));
+        Validator validator = schema.newValidator();
+        validator.validate(xmlFile);
+    }
+
+    @Test
+    public void testClusterXmlValidation2()
+            throws ParserConfigurationException, IOException, SAXException {
+        Source xmlFile = new StreamSource(new File(".." + File.separator + ".." + File.separator +
+                                                   "distribution" + File.separator + "carbon-home" +
+                                                   File.separator + "repository" + File.separator +
+                                                   "conf" + File.separator + "cluster.xml"));
+        SchemaFactory schemaFactory = SchemaFactory
+                .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = schemaFactory.newSchema(getTestResourceFile("xsd" + File.separator +
+                                                                    "cluster.xsd"));
+        Validator validator = schema.newValidator();
+        validator.validate(xmlFile);
     }
 
     @Test
@@ -49,14 +87,10 @@ public class ClusterConfigurationTestCase extends BaseTest {
         clusterConfiguration.build();
     }
 
-    @Test (dependsOnMethods = {"testBuildClusterConfiguration"})
+    @Test(dependsOnMethods = {"testBuildClusterConfiguration"})
     public void testClusteringEnabled() {
-        Object obj = clusterConfiguration.getElement("cluster");
-        if (obj instanceof Element) {
-            Element rootElement = (Element) obj;
-            boolean isEnabled = Boolean.parseBoolean(rootElement.getAttribute("enable"));
-            Assert.assertTrue(isEnabled);
-        }
+        boolean isEnabled = Boolean.parseBoolean(clusterConfiguration.getFirstProperty("Enable"));
+        Assert.assertTrue(isEnabled);
     }
 
     @Test

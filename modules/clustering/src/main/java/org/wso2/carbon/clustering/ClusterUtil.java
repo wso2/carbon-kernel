@@ -54,7 +54,8 @@ public class ClusterUtil {
     public static List<ClusterMember> getWellKnownMembers(
             ClusterConfiguration clusterConfiguration) {
         List<ClusterMember> members = new ArrayList<>();
-        List<Object> membersList = clusterConfiguration.getElement("MembershipScheme.WKA.Members.Member");
+        List<Object> membersList = clusterConfiguration.
+                getElement("MembershipScheme.WKA.Members.Member");
 
         for (Object member : membersList) {
             if (member instanceof Node) {
@@ -144,8 +145,16 @@ public class ClusterUtil {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
 
-            isEnabled = Boolean.parseBoolean(doc.getDocumentElement().
-                    getAttribute("enable"));
+            NodeList nodeList = doc.getDocumentElement().getChildNodes();
+            for (int count = 0; count <= nodeList.getLength(); count++) {
+                Node node = nodeList.item(count);
+                if (node.getNodeType() == Node.ELEMENT_NODE &&
+                    node.getNodeName().equals("Enable")) {
+                    isEnabled = Boolean.parseBoolean(node.getTextContent());
+                    break;
+                }
+            }
+
         } catch (Exception e) {
             logger.error("Error while reading cluster.xml", e);
         }
@@ -176,13 +185,14 @@ public class ClusterUtil {
                         if (membershipSchemeParam != null) {
                             mbrScheme = membershipSchemeParam.trim();
                         }
-                        if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED) &&
-                            !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED) &&
+                        if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
+                            && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED) &&
                             !mbrScheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME)) {
-                            String msg = "Invalid membership scheme '" + mbrScheme + "'. Supported schemes are " +
-                                         ClusteringConstants.MembershipScheme.MULTICAST_BASED + ", " +
-                                         ClusteringConstants.MembershipScheme.WKA_BASED + " & " +
-                                         HazelcastConstants.AWS_MEMBERSHIP_SCHEME;
+                            String msg = "Invalid membership scheme '" + mbrScheme +
+                                         "'. Supported schemes are " +
+                                         ClusteringConstants.MembershipScheme.MULTICAST_BASED +
+                                         ", " + ClusteringConstants.MembershipScheme.WKA_BASED +
+                                         " & " + HazelcastConstants.AWS_MEMBERSHIP_SCHEME;
                             logger.error(msg);
                             throw new ClusterConfigurationException(msg);
                         }
