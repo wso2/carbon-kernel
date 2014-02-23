@@ -69,6 +69,14 @@ public class CarbonClusterServiceComponent {
     protected void start() {
     }
 
+    /**
+     * This is the main method which checks the "Agent" property in clustering agent registrations
+     * and calls the initialize method of clustering agent.
+     * In here we are not using the @Activate method of this DS component because with multiple
+     * clustering agent registrations we can't use the @Activate method as it gets called only once,
+     * when the policy and cardinality satisfies. But the actual registered clustering agent may
+     * get invoked after the @Activate method is called.
+     */
     protected void setClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
         if (ClusterUtil.isClusteringEnabled()) {
             Object clusterAgentTypeParam = ref.get(ClusteringConstants.CLUSTER_AGENT);

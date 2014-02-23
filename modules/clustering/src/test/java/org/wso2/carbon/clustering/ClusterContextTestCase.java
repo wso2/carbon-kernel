@@ -25,6 +25,8 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
 
+import java.util.UUID;
+
 
 public class ClusterContextTestCase extends BaseTest {
 
@@ -35,6 +37,7 @@ public class ClusterContextTestCase extends BaseTest {
     @BeforeTest
     public void setup() throws ClusterConfigurationException {
         clusterMember = new ClusterMember("127.0.0.0", 4000);
+        clusterMember.setId(UUID.randomUUID().toString());
         membershipListener = new CustomMembershipListener();
         ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
         clusterConfiguration.
