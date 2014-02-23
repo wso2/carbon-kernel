@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2008-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           targetNamespace="http://wso2.com/schema/clustering/config"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="Cluster">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="xs:string" name="Enable">
+                    <xs:annotation>
+                        <xs:documentation>Indicates whether clustering should be enabled or disabled
+                            for this node
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element type="xs:string" name="Agent">
+                    <xs:annotation>
+                        <xs:documentation>The agent implementation used with cluster framework
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element type="xs:string" name="Domain">
+                    <xs:annotation>
+                        <xs:documentation>The clustering domain/group. Nodes in the same group will
+                            belong to the same multicast
+                            domain. There will not be interference between nodes in different
+                            groups.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="LocalMember">
+                    <xs:annotation>
+                        <xs:documentation>Properties specific to this member</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element type="xs:string" name="Host"/>
+                            <xs:element type="xs:short" name="Port"/>
+                            <xs:element name="Properties">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="Property" maxOccurs="unbounded"
+                                                    minOccurs="0">
+                                            <xs:complexType>
+                                                <xs:simpleContent>
+                                                    <xs:extension base="xs:string">
+                                                        <xs:attribute type="xs:string" name="name"
+                                                                      use="optional"/>
+                                                    </xs:extension>
+                                                </xs:simpleContent>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="MembershipScheme">
+                    <xs:annotation>
+                        <xs:documentation>The membership scheme used in this setup. The only values
+                            supported at the moment are
+                            "multicast" and "wka"
+
+                            1. multicast - membership is automatically discovered using multicasting
+                            2. wka - Well-Known Address based multicasting. Membership is discovered
+                            with the help
+                            of one or more nodes running at a Well-Known Address. New members
+                            joining a
+                            cluster will first connect to a well-known node, register with the
+                            well-known node
+                            and get the membership list from it. When new members join, one of the
+                            well-known
+                            nodes will notify the others in the group. When a member leaves the
+                            cluster or
+                            is deemed to have left the cluster, it will be detected by the Group
+                            Membership
+                            Service (GMS) using a TCP ping mechanism.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Multicast" minOccurs="0">
+                                <xs:annotation>
+                                    <xs:documentation>multicast membership scheme related properties</xs:documentation>
+                                </xs:annotation>
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element type="xs:string" name="Group"/>
+                                        <xs:element type="xs:int" name="Port"/>
+                                        <xs:element type="xs:byte" name="TTL"/>
+                                        <xs:element type="xs:byte" name="Timeout" minOccurs="0"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="WKA" minOccurs="0">
+                                <xs:annotation>
+                                    <xs:documentation>wka membership scheme related properties
+                                    </xs:documentation>
+                                </xs:annotation>
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="Members">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="Member" maxOccurs="unbounded"
+                                                                minOccurs="0">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element type="xs:string"
+                                                                            name="Host"/>
+                                                                <xs:element type="xs:short"
+                                                                            name="Port"/>
+                                                            </xs:sequence>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
