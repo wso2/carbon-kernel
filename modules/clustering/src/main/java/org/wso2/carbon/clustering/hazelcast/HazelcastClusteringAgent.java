@@ -334,7 +334,8 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
             // Cleanup sent messages buffer
             int messagesProcessed = 0;
             for (ClusterMessage clusteringMessage : sentMsgsBuffer) {
-                if (System.currentTimeMillis() - clusteringMessage.getTimestamp() >= MAX_MESSAGE_LIFETIME) {
+                if (System.currentTimeMillis() - clusteringMessage.getTimestamp() >=
+                    MAX_MESSAGE_LIFETIME) {
                     sentMsgsBuffer.remove(clusteringMessage);
                 }
 

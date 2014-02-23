@@ -62,7 +62,7 @@ public class HazelcastUtil {
     public static void loadPropertiesFromConfig(ClusterConfiguration clusterConfiguration,
                                                 Properties hazelcastProperties) {
 
-        List<Object> propsParam = clusterConfiguration.getElement("properties");
+        List<Object> propsParam = clusterConfiguration.getElement("LocalMember.Properties");
         if (propsParam != null) {
             for (Object property : propsParam) {
                 if (property instanceof Node) {
@@ -70,7 +70,7 @@ public class HazelcastUtil {
                     for (int count = 0; count < nodeList.getLength(); count++) {
                         Node node = nodeList.item(count);
                         if (node.getNodeType() == Node.ELEMENT_NODE &&
-                            "property".equals(node.getNodeName())) {
+                            "Property".equals(node.getNodeName())) {
                             String attributeName = ((Element) node).getAttribute("name");
                             String attributeValue = node.getTextContent();
                             hazelcastProperties.setProperty(attributeName, attributeValue);
