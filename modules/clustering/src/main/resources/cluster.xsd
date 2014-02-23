@@ -95,46 +95,52 @@
                     </xs:annotation>
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="Multicast" minOccurs="0">
-                                <xs:annotation>
-                                    <xs:documentation>multicast membership scheme related properties</xs:documentation>
-                                </xs:annotation>
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element type="xs:string" name="Group"/>
-                                        <xs:element type="xs:int" name="Port"/>
-                                        <xs:element type="xs:byte" name="TTL"/>
-                                        <xs:element type="xs:byte" name="Timeout" minOccurs="0"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="WKA" minOccurs="0">
-                                <xs:annotation>
-                                    <xs:documentation>wka membership scheme related properties
-                                    </xs:documentation>
-                                </xs:annotation>
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="Members">
-                                            <xs:complexType>
-                                                <xs:sequence>
-                                                    <xs:element name="Member" maxOccurs="unbounded"
-                                                                minOccurs="0">
-                                                        <xs:complexType>
-                                                            <xs:sequence>
-                                                                <xs:element type="xs:string"
-                                                                            name="Host"/>
-                                                                <xs:element type="xs:short"
-                                                                            name="Port"/>
-                                                            </xs:sequence>
-                                                        </xs:complexType>
-                                                    </xs:element>
-                                                </xs:sequence>
-                                            </xs:complexType>
-                                        </xs:element>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
+                            <xs:choice>
+                                <xs:element name="Multicast" minOccurs="0" maxOccurs="1">
+                                    <xs:annotation>
+                                        <xs:documentation>multicast membership scheme related
+                                            properties
+                                        </xs:documentation>
+                                    </xs:annotation>
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element type="xs:string" name="Group"/>
+                                            <xs:element type="xs:int" name="Port"/>
+                                            <xs:element type="xs:byte" name="TTL"/>
+                                            <xs:element type="xs:byte" name="Timeout"
+                                                        minOccurs="0"/>
+                                        </xs:sequence>
+                                    </xs:complexType>
+                                </xs:element>
+                                <xs:element name="WKA" minOccurs="0" maxOccurs="1">
+                                    <xs:annotation>
+                                        <xs:documentation>wka membership scheme related properties
+                                        </xs:documentation>
+                                    </xs:annotation>
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element name="Members">
+                                                <xs:complexType>
+                                                    <xs:sequence>
+                                                        <xs:element name="Member"
+                                                                    maxOccurs="unbounded"
+                                                                    minOccurs="0">
+                                                            <xs:complexType>
+                                                                <xs:sequence>
+                                                                    <xs:element type="xs:string"
+                                                                                name="Host"/>
+                                                                    <xs:element type="xs:short"
+                                                                                name="Port"/>
+                                                                </xs:sequence>
+                                                            </xs:complexType>
+                                                        </xs:element>
+                                                    </xs:sequence>
+                                                </xs:complexType>
+                                            </xs:element>
+                                        </xs:sequence>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:choice>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
