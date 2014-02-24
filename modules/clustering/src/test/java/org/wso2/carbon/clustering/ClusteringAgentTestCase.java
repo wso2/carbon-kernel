@@ -46,13 +46,15 @@ public class ClusteringAgentTestCase extends BaseTest {
         membershipListener = new CustomMembershipListener();
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"}, description = "test initialize clustering agent")
     public void testInitializeClusteringAgent() throws ClusterInitializationException {
         clusteringAgent.init(clusterContext);
         Assert.assertTrue(clusteringAgent.isInitialized());
     }
 
-    @Test (dependsOnMethods = {"testInitializeClusteringAgent"})
+    @Test (groups = {"wso2.carbon.clustering"},
+           description = "test membership listener event notification",
+           dependsOnMethods = {"testInitializeClusteringAgent"})
     public void testMembershipListener() {
         clusterContext.addMembershipListener(membershipListener);
         ClusterMember clusterMember = new ClusterMember("127.0.0.0", 4500);

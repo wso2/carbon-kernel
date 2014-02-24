@@ -28,6 +28,9 @@ import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest {
 
@@ -36,14 +39,17 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
     public void setup() throws ClusterConfigurationException {
         setupMembershipScheme("cluster-01.xml", "cluster-02.xml");
     }
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"},
+           description = "test multicast scheme with two members")
     public void testMulticastMembershipScheme() throws ClusterInitializationException {
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
         Assert.assertEquals(noOfMembers, 2);
     }
 
-    @Test (dependsOnMethods = {"testMulticastMembershipScheme"})
+    @Test (groups = {"wso2.carbon.clustering"},
+           description = "test send message with multicast scheme",
+           dependsOnMethods = {"testMulticastMembershipScheme"})
     public void testSendMessage() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         CustomClusterMessage clusterMessage = new CustomClusterMessage("MulticastMessage");
@@ -54,6 +60,29 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
             //ignore
         }
         Assert.assertEquals(clusterMessage.getExecutedMsg(), "MulticastMessageExecuted");
+    }
+
+    @Test (groups = {"wso2.carbon.clustering"},
+           description = "test send message to specific member in multicast scheme",
+           dependsOnMethods = {"testSendMessage"})
+    public void testSendMessageToMember() throws MessageFailedException {
+        CarbonCluster carbonCluster = getClusterService();
+        List<ClusterMember> clusterMembers = carbonCluster.getMembers();
+        List<ClusterMember> membersToSend = new ArrayList<>();
+        for (ClusterMember member : clusterMembers) {
+            if (member.getPort() == 4002) {
+                membersToSend.add(member);
+                break;
+            }
+        }
+        CustomClusterMessage clusterMessage = new CustomClusterMessage("MulticastMemberMessage");
+        carbonCluster.sendMessage(clusterMessage, membersToSend);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            //ignore
+        }
+        Assert.assertEquals(clusterMessage.getExecutedMsg(), "MulticastMemberMessageExecuted");
     }
 
     @AfterTest

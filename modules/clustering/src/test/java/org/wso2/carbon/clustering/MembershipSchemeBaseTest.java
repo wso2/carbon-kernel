@@ -24,6 +24,8 @@ import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.internal.DataHolder;
 
+import java.util.List;
+
 
 public class MembershipSchemeBaseTest extends BaseTest{
     private CustomClusteringAgent clusteringAgent1;
@@ -56,6 +58,7 @@ public class MembershipSchemeBaseTest extends BaseTest{
 
         carbonCluster = new CarbonCluster(clusteringAgent1);
         DataHolder.getInstance().setCarbonCluster(carbonCluster);
+        DataHolder.getInstance().setClusterContext(clusterContext1);
     }
 
     public int getNoOfMembers() {
