@@ -19,14 +19,15 @@
 
 package org.wso2.carbon.deployment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
+import org.wso2.carbon.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DeploymentEngine {
 
-    private static final Log log = LogFactory.getLog(DeploymentEngine.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeploymentEngine.class);
 
     /**
      * The repository scanner associated with this engine
@@ -64,19 +65,20 @@ public class DeploymentEngine {
             new ConcurrentHashMap<ArtifactType, ConcurrentHashMap<Object, Artifact>>();
 
 
-    public DeploymentEngine(String repositoryDir) throws CarbonDeploymentException {
+    public DeploymentEngine(String repositoryDir) throws DeploymentEngineException {
         init(repositoryDir);
     }
 
     /**
      * Configure and prepare the repository associated with this engine.
      *
-     * @throws CarbonDeploymentException on error
+     * @throws org.wso2.carbon.deployment.exception.DeploymentEngineException on error
      */
-    private void init(String repositoryDir) throws CarbonDeploymentException {
+    private void init(String repositoryDir) throws DeploymentEngineException {
         repositoryDirectory = new File(repositoryDir);
         if (!repositoryDirectory.exists()) {
-            throw new CarbonDeploymentException("Cannot find repository : " + repositoryDirectory);
+            throw new DeploymentEngineException("Cannot find repository : " +
+                                                              repositoryDirectory);
         }
         repositoryScanner = new RepositoryScanner(this);
     }
@@ -101,15 +103,15 @@ public class DeploymentEngine {
 
 
     private void startScheduler() {
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
         SchedulerTask schedulerTask = new SchedulerTask(repositoryScanner);
         String deploymentInterval = ServerConfiguration.getInstance().
-                getFirstProperty("Deployment.DeploymentUpdateInterval");
+                getFirstProperty("Deployment.UpdateInterval");
         int interval = 15;
         if (deploymentInterval != null) {
             interval = Integer.parseInt(deploymentInterval);
         }
-        scheduledExecutorService.schedule(schedulerTask, interval, TimeUnit.SECONDS);
+        executorService.scheduleWithFixedDelay(schedulerTask, 0,interval, TimeUnit.SECONDS);
     }
 
     /**
@@ -117,23 +119,31 @@ public class DeploymentEngine {
      *
      * @param deployer the deployer instance to register
      */
-    public void registerDeployer(Deployer deployer) throws CarbonDeploymentException {
+    public void registerDeployer(Deployer deployer) throws DeployerRegistrationException {
 
         if (deployer == null) {
-            log.error("Failed to add Deployer : Deployer Class Name is null");
-            return;
+            throw new DeployerRegistrationException("Failed to add Deployer : " +
+                                                    "Deployer Class Name is null");
         }
+        // Try and initialize the deployer
+        deployer.init();
 
         if (deployer.getLocation() == null) {
-            log.error("Failed to add Deployer " + deployer.getClass().getName() +
-                      ": missing 'directory' attribute in deployer instance");
-            return;
+            throw new DeployerRegistrationException("Failed to add Deployer " +
+                                                    deployer.getClass().getName() +
+                                                    ": missing 'directory' attribute " +
+                                                    "in deployer instance");
         }
         ArtifactType type = deployer.getArtifactType();
+
+        if (type == null) {
+            throw new DeployerRegistrationException("Artifact Type for Deployer : " + deployer +
+                                                    " is null");
+        }
+
         Deployer existingDeployer = deployerMap.get(type);
         if (existingDeployer == null) {
             deployerMap.put(type, deployer);
-            deployer.init();
         }
     }
 
@@ -142,11 +152,11 @@ public class DeploymentEngine {
      *
      * @param deployer the deployer instance to un-register
      */
-    public void unRegisterDeployer(Deployer deployer) {
+    public void unregisterDeployer(Deployer deployer) throws DeploymentEngineException {
         ArtifactType type = deployer.getArtifactType();
-        if (deployer.getArtifactType() == null) {
-            log.error("Failed to remove Deployer : missing 'artifactType' attribute");
-            return;
+        if (type == null) {
+            throw new DeploymentEngineException("Artifact Type for Deployer : " + deployer +
+                                                    " is null");
         }
 
         Deployer existingDeployer = deployerMap.get(type);
@@ -215,12 +225,17 @@ public class DeploymentEngine {
             Artifact artifactToDeploy = (Artifact) artifact;
             try {
                 Deployer deployer = getDeployer(artifactToDeploy.getType());
-                Object artifactKey = deployer.deploy(artifactToDeploy);
-                artifactToDeploy.setKey(artifactKey);
-                addToDeployedArtifacts(artifactToDeploy);
+                if (deployer != null) {
+                    Object artifactKey = deployer.deploy(artifactToDeploy);
+                    artifactToDeploy.setKey(artifactKey);
+                    addToDeployedArtifacts(artifactToDeploy);
+                } else {
+                    throw new CarbonDeploymentException("Deployer instance cannot be found for " +
+                                                        "the type : " + artifactToDeploy.getType());
+                }
             } catch (CarbonDeploymentException e) {
                 //TODO : Handle faulty artifact deployment
-                log.error(e);
+                logger.error("Error while deploying artifacts", e);
             }
         }
     }
@@ -233,12 +248,17 @@ public class DeploymentEngine {
             Artifact artifactToUpdate = (Artifact) artifact;
             try {
                 Deployer deployer = getDeployer(artifactToUpdate.getType());
+                if (deployer != null) {
                 Object artifactKey = deployer.update(artifactToUpdate);
                 artifactToUpdate.setKey(artifactKey);
                 addToDeployedArtifacts(artifactToUpdate);
+                } else {
+                    throw new CarbonDeploymentException("Deployer instance cannot be found for " +
+                                                        "the type : " + artifactToUpdate.getType());
+                }
             } catch (CarbonDeploymentException e) {
                 //TODO : Handle faulty artifact deployment
-                log.error(e);
+                logger.error("Error while updating artifacts", e);
             }
         }
     }
@@ -257,16 +277,19 @@ public class DeploymentEngine {
      * Undeploy the artifacts found in the artifact to be undeployed list
      */
     public void undeployArtifacts(List<Artifact> artifactsToUndeploy) {
-        if (artifactsToUndeploy.size() > 0) {
-            for (Object artifact : artifactsToUndeploy) {
-                Artifact artifactToUnDeploy = (Artifact) artifact;
-                try {
-                    Deployer deployer = getDeployer(artifactToUnDeploy.getType());
+        for (Object artifact : artifactsToUndeploy) {
+            Artifact artifactToUnDeploy = (Artifact) artifact;
+            try {
+                Deployer deployer = getDeployer(artifactToUnDeploy.getType());
+                if (deployer != null) {
                     deployer.undeploy(artifactToUnDeploy.getKey());
                     removeFromDeployedArtifacts(artifactToUnDeploy);
-                } catch (CarbonDeploymentException e) {
-                    log.error(e);
+                } else {
+                    throw new CarbonDeploymentException("Deployer instance cannot be found for " +
+                                                        "the type : " + artifactToUnDeploy.getType());
                 }
+            } catch (CarbonDeploymentException e) {
+                logger.error("Error while undeploying artifacts", e);
             }
         }
     }

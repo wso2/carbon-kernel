@@ -18,24 +18,23 @@
 
 package org.wso2.carbon.launcher.bootstrapLogging;
 
-import org.wso2.carbon.launcher.utils.Utils;
-
-import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 /**
  * Convenience class for configuring java.util.logging to append to
- * the configured log4j log.  This could be used for bootstrap logging
+ * carbon console.  This could be used for bootstrap logging
  * prior to start of the framework.
  * 
  */
-public class BootstrapConsoleManager {
+public class ConsoleLogger {
     public static synchronized Handler getDefaultHandler () throws IOException {
-        return new BootstrapConsoleManager.SimpleFileHandler();
+        ConsoleLogHandler consoleLogHandler = new ConsoleLogHandler();
+        // setting the log4j.properties format
+        consoleLogHandler.setFormatter(new LoggingFormatter());
+        return consoleLogHandler;
     }
 
     /**
@@ -43,9 +42,9 @@ public class BootstrapConsoleManager {
      * to a named file.  Should be able to use this for bootstrap logging
      * via java.util.logging prior to startup of pax logging.
      */
-    private static class SimpleFileHandler extends ConsoleHandler {
+    private static class ConsoleLogHandler extends ConsoleHandler {
 
-        private SimpleFileHandler() {
+        private ConsoleLogHandler() {
             super();
         }
 

@@ -18,11 +18,11 @@
 
 package org.wso2.carbon.base;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,7 +31,7 @@ import java.util.Properties;
 
 public class LoggingConfiguration {
 
-    private static final Log log = LogFactory.getLog(LoggingConfiguration.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoggingConfiguration.class);
     private ConfigurationAdmin configurationAdmin;
     private static LoggingConfiguration instance = new LoggingConfiguration();
 
@@ -78,7 +78,7 @@ public class LoggingConfiguration {
                 Configuration conf = configurationAdmin.getConfiguration(Constants.LOGGING_CONFIG_PID, null);
                 conf.update(prop);
             }
-            log.debug("Logging registration configuration completed");
+            logger.debug("Logging registration configuration completed");
         }
     }
 
@@ -90,7 +90,8 @@ public class LoggingConfiguration {
             prop.load(fis);
             return prop;
         } catch (IOException e) {
-            log.error("Fail to read Properties from file [" + file.getAbsolutePath() + "] configuration property.", e);
+            logger.error("Fail to read Properties from file [" + file.getAbsolutePath() +
+                         "] configuration property.", e);
         }
         return null;
     }

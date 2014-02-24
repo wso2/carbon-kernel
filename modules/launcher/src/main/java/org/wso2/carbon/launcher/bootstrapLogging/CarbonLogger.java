@@ -31,16 +31,16 @@ import java.util.logging.StreamHandler;
 
 /**
  * Convenience class for configuring java.util.logging to append to
- * the configured log4j log.  This could be used for bootstrap logging
+ * wso2carbon.log file.  This could be used for bootstrap logging
  * prior to start of the framework.
  */
-public class BootstrapLogManager {
+public class CarbonLogger {
     private static final String CARBON_BOOTSTRAP_LOG = "wso2carbon.log";
     private static Properties configProps;
 
     public static synchronized Handler getDefaultHandler() throws IOException {
         String logFilename = Utils.getRepositoryDir() + File.separator + "logs" + File.separator + CARBON_BOOTSTRAP_LOG;
-        return new BootstrapLogManager.SimpleFileHandler(new File(logFilename));
+        return new CarbonLogger.SimpleFileHandler(new File(logFilename));
 
     }
 

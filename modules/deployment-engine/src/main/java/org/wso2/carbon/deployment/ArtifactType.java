@@ -32,4 +32,25 @@ public class ArtifactType<T> {
     public T get() {
         return type;
     }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+
+        if (!this.type.equals(((ArtifactType) other).get())) {
+            return false;
+        }
+        return true;
+    }
 }

@@ -58,7 +58,7 @@ public interface DeploymentService {
     void undeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException;
 
     /**
-     * When you want to redeploy an artifact, this method can be called by giving the key,
+     * When you want to redeploy/update an artifact, this method can be called by giving the key,
      * which uniquely identifies an artifact in a runtime and the artifact deployment
      * directory
      *

@@ -19,12 +19,12 @@
 
 package org.wso2.carbon.deployment.internal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.spi.Deployer;
 
@@ -41,10 +41,10 @@ import org.wso2.carbon.deployment.spi.Deployer;
         cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
         policy = ReferencePolicy.DYNAMIC,
         bind = "registerDeployer",
-        unbind = "unRegisterDeployer"
+        unbind = "unregisterDeployer"
 )
 public class DeployerServiceListenerComponent {
-    private static Log log = LogFactory.getLog(DeployerServiceListenerComponent.class);
+    private static Logger logger = LoggerFactory.getLogger(DeployerServiceListenerComponent.class);
 
 
     private DeploymentEngine carbonDeploymentEngine = DataHolder.
@@ -55,16 +55,16 @@ public class DeployerServiceListenerComponent {
         try {
             carbonDeploymentEngine.registerDeployer(deployer);
         } catch (Exception e) {
-            log.error("Error while adding deployer to the deployment engine", e);
+            logger.error("Error while adding deployer to the deployment engine", e);
         }
 
     }
 
-    protected void unRegisterDeployer(Deployer deployer) {
+    protected void unregisterDeployer(Deployer deployer) {
         try {
-            carbonDeploymentEngine.unRegisterDeployer(deployer);
+            carbonDeploymentEngine.unregisterDeployer(deployer);
         } catch (Exception e) {
-            log.error("Error while removing deployer from deployment engine", e);
+            logger.error("Error while removing deployer from deployment engine", e);
         }
     }
 

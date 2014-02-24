@@ -19,8 +19,8 @@
 
 package org.wso2.carbon.deployment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.spi.Deployer;
 
 import java.io.File;
@@ -31,11 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The Repository Scanner which does the scanning of repository in carbon.
- * This will scan each registered deployer's deployment directory and update
- * the relevant artifact lists (deploy, undeploy, update)
+ * This will scan each registered deployer's deployment directory and sweep
+ * the relevant artifact lists (deploy, undeploy, sweep)
  */
 public class RepositoryScanner {
-    private static final Log log = LogFactory.getLog(RepositoryScanner.class);
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryScanner.class);
     /**
      * A list which holds the artifacts to be deployed
      */
@@ -67,18 +67,19 @@ public class RepositoryScanner {
      * Scans the repository on the given deployment engine.
      */
     public void scan() {
-        search();
-        update();
+        logger.debug("Starting scanning of deployer directories");
+        mark();
+        sweep();
     }
 
 
 
     /**
      * Search and add the artifacts in all deployment directories in the repository
-     * and populate the relevant lists (deploy, undeploy, update) to carry out the
+     * and populate the relevant lists (deploy, undeploy, sweep) to carry out the
      * deployment process
      */
-    private void search() {
+    private void mark() {
         File carbonRepo = carbonDeploymentEngine.getRepositoryDirectory();
         for (Deployer deployer : carbonDeploymentEngine.getDeployers().values()) {
             File deploymentLocation = Utils.resolveFileURL(deployer.getLocation().getPath(),
@@ -92,7 +93,7 @@ public class RepositoryScanner {
      * Based of populated artifact list, each list will be given to deployment engine to carry on
      * the relevant deployment process.
      */
-    private void update() {
+    private void sweep() {
         if (artifactsToUpdate.size() > 0) {
             try {
                 carbonDeploymentEngine.updateArtifacts(artifactsToUpdate);

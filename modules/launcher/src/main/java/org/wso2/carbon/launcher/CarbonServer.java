@@ -7,6 +7,7 @@ import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.startlevel.BundleStartLevel;
+import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 
@@ -23,7 +24,7 @@ import static org.wso2.carbon.launcher.utils.Constants.*;
  */
 public class CarbonServer {
 
-    private static final Logger logger = Logger.getLogger(CarbonServer.class.getName());
+    private static final Logger logger = BootstrapLogger.getBootstrapLogger();
 
     private CarbonLaunchConfig<String, String> config;
     private Framework framework;

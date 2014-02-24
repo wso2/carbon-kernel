@@ -15,12 +15,14 @@
  */
 package org.wso2.carbon.base.internal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.wso2.carbon.base.LoggingConfiguration;
 import org.wso2.carbon.base.Utils;
 import org.wso2.carbon.base.ServerConfiguration;
@@ -37,7 +39,8 @@ import java.io.InputStream;
  * Activator of the {@link org.wso2.carbon.base} bundle
  */
 public class CarbonBaseActivator implements BundleActivator {
-    private static Log log = LogFactory.getLog(CarbonBaseActivator.class);
+    private static final Logger logger = LoggerFactory.getLogger(CarbonBaseActivator.class);
+    private static final Marker marker = MarkerFactory.getMarker("FATAL");
     private ServiceRegistration registration;
     private ServiceTracker m_configTracker;
 
@@ -79,15 +82,15 @@ public class CarbonBaseActivator implements BundleActivator {
             carbonServerConfiguration.forceInit(in);
         } catch (ServerConfigurationException e) {
             String msg = "Could not initialize server configuration";
-            log.fatal(msg);
+            logger.error(marker, msg);
         } catch (FileNotFoundException e) {
-            log.error("Could not initialize server configuration", e);
+            logger.error("Could not initialize server configuration", e);
         } finally {
             if (in != null) {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    log.warn("Cannot close FileInputStream of file " + carbonXML.getAbsolutePath());
+                    logger.warn("Cannot close FileInputStream of file " + carbonXML.getAbsolutePath());
                 }
             }
         }
