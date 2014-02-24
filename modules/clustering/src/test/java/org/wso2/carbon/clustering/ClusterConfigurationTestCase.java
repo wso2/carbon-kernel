@@ -46,7 +46,7 @@ public class ClusterConfigurationTestCase extends BaseTest {
         clusterConfiguration.setClusterConfigurationXMLLocation(clusterXMLLocation);
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"}, description = "sample cluster.xml validation")
     public void testClusterXmlValidation1()
             throws ParserConfigurationException, IOException, SAXException {
         Source xmlFile = new StreamSource(getTestResourceFile("xsd" + File.separator +
@@ -59,7 +59,7 @@ public class ClusterConfigurationTestCase extends BaseTest {
         validator.validate(xmlFile);
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"}, description = "distribution cluster.xml validation")
     public void testClusterXmlValidation2()
             throws ParserConfigurationException, IOException, SAXException {
         Source xmlFile = new StreamSource(new File(".." + File.separator + ".." + File.separator +
@@ -74,7 +74,8 @@ public class ClusterConfigurationTestCase extends BaseTest {
         validator.validate(xmlFile);
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"},
+           description = "test cluster configuration population")
     public void testBuildClusterConfiguration() throws ClusterConfigurationException {
         ClusterConfiguration sampleClusterConfiguration = new ClusterConfiguration();
         sampleClusterConfiguration.setClusterConfigurationXMLLocation("fake/path");
@@ -87,13 +88,14 @@ public class ClusterConfigurationTestCase extends BaseTest {
         clusterConfiguration.build();
     }
 
-    @Test(dependsOnMethods = {"testBuildClusterConfiguration"})
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test clustering enable/disabled" ,
+          dependsOnMethods = {"testBuildClusterConfiguration"})
     public void testClusteringEnabled() {
         boolean isEnabled = Boolean.parseBoolean(clusterConfiguration.getFirstProperty("Enable"));
         Assert.assertTrue(isEnabled);
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"}, description = "test clustering agent type")
     public void testClusteringAgentType() throws ClusterConfigurationException {
         boolean isHazelCast = clusterConfiguration.shouldInitialize("hazelcast");
         Assert.assertTrue(isHazelCast);

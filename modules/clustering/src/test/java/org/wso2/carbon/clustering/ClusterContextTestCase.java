@@ -47,25 +47,29 @@ public class ClusterContextTestCase extends BaseTest {
         clusterContext = new ClusterContext(clusterConfiguration);
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"}, description = "test add cluster member")
     public void testAddMember() {
         clusterContext.addMember(clusterMember);
         Assert.assertEquals(clusterContext.getClusterMembers().get(0), clusterMember);
     }
 
-    @Test(dependsOnMethods = {"testAddMember"})
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test remove cluster member",
+          dependsOnMethods = {"testAddMember"})
     public void testRemoveMember() {
         clusterContext.removeMember(clusterMember);
         Assert.assertEquals(clusterContext.getClusterMembers().size(), 0);
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"},
+           description = "test add cluster membership listener")
     public void testAddMembershipListener() {
         clusterContext.addMembershipListener(membershipListener);
         Assert.assertEquals(clusterContext.getMembershipListeners().get(0), membershipListener);
     }
 
-    @Test (dependsOnMethods = {"testAddMembershipListener"})
+    @Test (groups = {"wso2.carbon.clustering"},
+           description = "test remove cluster membership listener",
+           dependsOnMethods = {"testAddMembershipListener"})
     public void testRemoveMembershipListener() {
         clusterContext.removeMembershipListener(membershipListener);
         Assert.assertEquals(clusterContext.getMembershipListeners().size(), 0);

@@ -28,6 +28,9 @@ import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
 
@@ -35,14 +38,16 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
     public void setup() throws ClusterConfigurationException {
         setupMembershipScheme("cluster-03.xml", "cluster-04.xml");
     }
-    @Test
+
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test wka scheme with two members")
     public void testWKAMembershipScheme() throws ClusterInitializationException {
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
         Assert.assertEquals(noOfMembers, 2);
     }
 
-    @Test (dependsOnMethods = {"testWKAMembershipScheme"})
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test send message with wka scheme",
+          dependsOnMethods = {"testWKAMembershipScheme"})
     public void testSendMessage() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         CustomClusterMessage clusterMessage = new CustomClusterMessage("WKAMessage");
@@ -53,6 +58,29 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
             //ignore
         }
         Assert.assertEquals(clusterMessage.getExecutedMsg(), "WKAMessageExecuted");
+    }
+
+    @Test(groups = {"wso2.carbon.clustering"},
+          description = "test send message to specific member in wka scheme",
+          dependsOnMethods = {"testSendMessage"})
+    public void testSendMessageToMember() throws MessageFailedException {
+        CarbonCluster carbonCluster = getClusterService();
+        List<ClusterMember> clusterMembers = carbonCluster.getMembers();
+        List<ClusterMember> membersToSend = new ArrayList<>();
+        for (ClusterMember member : clusterMembers) {
+            if (member.getPort() == 4004) {
+                membersToSend.add(member);
+                break;
+            }
+        }
+        CustomClusterMessage clusterMessage = new CustomClusterMessage("WKAMemberMessage");
+        carbonCluster.sendMessage(clusterMessage, membersToSend);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            //ignore
+        }
+        Assert.assertEquals(clusterMessage.getExecutedMsg(), "WKAMemberMessageExecuted");
     }
 
     @AfterTest
