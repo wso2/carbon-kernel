@@ -75,14 +75,18 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
                 break;
             }
         }
-        CustomClusterMessage clusterMessage = new CustomClusterMessage("MulticastMemberMessage");
-        carbonCluster.sendMessage(clusterMessage, membersToSend);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            //ignore
+        if (!membersToSend.isEmpty()) {
+            CustomClusterMessage clusterMessage = new CustomClusterMessage("MulticastMemberMessage");
+            carbonCluster.sendMessage(clusterMessage, membersToSend);
+            try {
+                Thread.sleep(4000);
+            } catch (InterruptedException e) {
+                //ignore
+            }
+            Assert.assertEquals(clusterMessage.getExecutedMsg(), "MulticastMemberMessageExecuted");
+        } else {
+            Assert.fail("Members to send list is empty");
         }
-        Assert.assertEquals(clusterMessage.getExecutedMsg(), "MulticastMemberMessageExecuted");
     }
 
     @AfterTest
