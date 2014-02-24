@@ -144,7 +144,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         hazelcastInstance = Hazelcast.newHazelcastInstance(hazelcastConfig);
         logger.info("Hazelcast initialized in " + (System.currentTimeMillis() - start) + "ms");
 
-        membershipScheme.setPrimaryHazelcastInstance(hazelcastInstance);
+        membershipScheme.setHazelcastInstance(hazelcastInstance);
 
         clusteringMessageTopic = hazelcastInstance.
                 getTopic(HazelcastConstants.CLUSTERING_MESSAGE_TOPIC);
@@ -169,7 +169,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                                            localMember.getInetSocketAddress().getAddress().
                                                    getHostAddress(),
                                            localMember.getInetSocketAddress().getPort(),
-                                           clusterContext);
+                                           clusterContext.getClusterConfiguration());
         logger.info("Local member: [" + localMember.getUuid() + "] - " + carbonLocalMember);
 
         //Create a Queue for receiving messages from others
@@ -290,11 +290,15 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         }
     }
 
+    /**
+     * This will return the no of alive members in the cluster
+     * @return number of alive cluster members
+     */
     public int getAliveMemberCount() {
         return MemberUtils.getMembersMap(hazelcastInstance, primaryDomain).size();
     }
 
-
+    @Override
     public void sendMessage(ClusterMessage clusteringMessage) throws MessageFailedException {
         try {
             if (!sentMsgsBuffer.contains(clusteringMessage)) {
@@ -322,6 +326,10 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         }
     }
 
+    /**
+     * This is a cleanup task which gets run periodically for cleaning messages from message buffers
+     * when they exceed the life time
+     */
     private class ClusterMessageCleanupTask implements Runnable {
         private static final int MAX_MESSAGES_TO_PROCESS = 5000;
         private static final int MAX_MESSAGE_LIFETIME = 5 * 60 * 1000;

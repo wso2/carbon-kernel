@@ -44,7 +44,11 @@ import java.util.Properties;
 public final class MemberUtils {
     private static Logger logger = LoggerFactory.getLogger(MemberUtils.class);
 
-
+    /**
+     * Adds a give cluster member to the hazelcast TCP config instance
+     * @param member the cluster member to add
+     * @param config the tcp config instance to use when adding the member
+     */
     public static void addMember(ClusterMember member,
                                  TcpIpConfig config) {
         String memberStr = member.getHostName() + ":" + member.getPort();
@@ -54,10 +58,18 @@ public final class MemberUtils {
         }
     }
 
+    /**
+     * This will return the local member with all the local member properties populated
+     * @param domain the cluster domain
+     * @param localMemberHost local member host
+     * @param localMemberPort local member port
+     * @param clusterConfiguration the cluster configuration
+     * @return the populated local member object
+     */
     public static ClusterMember getLocalMember(String domain,
                                                String localMemberHost,
                                                int localMemberPort,
-                                               ClusterContext clusterContext) {
+                                               ClusterConfiguration clusterConfiguration) {
         ClusterMember member =  new ClusterMember(localMemberHost, localMemberPort);
         Properties memberInfo = new Properties();
 
@@ -66,7 +78,6 @@ public final class MemberUtils {
         if (localMemberHost != null) {
             memberInfo.setProperty("hostName", localMemberHost);
         }
-        ClusterConfiguration clusterConfiguration = clusterContext.getClusterConfiguration();
         List<Object> propsParam = clusterConfiguration.getElement("LocalMember.Properties");
         if (propsParam != null) {
             for (Object property : propsParam) {
@@ -120,6 +131,12 @@ public final class MemberUtils {
         return text;
     }
 
+    /**
+     * Returns the the distributed map associated with the cluster domain
+     * @param hazelcastInstance the hazelcastInstance to get the map
+     * @param domain  the cluster domain
+     * @return the map associated with the cluster domain
+     */
     public static IMap<String, ClusterMember> getMembersMap(HazelcastInstance hazelcastInstance,
                                                             String domain) {
         return hazelcastInstance.getMap("$" + domain + ".members");

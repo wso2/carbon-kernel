@@ -48,7 +48,7 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     private MulticastConfig config;
     private final List<ClusterMessage> messageBuffer;
     private ClusterContext clusterContext;
-    private HazelcastInstance primaryHazelcastInstance;
+    private HazelcastInstance hazelcastInstance;
 
     public MulticastBasedMembershipScheme(String primaryDomain,
                                           MulticastConfig config,
@@ -92,7 +92,7 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     @Override
     public void joinGroup() throws MembershipFailedException {
         try {
-            primaryHazelcastInstance.getCluster().
+            hazelcastInstance.getCluster().
                     addMembershipListener(new MulticastMembershipListener());
         } catch (Exception e) {
             throw new MembershipFailedException("Error while trying join multicast " +
@@ -101,8 +101,8 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     }
 
     @Override
-    public void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance) {
-        this.primaryHazelcastInstance = primaryHazelcastInstance;
+    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
     }
 
     @Override
@@ -110,11 +110,14 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
         // Nothing to do
     }
 
+    /**
+     * The hazelcast membership lister to handle multicast membership scheme related activities
+     */
     private class MulticastMembershipListener implements MembershipListener {
         private Map<String, ClusterMember> members;
 
         public MulticastMembershipListener() {
-            members = MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain);
+            members = MemberUtils.getMembersMap(hazelcastInstance, primaryDomain);
         }
 
         @Override
