@@ -77,9 +77,22 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
             CustomClusterMessage clusterMessage = new CustomClusterMessage("WKAMemberMessage");
             carbonCluster.sendMessage(clusterMessage, membersToSend);
             try {
-                Thread.sleep(4000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 //ignore
+            }
+
+            // try again, if the message was not delivered during the given sleep time
+            if ("WKAMessageExecuted".equals(clusterMessage.getExecutedMsg())) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    //ignore
+                }
+            }
+            // if still not delivered then fail the test
+            if ("WKAMessageExecuted".equals(clusterMessage.getExecutedMsg())) {
+                Assert.fail("Message is not sent/executed with given time delay of 15 seconds");
             }
             Assert.assertEquals(clusterMessage.getExecutedMsg(), "WKAMemberMessageExecuted");
         } else {
