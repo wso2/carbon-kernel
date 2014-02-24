@@ -38,20 +38,36 @@ public class ClusterContext {
     private List<ClusterMember> clusterMembers = new ArrayList<>();
     private ClusterConfiguration clusterConfiguration;
 
+    /**
+     * A cluster context will have a cluster configuration associated with it.
+     * @param clusterConfiguration the associated cluster config instance
+     */
     public ClusterContext(ClusterConfiguration clusterConfiguration) {
         this.clusterConfiguration = clusterConfiguration;
     }
 
+    /**
+     * Add a membership listener to this cluster context
+     * @param membershipListener the membership listener to add
+     */
     public void addMembershipListener(MembershipListener membershipListener) {
         logger.debug("Adding new membership listener {} ", membershipListener);
         membershipListeners.add(membershipListener);
     }
 
+    /**
+     * Remove a membership listener from this context
+     * @param membershipListener the membership listener to be removed
+     */
     public void removeMembershipListener(MembershipListener membershipListener) {
         logger.debug("Removing membership listener {} ", membershipListener);
         membershipListeners.remove(membershipListener);
     }
 
+    /**
+     * Add a cluster member to current cluster context
+     * @param clusterMember the cluster member to be added
+     */
     public void addMember(ClusterMember clusterMember) {
         logger.debug("Adding new member {} ", clusterMember.getId());
         for (MembershipListener membershipListener : membershipListeners) {
@@ -61,6 +77,10 @@ public class ClusterContext {
         clusterMembers.add(clusterMember);
     }
 
+    /**
+     * Remove a cluster member form this cluster context
+     * @param clusterMember the cluster member to be removed
+     */
     public void removeMember(ClusterMember clusterMember) {
         logger.debug("Removing member {} ", clusterMember.getId());
         for (MembershipListener membershipListener : membershipListeners) {
@@ -70,14 +90,26 @@ public class ClusterContext {
         clusterMembers.remove(clusterMember);
     }
 
+    /**
+     * Returns all the current members in the cluster context
+     * @return the list of cluster members
+     */
     public List<ClusterMember> getClusterMembers() {
         return clusterMembers;
     }
 
+    /**
+     * This is the method to obtain cluster configuration within cluster framework
+     * @return the cluster configuration instance
+     */
     public ClusterConfiguration getClusterConfiguration() {
         return clusterConfiguration;
     }
 
+    /**
+     * Returns the list of membership listeners currently available in the cluster context
+     * @return the list of membership listeners
+     */
     public List<MembershipListener> getMembershipListeners() {
         return membershipListeners;
     }

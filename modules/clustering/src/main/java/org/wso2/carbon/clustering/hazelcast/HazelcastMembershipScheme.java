@@ -26,9 +26,17 @@ import org.wso2.carbon.clustering.spi.MembershipScheme;
  * MembershipScheme which adds some methods for the Hazelcast based clustering implementation
  */
 public interface HazelcastMembershipScheme extends MembershipScheme {
+    /**
+     * Sets the hazelcast instance for this membership scheme to be used
+     * @param hazelcastInstance the main hazelcast instance
+     */
+    void setHazelcastInstance(HazelcastInstance hazelcastInstance);
 
-    void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance);
-
+    /**
+     * Set the local hazelcast cluster member. This is needed in situations where we want check for
+     * local member when adding.
+     * @param localMember the hazlecast member instance
+     */
     void setLocalMember(Member localMember);
 
 }

@@ -59,8 +59,14 @@ public class HazelcastUtil {
         }
     }
 
+    /**
+     * This method will read properties specified in cluster.xml and load it to the given
+     * properties instance
+     * @param clusterConfiguration the cluster configuration to read the properties
+     * @param properties the properties instance to load the read properties
+     */
     public static void loadPropertiesFromConfig(ClusterConfiguration clusterConfiguration,
-                                                Properties hazelcastProperties) {
+                                                Properties properties) {
 
         List<Object> propsParam = clusterConfiguration.getElement("LocalMember.Properties");
         if (propsParam != null) {
@@ -73,7 +79,7 @@ public class HazelcastUtil {
                             "Property".equals(node.getNodeName())) {
                             String attributeName = ((Element) node).getAttribute("name");
                             String attributeValue = node.getTextContent();
-                            hazelcastProperties.setProperty(attributeName, attributeValue);
+                            properties.setProperty(attributeName, attributeValue);
                         }
                     }
                 }
@@ -81,6 +87,12 @@ public class HazelcastUtil {
         }
     }
 
+    /**
+     * This will lookup specific property from cluster.xml by using the given name
+     * @param clusterConfiguration cluster configuration to lookup property
+     * @param propertyName the property name to lookup
+     * @return the value of the looked up property
+     */
     public static String lookupHazelcastProperty(ClusterConfiguration clusterConfiguration,
                                                  String propertyName) {
         String propertyValue = null;

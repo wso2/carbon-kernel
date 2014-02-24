@@ -36,7 +36,6 @@ import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
-import org.wso2.carbon.clustering.CarbonCluster;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
@@ -58,12 +57,12 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     private NetworkConfig nwConfig;
 
     private IMap<String, ClusterMember> allMembers;
-    private volatile HazelcastInstance primaryHazelcastInstance;
+    private volatile HazelcastInstance hazelcastInstance;
     private com.hazelcast.core.Member localMember;
     private ClusterContext clusterContext;
 
-    public void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance) {
-        this.primaryHazelcastInstance = primaryHazelcastInstance;
+    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
     }
 
     @Override
@@ -114,8 +113,8 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     @Override
     public void joinGroup() throws MembershipFailedException {
         try {
-            primaryHazelcastInstance.getCluster().addMembershipListener(new WKAMembershipListener());
-            allMembers = MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain);
+            hazelcastInstance.getCluster().addMembershipListener(new WKAMembershipListener());
+            allMembers = MemberUtils.getMembersMap(hazelcastInstance, primaryDomain);
             allMembers.addEntryListener(new MemberEntryListener(), true);
 
             // Add the rest of the members
@@ -132,12 +131,15 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
         }
     }
 
+    /**
+     * The hazelcast membership lister to handle WKA membership scheme related activities
+     */
     private class WKAMembershipListener implements MembershipListener {
 
         @Override
         public void memberAdded(MembershipEvent membershipEvent) {
             Member member = membershipEvent.getMember();
-            if (primaryHazelcastInstance.getCluster().getLocalMember().equals(member)) {
+            if (hazelcastInstance.getCluster().getLocalMember().equals(member)) {
                 return;
             }
             clusterContext.addMember(HazelcastUtil.toClusterMember(member));

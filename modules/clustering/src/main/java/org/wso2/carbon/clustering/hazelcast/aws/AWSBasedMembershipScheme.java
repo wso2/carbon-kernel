@@ -45,21 +45,21 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(AWSBasedMembershipScheme.class);
     private ClusterConfiguration clusterConfiguration;
     private final NetworkConfig nwConfig;
-    private HazelcastInstance primaryHazelcastInstance;
+    private HazelcastInstance hazelcastInstance;
     private final List<ClusterMessage> messageBuffer;
     private ClusterContext clusterContext;
 
     public AWSBasedMembershipScheme(Config config,
-                                    HazelcastInstance primaryHazelcastInstance,
+                                    HazelcastInstance hazelcastInstance,
                                     List<ClusterMessage> messageBuffer) {
-        this.primaryHazelcastInstance = primaryHazelcastInstance;
+        this.hazelcastInstance = hazelcastInstance;
         this.messageBuffer = messageBuffer;
         this.nwConfig = config.getNetworkConfig();
     }
 
     @Override
-    public void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance) {
-        this.primaryHazelcastInstance = primaryHazelcastInstance;
+    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
     }
 
     @Override
@@ -120,7 +120,7 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     @Override
     public void joinGroup() throws MembershipFailedException {
         try {
-            primaryHazelcastInstance.getCluster().addMembershipListener(new AWSMembershipListener());
+            hazelcastInstance.getCluster().addMembershipListener(new AWSMembershipListener());
         } catch (Exception e) {
             throw new MembershipFailedException("Error while trying join aws " +
                                                 "membership scheme", e);
@@ -131,6 +131,9 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
         return clusterConfiguration.getFirstProperty(name);
     }
 
+    /**
+     * The hazelcast membership lister to handle AWS membership scheme related activities
+     */
     private class AWSMembershipListener implements MembershipListener {
         @Override
         public void memberAdded(MembershipEvent membershipEvent) {
