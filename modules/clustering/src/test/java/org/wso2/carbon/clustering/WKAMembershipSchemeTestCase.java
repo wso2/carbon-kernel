@@ -23,6 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.WKAMember;
+import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
@@ -41,11 +44,28 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
     }
 
     @Test(groups = {"wso2.carbon.clustering"}, description = "test wka scheme with two members")
-    public void testWKAMembershipScheme() throws ClusterInitializationException {
+    public void testWKAMembershipScheme()
+            throws ClusterInitializationException, ClusterConfigurationException {
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
         Assert.assertEquals(noOfMembers, 2);
+
+        ClusterConfiguration clusterConfiguration = getClusterContext().getClusterConfiguration();
+        Object membershipScheme = clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme();
+        Assert.assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
+                            membershipScheme.toString());
+        WKASchemeConfig wkaSchemeConfig = (WKASchemeConfig) membershipScheme;
+        List<WKAMember> wkaMembers = wkaSchemeConfig.getWkaMembers();
+        List<ClusterMember> clusterMembers = ClusterUtil.getWellKnownMembers(clusterConfiguration);
+
+        for (int i = 0; i < wkaMembers.size(); i++) {
+            Assert.assertTrue(clusterMembers.get(i).getHostName().
+                    equals(wkaMembers.get(i).getHost()));
+        }
+
     }
+
 
     @Test(groups = {"wso2.carbon.clustering"}, description = "test send message with wka scheme",
           dependsOnMethods = {"testWKAMembershipScheme"})

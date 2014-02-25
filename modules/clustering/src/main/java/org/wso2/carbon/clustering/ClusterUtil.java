@@ -20,17 +20,11 @@ package org.wso2.carbon.clustering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.membership.scheme.WKAMember;
 import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -118,75 +112,6 @@ public class ClusterUtil {
     private static boolean isIP(String hostAddress) {
         return hostAddress.split("[.]").length == 4;
     }
-
-    /**
-     * This will check and return whether clustering is enabled or disabled in cluster.xml
-     *
-     * @return true if enabled, false if not
-     */
-    public static boolean isClusteringEnabled() {
-        boolean isEnabled = false;
-        String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
-                                          "repository" + File.separator + "conf" +
-                                          File.separator + "cluster.xml";
-        try {
-            File xmlFile = new File(configurationXMLLocation);
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-
-            NodeList nodeList = doc.getDocumentElement().getChildNodes();
-            for (int count = 0; count <= nodeList.getLength(); count++) {
-                Node node = nodeList.item(count);
-                if (node.getNodeType() == Node.ELEMENT_NODE &&
-                    node.getNodeName().equals("Enable")) {
-                    isEnabled = Boolean.parseBoolean(node.getTextContent());
-                    break;
-                }
-            }
-
-        } catch (Exception e) {
-            logger.error("Error while reading cluster.xml", e);
-        }
-        return isEnabled;
-    }
-
-    /**
-     * This will return whether cluster agent should be initialized by checking the cluster
-     * "agentType" attribute in cluster xml with the registered value
-     *
-     * @param agentType the value of the registered agent type to check
-     * @return true if registered agentType match the cluster.xml property value
-     * @throws ClusterConfigurationException on error while reading the value
-     */
-    public static boolean shouldInitialize(String agentType) throws ClusterConfigurationException {
-        boolean initialize = false;
-        try {
-            String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
-                                              "repository" + File.separator + "conf" +
-                                              File.separator + "cluster.xml";
-            File xmlFile = new File(configurationXMLLocation);
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-
-            NodeList nodeList = doc.getDocumentElement().getChildNodes();
-
-            for (int count = 0; count <= nodeList.getLength(); count++) {
-                Node node = nodeList.item(count);
-                if (node.getNodeType() == Node.ELEMENT_NODE &&
-                    node.getNodeName().equals(ClusteringConstants.CLUSTER_AGENT) &&
-                    node.getTextContent().equals(agentType)) {
-                    initialize = true;
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            String msg = "Error while loading cluster configuration file";
-            logger.error(msg, e);
-            throw new ClusterConfigurationException(msg, e);
-        }
-        return initialize;
-    }
-
     /**
      * Get the membership scheme applicable to this cluster
      *

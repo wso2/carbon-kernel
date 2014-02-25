@@ -23,6 +23,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
@@ -35,7 +37,6 @@ import java.util.List;
 
 public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest {
 
-
     @BeforeTest
     public void setup() throws ClusterConfigurationException {
         setupMembershipScheme("cluster-01.xml", "cluster-02.xml");
@@ -43,10 +44,25 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
 
     @Test(groups = {"wso2.carbon.clustering"},
           description = "test multicast scheme with two members")
-    public void testMulticastMembershipScheme() throws ClusterInitializationException {
+    public void testMulticastMembershipScheme()
+            throws ClusterInitializationException, ClusterConfigurationException {
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
         Assert.assertEquals(noOfMembers, 2);
+
+        ClusterConfiguration clusterConfiguration = getClusterContext().getClusterConfiguration();
+        Object membershipScheme = clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme();
+        Assert.assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
+                            membershipScheme.toString());
+
+        MulticastSchemeConfig multicastSchemeConfig = (MulticastSchemeConfig) membershipScheme;
+
+        Assert.assertEquals(multicastSchemeConfig.getGroup(), "228.0.0.4");
+        Assert.assertEquals(multicastSchemeConfig.getPort(), 45564);
+        Assert.assertEquals(multicastSchemeConfig.getTimeout(), 0);
+        Assert.assertEquals(multicastSchemeConfig.getTtl(), 100);
+
     }
 
     @Test(groups = {"wso2.carbon.clustering"},
