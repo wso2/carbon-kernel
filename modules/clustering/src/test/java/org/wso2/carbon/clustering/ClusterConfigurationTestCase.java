@@ -77,7 +77,7 @@ public class ClusterConfigurationTestCase extends BaseTest {
            description = "test cluster configuration population")
     public void testBuildClusterConfiguration() throws ClusterConfigurationException {
         try {
-            ClusterConfiguration sampleClusterConfiguration = buildClusterConfig("fake/path");
+            buildClusterConfig("fake/path");
         } catch (ClusterConfigurationException e) {
             Assert.assertTrue(e.getMessage().
                     contains("Error while building cluster configuration"));
