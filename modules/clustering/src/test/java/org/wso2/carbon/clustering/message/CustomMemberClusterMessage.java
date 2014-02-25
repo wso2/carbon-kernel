@@ -24,22 +24,21 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 
-
-public class CustomClusterMessage extends ClusterMessage {
-    private final static Logger logger = LoggerFactory.getLogger(CustomClusterMessage.class);
-    private static String executedMsg;
+public class CustomMemberClusterMessage extends ClusterMessage {
+    private final static Logger logger = LoggerFactory.getLogger(CustomMemberClusterMessage.class);
+    private static String executedMemberMsg;
     private String content;
 
-    public CustomClusterMessage(String content) {
+    public CustomMemberClusterMessage(String content) {
         this.content = content;
     }
     @Override
     public void execute() throws MessageFailedException {
         logger.info("Executing cluster message : " + content);
-        executedMsg = content + "Executed";
+        executedMemberMsg = content + "Executed";
     }
 
     public String getExecutedMsg() {
-        return executedMsg;
+        return executedMemberMsg;
     }
 }
