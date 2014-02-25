@@ -23,9 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import java.io.File;
 
 public class ClusterConfigFactory {
@@ -43,9 +46,18 @@ public class ClusterConfigFactory {
             File file = new File(clusterXmlLocation);
             JAXBContext jaxbContext = JAXBContext.newInstance(ClusterConfiguration.class);
 
+            // validate cluster.xml using the schema
+            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            StreamSource streamSource = new StreamSource();
+            streamSource.setInputStream(Thread.currentThread().getContextClassLoader().
+                    getResourceAsStream("cluster.xsd"));
+            Schema schema = sf.newSchema(streamSource);
+
+            // un-marshall and populate the cluster configuration instance
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller.setSchema(schema);
             clusterConfiguration = (ClusterConfiguration) unmarshaller.unmarshal(file);
-        } catch (JAXBException e) {
+        } catch (Exception e) {
             String msg = "Error while loading cluster configuration file";
             logger.error(msg, e);
             throw new ClusterConfigurationException(msg, e);
