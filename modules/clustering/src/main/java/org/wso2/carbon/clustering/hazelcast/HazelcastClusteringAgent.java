@@ -84,7 +84,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     // key - msg UUID, value - timestamp(msg received time)
     private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<>();
     private ClusterContext clusterContext;
-    private ClusterConfiguration clusterConfiguration;
 
 
     private String primaryDomain;
@@ -92,7 +91,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     public void init(ClusterContext clusterContext)
             throws ClusterInitializationException {
         this.clusterContext = clusterContext;
-        this.clusterConfiguration = clusterContext.getClusterConfiguration();
+        ClusterConfiguration clusterConfiguration = clusterContext.getClusterConfiguration();
         hazelcastConfig = new Config();
         setHazelcastConfigurations();
 

@@ -62,12 +62,17 @@ public class MembershipSchemeBaseTest extends BaseTest{
         return clusteringAgent2.getAliveMemberCount();
     }
 
+    public CarbonCluster getClusterService() {
+        return carbonCluster;
+    }
+
+    public ClusterContext getClusterContext() {
+        return clusterContext1;
+    }
+
     public void terminate() {
         clusteringAgent1.shutdown();
         clusteringAgent2.shutdown();
     }
 
-    public CarbonCluster getClusterService() {
-        return carbonCluster;
-    }
 }
