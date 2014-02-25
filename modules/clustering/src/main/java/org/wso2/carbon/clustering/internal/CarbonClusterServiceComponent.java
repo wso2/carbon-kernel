@@ -88,12 +88,13 @@ public class CarbonClusterServiceComponent {
                     if (clusterConfiguration.getAgent().equals(registeredAgentType)) {
                         initializeCluster(clusteringAgent, clusterConfiguration);
                     } else {
-                        logger.error("Unsupported clustering agent type is registered : {} ",
-                                     registeredAgentType);
+                        logger.error("Unsupported clustering agent is registered : {} \n" +
+                        "Expected clustering agent is : {}", clusterAgentTypeParam,
+                                     clusterConfiguration.getAgent());
                     }
                 }
             }
-        } catch (ClusterConfigurationException e) {
+        } catch (Throwable e) {
             logger.error("Error while initializing cluster configuration", e);
         }
     }
@@ -124,7 +125,7 @@ public class CarbonClusterServiceComponent {
             BundleContext bundleContext = dataHolder.getBundleContext();
             serviceRegistration = bundleContext.registerService(Cluster.class, carbonCluster, null);
             dataHolder.setCarbonCluster(carbonCluster);
-        } catch (ClusterInitializationException e) {
+        } catch (Throwable e) {
             logger.error("Error while initializing cluster", e);
         }
     }
@@ -136,7 +137,7 @@ public class CarbonClusterServiceComponent {
             dataHolder.setClusterContext(null);
             dataHolder.setCarbonCluster(null);
             clusteringAgent.shutdown();
-        } catch (Exception ignore) {
+        } catch (Throwable ignore) {
         }
     }
 }
