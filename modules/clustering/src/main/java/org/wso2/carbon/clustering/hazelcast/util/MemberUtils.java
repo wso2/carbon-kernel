@@ -23,18 +23,10 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.wso2.carbon.clustering.ClusterConfiguration;
-import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.local.member.LocalMemberProperty;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.Properties;
 
@@ -78,26 +70,20 @@ public final class MemberUtils {
         if (localMemberHost != null) {
             memberInfo.setProperty("hostName", localMemberHost);
         }
-        List<Object> propsParam = clusterConfiguration.getElement("LocalMember.Properties");
-        if (propsParam != null) {
-            for (Object property : propsParam) {
-                if (property instanceof Node) {
-                    NodeList nodeList = ((Node) property).getChildNodes();
-                    for (int count = 0; count < nodeList.getLength(); count++) {
-                        Node node = nodeList.item(count);
-                        if (node.getNodeType() == Node.ELEMENT_NODE) {
-                            String attributeName = ((Element)node).getAttribute("name");
-                            if (attributeName != null) {
-                                attributeName = replaceProperty(attributeName, memberInfo);
-                            }
-                            String attributeValue = node.getTextContent();
-                            if (attributeValue != null) {
-                                attributeValue = replaceProperty(attributeValue, memberInfo);
-                                memberInfo.setProperty(attributeName, attributeValue);
-                            }
-                        }
-                    }
-                }
+
+        List<LocalMemberProperty> localMemberProperties = clusterConfiguration.
+                getLocalMemberConfiguration().getProperties();
+
+        for (LocalMemberProperty localMemberProperty : localMemberProperties) {
+            String attributeName = localMemberProperty.getName();
+            if (attributeName != null) {
+                attributeName = replaceProperty(attributeName, memberInfo);
+            }
+
+            String attributeValue = localMemberProperty.getValue();
+            if (attributeValue != null) {
+                attributeValue = replaceProperty(attributeValue, memberInfo);
+                memberInfo.setProperty(attributeName, attributeValue);
             }
         }
 

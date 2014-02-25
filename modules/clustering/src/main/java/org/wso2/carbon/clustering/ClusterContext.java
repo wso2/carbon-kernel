@@ -22,6 +22,7 @@ package org.wso2.carbon.clustering;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.api.MembershipListener;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;

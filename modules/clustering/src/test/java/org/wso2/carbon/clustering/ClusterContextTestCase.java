@@ -22,6 +22,7 @@ package org.wso2.carbon.clustering;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
 
@@ -39,11 +40,8 @@ public class ClusterContextTestCase extends BaseTest {
         clusterMember = new ClusterMember("127.0.0.0", 4000);
         clusterMember.setId(UUID.randomUUID().toString());
         membershipListener = new CustomMembershipListener();
-        ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
-        clusterConfiguration.
-                setClusterConfigurationXMLLocation(getTestResourceFile("cluster-00.xml").
-                        getAbsolutePath());
-        clusterConfiguration.build();
+        ClusterConfiguration clusterConfiguration = buildClusterConfig(
+                getTestResourceFile("cluster-00.xml"). getAbsolutePath());
         clusterContext = new ClusterContext(clusterConfiguration);
     }
 

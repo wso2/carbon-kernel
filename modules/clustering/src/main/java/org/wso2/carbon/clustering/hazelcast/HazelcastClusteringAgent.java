@@ -33,10 +33,10 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterUtil;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
@@ -49,7 +49,6 @@ import org.wso2.carbon.clustering.ControlCommand;
 import org.wso2.carbon.clustering.internal.DataHolder;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.clustering.ClusterMessage;
-import org.wso2.carbon.clustering.hazelcast.aws.AWSBasedMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.clustering.hazelcast.wka.WKABasedMembershipScheme;
@@ -85,6 +84,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     // key - msg UUID, value - timestamp(msg received time)
     private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<>();
     private ClusterContext clusterContext;
+    private ClusterConfiguration clusterConfiguration;
 
 
     private String primaryDomain;
@@ -92,6 +92,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     public void init(ClusterContext clusterContext)
             throws ClusterInitializationException {
         this.clusterContext = clusterContext;
+        this.clusterConfiguration = clusterContext.getClusterConfiguration();
         hazelcastConfig = new Config();
         setHazelcastConfigurations();
 
@@ -108,7 +109,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         groupConfig.setName(primaryDomain);
 
         NetworkConfig nwConfig = hazelcastConfig.getNetworkConfig();
-        String localMemberHost = getClusterProperty(ClusteringConstants.LOCAL_MEMBER_HOST);
+        String localMemberHost = clusterConfiguration.getLocalMemberConfiguration().getHost();
         if (localMemberHost != null) {
             localMemberHost = localMemberHost.trim();
         } else {
@@ -122,9 +123,9 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         }
         nwConfig.setPublicAddress(localMemberHost);
         int localMemberPort = 4000;
-        String localMemberPortParam = getClusterProperty(ClusteringConstants.LOCAL_MEMBER_PORT);
-        if (localMemberPortParam != null) {
-            localMemberPort = Integer.parseInt((localMemberPortParam).trim());
+        int localMemberPortParam = clusterConfiguration.getLocalMemberConfiguration().getPort();
+        if (localMemberPortParam != 0) {
+            localMemberPort = localMemberPortParam;
         }
         nwConfig.setPort(localMemberPort);
 
@@ -241,16 +242,11 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
      */
     private String getClusterDomain() {
         String domain;
-        domain = getClusterProperty(ClusteringConstants.DOMAIN);
+        domain = clusterContext.getClusterConfiguration().getDomain();
         if (domain == null) {
             domain = ClusteringConstants.DEFAULT_DOMAIN;
         }
         return domain;
-    }
-
-    private String getClusterProperty(String property) {
-        ClusterConfiguration clusterConfiguration = clusterContext.getClusterConfiguration();
-        return clusterConfiguration.getFirstProperty(property);
     }
 
     private void configureMembershipScheme(NetworkConfig nwConfig)
@@ -271,12 +267,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                                                                       nwConfig.getJoin().
                                                                               getMulticastConfig(),
                                                                       sentMsgsBuffer);
-                membershipScheme.init(clusterContext);
-                break;
-            case HazelcastConstants.AWS_MEMBERSHIP_SCHEME:
-                membershipScheme = new AWSBasedMembershipScheme(hazelcastConfig,
-                                                                hazelcastInstance,
-                                                                sentMsgsBuffer);
                 membershipScheme.init(clusterContext);
                 break;
         }
