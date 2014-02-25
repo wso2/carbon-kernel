@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.clustering.config.local.member;
+package org.wso2.carbon.clustering.config;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

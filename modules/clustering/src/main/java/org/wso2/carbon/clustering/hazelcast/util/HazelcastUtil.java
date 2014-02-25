@@ -23,7 +23,7 @@ import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.CarbonCluster;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
-import org.wso2.carbon.clustering.config.local.member.LocalMemberProperty;
+import org.wso2.carbon.clustering.config.LocalMemberProperty;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.DataHolder;
 
