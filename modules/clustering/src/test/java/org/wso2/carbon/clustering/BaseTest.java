@@ -56,17 +56,6 @@ public class BaseTest {
         return new File(testResourceDir, relativePath);
     }
 
-    public InputStream getTestResource(String relativePath) {
-        File testResource = getTestResourceFile(relativePath);
-        try {
-            return new FileInputStream(testResource);
-        } catch (FileNotFoundException e) {
-            throw new IllegalStateException("The '" + testResource.getAbsolutePath() +
-                                            "' file does not exist. Verify that the 'basedir' System property " +
-                                            "is pointing to the root of the project", e);
-        }
-    }
-
     public ClusterConfiguration buildClusterConfig(String clusterXmlLocation)
             throws ClusterConfigurationException {
         ClusterConfiguration clusterConfiguration = null;
