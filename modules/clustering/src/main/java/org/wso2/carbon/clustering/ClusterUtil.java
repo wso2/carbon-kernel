@@ -21,6 +21,7 @@ package org.wso2.carbon.clustering;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.MembershipSchemeConfiguration;
 import org.wso2.carbon.clustering.config.membership.scheme.WKAMember;
 import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
@@ -123,21 +124,23 @@ public class ClusterUtil {
             throws ClusterConfigurationException {
         String mbrScheme = null;
 
-        String membershipSchemeParam = clusterConfiguration.getMembershipSchemeConfiguration().
-                getMembershipScheme().toString();
-
-        mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
-        if (membershipSchemeParam != null) {
-            mbrScheme = membershipSchemeParam.trim();
-        }
-        if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
-            && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
-            String msg = "Invalid membership scheme '" + mbrScheme +
-                         "'. Supported schemes are " +
-                         ClusteringConstants.MembershipScheme.MULTICAST_BASED +
-                         ", " + ClusteringConstants.MembershipScheme.WKA_BASED;
-            logger.error(msg);
-            throw new ClusterConfigurationException(msg);
+        Object membershipScheme = clusterConfiguration.getMembershipSchemeConfiguration().
+                getMembershipScheme();
+        if (membershipScheme != null) {
+            String membershipSchemeParam = membershipScheme.toString();
+            mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
+            if (membershipSchemeParam != null) {
+                mbrScheme = membershipSchemeParam.trim();
+            }
+            if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
+                && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
+                String msg = "Invalid membership scheme '" + mbrScheme +
+                             "'. Supported schemes are " +
+                             ClusteringConstants.MembershipScheme.MULTICAST_BASED +
+                             ", " + ClusteringConstants.MembershipScheme.WKA_BASED;
+                logger.error(msg);
+                throw new ClusterConfigurationException(msg);
+            }
         }
 
         return mbrScheme;
