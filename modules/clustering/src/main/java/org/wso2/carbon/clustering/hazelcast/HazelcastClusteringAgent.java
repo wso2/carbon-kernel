@@ -144,8 +144,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         hazelcastInstance = Hazelcast.newHazelcastInstance(hazelcastConfig);
         logger.info("Hazelcast initialized in " + (System.currentTimeMillis() - start) + "ms");
 
-        membershipScheme.setHazelcastInstance(hazelcastInstance);
-
         clusteringMessageTopic = hazelcastInstance.
                 getTopic(HazelcastConstants.CLUSTERING_MESSAGE_TOPIC);
         clusteringMessageTopic.
@@ -156,11 +154,14 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         controlCommandTopic.addMessageListener(new HazelcastControlCommandListener());
 
         Member localMember = hazelcastInstance.getCluster().getLocalMember();
-        membershipScheme.setLocalMember(localMember);
-        try {
-            membershipScheme.joinGroup();
-        } catch (MembershipFailedException e) {
-            throw new ClusterInitializationException(e);
+        if (membershipScheme != null) {
+            membershipScheme.setLocalMember(localMember);
+            membershipScheme.setHazelcastInstance(hazelcastInstance);
+            try {
+                membershipScheme.joinGroup();
+            } catch (MembershipFailedException e) {
+                throw new ClusterInitializationException(e);
+            }
         }
         localMember = hazelcastInstance.getCluster().getLocalMember();
         localMember.getInetSocketAddress().getPort();
@@ -251,23 +252,26 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     private void configureMembershipScheme(NetworkConfig nwConfig)
             throws ClusterConfigurationException, MembershipInitializationException {
         String scheme = ClusterUtil.getMembershipScheme(clusterContext.getClusterConfiguration());
-        logger.info("Using " + scheme + " based membership management scheme");
-        switch (scheme) {
-            case ClusteringConstants.MembershipScheme.WKA_BASED:
-                List<ClusterMember> wkaMembers = ClusterUtil.
-                        getWellKnownMembers(clusterContext.getClusterConfiguration());
-                membershipScheme = new WKABasedMembershipScheme(primaryDomain,
-                                                                wkaMembers, hazelcastConfig,
-                                                                sentMsgsBuffer);
-                membershipScheme.init(clusterContext);
-                break;
-            case ClusteringConstants.MembershipScheme.MULTICAST_BASED:
-                membershipScheme = new MulticastBasedMembershipScheme(primaryDomain,
-                                                                      nwConfig.getJoin().
-                                                                              getMulticastConfig(),
-                                                                      sentMsgsBuffer);
-                membershipScheme.init(clusterContext);
-                break;
+        if (scheme != null) {
+            logger.info("Using " + scheme + " based membership management scheme");
+            switch (scheme) {
+                case ClusteringConstants.MembershipScheme.WKA_BASED:
+                    List<ClusterMember> wkaMembers = ClusterUtil.
+                            getWellKnownMembers(clusterContext.getClusterConfiguration());
+                    membershipScheme = new WKABasedMembershipScheme(primaryDomain,
+                                                                    wkaMembers, hazelcastConfig,
+                                                                    sentMsgsBuffer);
+                    membershipScheme.init(clusterContext);
+                    break;
+                case ClusteringConstants.MembershipScheme.MULTICAST_BASED:
+                    membershipScheme =
+                            new MulticastBasedMembershipScheme(primaryDomain,
+                                                               nwConfig.getJoin().
+                                                                       getMulticastConfig(),
+                                                               sentMsgsBuffer);
+                    membershipScheme.init(clusterContext);
+                    break;
+            }
         }
     }
 
@@ -281,6 +285,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
 
     /**
      * This will return the no of alive members in the cluster
+     *
      * @return number of alive cluster members
      */
     public int getAliveMemberCount() {
