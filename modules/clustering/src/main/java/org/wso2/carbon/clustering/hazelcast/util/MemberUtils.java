@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
-import org.wso2.carbon.clustering.config.local.member.LocalMemberProperty;
+import org.wso2.carbon.clustering.config.LocalMemberProperty;
 
 import java.util.List;
 import java.util.Properties;
