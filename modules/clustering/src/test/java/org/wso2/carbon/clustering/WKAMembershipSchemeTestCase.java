@@ -27,6 +27,7 @@ import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
+import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +75,8 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
             }
         }
         if (!membersToSend.isEmpty()) {
-            CustomClusterMessage clusterMessage = new CustomClusterMessage("WKAMemberMessage");
+            CustomMemberClusterMessage clusterMessage =
+                    new CustomMemberClusterMessage("WKAMemberMessage");
             carbonCluster.sendMessage(clusterMessage, membersToSend);
             try {
                 Thread.sleep(5000);
