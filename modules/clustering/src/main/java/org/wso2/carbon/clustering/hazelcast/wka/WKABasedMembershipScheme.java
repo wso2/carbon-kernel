@@ -30,10 +30,11 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
@@ -51,6 +52,7 @@ import java.util.List;
 public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(WKABasedMembershipScheme.class);
     private ClusterConfiguration clusterConfiguration;
+    private WKASchemeConfig wkaSchemeConfig;
     private String primaryDomain;
     private List<ClusterMember> wkaMembers = new ArrayList<ClusterMember>();
     private final List<ClusterMessage> messageBuffer;
@@ -84,11 +86,12 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     public void init(ClusterContext clusterContext) throws MembershipInitializationException {
         this.clusterContext = clusterContext;
         this.clusterConfiguration = clusterContext.getClusterConfiguration();
+        this.wkaSchemeConfig = (WKASchemeConfig) clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme();
         try {
             nwConfig.getJoin().getMulticastConfig().setEnabled(false);
             TcpIpConfig tcpIpConfig = nwConfig.getJoin().getTcpIpConfig();
             tcpIpConfig.setEnabled(true);
-            configureWKAParameters();
 
             // Add the WKA members
             for (ClusterMember wkaMember : wkaMembers) {
@@ -99,16 +102,6 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
                                                         "WKA membership scheme", e);
         }
     }
-
-    private void configureWKAParameters() {
-        String connTimeout = clusterConfiguration.getFirstProperty(WKAConstants.CONNECTION_TIMEOUT);
-        TcpIpConfig tcpIpConfig = nwConfig.getJoin().getTcpIpConfig();
-        if (connTimeout != null) {
-            tcpIpConfig.
-                    setConnectionTimeoutSeconds(Integer.parseInt(connTimeout.trim()));
-        }
-    }
-
 
     @Override
     public void joinGroup() throws MembershipFailedException {

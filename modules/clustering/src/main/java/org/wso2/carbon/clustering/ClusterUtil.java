@@ -23,9 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.WKAMember;
+import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
-import org.wso2.carbon.clustering.hazelcast.HazelcastConstants;
-import org.wso2.carbon.clustering.hazelcast.wka.WKAConstants;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -54,33 +55,21 @@ public class ClusterUtil {
     public static List<ClusterMember> getWellKnownMembers(
             ClusterConfiguration clusterConfiguration) {
         List<ClusterMember> members = new ArrayList<>();
-        List<Object> membersList = clusterConfiguration.
-                getElement("MembershipScheme.WKA.Members.Member");
 
-        for (Object member : membersList) {
-            if (member instanceof Node) {
-                NodeList nodeList = ((Node) member).getChildNodes();
-                String hostName = null;
-                String port = null;
-                for (int count = 0; count < nodeList.getLength(); count++) {
-                    Node node = nodeList.item(count);
-                    if (node.getNodeType() == Node.ELEMENT_NODE) {
-                        if (WKAConstants.HOST.equals(node.getNodeName())) {
-                            logger.debug("WKA Member host name {}", node.getTextContent());
-                            hostName = node.getTextContent();
-                        } else if (WKAConstants.PORT.equals(node.getNodeName())) {
-                            logger.debug("WKA Member port {}", node.getTextContent());
-                            port = node.getTextContent();
-                        }
-                    }
-                }
-                if (hostName != null && port != null) {
-                    members.add(new ClusterMember(replaceVariables(hostName),
-                                                  Integer.parseInt(replaceVariables(port))));
-                }
+        List<WKAMember> wkaMembers = ((WKASchemeConfig)clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme()).getWkaMembers();
+
+        for (WKAMember wkaMember : wkaMembers) {
+            String hostName = wkaMember.getHost();
+            int port = wkaMember.getPort();
+
+            if (hostName != null && port != 0) {
+                members.add(new ClusterMember(replaceVariables(hostName),
+                                              port));
             }
         }
         return members;
+
     }
 
     private static String replaceVariables(String text) {
@@ -162,6 +151,43 @@ public class ClusterUtil {
     }
 
     /**
+     * This will return whether cluster agent should be initialized by checking the cluster
+     * "agentType" attribute in cluster xml with the registered value
+     *
+     * @param agentType the value of the registered agent type to check
+     * @return true if registered agentType match the cluster.xml property value
+     * @throws ClusterConfigurationException on error while reading the value
+     */
+    public static boolean shouldInitialize(String agentType) throws ClusterConfigurationException {
+        boolean initialize = false;
+        try {
+            String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
+                                              "repository" + File.separator + "conf" +
+                                              File.separator + "cluster.xml";
+            File xmlFile = new File(configurationXMLLocation);
+            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+
+            NodeList nodeList = doc.getDocumentElement().getChildNodes();
+
+            for (int count = 0; count <= nodeList.getLength(); count++) {
+                Node node = nodeList.item(count);
+                if (node.getNodeType() == Node.ELEMENT_NODE &&
+                    node.getNodeName().equals(ClusteringConstants.CLUSTER_AGENT) &&
+                    node.getTextContent().equals(agentType)) {
+                    initialize = true;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            String msg = "Error while loading cluster configuration file";
+            logger.error(msg, e);
+            throw new ClusterConfigurationException(msg, e);
+        }
+        return initialize;
+    }
+
+    /**
      * Get the membership scheme applicable to this cluster
      *
      * @return The membership scheme. Only "wka" & "multicast" are valid return values.
@@ -170,37 +196,25 @@ public class ClusterUtil {
      */
     public static String getMembershipScheme(ClusterConfiguration clusterConfiguration)
             throws ClusterConfigurationException {
-        List membershipList = clusterConfiguration.getElement(ClusteringConstants.
-                                                                      MEMBERSHIP_SCHEME);
         String mbrScheme = null;
-        for (Object obj : membershipList) {
-            if (obj instanceof Node) {
-                NodeList childList = ((Node) obj).getChildNodes();
-                for (int count = 0 ; count < childList.getLength() ; count ++) {
-                    Node membershipElement = childList.item(count);
-                    if (membershipElement != null &&
-                        membershipElement.getNodeType() == Node.ELEMENT_NODE) {
-                        String membershipSchemeParam = membershipElement.getNodeName();
-                        mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
-                        if (membershipSchemeParam != null) {
-                            mbrScheme = membershipSchemeParam.trim();
-                        }
-                        if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
-                            && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED) &&
-                            !mbrScheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME)) {
-                            String msg = "Invalid membership scheme '" + mbrScheme +
-                                         "'. Supported schemes are " +
-                                         ClusteringConstants.MembershipScheme.MULTICAST_BASED +
-                                         ", " + ClusteringConstants.MembershipScheme.WKA_BASED +
-                                         " & " + HazelcastConstants.AWS_MEMBERSHIP_SCHEME;
-                            logger.error(msg);
-                            throw new ClusterConfigurationException(msg);
-                        }
-                        break;
-                    }
-                }
-            }
+
+        String membershipSchemeParam = clusterConfiguration.getMembershipSchemeConfiguration().
+                getMembershipScheme().toString();
+
+        mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
+        if (membershipSchemeParam != null) {
+            mbrScheme = membershipSchemeParam.trim();
         }
+        if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
+            && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
+            String msg = "Invalid membership scheme '" + mbrScheme +
+                         "'. Supported schemes are " +
+                         ClusteringConstants.MembershipScheme.MULTICAST_BASED +
+                         ", " + ClusteringConstants.MembershipScheme.WKA_BASED;
+            logger.error(msg);
+            throw new ClusterConfigurationException(msg);
+        }
+
         return mbrScheme;
     }
 }

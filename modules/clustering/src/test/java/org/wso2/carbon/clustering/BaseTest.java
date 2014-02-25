@@ -19,6 +19,12 @@
 
 package org.wso2.carbon.clustering;
 
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -59,5 +65,22 @@ public class BaseTest {
                                             "' file does not exist. Verify that the 'basedir' System property " +
                                             "is pointing to the root of the project", e);
         }
+    }
+
+    public ClusterConfiguration buildClusterConfig(String clusterXmlLocation)
+            throws ClusterConfigurationException {
+        ClusterConfiguration clusterConfiguration = null;
+        try {
+            File file = new File(clusterXmlLocation);
+            JAXBContext jaxbContext = JAXBContext.newInstance(ClusterConfiguration.class);
+
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            clusterConfiguration = (ClusterConfiguration) unmarshaller.unmarshal(file);
+        } catch (JAXBException e) {
+            String msg = "Error while building cluster configuration";
+            throw new ClusterConfigurationException(msg, e);
+        }
+
+        return clusterConfiguration;
     }
 }

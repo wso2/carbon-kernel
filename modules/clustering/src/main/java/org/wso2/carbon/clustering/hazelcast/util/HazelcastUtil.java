@@ -19,13 +19,11 @@
 package org.wso2.carbon.clustering.hazelcast.util;
 
 import com.hazelcast.core.Member;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.CarbonCluster;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.local.member.LocalMemberProperty;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.DataHolder;
 
@@ -62,60 +60,42 @@ public class HazelcastUtil {
     /**
      * This method will read properties specified in cluster.xml and load it to the given
      * properties instance
+     *
      * @param clusterConfiguration the cluster configuration to read the properties
-     * @param properties the properties instance to load the read properties
+     * @param properties           the properties instance to load the read properties
      */
     public static void loadPropertiesFromConfig(ClusterConfiguration clusterConfiguration,
                                                 Properties properties) {
 
-        List<Object> propsParam = clusterConfiguration.getElement("LocalMember.Properties");
-        if (propsParam != null) {
-            for (Object property : propsParam) {
-                if (property instanceof Node) {
-                    NodeList nodeList = ((Node) property).getChildNodes();
-                    for (int count = 0; count < nodeList.getLength(); count++) {
-                        Node node = nodeList.item(count);
-                        if (node.getNodeType() == Node.ELEMENT_NODE &&
-                            "Property".equals(node.getNodeName())) {
-                            String attributeName = ((Element) node).getAttribute("name");
-                            String attributeValue = node.getTextContent();
-                            properties.setProperty(attributeName, attributeValue);
-                        }
-                    }
-                }
-            }
+        List<LocalMemberProperty> localMemberProperties = clusterConfiguration.
+                getLocalMemberConfiguration().getProperties();
+
+        for (LocalMemberProperty localMemberProperty : localMemberProperties) {
+            String attributeName = localMemberProperty.getName();
+            String attributeValue = localMemberProperty.getValue();
+            properties.setProperty(attributeName, attributeValue);
         }
     }
 
     /**
      * This will lookup specific property from cluster.xml by using the given name
+     *
      * @param clusterConfiguration cluster configuration to lookup property
-     * @param propertyName the property name to lookup
+     * @param propertyName         the property name to lookup
      * @return the value of the looked up property
      */
     public static String lookupHazelcastProperty(ClusterConfiguration clusterConfiguration,
                                                  String propertyName) {
         String propertyValue = null;
-        List<Object> propsParam = clusterConfiguration.getElement("LocalMember.Properties");
-        if (propsParam != null) {
-            for (Object property : propsParam) {
-                if (property instanceof Node) {
-                    NodeList nodeList = ((Node) property).getChildNodes();
-                    for (int count = 0; count < nodeList.getLength(); count++) {
-                        Node node = nodeList.item(count);
-                        if (node.getNodeType() == Node.ELEMENT_NODE &&
-                            "Property".equals(node.getNodeName())) {
-                            String attributeName = ((Element) node).getAttribute("name");
-                            if (attributeName != null && propertyName.equals(attributeName)) {
-                                propertyValue = node.getTextContent();
-                                break;
-                            }
-                        }
-                    }
-                }
+        List<LocalMemberProperty> localMemberProperties = clusterConfiguration.
+                getLocalMemberConfiguration().getProperties();
+
+        for (LocalMemberProperty localMemberProperty : localMemberProperties) {
+            if (propertyName.equals(localMemberProperty.getName())) {
+                propertyValue = localMemberProperty.getValue();
+                break;
             }
         }
-
         return propertyValue;
     }
 }

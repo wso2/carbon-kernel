@@ -37,7 +37,7 @@ public final class HazelcastConstants {
 
     public static final String REPLAY_MESSAGE_QUEUE = "$ReplayMessageQueue:";
 
-    public static final String AWS_MEMBERSHIP_SCHEME = "aws";
+    public static final String AWS_MEMBERSHIP_SCHEME = "AWS";
 
     private HazelcastConstants() {
     }

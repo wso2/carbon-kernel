@@ -24,6 +24,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.agent.CustomClusteringAgent;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
@@ -39,9 +40,7 @@ public class ClusteringAgentTestCase extends BaseTest {
     public void setup() throws ClusterConfigurationException {
         String clusterXMLLocation = getTestResourceFile("cluster-00.xml").getAbsolutePath();
         clusteringAgent = new CustomClusteringAgent();
-        ClusterConfiguration clusterConfiguration = new ClusterConfiguration();
-        clusterConfiguration.setClusterConfigurationXMLLocation(clusterXMLLocation);
-        clusterConfiguration.build();
+        ClusterConfiguration clusterConfiguration = buildClusterConfig(clusterXMLLocation);
         clusterContext = new ClusterContext(clusterConfiguration);
         membershipListener = new CustomMembershipListener();
     }

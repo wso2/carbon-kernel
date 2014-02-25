@@ -25,10 +25,11 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
@@ -44,6 +45,7 @@ import java.util.Map;
 public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(MulticastBasedMembershipScheme.class);
     private ClusterConfiguration clusterConfiguration;
+    private MulticastSchemeConfig multicastSchemeConfig;
     private String primaryDomain;
     private MulticastConfig config;
     private final List<ClusterMessage> messageBuffer;
@@ -63,30 +65,28 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
         config.setEnabled(true);
         this.clusterContext = clusterContext;
         this.clusterConfiguration = clusterContext.getClusterConfiguration();
+        this.multicastSchemeConfig = (MulticastSchemeConfig) clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme();
         configureMulticastParameters();
     }
 
     private void configureMulticastParameters() {
-        String mcastAddress = getProperty(MulticastConstants.MULTICAST_GROUP);
+        String mcastAddress = multicastSchemeConfig.getGroup();
         if (mcastAddress != null) {
             config.setMulticastGroup(mcastAddress);
         }
-        String mcastPort = getProperty(MulticastConstants.MULTICAST_PORT);
-        if (mcastPort != null) {
-            config.setMulticastPort(Integer.parseInt(mcastPort.trim()));
+        int mcastPort = multicastSchemeConfig.getPort();
+        if (mcastPort != 0) {
+            config.setMulticastPort(mcastPort);
         }
-        String mcastTimeout = getProperty(MulticastConstants.MULTICAST_TIMEOUT);
-        if (mcastTimeout != null) {
-            config.setMulticastTimeoutSeconds(Integer.parseInt(mcastTimeout.trim()));
+        int mcastTimeout = multicastSchemeConfig.getTimeout();
+        if (mcastTimeout != 0) {
+            config.setMulticastTimeoutSeconds(mcastTimeout);
         }
-        String mcastTTL = getProperty(MulticastConstants.MULTICAST_TTL);
-        if (mcastTTL != null) {
-            config.setMulticastTimeToLive(Integer.parseInt(mcastTTL.trim()));
+        int mcastTTL = multicastSchemeConfig.getTtl();
+        if (mcastTTL != 0) {
+            config.setMulticastTimeToLive(mcastTTL);
         }
-    }
-
-    private String getProperty(String name) {
-        return clusterConfiguration.getFirstProperty(name);
     }
 
     @Override
