@@ -15,136 +15,81 @@
   ~ limitations under the License.
   -->
 
-<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+<xs:schema elementFormDefault="qualified" version="1.0"
            targetNamespace="http://wso2.com/schema/clustering/config"
+           xmlns:tns="http://wso2.com/schema/clustering/config"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:element name="Cluster">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element type="xs:string" name="Enable">
-                    <xs:annotation>
-                        <xs:documentation>Indicates whether clustering should be enabled or disabled
-                            for this node
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element type="xs:string" name="Agent">
-                    <xs:annotation>
-                        <xs:documentation>The agent implementation used with cluster framework
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element type="xs:string" name="Domain">
-                    <xs:annotation>
-                        <xs:documentation>The clustering domain/group. Nodes in the same group will
-                            belong to the same multicast
-                            domain. There will not be interference between nodes in different
-                            groups.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="LocalMember">
-                    <xs:annotation>
-                        <xs:documentation>Properties specific to this member</xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element type="xs:string" name="Host"/>
-                            <xs:element type="xs:short" name="Port"/>
-                            <xs:element name="Properties">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="Property" maxOccurs="unbounded"
-                                                    minOccurs="0">
-                                            <xs:complexType>
-                                                <xs:simpleContent>
-                                                    <xs:extension base="xs:string">
-                                                        <xs:attribute type="xs:string" name="name"
-                                                                      use="optional"/>
-                                                    </xs:extension>
-                                                </xs:simpleContent>
-                                            </xs:complexType>
-                                        </xs:element>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="MembershipScheme">
-                    <xs:annotation>
-                        <xs:documentation>The membership scheme used in this setup. The only values
-                            supported at the moment are
-                            "multicast" and "wka"
 
-                            1. multicast - membership is automatically discovered using multicasting
-                            2. wka - Well-Known Address based multicasting. Membership is discovered
-                            with the help
-                            of one or more nodes running at a Well-Known Address. New members
-                            joining a
-                            cluster will first connect to a well-known node, register with the
-                            well-known node
-                            and get the membership list from it. When new members join, one of the
-                            well-known
-                            nodes will notify the others in the group. When a member leaves the
-                            cluster or
-                            is deemed to have left the cluster, it will be detected by the Group
-                            Membership
-                            Service (GMS) using a TCP ping mechanism.
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:choice>
-                                <xs:element name="Multicast" minOccurs="0" maxOccurs="1">
-                                    <xs:annotation>
-                                        <xs:documentation>multicast membership scheme related
-                                            properties
-                                        </xs:documentation>
-                                    </xs:annotation>
-                                    <xs:complexType>
-                                        <xs:sequence>
-                                            <xs:element type="xs:string" name="Group"/>
-                                            <xs:element type="xs:int" name="Port"/>
-                                            <xs:element type="xs:byte" name="TTL"/>
-                                            <xs:element type="xs:byte" name="Timeout"
-                                                        minOccurs="0"/>
-                                        </xs:sequence>
-                                    </xs:complexType>
-                                </xs:element>
-                                <xs:element name="WKA" minOccurs="0" maxOccurs="1">
-                                    <xs:annotation>
-                                        <xs:documentation>wka membership scheme related properties
-                                        </xs:documentation>
-                                    </xs:annotation>
-                                    <xs:complexType>
-                                        <xs:sequence>
-                                            <xs:element name="Members">
-                                                <xs:complexType>
-                                                    <xs:sequence>
-                                                        <xs:element name="Member"
-                                                                    maxOccurs="unbounded"
-                                                                    minOccurs="0">
-                                                            <xs:complexType>
-                                                                <xs:sequence>
-                                                                    <xs:element type="xs:string"
-                                                                                name="Host"/>
-                                                                    <xs:element type="xs:short"
-                                                                                name="Port"/>
-                                                                </xs:sequence>
-                                                            </xs:complexType>
-                                                        </xs:element>
-                                                    </xs:sequence>
-                                                </xs:complexType>
-                                            </xs:element>
-                                        </xs:sequence>
-                                    </xs:complexType>
-                                </xs:element>
-                            </xs:choice>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="Cluster" type="tns:clusterConfiguration"/>
+
+    <xs:complexType name="clusterConfiguration">
+        <xs:sequence>
+            <xs:element name="Enable" type="xs:boolean"/>
+            <xs:element name="Agent" type="xs:string"/>
+            <xs:element name="Domain" type="xs:string"/>
+            <xs:element name="LocalMember" type="tns:localMemberConfiguration"/>
+            <xs:element name="MembershipScheme" type="tns:membershipSchemeConfiguration"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="localMemberConfiguration">
+        <xs:sequence>
+            <xs:element name="Host" type="xs:string"/>
+            <xs:element name="Port" type="xs:int"/>
+            <xs:element name="Properties" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Property" type="tns:localMemberProperty" minOccurs="0"
+                                    maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="localMemberProperty">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="membershipSchemeConfiguration">
+        <xs:sequence>
+            <xs:choice minOccurs="0">
+                <xs:element name="Multicast" type="tns:multicastSchemeConfig"/>
+                <xs:element name="WKA" type="tns:wkaSchemeConfig"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="multicastSchemeConfig">
+        <xs:sequence>
+            <xs:element name="Group" type="xs:string" default="228.0.0.4"/>
+            <xs:element name="Port" type="xs:int" default="45564"/>
+            <xs:element name="TTL" type="xs:int" default="100"/>
+            <xs:element name="Timeout" type="xs:int" default="0" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="wkaSchemeConfig">
+        <xs:sequence>
+            <xs:element name="Members" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Member" type="tns:wkaMember" minOccurs="0"
+                                    maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="wkaMember">
+        <xs:sequence>
+            <xs:element name="Host" type="xs:string"/>
+            <xs:element name="Port" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
 </xs:schema>

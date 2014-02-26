@@ -62,7 +62,7 @@
             <Group>228.0.0.4</Group>
             <Port>45564</Port>
             <TTL>100</TTL>
-            <!--<Timeout>60</Timeout>-->
+            <Timeout>60</Timeout>
         </Multicast>
 
         <!-- wka membership scheme related properties-->
