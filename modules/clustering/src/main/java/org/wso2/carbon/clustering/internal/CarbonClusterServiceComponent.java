@@ -125,7 +125,7 @@ public class CarbonClusterServiceComponent {
             BundleContext bundleContext = dataHolder.getBundleContext();
             serviceRegistration = bundleContext.registerService(Cluster.class, carbonCluster, null);
             dataHolder.setCarbonCluster(carbonCluster);
-        } catch (Throwable e) {
+        } catch (ClusterInitializationException e) {
             logger.error("Error while initializing cluster", e);
         }
     }
