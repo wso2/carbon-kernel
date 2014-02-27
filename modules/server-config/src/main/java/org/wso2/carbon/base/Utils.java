@@ -19,9 +19,6 @@
 package org.wso2.carbon.base;
 
 import java.io.File;
-import java.lang.management.ManagementPermission;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Generic Base Utility methods
@@ -39,7 +36,7 @@ public class Utils {
 
 	public static String getServerXml() {
 		String carbonXML = System
-				.getProperty(Constants.CARBON_CONFIG_DIR_PATH);
+				.getProperty(Constants.CARBON_REPOSITORY);
 		/*
 		 * if user set the system property telling where is the configuration
 		 * directory
@@ -52,10 +49,10 @@ public class Utils {
 
 	public static String getCarbonConfigDirPath() {
 		String carbonConfigDirPath = System
-				.getProperty(Constants.CARBON_CONFIG_DIR_PATH);
+				.getProperty(Constants.CARBON_REPOSITORY);
 		if (carbonConfigDirPath == null) {
 			carbonConfigDirPath = System
-					.getenv(Constants.CARBON_CONFIG_DIR_PATH_ENV);
+					.getenv(Constants.CARBON_REPOSITORY_PATH_ENV);
 			if (carbonConfigDirPath == null) {
 				return getCarbonHome() + File.separator + "repository"
 						+ File.separator + "conf";

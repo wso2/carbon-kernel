@@ -19,8 +19,8 @@ package org.wso2.carbon.base;
 import java.io.File;
 
 public class Constants {
-	public static final String CARBON_CONFIG_DIR_PATH = "carbon.config.dir.path";
-	public static final String CARBON_CONFIG_DIR_PATH_ENV = "CARBON_CONFIG_DIR_PATH";
+	public static final String CARBON_REPOSITORY = "carbon.repository";
+	public static final String CARBON_REPOSITORY_PATH_ENV = "CARBON_REPOSITORY";
 	public static final String CARBON_HOME = "carbon.home";
 	public static final String CARBON_HOME_ENV = "CARBON_HOME";
 
