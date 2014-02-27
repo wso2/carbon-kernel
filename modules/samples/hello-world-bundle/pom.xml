@@ -67,8 +67,8 @@
                             org.wso2.carbon.samples.helloworld.internal
                         </Private-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*,
-                            org.osgi.*
+                            org.apache.commons.logging.*;version="${commons.logging.import.version.range}",
+                            org.osgi.*;version="${osgi.framework.import.version.range}"
                         </Import-Package>
                     </instructions>
                 </configuration>
