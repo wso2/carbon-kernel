@@ -43,15 +43,13 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-<!--
-                        <Bundle-Activator>org.wso2.carbon.kernel.internal.KernelActivator
+                        <Bundle-Activator>org.wso2.carbon.kernel.internal.CarbonActivator
                         </Bundle-Activator>
--->
 			            <Private-Package>org.wso2.carbon.kernel.internal</Private-Package>
-                        <!--<Export-Package>-->
-                            <!--!org.wso2.carbon.kernel.internal,-->
-                            <!--org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}"-->
-                        <!--</Export-Package>-->
+                        <Export-Package>
+                            !org.wso2.carbon.kernel.internal,
+                            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}"
+                        </Export-Package>
 <!--
                         <Import-Package>
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
