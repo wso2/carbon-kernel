@@ -75,7 +75,7 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.runtime.internal,
-                            org.wso2.carbon.runtime.*;version="${carbon.kernel.package.import.version.range}"
+                            org.wso2.carbon.runtime.*;version="${carbon.kernel.package.export.version}"
                         </Export-Package>
                         <Import-Package>
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
