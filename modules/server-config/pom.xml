@@ -47,16 +47,17 @@
                         </Bundle-Activator>
                         <Export-Package>
                             !org.wso2.carbon.base.internal,
-                            org.wso2.carbon.base.*; version="${carbon.kernel.package.export.version}"
+                            org.wso2.carbon.base.*;
+                            version="${carbon.kernel.package.export.version}"
                         </Export-Package>
                         <Import-Package>
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
                             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
                             org.osgi.service.cm.*; version="[1.4.0, 1.5.0)",
                             org.osgi.util.tracker; version="[1.5.1, 1.6.0)",
-                            javax.xml.parsers.*;
-                            org.w3c.dom.*;
-                            org.xml.sax.*
+                            javax.xml.parsers.*;version="${osgi.framework.packages.import.version.range}",
+                            org.w3c.dom.*;version="${osgi.framework.packages.import.version.range}",
+                            org.xml.sax.*;version="${osgi.framework.packages.import.version.range}"
                         </Import-Package>
                     </instructions>
                 </configuration>
