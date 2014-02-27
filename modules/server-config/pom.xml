@@ -79,7 +79,7 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
-            <version>4.0.1</version>
+            <version>${osgi.compendium.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>

@@ -594,6 +594,7 @@
 
         <!-- OSGi API version -->
         <osgi.api.version>5.0.0</osgi.api.version>
+        <osgi.compendium.version>4.0.1</osgi.compendium.version>
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
         <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
         </osgi.framework.packages.import.version.range>
