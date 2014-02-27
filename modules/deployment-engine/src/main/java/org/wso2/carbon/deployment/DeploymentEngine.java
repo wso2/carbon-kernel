@@ -21,11 +21,12 @@ package org.wso2.carbon.deployment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.deployment.internal.OSGiServiceHolder;
 import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
+import org.wso2.carbon.kernel.CarbonRuntime;
 
 import java.io.File;
 import java.util.List;
@@ -105,13 +106,16 @@ public class DeploymentEngine {
     private void startScheduler() {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
         SchedulerTask schedulerTask = new SchedulerTask(repositoryScanner);
-        String deploymentInterval = ServerConfiguration.getInstance().
-                getFirstProperty("Deployment.UpdateInterval");
+        CarbonRuntime carbonRuntime = OSGiServiceHolder.getInstance().getCarbonRuntime();
+
         int interval = 15;
-        if (deploymentInterval != null) {
-            interval = Integer.parseInt(deploymentInterval);
+        if (carbonRuntime != null) {
+            interval = carbonRuntime.getConfiguration().getDeploymentConfig().getUpdateInterval();
+            logger.debug("Using the specified scheduler update interval of {}", interval);
+        } else {
+            logger.debug("Using the default deployment scheduler update interval of 15 seconds");
         }
-        executorService.scheduleWithFixedDelay(schedulerTask, 0,interval, TimeUnit.SECONDS);
+        executorService.scheduleWithFixedDelay(schedulerTask, 0, interval, TimeUnit.SECONDS);
     }
 
     /**
