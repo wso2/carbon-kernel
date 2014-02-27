@@ -17,40 +17,9 @@
     <description>WSO2 Carbon Platform dependent projects</description>
     <url>http://wso2.org</url>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jvnet.maven.incrementalbuild</groupId>
-                <artifactId>incremental-build-plugin</artifactId>
-                <version>1.3</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>incremental-build</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
     <modules>
         <module>carbon-p2-plugin</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.framework</artifactId>
-                <version>${version.org.apache.felix.framework}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
 </project>
 
