@@ -23,7 +23,7 @@
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon</artifactId>
         <version>5.0.0-SNAPSHOT</version>
-	    <relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -31,35 +31,11 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon Kernel - Features Parent</name>
     <url>http://wso2.org</url>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.deployment</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.base</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <!--<dependency>-->
-                <!--<groupId>org.wso2.carbon</groupId>-->
-                <!--<artifactId>org.wso2.carbon.runtime</artifactId>-->
-                <!--<version>${project.version}</version>-->
-            <!--</dependency>-->
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.samples.helloworld</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <modules>
         <module>org.wso2.carbon.core.server.feature</module>
         <module>org.wso2.carbon.core.runtime.feature</module>
     </modules>
-    
+
 </project>
 

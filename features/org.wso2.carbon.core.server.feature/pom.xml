@@ -33,6 +33,24 @@
     <url>http://wso2.org</url>
     <description>This feature contains the carbon core server features</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.deployment</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.samples.helloworld</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -60,8 +78,8 @@
                             <bundles>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.deployment</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
-                                <!--<bundleDef>org.wso2.carbon:org.wso2.carbon.runtime</bundleDef>-->
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.samples.helloworld</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.samples.helloworld
+                                </bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
