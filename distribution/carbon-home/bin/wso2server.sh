@@ -280,10 +280,8 @@ do
     -Dcarbon.registry.root=/ \
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
-    -Dcarbon.config.dir.path="$CARBON_HOME/repository/conf" \
+    -Dcarbon.repository="$CARBON_HOME/repository" \
     -Djava.util.logging.config.file="$CARBON_HOME/repository/conf/etc/logging-bridge.properties" \
-    -Dcomponents.repo="$CARBON_HOME/repository/components/plugins" \
-    -Dconf.location="$CARBON_HOME/repository/conf"\
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     org.wso2.carbon.launcher.Main $*
