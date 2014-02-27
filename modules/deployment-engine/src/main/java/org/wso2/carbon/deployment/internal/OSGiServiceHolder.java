@@ -20,15 +20,17 @@
 package org.wso2.carbon.deployment.internal;
 
 import org.wso2.carbon.deployment.DeploymentEngine;
+import org.wso2.carbon.kernel.CarbonRuntime;
 
-public class DataHolder {
-    private  static DataHolder instance = new DataHolder();
+public class OSGiServiceHolder {
+    private  static OSGiServiceHolder instance = new OSGiServiceHolder();
 
-    public  static DataHolder getInstance() {
+    private DeploymentEngine carbonDeploymentEngine;
+    private CarbonRuntime carbonRuntime;
+
+    public  static OSGiServiceHolder getInstance() {
         return instance;
     }
-
-    private DeploymentEngine carbonDeploymentEngine = null;
 
     public DeploymentEngine getCarbonDeploymentEngine() {
         return carbonDeploymentEngine;
@@ -36,5 +38,13 @@ public class DataHolder {
 
     public void setCarbonDeploymentEngine(DeploymentEngine carbonDeploymentEngine) {
         this.carbonDeploymentEngine = carbonDeploymentEngine;
+    }
+
+    public CarbonRuntime getCarbonRuntime() {
+        return carbonRuntime;
+    }
+
+    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = carbonRuntime;
     }
 }
