@@ -541,11 +541,6 @@
                 <version>${version.org.eclipse.equinox.cm}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${version.junit}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-plugin-api</artifactId>
                 <version>${version.maven.plugin.api}</version>
@@ -554,21 +549,6 @@
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>
                 <version>${version.maven.core}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-project</artifactId>
-                <version>${version.maven.project}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>tycho-equinox</artifactId>
-                <version>${version.tycho}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>tycho-equinox-launching</artifactId>
-                <version>${version.tycho}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.tycho</groupId>
@@ -705,10 +685,8 @@
         <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>
-        <version.junit>3.8.1</version.junit>
         <version.tycho>0.13.0</version.tycho>
         <version.maven.plugin.api>3.2.1</version.maven.plugin.api>
         <version.maven.core>3.2.1</version.maven.core>
-        <version.maven.project>2.2.1</version.maven.project>
     </properties>
 </project>
