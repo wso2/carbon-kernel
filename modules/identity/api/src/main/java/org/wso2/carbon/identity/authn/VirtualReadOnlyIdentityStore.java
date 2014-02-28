@@ -23,9 +23,12 @@ import java.util.List;
 
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
+import org.wso2.carbon.identity.authz.PrivilegedRole;
 import org.wso2.carbon.identity.credential.spi.Credential;
 
-public interface VirtualIdentityStore {
+public interface VirtualReadOnlyIdentityStore < U extends PrivilegedUser<G, R>, 
+												G extends PrivilegedGroup<U, R>, 
+												R extends PrivilegedRole<U, G> > {
 
 	/**
 	 * 
@@ -34,16 +37,7 @@ public interface VirtualIdentityStore {
 	 * @throws AuthenticationFailureException
 	 */
 	@SuppressWarnings("rawtypes")
-	public PrivilegedUser authenticate(Credential credential) throws AuthenticationFailureException;
-
-	/**
-	 * Creates a user in the underlying user store.
-	 * 
-	 * @param user
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public PrivilegedUser createUser(User user) throws IdentityStoreException;
+	public U authenticate(Credential credential) throws AuthenticationFailureException;
 
 	/**
 	 * 
@@ -51,7 +45,7 @@ public interface VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public PrivilegedUser getUser(UserIdentifier userIdentifier) throws IdentityStoreException;
+	public U getUser(UserIdentifier userIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -59,16 +53,7 @@ public interface VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedUser> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException;
-
-	/**
-	 * Creates a group in the underlying user store.
-	 * 
-	 * @param group
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public PrivilegedGroup createGroup(Group group) throws IdentityStoreException;
+	public List<U> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -76,7 +61,7 @@ public interface VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public PrivilegedGroup getGroup(GroupIdentifier userIdentifier) throws IdentityStoreException;
+	public G getGroup(GroupIdentifier userIdentifier) throws IdentityStoreException;
 
 	/**
 	 * 
@@ -84,6 +69,6 @@ public interface VirtualIdentityStore {
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria) throws IdentityStoreException;
+	public List<G> getGroups(GroupSearchCriteria searchCriteria) throws IdentityStoreException;
 
 }

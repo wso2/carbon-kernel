@@ -17,31 +17,16 @@
  *
  */
 
-package org.wso2.carbon.identity.authz;
+package org.wso2.carbon.identity.authn;
 
-import java.util.List;
+import java.util.Properties;
 
-import org.wso2.carbon.identity.authn.StoreIdentifier;
-import org.wso2.carbon.identity.authz.spi.ReadOnlyAuthorizationStore;
-
-public interface ReadOnlyAuthorizationStoreManager {
+public interface ReadWriteIdentityManager extends VirtualReadWriteIdentityStore {
 
 	/**
 	 * 
-	 * @param storeIdentifier
-	 * @return
+	 * @param identityStoreMaanger
 	 */
-	public ReadOnlyAuthorizationStore getAuthorizationStore(StoreIdentifier storeIdentifier);
+	public void init(ReadWriteIdentityStoreManager identityStoreMaanger, Properties properties);
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ReadOnlyAuthorizationStore getPrimaryAuthorizationStore();
-
-	/**
-	 * 
-	 * @return
-	 */
-	public List<StoreIdentifier> getAllAuthorizationStoreIdentifiers();
 }
