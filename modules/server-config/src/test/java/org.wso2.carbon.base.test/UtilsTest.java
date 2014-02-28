@@ -1,11 +1,8 @@
 package org.wso2.carbon.base.test;
 
-
-import junit.framework.Assert;
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.base.Constants;
-import org.wso2.carbon.base.Utils;
 
 import java.io.File;
 

@@ -31,18 +31,8 @@
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi.services</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
-            <version>${version.pax.logging.api}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -67,8 +57,8 @@
                             org.wso2.carbon.samples.helloworld.internal
                         </Private-Package>
                         <Import-Package>
-                            org.apache.commons.logging.*,
-                            org.osgi.*
+                            org.apache.commons.logging.*;version="${commons.logging.import.version.range}",
+                            org.osgi.*;version="${osgi.framework.import.version.range}"
                         </Import-Package>
                     </instructions>
                 </configuration>

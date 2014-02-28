@@ -206,6 +206,11 @@
                 <version>${osgi.api.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi.compendium.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.eclipse.osgi</groupId>
                 <artifactId>org.eclipse.osgi</artifactId>
                 <version>${equinox.osgi.version}</version>
@@ -526,11 +531,6 @@
                 <version>${version.wrapper}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>tomcat-juli</artifactId>
-                <version>${version.tomcat}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
                 <artifactId>pax-logging-api</artifactId>
                 <version>${version.pax.logging.api}</version>
@@ -544,6 +544,51 @@
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>cm</artifactId>
                 <version>${version.org.eclipse.equinox.cm}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${version.maven.plugin.api}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${version.maven.core}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-model</artifactId>
+                <version>${version.maven.model}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-compat</artifactId>
+                <version>${version.maven.compat}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-artifact</artifactId>
+                <version>${version.maven.artifact}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-p2-facade</artifactId>
+                <version>${version.tycho}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-metadata-model</artifactId>
+                <version>${version.tycho}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-archiver</artifactId>
+                <version>${version.plexus.archiver}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${version.plexus.utils}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -564,7 +609,10 @@
 
         <!-- OSGi API version -->
         <osgi.api.version>5.0.0</osgi.api.version>
+        <osgi.compendium.version>4.0.1</osgi.compendium.version>
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
+        <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
+        </osgi.framework.packages.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
@@ -672,6 +720,13 @@
         <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>
-        <version.tomcat>7.0.42</version.tomcat>
+        <version.tycho>0.13.0</version.tycho>
+        <version.maven.plugin.api>3.2.1</version.maven.plugin.api>
+        <version.maven.core>3.2.1</version.maven.core>
+        <version.maven.model>3.2.1</version.maven.model>
+        <version.maven.artifact>3.2.1</version.maven.artifact>
+        <version.maven.compat>3.0</version.maven.compat>
+        <version.plexus.utils>3.0.17</version.plexus.utils>
+        <version.plexus.archiver>1.2</version.plexus.archiver>
     </properties>
 </project>

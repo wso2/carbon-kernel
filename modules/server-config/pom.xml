@@ -33,6 +33,26 @@
     <description>Base Utilities of Carbon</description>
     <url>http://wso2.org</url>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -47,43 +67,21 @@
                         </Bundle-Activator>
                         <Export-Package>
                             !org.wso2.carbon.base.internal,
-                            org.wso2.carbon.base.*; version="${carbon.kernel.package.export.version}"
+                            org.wso2.carbon.base.*;
+                            version="${carbon.kernel.package.export.version}"
                         </Export-Package>
                         <Import-Package>
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
                             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
                             org.osgi.service.cm.*; version="[1.4.0, 1.5.0)",
                             org.osgi.util.tracker; version="[1.5.1, 1.6.0)",
-                            javax.xml.parsers.*;
-                            org.w3c.dom.*;
-                            org.xml.sax.*
+                            javax.xml.parsers.*;version="${osgi.framework.packages.import.version.range}",
+                            org.w3c.dom.*;version="${osgi.framework.packages.import.version.range}",
+                            org.xml.sax.*;version="${osgi.framework.packages.import.version.range}"
                         </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-            <version>${version.pax.logging.api}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi</artifactId>
-            <version>${equinox.osgi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <version>4.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 </project>
