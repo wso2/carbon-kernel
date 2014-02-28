@@ -25,11 +25,13 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
@@ -43,11 +45,12 @@ import java.util.Map;
 public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(MulticastBasedMembershipScheme.class);
     private ClusterConfiguration clusterConfiguration;
+    private MulticastSchemeConfig multicastSchemeConfig;
     private String primaryDomain;
     private MulticastConfig config;
     private final List<ClusterMessage> messageBuffer;
     private ClusterContext clusterContext;
-    private HazelcastInstance primaryHazelcastInstance;
+    private HazelcastInstance hazelcastInstance;
 
     public MulticastBasedMembershipScheme(String primaryDomain,
                                           MulticastConfig config,
@@ -62,36 +65,34 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
         config.setEnabled(true);
         this.clusterContext = clusterContext;
         this.clusterConfiguration = clusterContext.getClusterConfiguration();
+        this.multicastSchemeConfig = (MulticastSchemeConfig) clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme();
         configureMulticastParameters();
     }
 
     private void configureMulticastParameters() {
-        String mcastAddress = getProperty(MulticastConstants.MULTICAST_ADDRESS);
+        String mcastAddress = multicastSchemeConfig.getGroup();
         if (mcastAddress != null) {
             config.setMulticastGroup(mcastAddress);
         }
-        String mcastPort = getProperty(MulticastConstants.MULTICAST_PORT);
-        if (mcastPort != null) {
-            config.setMulticastPort(Integer.parseInt(mcastPort.trim()));
+        int mcastPort = multicastSchemeConfig.getPort();
+        if (mcastPort != 0) {
+            config.setMulticastPort(mcastPort);
         }
-        String mcastTimeout = getProperty(MulticastConstants.MULTICAST_TIMEOUT);
-        if (mcastTimeout != null) {
-            config.setMulticastTimeoutSeconds(Integer.parseInt(mcastTimeout.trim()));
+        int mcastTimeout = multicastSchemeConfig.getTimeout();
+        if (mcastTimeout != 0) {
+            config.setMulticastTimeoutSeconds(mcastTimeout);
         }
-        String mcastTTL = getProperty(MulticastConstants.MULTICAST_TTL);
-        if (mcastTTL != null) {
-            config.setMulticastTimeToLive(Integer.parseInt(mcastTTL.trim()));
+        int mcastTTL = multicastSchemeConfig.getTtl();
+        if (mcastTTL != 0) {
+            config.setMulticastTimeToLive(mcastTTL);
         }
-    }
-
-    private String getProperty(String name) {
-        return clusterConfiguration.getFirstProperty(name);
     }
 
     @Override
     public void joinGroup() throws MembershipFailedException {
         try {
-            primaryHazelcastInstance.getCluster().
+            hazelcastInstance.getCluster().
                     addMembershipListener(new MulticastMembershipListener());
         } catch (Exception e) {
             throw new MembershipFailedException("Error while trying join multicast " +
@@ -100,8 +101,8 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
     }
 
     @Override
-    public void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance) {
-        this.primaryHazelcastInstance = primaryHazelcastInstance;
+    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
     }
 
     @Override
@@ -109,11 +110,14 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
         // Nothing to do
     }
 
+    /**
+     * The hazelcast membership lister to handle multicast membership scheme related activities
+     */
     private class MulticastMembershipListener implements MembershipListener {
         private Map<String, ClusterMember> members;
 
         public MulticastMembershipListener() {
-            members = MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain);
+            members = MemberUtils.getMembersMap(hazelcastInstance, primaryDomain);
         }
 
         @Override
@@ -129,7 +133,11 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
                 Thread.sleep(5000);
             } catch (InterruptedException ignored) {
             }
-            HazelcastUtil.sendMessagesToMember(messageBuffer, member);
+            try {
+                HazelcastUtil.sendMessagesToMember(messageBuffer, member);
+            } catch (MessageFailedException e) {
+                logger.error("Error while sending member joined message", e);
+            }
         }
 
         @Override

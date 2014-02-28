@@ -20,9 +20,12 @@
 package org.wso2.carbon.clustering;
 
 import org.wso2.carbon.clustering.agent.CustomClusteringAgent;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.internal.DataHolder;
+
+import java.util.List;
 
 
 public class MembershipSchemeBaseTest extends BaseTest{
@@ -37,16 +40,12 @@ public class MembershipSchemeBaseTest extends BaseTest{
             throws ClusterConfigurationException {
         String clusterXMLLocation1 = getTestResourceFile(instance1xml).getAbsolutePath();
         clusteringAgent1 = new CustomClusteringAgent();
-        ClusterConfiguration clusterConfiguration1 = new ClusterConfiguration();
-        clusterConfiguration1.setClusterConfigurationXMLLocation(clusterXMLLocation1);
-        clusterConfiguration1.build();
+        ClusterConfiguration clusterConfiguration1 = buildClusterConfig(clusterXMLLocation1);
         clusterContext1 = new ClusterContext(clusterConfiguration1);
 
         String clusterXMLLocation2 = getTestResourceFile(instance2xml).getAbsolutePath();
         clusteringAgent2 = new CustomClusteringAgent();
-        ClusterConfiguration clusterConfiguration2 = new ClusterConfiguration();
-        clusterConfiguration2.setClusterConfigurationXMLLocation(clusterXMLLocation2);
-        clusterConfiguration2.build();
+        ClusterConfiguration clusterConfiguration2 = buildClusterConfig(clusterXMLLocation2);
         clusterContext2 = new ClusterContext(clusterConfiguration2);
     }
 
@@ -56,10 +55,19 @@ public class MembershipSchemeBaseTest extends BaseTest{
 
         carbonCluster = new CarbonCluster(clusteringAgent1);
         DataHolder.getInstance().setCarbonCluster(carbonCluster);
+        DataHolder.getInstance().setClusterContext(clusterContext1);
     }
 
     public int getNoOfMembers() {
         return clusteringAgent2.getAliveMemberCount();
+    }
+
+    public CarbonCluster getClusterService() {
+        return carbonCluster;
+    }
+
+    public ClusterContext getClusterContext() {
+        return clusterContext1;
     }
 
     public void terminate() {
@@ -67,7 +75,4 @@ public class MembershipSchemeBaseTest extends BaseTest{
         clusteringAgent2.shutdown();
     }
 
-    public CarbonCluster getClusterService() {
-        return carbonCluster;
-    }
 }

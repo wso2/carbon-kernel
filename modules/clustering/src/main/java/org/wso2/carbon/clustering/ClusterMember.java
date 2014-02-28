@@ -52,61 +52,27 @@ public class ClusterMember implements Serializable {
      */
     private Properties properties = new Properties();
 
-
     /**
-     * Time at which this member was suspended
+     * A unique id of this member
      */
-    private long suspendedTime = -1;
-
-    /**
-     * Time in millis which this member should be suspended
-     */
-    private long suspensionDuration = -1;
-
-
-    private String remoteHost;
-
-
     private String id;
+
+    /**
+     * InetAddres of this member
+     */
     private InetSocketAddress inetSocketAddress;
 
-    public ClusterMember(String id, InetSocketAddress inetSocketAddress) {
-        this.id = id;
-        this.inetSocketAddress = inetSocketAddress;
-    }
 
     public ClusterMember(String hostName, int port) {
         this.hostName = hostName;
         this.port = port;
+        this.inetSocketAddress = new InetSocketAddress(hostName, port);
     }
 
     /**
-     * Temporarily suspend this member
-     *
-     * @param suspensionDurationMillis The time duration in millis in which this member should be suspended
+     * Return the host name associated with this member
+     * @return hostname
      */
-    public void suspend(long suspensionDurationMillis) {
-        this.suspendedTime = System.currentTimeMillis();
-        this.suspensionDuration = suspensionDurationMillis;
-    }
-
-    /**
-     * Check whether this member is suspended
-     *
-     * @return true if this member is still suspended, false oterwise
-     */
-    public boolean isSuspended() {
-        if (suspendedTime == -1) {
-            return false;
-        }
-        if (System.currentTimeMillis() - suspendedTime >= suspensionDuration) {
-            this.suspendedTime = -1;
-            this.suspensionDuration = -1;
-            return false;
-        }
-        return true;
-    }
-
     public String getHostName() {
         String remoteHost = properties.getProperty("remoteHost");
         if (remoteHost != null) {
@@ -115,55 +81,82 @@ public class ClusterMember implements Serializable {
         return hostName;
     }
 
+    /**
+     * Return TCP port of this member
+     * @return port
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     * Indicates whether this member is active
+     * @return true if active
+     */
     public boolean isActive() {
         return isActive;
     }
 
+    /**
+     * Sets the state of this member true-active/false-inactive
+     * @param active state true-active/false-inactive
+     */
     public void setActive(boolean active) {
         isActive = active;
     }
 
+    /**
+     * Returns the domain associated with this member
+     * @return domain
+     */
     public String getDomain() {
         return domain;
     }
 
+    /**
+     * Sets the domain value for this member
+     * @param domain domain
+     */
     public void setDomain(String domain) {
         this.domain = domain;
     }
 
+    /**
+     * Custom properties associated with this member
+     * @param properties the properties instance
+     */
     public void setProperties(Properties properties) {
         this.properties = properties;
     }
 
+    /**
+     * Returns the properties that are associated with this member
+     * @return the properties instance
+     */
     public Properties getProperties() {
         return properties;
     }
 
-    public String getRemoteHost() {
-        return remoteHost;
-    }
-
-    public void setRemoteHost(String remoteHost) {
-        this.remoteHost = remoteHost;
-    }
-
-
+    /**
+     * The InetSocketAddress of this member, which is populated using the host and port
+     * @return InetSocketAddress
+     */
     public InetSocketAddress getInetSocketAddress() {
         return inetSocketAddress;
     }
 
-    public void setInetSocketAddress(InetSocketAddress inetSocketAddress) {
-        this.inetSocketAddress = inetSocketAddress;
-    }
-
+    /**
+     * Returns the ID of this member
+     * @return the ID
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Sets a unique ID for this member
+     * @param id the ID to set
+     */
     public void setId(String id) {
         this.id = id;
     }
@@ -175,14 +168,11 @@ public class ClusterMember implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         ClusterMember member = (ClusterMember) o;
 
         boolean isIdenticalPorts = port == member.getPort();
 
-        return (isIdenticalPorts &&
-                (remoteHost != null ? remoteHost.equals(member.getRemoteHost()) :
-                 member.getRemoteHost() == null) && (hostName != null ?
+        return (isIdenticalPorts && (hostName != null ?
                                                      hostName.equals(member.getHostName()) :
                                                      member.getHostName() == null));
     }
@@ -196,6 +186,6 @@ public class ClusterMember implements Serializable {
 
     public String toString() {
         return "Host:" + hostName + ", Port: " + port + ", Domain: " + domain +
-               ", Sub-domain:" + properties.getProperty("sub-domain")+ ", Active:" + isActive;
+               ", Sub-domain:" + properties.getProperty("subDomain")+ ", Active:" + isActive;
     }
 }

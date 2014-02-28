@@ -35,12 +35,6 @@ this directory.
                                 If the optional 'options-file' is provided, the OSGi
                                 debug options will be loaded from it.
 
-		-Dcarbon.config.dir.path=[path]
+		-Dcarbon.repository=[path]
 				Overwrite the conf directory path where we keep all 
 				configuration files like carbon.xml, etc.
-
-		-Dcarbon.logs.path=[path]
-				Define the path to keep Log files.
-
-		-Dcomponents.repository=[path]
-				Overwrite the default location we keep all the OSGi bundles.

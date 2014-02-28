@@ -23,28 +23,52 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
-import org.wso2.carbon.clustering.internal.DataHolder;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
+import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest {
-
 
     @BeforeTest
     public void setup() throws ClusterConfigurationException {
         setupMembershipScheme("cluster-01.xml", "cluster-02.xml");
     }
-    @Test
-    public void testMulticastMembershipScheme() throws ClusterInitializationException {
+
+    @Test(groups = {"wso2.carbon.clustering"},
+          description = "test multicast scheme with two members")
+    public void testMulticastMembershipScheme()
+            throws ClusterInitializationException, ClusterConfigurationException {
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
         Assert.assertEquals(noOfMembers, 2);
+
+        ClusterConfiguration clusterConfiguration = getClusterContext().getClusterConfiguration();
+        Object membershipScheme = clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme();
+        Assert.assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
+                            membershipScheme.toString());
+
+        MulticastSchemeConfig multicastSchemeConfig = (MulticastSchemeConfig) membershipScheme;
+
+        Assert.assertEquals(multicastSchemeConfig.getGroup(), "228.0.0.4");
+        Assert.assertEquals(multicastSchemeConfig.getPort(), 45564);
+        Assert.assertEquals(multicastSchemeConfig.getTimeout(), 0);
+        Assert.assertEquals(multicastSchemeConfig.getTtl(), 100);
+
     }
 
-    @Test (dependsOnMethods = {"testMulticastMembershipScheme"})
-    public void testSendMessage() {
+    @Test(groups = {"wso2.carbon.clustering"},
+          description = "test send message with multicast scheme",
+          dependsOnMethods = {"testMulticastMembershipScheme"})
+    public void testSendMessage() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         CustomClusterMessage clusterMessage = new CustomClusterMessage("MulticastMessage");
         carbonCluster.sendMessage(clusterMessage);
@@ -54,6 +78,47 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
             //ignore
         }
         Assert.assertEquals(clusterMessage.getExecutedMsg(), "MulticastMessageExecuted");
+    }
+
+    @Test(groups = {"wso2.carbon.clustering"},
+          description = "test send message to specific member in multicast scheme",
+          dependsOnMethods = {"testSendMessage"})
+    public void testSendMessageToMember() throws MessageFailedException {
+        CarbonCluster carbonCluster = getClusterService();
+        List<ClusterMember> clusterMembers = carbonCluster.getMembers();
+        List<ClusterMember> membersToSend = new ArrayList<>();
+        for (ClusterMember member : clusterMembers) {
+            if (member.getPort() == 4002) {
+                membersToSend.add(member);
+                break;
+            }
+        }
+        if (!membersToSend.isEmpty()) {
+            CustomMemberClusterMessage clusterMessage =
+                    new CustomMemberClusterMessage("MulticastMemberMessage");
+            carbonCluster.sendMessage(clusterMessage, membersToSend);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                //ignore
+            }
+
+            // try again, if the message was not delivered during the given sleep time
+            if ("MulticastMessageExecuted".equals(clusterMessage.getExecutedMsg())) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    //ignore
+                }
+            }
+            // if still not delivered then fail the test
+            if ("MulticastMessageExecuted".equals(clusterMessage.getExecutedMsg())) {
+                Assert.fail("Message is not sent/executed with given time delay of 15 seconds");
+            }
+            Assert.assertEquals(clusterMessage.getExecutedMsg(), "MulticastMemberMessageExecuted");
+        } else {
+            Assert.fail("Members to send list is empty");
+        }
     }
 
     @AfterTest

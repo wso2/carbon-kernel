@@ -33,10 +33,10 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterUtil;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
@@ -49,11 +49,11 @@ import org.wso2.carbon.clustering.ControlCommand;
 import org.wso2.carbon.clustering.internal.DataHolder;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.clustering.ClusterMessage;
-import org.wso2.carbon.clustering.hazelcast.aws.AWSBasedMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.clustering.hazelcast.wka.WKABasedMembershipScheme;
 
+import java.io.File;
 import java.net.SocketException;
 import java.util.List;
 import java.util.Map;
@@ -64,51 +64,36 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@Component (
+@Component(
         name = "org.wso2.carbon.clustering.hazelcast.HazelCastClusteringAgentServiceComponent",
         description = "The main ClusteringAgent class which is based on Hazelcast",
         immediate = true
 )
 @Service
-@Property (name = "agentType", value = "hazelcast")
+@Property(name = "Agent", value = "hazelcast")
 public class HazelcastClusteringAgent implements ClusteringAgent {
     private static Logger logger = LoggerFactory.getLogger(HazelcastClusteringAgent.class);
 
-    private Config primaryHazelcastConfig;
-    private HazelcastInstance primaryHazelcastInstance;
+    private Config hazelcastConfig;
+    private HazelcastInstance hazelcastInstance;
 
     private HazelcastMembershipScheme membershipScheme;
     private ITopic<ClusterMessage> clusteringMessageTopic;
-    private List<ClusterMessage> sentMsgsBuffer = new CopyOnWriteArrayList<ClusterMessage>();
+    private List<ClusterMessage> sentMsgsBuffer = new CopyOnWriteArrayList<>();
 
     // key - msg UUID, value - timestamp(msg received time)
-    private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<String, Long>();
+    private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<>();
     private ClusterContext clusterContext;
 
-
-    /**
-     * Static members
-     */
-    private List<ClusterMember> wkaMembers;
 
     private String primaryDomain;
 
     public void init(ClusterContext clusterContext)
             throws ClusterInitializationException {
         this.clusterContext = clusterContext;
-        primaryHazelcastConfig = new Config();
-        setHazelcastProperties();
-
-        String managementCenterURL = getClusterProperty(HazelcastConstants.MGT_CENTER_URL);
-        if (managementCenterURL != null) {
-            primaryHazelcastConfig.getManagementCenterConfig().setEnabled(true).
-                    setUrl(managementCenterURL);
-        }
-
-        String licenseKey = getClusterProperty(HazelcastConstants.LICENSE_KEY);
-        if (licenseKey != null) {
-            primaryHazelcastConfig.setLicenseKey(licenseKey);
-        }
+        ClusterConfiguration clusterConfiguration = clusterContext.getClusterConfiguration();
+        hazelcastConfig = new Config();
+        setHazelcastConfigurations();
 
         primaryDomain = getClusterDomain();
         String instanceName = HazelcastUtil.
@@ -117,17 +102,13 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         if (instanceName == null) {
             instanceName = primaryDomain + ".instance";
         }
-        primaryHazelcastConfig.setInstanceName(instanceName);
+        hazelcastConfig.setInstanceName(instanceName);
         logger.info("Cluster domain: " + primaryDomain);
-        GroupConfig groupConfig = primaryHazelcastConfig.getGroupConfig();
+        GroupConfig groupConfig = hazelcastConfig.getGroupConfig();
         groupConfig.setName(primaryDomain);
-        String memberPassword = getClusterProperty(HazelcastConstants.GROUP_PASSWORD);
-        if (memberPassword != null) {
-            groupConfig.setPassword(memberPassword);
-        }
 
-        NetworkConfig nwConfig = primaryHazelcastConfig.getNetworkConfig();
-        String localMemberHost = getClusterProperty(ClusteringConstants.LOCAL_MEMBER_HOST);
+        NetworkConfig nwConfig = hazelcastConfig.getNetworkConfig();
+        String localMemberHost = clusterConfiguration.getLocalMemberConfiguration().getHost();
         if (localMemberHost != null) {
             localMemberHost = localMemberHost.trim();
         } else {
@@ -141,9 +122,9 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         }
         nwConfig.setPublicAddress(localMemberHost);
         int localMemberPort = 4000;
-        String localMemberPortParam = getClusterProperty(ClusteringConstants.LOCAL_MEMBER_PORT);
-        if (localMemberPortParam != null) {
-            localMemberPort = Integer.parseInt((localMemberPortParam).trim());
+        int localMemberPortParam = clusterConfiguration.getLocalMemberConfiguration().getPort();
+        if (localMemberPortParam != 0) {
+            localMemberPort = localMemberPortParam;
         }
         nwConfig.setPort(localMemberPort);
 
@@ -154,45 +135,46 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         }
         MapConfig mapConfig = new MapConfig("carbon-map-config");
         mapConfig.setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
-        if (licenseKey != null) {
+        if (hazelcastConfig.getLicenseKey() != null) {
             mapConfig.setStorageType(MapConfig.StorageType.OFFHEAP);
         }
-        primaryHazelcastConfig.addMapConfig(mapConfig);
+        hazelcastConfig.addMapConfig(mapConfig);
 
         long start = System.currentTimeMillis();
-        primaryHazelcastInstance = Hazelcast.newHazelcastInstance(primaryHazelcastConfig);
+        hazelcastInstance = Hazelcast.newHazelcastInstance(hazelcastConfig);
         logger.info("Hazelcast initialized in " + (System.currentTimeMillis() - start) + "ms");
 
-        membershipScheme.setPrimaryHazelcastInstance(primaryHazelcastInstance);
-
-        clusteringMessageTopic = primaryHazelcastInstance.
+        clusteringMessageTopic = hazelcastInstance.
                 getTopic(HazelcastConstants.CLUSTERING_MESSAGE_TOPIC);
         clusteringMessageTopic.
                 addMessageListener(new HazelcastClusterMessageListener(recdMsgsBuffer,
                                                                        sentMsgsBuffer));
-        ITopic<ControlCommand> controlCommandTopic = primaryHazelcastInstance.
+        ITopic<ControlCommand> controlCommandTopic = hazelcastInstance.
                 getTopic(HazelcastConstants.CONTROL_COMMAND_TOPIC);
         controlCommandTopic.addMessageListener(new HazelcastControlCommandListener());
 
-        Member localMember = primaryHazelcastInstance.getCluster().getLocalMember();
-        membershipScheme.setLocalMember(localMember);
-        try {
-            membershipScheme.joinGroup();
-        } catch (MembershipFailedException e) {
-            throw new ClusterInitializationException(e);
+        Member localMember = hazelcastInstance.getCluster().getLocalMember();
+        if (membershipScheme != null) {
+            membershipScheme.setLocalMember(localMember);
+            membershipScheme.setHazelcastInstance(hazelcastInstance);
+            try {
+                membershipScheme.joinGroup();
+            } catch (MembershipFailedException e) {
+                throw new ClusterInitializationException(e);
+            }
         }
-        localMember = primaryHazelcastInstance.getCluster().getLocalMember();
+        localMember = hazelcastInstance.getCluster().getLocalMember();
         localMember.getInetSocketAddress().getPort();
         ClusterMember carbonLocalMember =
                 MemberUtils.getLocalMember(primaryDomain,
                                            localMember.getInetSocketAddress().getAddress().
                                                    getHostAddress(),
                                            localMember.getInetSocketAddress().getPort(),
-                                           clusterContext);
+                                           clusterContext.getClusterConfiguration());
         logger.info("Local member: [" + localMember.getUuid() + "] - " + carbonLocalMember);
 
         //Create a Queue for receiving messages from others
-        final ITopic<ClusterMessage> replayedMsgs = primaryHazelcastInstance.
+        final ITopic<ClusterMessage> replayedMsgs = hazelcastInstance.
                 getTopic(HazelcastConstants.REPLAY_MESSAGE_QUEUE + localMember.getUuid());
 
         replayedMsgs.addMessageListener(new MessageListener<ClusterMessage>() {
@@ -216,11 +198,11 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         if (carbonLocalMember.getProperties().get("subDomain") == null) {
             carbonLocalMember.getProperties().put("subDomain", "__$default");  // Set the default subDomain
         }
-        MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain).put(localMember.getUuid(),
-                                                                               carbonLocalMember);
+        MemberUtils.getMembersMap(hazelcastInstance, primaryDomain).put(localMember.getUuid(),
+                                                                        carbonLocalMember);
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
         if (bundleContext != null) {
-            bundleContext.registerService(HazelcastInstance.class, primaryHazelcastInstance, null);
+            bundleContext.registerService(HazelcastInstance.class, hazelcastInstance, null);
         }
         ScheduledExecutorService msgCleanupScheduler = Executors.newScheduledThreadPool(1);
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
@@ -228,7 +210,17 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         logger.info("Cluster initialization completed");
     }
 
-    private void setHazelcastProperties() {
+    private void setHazelcastConfigurations() {
+
+        String hazelcastXmlLocation = System.getProperty("carbon.home") + File.separator +
+                                      "repository" + File.separator + "conf" + File.separator +
+                                      "etc" + File.separator + "hazelcast.xml";
+        File hazelcastConfigFile = new File(hazelcastXmlLocation);
+        if (hazelcastConfigFile.isFile()) {
+            hazelcastConfig.setConfigurationFile(hazelcastConfigFile);
+        }
+
+
         Properties hazelcastProperties = new Properties();
         // Setting some Hazelcast properties as per :
         // https://groups.google.com/forum/#!searchin/hazelcast/Azeez/hazelcast/x-skloPgl2o/PZN60s85XK0J
@@ -240,7 +232,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
 
         HazelcastUtil.loadPropertiesFromConfig(clusterContext.getClusterConfiguration(),
                                                hazelcastProperties);
-        primaryHazelcastConfig.setProperties(hazelcastProperties);
+        hazelcastConfig.setProperties(hazelcastProperties);
     }
 
     /**
@@ -249,77 +241,38 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
      * @return The clustering domain to which this node belongs to
      */
     private String getClusterDomain() {
-        String domain = null;
-        domain = getClusterProperty(ClusteringConstants.DOMAIN);
+        String domain;
+        domain = clusterContext.getClusterConfiguration().getDomain();
         if (domain == null) {
             domain = ClusteringConstants.DEFAULT_DOMAIN;
         }
         return domain;
     }
 
-    private String getClusterProperty(String property) {
-        ClusterConfiguration clusterConfiguration = clusterContext.getClusterConfiguration();
-        return clusterConfiguration.getFirstProperty(property);
-    }
-
     private void configureMembershipScheme(NetworkConfig nwConfig)
             throws ClusterConfigurationException, MembershipInitializationException {
-        String scheme = getMembershipScheme();
-        logger.info("Using " + scheme + " based membership management scheme");
-        switch (scheme) {
-            case ClusteringConstants.MembershipScheme.WKA_BASED:
-                wkaMembers = ClusterUtil.getWellKnownMembers(clusterContext.getClusterConfiguration());
-                membershipScheme = new WKABasedMembershipScheme(primaryDomain,
-                                                                wkaMembers, primaryHazelcastConfig,
-                                                                sentMsgsBuffer);
-                membershipScheme.init(clusterContext);
-                break;
-            case ClusteringConstants.MembershipScheme.MULTICAST_BASED:
-                membershipScheme = new MulticastBasedMembershipScheme(primaryDomain,
-                                                                      nwConfig.getJoin().
-                                                                              getMulticastConfig(),
-                                                                      sentMsgsBuffer);
-                membershipScheme.init(clusterContext);
-                break;
-            case HazelcastConstants.AWS_MEMBERSHIP_SCHEME:
-                membershipScheme = new AWSBasedMembershipScheme(primaryDomain,
-                                                                primaryHazelcastConfig,
-                                                                primaryHazelcastInstance,
-                                                                sentMsgsBuffer);
-                membershipScheme.init(clusterContext);
-                break;
+        String scheme = ClusterUtil.getMembershipScheme(clusterContext.getClusterConfiguration());
+        if (scheme != null) {
+            logger.info("Using " + scheme + " based membership management scheme");
+            switch (scheme) {
+                case ClusteringConstants.MembershipScheme.WKA_BASED:
+                    List<ClusterMember> wkaMembers = ClusterUtil.
+                            getWellKnownMembers(clusterContext.getClusterConfiguration());
+                    membershipScheme = new WKABasedMembershipScheme(primaryDomain,
+                                                                    wkaMembers, hazelcastConfig,
+                                                                    sentMsgsBuffer);
+                    membershipScheme.init(clusterContext);
+                    break;
+                case ClusteringConstants.MembershipScheme.MULTICAST_BASED:
+                    membershipScheme =
+                            new MulticastBasedMembershipScheme(primaryDomain,
+                                                               nwConfig.getJoin().
+                                                                       getMulticastConfig(),
+                                                               sentMsgsBuffer);
+                    membershipScheme.init(clusterContext);
+                    break;
+            }
         }
-    }
-
-    /**
-     * Get the membership scheme applicable to this cluster
-     *
-     * @return The membership scheme. Only "wka" & "multicast" are valid return values.
-     * @throws ClusterConfigurationException
-     *          If the membershipScheme specified in the cluster.xml file is invalid
-     */
-    private String getMembershipScheme() throws ClusterConfigurationException {
-        String membershipSchemeParam =
-                getClusterProperty(ClusteringConstants.MEMBERSHIP_SCHEME);
-        String mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
-        if (membershipSchemeParam != null) {
-            mbrScheme = membershipSchemeParam.trim();
-        }
-        if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED) &&
-            !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED) &&
-            !mbrScheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME)) {
-            String msg = "Invalid membership scheme '" + mbrScheme + "'. Supported schemes are " +
-                         ClusteringConstants.MembershipScheme.MULTICAST_BASED + ", " +
-                         ClusteringConstants.MembershipScheme.WKA_BASED + " & " +
-                         HazelcastConstants.AWS_MEMBERSHIP_SCHEME;
-            logger.error(msg);
-            throw new ClusterConfigurationException(msg);
-        }
-        return mbrScheme;
-    }
-
-    public Config getPrimaryHazelcastConfig() {
-        return primaryHazelcastConfig;
     }
 
 
@@ -330,34 +283,47 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         }
     }
 
-    public List<ClusterMember> getStaticMembers() {
-        return wkaMembers;
-    }
-
+    /**
+     * This will return the no of alive members in the cluster
+     *
+     * @return number of alive cluster members
+     */
     public int getAliveMemberCount() {
-        return MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain).size();
+        return MemberUtils.getMembersMap(hazelcastInstance, primaryDomain).size();
     }
 
-
+    @Override
     public void sendMessage(ClusterMessage clusteringMessage) throws MessageFailedException {
-        if (!sentMsgsBuffer.contains(clusteringMessage)) {
-            sentMsgsBuffer.add(clusteringMessage); // Buffer the message for replay
-        }
-        if (clusteringMessageTopic != null) {
-            clusteringMessageTopic.publish(clusteringMessage);
+        try {
+            if (!sentMsgsBuffer.contains(clusteringMessage)) {
+                sentMsgsBuffer.add(clusteringMessage); // Buffer the message for replay
+            }
+            if (clusteringMessageTopic != null) {
+                clusteringMessageTopic.publish(clusteringMessage);
+            }
+        } catch (Exception e) {
+            throw new MessageFailedException("Error while sending cluster message", e);
         }
     }
 
     @Override
     public void sendMessage(ClusterMessage msg, List<ClusterMember> members)
             throws MessageFailedException {
-        for (ClusterMember member : members) {
-            ITopic<ClusterMessage> msgTopic = primaryHazelcastInstance.
-                    getTopic(HazelcastConstants.REPLAY_MESSAGE_QUEUE + member.getId());
-            msgTopic.publish(msg);
+        try {
+            for (ClusterMember member : members) {
+                ITopic<ClusterMessage> msgTopic = hazelcastInstance.
+                        getTopic(HazelcastConstants.REPLAY_MESSAGE_QUEUE + member.getId());
+                msgTopic.publish(msg);
+            }
+        } catch (Exception e) {
+            throw new MessageFailedException("Error while sending cluster message", e);
         }
     }
 
+    /**
+     * This is a cleanup task which gets run periodically for cleaning messages from message buffers
+     * when they exceed the life time
+     */
     private class ClusterMessageCleanupTask implements Runnable {
         private static final int MAX_MESSAGES_TO_PROCESS = 5000;
         private static final int MAX_MESSAGE_LIFETIME = 5 * 60 * 1000;
@@ -370,7 +336,8 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
             // Cleanup sent messages buffer
             int messagesProcessed = 0;
             for (ClusterMessage clusteringMessage : sentMsgsBuffer) {
-                if (System.currentTimeMillis() - clusteringMessage.getTimestamp() >= MAX_MESSAGE_LIFETIME) {
+                if (System.currentTimeMillis() - clusteringMessage.getTimestamp() >=
+                    MAX_MESSAGE_LIFETIME) {
                     sentMsgsBuffer.remove(clusteringMessage);
                 }
 

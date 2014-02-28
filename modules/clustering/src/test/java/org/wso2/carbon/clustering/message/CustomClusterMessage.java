@@ -19,11 +19,14 @@
 
 package org.wso2.carbon.clustering.message;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 
 public class CustomClusterMessage extends ClusterMessage {
+    private final static Logger logger = LoggerFactory.getLogger(CustomClusterMessage.class);
     private static String executedMsg;
     private String content;
 
@@ -32,6 +35,7 @@ public class CustomClusterMessage extends ClusterMessage {
     }
     @Override
     public void execute() throws MessageFailedException {
+        logger.info("Executing cluster message : " + content);
         executedMsg = content + "Executed";
     }
 

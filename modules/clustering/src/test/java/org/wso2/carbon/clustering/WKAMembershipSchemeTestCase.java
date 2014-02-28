@@ -23,9 +23,17 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.WKAMember;
+import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
+import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
@@ -34,15 +42,34 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
     public void setup() throws ClusterConfigurationException {
         setupMembershipScheme("cluster-03.xml", "cluster-04.xml");
     }
-    @Test
-    public void testWKAMembershipScheme() throws ClusterInitializationException {
+
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test wka scheme with two members")
+    public void testWKAMembershipScheme()
+            throws ClusterInitializationException, ClusterConfigurationException {
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
         Assert.assertEquals(noOfMembers, 2);
+
+        ClusterConfiguration clusterConfiguration = getClusterContext().getClusterConfiguration();
+        Object membershipScheme = clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme();
+        Assert.assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
+                            membershipScheme.toString());
+        WKASchemeConfig wkaSchemeConfig = (WKASchemeConfig) membershipScheme;
+        List<WKAMember> wkaMembers = wkaSchemeConfig.getWkaMembers();
+        List<ClusterMember> clusterMembers = ClusterUtil.getWellKnownMembers(clusterConfiguration);
+
+        for (int i = 0; i < wkaMembers.size(); i++) {
+            Assert.assertTrue(clusterMembers.get(i).getHostName().
+                    equals(wkaMembers.get(i).getHost()));
+        }
+
     }
 
-    @Test (dependsOnMethods = {"testWKAMembershipScheme"})
-    public void testSendMessage() {
+
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test send message with wka scheme",
+          dependsOnMethods = {"testWKAMembershipScheme"})
+    public void testSendMessage() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         CustomClusterMessage clusterMessage = new CustomClusterMessage("WKAMessage");
         carbonCluster.sendMessage(clusterMessage);
@@ -52,6 +79,47 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
             //ignore
         }
         Assert.assertEquals(clusterMessage.getExecutedMsg(), "WKAMessageExecuted");
+    }
+
+    @Test(groups = {"wso2.carbon.clustering"},
+          description = "test send message to specific member in wka scheme",
+          dependsOnMethods = {"testSendMessage"})
+    public void testSendMessageToMember() throws MessageFailedException {
+        CarbonCluster carbonCluster = getClusterService();
+        List<ClusterMember> clusterMembers = carbonCluster.getMembers();
+        List<ClusterMember> membersToSend = new ArrayList<>();
+        for (ClusterMember member : clusterMembers) {
+            if (member.getPort() == 4004) {
+                membersToSend.add(member);
+                break;
+            }
+        }
+        if (!membersToSend.isEmpty()) {
+            CustomMemberClusterMessage clusterMessage =
+                    new CustomMemberClusterMessage("WKAMemberMessage");
+            carbonCluster.sendMessage(clusterMessage, membersToSend);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                //ignore
+            }
+
+            // try again, if the message was not delivered during the given sleep time
+            if ("WKAMessageExecuted".equals(clusterMessage.getExecutedMsg())) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    //ignore
+                }
+            }
+            // if still not delivered then fail the test
+            if ("WKAMessageExecuted".equals(clusterMessage.getExecutedMsg())) {
+                Assert.fail("Message is not sent/executed with given time delay of 15 seconds");
+            }
+            Assert.assertEquals(clusterMessage.getExecutedMsg(), "WKAMemberMessageExecuted");
+        } else {
+            Assert.fail("Members to send list is empty");
+        }
     }
 
     @AfterTest

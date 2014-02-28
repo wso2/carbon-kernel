@@ -16,19 +16,12 @@
  *  under the License.
  *
  */
-package org.wso2.carbon.clustering.hazelcast.aws;
 
-/**
- * Constants used with AWS based membership scheme
- */
-public class AWSConstants {
+@XmlSchema(
+        namespace = "http://wso2.com/schema/clustering/config",
+        elementFormDefault = XmlNsForm.QUALIFIED)
 
-    public static final String ACCESS_KEY = "accessKey";
-    public static final String SECRET_KEY = "secretKey";
-    public static final String SECURITY_GROUP = "securityGroup" ;
-    public static final String CONNECTION_TIMEOUT ="connTimeout" ;
-    public static final String HOST_HEADER = "hostHeader";
-    public static final String REGION = "region";
-    public static final String TAG_KEY = "tagKey";
-    public static final String TAG_VALUE = "tagValue";
-}
+package org.wso2.carbon.clustering.config.membership.scheme;
+
+import javax.xml.bind.annotation.XmlNsForm;
+import javax.xml.bind.annotation.XmlSchema;

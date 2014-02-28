@@ -21,13 +21,9 @@ package org.wso2.carbon.clustering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.wso2.carbon.clustering.api.MembershipListener;
-import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,49 +36,81 @@ public class ClusterContext {
     private static Logger logger = LoggerFactory.getLogger(CarbonCluster.class);
 
     private List<MembershipListener> membershipListeners = new ArrayList<>();
-    private List<ClusterMember> primaryClusterMembers = new ArrayList<>();
+    private List<ClusterMember> clusterMembers = new ArrayList<>();
     private ClusterConfiguration clusterConfiguration;
 
+    /**
+     * A cluster context will have a cluster configuration associated with it.
+     * @param clusterConfiguration the associated cluster config instance
+     */
     public ClusterContext(ClusterConfiguration clusterConfiguration) {
         this.clusterConfiguration = clusterConfiguration;
     }
 
+    /**
+     * Add a membership listener to this cluster context
+     * @param membershipListener the membership listener to add
+     */
     public void addMembershipListener(MembershipListener membershipListener) {
-        logger.debug("Adding new membership listener {} " ,membershipListener);
+        logger.debug("Adding new membership listener {} ", membershipListener);
         membershipListeners.add(membershipListener);
     }
 
+    /**
+     * Remove a membership listener from this context
+     * @param membershipListener the membership listener to be removed
+     */
     public void removeMembershipListener(MembershipListener membershipListener) {
-        logger.debug("Removing membership listener {} " ,membershipListener);
+        logger.debug("Removing membership listener {} ", membershipListener);
         membershipListeners.remove(membershipListener);
     }
 
+    /**
+     * Add a cluster member to current cluster context
+     * @param clusterMember the cluster member to be added
+     */
     public void addMember(ClusterMember clusterMember) {
         logger.debug("Adding new member {} ", clusterMember.getId());
         for (MembershipListener membershipListener : membershipListeners) {
             membershipListener.memberAdded(new MembershipEvent(clusterMember,
                                                                MembershipEvent.MEMBER_ADDED));
         }
-        primaryClusterMembers.add(clusterMember);
+        clusterMembers.add(clusterMember);
     }
 
+    /**
+     * Remove a cluster member form this cluster context
+     * @param clusterMember the cluster member to be removed
+     */
     public void removeMember(ClusterMember clusterMember) {
         logger.debug("Removing member {} ", clusterMember.getId());
         for (MembershipListener membershipListener : membershipListeners) {
             membershipListener.memberRemoved(new MembershipEvent(clusterMember,
                                                                  MembershipEvent.MEMBER_REMOVED));
         }
-        primaryClusterMembers.remove(clusterMember);
+        clusterMembers.remove(clusterMember);
     }
 
-    public List<ClusterMember> getPrimaryClusterMembers() {
-        return primaryClusterMembers;
+    /**
+     * Returns all the current members in the cluster context
+     * @return the list of cluster members
+     */
+    public List<ClusterMember> getClusterMembers() {
+        return clusterMembers;
     }
 
+    /**
+     * This is the method to obtain cluster configuration within cluster framework
+     * @return the cluster configuration instance
+     */
     public ClusterConfiguration getClusterConfiguration() {
         return clusterConfiguration;
     }
 
+    /**
+     * Returns the list of membership listeners currently available in the cluster context
+     * @return the list of membership listeners
+     */
     public List<MembershipListener> getMembershipListeners() {
         return membershipListeners;
     }

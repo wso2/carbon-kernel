@@ -26,6 +26,7 @@
             <modules>
                 <module>dependencies</module>
                 <module>modules/launcher</module>
+                <module>modules/kernel</module>
                 <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
                 <module>modules/samples/hello-world-bundle</module>
@@ -116,9 +117,51 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${version.jacoco}</version>
+                    <executions>
+                        <execution>
+                            <id>default-instrument</id>
+                            <goals>
+                                <goal>instrument</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-restore-instrumented-classes</id>
+                            <goals>
+                                <goal>restore-instrumented-classes</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-report</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-check</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven.surefireplugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+                        </systemPropertyVariables>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -555,6 +598,12 @@
                 <artifactId>hazelcast</artifactId>
                 <version>${orbit.hazelcast.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <classifier>runtime</classifier>
+                <version>${version.jacoco}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -688,5 +737,6 @@
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>
         <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
+        <version.jacoco>0.6.4.201312101107</version.jacoco>
     </properties>
 </project>

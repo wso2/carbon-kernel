@@ -18,8 +18,6 @@
  */
 package org.wso2.carbon.clustering;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.DataHolder;
@@ -32,7 +30,6 @@ import java.util.List;
  * The cluster api implementation
  */
 public class CarbonCluster implements Cluster {
-    private static Logger logger = LoggerFactory.getLogger(CarbonCluster.class);
 
     private ClusteringAgent clusteringAgent;
 
@@ -41,26 +38,19 @@ public class CarbonCluster implements Cluster {
     }
 
     @Override
-    public void sendMessage(ClusterMessage clusterMessage) {
-        try {
-            clusteringAgent.sendMessage(clusterMessage);
-        } catch (MessageFailedException e) {
-            logger.error("Error while sending message to cluster", e);
-        }
+    public void sendMessage(ClusterMessage clusterMessage) throws MessageFailedException {
+        clusteringAgent.sendMessage(clusterMessage);
     }
 
     @Override
-    public void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members) {
-        try {
-            clusteringAgent.sendMessage(clusterMessage, members);
-        } catch (MessageFailedException e) {
-            logger.error("Error while sending message to cluster members", e);
-        }
+    public void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members)
+            throws MessageFailedException {
+        clusteringAgent.sendMessage(clusterMessage, members);
     }
 
     @Override
     public List<ClusterMember> getMembers() {
         ClusterContext clusterContext = DataHolder.getInstance().getClusterContext();
-        return Collections.unmodifiableList(clusterContext.getPrimaryClusterMembers());
+        return Collections.unmodifiableList(clusterContext.getClusterMembers());
     }
 }

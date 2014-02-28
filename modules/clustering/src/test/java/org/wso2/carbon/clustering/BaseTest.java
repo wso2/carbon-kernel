@@ -19,6 +19,16 @@
 
 package org.wso2.carbon.clustering;
 
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -50,14 +60,25 @@ public class BaseTest {
         return new File(testResourceDir, relativePath);
     }
 
-    public InputStream getTestResource(String relativePath) {
-        File testResource = getTestResourceFile(relativePath);
+    public ClusterConfiguration buildClusterConfig(String clusterXmlLocation)
+            throws ClusterConfigurationException {
+        ClusterConfiguration clusterConfiguration = null;
         try {
-            return new FileInputStream(testResource);
-        } catch (FileNotFoundException e) {
-            throw new IllegalStateException("The '" + testResource.getAbsolutePath() +
-                                            "' file does not exist. Verify that the 'basedir' System property " +
-                                            "is pointing to the root of the project", e);
+            File file = new File(clusterXmlLocation);
+            JAXBContext jaxbContext = JAXBContext.newInstance(ClusterConfiguration.class);
+
+            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schema = sf.newSchema(new File(testResourceDir + File.separator +
+                                                  "xsd" + File.separator + "cluster.xsd"));
+
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            unmarshaller.setSchema(schema);
+            clusterConfiguration = (ClusterConfiguration) unmarshaller.unmarshal(file);
+        } catch (JAXBException | SAXException e) {
+            String msg = "Error while building cluster configuration";
+            throw new ClusterConfigurationException(msg, e);
         }
+
+        return clusterConfiguration;
     }
 }

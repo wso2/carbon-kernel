@@ -23,11 +23,8 @@ package org.wso2.carbon.clustering.hazelcast;
  */
 public final class HazelcastConstants {
 
-    public static final String MGT_CENTER_URL = "mgt-center-url";
-    public static final String LICENSE_KEY = "license-key";
     public static final String CLUSTERING_MESSAGE_TOPIC = "$clustering.message.topic";
     public static final String CONTROL_COMMAND_TOPIC = "$control.$command.$topic";
-    public static final String GROUP_PASSWORD = "group-password";
 
     public static final String INSTANCE_NAME = "hazelcast.instance.name";
     public static final String MAX_NO_HEARTBEAT_SECONDS = "hazelcast.max.no.heartbeat.seconds";
@@ -39,8 +36,6 @@ public final class HazelcastConstants {
             "hazelcast.merge.next.run.delay.secondss";
 
     public static final String REPLAY_MESSAGE_QUEUE = "$ReplayMessageQueue:";
-
-    public static final String AWS_MEMBERSHIP_SCHEME = "aws";
 
     private HazelcastConstants() {
     }

@@ -22,47 +22,79 @@ package org.wso2.carbon.clustering;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.w3c.dom.Element;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import java.io.File;
+import java.io.IOException;
 
 public class ClusterConfigurationTestCase extends BaseTest {
 
     private ClusterConfiguration clusterConfiguration;
-    private String clusterXMLLocation;
 
     @BeforeTest
-    public void setup() {
-        clusterXMLLocation = getTestResourceFile("cluster-00.xml").getAbsolutePath();
-        clusterConfiguration = new ClusterConfiguration();
-        clusterConfiguration.setClusterConfigurationXMLLocation(clusterXMLLocation);
+    public void setup() throws ClusterConfigurationException {
+
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"}, description = "sample cluster.xml validation")
+    public void testClusterXmlValidation1()
+            throws ParserConfigurationException, IOException, SAXException {
+        Source xmlFile = new StreamSource(getTestResourceFile("xsd" + File.separator +
+                                                              "cluster.xml"));
+        SchemaFactory schemaFactory = SchemaFactory
+                .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = schemaFactory.newSchema(getTestResourceFile("xsd" + File.separator +
+                                                                    "cluster.xsd"));
+        Validator validator = schema.newValidator();
+        validator.validate(xmlFile);
+    }
+
+    @Test (groups = {"wso2.carbon.clustering"}, description = "distribution cluster.xml validation")
+    public void testClusterXmlValidation2()
+            throws ParserConfigurationException, IOException, SAXException {
+        Source xmlFile = new StreamSource(new File(".." + File.separator + ".." + File.separator +
+                                                   "distribution" + File.separator + "carbon-home" +
+                                                   File.separator + "repository" + File.separator +
+                                                   "conf" + File.separator + "cluster.xml"));
+        SchemaFactory schemaFactory = SchemaFactory
+                .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        Schema schema = schemaFactory.newSchema(getTestResourceFile("xsd" + File.separator +
+                                                                    "cluster.xsd"));
+        Validator validator = schema.newValidator();
+        validator.validate(xmlFile);
+    }
+
+    @Test (groups = {"wso2.carbon.clustering"},
+           description = "test cluster configuration population")
     public void testBuildClusterConfiguration() throws ClusterConfigurationException {
-        ClusterConfiguration sampleClusterConfiguration = new ClusterConfiguration();
-        sampleClusterConfiguration.setClusterConfigurationXMLLocation("fake/path");
         try {
-            sampleClusterConfiguration.build();
+            buildClusterConfig("fake/path");
         } catch (ClusterConfigurationException e) {
             Assert.assertTrue(e.getMessage().
                     contains("Error while building cluster configuration"));
         }
-        clusterConfiguration.build();
+        String clusterXMLLocation = getTestResourceFile("cluster-00.xml").getAbsolutePath();
+        clusterConfiguration = buildClusterConfig(clusterXMLLocation);
     }
 
-    @Test (dependsOnMethods = {"testBuildClusterConfiguration"})
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test clustering enable/disabled" ,
+          dependsOnMethods = {"testBuildClusterConfiguration"})
     public void testClusteringEnabled() {
-        Object obj = clusterConfiguration.getElement("cluster");
-        if (obj instanceof Element) {
-            Element rootElement = (Element) obj;
-            boolean isEnabled = Boolean.parseBoolean(rootElement.getAttribute("enable"));
-            Assert.assertTrue(isEnabled);
-        }
+        boolean isEnabled = clusterConfiguration.isEnabled();
+        Assert.assertTrue(isEnabled);
     }
 
-    @Test
+    @Test (groups = {"wso2.carbon.clustering"}, description = "test clustering agent type")
     public void testClusteringAgentType() throws ClusterConfigurationException {
-        boolean isHazelCast = clusterConfiguration.shouldInitialize("hazelcast");
-        Assert.assertTrue(isHazelCast);
+        Assert.assertEquals("hazelcast", clusterConfiguration.getAgent());
     }
 }

@@ -22,7 +22,12 @@
     ${carbon.home} represents the carbon.home system property.
     Other system properties can be specified in a similar manner.
 -->
-<Server xmlns="http://wso2.org/projects/carbon/carbon.xml">
+<Server xmlns="http://wso2.org/carbon/xmlns/v5.0.0">
+
+    <!--
+       machine readable unique key to identify each product
+    -->
+    <Id>${product.key}</Id>
 
     <!--
        Product Name
@@ -30,23 +35,10 @@
     <Name>${product.name}</Name>
 
     <!--
-       machine readable unique key to identify each product
-    -->
-    <ServerKey>${product.key}</ServerKey>
-
-    <!--
        Product Version
     -->
     <Version>${product.version}</Version>
 
-
-    <!-- uncommnet this line to subscribe to a bam instance automatically -->
-    <!--<BamServerURL>https://bamhost:bamport/services/</BamServerURL>-->
-
-    <!--
-       The fully qualified name of the server
-    -->
-    <Package>org.wso2.carbon</Package>
 
     <!--
        Ports used by this server
@@ -59,19 +51,7 @@
          -->
         <Offset>0</Offset>
 
-        <!-- The JMX Ports -->
-        <JMX>
-            <!--The port RMI registry is exposed-->
-            <RMIRegistryPort>9999</RMIRegistryPort>
-            <!--The port RMI server should be exposed-->
-            <RMIServerPort>11111</RMIServerPort>
-        </JMX>
-
     </Ports>
-
-    <!-- The Max time a thread should take for execution in seconds -->
-    <MaxThreadExecutionTime>600</MaxThreadExecutionTime>
-
 
     <!--
     Deployment Engine related configurations
@@ -97,44 +77,5 @@
         <UpdateInterval>15</UpdateInterval>
 
     </Deployment>
-
-    <!--
-       The temporary work directory
-    -->
-    <WorkDirectory>${carbon.home}/tmp/work</WorkDirectory>
-
-    <!--
-       House-keeping configuration
-    -->
-    <HouseKeeping>
-
-        <!--
-           true  - Start House-keeping thread on server startup
-           false - Do not start House-keeping thread on server startup.
-                   The user will run it manually as and when he wishes.
-        -->
-        <AutoStart>true</AutoStart>
-
-        <!--
-           The interval in *minutes*, between house-keeping runs
-        -->
-        <Interval>10</Interval>
-
-        <!--
-          The maximum time in *minutes*, temp files are allowed to live
-          in the system. Files/directories which were modified more than
-          "MaxTempFileLifetime" minutes ago will be removed by the
-          house-keeping task
-        -->
-        <MaxTempFileLifetime>30</MaxTempFileLifetime>
-    </HouseKeeping>
-
-    <!--
-       Default Feature Repository of WSO2 Carbon.
-    -->
-    <FeatureRepository>
-        <RepositoryName>default repository</RepositoryName>
-        <RepositoryURL>${p2.repo.url}</RepositoryURL>
-    </FeatureRepository>
 
 </Server>

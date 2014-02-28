@@ -19,15 +19,15 @@
 package org.wso2.carbon.clustering.hazelcast.util;
 
 import com.hazelcast.core.Member;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.wso2.carbon.clustering.ClusterConfiguration;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.CarbonCluster;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.LocalMemberProperty;
+import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.DataHolder;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -37,67 +37,65 @@ import java.util.Properties;
  */
 public class HazelcastUtil {
     public static ClusterMember toClusterMember(Member hazelcastMember) {
-        return new ClusterMember(hazelcastMember.getUuid(), hazelcastMember.getInetSocketAddress());
+        InetSocketAddress inetSocketAddress = hazelcastMember.getInetSocketAddress();
+        ClusterMember clusterMember = new ClusterMember(inetSocketAddress.getHostName(),
+                                                        inetSocketAddress.getPort());
+        clusterMember.setId(hazelcastMember.getUuid());
+        return clusterMember;
     }
 
     /**
      * Replay messages to a newly joining member
      */
     public static void sendMessagesToMember(List<ClusterMessage> messageBuffer,
-                                            Member member) {
+                                            Member member) throws MessageFailedException {
         CarbonCluster carbonCluster = DataHolder.getInstance().getCarbonCluster();
         for (ClusterMessage clusterMessage : messageBuffer) {
-            ArrayList<ClusterMember> members = new ArrayList<ClusterMember>();
+            ArrayList<ClusterMember> members = new ArrayList<>();
             members.add(HazelcastUtil.toClusterMember(member));
             carbonCluster.sendMessage(clusterMessage, members);
         }
     }
 
+    /**
+     * This method will read properties specified in cluster.xml and load it to the given
+     * properties instance
+     *
+     * @param clusterConfiguration the cluster configuration to read the properties
+     * @param properties           the properties instance to load the read properties
+     */
     public static void loadPropertiesFromConfig(ClusterConfiguration clusterConfiguration,
-                                                Properties hazelcastProperties) {
+                                                Properties properties) {
 
-        List<Object> propsParam = clusterConfiguration.getElement("properties");
-        if (propsParam != null) {
-            for (Object property : propsParam) {
-                if (property instanceof Node) {
-                    NodeList nodeList = ((Node) property).getChildNodes();
-                    for (int count = 0; count < nodeList.getLength(); count++) {
-                        Node node = nodeList.item(count);
-                        if (node.getNodeType() == Node.ELEMENT_NODE &&
-                            "property".equals(node.getNodeName())) {
-                            String attributeName = ((Element) node).getAttribute("name");
-                            String attributeValue = node.getTextContent();
-                            hazelcastProperties.setProperty(attributeName, attributeValue);
-                        }
-                    }
-                }
-            }
+        List<LocalMemberProperty> localMemberProperties = clusterConfiguration.
+                getLocalMemberConfiguration().getProperties();
+
+        for (LocalMemberProperty localMemberProperty : localMemberProperties) {
+            String attributeName = localMemberProperty.getName();
+            String attributeValue = localMemberProperty.getValue();
+            properties.setProperty(attributeName, attributeValue);
         }
     }
 
+    /**
+     * This will lookup specific property from cluster.xml by using the given name
+     *
+     * @param clusterConfiguration cluster configuration to lookup property
+     * @param propertyName         the property name to lookup
+     * @return the value of the looked up property
+     */
     public static String lookupHazelcastProperty(ClusterConfiguration clusterConfiguration,
                                                  String propertyName) {
         String propertyValue = null;
-        List<Object> propsParam = clusterConfiguration.getElement("properties");
-        if (propsParam != null) {
-            for (Object property : propsParam) {
-                if (property instanceof Node) {
-                    NodeList nodeList = ((Node) property).getChildNodes();
-                    for (int count = 0; count < nodeList.getLength(); count++) {
-                        Node node = nodeList.item(count);
-                        if (node.getNodeType() == Node.ELEMENT_NODE &&
-                            "property".equals(node.getNodeName())) {
-                            String attributeName = ((Element) node).getAttribute("name");
-                            if (attributeName != null && propertyName.equals(attributeName)) {
-                                propertyValue = node.getTextContent();
-                                break;
-                            }
-                        }
-                    }
-                }
+        List<LocalMemberProperty> localMemberProperties = clusterConfiguration.
+                getLocalMemberConfiguration().getProperties();
+
+        for (LocalMemberProperty localMemberProperty : localMemberProperties) {
+            if (propertyName.equals(localMemberProperty.getName())) {
+                propertyValue = localMemberProperty.getValue();
+                break;
             }
         }
-
         return propertyValue;
     }
 }

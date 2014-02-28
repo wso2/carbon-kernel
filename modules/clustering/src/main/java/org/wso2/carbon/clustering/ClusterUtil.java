@@ -20,17 +20,12 @@ package org.wso2.carbon.clustering;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.wso2.carbon.clustering.hazelcast.wka.WKAConstants;
-import org.xml.sax.SAXException;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.MembershipSchemeConfiguration;
+import org.wso2.carbon.clustering.config.membership.scheme.WKAMember;
+import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
+import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -54,33 +49,22 @@ public class ClusterUtil {
      */
     public static List<ClusterMember> getWellKnownMembers(
             ClusterConfiguration clusterConfiguration) {
-        List<ClusterMember> members = new ArrayList<ClusterMember>();
-        List<Object> membersList = clusterConfiguration.getElement("wka.members.member");
+        List<ClusterMember> members = new ArrayList<>();
 
-        for (Object member : membersList) {
-            if (member instanceof Node) {
-                NodeList nodeList = ((Node) member).getChildNodes();
-                String hostName = null;
-                String port = null;
-                for (int count = 0; count < nodeList.getLength(); count++) {
-                    Node node = nodeList.item(count);
-                    if (node.getNodeType() == Node.ELEMENT_NODE) {
-                        if (WKAConstants.HOST_NAME.equals(node.getNodeName())) {
-                            logger.debug("WKA Member host name {}", node.getTextContent());
-                            hostName = node.getTextContent();
-                        } else if (WKAConstants.PORT.equals(node.getNodeName())) {
-                            logger.debug("WKA Member port {}", node.getTextContent());
-                            port = node.getTextContent();
-                        }
-                    }
-                }
-                if (hostName != null && port != null) {
-                    members.add(new ClusterMember(replaceVariables(hostName),
-                                                  Integer.parseInt(replaceVariables(port))));
-                }
+        List<WKAMember> wkaMembers = ((WKASchemeConfig)clusterConfiguration.
+                getMembershipSchemeConfiguration().getMembershipScheme()).getWkaMembers();
+
+        for (WKAMember wkaMember : wkaMembers) {
+            String hostName = wkaMember.getHost();
+            int port = wkaMember.getPort();
+
+            if (hostName != null && port != 0) {
+                members.add(new ClusterMember(replaceVariables(hostName),
+                                              port));
             }
         }
         return members;
+
     }
 
     private static String replaceVariables(String text) {
@@ -129,26 +113,36 @@ public class ClusterUtil {
     private static boolean isIP(String hostAddress) {
         return hostAddress.split("[.]").length == 4;
     }
-
     /**
-     * This will check and return whether clustering is enabled or disabled in cluster.xml
-     * @return true if enabled, false if not
+     * Get the membership scheme applicable to this cluster
+     *
+     * @return The membership scheme. Only "wka" & "multicast" are valid return values.
+     * @throws org.wso2.carbon.clustering.exception.ClusterConfigurationException
+     *          If the membershipScheme specified in the cluster.xml file is invalid
      */
-    public static boolean isClusteringEnabled() {
-        boolean isEnabled = false;
-        String configurationXMLLocation = System.getProperty("carbon.home") + File.separator +
-                                          "repository" + File.separator + "conf" +
-                                          File.separator + "cluster.xml";
-        try {
-            File xmlFile = new File(configurationXMLLocation);
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
+    public static String getMembershipScheme(ClusterConfiguration clusterConfiguration)
+            throws ClusterConfigurationException {
+        String mbrScheme = null;
 
-            isEnabled = Boolean.parseBoolean(doc.getDocumentElement().
-                    getAttribute("enable"));
-        } catch (Exception e){
-            logger.error("Error while reading cluster.xml", e);
+        Object membershipScheme = clusterConfiguration.getMembershipSchemeConfiguration().
+                getMembershipScheme();
+        if (membershipScheme != null) {
+            String membershipSchemeParam = membershipScheme.toString();
+            mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
+            if (membershipSchemeParam != null) {
+                mbrScheme = membershipSchemeParam.trim();
+            }
+            if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
+                && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
+                String msg = "Invalid membership scheme '" + mbrScheme +
+                             "'. Supported schemes are " +
+                             ClusteringConstants.MembershipScheme.MULTICAST_BASED +
+                             ", " + ClusteringConstants.MembershipScheme.WKA_BASED;
+                logger.error(msg);
+                throw new ClusterConfigurationException(msg);
+            }
         }
-        return isEnabled;
+
+        return mbrScheme;
     }
 }
