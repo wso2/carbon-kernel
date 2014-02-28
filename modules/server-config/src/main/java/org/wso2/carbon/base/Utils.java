@@ -34,7 +34,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.management.ManagementPermission;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class Utils {
 
 	public static String getServerXml() {
 		String carbonXML = System
-				.getProperty(Constants.CARBON_CONFIG_DIR_PATH);
+				.getProperty(Constants.CARBON_REPOSITORY);
 		/*
 		 * if user set the system property telling where is the configuration
 		 * directory
@@ -72,10 +71,10 @@ public class Utils {
 
 	public static String getCarbonConfigDirPath() {
 		String carbonConfigDirPath = System
-				.getProperty(Constants.CARBON_CONFIG_DIR_PATH);
+				.getProperty(Constants.CARBON_REPOSITORY);
 		if (carbonConfigDirPath == null) {
 			carbonConfigDirPath = System
-					.getenv(Constants.CARBON_CONFIG_DIR_PATH_ENV);
+					.getenv(Constants.CARBON_REPOSITORY_PATH_ENV);
 			if (carbonConfigDirPath == null) {
 				return getCarbonHome() + File.separator + "repository"
 						+ File.separator + "conf";

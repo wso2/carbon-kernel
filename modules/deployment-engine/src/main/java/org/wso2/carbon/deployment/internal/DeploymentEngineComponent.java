@@ -19,54 +19,84 @@
 
 package org.wso2.carbon.deployment.internal;
 
-import org.osgi.framework.BundleActivator;
+import org.apache.felix.scr.annotations.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.CarbonDeploymentService;
 import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.kernel.CarbonRuntime;
 
 /**
  * The bundle activator which activates the carbon deployment engine
  */
-public class DeploymentEngineActivator implements BundleActivator {
-    private static Logger logger = LoggerFactory.getLogger(DeploymentEngineActivator.class);
+@Component(
+        name = "org.wso2.carbon.deployment.internal.DeploymentEngineComponent",
+        description = "This service component is responsible for initializing the DeploymentEngine",
+        immediate = true
+)
+@Reference(
+        name = "carbon.runtime.service",
+        referenceInterface = CarbonRuntime.class,
+        cardinality = ReferenceCardinality.MANDATORY_UNARY,
+        policy = ReferencePolicy.DYNAMIC,
+        bind = "setCarbonRuntime",
+        unbind = "unsetCarbonRuntime"
+)
+public class DeploymentEngineComponent {
+    private static Logger logger = LoggerFactory.getLogger(DeploymentEngineComponent.class);
     private ServiceRegistration serviceRegistration;
+    private CarbonRuntime carbonRuntime;
 
 
+    @Activate
     public void start(BundleContext bundleContext) throws Exception {
         try {
             // Initialize deployment engine and scan it
-            ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
-            String carbonRepositoryLocation = serverConfiguration.
-                    getFirstProperty("Deployment.RepositoryLocation");
+            String carbonRepositoryLocation = carbonRuntime.getConfiguration().
+                    getDeploymentConfig().getRepositoryLocation();
             DeploymentEngine carbonDeploymentEngine =
                     new DeploymentEngine(carbonRepositoryLocation);
+
             logger.debug("Starting Carbon Deployment Engine {}", carbonDeploymentEngine);
             carbonDeploymentEngine.start();
 
             // Add deployment engine to the data holder for later usages/references of this object
-            DataHolder.getInstance().
+            OSGiServiceHolder.getInstance().
                     setCarbonDeploymentEngine(carbonDeploymentEngine);
 
             // Register DeploymentService
             DeploymentService deploymentService =
                     new CarbonDeploymentService(carbonDeploymentEngine);
             serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
-                                                                deploymentService, null);
+                    deploymentService, null);
 
             logger.debug("Started Carbon Deployment Engine");
+
         } catch (DeploymentEngineException e) {
             String msg = "Could not initialize carbon deployment engine";
             logger.error(msg, e);
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
         }
     }
 
-    public void stop(BundleContext bundleContext) throws Exception {
+    @Deactivate
+    public void stop() throws Exception {
         serviceRegistration.unregister();
+    }
+
+
+    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = carbonRuntime;
+        OSGiServiceHolder.getInstance().setCarbonRuntime(carbonRuntime);
+    }
+
+    public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = null;
+        OSGiServiceHolder.getInstance().setCarbonRuntime(null);
     }
 }
