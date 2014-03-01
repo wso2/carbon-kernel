@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
     <version>5.0.0-SNAPSHOT</version>
     <name>WSO2 Carbon Kernel - Parent Pom</name>
-    <description>WSO2 Carbon Kernel with all its dependents, components, features 
+    <description>WSO2 Carbon Kernel with all its dependents, components, features
     </description>
     <url>http://wso2.org</url>
 
@@ -30,7 +30,7 @@
                 <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
                 <module>modules/samples/hello-world-bundle</module>
-                <module>modules/runtime-manager</module>
+                <module>modules/clustering</module>
                 <module>features</module>
                 <module>distribution</module>
             </modules>
@@ -117,9 +117,51 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${version.jacoco}</version>
+                    <executions>
+                        <execution>
+                            <id>default-instrument</id>
+                            <goals>
+                                <goal>instrument</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-restore-instrumented-classes</id>
+                            <goals>
+                                <goal>restore-instrumented-classes</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-report</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-check</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven.surefireplugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+                        </systemPropertyVariables>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -205,6 +247,11 @@
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${osgi.compendium.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.osgi</groupId>
@@ -546,6 +593,17 @@
                 <artifactId>cm</artifactId>
                 <version>${version.org.eclipse.equinox.cm}</version>
             </dependency>
+            <dependency>
+                <groupId>com.hazelcast.wso2</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>${orbit.hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <classifier>runtime</classifier>
+                <version>${version.jacoco}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -561,11 +619,16 @@
 
         <!--Logging API version range-->
         <commons.logging.import.version.range>[1.1.1, 1.2.0)</commons.logging.import.version.range>
-        <slf4j.logging.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.import.version.range>
+        <slf4j.logging.import.version.range>[1.7.1, 1.8.0)</slf4j.logging.import.version.range>
 
         <!-- OSGi API version -->
         <osgi.api.version>5.0.0</osgi.api.version>
+        <osgi.compendium.version>4.0.1</osgi.compendium.version>
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
+        <osgi.service.tracker.import.version.range>[1.5.1, 1.6.0)
+        </osgi.service.tracker.import.version.range>
+        <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
+        </osgi.framework.packages.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
@@ -673,6 +736,7 @@
         <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>
-        <version.tomcat>7.0.42</version.tomcat>
+        <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
+        <version.jacoco>0.6.4.201312101107</version.jacoco>
     </properties>
 </project>
