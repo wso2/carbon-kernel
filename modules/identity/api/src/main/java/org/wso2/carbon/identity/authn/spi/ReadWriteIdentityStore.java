@@ -20,39 +20,27 @@
 package org.wso2.carbon.identity.authn.spi;
 
 import java.util.List;
-import java.util.Properties;
 
-import org.wso2.carbon.identity.account.spi.LinkedAccountStore;
+import org.wso2.carbon.identity.account.spi.ReadWriteLinkedAccountStore;
 import org.wso2.carbon.identity.authn.GroupIdentifier;
 import org.wso2.carbon.identity.authn.IdentityStoreException;
-import org.wso2.carbon.identity.authn.PrivilegedGroup;
-import org.wso2.carbon.identity.authn.PrivilegedUser;
-import org.wso2.carbon.identity.authn.StoreDialectCollection;
-import org.wso2.carbon.identity.authn.StoreIdentifier;
+import org.wso2.carbon.identity.authn.PrivilegedRWUser;
+import org.wso2.carbon.identity.authn.PrivilegedReadWriteGroup;
 import org.wso2.carbon.identity.authn.UserIdentifier;
-import org.wso2.carbon.identity.authn.VirtualIdentityStore;
+import org.wso2.carbon.identity.authn.VirtualReadWriteIdentityStore;
+import org.wso2.carbon.identity.authz.PrivilegedReadWriteRole;
 import org.wso2.carbon.identity.claim.Claim;
 import org.wso2.carbon.identity.claim.ClaimIdentifier;
 import org.wso2.carbon.identity.claim.DialectIdentifier;
-import org.wso2.carbon.identity.commons.EntityTree;
-import org.wso2.carbon.identity.commons.EntryIdentifier;
 import org.wso2.carbon.identity.credential.spi.Credential;
-import org.wso2.carbon.identity.credential.spi.CredentialStore;
-import org.wso2.carbon.identity.profile.Profile;
 import org.wso2.carbon.identity.profile.ProfileIdentifier;
 
-public interface IdentityStore extends VirtualIdentityStore {
-
-	/**
-	 * 
-	 * @param storeDialectCollection
-	 * @param accountManager
-	 * @param credentialStore
-	 * @param properties
-	 */
-	public void init(StoreDialectCollection storeDialectCollection,
-			LinkedAccountStore linkedAccontStore,
-			CredentialStore credentialStore, Properties properties);
+public interface ReadWriteIdentityStore
+		extends
+		ReadOnlyIdentityStore< PrivilegedRWUser, 
+		  					   PrivilegedReadWriteGroup,
+		  					   PrivilegedReadWriteRole >,
+		VirtualReadWriteIdentityStore {
 
 	/**
 	 * 
@@ -102,61 +90,11 @@ public interface IdentityStore extends VirtualIdentityStore {
 	/**
 	 * 
 	 * @param userIdentifier
-	 * @param dialectIdentifier
-	 * @param claimIdentifiers
-	 * @param profileIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<Claim> getUserAttributes(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier,
-			List<ClaimIdentifier> claimIdentifiers,
-			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param dialectIdentifier
-	 * @param profileIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<Claim> getUserAttributes(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier,
-			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param userIdentifier
 	 * @param profileIdentifier
 	 * @throws IdentityStoreException
 	 */
 	public void createUserProfile(UserIdentifier userIdentifier,
 			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param dialectIdentifier
-	 * @param profileIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public Profile getUserProfile(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier,
-			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param dialectIdentifier
-	 * @param claimUris
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<Profile> getUserProfiles(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier, List<ClaimIdentifier> claimUris)
-			throws IdentityStoreException;
 
 	/**
 	 * 
@@ -204,46 +142,10 @@ public interface IdentityStore extends VirtualIdentityStore {
 
 	/**
 	 * 
-	 * @param userIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public EntryIdentifier getUserEntryId(UserIdentifier userIdentifier)
-			throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @throws IdentityStoreException
-	 * @return
-	 */
-	public EntryIdentifier getGroupEntryId(GroupIdentifier groupIdentifier)
-			throws IdentityStoreException;
-
-	/**
-	 * 
 	 * @param groupIdentifier
 	 * @throws IdentityStoreException
 	 */
 	public void dropGroup(GroupIdentifier groupIdentifier)
-			throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public PrivilegedGroup getGroup(GroupIdentifier groupIdentifier)
-			throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedGroup> getGroups(GroupSearchCriteria searchCriteria)
 			throws IdentityStoreException;
 
 	/**
@@ -293,103 +195,6 @@ public interface IdentityStore extends VirtualIdentityStore {
 
 	/**
 	 * 
-	 * @param userIdentifier
-	 * @param groupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public boolean isUserInGroup(UserIdentifier userIdentifier,
-			GroupIdentifier groupIdentifier) throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedUser> getUsersInGroup(GroupIdentifier groupIdentifier)
-			throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedUser> getUsersInGroup(
-			GroupIdentifier groupIdentifier, UserSearchCriteria searchCriteria)
-			throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<EntityTree> getGroupChildren(GroupIdentifier groupIdentifier)
-			throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param parentGroupIdentifier
-	 * @param childGroupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public boolean hasChildGroup(GroupIdentifier parentGroupIdentifier,
-			GroupIdentifier childGroupIdentifier) throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param childGroupIdentifier
-	 * @param parentGroupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public boolean hasParentGroup(GroupIdentifier childGroupIdentifier,
-			GroupIdentifier parentGroupIdentifier)
-			throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedGroup> getGroups(UserIdentifier userIdentifier)
-			throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedGroup> getGroups(UserIdentifier userIdentifier,
-			GroupSearchCriteria searchCriteria) throws IdentityStoreException;
-
-	/**
-	 * 
-	 * @return
-	 */
-	public StoreIdentifier getStoreIdentifier();
-
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isReadOnly();
-
-	/**
-	 * 
-	 * @return
-	 */
-	public LinkedAccountStore getLinkedAccountStore();
-
-	/**
-	 * 
 	 * @param newCredentials
 	 * @throws IdentityStoreException
 	 */
@@ -414,5 +219,51 @@ public interface IdentityStore extends VirtualIdentityStore {
 	@SuppressWarnings("rawtypes")
 	public void removeCredential(Credential credential)
 			throws IdentityStoreException;
+
+	/**
+	 * 
+	 * @param groupIdentifier
+	 * @return
+	 * @throws IdentityStoreException
+	 */
+	public List<PrivilegedRWUser> getUsersInGroup(
+			GroupIdentifier groupIdentifier) throws IdentityStoreException;
+
+	/**
+	 * 
+	 * @param groupIdentifier
+	 * @param searchCriteria
+	 * @return
+	 * @throws IdentityStoreException
+	 */
+	public List<PrivilegedRWUser> getUsersInGroup(
+			GroupIdentifier groupIdentifier, UserSearchCriteria searchCriteria)
+			throws IdentityStoreException;
+
+	/**
+	 * 
+	 * @param userIdentifier
+	 * @return
+	 * @throws IdentityStoreException
+	 */
+	public List<PrivilegedReadWriteGroup> getGroups(
+			UserIdentifier userIdentifier) throws IdentityStoreException;
+
+	/**
+	 * 
+	 * @param userIdentifier
+	 * @param searchCriteria
+	 * @return
+	 * @throws IdentityStoreException
+	 */
+	public List<PrivilegedReadWriteGroup> getGroups(
+			UserIdentifier userIdentifier, GroupSearchCriteria searchCriteria)
+			throws IdentityStoreException;
+
+	/**
+	 * 
+	 * @return
+	 */
+	public ReadWriteLinkedAccountStore getLinkedAccountStore();
 
 }

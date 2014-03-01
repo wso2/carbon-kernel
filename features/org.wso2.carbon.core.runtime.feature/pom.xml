@@ -190,28 +190,45 @@
                             <propertiesFile>../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
-                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false
+                                    </propertyDef>
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.common</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.common
+                                </bundleDef>
+                                <bundleDef>
+                                    org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator
+                                </bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.ds</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.launcher</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.launcher
+                                </bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.util</bundleDef>
                                 <bundleDef>org.eclipse.osgi:org.eclipse.osgi.services</bundleDef>
                                 <bundleDef>org.eclipse.osgi:org.eclipse.osgi</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.app</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.concurrent</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.frameworkadmin</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.preferences</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.registry</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.security</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.console</bundleDef>
-                                <bundleDef>org.apache.felix:org.apache.felix.gogo.command</bundleDef>
-                                <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.concurrent
+                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.frameworkadmin
+                                </bundleDef>
+                                <bundleDef>
+                                    org.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox
+                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.preferences
+                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.registry
+                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.security
+                                </bundleDef>
+                                <bundleDef>
+                                    org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
+                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.console
+                                </bundleDef>
+                                <bundleDef>org.apache.felix:org.apache.felix.gogo.command
+                                </bundleDef>
+                                <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime
+                                </bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.shell</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.contenttype</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.expressions</bundleDef>
@@ -220,13 +237,16 @@
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer</bundleDef>
+                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer
+                                </bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.core</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-service</bundleDef>
                                 <bundleDef>org.eclipse.equinox:cm</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86</bundleDef>
+                                <bundleDef>
+                                    org.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86
+                                </bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
