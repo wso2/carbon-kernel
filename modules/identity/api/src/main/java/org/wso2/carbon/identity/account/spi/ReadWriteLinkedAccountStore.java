@@ -19,23 +19,13 @@
 
 package org.wso2.carbon.identity.account.spi;
 
-import java.util.List;
-import java.util.Properties;
-
 import org.wso2.carbon.identity.account.AccountException;
-import org.wso2.carbon.identity.authn.UserIdentifier;
 import org.wso2.carbon.identity.commons.EntryIdentifier;
 
 /**
  * Keep the track of related accounts across identity stores.
  */
-public interface LinkedAccountStore {
-
-	/**
-	 * 
-	 * @param properties
-	 */
-	public void init(Properties properties);
+public interface ReadWriteLinkedAccountStore extends ReadOnlyLinkedAccountStore{
 
 	/**
 	 * 
@@ -52,11 +42,4 @@ public interface LinkedAccountStore {
 	 * @throws AccountException
 	 */
 	public void unlink(EntryIdentifier entryIdentifier, EntryIdentifier linkedEntryIdentifier) throws AccountException;
-
-	/**
-	 * 
-	 * @param entryIdentifier
-	 * @return
-	 */
-	public List<UserIdentifier> getLinkedAccounts(EntryIdentifier entryIdentifier);
 }

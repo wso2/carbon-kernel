@@ -35,6 +35,22 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.deployment</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.kernel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.clustering</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.hazelcast.wso2</groupId>
             <artifactId>hazelcast</artifactId>
         </dependency>
@@ -67,9 +83,8 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.deployment</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.kernel</bundleDef>
-                                <!--<bundleDef>org.wso2.carbon:org.wso2.carbon.runtime</bundleDef>-->
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.clustering</bundleDef>
                                 <bundleDef>com.hazelcast.wso2:hazelcast</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.clustering</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

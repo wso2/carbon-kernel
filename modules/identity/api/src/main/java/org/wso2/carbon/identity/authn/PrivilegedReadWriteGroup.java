@@ -22,40 +22,36 @@ package org.wso2.carbon.identity.authn;
 import java.util.Collections;
 import java.util.List;
 
-import org.wso2.carbon.identity.authn.spi.ReadOnlyIdentityStore;
+import org.wso2.carbon.identity.authn.spi.ReadWriteIdentityStore;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
 import org.wso2.carbon.identity.authz.AuthorizationStoreException;
 import org.wso2.carbon.identity.authz.Permission;
-import org.wso2.carbon.identity.authz.PrivilegedRole;
+import org.wso2.carbon.identity.authz.PrivilegedReadWriteRole;
 import org.wso2.carbon.identity.authz.RoleIdentifier;
-import org.wso2.carbon.identity.authz.spi.ReadOnlyAuthorizationStore;
+import org.wso2.carbon.identity.authz.spi.ReadWriteAuthorizationStore;
 import org.wso2.carbon.identity.authz.spi.RoleSearchCriteria;
 import org.wso2.carbon.identity.commons.EntityTree;
 import org.wso2.carbon.identity.commons.EntryIdentifier;
 
-public abstract class PrivilegedGroup<U extends PrivilegedUser, R extends PrivilegedRole>
-		extends Group {
+public class PrivilegedReadWriteGroup extends PrivilegedGroup<PrivilegedRWUser, PrivilegedReadWriteRole> {
 
-	private ReadOnlyIdentityStore identityStore;
-	private ReadOnlyAuthorizationStore authzStore;
-	// Id of the entry in IdentityStore for this group
-	private EntryIdentifier groupEntryIdentifier;
+	private ReadWriteIdentityStore identityStore;
+	private ReadWriteAuthorizationStore authzStore;
 
 	/**
 	 * 
 	 * @param identityStore
 	 * @param authzStore
 	 * @param groupIdentifier
+	 * @throws IdentityStoreException
 	 */
-	public PrivilegedGroup(GroupIdentifier groupIdentifier,
-			ReadOnlyIdentityStore identityStore,
-			ReadOnlyAuthorizationStore authzStore)
+	public PrivilegedReadWriteGroup(GroupIdentifier groupIdentifier,
+			ReadWriteIdentityStore identityStore,
+			ReadWriteAuthorizationStore authzStore)
 			throws IdentityStoreException {
-		super(groupIdentifier);
+		super(groupIdentifier, identityStore, authzStore);
 		this.authzStore = authzStore;
 		this.identityStore = identityStore;
-		this.groupEntryIdentifier = identityStore
-				.getGroupEntryId(getIdentifier());
 	}
 
 	/**
@@ -64,7 +60,7 @@ public abstract class PrivilegedGroup<U extends PrivilegedUser, R extends Privil
 	 * @throws IdentityStoreException
 	 */
 	public EntryIdentifier getEntryId() throws IdentityStoreException {
-		return groupEntryIdentifier;
+		return identityStore.getGroupEntryId(getIdentifier());
 	}
 
 	/**
@@ -72,7 +68,7 @@ public abstract class PrivilegedGroup<U extends PrivilegedUser, R extends Privil
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<U> getUsers() throws IdentityStoreException {
+	public List<PrivilegedRWUser> getUsers() throws IdentityStoreException {
 		return identityStore.getUsersInGroup(getIdentifier());
 	}
 
@@ -82,7 +78,7 @@ public abstract class PrivilegedGroup<U extends PrivilegedUser, R extends Privil
 	 * @return
 	 * @throws IdentityStoreException
 	 */
-	public List<U> getUsers(UserSearchCriteria searchCriteria)
+	public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria)
 			throws IdentityStoreException {
 		return identityStore.getUsersInGroup(getIdentifier(), searchCriteria);
 	}
@@ -92,9 +88,9 @@ public abstract class PrivilegedGroup<U extends PrivilegedUser, R extends Privil
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<R> getRoles()
+	public List<PrivilegedReadWriteRole> getRoles()
 			throws AuthorizationStoreException {
-		List<R> roles = authzStore
+		List<PrivilegedReadWriteRole> roles = authzStore
 				.getRoles(getIdentifier());
 		return Collections.unmodifiableList(roles);
 	}
@@ -105,10 +101,10 @@ public abstract class PrivilegedGroup<U extends PrivilegedUser, R extends Privil
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<R> getRoles(
+	public List<PrivilegedReadWriteRole> getRoles(
 			RoleSearchCriteria searchCriteria)
 			throws AuthorizationStoreException {
-		List<R> roles = authzStore.getRoles(
+		List<PrivilegedReadWriteRole> roles = authzStore.getRoles(
 				getIdentifier(), searchCriteria);
 		return Collections.unmodifiableList(roles);
 	}
@@ -146,6 +142,26 @@ public abstract class PrivilegedGroup<U extends PrivilegedUser, R extends Privil
 			throws IdentityStoreException {
 		return identityStore.hasParentGroup(getIdentifier(),
 				parentGroupIdentifier);
+	}
+
+	/**
+	 * 
+	 * @param roleIdentifiers
+	 * @throws AuthorizationStoreException
+	 */
+	public void assignToRole(List<RoleIdentifier> roleIdentifiers)
+			throws AuthorizationStoreException {
+		authzStore.assignRolesToGroup(getIdentifier(), roleIdentifiers);
+	}
+
+	/**
+	 * 
+	 * @param userIdentifiers
+	 * @throws IdentityStoreException
+	 */
+	public void addUsers(List<UserIdentifier> userIdentifiers)
+			throws IdentityStoreException {
+		identityStore.addUsersToGroup(getIdentifier(), userIdentifiers);
 	}
 
 	/**

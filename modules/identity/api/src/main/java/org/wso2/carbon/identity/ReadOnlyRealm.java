@@ -19,45 +19,34 @@
 
 package org.wso2.carbon.identity;
 
-import org.wso2.carbon.identity.authn.IdentityStoreManager;
-import org.wso2.carbon.identity.authz.AuthorizationStoreManager;
-import org.wso2.carbon.identity.claim.ClaimManager;
-import org.wso2.carbon.identity.commons.IdentityException;
-import org.wso2.carbon.identity.config.IdentityServiceConfig;
+import java.util.Properties;
+
+import org.wso2.carbon.identity.authn.ReadOnlyIdentityManager;
+import org.wso2.carbon.identity.authz.ReadOnlyAuthorizationManager;
 
 /**
- * Entry point for Identity library with full privileges.
+ * Entry point for Identity library with access to user realm.
  */
-public interface IdentityService {
-	
+public interface ReadOnlyRealm {
+
 	/**
 	 * 
-	 * @param identityServiceConfig
-	 * @throws IdentityException
+	 * @param identityManager
+	 * @param authzManager
+	 * @param properties
 	 */
-	public void init(IdentityServiceConfig identityServiceConfig) throws IdentityException;
+	public void init(ReadOnlyIdentityManager identityManager, ReadOnlyAuthorizationManager authzManager,
+			Properties properties);
 
 	/**
 	 * 
 	 * @return
 	 */
-	public Realm getUserRealm();
+	public ReadOnlyIdentityManager getIdentityManager();
 
 	/**
 	 * 
 	 * @return
 	 */
-	public IdentityStoreManager getIdentityStoreManager();
-
-	/**
-	 * 
-	 * @return
-	 */
-	public AuthorizationStoreManager getAuthorizationStoreManager();
-
-	/**
-	 * 
-	 * @return
-	 */
-	public ClaimManager getClaimManager();
+	public ReadOnlyAuthorizationManager getAuthorizationManager();
 }

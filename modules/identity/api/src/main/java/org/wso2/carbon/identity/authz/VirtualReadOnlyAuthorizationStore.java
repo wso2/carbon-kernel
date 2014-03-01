@@ -21,26 +21,23 @@ package org.wso2.carbon.identity.authz;
 
 import java.util.List;
 
+import org.wso2.carbon.identity.authn.PrivilegedGroup;
+import org.wso2.carbon.identity.authn.PrivilegedUser;
 import org.wso2.carbon.identity.authz.spi.PermissionSearchCriteria;
 import org.wso2.carbon.identity.authz.spi.RoleSearchCriteria;
-import org.wso2.carbon.identity.commons.IdentityException;
 
-public interface VirtualAuthorizationStore {
-
-	/**
-	 * 
-	 * @param permissions
-	 * @throws AuthorizationStoreException
-	 */
-	public void createPermissions(List<Permission> permissions) throws AuthorizationStoreException;
+public interface VirtualReadOnlyAuthorizationStore < U extends PrivilegedUser<G, R>, 
+													 G extends PrivilegedGroup<U, R>, 
+													 R extends PrivilegedRole<U, G> > {
 
 	/**
 	 * 
-	 * @param permission
+	 * @param permissionIdentifier
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public PermissionIdentifier createPermission(Permission permission) throws AuthorizationStoreException;
+	public Permission getPermission(PermissionIdentifier permissionIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
@@ -48,15 +45,9 @@ public interface VirtualAuthorizationStore {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<Permission> getPermissions(PermissionSearchCriteria searchCriteria) throws AuthorizationStoreException;
-
-	/**
-	 * 
-	 * @param role
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public PrivilegedRole createRole(Role role) throws AuthorizationStoreException;
+	public List<Permission> getPermissions(
+			PermissionSearchCriteria searchCriteria)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
@@ -64,7 +55,8 @@ public interface VirtualAuthorizationStore {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public PrivilegedRole getRole(RoleIdentifier roleIdentifier) throws AuthorizationStoreException;
+	public R getRole(RoleIdentifier roleIdentifier)
+			throws AuthorizationStoreException;
 
 	/**
 	 * 
@@ -72,6 +64,6 @@ public interface VirtualAuthorizationStore {
 	 * @return
 	 * @throws AuthorizationStoreException
 	 */
-	public List<PrivilegedRole> getRoles(RoleSearchCriteria searchCriteria) throws AuthorizationStoreException;
-
+	public List<R> getRoles(RoleSearchCriteria searchCriteria)
+			throws AuthorizationStoreException;
 }

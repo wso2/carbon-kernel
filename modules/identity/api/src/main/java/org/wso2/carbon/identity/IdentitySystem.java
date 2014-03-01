@@ -17,38 +17,50 @@
  *
  */
 
-package org.wso2.carbon.identity.authn;
+package org.wso2.carbon.identity;
 
 import org.wso2.carbon.identity.account.spi.ReadWriteLinkedAccountStore;
+import org.wso2.carbon.identity.authn.IdentityStoreManager;
+import org.wso2.carbon.identity.authz.AuthorizationStoreManager;
 import org.wso2.carbon.identity.claim.ClaimManager;
 import org.wso2.carbon.identity.commons.IdentityException;
-import org.wso2.carbon.identity.config.spi.IdentityStoreConfig;
-import org.wso2.carbon.identity.credential.spi.CredentialStore;
+import org.wso2.carbon.identity.config.IdentityServiceConfig;
 
-public interface IdentityStoreManager extends ReadOnlyIdentityStoreManager {
-
-	public void init(IdentityStoreConfig primaryStoreConfig, ClaimManager claimManager,
-			ReadWriteLinkedAccountStore linkedAccountStore, CredentialStore credentialStore);
+/**
+ * Entry point in Identity library for administrative operations.
+ */
+public interface IdentitySystem {
+	
+	/**
+	 * 
+	 * @param identityServiceConfig
+	 * @throws IdentityException
+	 */
+	public void init(IdentityServiceConfig identityServiceConfig) throws IdentityException;
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public IdentityStoreManager getIdentityStoreManager();
+//	public ReadWriteIdentityStoreManager getIdentityStoreManager();
 
 	/**
 	 * 
-	 * @param storeConfig
-	 * @throws IdentityException
+	 * @return
 	 */
-	public void addIdentityStore(IdentityStoreConfig storeConfig) throws IdentityException;
+	public AuthorizationStoreManager getAuthorizationStoreManager();
+//	public ReadWriteAuthorizationStoreManager getAuthorizationStoreManager();
 
 	/**
 	 * 
-	 * @param storeIdentifier
-	 * @throws IdentityException
+	 * @return
 	 */
-	public void dropIdentityStore(StoreIdentifier storeIdentifier) throws IdentityException;
+	public ClaimManager getClaimManager();
 
 	/**
 	 * 
-	 * @param storeConfig
-	 * @throws IdentityException
+	 * @return
 	 */
-	public void updateIdentityStore(IdentityStoreConfig storeConfig) throws IdentityException;
-
+	public ReadWriteLinkedAccountStore getLinkedAccountStore();
 }

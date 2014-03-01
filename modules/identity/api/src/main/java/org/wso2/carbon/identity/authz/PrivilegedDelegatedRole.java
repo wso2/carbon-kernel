@@ -21,9 +21,12 @@ package org.wso2.carbon.identity.authz;
 
 import java.util.Date;
 
-import org.wso2.carbon.identity.authz.spi.AuthorizationStore;
+import org.wso2.carbon.identity.authn.PrivilegedGroup;
+import org.wso2.carbon.identity.authn.PrivilegedUser;
+import org.wso2.carbon.identity.authz.spi.ReadOnlyAuthorizationStore;
 
-public class PrivilegedDelegatedRole extends PrivilegedRole {
+public class PrivilegedDelegatedRole<U extends PrivilegedUser, G extends PrivilegedGroup>
+		extends PrivilegedRole<U, G> {
 
 	private Date effectiveFrom;
 	private Date effectiveUpTo;
@@ -34,10 +37,12 @@ public class PrivilegedDelegatedRole extends PrivilegedRole {
 	 * @param roleIdentifier
 	 * @param effectiveFrom
 	 * @param effectiveUpTo
+	 * @throws AuthorizationStoreException 
 	 */
-	public PrivilegedDelegatedRole(AuthorizationStore authzStore, RoleIdentifier roleIdentifier,
-			Date effectiveFrom, Date effectiveUpTo) {
-		super(authzStore, roleIdentifier);
+	public PrivilegedDelegatedRole(RoleIdentifier roleIdentifier,
+			ReadOnlyAuthorizationStore authzStore, Date effectiveFrom,
+			Date effectiveUpTo) throws AuthorizationStoreException {
+		super(roleIdentifier, authzStore);
 		this.effectiveFrom = effectiveFrom;
 		this.effectiveUpTo = effectiveUpTo;
 	}

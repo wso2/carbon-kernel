@@ -17,14 +17,29 @@
  *
  */
 
-package org.wso2.carbon.identity.authz;
+package org.wso2.carbon.identity.account.spi;
 
+import java.util.List;
+import java.util.Properties;
 
-public interface AuthorizationManager extends VirtualAuthorizationStore {
+import org.wso2.carbon.identity.authn.UserIdentifier;
+import org.wso2.carbon.identity.commons.EntryIdentifier;
+
+/**
+ * Keep the track of related accounts across identity stores.
+ */
+public interface ReadOnlyLinkedAccountStore {
 
 	/**
 	 * 
-	 * @param authzStoreMaanger
+	 * @param properties
 	 */
-	public void init(ReadOnlyAuthorizationStoreManager authzStoreMaanger);
+	public void init(Properties properties);
+
+	/**
+	 * 
+	 * @param entryIdentifier
+	 * @return
+	 */
+	public List<UserIdentifier> getLinkedAccounts(EntryIdentifier entryIdentifier);
 }
