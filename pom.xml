@@ -32,6 +32,8 @@
                 <module>modules/samples/hello-world-bundle</module>
                 <module>modules/runtime-manager</module>
                 <module>modules/clustering</module>
+                <module>modules/utils</module>
+                <module>modules/extensions</module>
                 <module>features</module>
                 <module>distribution</module>
             </modules>
@@ -262,6 +264,16 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.clustering</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.extensions</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -28,7 +28,11 @@ import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.CarbonDeploymentService;
 import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.kernel.CarbonRuntime;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The bundle activator which activates the carbon deployment engine
@@ -39,17 +43,27 @@ import org.wso2.carbon.kernel.CarbonRuntime;
         immediate = true
 )
 @Reference(
-        name = "carbon.runtime.service",
-        referenceInterface = CarbonRuntime.class,
-        cardinality = ReferenceCardinality.MANDATORY_UNARY,
+        name = "carbon.deployer.service",
+        referenceInterface = Deployer.class,
+        cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
         policy = ReferencePolicy.DYNAMIC,
-        bind = "setCarbonRuntime",
-        unbind = "unsetCarbonRuntime"
+        bind = "registerDeployer",
+        unbind = "unregisterDeployer"
 )
 public class DeploymentEngineComponent {
     private static Logger logger = LoggerFactory.getLogger(DeploymentEngineComponent.class);
-    private ServiceRegistration serviceRegistration;
+    @Reference(
+            name = "carbon.runtime.service",
+            referenceInterface = CarbonRuntime.class,
+            cardinality = ReferenceCardinality.MANDATORY_UNARY,
+            policy = ReferencePolicy.DYNAMIC,
+            bind = "setCarbonRuntime",
+            unbind = "unsetCarbonRuntime"
+    )
     private CarbonRuntime carbonRuntime;
+    private DeploymentEngine deploymentEngine;
+    private ServiceRegistration serviceRegistration;
+    private List<Deployer> deployerList = new ArrayList<>();
 
 
     @Activate
@@ -58,23 +72,31 @@ public class DeploymentEngineComponent {
             // Initialize deployment engine and scan it
             String carbonRepositoryLocation = carbonRuntime.getConfiguration().
                     getDeploymentConfig().getRepositoryLocation();
-            DeploymentEngine carbonDeploymentEngine =
-                    new DeploymentEngine(carbonRepositoryLocation);
+            deploymentEngine = new DeploymentEngine(carbonRepositoryLocation);
 
-            logger.debug("Starting Carbon Deployment Engine {}", carbonDeploymentEngine);
-            carbonDeploymentEngine.start();
+            logger.debug("Starting Carbon Deployment Engine {}", deploymentEngine);
+            deploymentEngine.start();
 
             // Add deployment engine to the data holder for later usages/references of this object
             OSGiServiceHolder.getInstance().
-                    setCarbonDeploymentEngine(carbonDeploymentEngine);
+                    setCarbonDeploymentEngine(deploymentEngine);
 
             // Register DeploymentService
             DeploymentService deploymentService =
-                    new CarbonDeploymentService(carbonDeploymentEngine);
+                    new CarbonDeploymentService(deploymentEngine);
             serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
-                    deploymentService, null);
+                                                                deploymentService, null);
 
             logger.debug("Started Carbon Deployment Engine");
+
+            // register pending deployers in the list
+            for (Deployer deployer : deployerList) {
+                try {
+                    deploymentEngine.registerDeployer(deployer);
+                } catch (Exception e) {
+                    logger.error("Error while adding deployer to the deployment engine", e);
+                }
+            }
 
         } catch (DeploymentEngineException e) {
             String msg = "Could not initialize carbon deployment engine";
@@ -87,6 +109,26 @@ public class DeploymentEngineComponent {
     @Deactivate
     public void stop() throws Exception {
         serviceRegistration.unregister();
+    }
+
+    protected void registerDeployer(Deployer deployer) {
+        if (deploymentEngine != null) {
+            try {
+                deploymentEngine.registerDeployer(deployer);
+            } catch (Exception e) {
+                logger.error("Error while adding deployer to the deployment engine", e);
+            }
+        } else {//carbon deployment engine is not initialized yet, so we keep them in a pending list
+            deployerList.add(deployer);
+        }
+    }
+
+    protected void unregisterDeployer(Deployer deployer) {
+        try {
+            deploymentEngine.unregisterDeployer(deployer);
+        } catch (Exception e) {
+            logger.error("Error while removing deployer from deployment engine", e);
+        }
     }
 
 

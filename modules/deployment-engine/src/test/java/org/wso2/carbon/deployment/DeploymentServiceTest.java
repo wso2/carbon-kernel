@@ -28,6 +28,7 @@ import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.deployment.service.CustomDeploymentService;
+import org.wso2.carbon.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -86,7 +87,7 @@ public class DeploymentServiceTest extends BaseTest {
 
     @AfterTest
     public void cleanupTempfile() throws IOException {
-        Utils.deleteDir(new File(getTestResourceFile(CARBON_REPO).getAbsolutePath() +
-                                 File.separator + "file:text-files"));
+        FileUtils.deleteDir(new File(getTestResourceFile(CARBON_REPO).getAbsolutePath() +
+                                     File.separator + "file:text-files"));
     }
 }
