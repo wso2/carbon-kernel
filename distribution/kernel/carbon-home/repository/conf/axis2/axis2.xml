@@ -44,6 +44,10 @@
     -->
     <parameter name="exposeServiceMetadata">true</parameter>
 
+    <!--If turned on with use the Accept header of the request to determine the contentType of the
+    response-->
+    <parameter name="httpContentNegotiation">true</parameter>
+
     <!--
     Defines how the persistence of WS-ReliableMessaging is handled
 
