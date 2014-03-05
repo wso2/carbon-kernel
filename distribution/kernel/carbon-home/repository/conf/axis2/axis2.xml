@@ -575,6 +575,7 @@
         <phase name="PolicyDetermination"/>
         <phase name="MessageOut"/>
         <phase name="Security"/>
+	<phase name="Transport"/>
         <!--
            The MsgOutObservation phase is used to observe messages just before the
            responses are sent out. In this phase, we could do some things such as SOAP message
