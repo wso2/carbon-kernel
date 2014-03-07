@@ -73,8 +73,8 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <!--<Bundle-Activator>org.wso2.carbon.base.internal.CarbonBaseActivator-->
-                        <!--</Bundle-Activator>-->
+                        <Bundle-Activator>org.wso2.carbon.base.internal.CarbonBaseActivator
+                        </Bundle-Activator>
                         <Export-Package>
                             !org.wso2.carbon.base.internal,
                             org.wso2.carbon.base.*;
