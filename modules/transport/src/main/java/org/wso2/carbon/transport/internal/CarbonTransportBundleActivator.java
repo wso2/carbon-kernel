@@ -25,7 +25,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.log.JavaUtilLog;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -63,9 +62,9 @@ public class CarbonTransportBundleActivator implements BundleActivator {
                         "file:" + jettyHome + File.separator + "jetty.xml");
 
         //register as an OSGi Service for Jetty to find
-        logger.info("Registering jetty server instance as service : {}", server);
         jettyServiceRegistration = bundleContext.
                 registerService(Server.class.getName(), server, serverProps);
+        logger.info("Jetty server instance is registered as service : {}", server);
 
         //exposing the OSGi HttpService by registering the HttpServiceServlet with Jetty.
         ServletHolder holder = new ServletHolder(new HttpServiceServlet());
