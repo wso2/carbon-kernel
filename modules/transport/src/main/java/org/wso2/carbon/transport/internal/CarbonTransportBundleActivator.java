@@ -25,6 +25,7 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.log.JavaUtilLog;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -37,7 +38,7 @@ import java.util.Hashtable;
 
 /**
  * This is the base activator class which will create a Jetty server instance and register it as an
- * OSGi service. This will also exposing the OSGi HttpService by registering the HttpServiceServlet
+ * OSGi service. This will also expose the OSGi HttpService by registering the HttpServiceServlet
  * with Jetty
  */
 

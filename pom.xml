@@ -842,8 +842,8 @@
         </version.ecf.provider.filetransfer.httpclient>
 
         <!--PAX Logging related dependency versions-->
-        <version.pax.logging.api>1.7.1</version.pax.logging.api>
-        <version.pax.logging.services>1.7.1</version.pax.logging.services>
+        <version.pax.logging.api>1.7.2</version.pax.logging.api>
+        <version.pax.logging.services>1.7.2</version.pax.logging.services>
         <version.org.eclipse.equinox.cm>3.2.0-v20070116</version.org.eclipse.equinox.cm>
 
         <!--Maven Plugins -->

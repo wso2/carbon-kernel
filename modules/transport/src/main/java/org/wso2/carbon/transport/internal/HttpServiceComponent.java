@@ -57,7 +57,7 @@ public class HttpServiceComponent {
         SampleServlet servlet = new SampleServlet();
         String context = "/sample";
         try {
-            logger.info("Registering a sample servlet on : {}", context);
+            logger.info("Registering a sample servlet : {}", context);
             httpService.registerServlet(context, servlet, null,
                                         httpService.createDefaultHttpContext());
         } catch (ServletException | NamespaceException e) {
