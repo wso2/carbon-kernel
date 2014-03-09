@@ -30,6 +30,7 @@
                 <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
                 <module>modules/samples/hello-world-bundle</module>
+                <module>modules/samples/webapp-bundle</module>
                 <module>modules/runtime-manager</module>
                 <module>modules/clustering</module>
                 <module>modules/transport</module>
