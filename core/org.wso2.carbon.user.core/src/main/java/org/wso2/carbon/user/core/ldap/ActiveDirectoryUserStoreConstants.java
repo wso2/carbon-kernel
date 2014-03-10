@@ -59,6 +59,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupNameListFilter,"(objectcategory=group)",UserStoreConfigConstants.groupNameListFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute,"cn",UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.membershipAttribute,"member",UserStoreConfigConstants.membershipAttributeDescription);
+        setProperty(UserStoreConfigConstants.memberOfAttribute,"",UserStoreConfigConstants.memberOfAttribute);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter,"(&amp;(objectClass=group)(cn=?))",UserStoreConfigConstants.groupNameSearchFilterDescription);
         
         

@@ -17,6 +17,8 @@
 */
 package org.wso2.carbon.user.core;
 
+import org.wso2.carbon.user.core.ldap.LDAPConstants;
+
 public class UserStoreConfigConstants {
     public static final String PRIMARY = "PRIMARY";
     public static final String DOMAIN_NAME = "DomainName";
@@ -90,6 +92,8 @@ public class UserStoreConfigConstants {
     public static final String groupNameSearchFilterDescription = "Filtering criteria for searching a particular group entry";
     public static final String membershipAttribute = "MembershipAttribute";
     public static final String membershipAttributeDescription = "Attribute used to define members of LDAP groups";
+    public static final String memberOfAttribute = LDAPConstants.MEMBEROF_ATTRIBUTE;
+    public static final String memberOfAttributeDescription = "Attribute used to define groups of a LDAP User";
     public static final String userDNPattern = "UserDNPattern";
     public static final String userDNPatternDescription = "The patten for user's DN. It can be defined to improve the LDAP search";
 
