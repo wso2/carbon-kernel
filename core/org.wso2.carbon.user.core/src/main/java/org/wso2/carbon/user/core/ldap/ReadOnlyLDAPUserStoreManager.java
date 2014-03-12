@@ -1998,8 +1998,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            if(list.contains(roleName)){
-                return true;
+            if(list != null) {
+                for(String role : list) {
+                    if(role.equalsIgnoreCase(roleName)) {
+                        return true;
+                    }
+                }
             }
 
         } else {
