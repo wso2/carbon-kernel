@@ -32,7 +32,6 @@ import org.wso2.carbon.application.deployer.CarbonApplication;
 import org.wso2.carbon.application.deployer.config.Artifact;
 import org.wso2.carbon.application.deployer.config.CappFile;
 import org.wso2.carbon.application.deployer.internal.AppDeployerServiceComponent;
-import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
@@ -51,6 +50,7 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
     public static final String AAR_TYPE = "service/axis2";
     public static final String DS_TYPE = "service/dataservice";
     public static final String BUNDLE_TYPE = "bundle";
+    public static final String MEDIATOR_TYPE = "lib/synapse/mediator";
 
     public static final String DS_DIR = "dataservices";
     public static final String SERVICE_META_DIR = "servicemetafiles";
@@ -178,6 +178,8 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
                     artifact.setDeploymentStatus(AppDeployerConstants.DEPLOYMENT_STATUS_FAILED);
                     throw e;
                 }
+            } else if (MEDIATOR_TYPE.equals(artifact.getType())) { // skip bundle installation for mediators
+                continue;
             } else if ((artifact.getType().startsWith("lib/") || BUNDLE_TYPE.
                     equals(artifact.getType()))
                        && AppDeployerUtils.getTenantId(axisConfig) ==
@@ -259,6 +261,8 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
                     artifact.setDeploymentStatus(AppDeployerConstants.DEPLOYMENT_STATUS_FAILED);
                     log.error("Error while undeploying artifact : " + artifactPath, e);
                 }
+            } else if (MEDIATOR_TYPE.equals(artifact.getType())) {
+                continue;
             } else if (artifact.getType() != null && (artifact.getType().startsWith("lib/") ||
                                                       BUNDLE_TYPE.equals(artifact.getType()))
                        && AppDeployerUtils.getTenantId(axisConfig) ==
