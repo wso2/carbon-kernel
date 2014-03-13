@@ -47,50 +47,53 @@ import java.util.Stack;
 public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
-	/**
-	 * Remove default constructor and make it not available to initialize.
-	 */
+    /**
+     * Remove default constructor and make it not available to initialize.
+     */
 
-	private Utils() {
-		throw new AssertionError("Instantiating utility class...");
+    private Utils() {
+        throw new AssertionError("Instantiating utility class...");
 
-	}
+    }
 
-	public static String getServerXml() {
-		String carbonXML = System
-				.getProperty(Constants.CARBON_REPOSITORY);
-		/*
-		 * if user set the system property telling where is the configuration
+    public static String getServerXml() {
+        String carbonXML = System
+                .getProperty(Constants.CARBON_REPOSITORY);
+        /*
+         * if user set the system property telling where is the configuration
 		 * directory
 		 */
-		if (carbonXML == null) {
-			return getCarbonConfigDirPath() + File.separator + "carbon.xml";
-		}
-		return carbonXML + File.separator + "carbon.xml";
-	}
+        if (carbonXML == null) {
+            return getCarbonConfigDirPath() + File.separator + "carbon.xml";
+        }
+        return carbonXML + File.separator + "carbon.xml";
+    }
 
-	public static String getCarbonConfigDirPath() {
-		String carbonConfigDirPath = System
-				.getProperty(Constants.CARBON_REPOSITORY);
-		if (carbonConfigDirPath == null) {
-			carbonConfigDirPath = System
-					.getenv(Constants.CARBON_REPOSITORY_PATH_ENV);
-			if (carbonConfigDirPath == null) {
-				return getCarbonHome() + File.separator + "repository"
-						+ File.separator + "conf";
-			}
-		}
-		return carbonConfigDirPath;
-	}
+    public static String getCarbonConfigDirPath() {
+        String configDirPath = null;
+        String carbonRepoDirPath = System
+                .getProperty(Constants.CARBON_REPOSITORY);
+        if (carbonRepoDirPath == null) {
+            carbonRepoDirPath = System
+                    .getenv(Constants.CARBON_REPOSITORY_PATH_ENV);
+        }
+        if (carbonRepoDirPath == null) {
+            configDirPath = getCarbonHome() + File.separator + "repository"
+                            + File.separator + "conf";
+        } else {
+            configDirPath = carbonRepoDirPath + File.separator + "conf";
+        }
+        return configDirPath;
+    }
 
-	public static String getCarbonHome() {
-		String carbonHome = System.getProperty(Constants.CARBON_HOME);
-		if (carbonHome == null) {
-			carbonHome = System.getenv(Constants.CARBON_HOME_ENV);
-			System.setProperty(Constants.CARBON_HOME, carbonHome);
-		}
-		return carbonHome;
-	}
+    public static String getCarbonHome() {
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
+        if (carbonHome == null) {
+            carbonHome = System.getenv(Constants.CARBON_HOME_ENV);
+            System.setProperty(Constants.CARBON_HOME, carbonHome);
+        }
+        return carbonHome;
+    }
 
     public static InputStream parseXmlConfiguration(String configurationXMLLocation)
             throws ConfigurationInitializationException {
@@ -153,7 +156,7 @@ public class Utils {
     }
 
     private static void readChildElements(NodeList nodeList, Stack<String> nameStack,
-                                   Map<String, List<Object>> configuration) {
+                                          Map<String, List<Object>> configuration) {
         for (int count = 0; count < nodeList.getLength(); count++) {
             Node tempNode = nodeList.item(count);
             if (tempNode.getNodeType() == Node.ELEMENT_NODE) {

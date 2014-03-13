@@ -24,16 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 import org.wso2.carbon.base.LoggingConfiguration;
-import org.wso2.carbon.base.Utils;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.base.ServerConfigurationException;
-import org.wso2.carbon.base.api.ServerConfigurationService;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Activator of the {@link org.wso2.carbon.base} bundle
@@ -46,24 +36,10 @@ public class CarbonBaseActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-
-        ServerConfiguration carbonServerConfiguration = ServerConfiguration.getInstance();
-        initServerConfiguration(carbonServerConfiguration);
-        String portOffset = System.getProperty("portOffset", carbonServerConfiguration.
-                getFirstProperty("Ports.Offset"));
-        //setting the the retrieved ports.offset value as a system property, in case it was not defined.
-        //NIO transport make use of this system property
-        System.setProperty("portOffset", portOffset);
-
         //register pax logging on carbon server
         LoggingConfiguration loggingConfiguration = LoggingConfiguration.getInstance();
-        m_configTracker = new ConfigAdminServiceTracker( bundleContext, loggingConfiguration );
+        m_configTracker = new ConfigAdminServiceTracker(bundleContext, loggingConfiguration);
         m_configTracker.open();
-
-        //register carbon server confg as an OSGi service
-        registration = bundleContext.registerService(ServerConfigurationService.class.getName(),
-                                                     carbonServerConfiguration, null);
-
     }
 
     @Override
@@ -73,27 +49,4 @@ public class CarbonBaseActivator implements BundleActivator {
         m_configTracker.close();
         m_configTracker = null;
     }
-
-    private void initServerConfiguration(ServerConfiguration carbonServerConfiguration) {
-        File carbonXML = new File(Utils.getServerXml());
-        InputStream in = null;
-        try {
-            in = new FileInputStream(carbonXML);
-            carbonServerConfiguration.forceInit(in);
-        } catch (ServerConfigurationException e) {
-            String msg = "Could not initialize server configuration";
-            logger.error(marker, msg);
-        } catch (FileNotFoundException e) {
-            logger.error("Could not initialize server configuration", e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    logger.warn("Cannot close FileInputStream of file " + carbonXML.getAbsolutePath());
-                }
-            }
-        }
-    }
-
 }

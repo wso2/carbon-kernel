@@ -30,8 +30,10 @@
                 <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
                 <module>modules/samples/hello-world-bundle</module>
+                <module>modules/samples/webapp-bundle</module>
                 <module>modules/runtime-manager</module>
                 <module>modules/clustering</module>
+                <module>modules/transport</module>
                 <module>features</module>
                 <module>distribution</module>
             </modules>
@@ -262,6 +264,11 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.clustering</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.transport</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -670,6 +677,66 @@
                 <classifier>runtime</classifier>
                 <version>${version.jacoco}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-http</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-io</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-deploy</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-security</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-xml</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-continuation</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.osgi</groupId>
+                <artifactId>jetty-osgi-boot</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${version.javax.servlet.api}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -697,6 +764,8 @@
         </osgi.service.tracker.import.version.range>
         <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
         </osgi.framework.packages.import.version.range>
+        <equinox.jetty.import.version.range>[8.1.0, 9.0.0)</equinox.jetty.import.version.range>
+        <javax.servlet.import.version.range>[3.0.0, 3.1.0)</javax.servlet.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
@@ -780,8 +849,8 @@
         </version.ecf.provider.filetransfer.httpclient>
 
         <!--PAX Logging related dependency versions-->
-        <version.pax.logging.api>1.7.1</version.pax.logging.api>
-        <version.pax.logging.services>1.7.1</version.pax.logging.services>
+        <version.pax.logging.api>1.7.2</version.pax.logging.api>
+        <version.pax.logging.services>1.7.2</version.pax.logging.services>
         <version.org.eclipse.equinox.cm>3.2.0-v20070116</version.org.eclipse.equinox.cm>
 
         <!--Maven Plugins -->
@@ -815,5 +884,7 @@
         <version.plexus.archiver>1.2</version.plexus.archiver>
         <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
         <version.jacoco>0.6.4.201312101107</version.jacoco>
+        <version.jetty.server>8.1.10.v20130312</version.jetty.server>
+        <version.javax.servlet.api>3.0.1</version.javax.servlet.api>
     </properties>
 </project>
