@@ -68,7 +68,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 	private final int MAX_USER_CACHE = 200;
 
     // Todo: use a cache provided by carbon kernel
-	private Map<String, String> userCache = new ConcurrentHashMap<String, String>(MAX_USER_CACHE);
+	Map<String, String> userCache = new ConcurrentHashMap<String, String>(MAX_USER_CACHE);
 
 	private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
 	
