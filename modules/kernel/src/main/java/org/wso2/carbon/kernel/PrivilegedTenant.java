@@ -18,17 +18,11 @@
 
 package org.wso2.carbon.kernel;
 
-public interface LifeCycle {
+public interface PrivilegedTenant {
 
-    public void init();
+    public Tenant Create();
+    public Tenant Delete();
+    public Tenant load();
+    public Tenant unload();
 
-    public void start();
-
-    public void stop();
-
-    public void destroy();
-
-    public void beginMaintenance();
-
-    public void endMaintenance();
 }

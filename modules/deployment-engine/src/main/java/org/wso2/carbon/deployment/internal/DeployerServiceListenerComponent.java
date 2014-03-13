@@ -52,7 +52,6 @@ public class DeployerServiceListenerComponent {
 
      @Activate
     public void activate(){
-         System.out.println("Activating.....");
     }
 
     protected void registerDeployer(Deployer deployer) {

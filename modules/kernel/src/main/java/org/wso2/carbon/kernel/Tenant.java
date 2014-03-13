@@ -18,5 +18,26 @@
 
 package org.wso2.carbon.kernel;
 
+import java.util.Date;
+import java.util.List;
+
 public interface Tenant {
+
+    public String getID();
+
+    public String getDomain();
+
+    public String getName();
+
+    public String getDescription();
+
+    public Date getCreatedDate();
+
+    public String getAdminUsername();
+
+    public Tenant getParent();
+
+    public List<Tenant> getChildren();
+
+    public int getTenantDepth();
 }

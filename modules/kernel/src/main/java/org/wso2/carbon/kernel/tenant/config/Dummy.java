@@ -16,19 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.kernel.tenant.config;
 
-public interface LifeCycle {
-
-    public void init();
-
-    public void start();
-
-    public void stop();
-
-    public void destroy();
-
-    public void beginMaintenance();
-
-    public void endMaintenance();
+public class Dummy {
 }
