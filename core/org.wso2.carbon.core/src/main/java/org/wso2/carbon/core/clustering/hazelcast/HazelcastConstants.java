@@ -35,6 +35,8 @@ public final class HazelcastConstants {
 
     public static final String AWS_MEMBERSHIP_SCHEME = "aws";
 
+    public static final String CLUSTER_COORDINATOR_LOCK = "$coordinator#@lock";
+
     private HazelcastConstants() {
     }
 }
