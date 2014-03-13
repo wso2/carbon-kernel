@@ -21,6 +21,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -68,7 +69,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 	private final int MAX_USER_CACHE = 200;
 
     // Todo: use a cache provided by carbon kernel
-	private Map<String, String> userCache = new ConcurrentHashMap<String, String>(MAX_USER_CACHE);
+	Map<String, String> userCache = new ConcurrentHashMap<String, String>(MAX_USER_CACHE);
 
 	private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
 	
@@ -1932,12 +1933,15 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 					if (sr.getAttributes() != null) {
 						Attribute attr = sr.getAttributes().get(property);
 						if (attr != null) {
-							String name = (String) attr.get();
-							if (debug) {
-								log.debug("Found user: " + name);
+							for (Enumeration vals = attr.getAll(); vals.hasMoreElements();) {
+								String name = (String) vals.nextElement();
+								if (debug) {
+									log.debug("Found user: " + name);
+								}
+								domain = UserCoreUtil.addDomainToName(name,
+										domain);
+								names.add(name);
 							}
-							domain = UserCoreUtil.addDomainToName(name, domain);
-							names.add(name);
 						}
 					}
 				}
