@@ -23,4 +23,9 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 public interface CarbonRuntime {
 
     public CarbonConfiguration getConfiguration();
+
+    public PrivilegedTenant addTenant();
+    public void deleteTenant();
+    public PrivilegedTenant loadTenant();
+    public void unloadTenant();
 }
