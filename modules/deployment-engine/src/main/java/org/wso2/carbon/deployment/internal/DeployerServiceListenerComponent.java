@@ -30,13 +30,13 @@ import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.spi.Deployer;
 
 
-@Component (
+@Component(
         name = "org.wso2.carbon.deployment.internal.DeployerServiceListenerComponent",
         description = "This service  component is responsible for retrieving the Deployer OSGi " +
                       "service and register each deployer with deployment engine",
         immediate = true
 )
-@Reference (
+@Reference(
         name = "carbon.deployer.service",
         referenceInterface = Deployer.class,
         cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
@@ -47,13 +47,8 @@ import org.wso2.carbon.deployment.spi.Deployer;
 public class DeployerServiceListenerComponent {
     private static Logger logger = LoggerFactory.getLogger(DeployerServiceListenerComponent.class);
 
-
-    private DeploymentEngine carbonDeploymentEngine = OSGiServiceHolder.getInstance().getCarbonDeploymentEngine();
-
-     @Activate
-    public void activate(){
-         System.out.println("Activating.....");
-    }
+    private DeploymentEngine carbonDeploymentEngine = OSGiServiceHolder.getInstance().
+            getCarbonDeploymentEngine();
 
     protected void registerDeployer(Deployer deployer) {
 

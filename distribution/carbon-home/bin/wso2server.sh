@@ -282,6 +282,7 @@ do
     -Dcarbon.home="$CARBON_HOME" \
     -Dcarbon.repository="$CARBON_HOME/repository" \
     -Djava.util.logging.config.file="$CARBON_HOME/repository/conf/etc/logging-bridge.properties" \
+    -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.JavaUtilLog \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     org.wso2.carbon.launcher.Main $*
