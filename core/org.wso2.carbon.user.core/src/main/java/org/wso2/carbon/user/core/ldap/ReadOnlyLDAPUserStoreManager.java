@@ -2111,11 +2111,15 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             if(debug) {
                 if(list != null) {
+                	boolean isUserInRole = false;
                     for(String item : list) {
                         log.debug("Result: " + item);
+                        if(item.equalsIgnoreCase(roleName)) {
+                        	isUserInRole = true;
+                        }
                     }
                     log.debug("Is user: " + userName + " in role: " + roleName + " ? " +
-                              list.contains(roleName));
+                    		isUserInRole);
                 } else {
                     log.debug("No results found !");
                 }
