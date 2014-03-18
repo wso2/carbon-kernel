@@ -21,17 +21,9 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ITopic;
+import com.hazelcast.core.*;
 import com.hazelcast.core.Member;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
-import org.apache.axis2.clustering.ClusteringAgent;
-import org.apache.axis2.clustering.ClusteringCommand;
-import org.apache.axis2.clustering.ClusteringConstants;
-import org.apache.axis2.clustering.ClusteringFault;
-import org.apache.axis2.clustering.ClusteringMessage;
+import org.apache.axis2.clustering.*;
 import org.apache.axis2.clustering.control.ControlCommand;
 import org.apache.axis2.clustering.management.DefaultGroupManagementAgent;
 import org.apache.axis2.clustering.management.GroupManagementAgent;
@@ -46,7 +38,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
-import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
 import org.wso2.carbon.core.clustering.api.ClusterMessage;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
@@ -59,18 +50,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * This is the main ClusteringAgent class which is based on Hazelcast
@@ -109,6 +90,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             new HashMap<String, Map<String, GroupManagementAgent>>();
     private boolean clusterManagementMode;
     private String primaryDomain;
+    private boolean isCoordinator;
 
     public void init() throws ClusteringFault {
         MemberUtils.init(parameters, configurationContext);
@@ -197,7 +179,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         membershipScheme.joinGroup();
         localMember = primaryHazelcastInstance.getCluster().getLocalMember();
         localMember.getInetSocketAddress().getPort();
-        org.apache.axis2.clustering.Member carbonLocalMember =
+        final org.apache.axis2.clustering.Member carbonLocalMember =
                 MemberUtils.getLocalMember(primaryDomain,
                                            localMember.getInetSocketAddress().getAddress().getHostAddress(),
                                            localMember.getInetSocketAddress().getPort());
@@ -235,6 +217,22 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         ScheduledExecutorService msgCleanupScheduler = Executors.newScheduledThreadPool(1);
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
                                                    2, 2, TimeUnit.MINUTES);
+
+        // Start thread which will try to obtain Hazelcast lock. If lock is acquired by this member, set isCoordinator = true
+        Thread coordinatorElectorThread = new Thread(){
+
+            @Override
+            public void run() {
+                primaryHazelcastInstance.getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK).lock();
+                isCoordinator = true;
+                log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
+                        "as the Coordinator for the cluster [" + carbonLocalMember.getDomain() + "]");
+            }
+        };
+
+        coordinatorElectorThread.setName("Cluster ["+ carbonLocalMember.getDomain() +"] coordinator elector thread");
+        coordinatorElectorThread.start();
+
         log.info("Cluster initialization completed");
     }
 
@@ -470,7 +468,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     }
 
     public boolean isCoordinator() {
-        return false;  //todo
+        return isCoordinator;
     }
 
     public List<ClusteringCommand> sendMessage(ClusteringMessage clusteringMessage,

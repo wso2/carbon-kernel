@@ -72,6 +72,7 @@ public class ReadWriteLDAPUserStoreConstants{
         setProperty(UserStoreConfigConstants.roleNameJavaRegEx,"[a-zA-Z0-9._-|//]{3,30}$",UserStoreConfigConstants.roleNameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.writeGroups,"true",UserStoreConfigConstants.writeGroupsDescription);
         setProperty(UserStoreConfigConstants.emptyRolesAllowed,"true",UserStoreConfigConstants.emptyRolesAllowedDescription);
+        setProperty(UserStoreConfigConstants.memberOfAttribute,"",UserStoreConfigConstants.memberOfAttribute);
     }
 
     private static void setMandatoryProperty(String name,String value,String description){

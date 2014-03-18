@@ -17,8 +17,9 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -33,6 +34,7 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -104,8 +106,18 @@ public class LDAPConnectionContext {
                 .getUserStoreProperty(LDAPConstants.CONNECTION_PASSWORD);
 
         if (log.isDebugEnabled()) {
-            log.debug("Connection Name :: " + connectionName + "," + "Connection Password :: "
-                    + connectionPassword + "," + "Connection URL :: " + connectionURL);
+        	String password = "";
+			MessageDigest dgst;
+            try {
+	            dgst = MessageDigest.getInstance("SHA");
+				byte[] byteValue = dgst.digest(connectionPassword.getBytes());
+				password = Base64.encode(byteValue);
+            } catch (NoSuchAlgorithmException e) {
+            	log.debug("Error while hashing connection password using SHA. Setting dummy password instead");
+            	password = "xxxDummyPasswordxxx";
+            }
+            log.debug("Connection Name :: " + connectionName + " ," + "Connection Password (SHA Hashed) :: "
+                    + password + " ," + "Connection URL :: " + connectionURL);
         }
 
         environment = new Hashtable();

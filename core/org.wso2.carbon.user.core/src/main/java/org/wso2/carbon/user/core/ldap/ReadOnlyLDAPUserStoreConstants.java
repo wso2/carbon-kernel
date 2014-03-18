@@ -57,6 +57,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupNameSearchFilter,"(&amp;(objectClass=groupOfNames)(cn=?))",UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute,"cn",UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.membershipAttribute,"member",UserStoreConfigConstants.membershipAttributeDescription);
+        setProperty(UserStoreConfigConstants.memberOfAttribute,"",UserStoreConfigConstants.memberOfAttribute);
         
 
 //      LDAP Specific Properties

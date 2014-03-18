@@ -465,7 +465,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
 		boolean debug = log.isDebugEnabled();
 		
-		log.debug("Deleting user: " + userName);
+		if(debug) {
+			log.debug("Deleting user: " + userName);
+		}
 		// delete user from LDAP group if read-write enabled.
 		String userNameAttribute = realmConfig
 				.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
@@ -549,6 +551,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 				subDirContext = (DirContext) mainDirContext.lookup(userSearchBase);
 				subDirContext.destroySubcontext(userDN);
 			}
+	        userCache.remove(userName);
 		} catch (NamingException e) {
 			String errorMessage = "Error occurred while deleting the user. ";
 			throw new UserStoreException(errorMessage, e);
