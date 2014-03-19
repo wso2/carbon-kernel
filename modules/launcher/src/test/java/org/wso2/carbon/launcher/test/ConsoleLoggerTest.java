@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -23,7 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
-import org.wso2.carbon.launcher.test.bootstrapLoggingTest.LogHandler;
+import org.wso2.carbon.launcher.test.LoggingHandlers.JavaUtilLogHandler;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -33,12 +33,12 @@ public class ConsoleLoggerTest {
 
 
     private Logger logger;
-    LogHandler logHandler;
+    JavaUtilLogHandler logHandler;
 
         @BeforeSuite
         public void doBeforeEachTest() {
             logger = BootstrapLogger.getBootstrapLogger();
-            logHandler = new LogHandler();
+            logHandler = new JavaUtilLogHandler();
             logger.addHandler(logHandler);
         }
 

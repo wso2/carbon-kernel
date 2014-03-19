@@ -21,6 +21,8 @@ package org.wso2.carbon.runtime.internal;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.runtime.RuntimeManager;
@@ -35,6 +37,8 @@ import org.wso2.carbon.runtime.spi.Runtime;
 @Reference(
         name = "carbon.runtime.service",
         referenceInterface = Runtime.class,
+        cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+        policy = ReferencePolicy.DYNAMIC,
         bind = "registerRuntime",
         unbind = "unRegisterRuntime"
 )
