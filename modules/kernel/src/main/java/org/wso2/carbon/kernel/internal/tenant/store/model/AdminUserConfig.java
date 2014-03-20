@@ -18,5 +18,32 @@
 
 package org.wso2.carbon.kernel.internal.tenant.store.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class AdminUserConfig {
+
+    @XmlElement(name = "Name", required = true)
+    private String name;
+
+    @XmlElement(name = "EmailAddress", required = true)
+    private String emailAddress;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
 }

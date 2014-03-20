@@ -18,5 +18,43 @@
 
 package org.wso2.carbon.kernel.internal.tenant.store.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class HierarchyConfig {
+
+    @XmlElement(name = "Parent", required = true)
+    private String parentID;
+
+    @XmlElement(name = "DepthOfHierarchy")
+    private int depthOfHierarchy = -1;
+
+    @XmlElement(name = "Child")
+    private String[] childIDs = new String[0];
+
+    public String getParentID() {
+        return parentID;
+    }
+
+    public void setParentID(String parentID) {
+        this.parentID = parentID;
+    }
+
+    public int getDepthOfHierarchy() {
+        return depthOfHierarchy;
+    }
+
+    public void setDepthOfHierarchy(int depthOfHierarchy) {
+        this.depthOfHierarchy = depthOfHierarchy;
+    }
+
+    public String[] getChildIDs() {
+        return childIDs;
+    }
+
+    public void setChildIDs(String[] childTenantID) {
+        this.childIDs = childTenantID;
+    }
 }

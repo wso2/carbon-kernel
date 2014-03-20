@@ -18,5 +18,102 @@
 
 package org.wso2.carbon.kernel.internal.tenant.store;
 
-public class FileBasedTenantStore {
+import org.wso2.carbon.kernel.CarbonConstants;
+import org.wso2.carbon.kernel.internal.DefaultImplConstants;
+import org.wso2.carbon.kernel.internal.tenant.store.model.AdminUserConfig;
+import org.wso2.carbon.kernel.internal.tenant.store.model.HierarchyConfig;
+import org.wso2.carbon.kernel.internal.tenant.store.model.TenantConfig;
+import org.wso2.carbon.kernel.internal.tenant.store.model.TenantStoreConfig;
+import org.wso2.carbon.kernel.tenant.Tenant;
+import org.wso2.carbon.kernel.tenant.store.TenantStore;
+
+import org.wso2.carbon.kernel.util.Utils;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import java.io.*;
+
+public class FileBasedTenantStore implements TenantStore<Tenant> {
+
+    private TenantStoreConfig tenantStoreConfig;
+    private JAXBContext jaxbContext;
+
+    private String tenantStoreXMLPath = Utils.getCarbonHome() + File.separator + CarbonConstants.DATA_REPO_DIR +
+            File.separator + DefaultImplConstants.TENANT_STORE_XML;
+
+    public void init() throws Exception {
+        // Initializing the JAXBContext
+        jaxbContext = JAXBContext.newInstance(TenantStoreConfig.class);
+
+        // Loading the tenant's data
+        // We have the option of loading this lazily.
+        loadConfig();
+    }
+
+    @Override
+    public void persistTenant(Tenant tenant) throws Exception {
+        TenantConfig tenantConfig = populateTenantConfig(tenant);
+        tenantStoreConfig.addTenantConfig(tenantConfig);
+        saveConfig();
+    }
+
+    @Override
+    public void deleteTenant(String tenantID) {
+    }
+
+    private void saveConfig() throws Exception {
+        try (Writer writer = new FileWriter(tenantStoreXMLPath)) {
+            Marshaller marshaller = jaxbContext.createMarshaller();
+            marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            marshaller.marshal(tenantStoreConfig, writer);
+        } catch (IOException | JAXBException e) {
+            // TODO log
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private void loadConfig() throws Exception {
+        try (Reader reader = new FileReader(tenantStoreXMLPath)) {
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+            tenantStoreConfig = (TenantStoreConfig) unmarshaller.unmarshal(reader);
+        } catch (FileNotFoundException | JAXBException e) {
+            // TODO log
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private TenantConfig populateTenantConfig(Tenant tenant) {
+        TenantConfig tenantConfig = new TenantConfig();
+        tenantConfig.setId(tenant.getID());
+        tenantConfig.setDomain(tenant.getDomain());
+        tenantConfig.setName(tenant.getName());
+        tenantConfig.setDescription(tenant.getDescription());
+        tenantConfig.setCreatedDate(tenant.getCreatedDate());
+
+        AdminUserConfig adminUserConfig = new AdminUserConfig();
+        adminUserConfig.setName(tenant.getAdminUsername());
+        adminUserConfig.setEmailAddress(tenant.getAdminUserEmailAddress());
+        tenantConfig.setAdminUserConfig(adminUserConfig);
+
+        tenantConfig.setHierarchyConfig(populateHierarchyConfig(tenant));
+        //TODO add properties or attributes
+        return tenantConfig;
+    }
+
+    private HierarchyConfig populateHierarchyConfig(Tenant tenant) {
+        HierarchyConfig hierarchyConfig = new HierarchyConfig();
+
+        if (tenant.getParent() != null) {
+            hierarchyConfig.setParentID(tenant.getParent().getID());
+            hierarchyConfig.setDepthOfHierarchy(tenant.getParent().getDepthOfHierarchy() - 1);
+        } else {
+            hierarchyConfig.setParentID("Server");
+            hierarchyConfig.setDepthOfHierarchy(tenant.getDepthOfHierarchy());
+        }
+        return hierarchyConfig;
+    }
 }

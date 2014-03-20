@@ -18,5 +18,25 @@
 
 package org.wso2.carbon.kernel.internal.tenant.store.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
+
+@XmlRootElement(name = "TenantStore")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class TenantStoreConfig {
+
+    @XmlElement(name = "Tenant")
+    private List<TenantConfig> tenantConfigs = new ArrayList<>(0);
+
+    public List<TenantConfig> getTenantConfigs() {
+        return tenantConfigs;
+    }
+
+    public void addTenantConfig(TenantConfig tenantConfig) {
+        this.tenantConfigs.add(tenantConfig);
+    }
 }
