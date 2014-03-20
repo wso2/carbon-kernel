@@ -16,16 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.config.model;
+package org.wso2.carbon.kernel.context;
 
-import javax.xml.bind.annotation.XmlElement;
-
-public class PortsConfig {
-
-    @XmlElement(name = "Offset")
-    private int offset;
-
-    public int getOffset() {
-        return offset;
-    }
+public class PrivilegedCarbonContext {
 }

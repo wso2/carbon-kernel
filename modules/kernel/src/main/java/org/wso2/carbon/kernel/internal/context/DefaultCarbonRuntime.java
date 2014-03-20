@@ -16,28 +16,19 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.kernel.internal.context;
 
-import java.util.Date;
-import java.util.List;
+import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
-public interface Tenant {
+public class DefaultCarbonRuntime implements CarbonRuntime {
+    private CarbonConfiguration carbonConfiguration;
 
-    public String getID();
+    public DefaultCarbonRuntime(CarbonConfiguration carbonConfiguration){
+        this.carbonConfiguration = carbonConfiguration;
+    }
 
-    public String getDomain();
-
-    public String getName();
-
-    public String getDescription();
-
-    public Date getCreatedDate();
-
-    public String getAdminUsername();
-
-    public Tenant getParent();
-
-    public List<Tenant> getChildren();
-
-    public int getTenantDepth();
+    public CarbonConfiguration getConfiguration() {
+        return carbonConfiguration;
+    }
 }

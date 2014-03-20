@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.config.model;
+package org.wso2.carbon.kernel.internal.config.model;
 
 import javax.xml.bind.annotation.*;
 

@@ -16,7 +16,19 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.tenant.config;
+package org.wso2.carbon.kernel.internal.context;
 
-public class Dummy {
+import org.wso2.carbon.kernel.CarbonConfigProvider;
+import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+
+public class CarbonRuntimeFactory {
+
+    public static CarbonRuntime createCarbonRuntime(CarbonConfigProvider carbonConfigProvider){
+
+        CarbonConfiguration carbonConfiguration = carbonConfigProvider.getCarbonConfiguration();
+        //TODO hardcoded implementations.
+
+        return new DefaultCarbonRuntime(carbonConfiguration);
+    }
 }

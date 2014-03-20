@@ -16,19 +16,16 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.context;
+package org.wso2.carbon.kernel.internal.config.model;
 
-import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import javax.xml.bind.annotation.XmlElement;
 
-public class DefaultCarbonRuntime implements CarbonRuntime {
-    private CarbonConfiguration carbonConfiguration;
+public class PortsConfig {
 
-    public DefaultCarbonRuntime(CarbonConfiguration carbonConfiguration){
-        this.carbonConfiguration = carbonConfiguration;
-    }
+    @XmlElement(name = "Offset")
+    private int offset;
 
-    public CarbonConfiguration getConfiguration() {
-        return carbonConfiguration;
+    public int getOffset() {
+        return offset;
     }
 }

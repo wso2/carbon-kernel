@@ -16,13 +16,20 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.kernel.internal.config.model;
 
+import javax.xml.bind.annotation.XmlEnum;
 
-import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+@XmlEnum
+public enum DeploymentModeEnum {
+    triggered,
+    scheduled;
 
-public interface CarbonConfigProvider {
+    public String value() {
+        return name();
+    }
 
-    public CarbonConfiguration getCarbonConfiguration();
-
+    public static DeploymentModeEnum fromValue(String v) {
+        return valueOf(v);
+    }
 }

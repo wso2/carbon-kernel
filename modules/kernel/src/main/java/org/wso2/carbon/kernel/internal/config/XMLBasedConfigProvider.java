@@ -16,10 +16,10 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.config;
+package org.wso2.carbon.kernel.internal.config;
 
 import org.wso2.carbon.kernel.CarbonConfigProvider;
-import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.util.Utils;
 
 import javax.xml.bind.JAXBContext;
