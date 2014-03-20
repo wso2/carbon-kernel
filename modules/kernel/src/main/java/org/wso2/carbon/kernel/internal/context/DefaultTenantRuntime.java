@@ -18,5 +18,84 @@
 
 package org.wso2.carbon.kernel.internal.context;
 
-public class DefaultTenantRuntime {
+import org.wso2.carbon.kernel.internal.tenant.DefaultTenant;
+import org.wso2.carbon.kernel.internal.tenant.store.FileBasedTenantStore;
+import org.wso2.carbon.kernel.tenant.Tenant;
+import org.wso2.carbon.kernel.tenant.TenantRuntime;
+import org.wso2.carbon.kernel.tenant.store.TenantStore;
+
+import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
+
+public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
+
+    TenantStore<Tenant> tenantStore;
+
+    @Override
+    public void init() throws Exception {
+        //TODO implement a pluggable mechanism for tenant stores.
+        tenantStore = new FileBasedTenantStore();
+        tenantStore.init();
+    }
+
+    @Override
+    public Tenant addTenant(Tenant tenant) throws Exception {
+        return addTenantInternal(tenant);
+    }
+
+    @Override
+    public Tenant addTenant(String domain, String name, String description, String adminUsername,
+                            String adminUserEmailAddress, Map<String, String> props) throws Exception {
+        return addTenant(domain, name, description, adminUsername, adminUserEmailAddress, props, "server",
+                new String[0], -1);
+    }
+
+    @Override
+    public Tenant addTenant(String domain, String name, String description, String adminUsername,
+                            String adminUserEmailAddress, Map<String, String> props, String parentID,
+                            String[] childIDs, int depthOfHierarchy) throws Exception {
+
+        //TODO implement a pluggable mechanism for tenant implementations.
+        Tenant tenant = new DefaultTenant();
+
+        tenant.setID(UUID.randomUUID().toString());
+        tenant.setDomain(domain);
+        tenant.setName(name);
+        tenant.setDescription(description);
+        tenant.setCreatedDate(new Date());
+        tenant.setAdminUsername(adminUsername);
+        tenant.setAdminUserEmailAddress(adminUserEmailAddress);
+        tenant.setProperties(props);
+        tenant.setParent(parentID);
+        tenant.setDepthOfHierarchy(depthOfHierarchy);
+
+        for (String childID : childIDs) {
+            tenant.addChild(childID);
+        }
+        return addTenantInternal(tenant);
+    }
+
+    @Override
+    public Tenant deleteTenant(String tenantDomain) {
+        return null;
+    }
+
+    @Override
+    public Tenant loadTenant(String tenantDomain) {
+        return null;
+    }
+
+    @Override
+    public Tenant unloadTenant(String tenantDomain) {
+        return null;
+    }
+
+    private Tenant addTenantInternal(Tenant tenant) throws Exception {
+        //TODO do the validations here, domain, parent, children etc...
+
+        tenantStore.persistTenant(tenant);
+        return tenant;
+    }
+
 }
