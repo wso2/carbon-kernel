@@ -62,8 +62,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.ha.wso2</groupId>
-            <artifactId>tomcat-ha</artifactId>
-            <version>${orbit.version.tomcat}</version>
+            <artifactId>tomcat-catalina-ha</artifactId>
+            <version>${orbit.version.tomcat.ha}</version>
             <exclusions>
                 <exclusion>
 					<groupId>org.apache.tomcat</groupId>

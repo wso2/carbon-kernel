@@ -57,7 +57,6 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.eclipse.equinox:org.apache.jasper.glassfish</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.jsp.jasper</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ui</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core.commons.stub</bundleDef>

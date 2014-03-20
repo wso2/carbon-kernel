@@ -70,9 +70,10 @@ rem set the classes
 setlocal EnableDelayedExpansion
 rem loop through the libs and add them to the class path
 cd "%CARBON_HOME%"
+call ant -buildfile "%CARBON_HOME%\bin\build.xml" -q
 set CARBON_CLASSPATH=.\conf
-FOR %%C in ("%CARBON_HOME%\lib\org.wso2.ciphertool*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\lib\%%~nC%%~xC"
-FOR %%E in ("%CARBON_HOME%\repository\components\plugins\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\repository\components\plugins\%%~nE%%~xE"
+FOR %%c in ("%CARBON_HOME%\lib\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\lib\%%~nc%%~xc"
+FOR %%C in ("%CARBON_HOME%\repository\lib\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\repository\lib\%%~nC%%~xC"
 
 rem ----- Execute The Requested Command ---------------------------------------
 echo Using CARBON_HOME:   %CARBON_HOME%
