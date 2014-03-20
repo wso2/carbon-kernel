@@ -27,6 +27,8 @@ public class CarbonConstants {
 
     public static final String CARBON_CONFIG_XML = "carbon.xml";
 
-    public static final String CONF_REPO_DIR = "repository" + File.separator + "conf";
-    public static final String OSGI_REPO_DIR = "repository" + File.separator + "components";
+    public static final String CARBON_REPO_DIR = "repository";
+    public static final String CONF_REPO_DIR = CARBON_REPO_DIR + File.separator + "conf";
+    public static final String OSGI_REPO_DIR = CARBON_REPO_DIR + File.separator + "components";
+    public static final String DATA_REPO_DIR = CARBON_REPO_DIR + File.separator + "data";
 }

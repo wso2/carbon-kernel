@@ -18,5 +18,13 @@
 
 package org.wso2.carbon.kernel.tenant.store;
 
-public class TenantStore {
+import org.wso2.carbon.kernel.tenant.Tenant;
+
+public interface TenantStore<T extends Tenant> {
+
+    public void init() throws Exception;
+
+    public void persistTenant(T tenant) throws Exception;
+
+    public void deleteTenant(String tenantID);
 }

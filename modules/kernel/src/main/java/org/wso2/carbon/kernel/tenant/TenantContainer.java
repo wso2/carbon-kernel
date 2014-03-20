@@ -16,14 +16,27 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.kernel.tenant;
 
-import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.tenant.TenantRuntime;
+import java.util.List;
 
-public interface PrivilegedCarbonRuntime extends CarbonRuntime {
+public interface TenantContainer<T extends Tenant> {
 
-    public void setCarbonConfiguration(CarbonConfiguration carbonConfiguration);
+    public T getParent();
 
-    public void setTenantRuntime(TenantRuntime tenantRuntime);
+    public T getChild(String tenantID);
+
+    public List<T> getChildren();
+
+    public int getDepthOfHierarchy();
+
+    public void setParent(String tenantID);
+
+    public void addChild(String tenantID);
+
+    public void unsetParent(String tenantID);
+
+    public T removeChild(String tenantID);
+
+    public void setDepthOfHierarchy(int depthOfHierarchy);
 }

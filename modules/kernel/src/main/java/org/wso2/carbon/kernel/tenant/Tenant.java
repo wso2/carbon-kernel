@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -19,9 +19,9 @@
 package org.wso2.carbon.kernel.tenant;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
-public interface Tenant {
+public interface Tenant extends TenantContainer  {
 
     public String getID();
 
@@ -35,9 +35,27 @@ public interface Tenant {
 
     public String getAdminUsername();
 
-    public Tenant getParent();
+    public String getAdminUserEmailAddress();
 
-    public List<Tenant> getChildren();
+    public String getProperty(String key);
 
-    public int getTenantDepth();
+    public Map<String, String> getProperties();
+
+    public void setID(String id);
+
+    public void setDomain(String domain);
+
+    public void setName(String name);
+
+    public void setDescription(String description);
+
+    public void setCreatedDate(Date createdDate);
+
+    public void setAdminUsername(String adminUsername);
+
+    public void setAdminUserEmailAddress(String emailAddress);
+
+    public void setProperty(String key, String value);
+
+    public void setProperties(Map<String, String> props);
 }

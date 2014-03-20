@@ -18,14 +18,12 @@
 
 package org.wso2.carbon.kernel;
 
-import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
 public interface CarbonRuntime {
 
     public CarbonConfiguration getConfiguration();
 
-    public PrivilegedTenant addTenant();
-    public void deleteTenant();
-    public PrivilegedTenant loadTenant();
-    public void unloadTenant();
+    public TenantRuntime getTenantRuntime();
 }
