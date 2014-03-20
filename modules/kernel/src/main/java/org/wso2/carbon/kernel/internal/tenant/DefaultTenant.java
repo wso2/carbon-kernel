@@ -18,113 +18,127 @@
 
 package org.wso2.carbon.kernel.internal.tenant;
 
-import org.wso2.carbon.kernel.tenant.PrivilegedTenant;
 import org.wso2.carbon.kernel.tenant.Tenant;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
-public class DefaultTenant implements PrivilegedTenant {
+public class DefaultTenant implements Tenant {
 
+    private String id;
+    private String domain;
+    private String name;
+    private String description;
+    private Date createdDate;
+    private String adminUsername;
+    private String adminUserEmailAddress;
+    private Map<String, String> properties;
 
-    @Override
-    public void setID(String id) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+    private Tenant parent;
+    private int depthOfHierarchy = -1;
+    private Tenant[] childTenants;
 
-    @Override
-    public void setDomain(String domain) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setName(String name) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setDescription(String description) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setCreatedDate(Date date) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setAdminUsername(String adminUsername) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setAdminUserEmailAddress(String emailAddress) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setParent(PrivilegedTenant tenant) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void addChild(PrivilegedTenant tenant) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public PrivilegedTenant removeChild(String tenantID) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setDepthOfHierarchy(int depthOfHierarchy) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     @Override
     public String getID() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return id;
     }
 
     @Override
     public String getDomain() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return domain;
     }
 
     @Override
     public String getName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return name;
     }
 
     @Override
     public String getDescription() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return description;
     }
 
     @Override
     public Date getCreatedDate() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return createdDate;
     }
 
     @Override
     public String getAdminUsername() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return adminUsername;
     }
 
     @Override
     public String getAdminUserEmailAddress() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return adminUserEmailAddress;
+    }
+
+    @Override
+    public String getProperty(String key) {
+        return properties.get(key);
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    @Override
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @Override
+    public void setAdminUsername(String adminUsername) {
+        this.adminUsername = adminUsername;
+    }
+
+    @Override
+    public void setAdminUserEmailAddress(String emailAddress) {
+        this.adminUserEmailAddress = emailAddress;
+    }
+
+    @Override
+    public void setProperty(String key, String value) {
+        this.properties.put(key, value);
+    }
+
+    @Override
+    public void setProperties(Map<String, String> props) {
+        this.properties = props;
     }
 
     @Override
     public Tenant getParent() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return parent;
     }
 
     @Override
     public Tenant getChild(String tenantID) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
@@ -134,6 +148,31 @@ public class DefaultTenant implements PrivilegedTenant {
 
     @Override
     public int getDepthOfHierarchy() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return -1;
+    }
+
+    @Override
+    public void setParent(String tenantID) {
+
+    }
+
+    @Override
+    public void addChild(String tenantID) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void unsetParent(String tenantID) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Tenant removeChild(String tenantID) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setDepthOfHierarchy(int depthOfHierarchy) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 }
