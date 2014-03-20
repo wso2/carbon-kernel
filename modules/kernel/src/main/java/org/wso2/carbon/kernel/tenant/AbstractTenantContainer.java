@@ -18,27 +18,5 @@
 
 package org.wso2.carbon.kernel.tenant;
 
-import java.util.Map;
-
-public interface TenantContainer {
-
-    public String getID();
-
-    public TenantContainer getParent();
-
-    public Map<String, TenantContainer> getChildren();
-
-    public int getDepthOfHierarchy();
-
-    public void setID(String id);
-
-    public void setParent(TenantContainer parentTenant);
-
-    public void addChild(TenantContainer childTenant);
-
-    public void unsetParent(TenantContainer parentTenant);
-
-    public TenantContainer removeChild(TenantContainer childTenant);
-
-    public void setDepthOfHierarchy(int depthOfHierarchy);
+public class AbstractTenantContainer {
 }
