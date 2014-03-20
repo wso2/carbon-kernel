@@ -18,5 +18,11 @@
 
 package org.wso2.carbon.kernel.internal;
 
+/**
+ * This class contains constants required for the default kernel API implementation.
+ * TODO find a better name for this.
+ */
 public class DefaultImplConstants {
+
+    public static final String TENANT_STORE_XML = "tenant-store.xml";
 }
