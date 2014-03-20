@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.kernel.internal.tenant;
 
+import org.wso2.carbon.kernel.tenant.AbstractTenantContainer;
 import org.wso2.carbon.kernel.tenant.Tenant;
 
 import java.util.Collections;
@@ -25,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultTenant implements Tenant {
+public class DefaultTenant extends AbstractTenantContainer implements Tenant {
 
     private String id;
     private String domain;
@@ -35,11 +36,6 @@ public class DefaultTenant implements Tenant {
     private String adminUsername;
     private String adminUserEmailAddress;
     private Map<String, String> properties;
-
-    private Tenant parent;
-    private int depthOfHierarchy = -1;
-    private Tenant[] childTenants;
-
 
     @Override
     public String getID() {
@@ -129,50 +125,5 @@ public class DefaultTenant implements Tenant {
     @Override
     public void setProperties(Map<String, String> props) {
         this.properties = props;
-    }
-
-    @Override
-    public Tenant getParent() {
-        return parent;
-    }
-
-    @Override
-    public Tenant getChild(String tenantID) {
-        return null;
-    }
-
-    @Override
-    public List getChildren() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public int getDepthOfHierarchy() {
-        return -1;
-    }
-
-    @Override
-    public void setParent(String tenantID) {
-
-    }
-
-    @Override
-    public void addChild(String tenantID) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void unsetParent(String tenantID) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Tenant removeChild(String tenantID) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setDepthOfHierarchy(int depthOfHierarchy) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -25,12 +25,17 @@ import org.wso2.carbon.kernel.tenant.TenantRuntime;
 import org.wso2.carbon.kernel.tenant.store.TenantStore;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
+public class DefaultTenantRuntime implements TenantRuntime {
 
-    TenantStore<Tenant> tenantStore;
+    private TenantStore<Tenant> tenantStore;
+
+    private Map<String, Tenant> loadedTenants = new HashMap<>();
+
+    //TODO maintain a tenant hierarchy in a map. This will be useful in the future.
 
     @Override
     public void init() throws Exception {
@@ -67,12 +72,12 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
         tenant.setAdminUsername(adminUsername);
         tenant.setAdminUserEmailAddress(adminUserEmailAddress);
         tenant.setProperties(props);
-        tenant.setParent(parentID);
-        tenant.setDepthOfHierarchy(depthOfHierarchy);
+//        tenant.setParent(parentID);
+//        tenant.setDepthOfHierarchy(depthOfHierarchy);
 
-        for (String childID : childIDs) {
-            tenant.addChild(childID);
-        }
+//        for (String childID : childIDs) {
+//            tenant.addChild(childID);
+//        }
         return addTenantInternal(tenant);
     }
 
@@ -81,21 +86,39 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
         return null;
     }
 
-    @Override
-    public Tenant loadTenant(String tenantDomain) {
-        return null;
-    }
+//    @Override
+//    //Do we need to expose load tenant method in this API.
+//    //Tenant loading can be perform by this class.
+//    public Tenant loadTenant(String tenantDomain) {
+//        return null;
+//    }
+//
+//    //Do we need to expose unload tenant method in this API.
+//    //Tenant unloading can be perform by this class using separate task.
+//    @Override
+//    public Tenant unloadTenant(String tenantDomain) {
+//        return null;
+//    }
 
     @Override
-    public Tenant unloadTenant(String tenantDomain) {
+    public Tenant getTenant(String tenantDomain) {
+        if(loadedTenants.containsKey(tenantDomain)){
+            return loadedTenants.get(tenantDomain);
+        }
+        // Loading the tenant.
+        loadTenant(tenantDomain);
         return null;
     }
 
     private Tenant addTenantInternal(Tenant tenant) throws Exception {
         //TODO do the validations here, domain, parent, children etc...
-
         tenantStore.persistTenant(tenant);
+        loadedTenants.put(tenant.getDomain(), tenant);
         return tenant;
+    }
+
+    private Tenant loadTenant(String tenantDomain) {
+        return null;
     }
 
 }

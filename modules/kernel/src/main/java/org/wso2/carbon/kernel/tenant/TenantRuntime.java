@@ -35,7 +35,9 @@ public interface TenantRuntime<T extends Tenant>{
 
     public T deleteTenant(String tenantDomain);
 
-    public T loadTenant(String tenantDomain);
+//    public T loadTenant(String tenantDomain);
+//
+//    public T unloadTenant(String tenantDomain);
 
-    public T unloadTenant(String tenantDomain);
+    public T getTenant(String tenantDomain);
 }

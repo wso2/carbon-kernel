@@ -18,5 +18,67 @@
 
 package org.wso2.carbon.kernel.tenant;
 
-public class AbstractTenantContainer {
+import java.util.*;
+
+public abstract class AbstractTenantContainer implements TenantContainer {
+
+    private String id;
+    private TenantContainer parent = null;
+    private Map<String, TenantContainer> children = new HashMap<>();
+    private int depthOfHierarchy = -1;
+
+    @Override
+    public String getID() {
+        return id;
+    }
+
+    @Override
+    public TenantContainer getParent() {
+        return parent;
+    }
+
+    @Override
+    public Map<String, TenantContainer> getChildren() {
+        return Collections.unmodifiableMap(children);
+    }
+
+    @Override
+    public int getDepthOfHierarchy() {
+        return depthOfHierarchy;
+    }
+
+    @Override
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public void setParent(TenantContainer parent) {
+        this.parent = parent;
+        // TODO Notify.
+    }
+
+    @Override
+    public void addChild(TenantContainer child) {
+        children.put(child.getID(), child);
+        child.setParent(this);
+        //TODO Notify
+    }
+
+    @Override
+    public void unsetParent(TenantContainer parent) {
+        this.parent = null;
+        // TODO Notify.
+    }
+
+    @Override
+    public TenantContainer removeChild(TenantContainer child) {
+        return children.remove(child.getID());
+        // TODO Notify.
+    }
+
+    @Override
+    public void setDepthOfHierarchy(int depthOfHierarchy) {
+        this.depthOfHierarchy = depthOfHierarchy;
+    }
 }

@@ -23,8 +23,6 @@ import java.util.Map;
 
 public interface Tenant extends TenantContainer  {
 
-    public String getID();
-
     public String getDomain();
 
     public String getName();
@@ -40,8 +38,6 @@ public interface Tenant extends TenantContainer  {
     public String getProperty(String key);
 
     public Map<String, String> getProperties();
-
-    public void setID(String id);
 
     public void setDomain(String domain);
 
