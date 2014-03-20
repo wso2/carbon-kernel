@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.kernel.internal.config;
 
-import org.wso2.carbon.kernel.CarbonConfigProvider;
+import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.util.Utils;
 
@@ -39,6 +39,8 @@ public class XMLBasedConfigProvider implements CarbonConfigProvider {
 
             JAXBContext jaxbContext = JAXBContext.newInstance(CarbonConfiguration.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+            //TODO remove.
             unmarshaller.setListener(new Unmarshaller.Listener() {
                 @Override
                 public void beforeUnmarshal(Object target, Object parent) {
@@ -52,15 +54,14 @@ public class XMLBasedConfigProvider implements CarbonConfigProvider {
                 }
             });
 
-            CarbonConfiguration carbonConfiguration = (CarbonConfiguration) unmarshaller.unmarshal(in);
-
-            return carbonConfiguration;
+            return (CarbonConfiguration) unmarshaller.unmarshal(in);
 
         } catch (JAXBException e) {
             // TODO handle this exception
             e.printStackTrace();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            //dfd
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
         // We need to populate a CarbonConfiguration from the carbon.xml file.
