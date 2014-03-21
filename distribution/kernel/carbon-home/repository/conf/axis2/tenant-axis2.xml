@@ -26,7 +26,7 @@
 
     <!--If turned on with use the Accept header of the request to determine the contentType of the
     response-->
-    <parameter name="httpContentNegotiation">false</parameter>
+    <parameter name="httpContentNegotiation">true</parameter>
 
     <!--If true, then artifacts(services, modules etc) are not loaded when a tenant is loaded.
     So service deployment, module deployment etc. will not happen. So the tenant loading time will
@@ -97,13 +97,17 @@
                           class="org.apache.axis2.transport.http.SOAPMessageFormatter"/>
         <messageFormatter contentType="application/soap+xml"
                           class="org.apache.axis2.transport.http.SOAPMessageFormatter"/>
-	<!--JSON Message Formatters-->
+        <!--JSON Message Formatters-->
+        <!--messageFormatter contentType="application/json"
+                          class="org.apache.axis2.json.JSONMessageFormatter"/-->
         <messageFormatter contentType="application/json"
-                          class="org.apache.axis2.json.JSONMessageFormatter"/>
-	<!--messageFormatter contentType="application/json"
-                          class="org.apache.axis2.json.JSONStreamFormatter"/-->
+                                  class="org.apache.axis2.json.gson.JsonFormatter" />
+        <messageFormatter contentType="application/json/badgerfish"
+                          class="org.apache.axis2.json.JSONBadgerfishMessageFormatter"/>
+        <!--messageFormatter contentType="text/javascript"
+                          class="org.apache.axis2.json.JSONMessageFormatter"/-->
         <messageFormatter contentType="text/javascript"
-                          class="org.apache.axis2.json.JSONMessageFormatter"/>
+                                  class="org.apache.axis2.json.gson.JsonFormatter" />
     </messageFormatters>
 
     <!-- ================================================= -->
@@ -116,13 +120,17 @@
                         class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
         <messageBuilder contentType="application/x-www-form-urlencoded"
                         class="org.apache.axis2.builder.XFormURLEncodedBuilder"/>
-	<!--JSON Message Builders-->
+        <!--JSON Message Builders-->
+        <!--messageBuilder contentType="application/json"
+                        class="org.apache.axis2.json.JSONOMBuilder"/-->
         <messageBuilder contentType="application/json"
-                        class="org.apache.axis2.json.JSONBuilder"/>
-	<!--messageBuilder contentType="application/json"
-                        class="org.apache.axis2.json.JSONStreamBuilder"/-->
+                                class="org.apache.axis2.json.gson.JsonBuilder" />
+        <messageBuilder contentType="application/json/badgerfish"
+                        class="org.apache.axis2.json.JSONBadgerfishOMBuilder"/>
+        <!--messageBuilder contentType="text/javascript"
+                        class="org.apache.axis2.json.JSONOMBuilder"/-->
         <messageBuilder contentType="text/javascript"
-                        class="org.apache.axis2.json.JSONBuilder"/>
+                                class="org.apache.axis2.json.gson.JsonBuilder" />
         <!--Left commented because it adds the depandancy of servlet-api to other modules.
         Please uncomment to Receive messages in multipart/form-data format-->
         <!--<messageBuilder contentType="multipart/form-data"-->
@@ -151,6 +159,10 @@
                      class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher">
                 <order phase="Transport"/>
             </handler>
+            <handler name="RequestURIOperationDispatcher"
+                     class="org.apache.axis2.dispatchers.RequestURIOperationDispatcher" />
+            <handler name="JSONMessageHandler"
+                     class="org.apache.axis2.json.gson.JSONMessageHandler" />
         </phase>
         <phase name="Addressing">
             <handler name="AddressingBasedDispatcher"
@@ -168,8 +180,6 @@
                      class="org.apache.axis2.dispatchers.RequestURIBasedDispatcher"/>
             <handler name="SOAPActionBasedDispatcher"
                      class="org.apache.axis2.dispatchers.SOAPActionBasedDispatcher"/>
-            <handler name="RequestURIOperationDispatcher"
-                     class="org.apache.axis2.dispatchers.RequestURIOperationDispatcher"/>
             <handler name="SOAPMessageBodyBasedDispatcher"
                      class="org.apache.axis2.dispatchers.SOAPMessageBodyBasedDispatcher"/>
 
