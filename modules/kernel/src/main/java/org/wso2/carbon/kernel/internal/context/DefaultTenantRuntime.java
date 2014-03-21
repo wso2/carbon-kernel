@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class DefaultTenantRuntime implements TenantRuntime {
+public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
 
     private TenantStore<Tenant> tenantStore;
 
@@ -82,31 +82,23 @@ public class DefaultTenantRuntime implements TenantRuntime {
     }
 
     @Override
-    public Tenant deleteTenant(String tenantDomain) {
-        return null;
+    public Tenant deleteTenant(String tenantDomain) throws Exception{
+        //TODO Notify
+        return tenantStore.deleteTenant(tenantDomain);
     }
 
-//    @Override
-//    //Do we need to expose load tenant method in this API.
-//    //Tenant loading can be perform by this class.
-//    public Tenant loadTenant(String tenantDomain) {
-//        return null;
-//    }
-//
-//    //Do we need to expose unload tenant method in this API.
-//    //Tenant unloading can be perform by this class using separate task.
-//    @Override
-//    public Tenant unloadTenant(String tenantDomain) {
-//        return null;
-//    }
-
     @Override
-    public Tenant getTenant(String tenantDomain) {
+    public Tenant getTenant(String tenantDomain) throws Exception {
         if(loadedTenants.containsKey(tenantDomain)){
             return loadedTenants.get(tenantDomain);
         }
         // Loading the tenant.
-        loadTenant(tenantDomain);
+        try {
+            loadTenant(tenantDomain);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Exception(e);
+        }
         return null;
     }
 
@@ -114,11 +106,13 @@ public class DefaultTenantRuntime implements TenantRuntime {
         //TODO do the validations here, domain, parent, children etc...
         tenantStore.persistTenant(tenant);
         loadedTenants.put(tenant.getDomain(), tenant);
+        //TODO Notify
         return tenant;
     }
 
-    private Tenant loadTenant(String tenantDomain) {
-        return null;
+    private Tenant loadTenant(String tenantDomain) throws Exception {
+        //TODO Notify
+        return tenantStore.loadTenant(tenantDomain);
     }
 
 }

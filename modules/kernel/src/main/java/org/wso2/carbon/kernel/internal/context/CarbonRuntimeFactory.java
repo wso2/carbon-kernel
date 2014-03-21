@@ -22,6 +22,7 @@ import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
 public class CarbonRuntimeFactory {
@@ -30,7 +31,7 @@ public class CarbonRuntimeFactory {
 
         //TODO Remove hardcoded implementations.
         CarbonConfiguration carbonConfiguration = carbonConfigProvider.getCarbonConfiguration();
-        TenantRuntime tenantRuntime = new DefaultTenantRuntime();
+        TenantRuntime<Tenant> tenantRuntime = new DefaultTenantRuntime();
         tenantRuntime.init();
 
         PrivilegedCarbonRuntime carbonRuntime = new DefaultCarbonRuntime();

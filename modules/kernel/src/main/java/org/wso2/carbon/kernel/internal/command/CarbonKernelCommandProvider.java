@@ -28,6 +28,7 @@ import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -47,11 +48,11 @@ import java.util.List;
 public class CarbonKernelCommandProvider implements CommandProvider {
 
     private CarbonRuntime carbonRuntime;
-    private ServiceRegistration serviceRegistration;
+    private ServiceRegistration<CommandProvider> serviceRegistration;
 
     @Activate
     public void registerCommandProvider(BundleContext bundleContext) {
-        serviceRegistration = bundleContext.registerService(CommandProvider.class.getName(), this, null);
+        serviceRegistration = bundleContext.registerService(CommandProvider.class, this, null);
     }
 
     @Deactivate
@@ -88,12 +89,13 @@ public class CarbonKernelCommandProvider implements CommandProvider {
 
     public void _addTenant(CommandInterpreter ci) throws Exception {
         CarbonRuntime localCarbonRuntime = getCarbonRuntime();
-        TenantRuntime tenantRuntime = localCarbonRuntime.getTenantRuntime();
+        TenantRuntime<Tenant> tenantRuntime = localCarbonRuntime.getTenantRuntime();
         String[] args = extractArgs(ci);
 
         if (args.length == 5) {
             try {
-                Tenant tenant = tenantRuntime.addTenant(args[0], args[1], args[2], args[3], args[4], null);
+                Tenant tenant = tenantRuntime.addTenant(args[0], args[1], args[2],
+                        args[3], args[4], new HashMap<String, String>(0));
                 System.out.println("Successfully Created the tenant with the ID " + tenant.getID());
             } catch (Exception e) {
                 e.printStackTrace();
