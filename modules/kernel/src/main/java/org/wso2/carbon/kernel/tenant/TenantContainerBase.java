@@ -20,7 +20,7 @@ package org.wso2.carbon.kernel.tenant;
 
 import java.util.*;
 
-public abstract class AbstractTenantContainer implements TenantContainer {
+public class TenantContainerBase implements TenantContainer {
 
     private String id;
     private TenantContainer parent = null;
