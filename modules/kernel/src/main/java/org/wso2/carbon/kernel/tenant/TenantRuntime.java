@@ -33,11 +33,7 @@ public interface TenantRuntime<T extends Tenant>{
                        String adminUserEmailAddress, Map<String, String> props, String parent, String[] children,
                        int depthOfHierarchy) throws Exception;
 
-    public T deleteTenant(String tenantDomain);
+    public T deleteTenant(String tenantDomain) throws Exception;
 
-//    public T loadTenant(String tenantDomain);
-//
-//    public T unloadTenant(String tenantDomain);
-
-    public T getTenant(String tenantDomain);
+    public T getTenant(String tenantDomain) throws Exception;
 }

@@ -18,15 +18,14 @@
 
 package org.wso2.carbon.kernel.internal.tenant;
 
-import org.wso2.carbon.kernel.tenant.AbstractTenantContainer;
+import org.wso2.carbon.kernel.tenant.TenantContainerBase;
 import org.wso2.carbon.kernel.tenant.Tenant;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
-public class DefaultTenant extends AbstractTenantContainer implements Tenant {
+public class DefaultTenant extends TenantContainerBase implements Tenant {
 
     private String id;
     private String domain;

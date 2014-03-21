@@ -20,6 +20,7 @@ package org.wso2.carbon.kernel.internal.tenant.store;
 
 import org.wso2.carbon.kernel.CarbonConstants;
 import org.wso2.carbon.kernel.internal.DefaultImplConstants;
+import org.wso2.carbon.kernel.internal.tenant.DefaultTenant;
 import org.wso2.carbon.kernel.internal.tenant.store.model.AdminUserConfig;
 import org.wso2.carbon.kernel.internal.tenant.store.model.HierarchyConfig;
 import org.wso2.carbon.kernel.internal.tenant.store.model.TenantConfig;
@@ -34,11 +35,15 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
+//TODO Implement transactional behaviour (Implement locking mechanism)
 public class FileBasedTenantStore implements TenantStore<Tenant> {
 
     private TenantStoreConfig tenantStoreConfig;
     private JAXBContext jaxbContext;
+    private Map<String, TenantConfig> tenantConfigMap;
 
     private String tenantStoreXMLPath = Utils.getCarbonHome() + File.separator + CarbonConstants.DATA_REPO_DIR +
             File.separator + DefaultImplConstants.TENANT_STORE_XML;
@@ -53,6 +58,16 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     }
 
     @Override
+    public Tenant loadTenant(String tenantDomain) throws Exception{
+        if (tenantConfigMap.containsKey(tenantDomain)){
+            TenantConfig tenantConfig = tenantConfigMap.get(tenantDomain);
+            return populateTenant(tenantConfig);
+        }
+
+        throw new Exception("Tenant with the domain " + tenantDomain + " does not exists");
+    }
+
+    @Override
     public void persistTenant(Tenant tenant) throws Exception {
         TenantConfig tenantConfig = populateTenantConfig(tenant);
         tenantStoreConfig.addTenantConfig(tenantConfig);
@@ -60,7 +75,16 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     }
 
     @Override
-    public void deleteTenant(String tenantID) {
+    public Tenant deleteTenant(String tenantDomain) throws Exception{
+
+//        TenantConfig tenantConfig = tenantConfigMap.get(tenantDomain);
+//        if(tenantConfig == null) {
+//            throw new Exception("Tenant with domain " + tenantDomain + " does not exists");
+//        }
+
+//        tenantConfigMap.remove(tenantDomain);
+//        tenantStoreConfig.getTenantConfigs();
+        throw new UnsupportedOperationException();
     }
 
     private void saveConfig() throws Exception {
@@ -79,11 +103,26 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
         try (Reader reader = new FileReader(tenantStoreXMLPath)) {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             tenantStoreConfig = (TenantStoreConfig) unmarshaller.unmarshal(reader);
+            populateTenantConfigMap();
         } catch (FileNotFoundException | JAXBException e) {
             // TODO log
             e.printStackTrace();
             throw e;
         }
+    }
+    private Tenant populateTenant(TenantConfig tenantConfig){
+        Tenant tenant = new DefaultTenant();
+        tenant.setID(tenantConfig.getId());
+        tenant.setDomain(tenantConfig.getDomain());
+        tenant.setName(tenantConfig.getName());
+        tenant.setDescription(tenantConfig.getDescription());
+        tenant.setCreatedDate(tenantConfig.getCreatedDate());
+
+        tenant.setAdminUsername(tenantConfig.getAdminUserConfig().getName());
+        tenant.setAdminUserEmailAddress(tenantConfig.getAdminUserConfig().getEmailAddress());
+
+        //TODO Add hierarchy information
+        return tenant;
     }
 
     private TenantConfig populateTenantConfig(Tenant tenant) {
@@ -115,5 +154,12 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
             hierarchyConfig.setDepthOfHierarchy(tenant.getDepthOfHierarchy());
         }
         return hierarchyConfig;
+    }
+
+    private void populateTenantConfigMap() {
+        tenantConfigMap = new HashMap<>(tenantStoreConfig.getTenantConfigs().size());
+        for (TenantConfig tenantConfig : tenantStoreConfig.getTenantConfigs()) {
+            tenantConfigMap.put(tenantConfig.getDomain(), tenantConfig);
+        }
     }
 }

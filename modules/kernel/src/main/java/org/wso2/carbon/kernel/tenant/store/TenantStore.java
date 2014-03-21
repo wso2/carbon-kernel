@@ -24,7 +24,9 @@ public interface TenantStore<T extends Tenant> {
 
     public void init() throws Exception;
 
+    public T loadTenant(String tenantDomain) throws Exception;
+
     public void persistTenant(T tenant) throws Exception;
 
-    public void deleteTenant(String tenantID);
+    public T deleteTenant(String tenantDomain) throws Exception;
 }
