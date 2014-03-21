@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 @Component(
         name = "org.wso2.carbon.kernel.internal.CommandProvider",
         description = "This service component is responsible for registering the Carbon kernel command provider",
@@ -83,7 +82,9 @@ public class CarbonKernelCommandProvider implements CommandProvider {
                 "\t\t<name> - tenant name\n" +
                 "\t\t<description> - tenant description\n" +
                 "\t\t<admin username> - Administrator's username\n" +
-                "\t\t<admin email address> - Administrator's email address\n";
+                "\t\t<admin email address> - Administrator's email address\n" +
+                "\tgetTenantInfo <domain> - Retrieve tenant data\n" +
+                "\t\t<domain> - Tenant domain";
 
     }
 
@@ -100,8 +101,36 @@ public class CarbonKernelCommandProvider implements CommandProvider {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        } else {
+            throw new Exception("Unexpected number of input parameters");
         }
 
+    }
+
+    public void _getTenantInfo(CommandInterpreter ci) throws Exception {
+        CarbonRuntime localCarbonRuntime = getCarbonRuntime();
+        TenantRuntime<Tenant> tenantRuntime = localCarbonRuntime.getTenantRuntime();
+        String[] args = extractArgs(ci);
+        if (args.length == 1) {
+            try {
+                Tenant tenant = tenantRuntime.getTenant(args[0]);
+                if(tenant == null) {
+                    System.out.println("Tenant with domain " + args[0] + " does not exists");
+                    return;
+                }
+                System.out.println("Tenant data");
+                System.out.println("Domain --> " + tenant.getDomain());
+                System.out.println("Name --> " + tenant.getName());
+                System.out.println("Description --> " + tenant.getDescription());
+                System.out.println("Created date --> " + tenant.getCreatedDate());
+                System.out.println("Admin Username --> " + tenant.getAdminUsername());
+                System.out.println("Admin User Email Address --> " + tenant.getAdminUserEmailAddress());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            throw new Exception("Unexpected number of input parameters");
+        }
     }
 
     private String[] extractArgs(CommandInterpreter ci) {

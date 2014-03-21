@@ -94,12 +94,11 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
         }
         // Loading the tenant.
         try {
-            loadTenant(tenantDomain);
+            return loadTenant(tenantDomain);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception(e);
         }
-        return null;
     }
 
     private Tenant addTenantInternal(Tenant tenant) throws Exception {
