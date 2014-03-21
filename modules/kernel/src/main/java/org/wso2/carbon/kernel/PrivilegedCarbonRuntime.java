@@ -19,11 +19,12 @@
 package org.wso2.carbon.kernel;
 
 import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
 public interface PrivilegedCarbonRuntime extends CarbonRuntime {
 
     public void setCarbonConfiguration(CarbonConfiguration carbonConfiguration);
 
-    public void setTenantRuntime(TenantRuntime tenantRuntime);
+    public void setTenantRuntime(TenantRuntime<Tenant> tenantRuntime);
 }

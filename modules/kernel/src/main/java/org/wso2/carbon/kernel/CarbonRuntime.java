@@ -19,11 +19,12 @@
 package org.wso2.carbon.kernel;
 
 import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
 public interface CarbonRuntime {
 
     public CarbonConfiguration getConfiguration();
 
-    public TenantRuntime getTenantRuntime();
+    public TenantRuntime<Tenant> getTenantRuntime();
 }
