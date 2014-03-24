@@ -20,6 +20,12 @@ package org.wso2.carbon.kernel.tenant;
 
 import java.util.*;
 
+/**
+ * Abstract implementation of the TenantContainer interface. This class provide generic implementations of the methods.
+ *
+ * @see TenantContainer
+ * @since 5.0.0
+ */
 public class TenantContainerBase implements TenantContainer {
 
     private String id;

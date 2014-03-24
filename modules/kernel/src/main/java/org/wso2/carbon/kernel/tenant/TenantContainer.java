@@ -20,25 +20,85 @@ package org.wso2.carbon.kernel.tenant;
 
 import java.util.Map;
 
+/**
+ * TenantContainer is the entity which implements the hierarchical tenancy model.
+ * <p/>
+ * Tenant hierarchy is a tenant group with parent-child relationships. We can name the root nodes of each tenant
+ * hierarchy as top-level tenants or primary tenants. The parent of the top-level tenant can be null or can be
+ * the “Server”.
+ *
+ * @see Tenant
+ * @since 5.0.0
+ */
 public interface TenantContainer {
 
+    /**
+     * Returns the tenant identifier.
+     *
+     * @return the tenant id
+     */
     public String getID();
 
+    /**
+     * Returns the parent tenant of this tenant
+     *
+     * @return the parent tenant
+     */
     public TenantContainer getParent();
 
+    /**
+     * Returns child tenants of this tenant.
+     *
+     * @return a map of child tenants
+     */
     public Map<String, TenantContainer> getChildren();
 
+    /**
+     * Returns the allowed depth of the tenant hierarchy.
+     *
+     * @return the allowed depth of the tenant hierarchy
+     */
     public int getDepthOfHierarchy();
 
+    /**
+     * Sets the tenant ID.
+     *
+     * @param id the tenant id
+     */
     public void setID(String id);
 
+    /**
+     * Sets the parent tenant.
+     *
+     * @param parentTenant the parent tenant
+     */
     public void setParent(TenantContainer parentTenant);
 
+    /**
+     * Add a new child tenant
+     *
+     * @param childTenant the child tenant
+     */
     public void addChild(TenantContainer childTenant);
 
+    /**
+     * Remove the parent tenant
+     *
+     * @param parentTenant the parent tenant.
+     */
     public void unsetParent(TenantContainer parentTenant);
 
+    /**
+     * @param childTenant the tenant to be removed as a child.
+     *
+     * @return the removed child tenant
+     */
     public TenantContainer removeChild(TenantContainer childTenant);
 
+    /**
+     * Sets the allowed depth of tenant hierarchy.
+     *
+     * @param depthOfHierarchy the depth of the tenant hierarchy
+     */
     public void setDepthOfHierarchy(int depthOfHierarchy);
 }
