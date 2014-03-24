@@ -58,8 +58,8 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
 
     @Override
     public Tenant addTenant(String domain, String name, String description, String adminUsername,
-                            String adminUserEmailAddress, Map<String, String> props, String parentID,
-                            String[] childIDs, int depthOfHierarchy) throws Exception {
+                            String adminUserEmailAddress, Map<String, String> props, String parentTenantDomain,
+                            String[] childTenantDomains, int depthOfHierarchy) throws Exception {
 
         //TODO implement a pluggable mechanism for tenant implementations.
         Tenant tenant = new DefaultTenant();

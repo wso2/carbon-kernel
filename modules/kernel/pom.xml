@@ -30,7 +30,7 @@
     <artifactId>org.wso2.carbon.kernel</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon Kernel - Configuration and Context Model</name>
-    <description>This module includes the Carbon confiuration and context model, tenant model APIs.</description>
+    <description>This module includes the Carbon configuration and context model, tenant model APIs.</description>
     <url>http://wso2.org</url>
 
     <dependencies>
@@ -49,6 +49,17 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <show>public</show>
+                    <nohelp>true</nohelp>
+                    <excludePackageNames>org.wso2.carbon.kernel.internal:org.wso2.carbon.kernel.util
+                    </excludePackageNames>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
