@@ -33,7 +33,7 @@ import java.util.List;
  * send cluster messages to the cluster, or w set of cluster members in the cluster.
  * <p>
  * Any new clustering implementation that need to be plugged into carbon, should implement this and
- * register it as an OSGi service with the service level property (agentType) to uniquely identify
+ * register it as an OSGi service with the service level property (Agent) to uniquely identify
  * it at runtime.
  *
  * @since 5.0.0

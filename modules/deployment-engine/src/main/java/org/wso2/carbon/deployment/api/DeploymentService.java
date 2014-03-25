@@ -27,7 +27,8 @@ import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
  * This will be registered as an OSGI service so that users can reference this in their component.
  * <p>
  * If the given artifact type is not recognized at DeploymentEngine level or there is no deployer
- * associated with the give artifact type, then these API's will result in unknown artifact type error.
+ * associated with the give artifact type, then these API's will result in unknown artifact type
+ * error.
  *
  * @since 5.0.0
  */

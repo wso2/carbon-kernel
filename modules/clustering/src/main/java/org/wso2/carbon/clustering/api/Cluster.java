@@ -26,7 +26,9 @@ import org.wso2.carbon.clustering.exception.MessageFailedException;
 import java.util.List;
 
 /**
- * The Cluster API which is given an OSGi service to carbon platform.
+ * The Cluster API which is given an OSGi service to carbon platform. Users can lookup this and
+ * consume those services such as sending cluster message, getting the list of cluster members,
+ * etc.
  *
  * @since 5.0.0
  */

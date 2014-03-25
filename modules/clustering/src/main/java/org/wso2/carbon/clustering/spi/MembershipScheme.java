@@ -34,7 +34,7 @@ public interface MembershipScheme {
      * Initialize this membership scheme using the given cluster context instance
      *
      * @param clusterContext the cluster context to be used within the membership scheme
-     * @throws MembershipInitializationException If an error occurs while initializing
+     * @throws MembershipInitializationException on error while initializing membership scheme
      * @see ClusterContext
      */
     void init(ClusterContext clusterContext) throws MembershipInitializationException;
