@@ -56,7 +56,7 @@ public class CarbonTransportBundleActivator implements BundleActivator {
         Server server = new Server();
 
         String serverName = "carbon-server";
-        Dictionary serverProps = new Hashtable();
+        Dictionary<String, String> serverProps = new Hashtable<>();
         serverProps.put(OSGiServerConstants.MANAGED_JETTY_SERVER_NAME, serverName);
         serverProps.put(OSGiServerConstants.MANAGED_JETTY_XML_CONFIG_URLS,
                         "file:" + jettyHome + File.separator + "jetty.xml");
@@ -71,7 +71,7 @@ public class CarbonTransportBundleActivator implements BundleActivator {
         ServletContextHandler httpContext = new ServletContextHandler();
 
         httpContext.addServlet(holder, "/*");
-        Dictionary servletProps = new Hashtable();
+        Dictionary<String, String> servletProps = new Hashtable<>();
         servletProps.put(OSGiServerConstants.MANAGED_JETTY_SERVER_NAME, serverName);
 
         contextHandlerRegistration = bundleContext.

@@ -35,7 +35,7 @@ public class Activator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
 
         WebAppContext webapp = new WebAppContext();
-        Dictionary props = new Hashtable();
+        Dictionary<String, String> props = new Hashtable<>();
         props.put("Jetty-WarFolderPath", ".");
         props.put("managedServerName", "carbon-server");
         props.put("contextPath", "/bundle");
