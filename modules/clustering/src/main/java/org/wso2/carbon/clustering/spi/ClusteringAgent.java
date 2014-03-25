@@ -31,7 +31,7 @@ import java.util.List;
  * The ClusteringAgent which manages the cluster node in a cluster. This will basically do the
  * starting, joining and shutdown the node with cluster. It also provide the functionality to
  * send cluster messages to the cluster, or w set of cluster members in the cluster.
- *
+ * <p>
  * Any new clustering implementation that need to be plugged into carbon, should implement this and
  * register it as an OSGi service with the service level property (agentType) to uniquely identify
  * it at runtime.
@@ -40,6 +40,9 @@ public interface ClusteringAgent {
 
     /**
      * Initialize the agent which will initialize this node, and join the cluster
+     *
+     * @param clusterContext the cluster context to be used for initializing the cluster agent
+     * @throws ClusterInitializationException on error while initializing the cluster
      */
     void init(ClusterContext clusterContext) throws ClusterInitializationException;
 
@@ -50,11 +53,18 @@ public interface ClusteringAgent {
 
     /**
      * Send a message to all members in the cluster
+     *
+     * @param msg the cluster message to send
+     * @throws MessageFailedException on error while sending the message
      */
     void sendMessage(ClusterMessage msg) throws MessageFailedException;
 
     /**
      * Send a message to a set of specific members in the cluster
+     *
+     * @param msg the cluster message to send
+     * @param members the set of members to whom the cluster message should be sent
+     * @throws MessageFailedException on error while sending the message
      */
     void sendMessage(ClusterMessage msg, List<ClusterMember> members) throws MessageFailedException;
 }
