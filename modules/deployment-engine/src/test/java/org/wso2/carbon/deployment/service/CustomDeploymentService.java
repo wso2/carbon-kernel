@@ -48,7 +48,7 @@ public class CustomDeploymentService extends CarbonDeploymentService {
         }
         Artifact artifact = new Artifact(new File(artifactPath));
         artifact.setType(artifactType);
-        ArrayList artifactList = new ArrayList();
+        ArrayList<Artifact> artifactList = new ArrayList<>();
         artifactList.add(artifact);
         Deployer deployer = deploymentEngine.getDeployer(artifactType);
 

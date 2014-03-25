@@ -54,7 +54,7 @@ public class CustomDeployer implements Deployer {
                              File.separator + "carbon-repo" + File.separator + directory;
 
     public CustomDeployer() {
-        artifactType = new ArtifactType("txt");
+        artifactType = new ArtifactType<String>("txt");
         try {
             directoryLocation = new URL("file:text-files");
         } catch (MalformedURLException e) {

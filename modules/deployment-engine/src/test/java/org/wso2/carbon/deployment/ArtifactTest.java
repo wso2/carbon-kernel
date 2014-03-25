@@ -30,9 +30,9 @@ public class ArtifactTest extends BaseTest{
     private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private File file = new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
                          + File.separator + "sample1.txt");
-    private ArtifactType artifactType = new ArtifactType("txt");
+    private ArtifactType artifactType = new ArtifactType<String>("txt");
 
-    private HashMap properties = new HashMap();
+    private HashMap<String, Object> properties = new HashMap<>();
 
     private Artifact artifact;
     /**
