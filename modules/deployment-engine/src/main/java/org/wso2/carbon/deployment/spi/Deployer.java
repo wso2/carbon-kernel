@@ -27,10 +27,14 @@ import java.net.URL;
 
 /**
  * This interface is used to provide the custom deployment mechanism in carbon, where you
- * can write your own Deployer to process a particular artifact type.
+ * can write your own Deployer to process a particular {@link ArtifactType}
  * <p>
  * A developer who wants write a deployer to process an artifact in carbon and add it to a
- * runtime configuration, should implement this.
+ * runtime configuration, should implement this. The implementation should then be registered
+ * as an OSGi service using the Deployer interface for the DeploymentEngine to find and add
+ * to the configuration
+ *
+ * @since 5.0.0
  */
 
 public interface Deployer {
@@ -85,6 +89,7 @@ public interface Deployer {
      * Returns the type of the artifact that the deployer is capable of deploying
      *      Eg : webapp, dataservice
      * @return ArtifactType object which contains info about the artifact type
+     * @see ArtifactType
      */
     ArtifactType getArtifactType();
 

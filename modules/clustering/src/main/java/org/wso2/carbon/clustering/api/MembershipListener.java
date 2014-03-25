@@ -22,12 +22,15 @@ import org.wso2.carbon.clustering.MembershipEvent;
 
 /**
  * Listener which gets notified when membership changes occur
+ *
+ * @since 5.0.0
  */
 public interface MembershipListener {
     /**
      * When a new member is added this will be called
      *
      * @param event the event fired when a new member is added
+     * @see MembershipEvent
      */
     void memberAdded(MembershipEvent event);
 
@@ -35,6 +38,7 @@ public interface MembershipListener {
      * When a member is removed from cluster, this will be called
      *
      * @param event the event fired when a member is removed
+     * @see MembershipEvent
      */
     void memberRemoved(MembershipEvent event);
 }

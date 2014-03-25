@@ -35,6 +35,8 @@ import java.util.List;
  * Any new clustering implementation that need to be plugged into carbon, should implement this and
  * register it as an OSGi service with the service level property (agentType) to uniquely identify
  * it at runtime.
+ *
+ * @since 5.0.0
  */
 public interface ClusteringAgent {
 
@@ -43,6 +45,7 @@ public interface ClusteringAgent {
      *
      * @param clusterContext the cluster context to be used for initializing the cluster agent
      * @throws ClusterInitializationException on error while initializing the cluster
+     * @see ClusterContext
      */
     void init(ClusterContext clusterContext) throws ClusterInitializationException;
 
@@ -56,6 +59,7 @@ public interface ClusteringAgent {
      *
      * @param msg the cluster message to send
      * @throws MessageFailedException on error while sending the message
+     * @see ClusterMessage
      */
     void sendMessage(ClusterMessage msg) throws MessageFailedException;
 
@@ -65,6 +69,8 @@ public interface ClusteringAgent {
      * @param msg the cluster message to send
      * @param members the set of members to whom the cluster message should be sent
      * @throws MessageFailedException on error while sending the message
+     * @see ClusterMessage
+     * @see ClusterMember
      */
     void sendMessage(ClusterMessage msg, List<ClusterMember> members) throws MessageFailedException;
 }

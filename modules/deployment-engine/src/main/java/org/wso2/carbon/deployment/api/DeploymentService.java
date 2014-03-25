@@ -28,6 +28,8 @@ import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
  * <p>
  * If the given artifact type is not recognized at DeploymentEngine level or there is no deployer
  * associated with the give artifact type, then these API's will result in unknown artifact type error.
+ *
+ * @since 5.0.0
  */
 
 public interface DeploymentService {
@@ -40,6 +42,7 @@ public interface DeploymentService {
      * @param artifactType the type of the artifact going to be dpeloyed
      *                     Eg : webapp, dataservice, sequence
      * @throws CarbonDeploymentException - on error while trying deploy the given artifact info
+     * @see ArtifactType
      */
     void deploy(String artifactPath, ArtifactType artifactType) throws CarbonDeploymentException;
 
@@ -54,6 +57,7 @@ public interface DeploymentService {
      * @param artifactType the type of the artifact going to be dpeloyed
      *                     Eg : webapp, dataservice, sequence
      * @throws CarbonDeploymentException - on error while trying undeploy the given artifact info
+     * @see ArtifactType
      */
     void undeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException;
 
@@ -68,6 +72,7 @@ public interface DeploymentService {
      * @param artifactType the type of the artifact going to be dpeloyed
      *                     Eg : webapp, dataservice, sequence
      * @throws CarbonDeploymentException - on error while trying redeploy the given artifact info
+     * @see ArtifactType
      */
     void redeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException;
 }
