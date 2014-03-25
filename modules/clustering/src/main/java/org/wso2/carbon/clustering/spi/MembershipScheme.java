@@ -25,14 +25,17 @@ import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 /**
  * A representation of a membership scheme such as "multicast based" or "well-known address (WKA)
  * based" schemes. This is directly related to the membership discovery mechanism.
+ *
+ * @since 5.0.0
  */
 public interface MembershipScheme {
 
     /**
-     * Initialize this membership scheme
+     * Initialize this membership scheme using the given cluster context instance
      *
      * @param clusterContext the cluster context to be used within the membership scheme
-     * @throws MembershipInitializationException If an error occurs while initializing
+     * @throws MembershipInitializationException on error while initializing membership scheme
+     * @see ClusterContext
      */
     void init(ClusterContext clusterContext) throws MembershipInitializationException;
 

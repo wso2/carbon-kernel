@@ -26,7 +26,11 @@ import org.wso2.carbon.clustering.exception.MessageFailedException;
 import java.util.List;
 
 /**
- * The Cluster API which is given an OSGi service to carbon platform.
+ * The Cluster API which is given an OSGi service to carbon platform. Users can lookup this and
+ * consume those services such as sending cluster message, getting the list of cluster members,
+ * etc.
+ *
+ * @since 5.0.0
  */
 
 public interface Cluster {
@@ -35,6 +39,7 @@ public interface Cluster {
      *
      * @param clusterMessage the cluster message to be sent
      * @throws MessageFailedException on error
+     * @see ClusterMessage
      */
     void sendMessage(ClusterMessage clusterMessage) throws MessageFailedException;
 
@@ -44,6 +49,8 @@ public interface Cluster {
      * @param clusterMessage the cluster message to be sent
      * @param members        the list of members to send the cluster message
      * @throws MessageFailedException on error
+     * @see ClusterMessage
+     * @see ClusterMember
      */
     void sendMessage(ClusterMessage clusterMessage, List<ClusterMember> members)
             throws MessageFailedException;
@@ -52,6 +59,7 @@ public interface Cluster {
      * Return the list of currently available members in the cluster
      *
      * @return the member list
+     * @see ClusterMember
      */
     List<ClusterMember> getMembers();
 }
