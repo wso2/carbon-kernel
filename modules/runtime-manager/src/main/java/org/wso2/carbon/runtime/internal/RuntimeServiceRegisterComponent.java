@@ -29,6 +29,7 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.runtime.CarbonRuntimeService;
+import org.wso2.carbon.runtime.RuntimeManager;
 import org.wso2.carbon.runtime.api.RuntimeService;
 
 import java.util.ArrayList;
@@ -59,8 +60,12 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
 
     @Activate
     protected void activate(ComponentContext componentContext) {
-
         bundleContext = componentContext.getBundleContext();
+
+        logger.debug("Starting Carbon Runtime Manager");
+        RuntimeManager runtimeManager = new RuntimeManager();
+        // Add runtime manager to the data holder for later usages/references of this object
+        DataHolder.getInstance().setRuntimeManager(runtimeManager);
         try {
             populateRequiredServices();
 
