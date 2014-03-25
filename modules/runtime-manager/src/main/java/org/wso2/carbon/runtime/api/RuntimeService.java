@@ -24,35 +24,43 @@ import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 /**
  * User level API's for consuming RuntimeManager functionality.
  * This will be registered as an OSGI service so that users can reference this in their component.
+ * <p>
+ * The management aspect of the available Runtime's will be handled through this interface
+ * Carbon server will be responsible on maintaining the states of the Runtime's
+ * If any error occured during this process  {@link RuntimeServiceException} error will be thrown
+ *
+ * @since 5.0.0
  */
 
 public interface RuntimeService {
 
     /**
-     * Users can call this method to start all registered runtime
+     * Users can call this method to start all registered runtime on the Runtime Manager
      *
-     * @throws RuntimeServiceException - on error while starting registered runtime
+     * @throws RuntimeServiceException - on error while trying to starting registered runtime's
      */
     void startRuntimes() throws RuntimeServiceException;
 
     /**
-     * Users can call this method to stop all registered runtime
+     * Users can call this method to stop all registered runtime on the Runtime Manager
      *
-     * @throws RuntimeServiceException
+     * @throws RuntimeServiceException - on error while trying to stop registered runtime's
      */
     void stopRuntimes() throws RuntimeServiceException;
 
     /**
-     * Users can call this method to put all registered runtime into MAINTENANCE state
+     * Users can call this method to put the Carbon server on Maintenance Mode and this will affect
+     * all registered runtime into MAINTENANCE state
      *
-     * @throws RuntimeServiceException
+     * @throws RuntimeServiceException - on error while trying to start server Maintenance mode
      */
     void beginMaintenance() throws RuntimeServiceException;
 
     /**
-     * Users can call this method to put all registered runtime into INACTIVE state
+     * Users can call this method to put the Carbon server back in normal state and this will affect
+     * all registered runtime into INACTIVE state
      *
-     * @throws RuntimeServiceException
+     * @throws RuntimeServiceException - on error while trying to end server Maintenance mode
      */
     void endMaintenance() throws RuntimeServiceException;
 
