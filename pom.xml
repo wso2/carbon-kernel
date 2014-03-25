@@ -759,14 +759,22 @@
         <osgi.compendium.version>4.0.1</osgi.compendium.version>
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
         <equinox.osgi.services.import.version.range>[1.2.0, 1.3.0)</equinox.osgi.services.import.version.range>
+        <osgi.services.cm.import.version.range>[1.4.0, 1.5.0)</osgi.services.cm.import.version.range>
         <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
         </osgi.framework.packages.import.version.range>
         <osgi.service.tracker.import.version.range>[1.5.1, 1.6.0)
         </osgi.service.tracker.import.version.range>
         <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
         </osgi.framework.packages.import.version.range>
+
+        <osgi.service.http.import.version.range>[1.2.1, 1.3.0)</osgi.service.http.import.version.range>
+        <eclipse.equinox.http.servlet.import.version.range>[1.1.0, 1.2.0)</eclipse.equinox.http.servlet.import.version.range>
         <equinox.jetty.import.version.range>[8.1.0, 9.0.0)</equinox.jetty.import.version.range>
         <javax.servlet.import.version.range>[3.0.0, 3.1.0)</javax.servlet.import.version.range>
+
+        <!-- Hazelcast API version -->
+        <hazelcast.core.import.version.range>[3.0.1, 3.1.0)</hazelcast.core.import.version.range>
+        <hazelcast.config.import.version.range>[3.0.1, 3.1.0)</hazelcast.config.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
