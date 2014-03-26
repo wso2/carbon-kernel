@@ -121,10 +121,10 @@
             <artifactId>httpcore</artifactId>
             <version>${orbit.version.httpcore}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.ha.wso2</groupId>
-            <artifactId>tomcat-ha</artifactId>
-            <version>${orbit.version.tomcat}</version>
+         <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina-ha</artifactId>
+            <version>${version.tomcat}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.tomcat</groupId>

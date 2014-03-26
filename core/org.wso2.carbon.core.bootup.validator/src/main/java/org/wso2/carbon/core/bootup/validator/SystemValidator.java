@@ -234,7 +234,7 @@ public class SystemValidator extends ConfigurationValidator {
 
         if ((wso2CarbonCert != null) && getCertFingerprint(wso2CarbonCert).equalsIgnoreCase(certFingerprint)) {
             // this is the fault stage where the client use default wso2carbon keystore
-            msg = "The default keystore (wso2carbon.jks) is currently being used. To maximize security when deploying to a production environment, configure a new keystore with a unique password in the production server profile.";
+            msg = "Carbon is configured to use the default keystore (wso2carbon.jks). To maximize security when deploying to a production environment, configure a new keystore with a unique password in the production server profile.";
             isValid = false;
         } else {
             // wso2carbon keystore not present (client has modified the keystore)

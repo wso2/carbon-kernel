@@ -59,18 +59,15 @@
                             <bundles>    // TODO remove all hardcoded versions and use property comes from parent directory
 			        <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.servlet</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.helper</bundleDef>
-                                <bundleDef>org.eclipse.equinox:javax.servlet.jsp:${version.equinox.javax.servlet.jsp}</bundleDef>
-                                <bundleDef>org.glassfish.web.wso2:el-impl:${orbit.version.el.impl}</bundleDef>
+                                <bundleDef>org.apache.tomcat.wso2:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}</bundleDef>
 				<bundleDef>org.eclipse.equinox:javax.el:${version.equinox.javax.el}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.utils</bundleDef>
                                 <bundleDef>org.wso2.carbon:javax.cache.wso2</bundleDef>
-			       	<bundleDef>org.eclipse.equinox:javax.servlet:${version.equinox.javax.servlet}</bundleDef>
+			       	<bundleDef>org.apache.tomcat.wso2:tomcat-servlet-api:${orbit.version.tomcat.servlet.api}</bundleDef>
                                 <bundleDef>org.apache.tomcat.wso2:tomcat:${orbit.version.tomcat}</bundleDef>
-                                <bundleDef>org.apache.tomcat.ha.wso2:tomcat-ha:${orbit.version.tomcat}</bundleDef>
+                                <bundleDef>org.apache.tomcat.ha.wso2:tomcat-catalina-ha:${orbit.version.tomcat.ha}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.ext</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.patch</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.fragment.dummy</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.logging</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.securevault</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core.common</bundleDef>
@@ -136,9 +133,7 @@
                                 <bundleDef>com.sun.xml.bind.wso2:jaxb:2.2.5.wso2v1</bundleDef>
 		                <bundleDef>com.jezhumble.wso2:javasysmon:0.3.3.wso2v1</bundleDef>
                                 <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${jdbc-pool.version}</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.apache.jasper.glassfish:${version.equinox.jasper}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.apache.jasper.fragment:${project.version}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.jasper.patch:${project.version}</bundleDef>
+                                <bundleDef>org.eclipse.jdt.core.compiler:ecj:${version.eclipse.ecj}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.framework.exporter</bundleDef>
                             </bundles>
                         </configuration>

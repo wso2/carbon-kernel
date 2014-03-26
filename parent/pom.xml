@@ -414,9 +414,16 @@
         <version.sourceforge.ajaxtags>1.3.0.beta-rc7-wso2v1</version.sourceforge.ajaxtags>
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
-        <version.tomcat>7.0.34</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
+
+        <version.tomcat>7.0.52</version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v3</orbit.version.tomcat>
+        <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1</orbit.version.tomcat.servlet.api>
+        <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
+        <orbit.version.tomcat.ha>${version.tomcat}.wso2v1</orbit.version.tomcat.ha>
         <orbit.version.tribes>7.0.34.wso2v1</orbit.version.tribes>
+
+        <version.eclipse.ecj>4.3.1</version.eclipse.ecj>
+
         <orbit.version.hazelcast>3.0.1.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
@@ -751,6 +758,11 @@
                 <version>${version.sat4j.pb}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.eclipse.jdt.core.compiler</groupId>
+                <artifactId>ecj</artifactId>
+                <version>${version.eclipse.ecj}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
@@ -1157,7 +1169,7 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.tomcat.wso2</groupId>
                 <artifactId>tomcat</artifactId>
                 <version>${orbit.version.tomcat}</version>
             </dependency>
