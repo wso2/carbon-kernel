@@ -114,6 +114,14 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.extensions</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -158,9 +166,10 @@
                                 <bundleDef>org.eclipse.jetty:jetty-servlet</bundleDef>
                                 <bundleDef>org.eclipse.jetty:jetty-continuation</bundleDef>
                                 <bundleDef>org.eclipse.jetty.osgi:jetty-osgi-boot</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.servlet
-                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.servlet</bundleDef>
                                 <bundleDef>javax.servlet:javax.servlet-api</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.utils</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.extensions</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

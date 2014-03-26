@@ -22,6 +22,7 @@ package org.wso2.carbon.deployment;
 import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;
+import org.wso2.carbon.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +45,8 @@ public class CarbonDeploymentService implements DeploymentService {
         String destinationDirectory = carbonDeploymentEngine.getRepositoryDirectory() +
                                       File.separator + deployer.getLocation();
         try {
-            Utils.copyFileToDir(new File(artifactPath),
-                                new File(destinationDirectory));
+            FileUtils.copyFileToDir(new File(artifactPath),
+                                    new File(destinationDirectory));
         } catch (IOException e) {
             throw new CarbonDeploymentException("Error wile copying artifact", e);
         }
@@ -60,7 +61,7 @@ public class CarbonDeploymentService implements DeploymentService {
         Artifact deployedArtifact = carbonDeploymentEngine.getDeployedArtifact(artifactType,
                                                                                key);
         if (deployedArtifact != null) {
-            Utils.deleteDir(new File(deployedArtifact.getPath()));
+            FileUtils.deleteDir(new File(deployedArtifact.getPath()));
         } else {
             throw new CarbonDeploymentException("Cannot find artifact with key : " + key +
                                                 " to undeploy");

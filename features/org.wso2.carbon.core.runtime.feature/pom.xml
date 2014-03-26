@@ -122,10 +122,12 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.security</artifactId>
         </dependency>
+<!--
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.region</artifactId>
         </dependency>
+-->
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
@@ -238,7 +240,7 @@
                                 <bundleDef>org.eclipse.core:org.eclipse.core.expressions</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.jobs</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.runtime</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.region</bundleDef>
+                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.region</bundleDef>-->
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>

@@ -34,6 +34,8 @@
                 <module>modules/runtime-manager</module>
                 <module>modules/clustering</module>
                 <module>modules/transport</module>
+                <module>modules/utils</module>
+                <module>modules/extensions</module>
                 <module>features</module>
                 <module>distribution</module>
             </modules>
@@ -277,6 +279,16 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.extensions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi.api.version}</version>
@@ -431,11 +443,13 @@
                 <artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>
                 <version>${version.equinox.p2.repository.tools}</version>
             </dependency>
+<!--
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.region</artifactId>
                 <version>${version.equinox.region}</version>
             </dependency>
+-->
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.p2.repository</artifactId>
