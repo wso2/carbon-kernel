@@ -36,7 +36,7 @@ public class DeploymentEngineTest extends BaseTest {
     private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private DeploymentEngine deploymentEngine;
     private CustomDeployer customDeployer;
-    private ArrayList artifactsList;
+    private ArrayList<Artifact> artifactsList;
     private RepositoryScanner repositoryScanner;
 
     /**
@@ -50,10 +50,10 @@ public class DeploymentEngineTest extends BaseTest {
     @BeforeTest
     public void setup() throws CarbonDeploymentException {
         customDeployer = new CustomDeployer();
-        artifactsList = new ArrayList();
+        artifactsList = new ArrayList<>();
         Artifact artifact = new Artifact(new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
                                          + File.separator + "sample1.txt"));
-        artifact.setType(new ArtifactType("txt"));
+        artifact.setType(new ArtifactType<String>("txt"));
         artifactsList.add(artifact);
     }
 

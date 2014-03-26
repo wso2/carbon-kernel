@@ -23,7 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
+import org.wso2.carbon.launcher.test.LoggingHandlers.CommonsLogHandler;
 import org.wso2.carbon.launcher.test.LoggingHandlers.JavaUtilLogHandler;
+import org.wso2.carbon.launcher.test.LoggingHandlers.SLF4jLogHandler;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -33,21 +35,39 @@ public class ConsoleLoggerTest {
 
 
     private Logger logger;
-    JavaUtilLogHandler logHandler;
 
-        @BeforeSuite
-        public void doBeforeEachTest() {
-            logger = BootstrapLogger.getBootstrapLogger();
-            logHandler = new JavaUtilLogHandler();
-            logger.addHandler(logHandler);
-        }
+    JavaUtilLogHandler javaUtilLogHandler;
+    CommonsLogHandler commonsLogHandler;
+    SLF4jLogHandler slf4jLogHandler;
 
-        @Test
-        public void testLog4JAppend() {
-            String sampleMessage = "Sample message-01";
-            LogRecord record = new LogRecord(Level.INFO, sampleMessage);
-            logHandler.publish(record);
-            Assert.assertEquals(logHandler.getLogList().get(0).getMessage(), sampleMessage);
-        }
+    @BeforeSuite
+    public void doBeforeEachTest() {
+        javaUtilLogHandler = new JavaUtilLogHandler();
+        commonsLogHandler = new CommonsLogHandler();
+        slf4jLogHandler = new SLF4jLogHandler();
+    }
 
+    @Test
+    public void testJavaUtilLogs() {
+        logger = BootstrapLogger.getBootstrapLogger();
+        logger.addHandler(javaUtilLogHandler);
+        String sampleMessage = "Sample javaUtilLog message-01";
+        LogRecord record = new LogRecord(Level.INFO, sampleMessage);
+        javaUtilLogHandler.publish(record);
+        Assert.assertEquals(javaUtilLogHandler.getLogList().get(0).getMessage(), sampleMessage);
+    }
+
+    @Test
+    public void testCommonsLogs() {
+        String sampleMessage = "Sample commonsLog message-01";
+        commonsLogHandler.info(sampleMessage);
+        Assert.assertEquals(commonsLogHandler.getLogList().get(0), sampleMessage);
+    }
+
+    @Test
+    public void testSLF4jLogs() {
+        String sampleMessage = "Sample SLF4jLog message-01";
+        slf4jLogHandler.info(sampleMessage);
+        Assert.assertEquals(slf4jLogHandler.getLogList().get(0), sampleMessage);
+    }
 }

@@ -31,6 +31,7 @@ public class ConfigAdminServiceTracker extends ServiceTracker {
     private static final Logger logger = LoggerFactory.getLogger(ConfigAdminServiceTracker.class);
     private LoggingConfiguration loggingConfiguration;
 
+    @SuppressWarnings("unchecked")
     ConfigAdminServiceTracker(BundleContext bundleContext, LoggingConfiguration configuration) {
         super(bundleContext, CONFIG_ADMIN_SERVICE_NAME, null);
         loggingConfiguration = configuration;
@@ -38,7 +39,7 @@ public class ConfigAdminServiceTracker extends ServiceTracker {
 
     @Override
     public final Object addingService(ServiceReference serviceReference) {
-        ConfigurationAdmin service = (ConfigurationAdmin) super.addingService(serviceReference);
+        @SuppressWarnings("unchecked") ConfigurationAdmin service = (ConfigurationAdmin) super.addingService(serviceReference);
         loggingConfiguration.setConfigurationAdminService(service);
 
         try {

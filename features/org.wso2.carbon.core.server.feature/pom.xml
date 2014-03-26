@@ -37,17 +37,90 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.deployment</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.base</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.samples.helloworld</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.wso2.carbon.runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.kernel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.clustering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast.wso2</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.osgi</groupId>
+            <artifactId>jetty-osgi-boot</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-deploy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-continuation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.http.servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.extensions</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -55,7 +128,6 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -84,8 +156,25 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.deployment</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.runtime</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.samples.helloworld
-                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.kernel</bundleDef>
+                                <bundleDef>com.hazelcast.wso2:hazelcast</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.clustering</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.transport</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-server</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-http</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-util</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-io</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-deploy</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-webapp</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-security</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-xml</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-servlet</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-continuation</bundleDef>
+                                <bundleDef>org.eclipse.jetty.osgi:jetty-osgi-boot</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.servlet</bundleDef>
+                                <bundleDef>javax.servlet:javax.servlet-api</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.utils</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.extensions</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

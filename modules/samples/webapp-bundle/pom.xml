@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon</artifactId>
+        <version>5.0.0-SNAPSHOT</version>
+        <relativePath>../../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>org.wso2.carbon.samples.webapp</artifactId>
+    <version>5.0.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon Kernel - Samples / Webapp Bundle</name>
+    <description>Sample Webapp Bundle</description>
+    <url>http://wso2.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Activator>
+                            org.wso2.carbon.samples.webapp.internal.Activator
+                        </Bundle-Activator>
+                        <Private-Package>
+                            org.wso2.carbon.samples.webapp.internal
+                        </Private-Package>
+                        <Export-Package>
+                            !org.wso2.carbon.samples.webapp.internal,
+                            org.wso2.carbon.samples.webapp.*;version="${carbon.kernel.package.export.version}",
+                        </Export-Package>
+                        <Import-Package>
+                            org.osgi.*;version="${osgi.framework.import.version.range}",
+                            org.slf4j.*;version="${slf4j.logging.import.version.range}",
+                            org.eclipse.jetty.server.*;version="${equinox.jetty.import.version.range}",
+                            org.eclipse.jetty.webapp.*;version="${equinox.jetty.import.version.range}",
+                            javax.servlet.*;version="${javax.servlet.import.version.range}"
+                        </Import-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+
+</project>

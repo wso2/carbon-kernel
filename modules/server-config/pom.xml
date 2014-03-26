@@ -51,10 +51,20 @@
             <artifactId>testng</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <classifier>runtime</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -73,8 +83,8 @@
                         <Import-Package>
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
                             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
-                            org.osgi.service.cm.*; version="[1.4.0, 1.5.0)",
-                            org.osgi.util.tracker; version="[1.5.1, 1.6.0)",
+                            org.osgi.util.tracker; version="${osgi.service.tracker.import.version.range}",
+                            org.osgi.service.cm.*; version="${osgi.services.cm.import.version.range}",
                             javax.xml.parsers.*;version="${osgi.framework.packages.import.version.range}",
                             org.w3c.dom.*;version="${osgi.framework.packages.import.version.range}",
                             org.xml.sax.*;version="${osgi.framework.packages.import.version.range}"

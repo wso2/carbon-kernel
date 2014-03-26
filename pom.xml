@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
     <version>5.0.0-SNAPSHOT</version>
     <name>WSO2 Carbon Kernel - Parent Pom</name>
-    <description>WSO2 Carbon Platform with all its dependents, components, features and products
+    <description>WSO2 Carbon Kernel with all its dependents, components, features
     </description>
     <url>http://wso2.org</url>
 
@@ -26,10 +26,16 @@
             <modules>
                 <module>dependencies</module>
                 <module>modules/launcher</module>
+                <module>modules/kernel</module>
                 <module>modules/server-config</module>
                 <module>modules/deployment-engine</module>
                 <module>modules/samples/hello-world-bundle</module>
+                <module>modules/samples/webapp-bundle</module>
                 <module>modules/runtime-manager</module>
+                <module>modules/clustering</module>
+                <module>modules/transport</module>
+                <module>modules/utils</module>
+                <module>modules/extensions</module>
                 <module>features</module>
                 <module>distribution</module>
             </modules>
@@ -116,9 +122,51 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${version.jacoco}</version>
+                    <executions>
+                        <execution>
+                            <id>default-instrument</id>
+                            <goals>
+                                <goal>instrument</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-restore-instrumented-classes</id>
+                            <goals>
+                                <goal>restore-instrumented-classes</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-report</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>default-check</id>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven.surefireplugin.version}</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+                        </systemPropertyVariables>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -200,6 +248,46 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.kernel</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.base</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.deployment</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.runtime</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.clustering</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.transport</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.extensions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
@@ -355,6 +443,13 @@
                 <artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>
                 <version>${version.equinox.p2.repository.tools}</version>
             </dependency>
+<!--
+            <dependency>
+                <groupId>org.eclipse.equinox</groupId>
+                <artifactId>org.eclipse.equinox.region</artifactId>
+                <version>${version.equinox.region}</version>
+            </dependency>
+-->
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.p2.repository</artifactId>
@@ -590,6 +685,77 @@
                 <artifactId>plexus-utils</artifactId>
                 <version>${version.plexus.utils}</version>
             </dependency>
+            <dependency>
+                <groupId>com.hazelcast.wso2</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>${orbit.hazelcast.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <classifier>runtime</classifier>
+                <version>${version.jacoco}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-http</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-io</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-deploy</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-security</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-xml</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-continuation</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.osgi</groupId>
+                <artifactId>jetty-osgi-boot</artifactId>
+                <version>${version.jetty.server}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${version.javax.servlet.api}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -605,15 +771,29 @@
 
         <!--Logging API version range-->
         <commons.logging.import.version.range>[1.1.1, 1.2.0)</commons.logging.import.version.range>
-        <slf4j.logging.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.import.version.range>
+        <slf4j.logging.import.version.range>[1.7.1, 1.8.0)</slf4j.logging.import.version.range>
 
         <!-- OSGi API version -->
         <osgi.api.version>5.0.0</osgi.api.version>
         <osgi.compendium.version>4.0.1</osgi.compendium.version>
         <osgi.framework.import.version.range>[1.7.0, 1.8.0)</osgi.framework.import.version.range>
         <equinox.osgi.services.import.version.range>[1.2.0, 1.3.0)</equinox.osgi.services.import.version.range>
+        <osgi.services.cm.import.version.range>[1.4.0, 1.5.0)</osgi.services.cm.import.version.range>
         <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
         </osgi.framework.packages.import.version.range>
+        <osgi.service.tracker.import.version.range>[1.5.1, 1.6.0)
+        </osgi.service.tracker.import.version.range>
+        <osgi.framework.packages.import.version.range>[0.0.0, 0.1.0)
+        </osgi.framework.packages.import.version.range>
+
+        <osgi.service.http.import.version.range>[1.2.1, 1.3.0)</osgi.service.http.import.version.range>
+        <eclipse.equinox.http.servlet.import.version.range>[1.1.0, 1.2.0)</eclipse.equinox.http.servlet.import.version.range>
+        <equinox.jetty.import.version.range>[8.1.0, 9.0.0)</equinox.jetty.import.version.range>
+        <javax.servlet.import.version.range>[3.0.0, 3.1.0)</javax.servlet.import.version.range>
+
+        <!-- Hazelcast API version -->
+        <hazelcast.core.import.version.range>[3.0.1, 3.1.0)</hazelcast.core.import.version.range>
+        <hazelcast.config.import.version.range>[3.0.1, 3.1.0)</hazelcast.config.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
@@ -666,6 +846,7 @@
         <version.equinox.preferences>3.5.100.v20130422-1538</version.equinox.preferences>
         <version.equinox.registry>3.5.301.v20130717-1549</version.equinox.registry>
         <version.equinox.security>1.2.0.v20130424-1801</version.equinox.security>
+        <version.equinox.region>1.1.101.v20130722-1314</version.equinox.region>
         <version.equinox.simpleconfigurator.manipulator>2.0.0.v20130327-2119
         </version.equinox.simpleconfigurator.manipulator>
         <version.equinox.core.contenttype>3.4.200.v20130326-1255</version.equinox.core.contenttype>
@@ -696,8 +877,8 @@
         </version.ecf.provider.filetransfer.httpclient>
 
         <!--PAX Logging related dependency versions-->
-        <version.pax.logging.api>1.7.1</version.pax.logging.api>
-        <version.pax.logging.services>1.7.1</version.pax.logging.services>
+        <version.pax.logging.api>1.7.2</version.pax.logging.api>
+        <version.pax.logging.services>1.7.2</version.pax.logging.services>
         <version.org.eclipse.equinox.cm>3.2.0-v20070116</version.org.eclipse.equinox.cm>
 
         <!--Maven Plugins -->
@@ -729,5 +910,9 @@
         <version.maven.compat>3.0</version.maven.compat>
         <version.plexus.utils>3.0.17</version.plexus.utils>
         <version.plexus.archiver>1.2</version.plexus.archiver>
+        <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
+        <version.jacoco>0.6.4.201312101107</version.jacoco>
+        <version.jetty.server>8.1.10.v20130312</version.jetty.server>
+        <version.javax.servlet.api>3.0.1</version.javax.servlet.api>
     </properties>
 </project>

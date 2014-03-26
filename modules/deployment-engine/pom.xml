@@ -32,8 +32,11 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.base</artifactId>
-            <version>${project.version}</version>
+            <artifactId>org.wso2.carbon.kernel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -48,6 +51,12 @@
             <artifactId>testng</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <classifier>runtime</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -57,6 +66,10 @@
                 <artifactId>maven-scr-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
@@ -64,9 +77,6 @@
                     <instructions>
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Activator>
-                            org.wso2.carbon.deployment.internal.DeploymentEngineActivator
-                        </Bundle-Activator>
                         <Private-Package>
                             org.wso2.carbon.deployment.internal
                         </Private-Package>
@@ -76,7 +86,8 @@
                         </Export-Package>
                         <Import-Package>
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
-                            org.wso2.carbon.base.*;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.kernel.*;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.utils.*;version="${carbon.kernel.package.import.version.range}",
                             org.osgi.framework.*;version="${osgi.framework.import.version.range}"
                         </Import-Package>
                     </instructions>

@@ -39,22 +39,22 @@ public class RepositoryScanner {
     /**
      * A list which holds the artifacts to be deployed
      */
-    private ArrayList artifactsToDeploy = new ArrayList();
+    private ArrayList<Artifact> artifactsToDeploy = new ArrayList<>();
 
     /**
      * A list which holds the artifact to be undeployed
      */
-    private ArrayList artifactsToUndeploy = new ArrayList();
+    private ArrayList<Artifact> artifactsToUndeploy = new ArrayList<>();
 
     /**
      * A list which holds the artifact to be updated
      */
-    private ArrayList artifactsToUpdate = new ArrayList();
+    private ArrayList<Artifact> artifactsToUpdate = new ArrayList<>();
 
     /**
      * A list to hold the path of the artifacts to be deployed
      */
-    private List artifactFilePathList = new ArrayList();
+    private List<String> artifactFilePathList = new ArrayList<>();
 
 
     private final DeploymentEngine carbonDeploymentEngine;
