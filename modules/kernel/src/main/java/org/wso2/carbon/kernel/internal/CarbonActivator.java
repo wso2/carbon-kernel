@@ -2,10 +2,11 @@ package org.wso2.carbon.kernel.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.kernel.CarbonConfigProvider;
+import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.config.XMLBasedConfigProvider;
-import org.wso2.carbon.kernel.context.CarbonRuntimeFactory;
+import org.wso2.carbon.kernel.internal.config.XMLBasedConfigProvider;
+import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
+
 
 public class CarbonActivator implements BundleActivator {
 

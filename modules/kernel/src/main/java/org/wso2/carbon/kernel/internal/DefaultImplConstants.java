@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2013, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -16,14 +16,13 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.kernel.internal;
 
-public interface LifeCycle {
+/**
+ * This class contains constants required for the default kernel API implementation.
+ * TODO find a better name for this.
+ */
+public class DefaultImplConstants {
 
-    public void init();
-    public void start();
-    public void stop();
-    public void destroy();
-    public void beginMaintenance();
-    public void endMaintenance();
+    public static final String TENANT_STORE_XML = "tenant-store.xml";
 }

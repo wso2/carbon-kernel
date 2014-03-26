@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-  ~ Copyright 2005-2011 WSO2, Inc. (http://wso2.com)
+  ~ Copyright 2005-2014 WSO2, Inc. (http://wso2.com)
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,21 +24,11 @@
 -->
 <Server xmlns="http://wso2.org/carbon/xmlns/v5.0.0">
 
-    <!--
-       machine readable unique key to identify each product
-    -->
-    <Id>${product.key}</Id>
+    <Id>${server.key}</Id>
 
-    <!--
-       Product Name
-    -->
-    <Name>${product.name}</Name>
+    <Name>${server.name}</Name>
 
-    <!--
-       Product Version
-    -->
-    <Version>${product.version}</Version>
-
+    <Version>${server.version}</Version>
 
     <!--
        Ports used by this server
@@ -72,10 +62,13 @@
 
         <!--
          Deployment update interval in seconds. This is the interval between repository listener
-         executions. 
+         executions.
         -->
         <UpdateInterval>15</UpdateInterval>
 
     </Deployment>
+
+
+
 
 </Server>

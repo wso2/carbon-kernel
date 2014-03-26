@@ -16,19 +16,34 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.context;
+package org.wso2.carbon.kernel.internal.context;
 
 import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
+import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.tenant.Tenant;
+import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
-public class DefaultCarbonRuntime implements CarbonRuntime {
+public class DefaultCarbonRuntime implements PrivilegedCarbonRuntime {
     private CarbonConfiguration carbonConfiguration;
-
-    public DefaultCarbonRuntime(CarbonConfiguration carbonConfiguration){
-        this.carbonConfiguration = carbonConfiguration;
-    }
+    private TenantRuntime<Tenant> tenantRuntime;
 
     public CarbonConfiguration getConfiguration() {
         return carbonConfiguration;
+    }
+
+    @Override
+    public TenantRuntime<Tenant> getTenantRuntime() {
+        return tenantRuntime;
+    }
+
+    @Override
+    public void setCarbonConfiguration(CarbonConfiguration carbonConfiguration) {
+        this.carbonConfiguration = carbonConfiguration;
+    }
+
+    @Override
+    public void setTenantRuntime(TenantRuntime<Tenant> tenantRuntime) {
+        this.tenantRuntime = tenantRuntime;
     }
 }

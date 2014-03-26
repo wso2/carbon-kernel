@@ -16,13 +16,25 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.kernel.config;
 
 
-import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.internal.config.model.CarbonConfiguration;
 
+/**
+ * CarbonConfigProvider allows CarbonRuntime implementations to retrieve a CarbonConfiguration instance.
+ * CarbonConfiguration can be populated from different sources. For an example, from a file or from a URL. This class
+ * provides a way abstract out the different sources and provide a generic interface to the CarbonRuntime implementers.
+ *
+ * @since 5.0.0
+ */
 public interface CarbonConfigProvider {
 
+    /**
+     * Returns a populated CarbonConfiguration instance
+     *
+     * @return a instance of the CarbonConfiguration
+     */
     public CarbonConfiguration getCarbonConfiguration();
 
 }

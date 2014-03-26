@@ -16,10 +16,15 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.config.model;
+package org.wso2.carbon.kernel.internal.config.model;
 
 import javax.xml.bind.annotation.*;
 
+/**
+ *  CarbonConfiguration class holds static configuration parameters specified in the carbon.xml file.
+ *
+ *  @since 5.0.0
+ */
 @XmlRootElement(name = "Server")
 public class CarbonConfiguration {
 

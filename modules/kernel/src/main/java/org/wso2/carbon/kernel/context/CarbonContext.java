@@ -16,20 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.config.model;
+package org.wso2.carbon.kernel.context;
 
-import javax.xml.bind.annotation.XmlEnum;
-
-@XmlEnum
-public enum DeploymentModeEnum {
-    triggered,
-    scheduled;
-
-    public String value() {
-        return name();
-    }
-
-    public static DeploymentModeEnum fromValue(String v) {
-        return valueOf(v);
-    }
+public class CarbonContext {
 }

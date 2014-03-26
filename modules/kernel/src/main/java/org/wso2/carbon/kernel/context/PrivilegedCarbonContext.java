@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.kernel.context;
 
-public interface Tenant {
+public class PrivilegedCarbonContext {
 }
