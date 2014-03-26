@@ -39,12 +39,10 @@
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package>
-                            !org.wso2.carbon.utils.internal,
                             org.wso2.carbon.utils.*;version="${carbon.kernel.package.export.version}"
                         </Export-Package>
                         <Import-Package>
-                            org.slf4j.*;version="${slf4j.logging.import.version.range}",
-                            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+                            org.slf4j.*;version="${slf4j.logging.import.version.range}"
                         </Import-Package>
                     </instructions>
                 </configuration>

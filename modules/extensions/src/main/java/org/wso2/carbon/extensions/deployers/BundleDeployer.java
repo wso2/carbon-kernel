@@ -34,7 +34,7 @@ public class BundleDeployer implements Deployer {
 
     @Override
     public void init() {
-        artifactType = new ArtifactType(Bundle.class);
+        artifactType = new ArtifactType<Class>(Bundle.class);
         try {
             deploymentLocation = new URL("file:bundles");
         } catch (MalformedURLException e) {
