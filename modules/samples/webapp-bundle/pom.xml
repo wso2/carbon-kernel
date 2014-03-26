@@ -66,8 +66,7 @@
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
                             org.eclipse.jetty.server.*;version="${equinox.jetty.import.version.range}",
                             org.eclipse.jetty.webapp.*;version="${equinox.jetty.import.version.range}",
-                            javax.servlet.*;version="${javax.servlet.import.version.range}",
-                            javax.servlet.http.*;version="${javax.servlet.import.version.range}",
+                            javax.servlet.*;version="${javax.servlet.import.version.range}"
                         </Import-Package>
                     </instructions>
                 </configuration>
