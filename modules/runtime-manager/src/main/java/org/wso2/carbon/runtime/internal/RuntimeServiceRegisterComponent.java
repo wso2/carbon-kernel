@@ -19,8 +19,6 @@
 
 package org.wso2.carbon.runtime.internal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -28,8 +26,7 @@ import org.osgi.framework.*;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.runtime.CarbonRuntimeService;
-import org.wso2.carbon.runtime.RuntimeManager;
+import org.wso2.carbon.runtime.internal.RuntimeManager;
 import org.wso2.carbon.runtime.api.RuntimeService;
 
 import java.util.ArrayList;

@@ -23,6 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.runtime.exception.RuntimeServiceException;
+import org.wso2.carbon.runtime.internal.RuntimeManager;
 import org.wso2.carbon.runtime.runtime.CustomRuntime;
 import org.wso2.carbon.runtime.spi.*;
 import org.wso2.carbon.runtime.spi.Runtime;

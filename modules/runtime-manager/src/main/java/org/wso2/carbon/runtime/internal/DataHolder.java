@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.runtime.internal;
 
-import org.wso2.carbon.runtime.RuntimeManager;
+import org.wso2.carbon.runtime.internal.RuntimeManager;
 
 /**
  * DataHolder class of RuntimeManger

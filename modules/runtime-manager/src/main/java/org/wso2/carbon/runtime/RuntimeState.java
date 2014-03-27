@@ -22,7 +22,6 @@ package org.wso2.carbon.runtime;
 /**
  * Enum class to be used for Runtime states
  */
-
 public enum RuntimeState {
 
     PENDING("PENDING"), ACTIVE("ACTIVE"), INACTIVE("INACTIVE"), MAINTENANCE("MAINTENANCE");
@@ -32,6 +31,4 @@ public enum RuntimeState {
     private RuntimeState(String state) {
         runtimeState = state;
     }
-
-
 }
