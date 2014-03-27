@@ -19,7 +19,6 @@
 
 package org.wso2.carbon.deployment.internal;
 
-import org.wso2.carbon.deployment.DeploymentEngine;
 import org.wso2.carbon.kernel.CarbonRuntime;
 
 public class OSGiServiceHolder {

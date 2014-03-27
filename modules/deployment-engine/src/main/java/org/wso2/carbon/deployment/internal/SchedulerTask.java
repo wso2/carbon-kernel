@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.deployment;
+package org.wso2.carbon.deployment.internal;
 
 /**
  * The Scheduler Task which gets called periodically by the executor service and

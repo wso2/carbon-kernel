@@ -17,10 +17,12 @@
  *
  */
 
-package org.wso2.carbon.deployment;
+package org.wso2.carbon.deployment.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.deployment.Artifact;
+import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.spi.Deployer;
 
 import java.io.File;

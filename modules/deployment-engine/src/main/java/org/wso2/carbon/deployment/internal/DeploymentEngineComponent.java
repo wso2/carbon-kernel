@@ -24,8 +24,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.deployment.DeploymentEngine;
-import org.wso2.carbon.deployment.CarbonDeploymentService;
 import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.deployment.spi.Deployer;
