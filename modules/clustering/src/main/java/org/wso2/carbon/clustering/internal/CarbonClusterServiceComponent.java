@@ -27,14 +27,11 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.CarbonCluster;
-import org.wso2.carbon.clustering.ClusterContext;
-import org.wso2.carbon.clustering.ClusterUtil;
+import org.wso2.carbon.clustering.internal.ClusterContext;
 import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.ClusterConfigFactory;
-import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.spi.ClusteringAgent;
 

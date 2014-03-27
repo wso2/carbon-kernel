@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+import org.wso2.carbon.clustering.internal.ClusterContext;
 import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
 
 import java.util.UUID;

@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.clustering.spi;
 
-import org.wso2.carbon.clustering.ClusterContext;
+import org.wso2.carbon.clustering.internal.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;

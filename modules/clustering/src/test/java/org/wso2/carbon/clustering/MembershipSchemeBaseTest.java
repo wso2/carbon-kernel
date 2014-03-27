@@ -23,9 +23,9 @@ import org.wso2.carbon.clustering.agent.CustomClusteringAgent;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
+import org.wso2.carbon.clustering.internal.CarbonCluster;
+import org.wso2.carbon.clustering.internal.ClusterContext;
 import org.wso2.carbon.clustering.internal.DataHolder;
-
-import java.util.List;
 
 
 public class MembershipSchemeBaseTest extends BaseTest{

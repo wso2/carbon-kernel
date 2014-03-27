@@ -25,7 +25,7 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.ClusterContext;
+import org.wso2.carbon.clustering.internal.ClusterContext;
 import org.wso2.carbon.clustering.api.MembershipListener;
 
 
