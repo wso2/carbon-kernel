@@ -22,12 +22,12 @@ package org.wso2.carbon.runtime.api;
 import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 
 /**
- * User level API's for consuming RuntimeManager functionality.
- * This will be registered as an OSGI service so that users can reference this in their component.
+ * User level APIs for consuming RuntimeManager functionality.
+ * This will be registered as an OSGi service so that users can reference this in their component.
  * <p>
- * The management aspect of the available Runtime's will be handled through this interface
- * Carbon server will be responsible on maintaining the states of the Runtime's
- * If any error occured during this process  {@link RuntimeServiceException} error will be thrown
+ * The management aspect of the available Runtimes will be handled through this interface
+ * Carbon server will be responsible on maintaining the states of the Runtimes
+ * If any error occurred during this process  {@link RuntimeServiceException} error will be thrown
  *
  * @since 5.0.0
  */
@@ -37,14 +37,14 @@ public interface RuntimeService {
     /**
      * Users can call this method to start all registered runtime on the Runtime Manager
      *
-     * @throws RuntimeServiceException - on error while trying to starting registered runtime's
+     * @throws RuntimeServiceException - on error while trying to starting registered runtimes
      */
     void startRuntimes() throws RuntimeServiceException;
 
     /**
      * Users can call this method to stop all registered runtime on the Runtime Manager
      *
-     * @throws RuntimeServiceException - on error while trying to stop registered runtime's
+     * @throws RuntimeServiceException - on error while trying to stop registered runtimes
      */
     void stopRuntimes() throws RuntimeServiceException;
 
