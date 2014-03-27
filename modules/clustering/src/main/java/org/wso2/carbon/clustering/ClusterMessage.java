@@ -47,7 +47,7 @@ public abstract class ClusterMessage implements Serializable {
 
     /**
      * Returns the uuid of this cluster message
-     * @return
+     * @return uuid
      */
     public String getUuid() {
         return uuid;
