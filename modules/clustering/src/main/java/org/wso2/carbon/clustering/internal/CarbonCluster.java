@@ -16,8 +16,11 @@
  *  under the License.
  *
  */
-package org.wso2.carbon.clustering;
+package org.wso2.carbon.clustering.internal;
 
+import org.wso2.carbon.clustering.ClusterContext;
+import org.wso2.carbon.clustering.ClusterMember;
+import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.DataHolder;
