@@ -17,12 +17,15 @@
  *
  */
 
-package org.wso2.carbon.clustering;
+package org.wso2.carbon.clustering.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.ClusterMember;
+import org.wso2.carbon.clustering.MembershipEvent;
 import org.wso2.carbon.clustering.api.MembershipListener;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.internal.CarbonCluster;
 
 import java.util.ArrayList;
 import java.util.List;

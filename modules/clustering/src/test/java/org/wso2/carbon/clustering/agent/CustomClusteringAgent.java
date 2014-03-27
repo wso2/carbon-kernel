@@ -19,7 +19,7 @@
 
 package org.wso2.carbon.clustering.agent;
 
-import org.wso2.carbon.clustering.ClusterContext;
+import org.wso2.carbon.clustering.internal.ClusterContext;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastClusteringAgent;
 

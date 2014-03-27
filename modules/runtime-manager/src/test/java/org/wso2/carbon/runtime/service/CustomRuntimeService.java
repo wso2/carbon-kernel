@@ -19,10 +19,9 @@
 
 package org.wso2.carbon.runtime.service;
 
-import org.wso2.carbon.runtime.CarbonRuntimeService;
-import org.wso2.carbon.runtime.RuntimeManager;
+import org.wso2.carbon.runtime.internal.CarbonRuntimeService;
+import org.wso2.carbon.runtime.internal.RuntimeManager;
 import org.wso2.carbon.runtime.exception.RuntimeServiceException;
-import org.wso2.carbon.runtime.spi.Runtime;
 
 public class CustomRuntimeService extends CarbonRuntimeService {
 //    CarbonRuntimeService carbonRuntimeService;

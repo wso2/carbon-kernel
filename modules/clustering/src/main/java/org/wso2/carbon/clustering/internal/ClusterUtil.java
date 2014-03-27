@@ -16,10 +16,12 @@
  *  under the License.
  *
  */
-package org.wso2.carbon.clustering;
+package org.wso2.carbon.clustering.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.ClusterMember;
+import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.MembershipSchemeConfiguration;
 import org.wso2.carbon.clustering.config.membership.scheme.WKAMember;

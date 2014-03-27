@@ -21,8 +21,8 @@ package org.wso2.carbon.deployment.service;
 
 import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.ArtifactType;
-import org.wso2.carbon.deployment.CarbonDeploymentService;
-import org.wso2.carbon.deployment.DeploymentEngine;
+import org.wso2.carbon.deployment.internal.CarbonDeploymentService;
+import org.wso2.carbon.deployment.internal.DeploymentEngine;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;
 

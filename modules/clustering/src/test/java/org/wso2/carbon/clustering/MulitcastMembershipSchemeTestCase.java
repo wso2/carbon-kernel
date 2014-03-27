@@ -28,6 +28,8 @@ import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
+import org.wso2.carbon.clustering.internal.CarbonCluster;
+import org.wso2.carbon.clustering.internal.ClusterUtil;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
 import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
 

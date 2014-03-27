@@ -17,13 +17,14 @@
  *
  */
 
-package org.wso2.carbon.deployment;
+package org.wso2.carbon.deployment.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.deployment.Artifact;
+import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
-import org.wso2.carbon.deployment.internal.OSGiServiceHolder;
 import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.CarbonRuntime;

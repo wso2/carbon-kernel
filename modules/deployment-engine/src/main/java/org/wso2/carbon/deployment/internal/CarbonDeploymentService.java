@@ -17,8 +17,10 @@
  *
  */
 
-package org.wso2.carbon.deployment;
+package org.wso2.carbon.deployment.internal;
 
+import org.wso2.carbon.deployment.Artifact;
+import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;

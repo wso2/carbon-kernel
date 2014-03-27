@@ -17,7 +17,7 @@
  *
  */
 
-package org.wso2.carbon.runtime;
+package org.wso2.carbon.runtime.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
