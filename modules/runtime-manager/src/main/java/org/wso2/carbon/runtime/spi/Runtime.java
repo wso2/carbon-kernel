@@ -28,7 +28,7 @@ import org.wso2.carbon.runtime.exception.RuntimeServiceException;
  * <p/>
  * A developer who wants to integrate a custom runtime  with Carbon server should implement this.
  * The implementation should then be registered as an OSGi service using the Runtime interface for the
- * {@link RuntimeManger } to find and add it to the configuration
+ * to find and add it to the configuration
  * <p/>
  * The implementation of this interface can be different from one Runtime to another depending on its
  * requirements and behaviour.
