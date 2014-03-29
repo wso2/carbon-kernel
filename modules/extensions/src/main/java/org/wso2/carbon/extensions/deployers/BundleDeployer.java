@@ -18,11 +18,10 @@
 
 package org.wso2.carbon.extensions.deployers;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
@@ -37,12 +36,14 @@ import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * The bundle deployer instance
+ */
+
 @Component(
         name = "org.wso2.carbon.extensions.deployers.BundleDeployerServiceComponent",
-        description = "The bundle deployer instance",
         immediate = true
 )
-@Service
 public class BundleDeployer implements Deployer {
 
     private static final Logger logger = LoggerFactory.getLogger(BundleDeployer.class);

@@ -19,29 +19,23 @@
 
 package org.wso2.carbon.runtime.internal;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.runtime.internal.RuntimeManager;
 import org.wso2.carbon.runtime.spi.Runtime;
 
+/**
+ * This service  component is responsible for retrieving the Runtime OSGi
+ * service and register each runtime with runtime manager
+ */
 @Component(
         name = "org.wso2.carbon.runtime.internal.RuntimeServiceListenerComponent",
-        description = "This service  component is responsible for retrieving the Runtime OSGi " +
-                "service and register each runtime with runtime manager",
         immediate = true
 )
-@Reference(
-        name = "carbon.runtime.service",
-        referenceInterface = Runtime.class,
-        cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-        policy = ReferencePolicy.DYNAMIC,
-        bind = "registerRuntime",
-        unbind = "unRegisterRuntime"
-)
+
 
 public class RuntimeServiceListenerComponent {
     private static Logger logger = LoggerFactory.getLogger(RuntimeServiceListenerComponent.class);
@@ -52,6 +46,14 @@ public class RuntimeServiceListenerComponent {
      *
      * @param runtime - runtime instance
      */
+
+    @Reference(
+            name = "carbon.runtime.service",
+            service = Runtime.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unRegisterRuntime"
+    )
     protected void registerRuntime(Runtime runtime) {
         try {
             runtimeManager.registerRuntime(runtime);

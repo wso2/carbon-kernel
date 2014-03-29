@@ -19,11 +19,11 @@
 
 package org.wso2.carbon.transport.internal;
 
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.slf4j.Logger;
@@ -32,24 +32,19 @@ import org.wso2.carbon.transport.servlet.SampleServlet;
 
 import javax.servlet.ServletException;
 
+/**
+ * This service  component is responsible for retrieving the HttpService
+ * OSGi service and register servlets
+ */
+
 @Component(
         name = "org.wso2.carbon.transport.HttpServiceComponent",
-        description = "This service  component is responsible for retrieving the HttpService " +
-                      "OSGi service and register servlets",
         immediate = true
 )
 public class HttpServiceComponent {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpServiceComponent.class);
 
-    @Reference(
-            name = "http.service",
-            referenceInterface = HttpService.class,
-            cardinality = ReferenceCardinality.MANDATORY_UNARY,
-            policy = ReferencePolicy.STATIC,
-            bind = "setHttpService",
-            unbind = "unsetHttpService"
-    )
     private HttpService httpService;
 
     @Activate
@@ -65,6 +60,14 @@ public class HttpServiceComponent {
         }
     }
 
+
+    @Reference(
+            name = "http.service",
+            service = HttpService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.STATIC,
+            unbind = "unsetHttpService"
+    )
     protected void setHttpService(HttpService httpService) {
         this.httpService = httpService;
     }
