@@ -69,7 +69,6 @@ import java.util.concurrent.TimeUnit;
 @Component(
         name = "org.wso2.carbon.clustering.hazelcast.HazelCastClusteringAgentServiceComponent",
         immediate = true,
-        service = ClusteringAgent.class,
         property = "Agent=hazelcast"
 )
 public class HazelcastClusteringAgent implements ClusteringAgent {

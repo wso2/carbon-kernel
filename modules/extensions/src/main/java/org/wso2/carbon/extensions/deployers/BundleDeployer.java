@@ -42,7 +42,6 @@ import java.net.URL;
 
 @Component(
         name = "org.wso2.carbon.extensions.deployers.BundleDeployerServiceComponent",
-        service = Deployer.class,
         immediate = true
 )
 public class BundleDeployer implements Deployer {
