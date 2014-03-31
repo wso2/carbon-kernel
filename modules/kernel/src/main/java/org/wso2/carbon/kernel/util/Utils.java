@@ -56,6 +56,7 @@ public class Utils {
             if (sysPropValue == null || sysPropValue.length() == 0) {
                 throw new RuntimeException("System property " + sysPropKey + " cannot be null");
             }
+            sysPropValue = sysPropValue.replace("\\", "\\\\");   // Due to reported bug under CARBON-14746
             newValue = newValue.replaceFirst(VAR_REGEXP, sysPropValue);
         }
 
