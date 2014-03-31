@@ -18,11 +18,16 @@
 
 package org.wso2.carbon.kernel.internal.command;
 
-import org.apache.felix.scr.annotations.*;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
@@ -31,19 +36,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * This service component is responsible for registering the Carbon kernel command provider
+ */
+
 @Component(
         name = "org.wso2.carbon.kernel.internal.CommandProvider",
-        description = "This service component is responsible for registering the Carbon kernel command provider",
         immediate = true
 )
-@Reference(
-        name = "carbon.runtime.service",
-        referenceInterface = CarbonRuntime.class,
-        cardinality = ReferenceCardinality.MANDATORY_UNARY,
-        policy = ReferencePolicy.DYNAMIC,
-        bind = "setCarbonRuntime",
-        unbind = "unsetCarbonRuntime"
-)
+
 public class CarbonKernelCommandProvider implements CommandProvider {
 
     private CarbonRuntime carbonRuntime;
@@ -59,6 +60,13 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         serviceRegistration.unregister();
     }
 
+    @Reference(
+            name = "carbon.runtime.service",
+            service = CarbonRuntime.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetCarbonRuntime"
+    )
     public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = carbonRuntime;
     }

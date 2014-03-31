@@ -69,7 +69,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.annotations</artifactId>
+            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
         </dependency>
     </dependencies>
 

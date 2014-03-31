@@ -24,7 +24,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                                <module>dependencies</module>
+                <module>dependencies</module>
                 <module>modules/launcher</module>
                 <module>modules/kernel</module>
                 <module>modules/server-config</module>
@@ -87,16 +87,16 @@
                 <version>${maven.wagon.ssh.version}</version>
             </extension>
         </extensions>
-        <plugins>
-            <plugin>
-                <groupId>org.jvnet.maven.incrementalbuild</groupId>
-                <artifactId>incremental-build-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-scr-plugin</artifactId>
-            </plugin>
-        </plugins>
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>org.jvnet.maven.incrementalbuild</groupId>-->
+                <!--<artifactId>incremental-build-plugin</artifactId>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.felix</groupId>-->
+                <!--<artifactId>maven-scr-plugin</artifactId>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -587,8 +587,8 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.scr.annotations</artifactId>
-                <version>${apache.felix.scr.annotations.version}</version>
+                <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+                <version>${apache.felix.scr.ds-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -890,7 +890,7 @@
         <maven.compilerplugin.version>3.1</maven.compilerplugin.version>
         <maven.surefireplugin.version>2.12</maven.surefireplugin.version>
         <maven.resourcesplugin.version>2.5</maven.resourcesplugin.version>
-        <maven.scrplugin.version>1.9.0</maven.scrplugin.version>
+        <maven.scrplugin.version>1.16.0</maven.scrplugin.version>
         <maven.bundleplugin.version>2.3.5</maven.bundleplugin.version>
         <maven.assemblyplugin.version>2.4</maven.assemblyplugin.version>
         <maven.sourceplugin.version>2.1.2</maven.sourceplugin.version>
@@ -901,7 +901,7 @@
         <maven.incrementalbuildplugin.version>1.2</maven.incrementalbuildplugin.version>
 
         <!--Other dependency versions -->
-        <apache.felix.scr.annotations.version>1.9.6</apache.felix.scr.annotations.version>
+        <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
         <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>

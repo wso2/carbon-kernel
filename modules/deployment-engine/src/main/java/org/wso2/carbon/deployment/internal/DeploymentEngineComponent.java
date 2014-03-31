@@ -19,9 +19,14 @@
 
 package org.wso2.carbon.deployment.internal;
 
-import org.apache.felix.scr.annotations.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.api.DeploymentService;
@@ -33,31 +38,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The bundle activator which activates the carbon deployment engine
+ * This service component is responsible for initializing the DeploymentEnginene
  */
 @Component(
         name = "org.wso2.carbon.deployment.internal.DeploymentEngineComponent",
-        description = "This service component is responsible for initializing the DeploymentEngine",
         immediate = true
 )
-@Reference(
-        name = "carbon.deployer.service",
-        referenceInterface = Deployer.class,
-        cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-        policy = ReferencePolicy.DYNAMIC,
-        bind = "registerDeployer",
-        unbind = "unregisterDeployer"
-)
+
 public class DeploymentEngineComponent {
     private static Logger logger = LoggerFactory.getLogger(DeploymentEngineComponent.class);
-    @Reference(
-            name = "carbon.runtime.service",
-            referenceInterface = CarbonRuntime.class,
-            cardinality = ReferenceCardinality.MANDATORY_UNARY,
-            policy = ReferencePolicy.DYNAMIC,
-            bind = "setCarbonRuntime",
-            unbind = "unsetCarbonRuntime"
-    )
+
     private CarbonRuntime carbonRuntime;
     private DeploymentEngine deploymentEngine;
     private ServiceRegistration serviceRegistration;
@@ -109,6 +99,13 @@ public class DeploymentEngineComponent {
         serviceRegistration.unregister();
     }
 
+    @Reference(
+            name = "carbon.deployer.service",
+            service = Deployer.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterDeployer"
+    )
     protected void registerDeployer(Deployer deployer) {
         if (deploymentEngine != null) {
             try {
@@ -129,7 +126,13 @@ public class DeploymentEngineComponent {
         }
     }
 
-
+    @Reference(
+            name = "carbon.runtime.service",
+            service = CarbonRuntime.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetCarbonRuntime"
+    )
     public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = carbonRuntime;
         OSGiServiceHolder.getInstance().setCarbonRuntime(carbonRuntime);
