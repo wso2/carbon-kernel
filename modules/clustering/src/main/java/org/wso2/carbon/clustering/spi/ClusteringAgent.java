@@ -73,11 +73,4 @@ public interface ClusteringAgent {
      * @see ClusterMember
      */
     void sendMessage(ClusterMessage msg, List<ClusterMember> members) throws MessageFailedException;
-
-    /**
-     * Is this member the cluster coordinator?
-     *
-     * @return true if this member is the cluster coordinator, false otherwise
-     */
-    boolean isCoordinator();
 }

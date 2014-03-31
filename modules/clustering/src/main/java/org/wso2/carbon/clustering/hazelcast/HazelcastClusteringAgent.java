@@ -84,7 +84,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     // key - msg UUID, value - timestamp(msg received time)
     private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<>();
     private ClusterContext clusterContext;
-    private boolean isCoordinator;
 
     private String primaryDomain;
 
@@ -207,15 +206,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         ScheduledExecutorService msgCleanupScheduler = Executors.newScheduledThreadPool(1);
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
                                                    2, 2, TimeUnit.MINUTES);
-        // Try to acquire the coordinator lock for the cluster
-        new Thread("cluster-coordinator") {
-
-            @Override
-            public void run() {
-                hazelcastInstance.getLock("$$cluster#coordinator$#lock").lock(); // code will block here until lock is acquired
-                isCoordinator = true;
-            }
-        }.start();
         logger.info("Cluster initialization completed");
     }
 
@@ -327,11 +317,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         } catch (Exception e) {
             throw new MessageFailedException("Error while sending cluster message", e);
         }
-    }
-
-    @Override
-    public boolean isCoordinator(){
-        return isCoordinator;
     }
 
     /**
