@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.api.Cluster;
+import org.wso2.carbon.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.ClusterConfigFactory;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
@@ -46,8 +47,6 @@ import java.util.Map;
         name = "org.wso2.carbon.clustering.internal.CarbonClusterServiceComponent",
         immediate = true
 )
-
-
 public class CarbonClusterServiceComponent {
 
     private static Logger logger = LoggerFactory.getLogger(CarbonClusterServiceComponent.class);
@@ -101,6 +100,21 @@ public class CarbonClusterServiceComponent {
                 terminateCluster(clusteringAgent);
             }
         }
+    }
+
+    @Reference(
+            name = "carbon.clustering.coordinatedActivity.service.listener",
+            service = CoordinatedActivity.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetCoordinatedActivity"
+    )
+    protected void setCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
+        dataHolder.addCoordinatedActivity(coordinatedActivity);
+    }
+
+    protected void unsetCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
+        dataHolder.removedCoordinatedActivity(coordinatedActivity);
     }
 
     private void initializeCluster(ClusteringAgent clusteringAgent,

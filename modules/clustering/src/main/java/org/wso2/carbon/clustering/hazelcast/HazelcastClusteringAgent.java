@@ -31,6 +31,7 @@ import com.hazelcast.core.MessageListener;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.clustering.internal.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.internal.ClusterUtil;
@@ -214,6 +215,12 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
             public void run() {
                 hazelcastInstance.getLock("$$cluster#coordinator$#lock").lock(); // code will block here until lock is acquired
                 isCoordinator = true;
+                logger.info("Local member is the coordinator");
+                // Notify all OSGi services which are waiting for this member to become the coordinator
+                List<CoordinatedActivity> coordinatedActivities = DataHolder.getInstance().getCoordinatedActivities();
+                for (CoordinatedActivity coordinatedActivity : coordinatedActivities) {
+                    coordinatedActivity.execute();
+                }
             }
         }.start();
         logger.info("Cluster initialization completed");

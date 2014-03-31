@@ -20,7 +20,11 @@
 package org.wso2.carbon.clustering.internal;
 
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.clustering.internal.ClusterContext;
+import org.wso2.carbon.clustering.api.CoordinatedActivity;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class DataHolder {
     private BundleContext bundleContext;
@@ -28,6 +32,7 @@ public class DataHolder {
     private static DataHolder instance = new DataHolder();
     private CarbonCluster carbonCluster;
     private ClusterContext clusterContext;
+    private List<CoordinatedActivity> coordinatedActivities = new ArrayList<>();
 
     public  static DataHolder getInstance() {
         return instance;
@@ -55,5 +60,17 @@ public class DataHolder {
 
     public void setClusterContext(ClusterContext clusterContext) {
         this.clusterContext = clusterContext;
+    }
+
+    public void addCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
+        coordinatedActivities.add(coordinatedActivity);
+    }
+
+    public void removedCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
+        coordinatedActivities.remove(coordinatedActivity);
+    }
+
+    public List<CoordinatedActivity> getCoordinatedActivities() {
+        return Collections.unmodifiableList(coordinatedActivities);
     }
 }
