@@ -25,11 +25,13 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig;
+import org.wso2.carbon.clustering.coordinator.CustomCoordinatedActivity;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.internal.CarbonCluster;
 import org.wso2.carbon.clustering.internal.ClusterUtil;
+import org.wso2.carbon.clustering.internal.DataHolder;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
 import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
 
@@ -48,6 +50,16 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
           description = "test multicast scheme with two members")
     public void testMulticastMembershipScheme()
             throws ClusterInitializationException, ClusterConfigurationException {
+        DataHolder instance = DataHolder.getInstance();
+        CustomCoordinatedActivity coordinator1 = new CustomCoordinatedActivity("coordinator1");
+        instance.addCoordinatedActivity(coordinator1);
+        CustomCoordinatedActivity coordinator2 = new CustomCoordinatedActivity("coordinator2");
+        instance.addCoordinatedActivity(coordinator2);
+        CustomCoordinatedActivity coordinator3 = new CustomCoordinatedActivity("coordinator3");
+        Assert.assertFalse(coordinator1.isExecutionComplete());
+        Assert.assertFalse(coordinator2.isExecutionComplete());
+        Assert.assertFalse(coordinator3.isExecutionComplete());
+
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
         Assert.assertEquals(noOfMembers, 2);
@@ -64,6 +76,9 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
         Assert.assertEquals(multicastSchemeConfig.getPort(), 45564);
         Assert.assertEquals(multicastSchemeConfig.getTimeout(), 0);
         Assert.assertEquals(multicastSchemeConfig.getTtl(), 100);
+        junit.framework.Assert.assertTrue(coordinator1.isExecutionComplete());
+        junit.framework.Assert.assertTrue(coordinator2.isExecutionComplete());
+        junit.framework.Assert.assertFalse(coordinator3.isExecutionComplete());
 
     }
 
