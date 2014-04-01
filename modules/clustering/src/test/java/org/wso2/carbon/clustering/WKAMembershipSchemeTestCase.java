@@ -37,6 +37,8 @@ import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.testng.Assert.*;
+
 
 public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
 
@@ -50,19 +52,19 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
             throws ClusterInitializationException, ClusterConfigurationException {
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
-        Assert.assertEquals(noOfMembers, 2);
+        assertEquals(noOfMembers, 2);
 
         ClusterConfiguration clusterConfiguration = getClusterContext().getClusterConfiguration();
         Object membershipScheme = clusterConfiguration.
                 getMembershipSchemeConfiguration().getMembershipScheme();
-        Assert.assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
-                            membershipScheme.toString());
+        assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
+                membershipScheme.toString());
         WKASchemeConfig wkaSchemeConfig = (WKASchemeConfig) membershipScheme;
         List<WKAMember> wkaMembers = wkaSchemeConfig.getWkaMembers();
         List<ClusterMember> clusterMembers = ClusterUtil.getWellKnownMembers(clusterConfiguration);
 
         for (int i = 0; i < wkaMembers.size(); i++) {
-            Assert.assertTrue(clusterMembers.get(i).getHostName().
+            assertTrue(clusterMembers.get(i).getHostName().
                     equals(wkaMembers.get(i).getHost()));
         }
 
@@ -80,7 +82,7 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
         } catch (InterruptedException e) {
             //ignore
         }
-        Assert.assertEquals(clusterMessage.getExecutedMsg(), "WKAMessageExecuted");
+        assertEquals(clusterMessage.getExecutedMsg(), "WKAMessageExecuted");
     }
 
     @Test(groups = {"wso2.carbon.clustering"},
@@ -116,11 +118,11 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
             }
             // if still not delivered then fail the test
             if ("WKAMessageExecuted".equals(clusterMessage.getExecutedMsg())) {
-                Assert.fail("Message is not sent/executed with given time delay of 15 seconds");
+                fail("Message is not sent/executed with given time delay of 15 seconds");
             }
-            Assert.assertEquals(clusterMessage.getExecutedMsg(), "WKAMemberMessageExecuted");
+            assertEquals(clusterMessage.getExecutedMsg(), "WKAMemberMessageExecuted");
         } else {
-            Assert.fail("Members to send list is empty");
+            fail("Members to send list is empty");
         }
     }
 

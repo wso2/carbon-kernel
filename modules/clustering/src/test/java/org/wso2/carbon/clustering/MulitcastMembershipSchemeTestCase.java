@@ -38,6 +38,8 @@ import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.testng.Assert.*;
+
 
 public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest {
 
@@ -56,29 +58,29 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
         CustomCoordinatedActivity coordinator2 = new CustomCoordinatedActivity("coordinator2");
         instance.addCoordinatedActivity(coordinator2);
         CustomCoordinatedActivity coordinator3 = new CustomCoordinatedActivity("coordinator3");
-        Assert.assertFalse(coordinator1.isExecutionComplete());
-        Assert.assertFalse(coordinator2.isExecutionComplete());
-        Assert.assertFalse(coordinator3.isExecutionComplete());
+        assertFalse(coordinator1.isExecutionComplete());
+        assertFalse(coordinator2.isExecutionComplete());
+        assertFalse(coordinator3.isExecutionComplete());
 
         initializeMembershipScheme();
         int noOfMembers = getNoOfMembers();
-        Assert.assertEquals(noOfMembers, 2);
+        assertEquals(noOfMembers, 2);
 
         ClusterConfiguration clusterConfiguration = getClusterContext().getClusterConfiguration();
         Object membershipScheme = clusterConfiguration.
                 getMembershipSchemeConfiguration().getMembershipScheme();
-        Assert.assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
-                            membershipScheme.toString());
+        assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
+                membershipScheme.toString());
 
         MulticastSchemeConfig multicastSchemeConfig = (MulticastSchemeConfig) membershipScheme;
 
-        Assert.assertEquals(multicastSchemeConfig.getGroup(), "228.0.0.4");
-        Assert.assertEquals(multicastSchemeConfig.getPort(), 45564);
-        Assert.assertEquals(multicastSchemeConfig.getTimeout(), 0);
-        Assert.assertEquals(multicastSchemeConfig.getTtl(), 100);
-        junit.framework.Assert.assertTrue(coordinator1.isExecutionComplete());
-        junit.framework.Assert.assertTrue(coordinator2.isExecutionComplete());
-        junit.framework.Assert.assertFalse(coordinator3.isExecutionComplete());
+        assertEquals(multicastSchemeConfig.getGroup(), "228.0.0.4");
+        assertEquals(multicastSchemeConfig.getPort(), 45564);
+        assertEquals(multicastSchemeConfig.getTimeout(), 0);
+        assertEquals(multicastSchemeConfig.getTtl(), 100);
+        assertTrue(coordinator1.isExecutionComplete());
+        assertTrue(coordinator2.isExecutionComplete());
+        assertFalse(coordinator3.isExecutionComplete());
 
     }
 
@@ -94,7 +96,7 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
         } catch (InterruptedException e) {
             //ignore
         }
-        Assert.assertEquals(clusterMessage.getExecutedMsg(), "MulticastMessageExecuted");
+        assertEquals(clusterMessage.getExecutedMsg(), "MulticastMessageExecuted");
     }
 
     @Test(groups = {"wso2.carbon.clustering"},
@@ -130,11 +132,11 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
             }
             // if still not delivered then fail the test
             if ("MulticastMessageExecuted".equals(clusterMessage.getExecutedMsg())) {
-                Assert.fail("Message is not sent/executed with given time delay of 15 seconds");
+                fail("Message is not sent/executed with given time delay of 15 seconds");
             }
-            Assert.assertEquals(clusterMessage.getExecutedMsg(), "MulticastMemberMessageExecuted");
+            assertEquals(clusterMessage.getExecutedMsg(), "MulticastMemberMessageExecuted");
         } else {
-            Assert.fail("Members to send list is empty");
+            fail("Members to send list is empty");
         }
     }
 

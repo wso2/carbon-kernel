@@ -36,6 +36,8 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 
+import static org.testng.Assert.*;
+
 public class ClusterConfigurationTestCase extends BaseTest {
 
     private ClusterConfiguration clusterConfiguration;
@@ -79,7 +81,7 @@ public class ClusterConfigurationTestCase extends BaseTest {
         try {
             buildClusterConfig("fake/path");
         } catch (ClusterConfigurationException e) {
-            Assert.assertTrue(e.getMessage().
+            assertTrue(e.getMessage().
                     contains("Error while building cluster configuration"));
         }
         String clusterXMLLocation = getTestResourceFile("cluster-00.xml").getAbsolutePath();
@@ -90,11 +92,11 @@ public class ClusterConfigurationTestCase extends BaseTest {
           dependsOnMethods = {"testBuildClusterConfiguration"})
     public void testClusteringEnabled() {
         boolean isEnabled = clusterConfiguration.isEnabled();
-        Assert.assertTrue(isEnabled);
+        assertTrue(isEnabled);
     }
 
     @Test (groups = {"wso2.carbon.clustering"}, description = "test clustering agent type")
     public void testClusteringAgentType() throws ClusterConfigurationException {
-        Assert.assertEquals("hazelcast", clusterConfiguration.getAgent());
+        assertEquals("hazelcast", clusterConfiguration.getAgent());
     }
 }
