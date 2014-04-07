@@ -315,14 +315,22 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
 		permissionRootPath = modify(permissionRootPath);
 		List<String> lstPermissions = new ArrayList<String>();
-        List<String> resourceIds = getUIPermissionId();
-        if(resourceIds != null){
-            for(String resourceId : resourceIds){
-                if(isUserAuthorized(userName, resourceId, CarbonConstants.UI_PERMISSION_ACTION)){
-                    lstPermissions.add(resourceId);
-                }
-            }
-        }
+		List<String> resourceIds = getUIPermissionId();
+		if (resourceIds != null) {
+			for (String resourceId : resourceIds) {
+				if (isUserAuthorized(userName, resourceId,CarbonConstants.UI_PERMISSION_ACTION)) 
+				{
+					if (permissionRootPath == null) {
+						lstPermissions.add(resourceId);
+					} else {
+						if (resourceId.contains(permissionRootPath)) {
+							lstPermissions.add(resourceId);
+						}
+					}
+				}//authorization check up
+			}//loop over resource list 
+		}//resource ID checkup
+        
 
 		String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
 		String[] optimizedList = UserCoreUtil.optimizePermissions(permissions);
