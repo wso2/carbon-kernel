@@ -1019,8 +1019,13 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         @Override
         public <X> void entryAdded(X key) {
             CacheEntry<K, V> value = localCache.get(key);
-            if (value != null && distributedTimestampMap.containsKey(key)) {
-                value.setLastAccessed(distributedTimestampMap.get(key));
+            if (value != null) {
+            	Long timeStamp = distributedTimestampMap.get(key);
+            	if(timeStamp != null){
+            		value.setLastAccessed(timeStamp);
+            	} else {
+            		value.setLastAccessed(new Date().getTime());
+            	}
             }
         }
 
@@ -1031,8 +1036,13 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         @Override
         public <X> void entryUpdated(X key) {
             CacheEntry<K, V> value = localCache.get(key);
-            if (value != null && distributedTimestampMap.containsKey(key)) {
-                value.setLastAccessed(distributedTimestampMap.get(key));
+            if (value != null) {
+            	Long timeStamp = distributedTimestampMap.get(key);
+            	if(timeStamp != null){
+            		value.setLastAccessed(timeStamp);            		
+            	} else {
+            		value.setLastAccessed(new Date().getTime());
+            	}
             }
         }
     }
