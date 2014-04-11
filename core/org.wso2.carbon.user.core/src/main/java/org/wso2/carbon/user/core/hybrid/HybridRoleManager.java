@@ -358,8 +358,14 @@ public class HybridRoleManager {
 	 * @throws UserStoreException
 	 */
 	public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
-
+		
+		String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
 		String sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
+		
+		if(getRoleListOfUserSQLConfig!=null && !getRoleListOfUserSQLConfig.equals("")){
+			sqlStmt = getRoleListOfUserSQLConfig;
+		}
+		
 		Connection dbConnection = null;
 		try {
 
