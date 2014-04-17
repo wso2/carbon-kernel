@@ -19,14 +19,19 @@
 
 package org.wso2.carbon.runtime.internal;
 
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.osgi.framework.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.runtime.internal.RuntimeManager;
 import org.wso2.carbon.runtime.api.RuntimeService;
 
 import java.util.ArrayList;
@@ -42,7 +47,6 @@ import java.util.TimerTask;
 
 @Component(
         name = "org.wso2.carbon.runtime.internal.RuntimeServiceRegisterComponent",
-        description = "This service  component is responsible for registering runtime service",
         immediate = true
 )
 

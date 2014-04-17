@@ -28,9 +28,7 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Service;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.internal.ClusterContext;
@@ -64,13 +62,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+
+/**
+ * The main ClusteringAgent class which is based on Hazelcast
+ */
 @Component(
         name = "org.wso2.carbon.clustering.hazelcast.HazelCastClusteringAgentServiceComponent",
-        description = "The main ClusteringAgent class which is based on Hazelcast",
-        immediate = true
+        immediate = true,
+        property = "Agent=hazelcast"
 )
-@Service
-@Property(name = "Agent", value = "hazelcast")
 public class HazelcastClusteringAgent implements ClusteringAgent {
     private static Logger logger = LoggerFactory.getLogger(HazelcastClusteringAgent.class);
 
@@ -84,7 +84,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
     // key - msg UUID, value - timestamp(msg received time)
     private Map<String, Long> recdMsgsBuffer = new ConcurrentHashMap<>();
     private ClusterContext clusterContext;
-    private boolean isCoordinator;
 
     private String primaryDomain;
 
@@ -207,15 +206,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         ScheduledExecutorService msgCleanupScheduler = Executors.newScheduledThreadPool(1);
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
                                                    2, 2, TimeUnit.MINUTES);
-        // Try to acquire the coordinator lock for the cluster
-        new Thread("cluster-coordinator") {
-
-            @Override
-            public void run() {
-                hazelcastInstance.getLock("$$cluster#coordinator$#lock").lock(); // code will block here until lock is acquired
-                isCoordinator = true;
-            }
-        }.start();
         logger.info("Cluster initialization completed");
     }
 
@@ -327,11 +317,6 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         } catch (Exception e) {
             throw new MessageFailedException("Error while sending cluster message", e);
         }
-    }
-
-    @Override
-    public boolean isCoordinator(){
-        return isCoordinator;
     }
 
     /**

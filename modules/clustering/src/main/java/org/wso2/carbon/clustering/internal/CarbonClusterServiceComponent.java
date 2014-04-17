@@ -18,16 +18,14 @@
  */
 package org.wso2.carbon.clustering.internal;
 
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.clustering.internal.ClusterContext;
 import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.api.Cluster;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
@@ -38,21 +36,17 @@ import org.wso2.carbon.clustering.spi.ClusteringAgent;
 import java.util.Map;
 
 
+/**
+ * This service  component is responsible for retrieving the ClusteringAgent
+ * OSGi service and initialize the cluster"
+ */
+
+
 @Component(
         name = "org.wso2.carbon.clustering.internal.CarbonClusterServiceComponent",
-        description = "This service  component is responsible for retrieving the ClusteringAgent " +
-                      "OSGi service and initialize the cluster",
         immediate = true
 )
 
-@Reference(
-        name = "carbon.clustering.agent.service.listener",
-        referenceInterface = ClusteringAgent.class,
-        cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-        policy = ReferencePolicy.DYNAMIC,
-        bind = "setClusteringAgent",
-        unbind = "unsetClusteringAgent"
-)
 
 public class CarbonClusterServiceComponent {
 
@@ -63,10 +57,6 @@ public class CarbonClusterServiceComponent {
     private ClusterConfiguration clusterConfiguration;
 
 
-    @Activate
-    protected void start() {
-    }
-
     /**
      * This is the main method which checks the "Agent" property in clustering agent registrations
      * and calls the initialize method of clustering agent.
@@ -75,6 +65,14 @@ public class CarbonClusterServiceComponent {
      * when the policy and cardinality satisfies. But the actual registered clustering agent may
      * get invoked after the @Activate method is called.
      */
+
+    @Reference(
+            name = "carbon.clustering.agent.service.listener",
+            service = ClusteringAgent.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetClusteringAgent"
+    )
     protected void setClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
         try {
             clusterConfiguration = ClusterConfigFactory.build();
