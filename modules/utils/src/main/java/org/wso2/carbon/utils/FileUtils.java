@@ -9,9 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public class FileUtils {
@@ -90,16 +88,15 @@ public class FileUtils {
     /**
      * Copies src file to dst directory.
      * If the dst directory does not exist, it is created
-     *
-     * @param src The file to be copied
-     * @param dst The destination directory to which the file has to be copied
+     * @param src  The file to be copied
+     * @param dst  The destination directory to which the file has to be copied
      * @throws java.io.IOException If an error occurs while copying
      */
     public static void copyFileToDir(File src, File dst) throws IOException {
         String dstAbsPath = dst.getAbsolutePath();
         String dstDir = dstAbsPath.substring(0, dstAbsPath.lastIndexOf(File.separator));
         File dir = new File(dstDir);
-        if (!dir.exists() && !dir.mkdirs()) {
+        if(!dir.exists() && !dir.mkdirs()){
             throw new IOException("Fail to create the directory: " + dir.getAbsolutePath());
         }
 
@@ -156,7 +153,7 @@ public class FileUtils {
                     //close the Stream
                     fis.close();
                 } catch (IOException e) {
-                    logger.error("Unable to close the InputStream " + e.getMessage() , e);
+                    logger.error("Unable to close the InputStream " + e.getMessage(), e);
                 }
             }
         }
@@ -173,5 +170,6 @@ public class FileUtils {
         }
         return entryPath;
     }
+
 
 }
