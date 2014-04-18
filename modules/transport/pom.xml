@@ -67,10 +67,6 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.http.servlet</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -99,6 +95,7 @@
                             org.eclipse.equinox.http.servlet.*;version="${eclipse.equinox.http.servlet.import.version.range}",
                             javax.servlet.*;version="${javax.servlet.import.version.range}"
                         </Import-Package>
+                        <_dsannotations>*</_dsannotations>
                     </instructions>
                 </configuration>
             </plugin>
