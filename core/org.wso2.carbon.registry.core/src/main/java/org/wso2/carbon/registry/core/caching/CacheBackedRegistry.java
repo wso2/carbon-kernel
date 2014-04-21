@@ -155,36 +155,87 @@ public class CacheBackedRegistry implements Registry {
         if (registry.getRegistryContext().isNoCachePath(path) || isCommunityFeatureRequest(path)) {
             return registry.get(path);
         }
-        Resource resource;
-        RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
+        
+        Resource resource;        
+        if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
+            String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
+                    "read the resource " + path + ".";
+            log.warn(msg);
+            throw new AuthorizationFailedException(msg);
+        }
 
-        Object ghostResourceObject;
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
-        if ((ghostResourceObject = cache.get(registryCacheKey)) == null) {
+        GhostResource<Resource> ghostResource = getGhostResourceFromCache(path);
+
+        resource = ghostResource.getResource();
+        if (resource == null) {
             resource = registry.get(path);
             if (resource.getProperty(RegistryConstants.REGISTRY_LINK) == null ||
                     resource.getProperty(RegistryConstants.REGISTRY_MOUNT) != null) {
-                cache.put(registryCacheKey, new GhostResource<Resource>(resource));
-            }
-        } else {
-            if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
-                String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
-                        "read the resource " + path + ".";
-                log.warn(msg);
-                throw new AuthorizationFailedException(msg);
-            }
-            GhostResource<Resource> ghostResource =
-                    (GhostResource<Resource>) ghostResourceObject;
-            resource = ghostResource.getResource();
-            if (resource == null) {
-                resource = registry.get(path);
-                if (resource.getProperty(RegistryConstants.REGISTRY_LINK) == null ||
-                        resource.getProperty(RegistryConstants.REGISTRY_MOUNT) != null) {
-                    ghostResource.setResource(resource);
-                }
+                ghostResource.setResource(resource);
             }
         }
+
         return resource;
+    }
+    
+    private GhostResource<Resource> getGhostResourceFromCache(String path) throws RegistryException {
+        Resource resource;
+        RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
+
+        GhostResource<Resource> ghostResource;
+        Object ghostResourceObject;
+        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+        if ((ghostResourceObject = cache.get(registryCacheKey)) == null) {
+            synchronized (path.intern()){
+                //Checking again as the some other previous thread might have updated the cache
+                if ((ghostResourceObject = cache.get(registryCacheKey)) == null) {
+                    resource = registry.get(path);
+                    ghostResource = new GhostResource<Resource>(resource);
+                    if (resource.getProperty(RegistryConstants.REGISTRY_LINK) == null ||
+                            resource.getProperty(RegistryConstants.REGISTRY_MOUNT) != null) {
+                        cache.put(registryCacheKey, ghostResource);
+                    }
+                }else {
+                    ghostResource = (GhostResource<Resource>) ghostResourceObject;
+                }
+            }
+        } else {
+            ghostResource = (GhostResource<Resource>) ghostResourceObject;
+        }
+       return ghostResource;
+    }
+
+
+    private GhostResource<Resource> getGhostCollectionFromCache(String path, int start, int pageSize)
+            throws RegistryException {
+        Collection collection;
+
+        GhostResource<Resource> ghostResource;
+
+        RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path +
+                ";start=" + start + ";pageSize=" + pageSize);
+        
+        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+        if (!cache.containsKey(registryCacheKey)) {
+            synchronized (path.intern()) {
+                //check again to cache to validate whether any other thread have updated with that time.
+                if (!cache.containsKey(registryCacheKey)) {
+                    collection = registry.get(path, start, pageSize);
+                    ghostResource = new GhostResource<Resource>(collection);
+                    if (collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
+                        cache.put(registryCacheKey, ghostResource);
+                    }
+                } else {
+                    ghostResource =
+                            (GhostResource<Resource>) cache.get(registryCacheKey);
+                }
+            }
+        } else {
+            ghostResource =
+                    (GhostResource<Resource>) cache.get(registryCacheKey);
+        }
+
+        return ghostResource;
     }
 
     @SuppressWarnings("unchecked")
@@ -192,31 +243,19 @@ public class CacheBackedRegistry implements Registry {
         if (registry.getRegistryContext().isNoCachePath(path) || isCommunityFeatureRequest(path)) {
             return registry.get(path, start, pageSize);
         }
-        Collection collection;
-        RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path +
-                ";start=" + start + ";pageSize=" + pageSize);
+        if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
+            String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
+                    "read the resource " + path + ".";
+            log.warn(msg);
+            throw new AuthorizationFailedException(msg);
+        }
 
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
-        if (!cache.containsKey(registryCacheKey)) {
+        GhostResource<Resource> ghostResource = getGhostCollectionFromCache(path, start, pageSize);
+        Collection collection = (Collection) ghostResource.getResource();
+        if (collection == null) {
             collection = registry.get(path, start, pageSize);
             if (collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
-                cache.put(registryCacheKey, new GhostResource<Resource>(collection));
-            }
-        } else {
-            if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
-                String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
-                        "read the resource " + path + ".";
-                log.warn(msg);
-                throw new AuthorizationFailedException(msg);
-            }
-            GhostResource<Resource> ghostResource =
-                    (GhostResource<Resource>) cache.get(registryCacheKey);
-            collection = (Collection) ghostResource.getResource();
-            if (collection == null) {
-                collection = registry.get(path, start, pageSize);
-                if (collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
-                    ghostResource.setResource(collection);
-                }
+                ghostResource.setResource(collection);
             }
         }
         return collection;
