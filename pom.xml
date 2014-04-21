@@ -33,6 +33,7 @@
                 <module>modules/samples/webapp-bundle</module>
                 <module>modules/runtime-manager</module>
                 <module>modules/clustering</module>
+                <module>modules/jaxrs-framework</module>
                 <module>modules/transport</module>
                 <module>modules/utils</module>
                 <module>modules/extensions</module>
