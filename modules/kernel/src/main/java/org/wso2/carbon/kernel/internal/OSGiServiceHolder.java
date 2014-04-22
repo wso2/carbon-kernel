@@ -2,7 +2,7 @@ package org.wso2.carbon.kernel.internal;
 
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.region.BundleToRegionManager;
+import org.wso2.carbon.kernel.region.KernelRegion;
 import org.wso2.carbon.kernel.region.RegionManager;
 
 public class OSGiServiceHolder {
@@ -11,6 +11,7 @@ public class OSGiServiceHolder {
     private CarbonRuntime carbonRuntime;
     private BundleContext bundleContext;
     private RegionManager regionManager;
+    private KernelRegion kernelRegion;
 
     public  static OSGiServiceHolder getInstance() {
         return instance;
@@ -38,5 +39,13 @@ public class OSGiServiceHolder {
 
     public RegionManager getRegionManager() {
         return regionManager;
+    }
+
+    public void setKernelRegion(KernelRegion kernelRegion) {
+        this.kernelRegion = kernelRegion;
+    }
+
+    public KernelRegion getKernelRegion() {
+        return kernelRegion;
     }
 }

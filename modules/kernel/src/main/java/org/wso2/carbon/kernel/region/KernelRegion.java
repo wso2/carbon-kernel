@@ -3,12 +3,12 @@ package org.wso2.carbon.kernel.region;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.service.component.annotations.Component;
+import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component (name = "org.wso2.carbon.kernel.region.KernelRegionDSComponent")
 public class KernelRegion implements Region {
 
     private String id;
@@ -26,6 +26,8 @@ public class KernelRegion implements Region {
     @Override
     public void addBundle(Bundle bundle) throws BundleException {
         kernelBundles.put(bundle.getBundleId(), bundle);
+        RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
+        regionManager.associateBundleWithRegion(bundle.getBundleId(), this);
     }
 
     @Override

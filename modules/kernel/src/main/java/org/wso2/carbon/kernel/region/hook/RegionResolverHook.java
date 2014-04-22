@@ -38,25 +38,9 @@ public class RegionResolverHook implements ResolverHook {
     public void filterMatches(BundleRequirement bundleRequirement,
                               Collection<BundleCapability> bundleCapabilities) {
         logger.info("Requirement bundle : " + bundleRequirement.getRevision());
-        Region tenantRegion = getTenantRegion(bundleRequirement.getRevision());
         Collection<BundleCapability> allowed = getAllowedCapabilities(bundleCapabilities,
-                                                                      tenantRegion);
+                                                                      bundleRequirement);
         bundleCapabilities.retainAll(allowed);
-    }
-
-    private Collection<BundleCapability> getAllowedCapabilities(
-            Collection<BundleCapability> bundleCapabilities, Region tenantRegion) {
-        RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
-
-        Collection<BundleCapability> allowedCapabilities = new HashSet<>();
-        for (BundleCapability bundleCapability : bundleCapabilities) {
-            if (tenantRegion.equals(regionManager.getRegion(bundleCapability.getRevision().
-                    getBundle().getBundleId()))) {
-                allowedCapabilities.add(bundleCapability);
-            }
-        }
-
-        return allowedCapabilities;
     }
 
     @Override
@@ -64,15 +48,32 @@ public class RegionResolverHook implements ResolverHook {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    private Region getTenantRegion(BundleRevision revision) {
-        Region region = null;
+    private Collection<BundleCapability> getAllowedCapabilities(
+            Collection<BundleCapability> bundleCapabilities, BundleRequirement bundleRequirement) {
+
+        Collection<BundleCapability> allowedCapabilities = new HashSet<>();
         CarbonRuntime carbonRuntime = OSGiServiceHolder.getInstance().getCarbonRuntime();
 
         if (carbonRuntime != null) {
-            Bundle bundle = revision.getBundle();
+            Bundle bundle = bundleRequirement.getRevision().getBundle();
             RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
-            region = regionManager.getRegion(bundle.getBundleId());
+
+            //Add kernel region capabilities
+
+            Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
+
+            //Add tenant region capabilities
+            Region tenantRegion = regionManager.getRegion(bundle.getBundleId());
+
+            for (BundleCapability bundleCapability : bundleCapabilities) {
+                Region region = regionManager.getRegion(bundleCapability.getRevision().
+                        getBundle().getBundleId());
+                if (tenantRegion.equals(region) || kernelRegion.equals(region)) {
+                    allowedCapabilities.add(bundleCapability);
+                }
+            }
         }
-        return region;
+        return allowedCapabilities;
     }
+
 }
