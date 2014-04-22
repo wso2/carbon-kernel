@@ -18,6 +18,15 @@
 
 package org.apache.catalina.startup;
 
+import org.apache.catalina.Globals;
+import org.apache.catalina.Host;
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
+import org.apache.tomcat.util.ExceptionUtils;
+import org.apache.tomcat.util.res.StringManager;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,13 +40,6 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
-
-import org.apache.catalina.Globals;
-import org.apache.catalina.Host;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
-import org.apache.tomcat.util.ExceptionUtils;
-import org.apache.tomcat.util.res.StringManager;
 
 /**
  * Expand out a WAR in a Host's appBase.
@@ -75,19 +77,34 @@ public class ExpandWar {
     public static String expand(Host host, URL war, String pathname)
         throws IOException {
 
-        // Make sure that there is no such directory already existing
-        File appBase = new File(host.getAppBase());
-        if (!appBase.isAbsolute()) {
-            appBase = new File(System.getProperty(Globals.CATALINA_BASE_PROP),
-                               host.getAppBase());
+        // WSO2 PATCH to unpack webapps of tenants inside the tenant's webapps/ directory *********//////
+        int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        File appBase;
+        File docBase;
+        if ( tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+            appBase = new File(host.getAppBase());
+            if (!appBase.isAbsolute()) {
+                appBase = new File(System.getProperty(Globals.CATALINA_BASE_PROP),
+                        host.getAppBase());
+            }
+            docBase = new File(appBase, pathname);
+        } else {
+            String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            String warFilePath = new URL(war.getFile()).getFile().replace("!/", "");
+            appBase = new File(warFilePath).getParentFile();
+            int index = pathname.indexOf('#', tenantDomain.length()+3);
+            String pathnameWOPrefix = pathname.substring(index+1);
+            docBase = new File(appBase, pathnameWOPrefix);
         }
+
+        // Make sure that there is no such directory already existing
         if (!appBase.exists() || !appBase.isDirectory()) {
             throw new IOException
                 (sm.getString("hostConfig.appBase",
                               appBase.getAbsolutePath()));
         }
-        
-        File docBase = new File(appBase, pathname);
+        // End of WSO2 PATCH *********//////
+
         if (docBase.exists()) {
             // War file is already installed
             return (docBase.getAbsolutePath());
@@ -142,7 +159,7 @@ public class ExpandWar {
 
                 // Bugzilla 33636
                 expand(input, expandedFile);
-                long lastModified = jarEntry.getTime();
+                    long lastModified = jarEntry.getTime();
                 if ((lastModified != -1) && (lastModified != 0)) {
                     expandedFile.setLastModified(lastModified);
                 }
@@ -428,3 +445,4 @@ public class ExpandWar {
 
 
 }
+
