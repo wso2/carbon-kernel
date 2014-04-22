@@ -168,11 +168,13 @@ public class CacheBackedRegistry implements Registry {
 
         resource = ghostResource.getResource();
         if (resource == null) {
-            resource = registry.get(path);
-            if (resource.getProperty(RegistryConstants.REGISTRY_LINK) == null ||
-                    resource.getProperty(RegistryConstants.REGISTRY_MOUNT) != null) {
-                ghostResource.setResource(resource);
-            }
+        	synchronized (path.intern()) {
+	            resource = registry.get(path);
+	            if (resource.getProperty(RegistryConstants.REGISTRY_LINK) == null ||
+	                    resource.getProperty(RegistryConstants.REGISTRY_MOUNT) != null) {
+	                ghostResource.setResource(resource);
+	            }
+        	}
         }
 
         return resource;
@@ -253,9 +255,11 @@ public class CacheBackedRegistry implements Registry {
         GhostResource<Resource> ghostResource = getGhostCollectionFromCache(path, start, pageSize);
         Collection collection = (Collection) ghostResource.getResource();
         if (collection == null) {
-            collection = registry.get(path, start, pageSize);
-            if (collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
-                ghostResource.setResource(collection);
+        	synchronized (path.intern()) {
+	            collection = registry.get(path, start, pageSize);
+	            if (collection.getProperty(RegistryConstants.REGISTRY_LINK) == null) {
+	                ghostResource.setResource(collection);
+	            }
             }
         }
         return collection;
