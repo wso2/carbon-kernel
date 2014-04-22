@@ -23,20 +23,23 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @XmlRootElement(name = "TenantStore")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TenantStoreConfig {
 
     @XmlElement(name = "Tenant")
-    private List<TenantConfig> tenantConfigs = new ArrayList<>(0);
+    private Map<String, TenantConfig> tenantConfigs = new HashMap<>();
 
-    public List<TenantConfig> getTenantConfigs() {
-        return tenantConfigs;
+    public Collection<TenantConfig> getTenantConfigs() {
+        return tenantConfigs.values();
     }
 
     public void addTenantConfig(TenantConfig tenantConfig) {
-        this.tenantConfigs.add(tenantConfig);
+        this.tenantConfigs.put(tenantConfig.getId(), tenantConfig);
     }
 }

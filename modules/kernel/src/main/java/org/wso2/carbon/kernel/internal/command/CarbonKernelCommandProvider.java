@@ -20,6 +20,7 @@ package org.wso2.carbon.kernel.internal.command;
 
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -29,6 +30,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
+import org.wso2.carbon.kernel.region.BundleToRegionManager;
+import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
@@ -49,9 +53,11 @@ public class CarbonKernelCommandProvider implements CommandProvider {
 
     private CarbonRuntime carbonRuntime;
     private ServiceRegistration<CommandProvider> serviceRegistration;
+    private BundleContext bundleContext;
 
     @Activate
     public void registerCommandProvider(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         serviceRegistration = bundleContext.registerService(CommandProvider.class, this, null);
     }
 
@@ -69,10 +75,12 @@ public class CarbonKernelCommandProvider implements CommandProvider {
     )
     public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = carbonRuntime;
+        OSGiServiceHolder.getInstance().setCarbonRuntime(carbonRuntime);
     }
 
     public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = null;
+        OSGiServiceHolder.getInstance().setCarbonRuntime(null);
     }
 
     public CarbonRuntime getCarbonRuntime() throws Exception {
@@ -85,14 +93,17 @@ public class CarbonKernelCommandProvider implements CommandProvider {
     @Override
     public String getHelp() {
         return "---Tenants---\n" +
-                "\taddTenant <domain> <name> <description> <admin username> <admin email address> - Adds a tenant\n" +
-                "\t\t<domain> - tenant domain\n" +
-                "\t\t<name> - tenant name\n" +
-                "\t\t<description> - tenant description\n" +
-                "\t\t<admin username> - Administrator's username\n" +
-                "\t\t<admin email address> - Administrator's email address\n" +
-                "\tgetTenantInfo <domain> - Retrieve tenant data\n" +
-                "\t\t<domain> - Tenant domain";
+               "\taddTenant <domain> <name> <description> <admin username> <admin email address> - Adds a tenant\n" +
+               "\t\t<domain> - tenant domain\n" +
+               "\t\t<name> - tenant name\n" +
+               "\t\t<description> - tenant description\n" +
+               "\t\t<admin username> - Administrator's username\n" +
+               "\t\t<admin email address> - Administrator's email address\n" +
+               "\tgetTenantInfo <domain> - Retrieve tenant data\n" +
+               "\t\t<domain> - Tenant domain\n" +
+               "\taddTenantBundle <domain> <location> - installs a bundle to a tenant region\n" +
+               "\t\t<domain> - Tenant domain\n" +
+               "\t\t<location> - Bundle location";
 
     }
 
@@ -104,7 +115,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         if (args.length == 5) {
             try {
                 Tenant tenant = tenantRuntime.addTenant(args[0], args[1], args[2],
-                        args[3], args[4], new HashMap<String, String>(0));
+                                                        args[3], args[4], new HashMap<String, String>(0));
                 System.out.println("Successfully Created the tenant with the ID " + tenant.getID());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -122,7 +133,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         if (args.length == 1) {
             try {
                 Tenant tenant = tenantRuntime.getTenant(args[0]);
-                if(tenant == null) {
+                if (tenant == null) {
                     System.out.println("Tenant with domain " + args[0] + " does not exists");
                     return;
                 }
@@ -139,6 +150,30 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         } else {
             throw new Exception("Unexpected number of input parameters");
         }
+    }
+
+
+    public void _addTenantBundle(CommandInterpreter ci) throws Exception {
+        CarbonRuntime localCarbonRuntime = getCarbonRuntime();
+        TenantRuntime<Tenant> tenantRuntime = localCarbonRuntime.getTenantRuntime();
+        String[] args = extractArgs(ci);
+
+        if (args.length == 2) {
+            try {
+                Tenant tenant = tenantRuntime.getTenant(args[0]);
+                Region tenantRegion = tenant.getRegion();
+                Bundle bundle = bundleContext.installBundle(args[1]);
+                tenantRegion.addBundle(bundle);
+                tenantRuntime.persistTenant(tenant);
+                System.out.println("Successfully added bundle : " + bundle.getSymbolicName() +
+                                   " to the tenant with the ID " + tenant.getID());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            throw new Exception("Unexpected number of input parameters");
+        }
+
     }
 
     private String[] extractArgs(CommandInterpreter ci) {

@@ -20,6 +20,7 @@ package org.wso2.carbon.kernel.internal.context;
 
 import org.wso2.carbon.kernel.internal.tenant.DefaultTenant;
 import org.wso2.carbon.kernel.internal.tenant.store.FileBasedTenantStore;
+import org.wso2.carbon.kernel.region.TenantRegion;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 import org.wso2.carbon.kernel.tenant.store.TenantStore;
@@ -63,8 +64,8 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
 
         //TODO implement a pluggable mechanism for tenant implementations.
         Tenant tenant = new DefaultTenant();
-
-        tenant.setID(UUID.randomUUID().toString());
+        String id = UUID.randomUUID().toString();
+        tenant.setID(id);
         tenant.setDomain(domain);
         tenant.setName(name);
         tenant.setDescription(description);
@@ -72,6 +73,7 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
         tenant.setAdminUsername(adminUsername);
         tenant.setAdminUserEmailAddress(adminUserEmailAddress);
         tenant.setProperties(props);
+        tenant.setRegion(new TenantRegion(id));
 //        tenant.setParent(parentID);
 //        tenant.setDepthOfHierarchy(depthOfHierarchy);
 
@@ -101,6 +103,13 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
         }
     }
 
+    @Override
+    public Tenant persistTenant(Tenant tenant) throws Exception {
+        tenantStore.persistTenant(tenant);
+        //TODO Notify
+        return tenant;
+    }
+
     private Tenant addTenantInternal(Tenant tenant) throws Exception {
         //TODO do the validations here, domain, parent, children etc...
         tenantStore.persistTenant(tenant);
@@ -111,7 +120,9 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
 
     private Tenant loadTenant(String tenantDomain) throws Exception {
         //TODO Notify
-        return tenantStore.loadTenant(tenantDomain);
+        Tenant loadedTenant = tenantStore.loadTenant(tenantDomain);
+        loadedTenants.put(loadedTenant.getDomain(), loadedTenant);
+        return loadedTenant;
     }
 
 }

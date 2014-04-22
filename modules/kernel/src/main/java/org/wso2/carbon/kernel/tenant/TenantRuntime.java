@@ -106,4 +106,6 @@ public interface TenantRuntime<T extends Tenant> {
      * @throws Exception in the event of a failure while loading the tenant details
      */
     public T getTenant(String tenantDomain) throws Exception;
+
+    public T persistTenant(Tenant tenant) throws Exception;
 }

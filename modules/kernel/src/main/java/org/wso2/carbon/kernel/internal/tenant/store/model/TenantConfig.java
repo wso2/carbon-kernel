@@ -21,7 +21,10 @@ package org.wso2.carbon.kernel.internal.tenant.store.model;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TenantConfig {
@@ -46,6 +49,10 @@ public class TenantConfig {
 
     @XmlElement(name = "Hierarchy", required = true)
     private HierarchyConfig hierarchyConfig;
+
+    @XmlElementWrapper(name = "Bundles")
+    @XmlElement(name = "Bundle")
+    private List<BundleConfig> bundlesConfigs = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -101,5 +108,13 @@ public class TenantConfig {
 
     public void setHierarchyConfig(HierarchyConfig hierarchyConfig) {
         this.hierarchyConfig = hierarchyConfig;
+    }
+
+    public List<BundleConfig> getBundleConfigs() {
+        return bundlesConfigs;
+    }
+
+    public void setBundleConfigs(List<BundleConfig> bundlesConfigs) {
+        this.bundlesConfigs = bundlesConfigs;
     }
 }

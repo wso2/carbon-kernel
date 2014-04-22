@@ -18,13 +18,20 @@
 
 package org.wso2.carbon.kernel.internal.tenant.store;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.wso2.carbon.kernel.CarbonConstants;
 import org.wso2.carbon.kernel.internal.DefaultImplConstants;
+import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.internal.tenant.DefaultTenant;
 import org.wso2.carbon.kernel.internal.tenant.store.model.AdminUserConfig;
+import org.wso2.carbon.kernel.internal.tenant.store.model.BundleConfig;
 import org.wso2.carbon.kernel.internal.tenant.store.model.HierarchyConfig;
 import org.wso2.carbon.kernel.internal.tenant.store.model.TenantConfig;
 import org.wso2.carbon.kernel.internal.tenant.store.model.TenantStoreConfig;
+import org.wso2.carbon.kernel.region.Region;
+import org.wso2.carbon.kernel.region.TenantRegion;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.store.TenantStore;
 
@@ -35,7 +42,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 //TODO Implement transactional behaviour (Implement locking mechanism)
@@ -121,6 +130,20 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
         tenant.setAdminUsername(tenantConfig.getAdminUserConfig().getName());
         tenant.setAdminUserEmailAddress(tenantConfig.getAdminUserConfig().getEmailAddress());
 
+        Region region = new TenantRegion(tenantConfig.getId());
+        BundleContext bundleContext = OSGiServiceHolder.getInstance().getBundleContext();
+
+        try {
+            //TODO Load tenant bundles
+            for (BundleConfig bundleConfig : tenantConfig.getBundleConfigs()) {
+                Bundle bundle = bundleContext.installBundle(bundleConfig.getBundleLocation());
+                region.addBundle(bundle);
+            }
+            tenant.setRegion(region);
+        } catch (BundleException e) {
+            e.printStackTrace();
+        }
+
         //TODO Add hierarchy information
         return tenant;
     }
@@ -139,6 +162,18 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
         tenantConfig.setAdminUserConfig(adminUserConfig);
 
         tenantConfig.setHierarchyConfig(populateHierarchyConfig(tenant));
+
+        List<BundleConfig> bundleConfigs = new ArrayList<>();
+        Region region = tenant.getRegion();
+        for (Bundle bundle : region.getBundles()) {
+            BundleConfig bundleConfig = new BundleConfig();
+            bundleConfig.setId(bundle.getBundleId());
+            bundleConfig.setName(bundle.getSymbolicName());
+            bundleConfig.setVersion(bundle.getVersion().toString());
+            bundleConfig.setBundleLocation(bundle.getLocation());
+            bundleConfigs.add(bundleConfig);
+        }
+        tenantConfig.setBundleConfigs(bundleConfigs);
         //TODO add properties or attributes
         return tenantConfig;
     }

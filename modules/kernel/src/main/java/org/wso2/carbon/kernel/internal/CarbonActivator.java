@@ -20,8 +20,10 @@ public class CarbonActivator implements BundleActivator {
 
         // 3) Register CarbonRuntime instance as an OSGi bundle.
         bundleContext.registerService(CarbonRuntime.class.getName(), carbonRuntime, null);
+        OSGiServiceHolder.getInstance().setBundleContext(bundleContext);
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
+        OSGiServiceHolder.getInstance().setBundleContext(null);
     }
 }
