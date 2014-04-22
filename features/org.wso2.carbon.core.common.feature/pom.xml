@@ -105,7 +105,6 @@
                                 <bundleDef>opensaml.wso2:opensaml2:2.4.1.wso2v1</bundleDef>
                                 <bundleDef>org.apache.abdera.wso2:abdera:1.0.0.wso2v3</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
-                                <bundleDef>org.apache.tomcat.wso2:tribes:${orbit.version.tribes}</bundleDef>
                                 <bundleDef>com.hazelcast.wso2:hazelcast:${orbit.version.hazelcast}</bundleDef>
                                 <bundleDef>org.apache.tiles.wso2:tiles-jsp:${orbit.version.tiles}</bundleDef>
                                 <bundleDef>org.apache.ant.wso2:ant:1.7.0.wso2v1</bundleDef>
@@ -135,6 +134,8 @@
                                 <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${jdbc-pool.version}</bundleDef>
                                 <bundleDef>org.eclipse.jdt.core.compiler:ecj:${version.eclipse.ecj}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.framework.exporter</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.patch</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.fragment.dummy</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

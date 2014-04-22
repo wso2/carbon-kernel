@@ -55,14 +55,24 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.apache.coyote.*,
-			                org.apache.tomcat.util.http.mapper.*,
+                            org.apache.catalina.startup.*,
+			    org.apache.tomcat.util.http.mapper.*,
+                            org.apache.juli.logging.*
                         </Export-Package>
                         <Import-Package>
-							!org.apache.coyote.*,
-							!org.apache.tomcat.util.http.mapper.*,
+                            !org.apache.coyote.*,
+                            !org.apache.catalina.startup.*,
+                            !org.apache.tomcat.util.http.mapper.*,
+                            !org.apache.juli.logging.*,
                             org.wso2.carbon.tomcat.version.*,
-							*;resolution:=optional
+                            *;resolution:=optional
                         </Import-Package>
+                        <Private-Package>
+                            javax.annotation.*,
+                            javax.ejb.*,
+                            javax.persistence.*,
+                        </Private-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package> 
                     </instructions>
                 </configuration>
             </plugin>
