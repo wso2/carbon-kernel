@@ -30,6 +30,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
+import org.wso2.carbon.kernel.context.PrivilegedTenantContext;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.region.BundleToRegionManager;
 import org.wso2.carbon.kernel.region.Region;
@@ -162,11 +164,12 @@ public class CarbonKernelCommandProvider implements CommandProvider {
             try {
                 Tenant tenant = tenantRuntime.getTenant(args[0]);
                 Region tenantRegion = tenant.getRegion();
+                PrivilegedTenantContext.getThreadLocalTenantContext().setRegion(tenantRegion);
                 Bundle bundle = bundleContext.installBundle(args[1]);
-                tenantRegion.addBundle(bundle);
                 tenantRuntime.persistTenant(tenant);
                 System.out.println("Successfully added bundle : " + bundle.getSymbolicName() +
                                    " to the tenant with the ID " + tenant.getID());
+                PrivilegedTenantContext.getThreadLocalTenantContext().destroyCurrentContext();
             } catch (Exception e) {
                 e.printStackTrace();
             }

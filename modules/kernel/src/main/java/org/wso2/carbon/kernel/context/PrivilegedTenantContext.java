@@ -18,5 +18,29 @@
 
 package org.wso2.carbon.kernel.context;
 
-public class PrivilegedTenantContext {
+import org.wso2.carbon.kernel.internal.CarbonContextDataHolder;
+import org.wso2.carbon.kernel.region.Region;
+
+public class PrivilegedTenantContext extends TenantContext{
+    private PrivilegedTenantContext(CarbonContextDataHolder carbonContextHolder) {
+        super(carbonContextHolder);
+    }
+
+    public static PrivilegedTenantContext getThreadLocalTenantContext() {
+        return new PrivilegedTenantContext(CarbonContextDataHolder.
+                getThreadLocalCarbonContextHolder());
+    }
+
+    public Region getRegion() {
+        return CarbonContextDataHolder.getThreadLocalCarbonContextHolder().getRegion();
+    }
+
+
+    public void setRegion(Region region) {
+        CarbonContextDataHolder.getThreadLocalCarbonContextHolder().setRegion(region);
+    }
+
+    public void destroyCurrentContext() {
+        CarbonContextDataHolder.destroyCurrentCarbonContextHolder();
+    }
 }

@@ -59,7 +59,7 @@ public class BundleToRegionManager implements RegionManager {
         Iterator<Map.Entry<Long, Region>> iterator = this.bundleToRegion.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Long, Region> entry = iterator.next();
-            if (entry.getValue() == region) {
+            if (entry.getValue().equals(region)) {
                 iterator.remove();
             }
         }

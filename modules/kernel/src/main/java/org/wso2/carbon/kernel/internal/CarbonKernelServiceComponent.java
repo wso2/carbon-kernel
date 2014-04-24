@@ -15,9 +15,9 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.kernel.region.KernelRegion;
 import org.wso2.carbon.kernel.region.RegionManager;
-import org.wso2.carbon.kernel.region.hook.RegionBundleEventHook;
-import org.wso2.carbon.kernel.region.hook.RegionBundleFindHook;
-import org.wso2.carbon.kernel.region.hook.RegionResolverHookFactory;
+import org.wso2.carbon.kernel.region.hooks.RegionBundleEventHook;
+import org.wso2.carbon.kernel.region.hooks.RegionBundleFindHook;
+import org.wso2.carbon.kernel.region.hooks.RegionResolverHookFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;

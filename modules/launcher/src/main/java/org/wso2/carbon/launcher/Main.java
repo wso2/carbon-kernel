@@ -53,7 +53,7 @@ public class Main {
 
         CarbonServer carbonServer = new CarbonServer(config);
 
-        // 4) Register a shutdown hook to stop the server
+        // 4) Register a shutdown hooks to stop the server
         registerShutdownHook(carbonServer);
 
         // 5) Start Carbon server.

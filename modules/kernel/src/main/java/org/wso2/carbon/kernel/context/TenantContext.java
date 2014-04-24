@@ -18,5 +18,25 @@
 
 package org.wso2.carbon.kernel.context;
 
+import org.wso2.carbon.kernel.internal.CarbonContextDataHolder;
+import org.wso2.carbon.kernel.region.Region;
+
 public class TenantContext {
+    private CarbonContextDataHolder carbonContextHolder = null;
+
+    protected TenantContext(CarbonContextDataHolder carbonContextHolder) {
+        if (carbonContextHolder != null) {
+            this.carbonContextHolder = carbonContextHolder;
+        } else {
+            this.carbonContextHolder = CarbonContextDataHolder.getThreadLocalCarbonContextHolder();
+        }
+    }
+
+    public static TenantContext getThreadLocalTenantContext(){
+        return new TenantContext(CarbonContextDataHolder.getThreadLocalCarbonContextHolder());
+    }
+
+    public Region getRegion() {
+        return CarbonContextDataHolder.getThreadLocalCarbonContextHolder().getRegion();
+    }
 }

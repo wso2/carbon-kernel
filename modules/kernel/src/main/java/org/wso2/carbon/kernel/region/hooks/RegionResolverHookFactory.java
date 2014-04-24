@@ -1,4 +1,4 @@
-package org.wso2.carbon.kernel.region.hook;
+package org.wso2.carbon.kernel.region.hooks;
 
 import org.osgi.framework.hooks.resolver.ResolverHook;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;

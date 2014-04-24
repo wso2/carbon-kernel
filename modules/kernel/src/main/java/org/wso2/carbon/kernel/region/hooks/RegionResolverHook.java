@@ -1,4 +1,4 @@
-package org.wso2.carbon.kernel.region.hook;
+package org.wso2.carbon.kernel.region.hooks;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.hooks.resolver.ResolverHook;
@@ -12,7 +12,6 @@ import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.region.RegionManager;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -52,20 +51,17 @@ public class RegionResolverHook implements ResolverHook {
         CarbonRuntime carbonRuntime = OSGiServiceHolder.getInstance().getCarbonRuntime();
 
         if (carbonRuntime != null) {
-            Bundle bundle = bundleRequirement.getRevision().getBundle();
+            Bundle currentBundle = bundleRequirement.getRevision().getBundle();
             RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
-
-            //Add kernel region capabilities
 
             Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
 
-            //Add tenant region capabilities
-            Region tenantRegion = regionManager.getRegion(bundle.getBundleId());
+            Region currentBundleRegion = regionManager.getRegion(currentBundle.getBundleId());
 
             for (BundleCapability bundleCapability : bundleCapabilities) {
                 Region region = regionManager.getRegion(bundleCapability.getRevision().
                         getBundle().getBundleId());
-                if ((tenantRegion != null && tenantRegion.equals(region)) ||
+                if ((currentBundleRegion != null && currentBundleRegion.equals(region)) ||
                     kernelRegion.equals(region)) {
                     allowedCapabilities.add(bundleCapability);
                 }
