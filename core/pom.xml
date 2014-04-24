@@ -134,6 +134,7 @@
         <module>org.wso2.carbon.logging</module>
         <module>org.wso2.carbon.queuing</module>
         <!--module>org.wso2.carbon.caching.core</module-->
+        <!--module>org.wso2.carbon.caching.invalidator</module-->
         <module>org.wso2.carbon.utils</module>
         <module>org.wso2.carbon.securevault</module>
         <module>org.wso2.carbon.registry.core</module>
