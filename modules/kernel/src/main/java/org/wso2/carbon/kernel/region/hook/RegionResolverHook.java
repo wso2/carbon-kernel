@@ -9,11 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
-import org.wso2.carbon.kernel.region.BundleToRegionManager;
 import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.region.RegionManager;
-import org.wso2.carbon.kernel.tenant.Tenant;
-import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +65,8 @@ public class RegionResolverHook implements ResolverHook {
             for (BundleCapability bundleCapability : bundleCapabilities) {
                 Region region = regionManager.getRegion(bundleCapability.getRevision().
                         getBundle().getBundleId());
-                if (tenantRegion.equals(region) || kernelRegion.equals(region)) {
+                if ((tenantRegion != null && tenantRegion.equals(region)) ||
+                    kernelRegion.equals(region)) {
                     allowedCapabilities.add(bundleCapability);
                 }
             }

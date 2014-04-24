@@ -81,6 +81,7 @@
                             javax.xml.bind.*;version="${osgi.framework.packages.import.version.range}",
                             org.osgi.framework.wiring.*;version="[1.1.0, 1.2.0)",
                             org.osgi.framework.hooks.resolver.*;version="[1.0.0, 1.1.0)",
+                            org.osgi.framework.hooks.bundle.*;version="[1.1.0, 1.2.0)",
                             org.osgi.framework;version="${osgi.framework.import.version.range}",
                             org.eclipse.osgi.framework.console;version="${org.eclipse.osgi.framework.console.import.version.range}",
                         </Import-Package>

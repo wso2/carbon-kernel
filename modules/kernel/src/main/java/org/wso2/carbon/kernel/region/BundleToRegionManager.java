@@ -2,7 +2,6 @@ package org.wso2.carbon.kernel.region;
 
 
 import org.osgi.framework.BundleException;
-import org.osgi.service.component.annotations.Component;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,8 +10,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-@Component(name = "org.wso2.carbon.kernel.region.BundleToRegionManagerDSComponent",
-           immediate = true)
 public class BundleToRegionManager implements RegionManager {
 
     private final Map<Long, Region> bundleToRegion = new HashMap<>();
