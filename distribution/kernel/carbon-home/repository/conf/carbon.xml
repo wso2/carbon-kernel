@@ -129,14 +129,6 @@
             <KDCServerPort>8000</KDCServerPort>
         </EmbeddedLDAP>
 	
-	    <!-- Embedded Qpid broker ports -->
-        <EmbeddedQpid>
-	    <!-- Broker TCP Port -->
-            <BrokerPort>5672</BrokerPort>
-	    <!-- SSL Port -->
-            <BrokerSSLPort>8672</BrokerSSLPort>
-        </EmbeddedQpid>
-	
 	<!-- 
              Override datasources JNDIproviderPort defined in bps.xml and datasources.properties files
 	-->
