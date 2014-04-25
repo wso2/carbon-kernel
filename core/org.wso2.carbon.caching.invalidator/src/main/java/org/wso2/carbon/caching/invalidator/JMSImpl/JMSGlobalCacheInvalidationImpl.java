@@ -21,9 +21,9 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.CacheEntry;
+import org.wso2.carbon.caching.impl.CacheInvalidator;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
-import org.wso2.carbon.utils.CacheInvalidator;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.cache.CacheManager;

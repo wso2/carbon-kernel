@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wso2.carbon.utils;
+package org.wso2.carbon.caching.impl;
 
-import org.wso2.carbon.caching.impl.CacheEntry;
 
 /**
  * This is used for global cluster cache invalidation
