@@ -26,22 +26,18 @@ public class RegionBundleEventHook implements EventHook {
 
         Collection<BundleContext> allowedBundleContexts = new HashSet<>();
 
-        CarbonRuntime carbonRuntime = OSGiServiceHolder.getInstance().getCarbonRuntime();
+        Bundle bundle = bundleEvent.getBundle();
+        RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
 
-        if (carbonRuntime != null) {
-            Bundle bundle = bundleEvent.getBundle();
-            RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
+        Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
 
-            Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
+        Region currentBundleRegion = regionManager.getRegion(bundle.getBundleId());
 
-            Region currentBundleRegion = regionManager.getRegion(bundle.getBundleId());
-
-            for (BundleContext bundleContext : bundleContexts) {
-                Region region = regionManager.getRegion(bundleContext.getBundle().getBundleId());
-                if ((currentBundleRegion != null && currentBundleRegion.equals(region)) ||
-                    kernelRegion.equals(region)) {
-                    allowedBundleContexts.add(bundleContext);
-                }
+        for (BundleContext bundleContext : bundleContexts) {
+            Region region = regionManager.getRegion(bundleContext.getBundle().getBundleId());
+            if ((currentBundleRegion != null && currentBundleRegion.equals(region)) ||
+                kernelRegion.equals(region)) {
+                allowedBundleContexts.add(bundleContext);
             }
         }
 

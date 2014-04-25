@@ -4,6 +4,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.hooks.bundle.CollisionHook;
 import org.osgi.framework.hooks.bundle.EventHook;
 import org.osgi.framework.hooks.bundle.FindHook;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
@@ -15,6 +16,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.kernel.region.KernelRegion;
 import org.wso2.carbon.kernel.region.RegionManager;
+import org.wso2.carbon.kernel.region.hooks.RegionBundleCollisionHook;
 import org.wso2.carbon.kernel.region.hooks.RegionBundleEventHook;
 import org.wso2.carbon.kernel.region.hooks.RegionBundleFindHook;
 import org.wso2.carbon.kernel.region.hooks.RegionResolverHookFactory;
@@ -47,6 +49,8 @@ public class CarbonKernelServiceComponent {
         OSGiServiceHolder.getInstance().setKernelRegion(kernelRegion);
 
         // Register region related hooks
+        registrations.add(bundleContext.registerService(CollisionHook.class.getName(),
+                                                        new RegionBundleCollisionHook(), null));
         registrations.add(bundleContext.registerService(ResolverHookFactory.class.getName(),
                                                         new RegionResolverHookFactory(), null));
         registrations.add(bundleContext.registerService(FindHook.class.getName(),

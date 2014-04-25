@@ -48,23 +48,20 @@ public class RegionResolverHook implements ResolverHook {
             Collection<BundleCapability> bundleCapabilities, BundleRequirement bundleRequirement) {
 
         Collection<BundleCapability> allowedCapabilities = new HashSet<>();
-        CarbonRuntime carbonRuntime = OSGiServiceHolder.getInstance().getCarbonRuntime();
 
-        if (carbonRuntime != null) {
-            Bundle currentBundle = bundleRequirement.getRevision().getBundle();
-            RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
+        Bundle currentBundle = bundleRequirement.getRevision().getBundle();
+        RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
 
-            Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
+        Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
 
-            Region currentBundleRegion = regionManager.getRegion(currentBundle.getBundleId());
+        Region currentBundleRegion = regionManager.getRegion(currentBundle.getBundleId());
 
-            for (BundleCapability bundleCapability : bundleCapabilities) {
-                Region region = regionManager.getRegion(bundleCapability.getRevision().
-                        getBundle().getBundleId());
-                if ((currentBundleRegion != null && currentBundleRegion.equals(region)) ||
-                    kernelRegion.equals(region)) {
-                    allowedCapabilities.add(bundleCapability);
-                }
+        for (BundleCapability bundleCapability : bundleCapabilities) {
+            Region region = regionManager.getRegion(bundleCapability.getRevision().
+                    getBundle().getBundleId());
+            if ((currentBundleRegion != null && currentBundleRegion.equals(region)) ||
+                kernelRegion.equals(region)) {
+                allowedCapabilities.add(bundleCapability);
             }
         }
         return allowedCapabilities;

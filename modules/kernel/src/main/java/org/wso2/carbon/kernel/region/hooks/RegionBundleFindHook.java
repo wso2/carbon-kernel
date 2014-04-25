@@ -19,22 +19,18 @@ public class RegionBundleFindHook implements FindHook {
     public void find(BundleContext bundleContext, Collection<Bundle> bundles) {
         Collection<Bundle> allowedBundles = new HashSet<>();
 
-        CarbonRuntime carbonRuntime = OSGiServiceHolder.getInstance().getCarbonRuntime();
+        Bundle currentBundle = bundleContext.getBundle();
+        RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
 
-        if (carbonRuntime != null) {
-            Bundle currentBundle = bundleContext.getBundle();
-            RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
+        Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
 
-            Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
+        Region currentBundleRegion = regionManager.getRegion(currentBundle.getBundleId());
 
-            Region currentBundleRegion = regionManager.getRegion(currentBundle.getBundleId());
-
-            for (Bundle bundle : bundles) {
-                Region region = regionManager.getRegion(bundleContext.getBundle().getBundleId());
-                if ((currentBundleRegion != null && currentBundleRegion.equals(region)) ||
-                    kernelRegion.equals(region)) {
-                    allowedBundles.add(bundle);
-                }
+        for (Bundle bundle : bundles) {
+            Region region = regionManager.getRegion(bundleContext.getBundle().getBundleId());
+            if ((currentBundleRegion != null && currentBundleRegion.equals(region)) ||
+                kernelRegion.equals(region)) {
+                allowedBundles.add(bundle);
             }
         }
 
