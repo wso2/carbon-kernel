@@ -153,8 +153,7 @@ public class FileUtils {
                     //close the Stream
                     fis.close();
                 } catch (IOException e) {
-                    System.out.println("Unable to close the InputStream " + e.getMessage());
-                    e.printStackTrace();
+                    logger.error("Unable to close the InputStream " + e.getMessage(), e);
                 }
             }
         }
