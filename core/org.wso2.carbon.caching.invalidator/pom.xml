@@ -14,7 +14,7 @@
     <artifactId>org.wso2.carbon.caching.invalidator</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Caching Invalidator</name>
-    <description>OSGi Bundle for the Caching implementation for Carbon</description>
+    <description>OSGi Bundle for the Cache invalidation for Carbon</description>
     <url>http://wso2.org</url>
 
     <dependencies>

@@ -104,6 +104,7 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
             TopicSubscriber subscriber = session.createSubscriber(topic);
             subscriber.setMessageListener(this);
             conn.start();
+            log.info("Global cache invalidation is online");
         }catch (Exception e){
             log.error("Global cache invalidation: Error jms broker initialization", e);
         }
@@ -144,6 +145,7 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
 
         try{
             String msg = ((TextMessage) message).getText();
+            log.debug("Cache invalidation message received: " + msg);
             Gson gson = new Gson();
             GlobalCacheInvalidationEvent event = gson.fromJson(msg, GlobalCacheInvalidationEvent.class);
             if(!sentMsgBuffer.contains(event.getUuid().trim())){ // Ignore own messages
@@ -153,6 +155,7 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
                 if(cacheManager != null){
                     if(cacheManager.getCache(event.getCacheName()) != null) {
                         cacheManager.getCache(event.getCacheName()).remove(event.getCacheEntry());
+                        log.debug("Global cache invalidated: " + event.getCacheEntry().getKey());
                     }else{
                         log.error("Global cache invalidation: error cache is null");
                     }
