@@ -19,11 +19,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.caching.impl.CacheInvalidator;
 import org.wso2.carbon.caching.invalidator.JMSImpl.JMSGlobalCacheInvalidationImpl;
-import org.wso2.carbon.utils.CacheInvalidator;
+import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
  * @scr.component name="org.wso2.carbon.caching.invalidator.internal.CacheInvalidationServiceComponent" immediate="true"
+ * @scr.reference name="configuration.context.service"
+ * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
+ * policy="dynamic" bind="setConfigurationContextService" unbind="unsetConfigurationContextService"
  */
 
 public class CacheInvalidationServiceComponent {
@@ -51,5 +55,13 @@ public class CacheInvalidationServiceComponent {
             String msg = "Failed to Stop the CacheInvalidationServiceComponent.";
             log.error(msg, e);
         }
+    }
+
+    protected void setConfigurationContextService(ConfigurationContextService contextService) {
+        CacheInvalidationDataHolder.setConfigContext(contextService.getServerConfigContext());
+    }
+
+    protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
+        CacheInvalidationDataHolder.setConfigContext(null);
     }
 }

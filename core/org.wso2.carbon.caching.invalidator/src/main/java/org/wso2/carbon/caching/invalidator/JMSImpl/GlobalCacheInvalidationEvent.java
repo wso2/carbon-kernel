@@ -15,13 +15,13 @@
  */
 package org.wso2.carbon.caching.invalidator.JMSImpl;
 
-import org.wso2.carbon.caching.impl.CacheEntry;
+import java.io.Serializable;
 
 public class GlobalCacheInvalidationEvent {
     private int tenantId;
     private String cacheManagerName;
     private String cacheName;
-    private CacheEntry cacheEntry;
+    private Serializable cacheKey;
     private String uuid;
 
     public int getTenantId() {
@@ -48,12 +48,12 @@ public class GlobalCacheInvalidationEvent {
         this.cacheName = cacheName;
     }
 
-    public CacheEntry getCacheEntry() {
-        return cacheEntry;
+    public Serializable getCacheKey() {
+        return cacheKey;
     }
 
-    public void setCacheEntry(CacheEntry cacheEntry) {
-        this.cacheEntry = cacheEntry;
+    public void setCacheKey(Serializable cacheKey) {
+        this.cacheKey = cacheKey;
     }
 
     public String getUuid() {

@@ -16,6 +16,8 @@
 package org.wso2.carbon.caching.impl;
 
 
+import java.io.Serializable;
+
 /**
  * This is used for global cluster cache invalidation
  */
@@ -27,8 +29,8 @@ public interface CacheInvalidator {
      * @param tenantId The current tenant Id
      * @param cacheManagerName Cache manager name
      * @param cacheName Cache name
-     * @param cacheEntry Cache entry
+     * @param cacheKey Cache entry
      */
-    public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, CacheEntry cacheEntry);
+    public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, Serializable cacheKey);
 
 }
