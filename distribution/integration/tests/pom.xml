@@ -127,7 +127,7 @@
                         <include>**/*TestCase.java</include>
                         <include>**/*TestServerManager.java</include>
                     </includes>
-                    <testFailureIgnore>true</testFailureIgnore>
+                    <testFailureIgnore>false</testFailureIgnore>
                     <skip>false</skip>
                     <systemPropertyVariables>
                         <sec.verifier.dir>${basedir}/target/security-verifier/</sec.verifier.dir> 
