@@ -36,6 +36,7 @@
             <groupId>org.apache.axis2.wso2</groupId>
             <artifactId>axis2</artifactId>
             <version>${orbit.version.axis2}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
