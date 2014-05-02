@@ -79,7 +79,7 @@
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>org.wso2.carbon.caching.invalidator</Bundle-SymbolicName>
                         <Export-Package>
-                            org.wso2.carbon.caching.invalidator.JMSImpl.*,
+                            org.wso2.carbon.caching.invalidator.jms.*,
                             !org.wso2.carbon.caching.invalidator.internal.*
                         </Export-Package>
                         <!--<Bundle-Activator>org.wso2.carbon.caching.invalidator.internal.Activator</Bundle-Activator>-->

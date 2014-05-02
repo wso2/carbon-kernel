@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
-import org.wso2.carbon.caching.invalidator.JMSImpl.JMSGlobalCacheInvalidationImpl;
+import org.wso2.carbon.caching.invalidator.jms.JMSGlobalCacheInvalidationImpl;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
