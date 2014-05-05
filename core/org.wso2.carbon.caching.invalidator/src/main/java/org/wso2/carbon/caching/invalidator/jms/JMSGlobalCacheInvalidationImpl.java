@@ -102,24 +102,21 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
         }
     }
 
-    private void initJMSBroker(Properties properties, String topicName){
-        boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
-        if(isCoordinator) {
-            try {
-                InitialContext iniCtx = new InitialContext(properties);
-                Object tmp = iniCtx.lookup("ConnectionFactory");
-                TopicConnectionFactory tcf = (TopicConnectionFactory) tmp;
-                TopicConnection conn = tcf.createTopicConnection();
-                topic = (Topic) iniCtx.lookup(topicName);
-                session = conn.createTopicSession(false,
-                        TopicSession.AUTO_ACKNOWLEDGE);
-                TopicSubscriber subscriber = session.createSubscriber(topic);
-                subscriber.setMessageListener(this);
-                conn.start();
-                log.info("Global cache invalidation is online");
-            } catch (Exception e) {
-                log.error("Global cache invalidation: Error jms broker initialization", e);
-            }
+    private void initJMSBroker(Properties properties, String topicName) {
+        try {
+            InitialContext iniCtx = new InitialContext(properties);
+            Object tmp = iniCtx.lookup("ConnectionFactory");
+            TopicConnectionFactory tcf = (TopicConnectionFactory) tmp;
+            TopicConnection conn = tcf.createTopicConnection();
+            topic = (Topic) iniCtx.lookup(topicName);
+            session = conn.createTopicSession(false,
+                    TopicSession.AUTO_ACKNOWLEDGE);
+            TopicSubscriber subscriber = session.createSubscriber(topic);
+            subscriber.setMessageListener(this);
+            conn.start();
+            log.info("Global cache invalidation is online");
+        } catch (Exception e) {
+            log.error("Global cache invalidation: Error jms broker initialization", e);
         }
     }
 
