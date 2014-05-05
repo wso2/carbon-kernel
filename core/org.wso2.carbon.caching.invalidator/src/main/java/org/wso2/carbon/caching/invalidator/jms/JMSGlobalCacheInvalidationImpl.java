@@ -61,17 +61,26 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
         try{
             StAXOMBuilder stAXOMBuilder = new StAXOMBuilder(new FileInputStream(configFilePath));
             OMElement documentElement = stAXOMBuilder.getDocumentElement();
-            QName cacheQName = new QName("http://wso2.org/ns/2010/09/caching", "cache");
-            Iterator cacheElementsIter = documentElement.getChildrenWithName(cacheQName);
+            Iterator iterator;
+            iterator = documentElement.getChildrenWithName(new QName("namingFactory"));
 
-            if(cacheElementsIter.hasNext()){
-                OMElement cache = (OMElement) cacheElementsIter.next();
-                OMElement factoryElement = cache.getFirstChildWithName(new QName("namingFactory"));
-                namingFactory = factoryElement.getText();
-                OMElement providerElement = cache.getFirstChildWithName(new QName("namingProviderUrl"));
-                providerUrl = providerElement.getText();
-                OMElement topicElement = cache.getFirstChildWithName(new QName("cacheInvalidateTopic"));
-                topicName = topicElement.getText();
+            if(iterator.hasNext()){
+                OMElement cache = (OMElement) iterator.next();
+                namingFactory = cache.getText();
+            }
+
+            iterator = documentElement.getChildrenWithName(new QName("namingProviderUrl"));
+
+            if(iterator.hasNext()){
+                OMElement cache = (OMElement) iterator.next();
+                providerUrl = cache.getText();
+            }
+
+            iterator = documentElement.getChildrenWithName(new QName("cacheInvalidateTopic"));
+
+            if(iterator.hasNext()){
+                OMElement cache = (OMElement) iterator.next();
+                topicName = cache.getText();
             }
 
             boolean propertyExists = namingFactory != null && !namingFactory.equals("");
