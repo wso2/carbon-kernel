@@ -107,7 +107,7 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
             InitialContext iniCtx = new InitialContext(properties);
             Object tmp = iniCtx.lookup("ConnectionFactory");
             TopicConnectionFactory tcf = (TopicConnectionFactory) tmp;
-            TopicConnection conn = tcf.createTopicConnection();
+            conn = tcf.createTopicConnection();
             topic = (Topic) iniCtx.lookup(topicName);
             session = conn.createTopicSession(false,
                     TopicSession.AUTO_ACKNOWLEDGE);
@@ -123,7 +123,7 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
     @Override
     public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, Serializable cacheKey)
     {
-        if(session == null){
+        if(conn == null){
             init();
             log.debug("Global cache invalidation: initializing the connection");
         }
