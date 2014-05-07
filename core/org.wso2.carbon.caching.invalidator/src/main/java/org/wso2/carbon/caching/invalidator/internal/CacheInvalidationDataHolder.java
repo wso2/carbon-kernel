@@ -29,7 +29,6 @@ public class CacheInvalidationDataHolder {
     }
 
     public static ConfigurationContext getConfigContext() {
-        CarbonUtils.checkSecurity();
         return configContext;
     }
 }

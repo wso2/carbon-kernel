@@ -42,8 +42,8 @@ import java.util.Properties;
 public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, MessageListener {
     private static final Log log = LogFactory.getLog(JMSGlobalCacheInvalidationImpl.class);
     private List<String> sentMsgBuffer = new ArrayList<String>();
-    private TopicConnection conn = null;
-    private TopicSession session = null;
+    private Connection conn = null;
+    private Session session = null;
     private Topic topic = null;
 
     public JMSGlobalCacheInvalidationImpl(){
@@ -91,7 +91,6 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
                 Properties properties = new Properties();
                 properties.setProperty("java.naming.factory.initial", namingFactory);
                 properties.setProperty("java.naming.provider.url", providerUrl);
-                properties.setProperty("topic." + topicName, topicName);
                 initJMSBroker(properties, topicName);
             }else{
                 log.info("Global cache invalidation is offline according to cache.xml configurations");
@@ -104,16 +103,17 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
 
     private void initJMSBroker(Properties properties, String topicName) {
         try {
+            log.debug("Global cache invalidation: Generating initial context");
             InitialContext iniCtx = new InitialContext(properties);
             Object tmp = iniCtx.lookup("ConnectionFactory");
-            TopicConnectionFactory tcf = (TopicConnectionFactory) tmp;
-            conn = tcf.createTopicConnection();
-            topic = (Topic) iniCtx.lookup(topicName);
-            session = conn.createTopicSession(false,
-                    TopicSession.AUTO_ACKNOWLEDGE);
-            TopicSubscriber subscriber = session.createSubscriber(topic);
-            subscriber.setMessageListener(this);
+            log.debug("Global cache invalidation: Initial context found: " + tmp.getClass());
+            ConnectionFactory tcf = (ConnectionFactory) tmp;
+            conn = tcf.createConnection();
             conn.start();
+            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            topic = session.createTopic(topicName);
+            MessageConsumer subscriber = session.createConsumer(topic);
+            subscriber.setMessageListener(this);
             log.info("Global cache invalidation is online");
         } catch (Exception e) {
             log.error("Global cache invalidation: Error jms broker initialization", e);
@@ -142,9 +142,10 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
             // Setup the pub/sub connection, session
             // Send the msg (JSON)
             try {
-                TopicPublisher publisher = session.createPublisher(topic);
                 TextMessage tm = session.createTextMessage(json);
-                publisher.publish(tm);
+                MessageProducer publisher = session.createProducer(topic);
+                publisher.send(tm);
+                log.debug("Global cache invalidation message sent: " + tm.getText());
                 sentMsgBuffer.add(uuid.trim());
                 publisher.close();
             } catch (Exception e) {
@@ -188,9 +189,8 @@ public class JMSGlobalCacheInvalidationImpl implements CacheInvalidator, Message
     public void stop()
     {
         try{
-            if(conn != null && session != null) {
+            if(conn != null) {
                 conn.stop();
-                session.close();
                 conn.close();
             }else{
                 log.debug("Global cache invalidation: no connection");

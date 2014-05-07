@@ -29,9 +29,9 @@
             <version>${gson.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-core</artifactId>
-            <version>${activemq.core.version}</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <version>${jms.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -97,6 +97,6 @@
     <properties>
         <carbon.version>4.3.0-SNAPSHOT</carbon.version>
         <gson.version>1.7.1</gson.version>
-        <activemq.core.version>5.2.0</activemq.core.version>
+        <jms.version>1.1.1</jms.version>
     </properties>
 </project>
