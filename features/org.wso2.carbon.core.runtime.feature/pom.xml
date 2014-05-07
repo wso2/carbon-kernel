@@ -110,6 +110,86 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>cm</artifactId>
         </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.console</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.core</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.director</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.director.app</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.directorywatcher</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.engine</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.extensionlocation</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.metadata</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.reconciler.dropins</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.repository</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.updatechecker</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.updatesite</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.equinox</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.preferences</artifactId>
@@ -122,12 +202,6 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.security</artifactId>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.region</artifactId>
-        </dependency>
--->
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
@@ -176,6 +250,54 @@
             <groupId>org.eclipse</groupId>
             <artifactId>org.sat4j.pb</artifactId>
         </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.osgi</groupId>-->
+        <!--<artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+        <!--<groupId>org.eclipse.ecf.provider.filetransfer</groupId>-->
+        <!--<artifactId>httpclient</artifactId>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.tomcat.wso2</groupId>
+            <artifactId>tomcat</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>javax.servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.ha.wso2</groupId>
+            <artifactId>tomcat-ha</artifactId>
+            <version>${orbit.version.tomcat}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat-servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>javax.servlet.jsp</artifactId>
+            <version>${version.equinox.javax.servlet.jsp}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.jsp.jasper</artifactId>
+            <version>${version.equinox.jsp.jasper}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>org.apache.jasper.glassfish</artifactId>
+            <version>${version.equinox.jasper}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.equinox</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>${version.javax.el}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -186,7 +308,7 @@
                 <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>1-p2-feature-generation</id>
+                        <id>4-p2-feature-generation</id>
                         <phase>package</phase>
                         <goals>
                             <goal>p2-feature-gen</goal>
@@ -196,64 +318,51 @@
                             <propertiesFile>../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
-                                    <propertyDef>org.eclipse.equinox.p2.type.group:false
-                                    </propertyDef>
+                                    <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.common
-                                </bundleDef>
-                                <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator
-                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.common</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.ds</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.launcher
-                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.launcher</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.util</bundleDef>
                                 <bundleDef>org.eclipse.osgi:org.eclipse.osgi.services</bundleDef>
                                 <bundleDef>org.eclipse.osgi:org.eclipse.osgi</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.app</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.concurrent
-                                </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.frameworkadmin
-                                </bundleDef>
-                                <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox
-                                </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.preferences
-                                </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.registry
-                                </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.security
-                                </bundleDef>
-                                <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
-                                </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.console
-                                </bundleDef>
-                                <bundleDef>org.apache.felix:org.apache.felix.gogo.command
-                                </bundleDef>
-                                <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime
-                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.concurrent</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.frameworkadmin</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.preferences</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.registry</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.security</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.console</bundleDef>
+                                <bundleDef>org.apache.felix:org.apache.felix.gogo.command</bundleDef>
+                                <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.shell</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.contenttype</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.expressions</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.jobs</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.runtime</bundleDef>
-                                <!--<bundleDef>org.eclipse.equinox:org.eclipse.equinox.region</bundleDef>-->
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer
-                                </bundleDef>
+                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.core</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-service</bundleDef>
                                 <bundleDef>org.eclipse.equinox:cm</bundleDef>
-                                <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86
-                                </bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86</bundleDef>
+                                <bundleDef>org.apache.tomcat.wso2:tomcat</bundleDef>
+                                <bundleDef>org.eclipse.equinox:javax.servlet</bundleDef>
+                                <bundleDef>org.apache.tomcat.ha.wso2:tomcat-ha</bundleDef>
+                                <bundleDef>org.eclipse.equinox:javax.servlet.jsp</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.jsp.jasper</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.apache.jasper.glassfish</bundleDef>
+                                <bundleDef>org.eclipse.equinox:javax.el</bundleDef>
+
                             </bundles>
                         </configuration>
                     </execution>
