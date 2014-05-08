@@ -8,6 +8,7 @@ import org.osgi.framework.hooks.bundle.CollisionHook;
 import org.osgi.framework.hooks.bundle.EventHook;
 import org.osgi.framework.hooks.bundle.FindHook;
 import org.osgi.framework.hooks.resolver.ResolverHookFactory;
+import org.osgi.framework.hooks.service.EventListenerHook;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -20,6 +21,8 @@ import org.wso2.carbon.kernel.region.hooks.RegionBundleCollisionHook;
 import org.wso2.carbon.kernel.region.hooks.RegionBundleEventHook;
 import org.wso2.carbon.kernel.region.hooks.RegionBundleFindHook;
 import org.wso2.carbon.kernel.region.hooks.RegionResolverHookFactory;
+import org.wso2.carbon.kernel.region.hooks.RegionServiceEventHook;
+import org.wso2.carbon.kernel.region.hooks.RegionServiceFindHook;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,6 +60,11 @@ public class CarbonKernelServiceComponent {
                                                         new RegionBundleFindHook(), null));
         registrations.add(bundleContext.registerService(EventHook.class.getName(),
                                                         new RegionBundleEventHook(), null));
+        registrations.add(bundleContext.registerService(EventListenerHook.class.getName(),
+                                                        new RegionServiceEventHook(), null));
+        registrations.add(bundleContext.registerService(org.osgi.framework.hooks.service.FindHook.
+                                                                class.getName(),
+                                                        new RegionServiceFindHook(), null));
     }
 
     @Deactivate

@@ -2,10 +2,8 @@ package org.wso2.carbon.kernel.region.hooks;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.hooks.bundle.FindHook;
-import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.context.CarbonContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.hooks.service.FindHook;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.region.RegionManager;
@@ -13,13 +11,17 @@ import org.wso2.carbon.kernel.region.RegionManager;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class RegionBundleFindHook implements FindHook {
+
+public class RegionServiceFindHook implements FindHook {
 
     @Override
-    public void find(BundleContext bundleContext, Collection<Bundle> bundles) {
-        Collection<Bundle> allowedBundles = new HashSet<>();
+    public void find(BundleContext bundleContext, String s, String s2, boolean b,
+                     Collection<ServiceReference<?>> serviceReferences) {
+
+        Collection<ServiceReference> allowedReferences = new HashSet<>();
 
         Bundle currentBundle = bundleContext.getBundle();
+
         RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
 
         Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
@@ -31,13 +33,13 @@ public class RegionBundleFindHook implements FindHook {
             return;
         }
 
-        for (Bundle bundle : bundles) {
-            Region region = regionManager.getRegion(bundle.getBundleId());
+        for (ServiceReference serviceReference : serviceReferences) {
+            Region region = regionManager.getRegion(serviceReference.getBundle().getBundleId());
             if (currentBundleRegion.equals(region)) {
-                allowedBundles.add(bundle);
+                allowedReferences.add(serviceReference);
             }
         }
 
-        bundles.retainAll(allowedBundles);
+        serviceReferences.retainAll(allowedReferences);
     }
 }
