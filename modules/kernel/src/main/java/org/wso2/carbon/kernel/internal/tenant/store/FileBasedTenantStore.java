@@ -130,16 +130,15 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
         tenant.setAdminUsername(tenantConfig.getAdminUserConfig().getName());
         tenant.setAdminUserEmailAddress(tenantConfig.getAdminUserConfig().getEmailAddress());
 
-        Region region = new TenantRegion(tenantConfig.getId());
+        tenant.setRegion(new TenantRegion(tenantConfig.getId()));
+
         BundleContext bundleContext = OSGiServiceHolder.getInstance().getBundleContext();
 
         try {
-            //TODO Load tenant bundles
+            //Load tenant bundles
             for (BundleConfig bundleConfig : tenantConfig.getBundleConfigs()) {
-                Bundle bundle = bundleContext.installBundle(bundleConfig.getBundleLocation());
-                region.addBundle(bundle);
+                bundleContext.installBundle(bundleConfig.getBundleLocation());
             }
-            tenant.setRegion(region);
         } catch (BundleException e) {
             e.printStackTrace();
         }

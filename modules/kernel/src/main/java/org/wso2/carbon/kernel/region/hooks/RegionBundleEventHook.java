@@ -11,6 +11,7 @@ import org.wso2.carbon.kernel.context.PrivilegedTenantContext;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.region.RegionManager;
+import org.wso2.carbon.kernel.region.RegionUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -47,7 +48,9 @@ public class RegionBundleEventHook implements EventHook {
 
     private void bundleInstalled(Bundle eventBundle) {
         try {
-            Region installRegion = PrivilegedTenantContext.getThreadLocalTenantContext().getRegion();
+            String tenantRegion = PrivilegedTenantContext.getThreadLocalTenantContext().getTenantDomain();
+            Region installRegion = RegionUtils.getTenantRegion(tenantRegion);
+
             if (installRegion != null) {
                 installRegion.addBundle(eventBundle);
             } else {
@@ -57,7 +60,7 @@ public class RegionBundleEventHook implements EventHook {
                     kernelRegion.addBundle(eventBundle);
                 }
             }
-        } catch (BundleException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

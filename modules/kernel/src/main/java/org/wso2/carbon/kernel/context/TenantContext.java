@@ -36,7 +36,7 @@ public class TenantContext {
         return new TenantContext(CarbonContextDataHolder.getThreadLocalCarbonContextHolder());
     }
 
-    public Region getRegion() {
-        return CarbonContextDataHolder.getThreadLocalCarbonContextHolder().getRegion();
+    public String getTenantDomain() {
+        return CarbonContextDataHolder.getThreadLocalCarbonContextHolder().getTenantDomain();
     }
 }

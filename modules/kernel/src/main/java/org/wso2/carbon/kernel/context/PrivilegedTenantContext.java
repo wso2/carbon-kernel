@@ -31,13 +31,12 @@ public class PrivilegedTenantContext extends TenantContext{
                 getThreadLocalCarbonContextHolder());
     }
 
-    public Region getRegion() {
-        return CarbonContextDataHolder.getThreadLocalCarbonContextHolder().getRegion();
+    public String getTenantDomain() {
+        return CarbonContextDataHolder.getThreadLocalCarbonContextHolder().getTenantDomain();
     }
 
-
-    public void setRegion(Region region) {
-        CarbonContextDataHolder.getThreadLocalCarbonContextHolder().setRegion(region);
+    public void setTenantDomain(String tenantDomain) {
+        CarbonContextDataHolder.getThreadLocalCarbonContextHolder().setTenantDomain(tenantDomain);
     }
 
     public void destroyCurrentContext() {

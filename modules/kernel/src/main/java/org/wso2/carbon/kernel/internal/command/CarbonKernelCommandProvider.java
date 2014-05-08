@@ -22,6 +22,7 @@ import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,8 +34,10 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.context.PrivilegedCarbonContext;
 import org.wso2.carbon.kernel.context.PrivilegedTenantContext;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
+import org.wso2.carbon.kernel.internal.tenant.store.model.BundleConfig;
 import org.wso2.carbon.kernel.region.BundleToRegionManager;
 import org.wso2.carbon.kernel.region.Region;
+import org.wso2.carbon.kernel.region.TenantRegion;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
@@ -134,6 +137,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         String[] args = extractArgs(ci);
         if (args.length == 1) {
             try {
+                PrivilegedTenantContext.getThreadLocalTenantContext().setTenantDomain(args[0]);
                 Tenant tenant = tenantRuntime.getTenant(args[0]);
                 if (tenant == null) {
                     System.out.println("Tenant with domain " + args[0] + " does not exists");
@@ -148,6 +152,8 @@ public class CarbonKernelCommandProvider implements CommandProvider {
                 System.out.println("Admin User Email Address --> " + tenant.getAdminUserEmailAddress());
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                PrivilegedTenantContext.getThreadLocalTenantContext().destroyCurrentContext();
             }
         } else {
             throw new Exception("Unexpected number of input parameters");
@@ -162,16 +168,16 @@ public class CarbonKernelCommandProvider implements CommandProvider {
 
         if (args.length == 2) {
             try {
+                PrivilegedTenantContext.getThreadLocalTenantContext().setTenantDomain(args[0]);
                 Tenant tenant = tenantRuntime.getTenant(args[0]);
-                Region tenantRegion = tenant.getRegion();
-                PrivilegedTenantContext.getThreadLocalTenantContext().setRegion(tenantRegion);
                 Bundle bundle = bundleContext.installBundle(args[1]);
                 tenantRuntime.persistTenant(tenant);
                 System.out.println("Successfully added bundle : " + bundle.getSymbolicName() +
                                    " to the tenant with the ID " + tenant.getID());
-                PrivilegedTenantContext.getThreadLocalTenantContext().destroyCurrentContext();
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                PrivilegedTenantContext.getThreadLocalTenantContext().destroyCurrentContext();
             }
         } else {
             throw new Exception("Unexpected number of input parameters");

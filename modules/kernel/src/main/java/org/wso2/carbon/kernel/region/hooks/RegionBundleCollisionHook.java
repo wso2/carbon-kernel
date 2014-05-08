@@ -10,6 +10,7 @@ import org.wso2.carbon.kernel.context.PrivilegedTenantContext;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.region.RegionManager;
+import org.wso2.carbon.kernel.region.RegionUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,7 +26,9 @@ public class RegionBundleCollisionHook implements CollisionHook {
 
         Region kernelRegion = OSGiServiceHolder.getInstance().getKernelRegion();
 
-        Region installRegion = PrivilegedTenantContext.getThreadLocalTenantContext().getRegion();
+        String tenantDomain = PrivilegedTenantContext.getThreadLocalTenantContext().getTenantDomain();
+
+        Region installRegion = RegionUtils.getTenantRegion(tenantDomain);
 
         if (regionManager != null) {
             for (Bundle currentBundle : bundles) {

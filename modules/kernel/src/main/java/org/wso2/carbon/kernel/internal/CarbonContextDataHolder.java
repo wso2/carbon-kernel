@@ -1,11 +1,9 @@
 package org.wso2.carbon.kernel.internal;
 
 
-import org.wso2.carbon.kernel.region.Region;
-
 public class CarbonContextDataHolder {
 
-    private Region region;
+    private String tenantDomain;
 
     private static ThreadLocal<CarbonContextDataHolder> currentContextHolder =
             new ThreadLocal<CarbonContextDataHolder>() {
@@ -18,12 +16,12 @@ public class CarbonContextDataHolder {
         return currentContextHolder.get();
     }
 
-    public Region getRegion() {
-        return region;
+    public String getTenantDomain() {
+        return tenantDomain;
     }
 
-    public void setRegion(Region region) {
-        this.region = region;
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
     }
 
     public static void destroyCurrentCarbonContextHolder() {
