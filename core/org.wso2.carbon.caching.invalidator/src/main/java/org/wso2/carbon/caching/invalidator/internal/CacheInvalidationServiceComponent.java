@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
-import org.wso2.carbon.caching.invalidator.jms.JMSGlobalCacheInvalidationImpl;
+import org.wso2.carbon.caching.invalidator.amqp.AMQPGlobalCacheInvalidationImpl;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
@@ -33,12 +33,12 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 public class CacheInvalidationServiceComponent {
     private static Log log = LogFactory.getLog(CacheInvalidationServiceComponent.class);
     ServiceRegistration serviceRegistration;
-    JMSGlobalCacheInvalidationImpl globalCacheInvalidation;
+    AMQPGlobalCacheInvalidationImpl globalCacheInvalidation;
 
     protected void activate(ComponentContext ctxt) {
         log.info("Initializing the CacheInvalidationServiceComponent...");
         try {
-            globalCacheInvalidation = new JMSGlobalCacheInvalidationImpl();
+            globalCacheInvalidation = new AMQPGlobalCacheInvalidationImpl();
             serviceRegistration = ctxt.getBundleContext().registerService(CacheInvalidator.class, globalCacheInvalidation, null);
         } catch (Exception e) {
             String msg = "Failed to initialize the CacheInvalidationServiceComponent.";
@@ -49,7 +49,6 @@ public class CacheInvalidationServiceComponent {
     protected void deactivate(ComponentContext ctxt) {
         log.info("Stopping the CacheInvalidationServiceComponent");
         try{
-            globalCacheInvalidation.stop();
             serviceRegistration.unregister();
         }catch (Exception e){
             String msg = "Failed to Stop the CacheInvalidationServiceComponent.";

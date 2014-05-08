@@ -29,9 +29,9 @@
             <version>${gson.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jms_1.1_spec</artifactId>
-            <version>${jms.version}</version>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>${amqp.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -79,7 +79,7 @@
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>org.wso2.carbon.caching.invalidator</Bundle-SymbolicName>
                         <Export-Package>
-                            org.wso2.carbon.caching.invalidator.jms.*,
+                            org.wso2.carbon.caching.invalidator.amqp.*,
                             !org.wso2.carbon.caching.invalidator.internal.*
                         </Export-Package>
                         <!--<Bundle-Activator>org.wso2.carbon.caching.invalidator.internal.Activator</Bundle-Activator>-->
@@ -97,6 +97,6 @@
     <properties>
         <carbon.version>4.3.0-SNAPSHOT</carbon.version>
         <gson.version>1.7.1</gson.version>
-        <jms.version>1.1.1</jms.version>
+        <amqp.version>3.0.4</amqp.version>
     </properties>
 </project>

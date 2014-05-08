@@ -17,8 +17,7 @@
 <cache xmlns="http://wso2.org/ns/2010/09/caching">
 
     <!--Global cluster cache invalidation message broker parameters comment or uncomment to enable or disable feature-->
-    <namingFactory>org.apache.activemq.jndi.ActiveMQInitialContextFactory</namingFactory>
-    <namingProviderUrl>tcp://localhost:61616</namingProviderUrl>
+    <providerUrl>localhost</providerUrl>
     <cacheInvalidateTopic>GlobalCacheInvalidation</cacheInvalidateTopic>
 
 </cache>
