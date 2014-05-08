@@ -1,6 +1,5 @@
 package org.wso2.carbon.kernel.internal;
 
-
 public class CarbonContextDataHolder {
 
     private String tenantDomain;

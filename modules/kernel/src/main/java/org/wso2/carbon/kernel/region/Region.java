@@ -4,7 +4,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface Region {
 

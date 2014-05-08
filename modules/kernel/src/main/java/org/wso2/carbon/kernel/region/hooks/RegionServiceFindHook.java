@@ -11,7 +11,6 @@ import org.wso2.carbon.kernel.region.RegionManager;
 import java.util.Collection;
 import java.util.HashSet;
 
-
 public class RegionServiceFindHook implements FindHook {
 
     @Override

@@ -12,12 +12,12 @@ import org.wso2.carbon.kernel.region.RegionManager;
 import java.util.Collection;
 import java.util.Map;
 
-
 public class RegionServiceEventHook implements EventListenerHook {
 
     @Override
     public void event(ServiceEvent serviceEvent,
-                      Map<BundleContext, Collection<ListenerHook.ListenerInfo>> bundleContextCollectionMap) {
+                      Map<BundleContext, Collection<ListenerHook.ListenerInfo>>
+                              bundleContextCollectionMap) {
 
         Bundle finderBundle = serviceEvent.getServiceReference().getBundle();
 

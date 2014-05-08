@@ -7,14 +7,12 @@ import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.region.RegionManager;
 
 import java.util.Collection;
 import java.util.HashSet;
-
 
 public class RegionResolverHook implements ResolverHook {
     private static final Logger logger = LoggerFactory.getLogger(RegionResolverHook.class);
@@ -27,7 +25,7 @@ public class RegionResolverHook implements ResolverHook {
     @Override
     public void filterSingletonCollisions(BundleCapability bundleCapability,
                                           Collection<BundleCapability> bundleCapabilities) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //TODO : Implement this
     }
 
     @Override
@@ -41,7 +39,7 @@ public class RegionResolverHook implements ResolverHook {
 
     @Override
     public void end() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //TODO : Implement this
     }
 
     private Collection<BundleCapability> getAllowedCapabilities(

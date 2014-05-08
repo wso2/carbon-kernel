@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class TenantRegion implements Region {
 
     private String id;

@@ -2,10 +2,7 @@ package org.wso2.carbon.kernel.region.hooks;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.hooks.bundle.FindHook;
-import org.wso2.carbon.kernel.CarbonRuntime;
-import org.wso2.carbon.kernel.context.CarbonContext;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.region.RegionManager;

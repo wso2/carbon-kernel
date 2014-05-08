@@ -1,6 +1,5 @@
 package org.wso2.carbon.kernel.region;
 
-
 import org.osgi.framework.BundleException;
 
 import java.util.Collections;
@@ -18,8 +17,8 @@ public class BundleToRegionManager implements RegionManager {
     public void associateBundleWithRegion(long bundleId, Region region) throws BundleException {
         Region r = this.bundleToRegion.get(bundleId);
         if (r != null && r != region) {
-            throw new BundleException("Bundle '" + bundleId + "' is already associated with region " +
-                                      "'" + r + "'", BundleException.INVALID_OPERATION);
+            throw new BundleException("Bundle : " + bundleId + " is already associated with region" +
+                                      " : " + r, BundleException.INVALID_OPERATION);
         }
         this.bundleToRegion.put(bundleId, region);
     }

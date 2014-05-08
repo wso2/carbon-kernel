@@ -1,7 +1,8 @@
 package org.wso2.carbon.kernel.region;
 
-
 import org.osgi.framework.BundleException;
+
+//TODO : Need a better name for this class
 
 public interface RegionManager {
 

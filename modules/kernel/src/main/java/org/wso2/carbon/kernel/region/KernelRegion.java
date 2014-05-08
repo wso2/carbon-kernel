@@ -2,7 +2,6 @@ package org.wso2.carbon.kernel.region;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
-import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 
 import java.util.Collection;
