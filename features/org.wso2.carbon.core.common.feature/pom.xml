@@ -60,7 +60,7 @@
 			        <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.servlet</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.helper</bundleDef>
                                 <bundleDef>org.apache.tomcat.wso2:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}</bundleDef>
-				<bundleDef>org.eclipse.equinox:javax.el:${version.equinox.javax.el}</bundleDef>
+                                <bundleDef>org.apache.tomcat.wso2:tomcat-el-api:${orbit.version.tomcat.el.api}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.utils</bundleDef>
                                 <bundleDef>org.wso2.carbon:javax.cache.wso2</bundleDef>
 			       	<bundleDef>org.apache.tomcat.wso2:tomcat-servlet-api:${orbit.version.tomcat.servlet.api}</bundleDef>
