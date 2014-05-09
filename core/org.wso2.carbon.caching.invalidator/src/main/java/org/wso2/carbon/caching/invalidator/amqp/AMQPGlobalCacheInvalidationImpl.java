@@ -96,6 +96,7 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Consum
             channel = connection.createChannel();
             channel.exchangeDeclare(topicName, "topic");
             String queueName = channel.queueDeclare().getQueue();
+            channel.queueBind(queueName, topicName, "#");
             channel.basicConsume(queueName, true, this);
             log.info("Global cache invalidation is online");
         } catch (Exception e) {
@@ -135,10 +136,10 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Consum
     }
 
     public void onMessage(String msg) {
+        log.debug("Cache invalidation message received: " + msg);
         boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
         if(isCoordinator) {
             try {
-                log.debug("Cache invalidation message received: " + msg);
                 Gson gson = new Gson();
                 GlobalCacheInvalidationEvent event = gson.fromJson(msg, GlobalCacheInvalidationEvent.class);
                 if (!sentMsgBuffer.contains(event.getUuid().trim())) { // Ignore own messages
@@ -157,6 +158,7 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Consum
                     }
                 } else {
                     sentMsgBuffer.remove(event.getUuid().trim()); // To resolve future performance issues
+                    log.debug("Global cache invalidation: own message ignored");
                 }
             } catch (Exception e) {
                 log.error("Global cache invalidation: error local cache update", e);
