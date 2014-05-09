@@ -22,6 +22,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
+import org.wso2.carbon.caching.impl.CacheInvalidatorKey;
 import org.wso2.carbon.caching.invalidator.internal.CacheInvalidationDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
@@ -32,26 +33,27 @@ import javax.cache.Caching;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Consumer {
+public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnable {
     private static final Log log = LogFactory.getLog(AMQPGlobalCacheInvalidationImpl.class);
     private List<String> sentMsgBuffer = new ArrayList<String>();
-    private Channel channel = null;
-    private Connection connection = null;
     private String topicName = null;
+    private String providerUrl = null;
+    private QueueingConsumer consumer = null;
 
     public AMQPGlobalCacheInvalidationImpl(){
-        init(); // initialize and subscribe to the server at the bundle activation
+        if(init()) {
+            initMSBroker(); // initialize and subscribe to the server at the bundle activation
+        }
         log.debug("Global cache invalidation: initializing the subscription");
     }
 
-    private void init(){
-        String providerUrl = null;
+    private boolean init(){
+        boolean propertyExists = false;
+        providerUrl = null;
 
         String configFilePath = CarbonUtils.getCarbonHome() + File.separator + "repository"
                 + File.separator + "conf" + File.separator + "cache.xml";
@@ -74,30 +76,32 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Consum
                 topicName = cache.getText();
             }
 
-            boolean propertyExists = providerUrl != null && !providerUrl.equals("");
+            propertyExists = providerUrl != null && !providerUrl.equals("");
             propertyExists &= topicName != null && !topicName.equals("");
 
-            if(propertyExists){
-                initMSBroker(providerUrl);
-            }else{
+            if(!propertyExists){
                 log.info("Global cache invalidation is offline according to cache.xml configurations");
             }
 
         }catch (Exception e){
             log.info("Global cache invalidation is offline according to cache.xml configurations");
         }
+        return propertyExists;
     }
 
-    private void initMSBroker(String url) {
+    private void initMSBroker() {
+        Thread reciever = new Thread(this);
         try {
             ConnectionFactory factory = new ConnectionFactory();
-            factory.setHost(url);
-            connection = factory.newConnection();
-            channel = connection.createChannel();
+            factory.setHost(providerUrl);
+            Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel();
             channel.exchangeDeclare(topicName, "topic");
             String queueName = channel.queueDeclare().getQueue();
             channel.queueBind(queueName, topicName, "#");
-            channel.basicConsume(queueName, true, this);
+            consumer = new QueueingConsumer(channel);
+            channel.basicConsume(queueName, true, consumer);
+            reciever.start();
             log.info("Global cache invalidation is online");
         } catch (Exception e) {
             log.error("Global cache invalidation: Error message broker initialization", e);
@@ -105,9 +109,9 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Consum
     }
 
     @Override
-    public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, Serializable cacheKey)
+    public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, CacheInvalidatorKey cacheKey)
     {
-        if(channel == null || connection == null || !connection.isOpen()){
+        if(providerUrl == null){
             init();
             log.debug("Global cache invalidation: initializing the connection");
         }
@@ -125,12 +129,25 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Consum
             String json = gson.toJson(event);
             // Setup the pub/sub connection, session
             // Send the msg (JSON)
+            Connection connection = null;
             try {
-                channel.basicPublish(topicName, "#", null, json.getBytes());
+                ConnectionFactory factory = new ConnectionFactory();
+                factory.setHost(providerUrl);
+                connection = factory.newConnection();
+                Channel channel = connection.createChannel();
+                channel.exchangeDeclare(topicName, "topic");
+                channel.basicPublish(topicName, "invlidate.cache", null, json.getBytes());
                 sentMsgBuffer.add(uuid.trim());
                 log.debug("Global cache invalidation message sent: " + json);
             } catch (Exception e) {
                 log.error("Global cache invalidation: Error publishing the message", e);
+            }finally {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    }
+                    catch (Exception ignore) {}
+                }
             }
         }
     }
@@ -169,24 +186,15 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Consum
     }
 
     @Override
-    public void handleConsumeOk(String s) {
-        log.debug("Consumer "+ s +" registered");
+    public void run() {
+        while(true) {
+            try {
+                QueueingConsumer.Delivery delivery = consumer.nextDelivery();
+                String message = new String(delivery.getBody());
+                onMessage(message);
+            } catch (Exception e) {
+                log.error("Global cache invalidation: error message recieve", e);
+            }
+        }
     }
-
-    @Override
-    public void handleDelivery(String s, Envelope envelope, AMQP.BasicProperties basicProperties, byte[] bytes) throws IOException {
-        onMessage(new String(bytes));
-    }
-
-    @Override
-    public void handleCancelOk(String s) {}
-
-    @Override
-    public void handleCancel(String s) throws IOException {}
-
-    @Override
-    public void handleShutdownSignal(String s, ShutdownSignalException e) {}
-
-    @Override
-    public void handleRecoverOk(String s) {}
 }
