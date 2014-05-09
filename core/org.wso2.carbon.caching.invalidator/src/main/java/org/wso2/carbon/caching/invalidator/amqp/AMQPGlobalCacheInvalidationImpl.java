@@ -90,7 +90,6 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
     }
 
     private void initMSBroker() {
-        Thread reciever = new Thread(this);
         try {
             ConnectionFactory factory = new ConnectionFactory();
             factory.setHost(providerUrl);
@@ -101,6 +100,7 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
             channel.queueBind(queueName, topicName, "#");
             consumer = new QueueingConsumer(channel);
             channel.basicConsume(queueName, true, consumer);
+            Thread reciever = new Thread(this);
             reciever.start();
             log.info("Global cache invalidation is online");
         } catch (Exception e) {
@@ -193,7 +193,8 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
                 String message = new String(delivery.getBody());
                 onMessage(message);
             } catch (Exception e) {
-                log.error("Global cache invalidation: error message recieve", e);
+                log.error("Global cache invalidation: error message recieve, Subscription is offline.", e);
+                break;
             }
         }
     }
