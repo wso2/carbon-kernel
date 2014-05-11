@@ -24,11 +24,6 @@
             <version>${carbon.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
             <version>${amqp.version}</version>
@@ -96,7 +91,6 @@
 
     <properties>
         <carbon.version>4.3.0-SNAPSHOT</carbon.version>
-        <gson.version>1.7.1</gson.version>
         <amqp.version>3.0.4</amqp.version>
     </properties>
 </project>

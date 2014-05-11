@@ -15,14 +15,15 @@
  */
 package org.wso2.carbon.caching.invalidator.amqp;
 
-import com.google.gson.Gson;
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.QueueingConsumer;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
-import org.wso2.carbon.caching.impl.CacheInvalidatorKey;
 import org.wso2.carbon.caching.invalidator.internal.CacheInvalidationDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.utils.UUIDGenerator;
@@ -31,8 +32,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import javax.xml.namespace.QName;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -109,7 +109,7 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
     }
 
     @Override
-    public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, CacheInvalidatorKey cacheKey)
+    public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, Serializable cacheKey)
     {
         if(providerUrl == null){
             init();
@@ -125,20 +125,21 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
             event.setCacheKey(cacheKey);
             String uuid = UUIDGenerator.generateUUID();
             event.setUuid(uuid);
-            Gson gson = new Gson();
-            String json = gson.toJson(event);
             // Setup the pub/sub connection, session
-            // Send the msg (JSON)
+            // Send the msg (byte stream)
             Connection connection = null;
             try {
+                log.debug("Global cache invalidation: converting serializable object to byte stream.");
+                byte data[] = serialize(event);
+                log.debug("Global cache invalidation: converting data to byte stream complete.");
                 ConnectionFactory factory = new ConnectionFactory();
                 factory.setHost(providerUrl);
                 connection = factory.newConnection();
                 Channel channel = connection.createChannel();
                 channel.exchangeDeclare(topicName, "topic");
-                channel.basicPublish(topicName, "invlidate.cache", null, json.getBytes());
+                channel.basicPublish(topicName, "invlidate.cache", null, data);
                 sentMsgBuffer.add(uuid.trim());
-                log.debug("Global cache invalidation message sent: " + json);
+                log.debug("Global cache invalidation message sent: " + new String(data));
             } catch (Exception e) {
                 log.error("Global cache invalidation: Error publishing the message", e);
             }finally {
@@ -152,13 +153,14 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
         }
     }
 
-    public void onMessage(String msg) {
-        log.debug("Cache invalidation message received: " + msg);
+    public void onMessage(byte[] data) {
+        log.debug("Cache invalidation message received: " + new String(data));
         boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
         if(isCoordinator) {
             try {
-                Gson gson = new Gson();
-                GlobalCacheInvalidationEvent event = gson.fromJson(msg, GlobalCacheInvalidationEvent.class);
+                log.debug("Global cache invalidated: deserializing data to object");
+                GlobalCacheInvalidationEvent event = (GlobalCacheInvalidationEvent) deserialize(data);
+                log.debug("Global cache invalidated: deserializing complete");
                 if (!sentMsgBuffer.contains(event.getUuid().trim())) { // Ignore own messages
                     PrivilegedCarbonContext.startTenantFlow();
                     PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(event.getTenantId(), true);
@@ -190,12 +192,24 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
         while(true) {
             try {
                 QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-                String message = new String(delivery.getBody());
-                onMessage(message);
+                onMessage(delivery.getBody());
             } catch (Exception e) {
                 log.error("Global cache invalidation: error message recieve, Subscription is offline.", e);
                 break;
             }
         }
+    }
+
+    private byte[] serialize(Object obj) throws Exception {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(obj);
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    private Object deserialize(byte[] bytes) throws Exception {
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+        return objectInputStream.readObject();
     }
 }

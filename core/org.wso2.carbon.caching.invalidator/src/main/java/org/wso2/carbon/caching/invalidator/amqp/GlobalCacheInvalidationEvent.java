@@ -15,13 +15,13 @@
  */
 package org.wso2.carbon.caching.invalidator.amqp;
 
-import org.wso2.carbon.caching.impl.CacheInvalidatorKey;
+import java.io.Serializable;
 
-public class GlobalCacheInvalidationEvent {
+public class GlobalCacheInvalidationEvent implements Serializable {
     private int tenantId;
     private String cacheManagerName;
     private String cacheName;
-    private CacheInvalidatorKey cacheKey;
+    private Serializable cacheKey;
     private String uuid;
 
     public int getTenantId() {
@@ -48,11 +48,11 @@ public class GlobalCacheInvalidationEvent {
         this.cacheName = cacheName;
     }
 
-    public CacheInvalidatorKey getCacheKey() {
+    public Serializable getCacheKey() {
         return cacheKey;
     }
 
-    public void setCacheKey(CacheInvalidatorKey cacheKey) {
+    public void setCacheKey(Serializable cacheKey) {
         this.cacheKey = cacheKey;
     }
 

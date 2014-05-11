@@ -31,6 +31,6 @@ public interface CacheInvalidator {
      * @param cacheName Cache name
      * @param cacheKey Cache entry
      */
-    public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, CacheInvalidatorKey cacheKey);
+    public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, Serializable cacheKey);
 
 }
