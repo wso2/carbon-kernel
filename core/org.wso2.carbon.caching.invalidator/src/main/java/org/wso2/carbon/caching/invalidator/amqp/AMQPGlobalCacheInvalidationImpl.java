@@ -158,9 +158,9 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
         boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
         if(isCoordinator) {
             try {
-                log.debug("Global cache invalidated: deserializing data to object");
+                log.debug("Global cache invalidation: deserializing data to object");
                 GlobalCacheInvalidationEvent event = (GlobalCacheInvalidationEvent) deserialize(data);
-                log.debug("Global cache invalidated: deserializing complete");
+                log.debug("Global cache invalidation: deserializing complete");
                 if (!sentMsgBuffer.contains(event.getUuid().trim())) { // Ignore own messages
                     PrivilegedCarbonContext.startTenantFlow();
                     PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(event.getTenantId(), true);
@@ -194,8 +194,7 @@ public class AMQPGlobalCacheInvalidationImpl implements CacheInvalidator, Runnab
                 QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                 onMessage(delivery.getBody());
             } catch (Exception e) {
-                log.error("Global cache invalidation: error message recieve, Subscription is offline.", e);
-                break;
+                log.error("Global cache invalidation: error message recieve.", e);
             }
         }
     }
