@@ -106,10 +106,10 @@ public class CacheInvalidationSubscriber {
         }
     }
 
-    Runnable messageReciever = new Runnable() {
+    private Runnable messageReciever = new Runnable() {
         @Override
         public void run() {
-            while(true) {
+            while(consumer != null) {
                 try {
                     QueueingConsumer.Delivery delivery = consumer.nextDelivery();
                     onMessage(delivery.getBody());
