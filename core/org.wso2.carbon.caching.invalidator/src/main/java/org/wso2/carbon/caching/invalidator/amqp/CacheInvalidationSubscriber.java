@@ -46,8 +46,12 @@ public class CacheInvalidationSubscriber {
         @Override
         public void run() {
             boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
-            if(isCoordinator){
+            if(isCoordinator && !ConfigurationManager.isSubscribed()){
                 subscribe();
+                ConfigurationManager.setSubscribed(true);
+            }
+            if(!isCoordinator && ConfigurationManager.isSubscribed()){
+                ConfigurationManager.setSubscribed(false);
             }
         }
     };

@@ -34,6 +34,7 @@ public class ConfigurationManager {
     private static String topicName = null;
     private static String providerUrl = null;
     private static int coordinatorCheckInterval;
+    private static boolean subscribed = false;
 
     private static List<String> sentMsgBuffer = new ArrayList<String>();
 
@@ -97,5 +98,13 @@ public class ConfigurationManager {
 
     public static List<String> getSentMsgBuffer() {
         return sentMsgBuffer;
+    }
+
+    public static boolean isSubscribed() {
+        return subscribed;
+    }
+
+    public static void setSubscribed(boolean subscribed) {
+        ConfigurationManager.subscribed = subscribed;
     }
 }
