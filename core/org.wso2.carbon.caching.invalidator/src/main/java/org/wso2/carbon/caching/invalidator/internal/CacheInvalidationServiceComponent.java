@@ -22,6 +22,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
 import org.wso2.carbon.caching.invalidator.amqp.CacheInvalidationPublisher;
 import org.wso2.carbon.caching.invalidator.amqp.CacheInvalidationSubscriber;
+import org.wso2.carbon.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
@@ -41,9 +42,9 @@ public class CacheInvalidationServiceComponent {
         log.info("Initializing the CacheInvalidationServiceComponent...");
         try {
             subscriber = new CacheInvalidationSubscriber();
-            subscriber.init();
             publisher = new CacheInvalidationPublisher();
             serviceRegistration = ctxt.getBundleContext().registerService(CacheInvalidator.class, publisher, null);
+            serviceRegistration = ctxt.getBundleContext().registerService(CoordinatedActivity.class, subscriber, null);
         } catch (Exception e) {
             String msg = "Failed to initialize the CacheInvalidationServiceComponent.";
             log.error(msg, e);

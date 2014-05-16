@@ -30,8 +30,6 @@ import java.io.Serializable;
 public class CacheInvalidationPublisher implements CacheInvalidator {
     private static final Log log = LogFactory.getLog(CacheInvalidationPublisher.class);
 
-    public CacheInvalidationPublisher(){}
-
     @Override
     public void invalidateCache(int tenantId, String cacheManagerName, String cacheName, Serializable cacheKey) {
         log.debug("Global cache invalidation: initializing the connection");

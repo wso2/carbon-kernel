@@ -21,6 +21,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.caching.invalidator.internal.CacheInvalidationDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 
@@ -28,33 +29,22 @@ import javax.cache.CacheManager;
 import javax.cache.Caching;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
-import java.util.Timer;
-import java.util.TimerTask;
 
-public class CacheInvalidationSubscriber {
+public class CacheInvalidationSubscriber implements CoordinatedActivity {
     private static final Log log = LogFactory.getLog(CacheInvalidationSubscriber.class);
     private QueueingConsumer consumer = null;
 
-    public CacheInvalidationSubscriber(){}
-
-    private TimerTask timerTask = new TimerTask() {
-        @Override
-        public void run() {
+    @Override
+    public void execute() {
+        if(ConfigurationManager.init()) {
             boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
-            if(isCoordinator && !ConfigurationManager.isSubscribed()){
+            if (isCoordinator && !ConfigurationManager.isSubscribed()) {
                 subscribe();
                 ConfigurationManager.setSubscribed(true);
             }
-            if(!isCoordinator && ConfigurationManager.isSubscribed()){
+            if (!isCoordinator && ConfigurationManager.isSubscribed()) {
                 ConfigurationManager.setSubscribed(false);
             }
-        }
-    };
-
-    public void init(){
-        if(ConfigurationManager.init()) {
-            Timer timer = new Timer();
-            timer.scheduleAtFixedRate(timerTask, 0, ConfigurationManager.getCoordinatorCheckInterval()*1000);
         }
     }
 
