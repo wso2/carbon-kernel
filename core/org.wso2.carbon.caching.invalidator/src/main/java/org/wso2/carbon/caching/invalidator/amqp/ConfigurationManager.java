@@ -72,7 +72,7 @@ public class ConfigurationManager {
 
             propertyExists = providerUrl != null && !providerUrl.equals("");
             propertyExists &= topicName != null && !topicName.equals("");
-            propertyExists &= coordinatorCheckInterval < 0;
+            propertyExists &= coordinatorCheckInterval >= 0;
 
             if(!propertyExists){
                 log.info("Global cache invalidation is offline according to cache.xml configurations");

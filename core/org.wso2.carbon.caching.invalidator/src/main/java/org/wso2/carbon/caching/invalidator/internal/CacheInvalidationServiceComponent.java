@@ -34,15 +34,16 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 public class CacheInvalidationServiceComponent {
     private static Log log = LogFactory.getLog(CacheInvalidationServiceComponent.class);
     ServiceRegistration serviceRegistration;
-    CacheInvalidationPublisher globalCacheInvalidation;
+    CacheInvalidationSubscriber subscriber;
+    CacheInvalidationPublisher publisher;
 
     protected void activate(ComponentContext ctxt) {
         log.info("Initializing the CacheInvalidationServiceComponent...");
         try {
-            globalCacheInvalidation = new CacheInvalidationPublisher();
-            CacheInvalidationSubscriber subscriber = new CacheInvalidationSubscriber();
+            subscriber = new CacheInvalidationSubscriber();
             subscriber.init();
-            serviceRegistration = ctxt.getBundleContext().registerService(CacheInvalidator.class, globalCacheInvalidation, null);
+            publisher = new CacheInvalidationPublisher();
+            serviceRegistration = ctxt.getBundleContext().registerService(CacheInvalidator.class, publisher, null);
         } catch (Exception e) {
             String msg = "Failed to initialize the CacheInvalidationServiceComponent.";
             log.error(msg, e);

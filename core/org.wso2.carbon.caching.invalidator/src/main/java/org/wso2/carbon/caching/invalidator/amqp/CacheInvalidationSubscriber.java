@@ -35,12 +35,7 @@ public class CacheInvalidationSubscriber {
     private static final Log log = LogFactory.getLog(CacheInvalidationSubscriber.class);
     private QueueingConsumer consumer = null;
 
-    public void init(){
-        if(ConfigurationManager.init()) {
-            Timer timer = new Timer(true);
-            timer.scheduleAtFixedRate(timerTask, 0, ConfigurationManager.getCoordinatorCheckInterval()*1000);
-        }
-    }
+    public CacheInvalidationSubscriber(){}
 
     private TimerTask timerTask = new TimerTask() {
         @Override
@@ -55,6 +50,13 @@ public class CacheInvalidationSubscriber {
             }
         }
     };
+
+    public void init(){
+        if(ConfigurationManager.init()) {
+            Timer timer = new Timer();
+            timer.scheduleAtFixedRate(timerTask, 0, ConfigurationManager.getCoordinatorCheckInterval()*1000);
+        }
+    }
 
     private void subscribe() {
         log.debug("Global cache invalidation: initializing the subscription");
