@@ -19,6 +19,5 @@
     <!--Global cluster cache invalidation message broker parameters comment or uncomment to enable or disable feature-->
     <providerUrl>localhost</providerUrl>
     <cacheInvalidateTopic>GlobalCacheInvalidation</cacheInvalidateTopic>
-    <coordinatorCheckIntervalSeconds>60</coordinatorCheckIntervalSeconds>
 
 </cache>

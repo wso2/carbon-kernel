@@ -33,7 +33,6 @@ public class ConfigurationManager {
 
     private static String topicName = null;
     private static String providerUrl = null;
-    private static int coordinatorCheckInterval;
     private static boolean subscribed = false;
 
     private static List<String> sentMsgBuffer = new ArrayList<String>();
@@ -63,16 +62,8 @@ public class ConfigurationManager {
                 topicName = cache.getText();
             }
 
-            iterator = documentElement.getChildrenWithName(new QName("coordinatorCheckIntervalSeconds"));
-
-            if(iterator.hasNext()){
-                OMElement cache = (OMElement) iterator.next();
-                coordinatorCheckInterval = Integer.parseInt(cache.getText());
-            }
-
             propertyExists = providerUrl != null && !providerUrl.equals("");
             propertyExists &= topicName != null && !topicName.equals("");
-            propertyExists &= coordinatorCheckInterval >= 0;
 
             if(!propertyExists){
                 log.info("Global cache invalidation is offline according to cache.xml configurations");
@@ -90,10 +81,6 @@ public class ConfigurationManager {
 
     public static String getProviderUrl() {
         return providerUrl;
-    }
-
-    public static int getCoordinatorCheckInterval() {
-        return coordinatorCheckInterval;
     }
 
     public static List<String> getSentMsgBuffer() {
