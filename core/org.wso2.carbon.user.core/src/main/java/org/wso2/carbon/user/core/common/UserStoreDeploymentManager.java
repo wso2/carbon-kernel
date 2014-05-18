@@ -27,6 +27,9 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.config.UserStoreConfigXMLProcessor;
+import org.wso2.carbon.user.core.tenant.TenantCache;
+import org.wso2.carbon.user.core.tenant.TenantIdKey;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.File;
 import java.util.regex.Pattern;
