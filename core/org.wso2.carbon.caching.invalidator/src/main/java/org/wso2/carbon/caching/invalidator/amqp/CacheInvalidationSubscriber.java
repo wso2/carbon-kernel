@@ -34,7 +34,7 @@ public class CacheInvalidationSubscriber implements CoordinatedActivity {
     private static final Log log = LogFactory.getLog(CacheInvalidationSubscriber.class);
     private QueueingConsumer consumer = null;
 
-    CacheInvalidationSubscriber(){
+    public CacheInvalidationSubscriber(){
         if(ConfigurationManager.init()) {
             boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
             if (isCoordinator && !ConfigurationManager.isSubscribed()) {
