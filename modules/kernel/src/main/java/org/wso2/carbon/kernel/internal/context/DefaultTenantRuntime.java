@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.kernel.internal.context;
 
+import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.internal.tenant.DefaultTenant;
 import org.wso2.carbon.kernel.internal.tenant.store.FileBasedTenantStore;
 import org.wso2.carbon.kernel.region.TenantRegion;
@@ -73,7 +74,8 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
         tenant.setAdminUsername(adminUsername);
         tenant.setAdminUserEmailAddress(adminUserEmailAddress);
         tenant.setProperties(props);
-        tenant.setRegion(new TenantRegion(id));
+        OSGiServiceHolder.getInstance().getRegionManager().
+                associateTenantWithRegion(domain, new TenantRegion(id));
 //        tenant.setParent(parentID);
 //        tenant.setDepthOfHierarchy(depthOfHierarchy);
 

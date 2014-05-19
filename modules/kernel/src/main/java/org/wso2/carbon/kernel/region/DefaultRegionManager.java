@@ -9,35 +9,36 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class BundleToRegionManager implements RegionManager {
+public class DefaultRegionManager implements RegionManager {
 
-    private final Map<Long, Region> bundleToRegion = new HashMap<>();
+    private final Map<Long, Region> bundleToRegionMap = new HashMap<>();
+    private final Map<String, Region> tenantToRegionMap = new HashMap<>();
 
 
     public void associateBundleWithRegion(long bundleId, Region region) throws BundleException {
-        Region r = this.bundleToRegion.get(bundleId);
+        Region r = this.bundleToRegionMap.get(bundleId);
         if (r != null && r != region) {
             throw new BundleException("Bundle : " + bundleId + " is already associated with region" +
                                       " : " + r, BundleException.INVALID_OPERATION);
         }
-        this.bundleToRegion.put(bundleId, region);
+        bundleToRegionMap.put(bundleId, region);
     }
 
 
     public void dissociateBundleFromRegion(long bundleId) {
-        this.bundleToRegion.remove(bundleId);
+        bundleToRegionMap.remove(bundleId);
     }
 
 
     public boolean isBundleAssociatedWithRegion(long bundleId, Region region) {
-        return this.bundleToRegion.get(bundleId) == region;
+        return bundleToRegionMap.get(bundleId) == region;
     }
 
 
     public Set<Long> getBundleIds(Region region) {
         Set<Long> bundleIds = new HashSet<Long>();
 
-        for (Map.Entry<Long, Region> entry : this.bundleToRegion.entrySet()) {
+        for (Map.Entry<Long, Region> entry : bundleToRegionMap.entrySet()) {
             if (entry.getValue() == region) {
                 bundleIds.add(entry.getKey());
             }
@@ -47,15 +48,25 @@ public class BundleToRegionManager implements RegionManager {
 
 
     public void clear() {
-        this.bundleToRegion.clear();
+        bundleToRegionMap.clear();
     }
 
     public Region getRegion(long bundleId) {
-        return this.bundleToRegion.get(bundleId);
+        return bundleToRegionMap.get(bundleId);
+    }
+
+    @Override
+    public Region getRegion(String tenantDomain) {
+        return tenantToRegionMap.get(tenantDomain);
+    }
+
+    @Override
+    public void associateTenantWithRegion(String tenantDomain, Region region) {
+        tenantToRegionMap.put(tenantDomain, region);
     }
 
     public void dissociateRegion(Region region) {
-        Iterator<Map.Entry<Long, Region>> iterator = this.bundleToRegion.entrySet().iterator();
+        Iterator<Map.Entry<Long, Region>> iterator = bundleToRegionMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<Long, Region> entry = iterator.next();
             if (entry.getValue().equals(region)) {

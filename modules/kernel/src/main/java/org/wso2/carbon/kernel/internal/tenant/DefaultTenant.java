@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.kernel.internal.tenant;
 
-import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.tenant.TenantContainerBase;
 import org.wso2.carbon.kernel.tenant.Tenant;
 
@@ -36,7 +35,6 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     private String adminUsername;
     private String adminUserEmailAddress;
     private Map<String, String> properties;
-    private Region region;
 
     @Override
     public String getID() {
@@ -128,13 +126,4 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
         this.properties = props;
     }
 
-    @Override
-    public void setRegion(Region region) {
-        this.region = region;
-    }
-
-    @Override
-    public Region getRegion() {
-        return region;
-    }
 }

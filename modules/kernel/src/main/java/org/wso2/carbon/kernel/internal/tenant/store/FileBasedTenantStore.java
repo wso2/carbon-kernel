@@ -55,7 +55,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     private Map<String, TenantConfig> tenantConfigMap;
 
     private String tenantStoreXMLPath = Utils.getCarbonHome() + File.separator + CarbonConstants.DATA_REPO_DIR +
-            File.separator + DefaultImplConstants.TENANT_STORE_XML;
+                                        File.separator + DefaultImplConstants.TENANT_STORE_XML;
 
     public void init() throws Exception {
         // Initializing the JAXBContext
@@ -67,8 +67,8 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     }
 
     @Override
-    public Tenant loadTenant(String tenantDomain) throws Exception{
-        if (tenantConfigMap.containsKey(tenantDomain)){
+    public Tenant loadTenant(String tenantDomain) throws Exception {
+        if (tenantConfigMap.containsKey(tenantDomain)) {
             TenantConfig tenantConfig = tenantConfigMap.get(tenantDomain);
             return populateTenant(tenantConfig);
         }
@@ -84,7 +84,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     }
 
     @Override
-    public Tenant deleteTenant(String tenantDomain) throws Exception{
+    public Tenant deleteTenant(String tenantDomain) throws Exception {
 
 //        TenantConfig tenantConfig = tenantConfigMap.get(tenantDomain);
 //        if(tenantConfig == null) {
@@ -119,7 +119,8 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
             throw e;
         }
     }
-    private Tenant populateTenant(TenantConfig tenantConfig){
+
+    private Tenant populateTenant(TenantConfig tenantConfig) {
         Tenant tenant = new DefaultTenant();
         tenant.setID(tenantConfig.getId());
         tenant.setDomain(tenantConfig.getDomain());
@@ -129,18 +130,19 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
 
         tenant.setAdminUsername(tenantConfig.getAdminUserConfig().getName());
         tenant.setAdminUserEmailAddress(tenantConfig.getAdminUserConfig().getEmailAddress());
-
-        tenant.setRegion(new TenantRegion(tenantConfig.getId()));
-
+        OSGiServiceHolder.getInstance().getRegionManager().
+                associateTenantWithRegion(tenantConfig.getDomain(),
+                                          new TenantRegion(tenantConfig.getId()));
         BundleContext bundleContext = OSGiServiceHolder.getInstance().getBundleContext();
 
-        try {
-            //Load tenant bundles
-            for (BundleConfig bundleConfig : tenantConfig.getBundleConfigs()) {
-                bundleContext.installBundle(bundleConfig.getBundleLocation());
+        //Load tenant bundles
+        for (BundleConfig bundleConfig : tenantConfig.getBundleConfigs()) {
+            try {
+                Bundle bundle = bundleContext.installBundle(bundleConfig.getBundleLocation());
+                bundle.start();
+            } catch (BundleException e) {
+                e.printStackTrace();
             }
-        } catch (BundleException e) {
-            e.printStackTrace();
         }
 
         //TODO Add hierarchy information
@@ -163,7 +165,8 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
         tenantConfig.setHierarchyConfig(populateHierarchyConfig(tenant));
 
         List<BundleConfig> bundleConfigs = new ArrayList<>();
-        Region region = tenant.getRegion();
+        Region region = OSGiServiceHolder.getInstance().getRegionManager().
+                getRegion(tenant.getDomain());
         for (Bundle bundle : region.getBundles()) {
             BundleConfig bundleConfig = new BundleConfig();
             bundleConfig.setId(bundle.getBundleId());

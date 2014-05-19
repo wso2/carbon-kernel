@@ -5,8 +5,6 @@ import org.osgi.framework.hooks.resolver.ResolverHook;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleRequirement;
 import org.osgi.framework.wiring.BundleRevision;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.internal.OSGiServiceHolder;
 import org.wso2.carbon.kernel.region.Region;
 import org.wso2.carbon.kernel.region.RegionManager;
@@ -15,11 +13,10 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class RegionResolverHook implements ResolverHook {
-    private static final Logger logger = LoggerFactory.getLogger(RegionResolverHook.class);
 
     @Override
     public void filterResolvable(Collection<BundleRevision> bundleRevisions) {
-        logger.info("Resolvable bundle collections : " + bundleRevisions);
+        //TODO : Implement this
     }
 
     @Override
@@ -31,7 +28,6 @@ public class RegionResolverHook implements ResolverHook {
     @Override
     public void filterMatches(BundleRequirement bundleRequirement,
                               Collection<BundleCapability> bundleCapabilities) {
-        logger.info("Requirement bundle : " + bundleRequirement.getRevision());
         Collection<BundleCapability> allowed = getAllowedCapabilities(bundleCapabilities,
                                                                       bundleRequirement);
         bundleCapabilities.retainAll(allowed);

@@ -165,6 +165,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
                 PrivilegedTenantContext.getThreadLocalTenantContext().setTenantDomain(args[0]);
                 Tenant tenant = tenantRuntime.getTenant(args[0]);
                 Bundle bundle = bundleContext.installBundle(args[1]);
+                bundle.start();
                 tenantRuntime.persistTenant(tenant);
                 System.out.println("Successfully added bundle : " + bundle.getSymbolicName() +
                                    " to the tenant with the ID " + tenant.getID());

@@ -20,6 +20,7 @@ package org.wso2.carbon.kernel.tenant;
 
 import org.wso2.carbon.kernel.region.Region;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
@@ -152,7 +153,4 @@ public interface Tenant extends TenantContainer {
      */
     public void setProperties(Map<String, String> props);
 
-    public void setRegion(Region region);
-
-    public Region getRegion();
 }

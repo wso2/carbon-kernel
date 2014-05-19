@@ -11,4 +11,8 @@ public interface RegionManager {
     public void dissociateRegion(Region region);
 
     public Region getRegion(long bundleId);
+
+    public Region getRegion(String tenantDomain);
+
+    public void associateTenantWithRegion(String tenantDomain, Region region);
 }

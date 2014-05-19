@@ -7,7 +7,7 @@ import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.internal.config.XMLBasedConfigProvider;
 import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
-import org.wso2.carbon.kernel.region.BundleToRegionManager;
+import org.wso2.carbon.kernel.region.DefaultRegionManager;
 import org.wso2.carbon.kernel.region.RegionManager;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class CarbonActivator implements BundleActivator {
 
         // Register Region manager
         registrations.add(bundleContext.registerService(RegionManager.class.getName(),
-                                                        new BundleToRegionManager(), null));
+                                                        new DefaultRegionManager(), null));
 
     }
 
