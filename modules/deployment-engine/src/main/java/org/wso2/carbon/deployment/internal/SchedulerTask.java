@@ -19,11 +19,15 @@
 
 package org.wso2.carbon.deployment.internal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The Scheduler Task which gets called periodically by the executor service and
  * calls the repository scanner internally
  */
 public class SchedulerTask implements Runnable {
+    private final Logger logger = LoggerFactory.getLogger(SchedulerTask.class);
 
     private RepositoryScanner repositoryScanner;
 
@@ -32,6 +36,10 @@ public class SchedulerTask implements Runnable {
     }
 
     public void run() {
-        repositoryScanner.scan();
+        try {
+            repositoryScanner.scan();
+        } catch (Throwable e) {
+            logger.error("Error while running scheduler task", e);
+        }
     }
 }

@@ -58,13 +58,18 @@ public class DeploymentEngine {
     /**
      * The map which holds the set of registered deployers with this engine
      */
-    private Map<ArtifactType, Deployer> deployerMap = new ConcurrentHashMap<ArtifactType, Deployer>();
+    private Map<ArtifactType, Deployer> deployerMap = new ConcurrentHashMap<>();
 
     /**
      * A map to hold all currently deployed artifacts
      */
     private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
-            new ConcurrentHashMap<ArtifactType, ConcurrentHashMap<Object, Artifact>>();
+            new ConcurrentHashMap<>();
+
+    /**
+     * A map to hold all faulty artifacts
+     */
+    private Map<String, Artifact> faultyArtifacts = new ConcurrentHashMap<>();
 
 
     public DeploymentEngine(String repositoryDir) throws DeploymentEngineException {
@@ -221,6 +226,10 @@ public class DeploymentEngine {
         return deployedArtifacts;
     }
 
+    public Map<String, Artifact> getFaultyArtifacts() {
+        return faultyArtifacts;
+    }
+
     /**
      * Deploy the artifacts found in the artifacts to be deployed list
      */
@@ -239,8 +248,8 @@ public class DeploymentEngine {
                                                         "the type : " + artifactToDeploy.getType());
                 }
             } catch (CarbonDeploymentException e) {
-                //TODO : Handle faulty artifact deployment
                 logger.error("Error while deploying artifacts", e);
+                addToFaultyArtifacts(artifactToDeploy);
             }
         }
     }
@@ -262,8 +271,8 @@ public class DeploymentEngine {
                                                         "the type : " + artifactToUpdate.getType());
                 }
             } catch (CarbonDeploymentException e) {
-                //TODO : Handle faulty artifact deployment
                 logger.error("Error while updating artifacts", e);
+                addToFaultyArtifacts(artifactToUpdate);
             }
         }
     }
@@ -272,10 +281,14 @@ public class DeploymentEngine {
         ConcurrentHashMap<Object, Artifact> artifactMap = deployedArtifacts.
                 get(artifact.getType());
         if (artifactMap == null) {
-            artifactMap = new ConcurrentHashMap<Object, Artifact>();
+            artifactMap = new ConcurrentHashMap<>();
         }
         artifactMap.put(artifact.getKey(), artifact);
         deployedArtifacts.put(artifact.getType(), artifactMap);
+    }
+
+    private void addToFaultyArtifacts(Artifact artifact) {
+        faultyArtifacts.put(artifact.getPath(), artifact);
     }
 
     /**

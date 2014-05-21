@@ -143,11 +143,16 @@ public class RepositoryScanner {
      * @param artifact artifact to deploy
      */
     private void addArtifactToDeploy(Artifact artifact) {
-        Artifact deployedArtifact = findDeployedArtifact(artifact.getType(),
-                                                         artifact.getPath());
-        if (deployedArtifact != null) { // Artifact is getting updated
+        Artifact deployedArtifact = findDeployedArtifact(artifact.getType(), artifact.getPath());
+        Artifact faultyArtifact = findFaultyArtifact(artifact.getPath());
+        if (deployedArtifact != null) {
             if (Utils.isArtifactModified(deployedArtifact)) {
                 artifactsToUpdate.add(deployedArtifact);
+            }
+        } else if (faultyArtifact != null) {
+            if (Utils.isArtifactModified(faultyArtifact)) {
+                removeFromFaultyArtifacts(faultyArtifact);
+                artifactsToDeploy.add(faultyArtifact);
             }
         } else { // New artifact deployment
             artifactsToDeploy.add(artifact);
@@ -190,5 +195,13 @@ public class RepositoryScanner {
             }
         }
         artifactFilePathList.clear();
+    }
+
+    private Artifact findFaultyArtifact(String path) {
+        return carbonDeploymentEngine.getFaultyArtifacts().get(path);
+    }
+
+    private void removeFromFaultyArtifacts(Artifact faultyArtifact) {
+        carbonDeploymentEngine.getFaultyArtifacts().remove(faultyArtifact.getPath());
     }
 }
