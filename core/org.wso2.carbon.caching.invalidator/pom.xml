@@ -86,7 +86,7 @@
                         <Private-Package>
                             org.wso2.carbon.caching.invalidator.internal
                         </Private-Package>
-                        <Import-Package>org.wso2.carbon.core.*; version="${carbon.version}"</Import-Package>
+                        <Import-Package></Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
