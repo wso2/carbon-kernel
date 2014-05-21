@@ -8,6 +8,8 @@ public interface RegionManager {
 
     public void associateBundleWithRegion(long bundleId, Region region) throws BundleException;
 
+    public void dissociateBundleFromRegion(long bundleId);
+
     public void dissociateRegion(Region region);
 
     public Region getRegion(long bundleId);

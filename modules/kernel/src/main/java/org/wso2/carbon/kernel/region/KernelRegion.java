@@ -26,7 +26,9 @@ public class KernelRegion implements Region {
     public void addBundle(Bundle bundle) throws BundleException {
         kernelBundles.put(bundle.getBundleId(), bundle);
         RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
-        regionManager.associateBundleWithRegion(bundle.getBundleId(), this);
+        if (regionManager != null) {
+            regionManager.associateBundleWithRegion(bundle.getBundleId(), this);
+        }
     }
 
     @Override

@@ -26,13 +26,19 @@ public class TenantRegion implements Region {
     public void addBundle(Bundle bundle) throws BundleException {
         tenantBundles.put(bundle.getBundleId(), bundle);
         RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
-        regionManager.associateBundleWithRegion(bundle.getBundleId(), this);
+        if (regionManager != null) {
+            regionManager.associateBundleWithRegion(bundle.getBundleId(), this);
+        }
     }
 
     @Override
     public void removeBundle(Bundle bundle) {
         if (tenantBundles.containsKey(bundle.getBundleId())) {
             tenantBundles.remove(bundle.getBundleId());
+            RegionManager regionManager = OSGiServiceHolder.getInstance().getRegionManager();
+            if (regionManager != null) {
+                regionManager.dissociateBundleFromRegion(bundle.getBundleId());
+            }
         }
     }
 
