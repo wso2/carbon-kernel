@@ -272,23 +272,10 @@ public class DeploymentEngine {
                 }
             } catch (CarbonDeploymentException e) {
                 logger.error("Error while updating artifacts", e);
+                removeFromDeployedArtifacts(artifactToUpdate);
                 addToFaultyArtifacts(artifactToUpdate);
             }
         }
-    }
-
-    private void addToDeployedArtifacts(Artifact artifact) {
-        ConcurrentHashMap<Object, Artifact> artifactMap = deployedArtifacts.
-                get(artifact.getType());
-        if (artifactMap == null) {
-            artifactMap = new ConcurrentHashMap<>();
-        }
-        artifactMap.put(artifact.getKey(), artifact);
-        deployedArtifacts.put(artifact.getType(), artifactMap);
-    }
-
-    private void addToFaultyArtifacts(Artifact artifact) {
-        faultyArtifacts.put(artifact.getPath(), artifact);
     }
 
     /**
@@ -310,6 +297,20 @@ public class DeploymentEngine {
                 logger.error("Error while undeploying artifacts", e);
             }
         }
+    }
+
+    private void addToDeployedArtifacts(Artifact artifact) {
+        ConcurrentHashMap<Object, Artifact> artifactMap = deployedArtifacts.
+                get(artifact.getType());
+        if (artifactMap == null) {
+            artifactMap = new ConcurrentHashMap<>();
+        }
+        artifactMap.put(artifact.getKey(), artifact);
+        deployedArtifacts.put(artifact.getType(), artifactMap);
+    }
+
+    private void addToFaultyArtifacts(Artifact artifact) {
+        faultyArtifacts.put(artifact.getPath(), artifact);
     }
 
     private void removeFromDeployedArtifacts(Artifact artifact) {
