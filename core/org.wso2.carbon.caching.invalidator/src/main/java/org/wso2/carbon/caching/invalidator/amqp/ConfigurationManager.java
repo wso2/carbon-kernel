@@ -35,7 +35,7 @@ public class ConfigurationManager {
     private static String providerUrl = null;
     private static boolean subscribed = false;
 
-    private static List<String> sentMsgBuffer = new ArrayList<String>();
+    private static List<String> sentMsgBuffer;
 
     public static boolean init(){
         boolean propertyExists = false;
@@ -84,6 +84,9 @@ public class ConfigurationManager {
     }
 
     public static List<String> getSentMsgBuffer() {
+        if(sentMsgBuffer == null){
+            sentMsgBuffer = new ArrayList<String>();
+        }
         return sentMsgBuffer;
     }
 

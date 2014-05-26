@@ -87,7 +87,7 @@ public class CacheInvalidationSubscriber implements CoordinatedActivity {
                 log.debug("Global cache invalidation: deserializing data to object");
                 GlobalCacheInvalidationEvent event = (GlobalCacheInvalidationEvent) deserialize(data);
                 log.debug("Global cache invalidation: deserializing complete");
-                if (ConfigurationManager.getSentMsgBuffer().contains(event.getUuid().trim())) { // Ignore own messages
+                if (!ConfigurationManager.getSentMsgBuffer().contains(event.getUuid().trim())) { // Ignore own messages
                     PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(event.getTenantId(), true);
                     CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(event.getCacheManagerName());
                     if (cacheManager != null) {
