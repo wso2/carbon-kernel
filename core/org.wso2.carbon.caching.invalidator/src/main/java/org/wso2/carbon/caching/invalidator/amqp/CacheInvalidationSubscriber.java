@@ -21,7 +21,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.QueueingConsumer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.clustering.api.CoordinatedActivity;
+import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.caching.invalidator.internal.CacheInvalidationDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 

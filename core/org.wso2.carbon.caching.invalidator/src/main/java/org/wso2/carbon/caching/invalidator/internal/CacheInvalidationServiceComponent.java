@@ -22,8 +22,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
 import org.wso2.carbon.caching.invalidator.amqp.CacheInvalidationPublisher;
 import org.wso2.carbon.caching.invalidator.amqp.CacheInvalidationSubscriber;
-import org.wso2.carbon.clustering.api.CoordinatedActivity;
-import org.wso2.carbon.core.clustering.api.CarbonCluster;
+import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.utils.ConfigurationContextService;
 
 /**
@@ -31,9 +30,6 @@ import org.wso2.carbon.utils.ConfigurationContextService;
  * @scr.reference name="configuration.context.service"
  * interface="org.wso2.carbon.utils.ConfigurationContextService" cardinality="1..1"
  * policy="dynamic" bind="setConfigurationContextService" unbind="unsetConfigurationContextService"
- * @scr.reference name="carbon.core.clustering"
- * interface="org.wso2.carbon.core.clustering.api.CarbonCluster" cardinality="1..1"
- * policy="dynamic" bind="setCarbonCluster" unbind="unsetCarbonCluster"
  */
 
 public class CacheInvalidationServiceComponent {
@@ -72,8 +68,4 @@ public class CacheInvalidationServiceComponent {
     protected void unsetConfigurationContextService(ConfigurationContextService contextService) {
         CacheInvalidationDataHolder.setConfigContext(null);
     }
-
-    protected void setCarbonCluster(CarbonCluster carbonCluster){}
-
-    protected void unsetCarbonCluster(CarbonCluster carbonCluster){}
 }
