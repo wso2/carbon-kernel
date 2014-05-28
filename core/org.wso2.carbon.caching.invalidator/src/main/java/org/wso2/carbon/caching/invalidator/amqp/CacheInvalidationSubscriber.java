@@ -35,8 +35,8 @@ public class CacheInvalidationSubscriber implements CoordinatedActivity {
     private QueueingConsumer consumer = null;
 
     public CacheInvalidationSubscriber(){
-        if(ConfigurationManager.init()) {
-            boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext() != null && CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
+        if(ConfigurationManager.init() && CacheInvalidationDataHolder.getConfigContext() != null) {
+            boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
             if (isCoordinator && !ConfigurationManager.isSubscribed()) {
                 subscribe();
                 ConfigurationManager.setSubscribed(true);
@@ -46,8 +46,8 @@ public class CacheInvalidationSubscriber implements CoordinatedActivity {
 
     @Override
     public void execute() {
-        if(ConfigurationManager.init()) {
-            boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext() != null && CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
+        if(ConfigurationManager.init() && CacheInvalidationDataHolder.getConfigContext() != null) {
+            boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
             if (isCoordinator && !ConfigurationManager.isSubscribed()) {
                 subscribe();
                 ConfigurationManager.setSubscribed(true);
@@ -80,7 +80,10 @@ public class CacheInvalidationSubscriber implements CoordinatedActivity {
 
     public void onMessage(byte[] data) {
         log.debug("Cache invalidation message received: " + new String(data));
-        boolean isCoordinator = CacheInvalidationDataHolder.getConfigContext() != null && CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
+        boolean isCoordinator = false;
+        if(CacheInvalidationDataHolder.getConfigContext() != null) {
+            isCoordinator = CacheInvalidationDataHolder.getConfigContext().getAxisConfiguration().getClusteringAgent().isCoordinator();
+        }
         if(isCoordinator) {
             PrivilegedCarbonContext.startTenantFlow();
             try {
