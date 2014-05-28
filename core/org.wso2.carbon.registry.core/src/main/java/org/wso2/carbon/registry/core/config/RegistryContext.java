@@ -136,7 +136,7 @@ public class RegistryContext {
     private VersionRepository versionRepository;
     private QueryProcessorManager queryProcessorManager;
     private EmbeddedRegistryService embeddedRegistryService;
-    
+
     /**
      * Determines whether to setup the Registry on start up. Setup actions: Create Registry database
      * tables

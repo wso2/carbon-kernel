@@ -30,6 +30,7 @@ import org.wso2.carbon.registry.core.config.Mount;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.config.RemoteConfiguration;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.internal.RegistryCoreServiceComponent;
 import org.wso2.carbon.registry.core.jdbc.handlers.Handler;
 import org.wso2.carbon.registry.core.jdbc.handlers.RequestContext;
 import org.wso2.carbon.registry.core.session.CurrentSession;
@@ -51,7 +52,7 @@ public class CachingHandler extends Handler {
     private Map<String, DataBaseConfiguration> dbConfigs =
             new HashMap<String, DataBaseConfiguration>();
     private Map<String, DataBaseConfiguration> dbConfigsWithMounts =
-        new HashMap<String, DataBaseConfiguration>();
+            new HashMap<String, DataBaseConfiguration>();
     private Map<String, String> pathMap =
             new HashMap<String, String>();
 
@@ -102,12 +103,16 @@ public class CachingHandler extends Handler {
         String connectionId = "";
         DataBaseConfiguration dataBaseConfiguration = null;
         boolean doLocalCleanup = false;
+
+        boolean doGlobalCacheInvalidation = false;
+
         // first check for mounts.
         String cleanupPath = cachePath;
         if (!local && dbConfigs.size() > 0) {
             for (String targetPath : dbConfigs.keySet()) {
                 if (cachePath.startsWith(targetPath)) {
                     dataBaseConfiguration = dbConfigs.get(targetPath);
+                    doGlobalCacheInvalidation = true;
                     break;
                 }
             }
@@ -119,6 +124,7 @@ public class CachingHandler extends Handler {
                         dataBaseConfiguration = dbConfigsWithMounts.get(targetPath);
                         cleanupPath = pathMap.get(targetPath) +
                                 cachePath.substring(targetPath.length());
+                        doGlobalCacheInvalidation = true;
                         break;
                     }
                 }
@@ -175,7 +181,7 @@ public class CachingHandler extends Handler {
             }
         }
 
-        removeFromCache(connectionId, tenantId, cleanupPath);
+        removeFromCache(connectionId, tenantId, cleanupPath, doGlobalCacheInvalidation);
         String parentPath = RegistryUtils.getParentPath(cleanupPath);
         Cache<RegistryCacheKey, GhostResource> cache = getCache();
         Iterator<RegistryCacheKey> keys = cache.keys();
@@ -184,7 +190,7 @@ public class CachingHandler extends Handler {
             String path = key.getPath();
             if (recursive) {
                 if (path.startsWith(cleanupPath)) {
-                    removeFromCache(connectionId, tenantId, path);
+                    removeFromCache(connectionId, tenantId, path, doGlobalCacheInvalidation);
                 }
             }
         }
@@ -197,11 +203,11 @@ public class CachingHandler extends Handler {
 //                }
 //            }
 //        }
-        clearAncestry(connectionId, tenantId, parentPath);
+        clearAncestry(connectionId, tenantId, parentPath, doGlobalCacheInvalidation);
     }
 
-    private void clearAncestry(String connectionId, int tenantId, String parentPath) {
-        boolean cleared = removeFromCache(connectionId, tenantId, parentPath);
+    private void clearAncestry(String connectionId, int tenantId, String parentPath, boolean doGlobalCacheInvalidation) {
+        boolean cleared = removeFromCache(connectionId, tenantId, parentPath, doGlobalCacheInvalidation);
         String pagedParentPathPrefix = "^" + Pattern.quote((parentPath == null) ? "" : parentPath)
                 + "(" + RegistryConstants.PATH_SEPARATOR + ")?(;start=.*)?$";
         Pattern pattern = Pattern.compile(pagedParentPathPrefix);
@@ -211,7 +217,7 @@ public class CachingHandler extends Handler {
             RegistryCacheKey key = keys.next();
             String path = key.getPath();
             if (pattern.matcher(path).matches()) {
-                cleared = cleared || removeFromCache(connectionId, tenantId, path);
+                cleared = cleared || removeFromCache(connectionId, tenantId, path, doGlobalCacheInvalidation);
             }
         }
 //        for (Cache.Entry<RegistryCacheKey, GhostResource> entry : cache) {
@@ -222,18 +228,17 @@ public class CachingHandler extends Handler {
 //            }
 //		}
         if (!cleared && parentPath != null && !parentPath.equals(RegistryConstants.ROOT_PATH)) {
-            clearAncestry(connectionId, tenantId, RegistryUtils.getParentPath(parentPath));
+            clearAncestry(connectionId, tenantId, RegistryUtils.getParentPath(parentPath), doGlobalCacheInvalidation);
         }
     }
 
-    private boolean removeFromCache(String connectionId, int tenantId, String path) {
-        RegistryCacheKey cacheKey =
-                RegistryUtils.buildRegistryCacheKey(connectionId, tenantId, path);
+    private boolean removeFromCache(String connectionId, int tenantId, String path, boolean doGlobalCacheInvalidation) {
+        RegistryCacheKey cacheKey = RegistryUtils.buildRegistryCacheKey(connectionId, tenantId, path);
         Cache<RegistryCacheKey, GhostResource> cache = getCache();
         if (cache.containsKey(cacheKey)) {
             cache.remove(cacheKey);
-            
-           // TODO: figure out how this is done and its u
+
+            // TODO: figure out how this is done and its u
 //            if (RegistryCoreServiceComponent.getCacheInvalidator() != null) {
 //                try {
 //                    RegistryCoreServiceComponent.getCacheInvalidator().invalidateCache(
@@ -242,6 +247,14 @@ public class CachingHandler extends Handler {
 //                    // if cache invalidation failed, simply ignore it.
 //                }
 //            }
+
+            // We are sending cache invalidator message to all the nodes subscribed to the topic
+            if(doGlobalCacheInvalidation) {
+                if(RegistryCoreServiceComponent.getCacheInvalidator() != null) {
+                    RegistryCoreServiceComponent.getCacheInvalidator().invalidateCache(tenantId, cache.getCacheManager().getName(), cache.getName(), cacheKey);
+                }
+            }
+
             return true;
         } else {
             return false;
