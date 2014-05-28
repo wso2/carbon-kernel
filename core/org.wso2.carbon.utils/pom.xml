@@ -98,7 +98,6 @@
             <artifactId>org.wso2.carbon.registry.api</artifactId>
             <version>${carbon.platform.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
