@@ -510,6 +510,7 @@
 
         <version.commons.logging>1.1.1</version.commons.logging>
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
+        <amqp-client.version>3.0.3.wso2v1</amqp-client.version>
 	
     </properties>
 

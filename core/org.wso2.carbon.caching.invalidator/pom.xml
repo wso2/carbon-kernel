@@ -24,7 +24,7 @@
             <version>${carbon.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.rabbitmq</groupId>
+            <groupId>com.rabbitmq.wso2</groupId>
             <artifactId>amqp-client</artifactId>
             <version>${amqp.version}</version>
         </dependency>
@@ -91,6 +91,6 @@
 
     <properties>
         <carbon.version>4.3.0-SNAPSHOT</carbon.version>
-        <amqp.version>3.0.4</amqp.version>
+        <amqp.version>3.0.3.wso2v1</amqp.version>
     </properties>
 </project>
