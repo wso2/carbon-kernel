@@ -45,6 +45,7 @@ import org.wso2.carbon.core.clustering.hazelcast.multicast.MulticastBasedMembers
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
 import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
+import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -227,6 +228,12 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                 isCoordinator = true;
                 log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
                         "as the Coordinator for the cluster [" + carbonLocalMember.getDomain() + "]");
+
+                // Notify all OSGi services which are waiting for this member to become the coordinator
+                List<CoordinatedActivity> coordinatedActivities = CarbonCoreDataHolder.getInstance().getCoordinatedActivities();
+                for (CoordinatedActivity coordinatedActivity : coordinatedActivities) {
+                    coordinatedActivity.execute();
+                }
             }
         };
 
