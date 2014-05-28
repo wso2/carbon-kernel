@@ -316,7 +316,7 @@ public abstract class AbstractFilePersistenceManager {
             } else if ((fileData != null && !fileData.isTransactionStarted()) ||
                     fileData == null) {
                 File f = new File(metafilesDir, getFilePathFromResourceId(resourceId));
-                if (f.exists()) {
+                if (f.exists() && f.length() > 0) {
                     OMElement element = PersistenceUtils.getResourceDocumentElement(f);
                     return xpathExpr.selectSingleNode(element) != null;
                 }
@@ -343,7 +343,7 @@ public abstract class AbstractFilePersistenceManager {
                 return xpathExpr.selectNodes(resourceElement);
             } else {
                 File resourceFile = new File(metafilesDir, getFilePathFromResourceId(resourceId));
-                if (resourceFile.exists()) {
+                if (resourceFile.exists() && resourceFile.length() > 0) {
                     OMElement resourceOMElement = PersistenceUtils.getResourceDocumentElement(resourceFile);
 
                     /**
