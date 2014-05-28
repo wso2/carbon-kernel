@@ -136,7 +136,6 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.framework.exporter</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.patch</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.fragment.dummy</bundleDef>
-                                <bundleDef>com.rabbitmq.wso2:amqp-client:${amqp-client.version}</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
