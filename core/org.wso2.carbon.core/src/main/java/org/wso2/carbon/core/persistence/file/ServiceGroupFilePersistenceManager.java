@@ -72,9 +72,17 @@ public class ServiceGroupFilePersistenceManager extends AbstractFilePersistenceM
                         "Nested transactions are no longer supported in this persistence model - " + serviceGroupId);
             }
 
-            OMElement sgElement;
+            OMElement sgElement = null;
             if (sgFile.exists()) {
-                sgElement = PersistenceUtils.getResourceDocumentElement(sgFile);
+            	if(sgFile.length() > 0){
+            		sgElement = PersistenceUtils.getResourceDocumentElement(sgFile);
+            	}else{
+            		log.info(" File is empty, so it will be deleted  and regenerated ");
+            		sgFile.delete();
+            		//the file does not exist.
+                    sgElement = omFactory.createOMElement(Resources.ServiceGroupProperties.SERVICE_GROUP_XML_TAG, null);
+            	}
+            	
             } else {                        //the file does not exist.
                 sgElement = omFactory.createOMElement(Resources.ServiceGroupProperties.SERVICE_GROUP_XML_TAG, null);
             }

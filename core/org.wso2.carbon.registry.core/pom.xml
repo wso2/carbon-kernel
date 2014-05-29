@@ -73,6 +73,7 @@
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             org.apache.lucene.*,
                             org.apache.commons.io.*; version="0.0.0",
+							org.wso2.carbon.caching.impl.*,
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>

@@ -25,7 +25,7 @@ import java.io.Serializable;
  * The container class for the cache key used in the registry kernel
  */
 @SuppressWarnings("unused")
-public class RegistryCacheKey implements Serializable{
+public class RegistryCacheKey implements Serializable {
     private static final long serialVersionUID = -5590538019841708811L;
 
     private int tenantId;
