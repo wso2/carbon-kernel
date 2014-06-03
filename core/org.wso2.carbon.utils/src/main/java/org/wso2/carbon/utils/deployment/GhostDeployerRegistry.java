@@ -69,9 +69,13 @@ public class GhostDeployerRegistry implements BundleListener {
         }
     }
 
-    public void register(Bundle[] bundles) {
+    public void register(Bundle[] bundles, DeployerConfig[] deployerConfigs) {
         for (Bundle bundle : bundles) {
             register(bundle);
+        }
+        for(DeployerConfig deployerConfig : deployerConfigs){
+            Deployer deployer = getDeployer(deployerConfig.getClassStr());
+            addDeployer(deployerConfig, deployer);
         }
         /**
          * Axis2 DeploymentEngine has made the AAR deployer a special case by hardcoding it.
@@ -117,15 +121,7 @@ public class GhostDeployerRegistry implements BundleListener {
                     }
 
                     Deployer deployer = (Deployer) deployerClass.newInstance();
-                    String directory = deployerConfig.getDirectory();
-                    String extension = deployerConfig.getExtension();
-                    deployer.setDirectory(directory);
-                    deployer.setExtension(extension);
-
-                    //Add the ghost deployer to deployment engine
-                    deploymentEngine.addDeployer(ghostDeployer, directory, extension);
-                    // Add the proper deployer into the Ghost deployer
-                    ghostDeployer.addDeployer(deployer, directory, extension);
+                    addDeployer(deployerConfig,deployer);
                     deployerMap.put(bundle, deployerConfig);
                 }
             }
@@ -136,6 +132,36 @@ public class GhostDeployerRegistry implements BundleListener {
         } finally {
             lock.unlock();
         }
+    }
+
+    public void addDeployer(DeployerConfig deployerConfig, Deployer deployer){
+
+        String directory = deployerConfig.getDirectory();
+        String extension = deployerConfig.getExtension();
+        deployer.setDirectory(directory);
+        deployer.setExtension(extension);
+
+        //Add the ghost deployer to deployment engine
+        deploymentEngine.addDeployer(ghostDeployer, directory, extension);
+        // Add the proper deployer into the Ghost deployer
+        ghostDeployer.addDeployer(deployer, directory, extension);
+
+    }
+
+    public Deployer getDeployer(String className){
+        Deployer deployer = null;
+        try {
+            Class deployerClass = Class.forName(className);
+            deployer = (Deployer) deployerClass.newInstance();
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (InstantiationException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return deployer;
     }
 
     /**
