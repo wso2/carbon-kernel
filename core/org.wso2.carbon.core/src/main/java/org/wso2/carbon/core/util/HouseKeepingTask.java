@@ -52,7 +52,7 @@ public class HouseKeepingTask extends TimerTask {
             File workDir = new File(this.workDir);
             if (workDir.exists()) {
                 List<String> deletedFiles = new ArrayList<String>();
-                clean(workDir, deletedFiles);
+                clean(workDir, deletedFiles, false);
                 log.debug("Clearing filemap cache...");
                 if (fileResourceMap != null) {
                     for (Iterator iterator = deletedFiles.iterator(); iterator.hasNext();) {
@@ -66,33 +66,40 @@ public class HouseKeepingTask extends TimerTask {
         }
     }
 
-    private void clean(File file, List<String> deletedFiles) {
+    private void clean(File file, List<String> deletedFiles, boolean deleteParent) {
         if(file == null){
             return;
         }
         File[] children = file.listFiles();
         if (children != null) {
             for (int i = 0; i < children.length; i++) {
-                clean(children[i], deletedFiles);
+                clean(children[i], deletedFiles,true);
             }
             if (file.listFiles() == null || file.listFiles().length == 0) { // all children deleted?
                 String absPath = file.getAbsolutePath();
                 if (log.isDebugEnabled()) {
                     log.debug("Deleting directory " + absPath + "...");
                 }
-                deletedFiles.add(absPath);
-                FileManipulator.deleteDir(file);
+                
+                if(deleteParent){
+                	deletedFiles.add(absPath);
+                    FileManipulator.deleteDir(file);
+                }                
             }
         } else {
             if (System.currentTimeMillis() -
                 file.lastModified() >= fileTimeoutMillis) {
                 String absPath = file.getAbsolutePath();
                 if (file.isDirectory()) {
+                	
                     if (log.isDebugEnabled()) {
                         log.debug("Deleting directory " + absPath + "...");
                     }
-                    deletedFiles.add(absPath);
-                    FileManipulator.deleteDir(file);
+                    if(deleteParent){
+                    	deletedFiles.add(absPath);
+                        FileManipulator.deleteDir(file);
+                	}
+                    
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("Deleting file " + absPath + "...");
