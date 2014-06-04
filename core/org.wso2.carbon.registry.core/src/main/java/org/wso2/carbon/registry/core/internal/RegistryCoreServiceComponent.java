@@ -24,6 +24,7 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.caching.impl.CacheInvalidator;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.app.RemoteRegistryService;
 import org.wso2.carbon.registry.app.Utils;
@@ -78,6 +79,9 @@ import java.util.Stack;
  * interface="org.wso2.carbon.registry.core.statistics.StatisticsCollector"
  * cardinality="0..n" policy="dynamic" bind="setStatisticsCollector"
  * unbind="unsetStatisticsCollector"
+ * @scr.reference name="CacheInvalidator"
+ * interface="org.wso2.carbon.caching.impl.CacheInvalidator"
+ * cardinality="0..n" policy="dynamic" bind="setCacheInvalidatorService" unbind="unSetCacheInvalidatorService"
  */
 @SuppressWarnings("JavaDoc")
 public class RegistryCoreServiceComponent {
@@ -94,6 +98,8 @@ public class RegistryCoreServiceComponent {
     private static Stack<ServiceRegistration> registrations = new Stack<ServiceRegistration>();
 
     private static RegistryService registryService;
+
+    private static CacheInvalidator cacheInvalidator ;
 
     /**
      * Activates the Registry Kernel bundle.
@@ -688,6 +694,36 @@ public class RegistryCoreServiceComponent {
             throw new RegistryException("Error initializing the Server Configuration", e);
         }
         return serverConfig;
+    }
+
+    /**
+     * Method to set the CahceInvalidator. This will be used to invalidate the global cache in all the instance
+     * subscribed to the same topic in different cluster domains
+     * This method is called when the CacheInvalidator OSGI Service is available.
+     *
+     * @param _cacheInvalidator the cache invalidator service.
+     */
+    protected void setCacheInvalidatorService(CacheInvalidator _cacheInvalidator) {
+        cacheInvalidator = _cacheInvalidator;
+    }
+
+    /**
+     * This method is called when the current cache invalidator becomes un-available.
+     *
+     * @param _cacheInvalidator the current cache invalidator instance
+     */
+    @SuppressWarnings("unused")
+    protected void unSetCacheInvalidatorService(CacheInvalidator _cacheInvalidator) {
+        cacheInvalidator = null;
+    }
+
+    /**
+     * Method to return the CacheInvalidator OSGI service interface
+     *
+     * @return CacheInvalidator OSGI service interface
+     */
+    public static CacheInvalidator getCacheInvalidator() {
+        return cacheInvalidator;
     }
 
     /**

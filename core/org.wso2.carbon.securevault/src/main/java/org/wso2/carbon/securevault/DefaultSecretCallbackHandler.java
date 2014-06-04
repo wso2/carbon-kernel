@@ -66,6 +66,7 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
             String textFilePersist;
             boolean sameKeyAndKeyStorePass = true;
             boolean persistPassword = false;
+            String passwords[];
 
             String carbonHome = System.getProperty(CARBON_HOME);
 
@@ -84,7 +85,6 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
             if(keyPassword != null && keyPassword.trim().equals("true")){
                 sameKeyAndKeyStorePass = false;
             }
-
             String persistPasswordProperty = System.getProperty(PERSIST_PASSWORD);     
             if(persistPasswordProperty != null && persistPasswordProperty.trim().equals("true")){
                 persistPassword = true;
@@ -93,11 +93,12 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
             keyDataFile = new File(carbonHome + File.separator + textFileName);
 
             if(keyDataFile.exists()){
-                keyStorePassWord = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                keyStorePassWord = passwords[0];
                 if(sameKeyAndKeyStorePass){
                     privateKeyPassWord = keyStorePassWord;
                 } else {
-                    privateKeyPassWord = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                    privateKeyPassWord = passwords[1];
                 }
                 if(!persistPassword){
                     if(!renameConfigFile(textFileName_tmp)){
@@ -107,11 +108,12 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
             } else {
                 keyDataFile = new File(carbonHome + File.separator + textFileName_tmp);
                 if(keyDataFile.exists()){
-                    keyStorePassWord = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                    passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                    keyStorePassWord = passwords[0];
                     if(sameKeyAndKeyStorePass){
                         privateKeyPassWord = keyStorePassWord;
                     } else {
-                        privateKeyPassWord = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                        privateKeyPassWord = passwords[1];
                     }
                     if(!persistPassword){
                         if (!deleteConfigFile()) {
@@ -121,11 +123,12 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                 } else {
                     keyDataFile =  new File(carbonHome + File.separator + textFilePersist);
                     if(keyDataFile.exists()){
-                        keyStorePassWord = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                        passwords = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                        keyStorePassWord = passwords[0];
                         if(sameKeyAndKeyStorePass){
                             privateKeyPassWord = keyStorePassWord;
                         } else {
-                            privateKeyPassWord = readPassword(keyDataFile, sameKeyAndKeyStorePass);
+                            privateKeyPassWord = passwords[1];
                         }
                     } else{
                         Console console;
@@ -160,19 +163,19 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
     }
 
 
-    private String readPassword(File file, boolean sameKeyAndKeyStorePass){
+    private String[] readPassword(File file, boolean sameKeyAndKeyStorePass){
 
-        String stringLine = null;
+        String stringLines[] = new String[2];
         FileInputStream inputStream = null;
         BufferedReader bufferedReader = null;
         try{
             inputStream = new FileInputStream(file);
             bufferedReader= new BufferedReader(new InputStreamReader(inputStream));
             if(sameKeyAndKeyStorePass){
-                stringLine = bufferedReader.readLine();
+                stringLines[0] = bufferedReader.readLine();
             } else {
-                stringLine = bufferedReader.readLine();
-                stringLine = bufferedReader.readLine();
+                stringLines[0] = bufferedReader.readLine();
+                stringLines[1] = bufferedReader.readLine();
             }
         }catch (Exception e){
             handleException("Error reading password from text file ", e);
@@ -188,7 +191,7 @@ public class DefaultSecretCallbackHandler extends AbstractSecretCallbackHandler 
                log.warn("Error closing output stream of text file");
             }
         }
-        return stringLine;
+        return stringLines;
     }
 
     private boolean deleteConfigFile(){

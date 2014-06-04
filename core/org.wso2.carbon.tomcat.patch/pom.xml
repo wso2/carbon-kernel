@@ -27,8 +27,8 @@
     <artifactId>org.wso2.carbon.tomcat.patch</artifactId>
     <version>4.3.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Tomcat Transport Statistics patch</name>
-	<description>Patch To Make Tomcat Transport Statistics Usable Outside Tomcat</description>
+    <name>WSO2 Carbon - Tomcat patch</name>
+	<description>The bundle to patch Tomcat source</description>
 
     <dependencies>
         <dependency>
@@ -55,14 +55,24 @@
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.apache.coyote.*,
-			                org.apache.tomcat.util.http.mapper.*,
+                            org.apache.catalina.startup.*,
+			    org.apache.tomcat.util.http.mapper.*,
+                            org.apache.juli.logging.*
                         </Export-Package>
                         <Import-Package>
-							!org.apache.coyote.*,
-							!org.apache.tomcat.util.http.mapper.*,
+                            !org.apache.coyote.*,
+                            !org.apache.catalina.startup.*,
+                            !org.apache.tomcat.util.http.mapper.*,
+                            !org.apache.juli.logging.*,
                             org.wso2.carbon.tomcat.version.*,
-							*;resolution:=optional
+                            *;resolution:=optional
                         </Import-Package>
+                        <Private-Package>
+                            javax.annotation.*,
+                            javax.ejb.*,
+                            javax.persistence.*,
+                        </Private-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package> 
                     </instructions>
                 </configuration>
             </plugin>

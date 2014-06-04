@@ -45,39 +45,43 @@ import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.xml.namespace.QName;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+
+import java.io.*;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public final class AppDeployerUtils {
-
+	
+	private static final Log log = LogFactory.getLog(AppDeployerUtils.class);
+	
+	private static final AppDeployerUtils INSTANCE = new AppDeployerUtils();
+	
+	private static String APP_UNZIP_DIR;
+	private static final String INTERNAL_ARTIFACTS_DIR = "internal-artifacts";
+	private static volatile boolean isAppDirCreated = false;
+	
 	private AppDeployerUtils() {
 		// hide utility class
+		
+		
 	}
 	
-    public static final String APP_UNZIP_DIR;
-    private static final String INTERNAL_ARTIFACTS_DIR = "internal-artifacts";
-
-    static {
-        APP_UNZIP_DIR = System.getProperty(ServerConstants.CARBON_HOME) + File.separator + AppDeployerConstants.REPOSITORY +
-                File.separator + AppDeployerConstants.CARBON_APPS + File.separator + AppDeployerConstants.WORK_DIR;
+	private static void createAppDirectory(){
+		//cApps should be temporarily uploaded to worker directory,
+    	//then house keeping task will delete after timeout
+		if(isAppDirCreated){
+			return;
+		}
+	
+        String javaTempDir = System.getProperty("axis2.work.dir");
+        APP_UNZIP_DIR = javaTempDir.endsWith(File.separator) ? javaTempDir + AppDeployerConstants.CARBON_APPS :
+                											   javaTempDir + File.separator + AppDeployerConstants.CARBON_APPS;
         createDir(APP_UNZIP_DIR);
-    }
+        isAppDirCreated = true;
+		
+	}
 
-    private static final Log log = LogFactory.getLog(AppDeployerUtils.class);
 
     /**
      * Check whether the given bundle is a project artifact. If yes, return the app name. If no,
@@ -432,6 +436,7 @@ public final class AppDeployerUtils {
         String fileName = appCarPathFormatted.substring(appCarPathFormatted.lastIndexOf('/') + 1);
         String dest = APP_UNZIP_DIR + File.separator + System.currentTimeMillis() +
                 fileName + File.separator;
+        createAppDirectory();
         createDir(dest);
 
         try {
@@ -443,6 +448,7 @@ public final class AppDeployerUtils {
     }
 
     public static String createAppExtractionPath(String parentAppName) {
+    	createAppDirectory();
         String parentPath = APP_UNZIP_DIR + File.separator + System.currentTimeMillis() +
                 parentAppName + File.separator;
         createDir(parentPath);
@@ -709,7 +715,7 @@ public final class AppDeployerUtils {
 
     public static void createDir(String path) {
         File temp = new File(path);
-        if (!temp.exists() && !temp.mkdir()) {
+        if (!temp.exists() && !temp.mkdirs()) {
             log.error("Error while creating directory : " + path);
         }
     }

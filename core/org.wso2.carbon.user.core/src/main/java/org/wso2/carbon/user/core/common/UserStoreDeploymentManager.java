@@ -27,6 +27,9 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.config.UserStoreConfigXMLProcessor;
+import org.wso2.carbon.user.core.tenant.TenantCache;
+import org.wso2.carbon.user.core.tenant.TenantIdKey;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import java.io.File;
 import java.util.regex.Pattern;
@@ -38,12 +41,9 @@ public class UserStoreDeploymentManager {
         UserStoreConfigXMLProcessor userStoreXMLProcessor = new UserStoreConfigXMLProcessor(absoluteFilePath);
         RealmConfiguration realmConfiguration;
         File userMgtConfigFile = new File(absoluteFilePath);
+        AbstractUserStoreManager primaryUSM = null;
 
         try {
-            realmConfiguration = userStoreXMLProcessor.buildUserStoreConfigurationFromFile();
-            UserRealm userRealm = (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
-            AbstractUserStoreManager primaryUSM = null;
-//            String[] filePathSegments = absoluteFilePath.split(File.separator);
             String pattern = Pattern.quote(System.getProperty("file.separator"));
             String[] filePathSegments = absoluteFilePath.split(pattern);
             //<CARBON_HOME>/repository/tenants/1/userstores/domain_com.xml
@@ -51,9 +51,18 @@ public class UserStoreDeploymentManager {
 
 
             if (filePathSegments[filePathSegments.length - 2].equals(UserStoreConfigConstants.USER_STORES)) {
+
+                //clear cached configurations
+                int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+                UserCoreUtil.getRealmService().clearCachedUserRealm(tenantId);
+                TenantCache.getInstance().clearCacheEntry(new TenantIdKey(tenantId));
+                realmConfiguration = userStoreXMLProcessor.buildUserStoreConfigurationFromFile();
+                UserRealm userRealm = (UserRealm) CarbonContext.getThreadLocalCarbonContext().getUserRealm();
+
+
                 //tenant admin modified secondary user store configuration
                 if (filePathSegments[filePathSegments.length - 4].equals(UserStoreConfigConstants.TENANTS)) {
-                    realmConfiguration.setTenantId(CarbonContext.getThreadLocalCarbonContext().getTenantId());                    
+                    realmConfiguration.setTenantId(tenantId);
                     setSecondaryUserStore(userRealm.getRealmConfiguration(), realmConfiguration);
                     primaryUSM = (AbstractUserStoreManager) userRealm.getUserStoreManager();
                     primaryUSM.addSecondaryUserStoreManager(realmConfiguration, userRealm);

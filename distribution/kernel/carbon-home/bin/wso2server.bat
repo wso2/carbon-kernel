@@ -152,6 +152,10 @@ rem ----------------- Execute The Requested Command ----------------------------
 :runServer
 cd %CARBON_HOME%
 
+rem ------------------ Remove tmp folder on startup -----------------------------
+set TMP_DIR=%CARBON_HOME%\tmp
+rmdir "%TMP_DIR%" /s /q
+
 rem ---------- Add jars to classpath ----------------
 
 set CARBON_CLASSPATH=.\lib;%CARBON_CLASSPATH%

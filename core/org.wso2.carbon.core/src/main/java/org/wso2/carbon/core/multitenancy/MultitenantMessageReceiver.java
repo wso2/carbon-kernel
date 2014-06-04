@@ -262,6 +262,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 
             // inject the message to the tenant inflow handlers
             AxisEngine.receive(tenantInMsgCtx);
+            mainInMsgContext.getOperationContext().setProperty(Constants.RESPONSE_WRITTEN,
+            		tenantInMsgCtx.getOperationContext().getProperty(Constants.RESPONSE_WRITTEN));
         } catch (AxisFault axisFault) {
             // at a fault flow message receiver throws a fault.
             // we need to first catch this fault and invoke the fault flow
