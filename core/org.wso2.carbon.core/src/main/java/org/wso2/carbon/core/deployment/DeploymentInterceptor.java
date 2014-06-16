@@ -246,12 +246,7 @@ public class DeploymentInterceptor implements AxisObserver {
     }
 
     public void serviceUpdate(AxisEvent axisEvent, AxisService axisService) {
-        if(CarbonUtils.isWorkerNode()){
-            if (log.isDebugEnabled()){
-                log.debug("Skip deployment intercepting in worker nodes.");
-            }
-            return;
-        }
+
         PrivilegedCarbonContext.startTenantFlow();
         try {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -284,26 +279,26 @@ public class DeploymentInterceptor implements AxisObserver {
 
                 if (eventType == AxisEvent.SERVICE_DEPLOY) {
                     if (!JavaUtils.isTrue(axisService.getParameterValue(
-                            CarbonConstants.HIDDEN_SERVICE_PARAM_NAME))) {
+                            CarbonConstants.HIDDEN_SERVICE_PARAM_NAME)) && !CarbonUtils.isWorkerNode()) {
                         log.info("Deploying Axis2 service: " + serviceName +
                                 getTenantIdAndDomainString());
-                    } else if (log.isDebugEnabled()) {
+                    } else if (log.isDebugEnabled() && !CarbonUtils.isWorkerNode()) {
                         log.debug("Deploying hidden Axis2 service : " + serviceName +
                                 getTenantIdAndDomainString());
                     }
 
-                    if (service == null) {
+                    if (service == null && !CarbonUtils.isWorkerNode()) {
                         pf.getServicePM().handleNewServiceAddition(axisService);
                     } else {
                         pf.getServicePM().handleExistingServiceInit(axisService);
                     }
-                } else if (eventType == AxisEvent.SERVICE_START) {
+                } else if (eventType == AxisEvent.SERVICE_START && !CarbonUtils.isWorkerNode()) {
                     service.addAttribute(Resources.ServiceProperties.ACTIVE, "true", null);
-                } else if (eventType == AxisEvent.SERVICE_STOP && service != null) {
+                } else if (eventType == AxisEvent.SERVICE_STOP && service != null && !CarbonUtils.isWorkerNode()) {
                     // in a shared registry scenario the resource could have been already removed
                     // by some other node
                     service.addAttribute(Resources.ServiceProperties.ACTIVE, "false", null);
-                } else if (eventType == AxisEvent.SERVICE_REMOVE) {
+                } else if (eventType == AxisEvent.SERVICE_REMOVE && !CarbonUtils.isWorkerNode()) {
                     if (service != null) {
                         try {
                             Parameter svcHistoryParam = axisService.getParameter(
