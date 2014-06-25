@@ -173,4 +173,21 @@ public class RecursionRepository {
             repository.restore(path, reader);
         }
     }
+    
+    /**
+     * Method to dump a tree of resources recursively.
+     *
+     * @param path   the path to dump
+     * @param writer the xml writer the dump should be written to.
+     *
+     * @throws RegistryException if the operation failed.
+     */
+    public void dumpRecursivelyLite(String path,
+                                Writer writer) throws RegistryException {
+        if (isNonRecursive(path)) {
+            registry.dumpLite(path, writer);
+        } else {
+            repository.dumpLite(path, writer);
+        }
+    }
 }
