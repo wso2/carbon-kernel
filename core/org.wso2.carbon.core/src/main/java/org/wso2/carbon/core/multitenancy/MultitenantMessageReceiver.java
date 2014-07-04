@@ -114,6 +114,14 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                            tenantResponseMsgCtx.setProperty(key, mainInMsgContext.getProperty(key));
                           }
                 }
+                if (tenantRequestMsgCtx.getProperty(MultitenantConstants.TENANT_DOMAIN) != null) {
+                    String tenant = (String)tenantRequestMsgCtx.getProperty(MultitenantConstants.TENANT_DOMAIN);
+                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant, true);
+                    tenantResponseMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
+                }else{
+                    log.warn("Tenant domain is not available in tenant request message context, hence it might not be " +
+                            "set in the thread local carbon context");
+                }
                 tenantResponseMsgCtx.setProperty(MessageContext.TRANSPORT_IN, tenantRequestMsgCtx
                         .getProperty(MessageContext.TRANSPORT_IN));
                 tenantResponseMsgCtx.setTransportIn(tenantRequestMsgCtx.getTransportIn());
@@ -241,6 +249,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
         copyProperties(mainInMsgContext, tenantInMsgCtx);
 
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant, true);
+        tenantInMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
         try {
             // set a dummy transport out description
             String transportOutName = mainInMsgContext.getTransportOut().getName();
