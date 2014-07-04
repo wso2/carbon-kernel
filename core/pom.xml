@@ -67,11 +67,11 @@
         </mailingList>
     </mailingLists>
 
-    <scm>
-        <connection>scm:svn:http://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/</connection>
-        <developerConnection>scm:svn:https://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/
-        </developerConnection>
-    </scm>
+    <!--<scm>-->
+        <!--<connection>scm:svn:http://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/</connection>-->
+        <!--<developerConnection>scm:svn:https://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/-->
+        <!--</developerConnection>-->
+    <!--</scm>-->
 
     <build>
         <plugins>
