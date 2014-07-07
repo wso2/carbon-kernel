@@ -195,6 +195,7 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             configServiceListener = new Axis2ConfigServiceListener(axisConfig, bundleContext);
         }
 
+        //reading deployers for virtual hosts
         ServiceTracker deployerServiceTracker =new ServiceTracker(bundleContext, Axis2DeployerProvider.class.getName(),null);
         deployerServiceTracker.open();
         Axis2DeployerProvider axis2DeployerProvider = (Axis2DeployerProvider)deployerServiceTracker.getService();

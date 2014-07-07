@@ -127,11 +127,11 @@ public class Axis2DeployerRegistry implements BundleListener {
             deployer = (Deployer) deployerClass.newInstance();
 
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            log.error("Deployer class not found ", e);
         } catch (InstantiationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            log.error("Cannot create new deployer instance",e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            log.error("Error creating deployer",e);
         }
         return deployer;
     }
