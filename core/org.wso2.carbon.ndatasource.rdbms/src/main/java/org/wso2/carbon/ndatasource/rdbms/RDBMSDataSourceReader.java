@@ -23,6 +23,7 @@ import javax.sql.DataSource;
 import javax.xml.bind.JAXBContext;
 import java.io.ByteArrayInputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -65,7 +66,21 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 		DataSource dataSource = new RDBMSDataSource(rdbmsConfiguration).getDataSource();
 		
 		Connection connection = null;
-		try {
+        try {
+            Class.forName(rdbmsConfiguration.getDriverClassName());
+            DriverManager.getConnection(rdbmsConfiguration.getUrl(),rdbmsConfiguration.getUsername(),rdbmsConfiguration.getPassword());
+        } catch (ClassNotFoundException e) {
+            throw new DataSourceException("Error loading Driver class:" +e.getMessage(),e);
+        } catch (SQLException e) {
+            if (e.getSQLState().equals("08001")){
+                throw new DataSourceException("The data source URL is not accepted by any of the loaded drivers. "+e.getMessage(),e);
+            } else if(e.getSQLState().equals("28000")){
+                throw new DataSourceException("The user is not associated with a trusted SQL Server connection."+e.getMessage(),e);
+            } else {
+                throw new DataSourceException("Error establishing data source connection: "+e.getMessage(),e);
+            }
+        }
+        try {
 			connection = dataSource.getConnection();
 		} catch (SQLException e) {
 			throw new DataSourceException("Error establishing data source connection: " +
