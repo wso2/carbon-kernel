@@ -946,4 +946,19 @@ public final class UserCoreUtil {
 	public static String getTenantShareGroupBase(String tenantOu) {
 		return tenantOu + "=" + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
 	}
+
+    /**
+     * Returns extracted domain value from a given claim.
+     * @param claimValue
+     * @return domain value extracted from the claim value
+     */
+    public static String extractDomainFromClaimValue(String claimValue) {
+        int index;
+        index = claimValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index > 0){
+            String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
+            return names[0].trim();
+        }
+        return null;// no domain present
+    }
 }
