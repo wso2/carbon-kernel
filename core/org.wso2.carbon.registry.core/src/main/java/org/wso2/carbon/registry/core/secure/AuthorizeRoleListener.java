@@ -115,16 +115,7 @@ public class AuthorizeRoleListener extends AbstractAuthorizationManagerListener
         try {
             if (executeAction.equals(action)) {
                 for (String actionName : actions) {
-                    boolean isDenied = false;
-                    String[] deniedRoles = authorizationManager.getDeniedRolesForResource(path, actionName);
-                    for (String deniedRole : deniedRoles) {
-                        if (deniedRole.equals(roleName)) {
-                            isDenied = true;
-                        }
-                    }
-                    if (!isDenied) {
-                        authorizationManager.clearRoleAuthorization(roleName, path, actionName);
-                    }
+                    authorizationManager.clearRoleAuthorization(roleName, path, actionName);
                 }
             }
         } catch (Exception e) {
@@ -159,16 +150,7 @@ public class AuthorizeRoleListener extends AbstractAuthorizationManagerListener
                     RegistryContext.getBaseInstance(), resourceId))
                     && executeAction.equals(action)) {
                 for (String actionName : actions) {
-                    boolean isDenied = false;
-                    String[] deniedRoles = authorizationManager.getDeniedRolesForResource(path, actionName);
-                    for (String deniedRole : deniedRoles) {
-                        if (deniedRole.equals(roleName)) {
-                            isDenied = true;
-                        }
-                    }
-                    if (!isDenied) {
-                        authorizationManager.authorizeRole(roleName, path, actionName);
-                    }
+                    authorizationManager.authorizeRole(roleName, path, actionName);
                 }
             }
         } catch (Exception e) {
