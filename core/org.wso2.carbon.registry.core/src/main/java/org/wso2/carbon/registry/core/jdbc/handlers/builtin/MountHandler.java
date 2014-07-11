@@ -291,8 +291,6 @@ public class MountHandler extends Handler {
                 endNestedOperation();
             }
             requestContext.setProcessingComplete(true);
-        } catch (RegistryException e) {
-            throw new RegistryException(e.getMessage(), e);
         } catch (Exception e) {
             throw new RegistryException("Unable to put resource", e);
         } finally {
