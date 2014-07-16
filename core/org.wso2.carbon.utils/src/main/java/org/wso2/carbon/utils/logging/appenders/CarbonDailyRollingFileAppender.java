@@ -20,17 +20,30 @@ package org.wso2.carbon.utils.logging.appenders;
 import org.apache.log4j.*;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.logging.LoggingUtils;
+import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 
 import java.util.logging.*;
 
 
 public class CarbonDailyRollingFileAppender extends DailyRollingFileAppender implements LoggingBridge {
 
-        public void push(LogRecord record) {
+    public void push(LogRecord record) {
         LoggingEvent loggingEvent = LoggingUtils.getLogEvent(record);
         doAppend(loggingEvent);
     }
 
+    @Override
+    protected void subAppend(LoggingEvent loggingEvent) {
+        PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
+                .getThreadLocalCarbonContext();
+        int tenantId = privilegedCarbonContext.getTenantId();
+        String serviceName = privilegedCarbonContext.getApplicationName();
 
+        // acquire the tenant aware logging event from the logging event
+        TenantAwareLoggingEvent tenantAwareLoggingEvent = LoggingUtils
+                .getTenantAwareLogEvent(loggingEvent, tenantId, serviceName);
+        super.subAppend(tenantAwareLoggingEvent);
+    }
 }

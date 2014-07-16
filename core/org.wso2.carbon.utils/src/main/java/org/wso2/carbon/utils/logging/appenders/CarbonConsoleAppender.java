@@ -21,7 +21,9 @@ package org.wso2.carbon.utils.logging.appenders;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.logging.LoggingUtils;
+import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 
 import java.util.logging.LogRecord;
 
@@ -31,5 +33,18 @@ public class CarbonConsoleAppender extends ConsoleAppender implements LoggingBri
     public void push(LogRecord record) {
         LoggingEvent loggingEvent = LoggingUtils.getLogEvent(record);
         doAppend(loggingEvent);
+    }
+
+    @Override
+    protected void subAppend(LoggingEvent loggingEvent) {
+        PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
+                .getThreadLocalCarbonContext();
+        int tenantId = privilegedCarbonContext.getTenantId();
+        String serviceName = privilegedCarbonContext.getApplicationName();
+
+        // acquire the tenant aware logging event from the logging event
+        TenantAwareLoggingEvent tenantAwareLoggingEvent = LoggingUtils
+                .getTenantAwareLogEvent(loggingEvent, tenantId, serviceName);
+        super.subAppend(tenantAwareLoggingEvent);
     }
 }
