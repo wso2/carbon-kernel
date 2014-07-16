@@ -1,4 +1,4 @@
-package org.wso2.carbon.logging.appenders;
+package org.wso2.carbon.utils.logging;
 
 
 import org.apache.log4j.Level;

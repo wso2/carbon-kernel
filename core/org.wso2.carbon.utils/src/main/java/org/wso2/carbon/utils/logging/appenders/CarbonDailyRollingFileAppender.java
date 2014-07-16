@@ -15,20 +15,22 @@
 * specific language governing permissions and limitations
 * under the License.
 */
+package org.wso2.carbon.utils.logging.appenders;
 
-package org.wso2.carbon.logging.appenders;
-
-import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.*;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
+import org.wso2.carbon.utils.logging.LoggingUtils;
 
-import java.util.logging.LogRecord;
+import java.util.logging.*;
 
 
-public class CarbonConsoleAppender extends ConsoleAppender implements LoggingBridge {
-    @Override
-    public void push(LogRecord record) {
+public class CarbonDailyRollingFileAppender extends DailyRollingFileAppender implements LoggingBridge {
+
+        public void push(LogRecord record) {
         LoggingEvent loggingEvent = LoggingUtils.getLogEvent(record);
         doAppend(loggingEvent);
     }
+
+
 }
