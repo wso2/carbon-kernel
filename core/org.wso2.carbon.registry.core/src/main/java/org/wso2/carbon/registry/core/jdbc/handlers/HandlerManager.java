@@ -3315,4 +3315,61 @@ public class HandlerManager {
     public void setEvaluateAllHandlers(boolean evaluateAllHandlers) {
         this.evaluateAllHandlers = evaluateAllHandlers;
     }
+    
+    /**
+     * Manages the handler invocations of DUMP method.
+     *
+     * @param requestContext Details of the request.
+     *
+     * @return the dumped element
+     * @throws RegistryException This exception is thrown for all exceptions occurred inside
+     *                           handlers or filters.
+     */
+    public OMElement dumpLite(RequestContext requestContext) throws RegistryException {
+        OMElement dumpedElement = null;
+        Set<Filter> filters = dumpMap.keySet();
+        for (Filter filter : filters) {
+            if (filter != null && filter.handleDump(requestContext)) {
+                Set<Handler> handlerSet = dumpMap.get(filter);
+                Handler[] handlers = handlerSet.toArray(new Handler[handlerSet.size()]);
+                for (Handler handler : handlers) {
+                    try {
+                        handler.dumpLite(requestContext);
+                        if (!requestContext.isExecutionStatusSet(handler)) {
+                            requestContext.setExecutionStatus(handler, true);
+                        }
+                    } catch (RegistryException e) {
+                        requestContext.setExecutionStatus(handler, e);
+                        // Don't throw exceptions in simulation mode, but exit lifecycle phase
+                        if (requestContext.isSimulation()) {
+                            return null;
+                        }
+                        throw e;
+                    } catch (VirtualMachineError e) {
+                        log.fatal(UNABLE_TO_PROCEED_WITH_SIMULATION, e);
+                        throw e;
+                    } catch (Throwable e) {
+                        requestContext.setExecutionStatus(handler, e);
+                        // Don't throw exceptions in simulation mode, but exit lifecycle phase
+                        if (requestContext.isSimulation()) {
+                            return null;
+                        }
+                        // We will be concatenating the incoming exception's message so that it will
+                        // be carried forward, and displayed at the client-side.
+                        throw new RegistryException(
+                                AN_EXCEPTION_OCCURRED_WHILE_EXECUTING_HANDLER_CHAIN+     
+                                        e.getMessage(), e);
+                    }
+                    if (isProcessingComplete(requestContext)) {
+                        break;
+                    }
+                }
+            }
+
+            if (isProcessingComplete(requestContext)) {
+                break;
+            }
+        }
+        return dumpedElement;
+    }
 }

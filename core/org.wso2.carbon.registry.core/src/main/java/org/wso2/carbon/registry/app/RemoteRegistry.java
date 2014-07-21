@@ -1823,5 +1823,54 @@ public class RemoteRegistry implements Registry {
         }
         return url;
     }
+    
+    @Override
+    public void dumpLite(String path, Writer writer) throws RegistryException {
+        AbderaClient abderaClient = new AbderaClient(abdera);
+        dumpLite(path, abderaClient, writer);      
+    }
+    
+    /**
+     * check out the given path as an xml
+     *
+     * @param path    path to check out
+     * @param writer  writer to write the response
+     * @param timeout the time to wait.
+     *
+     * @throws RegistryException if the operation failed.
+     */
+    public void dumpLite(String path, int timeout, Writer writer) throws RegistryException {
+        AbderaClient abderaClient = new AbderaClient(abdera);
+        abderaClient.setSocketTimeout(timeout);
+        dumpLite(path, abderaClient, writer);
+        abderaClient.teardown();
+    }
+    
+ // the implementation for dump
+    private void dumpLite(String path, AbderaClient abderaClient, Writer writer)
+            throws RegistryException {
+        ClientResponse clientResponse =
+        		abderaClient.get(baseURI + APPConstants.ATOM +
+        				encodeURL(path +
+        						RegistryConstants.URL_SEPARATOR +
+                                APPConstants.PARAMETER_DUMP),
+                        getAuthorization());
+        if (clientResponse.getType() == Response.ResponseType.SUCCESS) {
+            Document introspection = clientResponse.getDocument();
+            Element element = introspection.getRoot();
+            if (element instanceof OMElement) {
+                try {
+                    ((OMElement) element).serialize(writer);
+                } catch (XMLStreamException e) {
+                    throw new RegistryException("Failed to serialize the xml", e);
+                }
+            }
+        } else {
+        	String msg = "Failed to serialize the xml. Received Response: " +
+                    clientResponse.getStatusText();
+            log.error(msg);
+            throw new RegistryException(msg);
+        }
+    }
 
 }

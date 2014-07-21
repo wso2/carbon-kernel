@@ -112,7 +112,7 @@ public class RegistryAdmin extends AbstractAdmin {
             try {
                 String[] versions = registryService.getRegistry(
                         CarbonConstants.REGISTRY_SYSTEM_USERNAME,
-                        CarbonContext.getCurrentContext().getTenantId()).getVersions(path);
+                         CarbonContext.getThreadLocalCarbonContext().getTenantId()).getVersions(path);
                 if (versions != null && versions.length > 0) {
                     version = versions[0].substring(versions[0].lastIndexOf(";version:"));
                 }
@@ -123,7 +123,7 @@ public class RegistryAdmin extends AbstractAdmin {
         }
         if (host != null && port != -1 && path != null) {
             String tenantDomain =
-                    PrivilegedCarbonContext.getCurrentContext().getTenantDomain(true);
+                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             return scheme + "://" + host + ":" + port + webContext + 
             		( (tenantDomain != null &&
             		!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) ?

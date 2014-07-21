@@ -250,4 +250,11 @@ public class OperationStatisticsHandler extends Handler {
         }
         super.restore(requestContext);
     }
+    
+	public void dumpLite(RequestContext requestContext) throws RegistryException {
+		if (statsLog.isDebugEnabled()) {
+			incrementRecord(Filter.DUMP);
+		}
+		super.dumpLite(requestContext);
+	}
 }

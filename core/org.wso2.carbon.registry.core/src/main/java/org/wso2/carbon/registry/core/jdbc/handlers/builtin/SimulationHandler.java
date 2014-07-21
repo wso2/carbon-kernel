@@ -306,4 +306,11 @@ public class SimulationHandler extends Handler {
         setStatus(requestContext.getHandlerExecutionStatusMap());
         super.restore(requestContext);
     }
+    
+	@Override
+	public void dumpLite(RequestContext requestContext) throws RegistryException {
+		requestContext.setProcessingComplete(true);
+		setStatus(requestContext.getHandlerExecutionStatusMap());
+		super.dumpLite(requestContext);
+	}
 }
