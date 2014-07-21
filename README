@@ -2,13 +2,12 @@ What is C5?
 Carbon 5 will be the next generation of WSO2 Carbon Platform.
 
 Why C5?
-The existing Carbon platform has served as a modular middleware platform for more than 5 years now. We've built many different products, solutions based on this platform. All the previous major releases of Carbon were sharing the same high level architecture, even though we've changed certain things time to time. 
+The existing Carbon platform has served as a modular middleware platform for more than 5 years now. We've built many different products and solutions based on this platform. All the previous major releases of Carbon were sharing the same high-level architecture, even though we've changed certain things time to time. 
 
-Base architecture of the Carbon is modeled using the Apache Axis2's kernel architecture. Apache Axis2 is Web service engine. But it also has introduced a rich extensible server framework with a configuration and runtime model, deployment engine, clustering API and a implementation, etc. We extended this architecture and built a OSGI based modular server development framework called Carbon Kernel. It is tightly coupled with Apache Axis2. But now  Apache Axis2 is becoming a dead project. We don't see enough active development on the trunk. Therefore we thought of getting rid of this tight coupling to Apache Axis2. 
+Base architecture of the Carbon is modeled using the Apache Axis2's kernel architecture. Apache Axis2 is Web service engine. But it also has introduced a rich extensible server framework with a configuration and runtime model, deployment engine, clustering API and a implementation, etc. We extended this architecture and built a OSGI based modular server development framework called Carbon Kernel. It is tightly coupled with Apache Axis2. But now Apache Axis2 is becoming an inactive project. We don't see enough active development on the trunk. Therefore we thought of getting rid of this tight coupling to Apache Axis2. 
 
 Carbon kernel has gained weight over the time. There are many unwanted modules there. When there are more modules, the rate of patching or the rate of doing patch releases increases. This is why we had to release many patch releases of Carbon kernel in the past. This can become a maintenance nightmare for developers as well as for the users. We need to minimize Carbon kernel releases.
 
-The other reason for C5 is to make Carbon kernel a general purpose OSGi runtime, specialized in  hosting servers. We will implement the bare minimal features required for server developers  in the Carbon kernel.
+The other reason for C5 is to make Carbon kernel a general-purpose OSGi runtime, specializing in hosting servers. We will implement the bare minimum features required for server developers in the Carbon kernel.
 
-Our primary goal of C5 is to re-architect the Carbon platform from the ground up with the latest technologies and patterns to overcome the existing architectural limitations as well as to get rid of the dependencies to the legacy technologies like Apache Axis2.  We need to build a next generation middleware platform that will last for the next 10 years.
-
+Our primary goal of C5 is to re-architect the Carbon platform from the ground up with the latest technologies and patterns to overcome the existing architectural limitations as well as to remove dependencies on legacy technologies like Apache Axis2.  We need to build a next-generation middleware platform that will last for the next 10 years.
