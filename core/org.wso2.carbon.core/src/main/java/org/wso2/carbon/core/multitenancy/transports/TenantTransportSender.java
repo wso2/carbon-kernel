@@ -97,6 +97,14 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
 
         // Copy Message type and Content type from the original message ctx
         // so that the content type will be set properly
+        
+		// Copy all the properties
+		Map<String, Object> mOriginalProperties = msgContext.getProperties();
+		for (String strKey : mOriginalProperties.keySet()) {
+			superTenantOutMessageContext.setProperty(strKey,
+					mOriginalProperties.get(strKey));
+		}      
+        
         String msgTypeProperty = (String)
                 msgContext.getProperty(Constants.Configuration.MESSAGE_TYPE);
         superTenantOutMessageContext.setProperty(
