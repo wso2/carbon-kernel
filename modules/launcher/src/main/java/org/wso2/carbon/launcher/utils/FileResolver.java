@@ -19,8 +19,10 @@
 package org.wso2.carbon.launcher.utils;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 
 public class FileResolver {
 
@@ -38,23 +40,25 @@ public class FileResolver {
         }
 
         String relativeFilePath = path;
-        if(path.startsWith("file:")){
+        if (path.startsWith("file:")) {
             relativeFilePath = path.substring(5);
         }
 
         File file = new File(relativeFilePath);
         if (file.isAbsolute()) {
             try {
-                return file.toURI().toURL();
-            } catch (MalformedURLException e) {
+                String urlString = file.toURI().toURL().toString();
+                return new URL(URLDecoder.decode(urlString, "UTF-8"));
+            } catch (MalformedURLException | UnsupportedEncodingException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         } else {
             file = new File(parentPath, relativeFilePath);
             if (file.isAbsolute()) {
                 try {
-                    return file.toURI().toURL();
-                } catch (MalformedURLException e) {
+                    String urlString = file.toURI().toURL().toString();
+                    return new URL(URLDecoder.decode(urlString, "UTF-8"));
+                } catch (MalformedURLException | UnsupportedEncodingException e) {
                     throw new RuntimeException(e.getMessage(), e);
                 }
             }
