@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -107,8 +106,8 @@ public class AuthorizationHandler extends AbstractHandler {
             if (httpSession != null) {
                 username = (String) httpSession.getAttribute(ServerConstants.USER_LOGGED_IN);
                 UserRealm realm =
-                        (UserRealm) PrivilegedCarbonContext.
-                                getCurrentContext(httpSession).getUserRealm();
+                        (UserRealm) CarbonContext.
+                                getThreadLocalCarbonContext().getUserRealm();
 
                 if (realm == null) {
                     log.error("The realm is null for username: " + username + ".");
