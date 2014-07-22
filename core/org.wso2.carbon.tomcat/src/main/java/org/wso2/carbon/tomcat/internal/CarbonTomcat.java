@@ -181,8 +181,46 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
      */
     public Context addWebApp(String contextPath, String webappFilePath)
             throws CarbonTomcatException {
+        String baseDir = webappFilePath.substring(0, webappFilePath.lastIndexOf(File.separator));
         Host defaultHost = (Host)this.getEngine().findChild(this.getEngine().getDefaultHost());
-        return this.addWebApp(defaultHost, contextPath, webappFilePath, null);
+        Host virtualhost = getMatchingVirtualHost(baseDir);
+
+        if(virtualhost!=null){
+            return this.addWebApp(virtualhost,contextPath,webappFilePath,null);
+        }else {
+            return this.addWebApp(defaultHost, contextPath, webappFilePath, null);
+        }
+    }
+
+    public Host getMatchingVirtualHost(String baseDir){
+        Host virtualhost = null;
+        Container[] virtualhosts = this.getEngine().findChildren();
+        for(Container vhost:virtualhosts){
+            Host childHost = (Host)vhost;
+
+            if(childHost.getAppBase().endsWith(File.separator)){
+            //append a file separator to make webAppFilePath equal to appBase
+                if(isEqualTo(baseDir+File.separator, childHost.getAppBase())){
+                    virtualhost = childHost;
+                    break;
+                }
+            } else {
+                if(isEqualTo(baseDir,childHost.getAppBase())){
+                    virtualhost = childHost;
+                    break;
+                }
+            }
+        }
+        return virtualhost;
+    }
+
+    public boolean isEqualTo(String webAppFilePath, String baseName){
+        if(webAppFilePath.equals(baseName)){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
@@ -244,7 +282,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
             ctx.setName(contextPath);
             ctx.setPath(contextPath);
             ctx.setDocBase(webappFilePath);
-            ctx.setRealm(this.getHost().getRealm());
+            ctx.setRealm(host.getRealm());
             //We dont need to init the DefaultWebXML since we maintain a web.xml file for a carbon server.
             // hence removing ctx.addLifecycleListener(new Tomcat.DefaultWebXmlListener()); code
             if (lifecycleListener != null) {

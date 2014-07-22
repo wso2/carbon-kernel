@@ -37,6 +37,7 @@ import org.apache.axis2.util.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.deployment.CarbonDeploymentSchedulerTask;
@@ -47,10 +48,7 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.Axis2ConfigItemHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerException;
-import org.wso2.carbon.utils.deployment.Axis2DeployerRegistry;
-import org.wso2.carbon.utils.deployment.Axis2ModuleRegistry;
-import org.wso2.carbon.utils.deployment.GhostDeployerRegistry;
-import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
+import org.wso2.carbon.utils.deployment.*;
 import org.wso2.carbon.utils.deployment.service.listeners.Axis2ConfigServiceListener;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -197,11 +195,16 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             configServiceListener = new Axis2ConfigServiceListener(axisConfig, bundleContext);
         }
 
+        //reading deployers for virtual hosts
+        ServiceTracker deployerServiceTracker =new ServiceTracker(bundleContext, Axis2DeployerProvider.class.getName(),null);
+        deployerServiceTracker.open();
+        Axis2DeployerProvider axis2DeployerProvider = (Axis2DeployerProvider)deployerServiceTracker.getService();
+
         // Adding deployers which come inside bundles
         if (GhostDeployerUtils.isGhostOn()) {
-            new GhostDeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles());
+            new GhostDeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles(),axis2DeployerProvider.getDeployerConfigs());
         } else {
-            new Axis2DeployerRegistry((axisConfig)).register(configItemHolder.getDeployerBundles());
+            new Axis2DeployerRegistry((axisConfig)).register(configItemHolder.getDeployerBundles(),axis2DeployerProvider.getDeployerConfigs());
         }
 
         //Deploying modules which come inside bundles.
