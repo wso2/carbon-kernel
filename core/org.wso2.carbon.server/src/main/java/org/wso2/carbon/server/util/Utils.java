@@ -17,15 +17,12 @@
 */
 package org.wso2.carbon.server.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.server.LauncherConstants;
+
 import java.io.*;
 import java.net.MalformedURLException;
-import java.security.MessageDigest;
 import java.util.*;
 import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -88,6 +85,7 @@ public class Utils {
         System.out.println("system-properties:");
         System.out.println("\t-DhttpPort=<httpPort>\t\tOverrides the HTTP port defined in the mgt-transports.xml file");
         System.out.println("\t-DhttpsPort=<httpsPort>\t\tOverrides the HTTPS port defined in the mgt-transports.xml file");
+        System.out.println("\t-DportOffset=<offset>\t\tThe number by which all ports defined in the runtime ports will be offset");
         System.out.println("\t-DosgiConsole=[port]\t\tStart Carbon with Equinox OSGi console. " +
                 "\n\t\t\t\t\tIf the optional 'port' parameter is provided, a telnet port will be opened");
         System.out.println("\t-DosgiDebugOptions=[options-file]" +

@@ -78,20 +78,29 @@ public class TomcatValveContainer {
         if (valves == null || valves.isEmpty()) {
             return;
         }
-        if (index < 0 || index >= TomcatValveContainer.valves.size()) {
+
+        if (index < 0 || index > TomcatValveContainer.valves.size()) {
             throw new IllegalArgumentException("Invalid value specified for index: " + index);
         }
-        CarbonTomcatValve carbonTomcatValve = TomcatValveContainer.valves.get(index - 1);
-        if (carbonTomcatValve != null) {
-            carbonTomcatValve.setNext(valves.get(0));
-        }
-        int i = 0;
-        for (CarbonTomcatValve valve : valves) {
-            i++;
-            if (i <= valves.size() && valves.get(i) != null) {
-                valve.setNext(valves.get(i));
+
+        if (index > 0) {
+            CarbonTomcatValve previousValve = TomcatValveContainer.valves.get(index - 1);
+            if (previousValve != null) {
+                previousValve.setNext(valves.get(0));
             }
         }
+
+        if (index < TomcatValveContainer.valves.size()) {
+            CarbonTomcatValve lastValveOfNewValvesList = valves.get(valves.size() - 1);
+            if (lastValveOfNewValvesList != null) {
+                lastValveOfNewValvesList.setNext(TomcatValveContainer.valves.get(index));
+            }
+        }
+
+        for (int i = 0; i < valves.size() - 1; i++) {
+            valves.get(i).setNext(valves.get(i + 1));
+        }
+
         TomcatValveContainer.valves.addAll(index, valves);
     }
 

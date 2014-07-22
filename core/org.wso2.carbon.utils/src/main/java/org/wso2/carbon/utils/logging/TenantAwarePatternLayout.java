@@ -203,9 +203,9 @@ public class TenantAwarePatternLayout extends PatternLayout {
         private static class TenantIdPatternConverter extends TenantAwareNamedPatternConverter {
             int tenantId;
 
-            public TenantIdPatternConverter(FormattingInfo formattingInfo, int precision, int tenantId) {
+            public TenantIdPatternConverter(FormattingInfo formattingInfo, int precision, int tenantId1) {
                 super(formattingInfo, precision);
-                tenantId = tenantId;
+                tenantId = tenantId1;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {

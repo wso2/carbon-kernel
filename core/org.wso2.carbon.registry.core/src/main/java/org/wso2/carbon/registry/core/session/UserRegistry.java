@@ -1712,5 +1712,21 @@ public class UserRegistry implements Registry {
             clearSessionInformation();            
         }    	    	
     }
+    
+    @Override
+    public void dumpLite(String path, Writer writer) throws RegistryException {
+        if (log.isTraceEnabled()) {
+			log.trace("Preparing operation dump, " + "path: " + path + ".");
+        }
+        try {
+            // setting session information      chrooted incoming paths
+            setSessionInformation();
+
+            coreRegistry.dumpLite(chrootWrapper.getInPath(path), writer);
+        } finally {
+            clearSessionInformation();
+        }
+        
+    }
 }
 

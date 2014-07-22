@@ -279,4 +279,9 @@ public class UserDefinedHandlerManager extends HandlerManager {
     public void setEvaluateAllHandlers(boolean evaluateAllHandlers) {
         getUserHandlerManager().setEvaluateAllHandlers(evaluateAllHandlers);
     }
+    
+    @Override
+    public OMElement dumpLite(RequestContext requestContext) throws RegistryException {
+        return getUserHandlerManager().dumpLite(requestContext);
+    }
 }
