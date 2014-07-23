@@ -4,8 +4,8 @@
 	<!--Configuration Validators to validate system configs against recommended config settings-->	
 	<Validator class="org.wso2.carbon.core.bootup.validator.SystemValidator">
 		<Parameter id="CPU">800</Parameter>
-		<Parameter id="RAM">2048</Parameter>
-		<Parameter id="swap">2048</Parameter>
+		<Parameter id="RAM">2047</Parameter>
+		<Parameter id="swap">2047</Parameter>
 		<Parameter id="freeDisk">1024</Parameter>
 		<Parameter id="ulimit">4096</Parameter>
         <Parameter id="certFingerprint">02:FB:AA:5F:20:64:49:4A:27:29:55:71:83:F7:46:CD</Parameter>

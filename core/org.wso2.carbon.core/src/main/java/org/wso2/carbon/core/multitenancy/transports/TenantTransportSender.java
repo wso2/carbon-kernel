@@ -92,6 +92,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                 msgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
         
         superTenantOutMessageContext.setProperty(MultitenantConstants.HTTP_SC,msgContext.getProperty(MultitenantConstants.HTTP_SC));
+        superTenantOutMessageContext.setProperty(HTTPConstants.HTTP_HEADERS,msgContext.getProperty(HTTPConstants.HTTP_HEADERS));
 
 
         // Copy Message type and Content type from the original message ctx

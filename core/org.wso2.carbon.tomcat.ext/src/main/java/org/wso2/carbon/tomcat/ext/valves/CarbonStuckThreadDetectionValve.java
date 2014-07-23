@@ -106,21 +106,19 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
 
     private void handleStuckThread(MonitoredThread monitoredThread,
                                    long activeTime, int numStuckThreads) {
-        if (log.isWarnEnabled()) {
-            String msg = sm.getString(
+       String msg = sm.getString(
                 "stuckThreadDetectionValve.notifyStuckThreadDetected",
                 monitoredThread.getThread().getName(), activeTime,
                 monitoredThread.getStartTime(), numStuckThreads,
                 monitoredThread.getRequestUri(), threshold);
-            msg += ", tenantDomain=" + monitoredThread.getTenantDomain();
-            // msg += "\n" + getStackTraceAsString(trace);
-            Throwable th = new Throwable();
-            th.setStackTrace(monitoredThread.getThread().getStackTrace());
-            log.warn(msg, th);
-            monitoredThread.getThread().interrupt();
-            monitoredThread.getThread().stop();  // TODO: Not a good practice, but we are using this as a last resort to kill rogue tenant threads
-            activeThreads.remove(monitoredThread.getThread().getId());
-        }
+       msg += ", tenantDomain=" + monitoredThread.getTenantDomain();
+       // msg += "\n" + getStackTraceAsString(trace);
+       Throwable th = new Throwable();
+       th.setStackTrace(monitoredThread.getThread().getStackTrace());
+       log.warn(msg, th);
+       monitoredThread.getThread().interrupt();
+       monitoredThread.getThread().stop();  // TODO: Not a good practice, but we are using this as a last resort to kill rogue tenant threads
+       activeThreads.remove(monitoredThread.getThread().getId());
     }
 
     /**

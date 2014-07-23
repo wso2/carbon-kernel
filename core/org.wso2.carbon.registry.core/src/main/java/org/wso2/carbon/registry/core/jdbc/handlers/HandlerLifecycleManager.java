@@ -1350,4 +1350,41 @@ public class HandlerLifecycleManager extends HandlerManager {
         }
         return defaultValue;
     }
+    
+    @Override
+    public OMElement dumpLite(RequestContext requestContext) throws RegistryException {
+        OMElement defaultValue = handlerManagers.get(
+                DEFAULT_SYSTEM_HANDLER_PHASE).dumpLite(requestContext);
+        boolean isProcessingComplete = requestContext.isProcessingComplete();
+        if (!isProcessingComplete) {
+            OMElement tenantSpecificValue = handlerManagers.get(
+                    TENANT_SPECIFIC_SYSTEM_HANDLER_PHASE).dumpLite(requestContext);
+            if (tenantSpecificValue != null) {
+                defaultValue = tenantSpecificValue;
+            }
+            isProcessingComplete = requestContext.isProcessingComplete();
+        }
+        if (!isProcessingComplete) {
+            OMElement systemSpecificValue = handlerManagers.get(
+                    USER_DEFINED_SYSTEM_HANDLER_PHASE).dumpLite(requestContext);
+            if (systemSpecificValue != null) {
+                defaultValue = systemSpecificValue;
+            }
+            isProcessingComplete = requestContext.isProcessingComplete();
+        }
+        requestContext.setProcessingComplete(false);
+        OMElement userDefinedValue = handlerManagers.get(
+                USER_DEFINED_HANDLER_PHASE).dumpLite(requestContext);
+        isProcessingComplete |= requestContext.isProcessingComplete();
+        // The reporting handler phase needs to know about the state of processing
+        requestContext.setProcessingComplete(isProcessingComplete);
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).dumpLite(requestContext);
+        // The reporting handlers may change the state of processing
+        isProcessingComplete |= requestContext.isProcessingComplete();
+        requestContext.setProcessingComplete(isProcessingComplete);
+        if (userDefinedValue != null) {
+            return userDefinedValue;
+        }
+        return defaultValue;
+    }
 }

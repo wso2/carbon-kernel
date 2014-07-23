@@ -575,4 +575,15 @@ import java.util.Map;
      * @throws RegistryException throws if the operation fails.
      */
      boolean removeVersionHistory(String path, long snapshotId) throws RegistryException;
+     
+     /**
+      * Check out the given path as an xml. This operation will not checkout
+      * comment, rating, tags, association of given resource.
+      *
+      * @param path   path to check out
+      * @param writer writer to write the response
+      *
+      * @throws RegistryException throws if the operation fail
+      */
+      void dumpLite(String path, Writer writer) throws RegistryException;
 }

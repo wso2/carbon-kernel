@@ -607,4 +607,17 @@ public abstract class Handler {
     public boolean equals(Object obj) {
         return (obj != null && obj instanceof Handler && obj.getClass().getName().equals(getClass().getName()));
     }
+    
+    /**
+     * Gets called when dumping an path from registry depsync
+     *
+     * @param requestContext Information about the current request. requestContext.keywords: Search
+     *                       keywords.
+     *
+     * @throws RegistryException If the media type handler is supposed to handle the resourceExists
+     *                           on the media type and if the resourceExists fails due a handler
+     *                           specific error
+     */
+    protected void dumpLite(RequestContext requestContext) throws RegistryException {
+    }
 }

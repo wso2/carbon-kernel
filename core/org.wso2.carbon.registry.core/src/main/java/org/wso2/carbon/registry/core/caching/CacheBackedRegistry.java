@@ -526,4 +526,9 @@ public class CacheBackedRegistry implements Registry {
     		throws RegistryException {
     	return registry.removeVersionHistory(path, snapshotId);
     }
+    
+    @Override
+    public void dumpLite(String path, Writer writer) throws RegistryException {
+        registry.dumpLite(path, writer);
+    }
 }

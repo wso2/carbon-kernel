@@ -1811,4 +1811,42 @@ public class MountHandler extends Handler {
             return totalRead;
         }
     }
+    
+    public void dumpLite(RequestContext requestContext) throws RegistryException {
+        if (isInExecution()) {
+            super.dumpLite(requestContext);
+            return;
+        } else {
+            setInExecution(true);
+        }
+        String fullPath = requestContext.getResourcePath().getPath();
+
+        String actualPath = fullPath.substring(this.mountPoint.length(), fullPath.length());
+        if (subPath != null) {
+        	actualPath = subPath + actualPath;
+        }
+        if (actualPath.length() == 0) {
+            actualPath = "/";
+        }
+        try {
+            Registry remoteRegistry = getRegistry(requestContext);
+            beginNestedOperation(actualPath, fullPath);
+            try {
+                MonitoredWriter monitoredWriter =
+                        new MonitoredWriter(requestContext.getDumpingWriter());
+                try {
+                    remoteRegistry.dumpLite(actualPath, monitoredWriter);
+                } finally {
+                    requestContext.setBytesWritten(monitoredWriter.getTotalWritten());
+                }
+            } finally {
+                endNestedOperation();
+            }
+            requestContext.setProcessingComplete(true);
+        } catch (Exception e) {
+            throw new RegistryException("Unable to dump content", e);
+        } finally {
+            setInExecution(false);
+        }
+    }
 }
