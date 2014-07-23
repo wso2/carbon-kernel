@@ -2,10 +2,12 @@ package org.wso2.carbon.tomcat.ext.valves.test;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
 import org.junit.Test;
 import org.wso2.carbon.tomcat.ext.valves.CarbonTomcatValve;
+import org.wso2.carbon.tomcat.ext.valves.CompositeValve;
 import org.wso2.carbon.tomcat.ext.valves.TomcatValveContainer;
-import org.wso2.carbon.webapp.mgt.TenantLazyLoaderValve;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -47,13 +49,32 @@ public class TomcatValveContainerTest extends TestCase {
         return tomcatContainerValves.size();
     }
 
+    private class CustomTestValve extends CarbonTomcatValve {
+        String code = " ";
+        CustomTestValve(String code){
+            this.code = code;
+        }
+
+        @Override
+        public void invoke(Request request, Response response, CompositeValve compositeValve) {
+
+            Object obj = request.getNote("TestValue");
+            if (obj != null) {
+                String temp = (String)obj;
+                request.setNote("TestValue", temp += code);
+            } else {
+                request.setNote("TestValue", code);
+            }
+        }
+    }
+
     private boolean checkLinksInTomcatValveContainerValves(int expectedCount){
         CarbonTomcatValve valve = tomcatContainerValves.get(0);
 
         int count = 0;
         while (valve != null) {
             count++;
-            if (valve.getNext() instanceof TenantLazyLoaderValve) {
+            if (valve.getNext() instanceof CustomTestValve) {
                 valve = valve.getNext();
             } else {
                 valve = null;
@@ -63,13 +84,32 @@ public class TomcatValveContainerTest extends TestCase {
         return (count == expectedCount);
     }
 
+    private boolean checkLinksInTomcatValveContainerValves(String expectedString){
+        CarbonTomcatValve valve = tomcatContainerValves.get(0);
+        Request request = new Request();
+
+        while (valve != null) {
+            valve.invoke(request, null, null);
+            if (valve.getNext() instanceof CustomTestValve) {
+                valve = valve.getNext();
+            } else {
+                valve = null;
+            }
+        }
+
+        String temp = (String)request.getNote("TestValue");
+        log.info("[Actual=" + temp + ", Expected=" + expectedString + "]");
+
+        return temp.equals(expectedString);
+    }
+
     @Test
     public void testAddValues_WithNullValveList() {
         cleanUpTomcatValveContainerValves();
 
         int index = 0;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
         TomcatValveContainer.addValves(index, null);
@@ -98,7 +138,7 @@ public class TomcatValveContainerTest extends TestCase {
 
         int index = -1;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
 
@@ -119,7 +159,7 @@ public class TomcatValveContainerTest extends TestCase {
 
         int index = 1;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
 
@@ -141,13 +181,14 @@ public class TomcatValveContainerTest extends TestCase {
 
         int index = 0;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
         TomcatValveContainer.addValves(index, valves);
         log.info("TomcatValveContainerValves size (after) = " + getTomcatValveContainerValves().size());
 
         Assert.assertTrue(checkLinksInTomcatValveContainerValves(1));
+        Assert.assertTrue(checkLinksInTomcatValveContainerValves("A"));
     }
 
     @Test
@@ -156,14 +197,15 @@ public class TomcatValveContainerTest extends TestCase {
 
         int index = 0;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
+        valves.add(new CustomTestValve("B"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
         TomcatValveContainer.addValves(index, valves);
         log.info("TomcatValveContainerValves size (after) = " + getTomcatValveContainerValves().size());
 
         Assert.assertTrue(checkLinksInTomcatValveContainerValves(2));
+        Assert.assertTrue(checkLinksInTomcatValveContainerValves("AB"));
     }
 
     @Test
@@ -172,18 +214,19 @@ public class TomcatValveContainerTest extends TestCase {
 
         int index = 0;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
+        valves.add(new CustomTestValve("B"));
+        valves.add(new CustomTestValve("C"));
+        valves.add(new CustomTestValve("D"));
+        valves.add(new CustomTestValve("E"));
+        valves.add(new CustomTestValve("F"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
         TomcatValveContainer.addValves(index, valves);
         log.info("TomcatValveContainerValves size (after) = " + getTomcatValveContainerValves().size());
 
         Assert.assertTrue(checkLinksInTomcatValveContainerValves(6));
+        Assert.assertTrue(checkLinksInTomcatValveContainerValves("ABCDEF"));
     }
 
     @Test
@@ -192,24 +235,25 @@ public class TomcatValveContainerTest extends TestCase {
 
         int index = 0;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
+        valves.add(new CustomTestValve("B"));
+        valves.add(new CustomTestValve("C"));
+        valves.add(new CustomTestValve("D"));
 
         TomcatValveContainer.addValves(index, valves);
 
         index = 0;
         List<CarbonTomcatValve> valves1 = new ArrayList<CarbonTomcatValve>();
-        valves1.add(new TenantLazyLoaderValve());
-        valves1.add(new TenantLazyLoaderValve());
-        valves1.add(new TenantLazyLoaderValve());
+        valves1.add(new CustomTestValve("E"));
+        valves1.add(new CustomTestValve("F"));
+        valves1.add(new CustomTestValve("G"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
         TomcatValveContainer.addValves(index, valves1);
         log.info("TomcatValveContainerValves size (after) = " + getTomcatValveContainerValves().size());
 
         Assert.assertTrue(checkLinksInTomcatValveContainerValves(7));
+        Assert.assertTrue(checkLinksInTomcatValveContainerValves("EFGABCD"));
     }
 
     @Test
@@ -218,24 +262,25 @@ public class TomcatValveContainerTest extends TestCase {
 
         int index = 0;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
+        valves.add(new CustomTestValve("B"));
+        valves.add(new CustomTestValve("C"));
+        valves.add(new CustomTestValve("D"));
 
         TomcatValveContainer.addValves(index, valves);
 
         index = 2;
         List<CarbonTomcatValve> valves1 = new ArrayList<CarbonTomcatValve>();
-        valves1.add(new TenantLazyLoaderValve());
-        valves1.add(new TenantLazyLoaderValve());
-        valves1.add(new TenantLazyLoaderValve());
+        valves1.add(new CustomTestValve("E"));
+        valves1.add(new CustomTestValve("F"));
+        valves1.add(new CustomTestValve("G"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
         TomcatValveContainer.addValves(index, valves1);
         log.info("TomcatValveContainerValves size (after) = " + getTomcatValveContainerValves().size());
 
         Assert.assertTrue(checkLinksInTomcatValveContainerValves(7));
+        Assert.assertTrue(checkLinksInTomcatValveContainerValves("ABEFGCD"));
     }
 
     @Test
@@ -244,22 +289,23 @@ public class TomcatValveContainerTest extends TestCase {
 
         int index = 0;
         List<CarbonTomcatValve> valves = new ArrayList<CarbonTomcatValve>();
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
-        valves.add(new TenantLazyLoaderValve());
+        valves.add(new CustomTestValve("A"));
+        valves.add(new CustomTestValve("B"));
+        valves.add(new CustomTestValve("C"));
+        valves.add(new CustomTestValve("D"));
 
         TomcatValveContainer.addValves(index, valves);
 
         List<CarbonTomcatValve> valves1 = new ArrayList<CarbonTomcatValve>();
-        valves1.add(new TenantLazyLoaderValve());
-        valves1.add(new TenantLazyLoaderValve());
-        valves1.add(new TenantLazyLoaderValve());
+        valves1.add(new CustomTestValve("E"));
+        valves1.add(new CustomTestValve("F"));
+        valves1.add(new CustomTestValve("G"));
 
         log.info("TomcatValveContainerValves size (before) = " + getTomcatValveContainerValves().size());
         TomcatValveContainer.addValves(getNextIndexFromTomcatValveContainerValves(), valves1);
         log.info("TomcatValveContainerValves size (after) = " + getTomcatValveContainerValves().size());
 
         Assert.assertTrue(checkLinksInTomcatValveContainerValves(getNextIndexFromTomcatValveContainerValves()));
+        Assert.assertTrue(checkLinksInTomcatValveContainerValves("ABCDEFG"));
     }
 }
