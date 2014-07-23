@@ -20,6 +20,7 @@ package org.wso2.carbon.core.persistence.metadata;
 import java.io.File;
 import java.util.Properties;
 
+@Deprecated
 public class ArtifactMetadata {
 
     private File file;

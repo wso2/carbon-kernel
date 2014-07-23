@@ -27,6 +27,7 @@ import java.util.List;
  * <p/>
  * The methods are synchronized per ResourceFileData object.
  */
+@Deprecated
 public class ServiceGroupFilePersistenceManager extends AbstractFilePersistenceManager {
 
     private static final Log log = LogFactory.getLog(ServiceGroupFilePersistenceManager.class);
@@ -37,18 +38,18 @@ public class ServiceGroupFilePersistenceManager extends AbstractFilePersistenceM
             URL repositoryURL = axisConfig.getRepository();
             if (repositoryURL != null) {
                 String repoPath = URLDecoder.decode(axisConfig.getRepository().getPath(), "UTF-8");
-                metafilesDir = new File(repoPath +
-                        File.separator + Resources.SERVICES_METAFILES_DIR);
+//                metafilesDir = new File(repoPath +
+//                        File.separator + Resources.SERVICES_METAFILES_DIR);
             }
         } catch (UnsupportedEncodingException e) {
             log.error("metafiles directory URL can not be decoded.", e);
             throw new AxisFault("metafiles directory URL can not be decoded.", e);
         }
-        if (this.metafilesDir == null) {
-            log.error("metafiles directory for services must exist. ");
-            throw new AxisFault("metafiles directory for services must exist. " +
-                    "May be AxisConfiguration does not have the repository url set.");
-        }
+//        if (this.metafilesDir == null) {
+//            log.error("metafiles directory for services must exist. ");
+//            throw new AxisFault("metafiles directory for services must exist. " +
+//                    "May be AxisConfiguration does not have the repository url set.");
+//        }
     }
 
     /**
@@ -63,42 +64,42 @@ public class ServiceGroupFilePersistenceManager extends AbstractFilePersistenceM
      */
     public synchronized void beginTransaction(String serviceGroupId) throws PersistenceException {
 
-        File sgFile = new File(metafilesDir, getFilePathFromResourceId(serviceGroupId));
-
-        try {
-            if (resourceMap.get(serviceGroupId) != null &&
-                    resourceMap.get(serviceGroupId).isTransactionStarted()) {
-                throw new PersistenceException("A transaction is already started for this service group. " +
-                        "Nested transactions are no longer supported in this persistence model - " + serviceGroupId);
-            }
-
-            OMElement sgElement = null;
-            if (sgFile.exists()) {
-            	if(sgFile.length() > 0){
-            		sgElement = PersistenceUtils.getResourceDocumentElement(sgFile);
-            	}else{
-            		log.info(" File is empty, so it will be deleted  and regenerated ");
-            		sgFile.delete();
-            		//the file does not exist.
-                    sgElement = omFactory.createOMElement(Resources.ServiceGroupProperties.SERVICE_GROUP_XML_TAG, null);
-            	}
-            	
-            } else {                        //the file does not exist.
-                sgElement = omFactory.createOMElement(Resources.ServiceGroupProperties.SERVICE_GROUP_XML_TAG, null);
-            }
-
-            ResourceFileData fileData = new ResourceFileData(sgElement, sgFile, true);
-            resourceMap.put(serviceGroupId, fileData);
-        } catch (XMLStreamException e1) {
-            log.error("Failed to use XMLStreamReader. Exception in beginning the transaction ", e1);
-            throw new PersistenceException("Exception in beginning the transaction ", e1);
-        } catch (FileNotFoundException e) {
-            log.error("File not found. Exception in beginning the transaction " + sgFile.getAbsolutePath(), e);
-            throw new PersistenceException("Exception in beginning the transaction", e);
-        } catch (IOException e) {
-            log.error("Exception in closing service group file " + serviceGroupId, e);
-            throw new PersistenceException("Exception in closing service group file", e);
-        }
+//        File sgFile = new File(metafilesDir, getFilePathFromResourceId(serviceGroupId));
+//
+//        try {
+//            if (resourceMap.get(serviceGroupId) != null &&
+//                    resourceMap.get(serviceGroupId).isTransactionStarted()) {
+//                throw new PersistenceException("A transaction is already started for this service group. " +
+//                        "Nested transactions are no longer supported in this persistence model - " + serviceGroupId);
+//            }
+//
+//            OMElement sgElement = null;
+//            if (sgFile.exists()) {
+//            	if(sgFile.length() > 0){
+//            		sgElement = PersistenceUtils.getResourceDocumentElement(sgFile);
+//            	}else{
+//            		log.info(" File is empty, so it will be deleted  and regenerated ");
+//            		sgFile.delete();
+//            		//the file does not exist.
+//                    sgElement = omFactory.createOMElement(Resources.ServiceGroupProperties.SERVICE_GROUP_XML_TAG, null);
+//            	}
+//
+//            } else {                        //the file does not exist.
+//                sgElement = omFactory.createOMElement(Resources.ServiceGroupProperties.SERVICE_GROUP_XML_TAG, null);
+//            }
+//
+//            ResourceFileData fileData = new ResourceFileData(sgElement, sgFile, true);
+//            resourceMap.put(serviceGroupId, fileData);
+//        } catch (XMLStreamException e1) {
+//            log.error("Failed to use XMLStreamReader. Exception in beginning the transaction ", e1);
+//            throw new PersistenceException("Exception in beginning the transaction ", e1);
+//        } catch (FileNotFoundException e) {
+//            log.error("File not found. Exception in beginning the transaction " + sgFile.getAbsolutePath(), e);
+//            throw new PersistenceException("Exception in beginning the transaction", e);
+//        } catch (IOException e) {
+//            log.error("Exception in closing service group file " + serviceGroupId, e);
+//            throw new PersistenceException("Exception in closing service group file", e);
+//        }
     }
 
     /**
@@ -142,12 +143,12 @@ public class ServiceGroupFilePersistenceManager extends AbstractFilePersistenceM
     }
 
     public void init() {
-        try {
-            if (!metafilesDir.exists()) {
-                FileUtils.forceMkdir(metafilesDir);
-            }
-        } catch (IOException e) {
-            log.error("Error creating the services meta files directory " + metafilesDir.getAbsolutePath(), e);
-        }
+//        try {
+//            if (!metafilesDir.exists()) {
+//                FileUtils.forceMkdir(metafilesDir);
+//            }
+//        } catch (IOException e) {
+//            log.error("Error creating the services meta files directory " + metafilesDir.getAbsolutePath(), e);
+//        }
     }
 }

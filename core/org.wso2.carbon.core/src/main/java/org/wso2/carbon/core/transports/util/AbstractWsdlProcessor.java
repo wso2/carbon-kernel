@@ -74,7 +74,7 @@ public abstract class AbstractWsdlProcessor implements HttpGetRequestProcessor {
             axisService = GhostDeployerUtils.deployActualService(axisConfig, axisService);
             // we have to call the metadata deployer to avoid any qos settings are not
             // getting applied
-            GhostDispatcherUtils.deployServiceMetaFile(serviceGroupName, axisConfig);
+//            GhostDispatcherUtils.deployServiceMetaFile(serviceGroupName, axisConfig);
 
         }
 

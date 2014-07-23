@@ -24,6 +24,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import java.util.Iterator;
 
+@Deprecated
 public class PersistenceMetaDataDeployer extends AbstractDeployer {
     private static final Log log = LogFactory.getLog(PersistenceMetaDataDeployer.class);
 

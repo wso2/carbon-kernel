@@ -65,6 +65,7 @@ import java.util.List;
  * </version>
  * </module>
  */
+@Deprecated
 public class ModulePersistenceManager extends AbstractPersistenceManager {
 
     private static final Log log = LogFactory.getLog(ModulePersistenceManager.class);

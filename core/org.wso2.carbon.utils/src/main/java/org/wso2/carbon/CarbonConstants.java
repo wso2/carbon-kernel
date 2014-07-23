@@ -192,7 +192,10 @@ public final class CarbonConstants {
     public static final String MODULES_DEPLOYMENT_DIR = "axis2modules";
     public static final String JS_SERVICES_HOTDEPLOYMENT_DIR = "jsservices";
     public static final String DSS_SERVICES_HOTDEPLOYMENT_DIR = "dataservices";
+
+    @Deprecated
     public static final String SERVICE_METAFILE_HOTDEPLOYMENT_DIR = "servicemetafiles";
+    @Deprecated
     public static final String MODULE_METAFILE_HOTDEPLOYMENT_DIR = "modulemetafiles";
     public static final String GHOST_METAFILE_DIR = "ghostmetafiles";
     public static final String WEBAPP_DEPLOYMENT_FOLDER = "webapps";

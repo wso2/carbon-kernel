@@ -101,9 +101,9 @@ public class GhostDispatcher extends AbstractDispatcher {
             try {
                 newService = GhostDeployerUtils.deployActualService(axisConfig,
                                                                     dispatchedService);
-                if (axisConfig != null) {
-                    GhostDispatcherUtils.deployServiceMetaFile(serviceGroupName, axisConfig);
-                }
+//                if (axisConfig != null) {
+//                    GhostDispatcherUtils.deployServiceMetaFile(serviceGroupName, axisConfig);
+//                }
             } catch (AxisFault e) {
                 log.error("Error deploying service. ", e);
                 throw e;

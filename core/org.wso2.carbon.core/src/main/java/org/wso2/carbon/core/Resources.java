@@ -5,7 +5,9 @@ package org.wso2.carbon.core;
  */
 public class Resources {
 
+    @Deprecated
     public static final String SERVICES_METAFILES_DIR = "servicemetafiles";
+    @Deprecated
     public static final String MODULES_METAFILES_DIR = "modulemetafiles";
     public static final String SERVICES_DIRECTORY = "ServicesDirectory";
     public static final String METAFILE_EXTENSION = ".xml";

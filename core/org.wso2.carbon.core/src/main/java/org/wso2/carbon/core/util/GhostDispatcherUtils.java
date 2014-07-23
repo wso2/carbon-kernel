@@ -98,23 +98,23 @@ public class GhostDispatcherUtils {
                             depsync.update(repoPath, filePath, 3);
 
                             // update service metafile
-                            String serviceMetaFileDirPath = repoPath + File.separator +
-                                                CarbonConstants.SERVICE_METAFILE_HOTDEPLOYMENT_DIR;
-                            String serviceMetaFilePath;
+//                            String serviceMetaFileDirPath = repoPath + File.separator +
+//                                                CarbonConstants.SERVICE_METAFILE_HOTDEPLOYMENT_DIR;
+//                            String serviceMetaFilePath;
                             String absoluteFilePath = filePath;
                             if (serviceGroupName.contains("/")) {
-                                serviceMetaFilePath = serviceMetaFileDirPath + File.separator +
-                                                      firstDepthDir;
+//                                serviceMetaFilePath = serviceMetaFileDirPath + File.separator +
+//                                                      firstDepthDir;
                                 absoluteFilePath = repoPath + File.separator + deploymentDir +
                                                    File.separator + serviceGroupName.substring(0,
                                                    serviceGroupName.lastIndexOf('/')) +
                                                    File.separator + fileName;
-                            } else {
+                            } /*else {
                                 serviceMetaFilePath = serviceMetaFileDirPath + File.separator +
                                                       axisService.getAxisServiceGroup().
                                                               getServiceGroupName() + ".xml";
                             }
-                            depsync.update(repoPath, serviceMetaFilePath, 3);
+                            depsync.update(repoPath, serviceMetaFilePath, 3);*/
                             File fileToUpdate = new File(absoluteFilePath);
 
                             if (fileToUpdate.exists()) {
@@ -144,6 +144,7 @@ public class GhostDispatcherUtils {
         }
     }
 
+    @Deprecated
     public static void deployServiceMetaFile(String serviceGroupName,
                                              AxisConfiguration axisConfig) {
         if (serviceGroupName != null) {
