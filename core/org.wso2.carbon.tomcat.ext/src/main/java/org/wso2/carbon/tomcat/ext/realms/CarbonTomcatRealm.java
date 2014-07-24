@@ -22,6 +22,7 @@ import org.apache.catalina.realm.RealmBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.tomcat.ext.internal.CarbonRealmServiceHolder;
 import org.wso2.carbon.tomcat.ext.saas.TenantSaaSRules;
 import org.wso2.carbon.user.api.UserRealmService;
@@ -130,6 +131,9 @@ public class CarbonTomcatRealm extends RealmBase {
                     authenticate(tenantLessUserName, credential)) {
                 return null;
             }
+
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            carbonContext.setUsername(tenantLessUserName);
 
             return getPrincipal(userName);
         } catch (UserStoreException e) {
