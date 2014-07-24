@@ -142,7 +142,12 @@ public class PatchUtils {
                             // verify bundleFileName before copying the files to plugins
                             String patchFileName = verifyBundleFileName(patch);
                             File copiedFile = new File(target, patchFileName);
-                            FileUtils.copyFile(patch, copiedFile, true);
+                            // handle for both file and directories because original plugin dir has directories.
+                            if (patch.isFile()) {
+                                FileUtils.copyFile(patch, copiedFile, true);
+                            }else if(patch.isDirectory()) {
+                                FileUtils.copyDirectory(patch, copiedFile, true);
+                            }
                             try {
                                 patchLog.info("Patched " + patch.getName() + "(MD5:" +
                                         PatchUtils.getMD5ChecksumHexString(patch) + ")");
