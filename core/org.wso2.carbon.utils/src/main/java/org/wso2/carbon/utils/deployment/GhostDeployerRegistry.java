@@ -26,11 +26,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.component.xml.Component;
 import org.wso2.carbon.utils.component.xml.ComponentConfigFactory;
 import org.wso2.carbon.utils.component.xml.ComponentConstants;
 import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -67,13 +69,9 @@ public class GhostDeployerRegistry implements BundleListener {
         }
     }
 
-    public void register(Bundle[] bundles, DeployerConfig[] deployerConfigs) {
+    public void register(Bundle[] bundles) {
         for (Bundle bundle : bundles) {
             register(bundle);
-        }
-        for(DeployerConfig deployerConfig : deployerConfigs){
-            Deployer deployer = getDeployer(deployerConfig.getClassStr());
-            addDeployer(deployerConfig, deployer);
         }
         /**
          * Axis2 DeploymentEngine has made the AAR deployer a special case by hardcoding it.
@@ -119,7 +117,15 @@ public class GhostDeployerRegistry implements BundleListener {
                     }
 
                     Deployer deployer = (Deployer) deployerClass.newInstance();
-                    addDeployer(deployerConfig,deployer);
+                    String directory = deployerConfig.getDirectory();
+                    String extension = deployerConfig.getExtension();
+                    deployer.setDirectory(directory);
+                    deployer.setExtension(extension);
+
+                    //Add the ghost deployer to deployment engine
+                    deploymentEngine.addDeployer(ghostDeployer, directory, extension);
+                    // Add the proper deployer into the Ghost deployer
+                    ghostDeployer.addDeployer(deployer, directory, extension);
                     deployerMap.put(bundle, deployerConfig);
                 }
             }
@@ -130,36 +136,6 @@ public class GhostDeployerRegistry implements BundleListener {
         } finally {
             lock.unlock();
         }
-    }
-
-    public void addDeployer(DeployerConfig deployerConfig, Deployer deployer){
-
-        String directory = deployerConfig.getDirectory();
-        String extension = deployerConfig.getExtension();
-        deployer.setDirectory(directory);
-        deployer.setExtension(extension);
-
-        //Add the ghost deployer to deployment engine
-        deploymentEngine.addDeployer(ghostDeployer, directory, extension);
-        // Add the proper deployer into the Ghost deployer
-        ghostDeployer.addDeployer(deployer, directory, extension);
-
-    }
-
-    public Deployer getDeployer(String className){
-        Deployer deployer = null;
-        try {
-            Class deployerClass = Class.forName(className);
-            deployer = (Deployer) deployerClass.newInstance();
-
-        } catch (ClassNotFoundException e) {
-            log.error("Deployer class not found ", e);
-        } catch (InstantiationException e) {
-            log.error("Cannot create new deployer instance",e);
-        } catch (IllegalAccessException e) {
-            log.error("Error creating deployer",e);
-        }
-        return deployer;
     }
 
     /**
