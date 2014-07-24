@@ -50,13 +50,9 @@ public class Axis2DeployerRegistry implements BundleListener {
         this.deploymentEngine = (DeploymentEngine) axisConfiguration.getConfigurator();
     }
 
-    public void register(Bundle[] bundles, DeployerConfig[] deployerConfigs) {
+    public void register(Bundle[] bundles) {
         for (Bundle bundle : bundles) {
             register(bundle);
-        }
-        for(DeployerConfig deployerConfig : deployerConfigs){
-            Deployer deployer = getDeployer(deployerConfig.getClassStr());
-            addDeployer(deployerConfig, deployer);
         }
     }
 
@@ -95,7 +91,13 @@ public class Axis2DeployerRegistry implements BundleListener {
                     }
 
                     Deployer deployer = (Deployer) deployerClass.newInstance();
-                    addDeployer(deployerConfig,deployer);
+                    String directory = deployerConfig.getDirectory();
+                    String extension = deployerConfig.getExtension();
+                    deployer.setDirectory(directory);
+                    deployer.setExtension(extension);
+
+                    //Add the deployer to deployment engine
+                    deploymentEngine.addDeployer(deployer, directory, extension);
                     deployerMap.put(bundle, deployer);
                 }
             }
@@ -106,34 +108,6 @@ public class Axis2DeployerRegistry implements BundleListener {
         } finally {
             lock.unlock();
         }
-    }
-
-    public void addDeployer(DeployerConfig deployerConfig, Deployer deployer){
-
-        String directory = deployerConfig.getDirectory();
-        String extension = deployerConfig.getExtension();
-        deployer.setDirectory(directory);
-        deployer.setExtension(extension);
-
-        //Add the deployer to deployment engine
-        deploymentEngine.addDeployer(deployer, directory, extension);
-
-    }
-
-    public Deployer getDeployer(String className){
-        Deployer deployer = null;
-        try {
-            Class deployerClass = Class.forName(className);
-            deployer = (Deployer) deployerClass.newInstance();
-
-        } catch (ClassNotFoundException e) {
-            log.error("Deployer class not found ", e);
-        } catch (InstantiationException e) {
-            log.error("Cannot create new deployer instance",e);
-        } catch (IllegalAccessException e) {
-            log.error("Error creating deployer",e);
-        }
-        return deployer;
     }
 
     public void unRegister(Bundle bundle) {
