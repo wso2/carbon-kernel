@@ -165,6 +165,18 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         	superTenantOutMessageContext.setProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED,msgContext.getProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED) != null?msgContext.getProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED):Boolean.FALSE);
         }
 
+        if (msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION) != null) {
+            superTenantOutMessageContext.
+                    setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION,
+                                msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION));
+        }
+
+        if (msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION) != null) {
+            superTenantOutMessageContext.
+                    setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION,
+                                msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION));
+        }
+
          /*Handling HTTP DELETE*/
         if (msgContext.getProperty(MultitenantConstants.REST_GET_DELETE_INVOKE) != null) {
             superTenantOutMessageContext.setProperty(MultitenantConstants.REST_GET_DELETE_INVOKE,

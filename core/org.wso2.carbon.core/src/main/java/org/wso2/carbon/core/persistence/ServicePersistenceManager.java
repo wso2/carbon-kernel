@@ -49,6 +49,7 @@ import java.util.*;
  * Use the serviceGroupName when accessing lower layer ServiceGroupFilePersistenceManager
  * serviceGroupName = axisService.getAxisServiceGroup().getServiceGroupName();
  */
+@Deprecated
 public class ServicePersistenceManager extends AbstractPersistenceManager {
 
     private static final String ADDRESSING_MODULE = "addressing";

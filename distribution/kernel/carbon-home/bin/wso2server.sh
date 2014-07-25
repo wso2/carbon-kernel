@@ -261,7 +261,6 @@ cd "$CARBON_HOME"
 
 TMP_DIR=$CARBON_HOME/tmp
 if [ -d "$TMP_DIR" ]; then
-printf '%s\n' "Removing TMP ($TMP_DIR)"
 rm -rf "$TMP_DIR"
 fi
 

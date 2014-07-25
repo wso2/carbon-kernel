@@ -72,6 +72,7 @@ import java.util.List;
  * }
  * </pre>
  */
+@Deprecated
 public class ServiceGroupPersistenceManager extends AbstractPersistenceManager {
 
     private static final Log log = LogFactory.getLog(ServiceGroupPersistenceManager.class);

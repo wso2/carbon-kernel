@@ -63,6 +63,7 @@ import java.util.List;
 /**
  * Provides common logic for all extending PersistenceManager classes.
  */
+@Deprecated
 public abstract class AbstractPersistenceManager {
 
     private static final Log log = LogFactory.getLog(AbstractPersistenceManager.class);

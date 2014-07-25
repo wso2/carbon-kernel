@@ -28,6 +28,7 @@ import org.wso2.carbon.core.persistence.file.ServiceGroupFilePersistenceManager;
 /**
  * Factory to create different PersistenceManager instances
  */
+@Deprecated
 public class PersistenceFactory {
 
     private static Log log = LogFactory.getLog(PersistenceFactory.class);

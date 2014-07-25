@@ -46,14 +46,12 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
 
     private static final Log log = LogFactory.getLog(DefaultAppDeployer.class);
 
-    public static final String SERVICE_META_TYPE = "service/meta";
     public static final String AAR_TYPE = "service/axis2";
     public static final String DS_TYPE = "service/dataservice";
     public static final String BUNDLE_TYPE = "bundle";
     public static final String MEDIATOR_TYPE = "lib/synapse/mediator";
 
     public static final String DS_DIR = "dataservices";
-    public static final String SERVICE_META_DIR = "servicemetafiles";
 
     private Map<String, Boolean> acceptanceList = null;
 

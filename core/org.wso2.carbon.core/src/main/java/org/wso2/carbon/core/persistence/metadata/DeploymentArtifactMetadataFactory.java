@@ -23,6 +23,7 @@ import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+@Deprecated
 public class DeploymentArtifactMetadataFactory {
 
     private static final Log log = LogFactory.getLog(DeploymentArtifactMetadataFactory.class);

@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+@Deprecated
 public final class PersistenceUtils {
 
     private static Log log = LogFactory.getLog(PersistenceUtils.class);

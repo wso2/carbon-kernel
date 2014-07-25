@@ -49,7 +49,10 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.PreAxisConfigurationPopulationObserver;
 import org.wso2.carbon.utils.WSO2Constants;
-import org.wso2.carbon.utils.deployment.*;
+import org.wso2.carbon.utils.deployment.Axis2DeployerRegistry;
+import org.wso2.carbon.utils.deployment.Axis2ModuleRegistry;
+import org.wso2.carbon.utils.deployment.GhostDeployerRegistry;
+import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -471,15 +474,11 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
         if (disableArtifactLoading == null || "false".equals(disableArtifactLoading.getValue())) {
             moduleDeployer = new ModuleDeployer(axisConfig);
             new Axis2ModuleRegistry(axisConfig).register(moduleBundles);
-
-            ServiceTracker deployerServiceTracker =new ServiceTracker(bundleContext, Axis2DeployerProvider.class.getName(),null);
-            deployerServiceTracker.open();
-            Axis2DeployerProvider axis2DeployerProvider = (Axis2DeployerProvider)deployerServiceTracker.getService();
             // Add Ghost deployer registry only if ghost is on
             if (GhostDeployerUtils.isGhostOn()) {
-                new GhostDeployerRegistry(axisConfig).register(deployerBundles,axis2DeployerProvider.getDeployerConfigs());
+                new GhostDeployerRegistry(axisConfig).register(deployerBundles);
             } else {
-                new Axis2DeployerRegistry(axisConfig).register(deployerBundles, axis2DeployerProvider.getDeployerConfigs());
+                new Axis2DeployerRegistry(axisConfig).register(deployerBundles);
             }
         }
         return axisConfig;

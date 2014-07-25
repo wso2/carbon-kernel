@@ -125,7 +125,6 @@ public class AuthorizeRoleListener extends AbstractAuthorizationManagerListener
                     if (!isDenied) {
                         authorizationManager.clearRoleAuthorization(roleName, path, actionName);
                     }
-
                 }
             }
         } catch (Exception e) {

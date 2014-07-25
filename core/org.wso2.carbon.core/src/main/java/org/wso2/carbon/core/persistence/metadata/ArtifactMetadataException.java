@@ -15,6 +15,7 @@
 */
 package org.wso2.carbon.core.persistence.metadata;
 
+@Deprecated
 public class ArtifactMetadataException extends Exception {
 
     public ArtifactMetadataException(String message, Throwable e) {

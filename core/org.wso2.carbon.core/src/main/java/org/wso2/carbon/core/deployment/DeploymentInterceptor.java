@@ -16,9 +16,7 @@
 
 package org.wso2.carbon.core.deployment;
 
-import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.description.*;
 import org.apache.axis2.engine.AxisConfiguration;
@@ -27,14 +25,10 @@ import org.apache.axis2.engine.AxisObserver;
 import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jaxen.JaxenException;
-import org.wso2.carbon.Axis2ModuleNotFound;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.Resources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.core.persistence.PersistenceFactory;
-import org.wso2.carbon.core.persistence.PersistenceUtils;
 import org.wso2.carbon.core.util.SystemFilter;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -51,7 +45,7 @@ import java.util.*;
  */
 public class DeploymentInterceptor implements AxisObserver {
     private static final Log log = LogFactory.getLog(DeploymentInterceptor.class);
-    
+
     private static volatile String[] httpAdminServicesList = null;
     private static volatile boolean allAdminServicesHttp = false;
     private static volatile boolean isFirstCheck = true;
@@ -60,8 +54,6 @@ public class DeploymentInterceptor implements AxisObserver {
 
     private final HashMap<String, HashMap<String, AxisDescription>> faultyServicesDueToModules =
             new HashMap<String, HashMap<String, AxisDescription>>();
-
-    private PersistenceFactory pf;
 
     private Registry registry;
     private int tenantId = -1;
@@ -75,8 +67,6 @@ public class DeploymentInterceptor implements AxisObserver {
     public void init(AxisConfiguration axisConfig) {
         extractTenantInfo(axisConfig);
         try {
-            pf = PersistenceFactory.getInstance(axisConfig);
-            //axisConfig.addParameter(Resources.PERSISTENCE_FACTORY_PARAM_NAME, pf);
             if (registry == null) {
                 registry =
                         dataHolder.getRegistryService().getConfigSystemRegistry();
@@ -96,12 +86,12 @@ public class DeploymentInterceptor implements AxisObserver {
 
     private String getTenantIdAndDomainString() {
         return (tenantId != -1 && tenantId != MultitenantConstants.SUPER_TENANT_ID) ?
-                " {" + tenantDomain + "[" + tenantId + "]}" : " {super-tenant}";
+               " {" + tenantDomain + "[" + tenantId + "]}" : " {super-tenant}";
     }
 
     public void serviceGroupUpdate(AxisEvent axisEvent, AxisServiceGroup axisServiceGroup) {
-        if(CarbonUtils.isWorkerNode()){
-            if (log.isDebugEnabled()){
+        if (CarbonUtils.isWorkerNode()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Skip deployment intercepting in worker nodes.");
             }
             return;
@@ -119,134 +109,38 @@ public class DeploymentInterceptor implements AxisObserver {
             int eventType = axisEvent.getEventType();
             // we only process ghost services when it is removed..
             if (SystemFilter.isGhostServiceGroup(axisServiceGroup) &&
-                    eventType != AxisEvent.SERVICE_REMOVE) {
+                eventType != AxisEvent.SERVICE_REMOVE) {
                 return;
             }
             if (eventType == AxisEvent.SERVICE_DEPLOY) {
                 if (log.isDebugEnabled()) {
                     log.debug("Deploying service group : " +
-                            axisServiceGroup.getServiceGroupName() + getTenantIdAndDomainString());
+                              axisServiceGroup.getServiceGroupName() + getTenantIdAndDomainString());
                 }
 
-                OMElement serviceGroupOMElement = null;
-                if (pf.getServiceGroupFilePM().elementExists(axisServiceGroup.getServiceGroupName(),
-                        Resources.ServiceGroupProperties.ROOT_XPATH)) {
-                    try {
-                        serviceGroupOMElement = pf.getServiceGroupPM()
-                                .getServiceGroup(axisServiceGroup.getServiceGroupName());
-                    } catch (Exception e) {
-                        log.error("Couldn't read service group resource." +
-                                getTenantIdAndDomainString(), e);
-                    }
-                }
 
-                if (serviceGroupOMElement == null) {
-                    //treat this as a new service addition
-                    addServiceGroup(axisServiceGroup);
-                } else {
-                    try {
-                        String hashFromServiceFile = CarbonUtils.computeServiceHash(axisServiceGroup);
-
-                        // Check whether the artifact has been updated, if so we need to purge all
-                        // database entries and treat this as a new service group addition
-                        AXIOMXPath xpathExpression = new AXIOMXPath(Resources.ServiceGroupProperties.ROOT_XPATH +
-                                "@" + Resources.ServiceGroupProperties.HASH_VALUE + "[1]");
-                        OMAttribute isSuccessAttr = (OMAttribute) xpathExpression.
-                                selectSingleNode(serviceGroupOMElement);
-                        String hashFromMetaFile = null;
-                        if (isSuccessAttr != null) {
-                            hashFromMetaFile = isSuccessAttr.getAttributeValue();
-                        }
-
-                        if (hashFromServiceFile != null && hashFromMetaFile != null &&
-                                !hashFromMetaFile.equals(hashFromServiceFile)) {
-                            log.warn("The service artifact of the " +
-                                    axisServiceGroup.getServiceGroupName() +
-                                    " service group has changed. Removing all registry entries and " +
-                                    "handling this as a new service addition." +
-                                    getTenantIdAndDomainString());
-                            try {
-                                deleteServiceGroup(axisServiceGroup);
-                                addServiceGroup(axisServiceGroup);
-                            } catch (Exception e) {
-                                String msg = "Unable to remove all registry entries and handle new" +
-                                        "service addition [" + axisServiceGroup.getServiceGroupName() +
-                                        "]" + getTenantIdAndDomainString();
-                                try {
-                                    pf.getServiceGroupFilePM().
-                                            rollbackTransaction(axisServiceGroup.getServiceGroupName());
-                                    // We need to catch the exception that is generated by
-                                    // rollbackTransaction(), should there be any, as this method won't
-                                    // throw exceptions.
-                                    log.error(msg, e);
-                                } catch (Exception ex) {
-                                    msg += ". Unable to rollback transaction.";
-                                    log.error(msg, ex);
-                                }
-                            }
-                        } else {
-                            try {
-                                pf.getServiceGroupPM()
-                                        .handleExistingServiceGroupInit(axisServiceGroup);
-
-                            } catch (Axis2ModuleNotFound e) {
-                                addFaultyServiceDueToModule(e.getModuleName(), axisServiceGroup);
-                                stopServiceGroup(axisServiceGroup,
-                                        axisServiceGroup.getAxisConfiguration());
-                                log.warn("ServiceGroup: " + axisServiceGroup.getServiceGroupName() +
-                                        "is stopped due to the missing module : " + e.getModuleName() +
-                                        getTenantIdAndDomainString());
-                            } catch (Exception e) {
-                                String msg = "Could not handle initialization of existing service " +
-                                        "group [" + axisServiceGroup.getServiceGroupName() + "]" +
-                                        getTenantIdAndDomainString();
-                                log.error(msg, e);
-                            }
-                        }
-                    } catch (JaxenException e) {
-                        log.error(e.getMessage(), e);
-                    }
-                }
             } else if (eventType == AxisEvent.SERVICE_REMOVE) {
-                Parameter svcHistoryParam = axisServiceGroup.getParameter(
-                        CarbonConstants.KEEP_SERVICE_HISTORY_PARAM);
-                if (svcHistoryParam == null || svcHistoryParam.getValue() == null ||
-                        JavaUtils.isFalse(svcHistoryParam.getValue())) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Removing service group : " +
-                                axisServiceGroup.getServiceGroupName() +
-                                getTenantIdAndDomainString());
-                    }
-
-                    deleteServiceGroup(axisServiceGroup);
+                if (log.isDebugEnabled()) {
+                    log.debug("Removing service group : " +
+                              axisServiceGroup.getServiceGroupName() +
+                              getTenantIdAndDomainString());
                 }
+
+
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
     }
 
-    private void addServiceGroup(AxisServiceGroup axisServiceGroup) {
-        try {
-            pf.getServiceGroupPM().handleNewServiceGroupAddition(axisServiceGroup);
-        } catch (Exception e) {
-            String msg = "Could not handle initialization of new service group [" +
-                    axisServiceGroup.getServiceGroupName() + "]";
-            log.error(msg, e);
-        }
-    }
-
-    private void deleteServiceGroup(AxisServiceGroup axisServiceGroup) {
-        try {
-            pf.getServiceGroupPM().deleteServiceGroup(axisServiceGroup);
-        } catch (Exception e) {
-            log.error("Could not delete service group " + axisServiceGroup.getServiceGroupName() +
-                    getTenantIdAndDomainString(), e);
-        }
-    }
 
     public void serviceUpdate(AxisEvent axisEvent, AxisService axisService) {
-
+        if (CarbonUtils.isWorkerNode()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Skip deployment intercepting in worker nodes.");
+            }
+            return;
+        }
         PrivilegedCarbonContext.startTenantFlow();
         try {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
@@ -254,13 +148,13 @@ public class DeploymentInterceptor implements AxisObserver {
             carbonContext.setTenantDomain(tenantDomain);
             carbonContext.setApplicationName(axisService.getName());
             // We do not persist Admin service events
-			if (SystemFilter.isFilteredOutService((AxisServiceGroup) axisService.getParent())) {
-				// here we expose some admin services in HTTP
-				if (isHttpAdminService(axisService.getName())) {
-					changeAdminServiceTransport(axisService);
-				}
-				return;
-			}
+            if (SystemFilter.isFilteredOutService((AxisServiceGroup) axisService.getParent())) {
+                // here we expose some admin services in HTTP
+                if (isHttpAdminService(axisService.getName())) {
+                    changeAdminServiceTransport(axisService);
+                }
+                return;
+            }
 
             if (axisService.isClientSide()) {
                 return;
@@ -268,67 +162,37 @@ public class DeploymentInterceptor implements AxisObserver {
             int eventType = axisEvent.getEventType();
             // we only process ghost services when it is removed..
             if (GhostDeployerUtils.isGhostService(axisService) &&
-                    eventType != AxisEvent.SERVICE_REMOVE) {
+                eventType != AxisEvent.SERVICE_REMOVE) {
                 return;
             }
             String serviceName = axisService.getName();
             try {
-                OMElement service = pf.getServicePM().getService(axisService);
 
                 // if (eventType == AxisEvent.SERVICE_STOP) do nothing
 
                 if (eventType == AxisEvent.SERVICE_DEPLOY) {
                     if (!JavaUtils.isTrue(axisService.getParameterValue(
-                            CarbonConstants.HIDDEN_SERVICE_PARAM_NAME)) && !CarbonUtils.isWorkerNode()) {
+                            CarbonConstants.HIDDEN_SERVICE_PARAM_NAME))) {
                         log.info("Deploying Axis2 service: " + serviceName +
-                                getTenantIdAndDomainString());
-                    } else if (log.isDebugEnabled() && !CarbonUtils.isWorkerNode()) {
+                                 getTenantIdAndDomainString());
+                    } else if (log.isDebugEnabled()) {
                         log.debug("Deploying hidden Axis2 service : " + serviceName +
-                                getTenantIdAndDomainString());
+                                  getTenantIdAndDomainString());
                     }
 
-                    if (service == null && !CarbonUtils.isWorkerNode()) {
-                        pf.getServicePM().handleNewServiceAddition(axisService);
-                    } else {
-                        pf.getServicePM().handleExistingServiceInit(axisService);
-                    }
-                } else if (eventType == AxisEvent.SERVICE_START && !CarbonUtils.isWorkerNode()) {
-                    service.addAttribute(Resources.ServiceProperties.ACTIVE, "true", null);
-                } else if (eventType == AxisEvent.SERVICE_STOP && service != null && !CarbonUtils.isWorkerNode()) {
-                    // in a shared registry scenario the resource could have been already removed
-                    // by some other node
-                    service.addAttribute(Resources.ServiceProperties.ACTIVE, "false", null);
-                } else if (eventType == AxisEvent.SERVICE_REMOVE && !CarbonUtils.isWorkerNode()) {
-                    if (service != null) {
-                        try {
-                            Parameter svcHistoryParam = axisService.getParameter(
-                                    CarbonConstants.KEEP_SERVICE_HISTORY_PARAM);
-                            if (svcHistoryParam == null || svcHistoryParam.getValue() == null ||
-                                    JavaUtils.isFalse(svcHistoryParam.getValue())) {
-                                pf.getServicePM().deleteService(axisService);
-                                log.info("Removing Axis2 Service: " + axisService.getName() + getTenantIdAndDomainString());
-                            }
-                        } catch (Exception e) {
-                            String msg = "Cannot delete service [" + serviceName + "]" +
-                                    getTenantIdAndDomainString();
-                            log.error(msg, e);
-                        }
-                    }
+
+                } else if (eventType == AxisEvent.SERVICE_START) {
+                } else if (eventType == AxisEvent.SERVICE_STOP) {
+                } else if (eventType == AxisEvent.SERVICE_REMOVE) {
+
+                    log.info("Removing Axis2 Service: " + axisService.getName() +
+                             getTenantIdAndDomainString());
+
+
                 }
-
-//                if (service != null) {
-//                    service.discard();
-//                }
-
-            } catch (Axis2ModuleNotFound e) {
-                addFaultyServiceDueToModule(e.getModuleName(), axisService);
-                stopService(axisService, axisService.getAxisConfiguration());
-                log.warn("Service " + axisService.getName() +
-                        " is stopped due to the missing module: " + e.getModuleName() +
-                        getTenantIdAndDomainString());
             } catch (Exception e) {
                 String msg = "Exception occurred while handling service update event." +
-                        getTenantIdAndDomainString();
+                             getTenantIdAndDomainString();
                 log.error(msg, e);
             }
         } finally {
@@ -337,15 +201,16 @@ public class DeploymentInterceptor implements AxisObserver {
     }
 
     public void moduleUpdate(AxisEvent axisEvent, AxisModule axisModule) {
-        if(CarbonUtils.isWorkerNode()){
-            if (log.isDebugEnabled()){
+        if (CarbonUtils.isWorkerNode()) {
+            if (log.isDebugEnabled()) {
                 log.debug("Skip deployment intercepting in worker nodes.");
             }
             return;
         }
         PrivilegedCarbonContext.startTenantFlow();
         try {
-            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.
+                    getThreadLocalCarbonContext();
             carbonContext.setTenantId(tenantId);
             carbonContext.setTenantDomain(tenantDomain);
             //TODO: Check whether we can ignore AdminModules - SystemFilter.isFilteredOutModule
@@ -361,7 +226,7 @@ public class DeploymentInterceptor implements AxisObserver {
                 String moduleVersion;
                 if (axisModule.getVersion() == null) {
                     log.warn("A valid Version not found for the module : '" + moduleName + "'" +
-                            getTenantIdAndDomainString());
+                             getTenantIdAndDomainString());
                     moduleVersion = Resources.ModuleProperties.UNDEFINED;
                 } else {
                     moduleVersion = axisModule.getVersion().toString();
@@ -373,92 +238,6 @@ public class DeploymentInterceptor implements AxisObserver {
                     }
                 }
 
-                OMElement module = null;
-                if (pf.getModuleFilePM().elementExists(moduleName,
-                        PersistenceUtils.getResourcePath(axisModule))) {
-                    try {
-                        //todo this is unnecessary. This does unnecessary parsing that is not needed. Remove this just the above condition is enough
-                        module = (OMElement) pf.getModuleFilePM().
-                                get(moduleName, Resources.ModuleProperties.VERSION_XPATH +
-                                        PersistenceUtils.getXPathAttrPredicate(
-                                                Resources.ModuleProperties.VERSION_ID, moduleVersion));
-                    } catch (Exception e) {
-                        log.error("Couldn't read the module resource" +
-                                getTenantIdAndDomainString(), e);
-                    }
-                }
-
-                if (module != null) {
-                    try {
-                        pf.getModulePM().handleExistingModuleInit(module, axisModule);
-                    } catch (Exception e) {
-                        log.error("Could not handle initialization of existing module" +
-                                getTenantIdAndDomainString(), e);
-                    }
-                } else { // this is a new module which has not been registered in the DB yet
-                    try {
-                        pf.getModulePM().handleNewModuleAddition(axisModule, moduleName,
-                                moduleVersion);
-                    } catch (Exception e) {
-                        log.error("Could not handle addition of new module" +
-                                getTenantIdAndDomainString(),
-                                e);
-                    }
-                }
-
-                synchronized (faultyServicesDueToModules) {
-                    //Check whether there are faulty services due to this module
-                    HashMap<String, AxisDescription> faultyServices =
-                            getFaultyServicesDueToModule(moduleName);
-                    //noinspection unchecked
-                    faultyServices = (HashMap<String, AxisDescription>) faultyServices.clone();
-
-                    // Here iterating a cloned hash-map and modifying the original hash-map.
-                    // To avoid the ConcurrentModificationException.
-                    for (AxisDescription axisDescription : faultyServices.values()) {
-                        removeFaultyServiceDueToModule(moduleName,
-                                (String) axisDescription.getKey());
-
-//                        OMElement axisDescriptionResource;
-                        try {
-                            //Recover the faulty serviceGroup or service.
-                            if (axisDescription instanceof AxisServiceGroup) {
-                                AxisServiceGroup axisServiceGroup =
-                                        (AxisServiceGroup) axisDescription;
-//                                axisDescriptionResource = pf.getServiceGroupPM().getServiceGroup(
-//                                        axisServiceGroup.getServiceGroupName());
-                                pf.getServiceGroupPM().handleExistingServiceGroupInit(axisServiceGroup);
-
-                                //Start all the services in this serviceGroup and remove the special
-                                // parameter
-                                startServiceGroup(axisServiceGroup,
-                                        axisServiceGroup.getAxisConfiguration());
-                                log.info("Recovered and Deployed axis2 service group: " +
-                                        axisServiceGroup.getServiceGroupName() +
-                                        getTenantIdAndDomainString());
-
-                            } else if (axisDescription instanceof AxisService) {
-                                AxisService axisService = (AxisService) axisDescription;
-//                                axisDescriptionResource = pf.getServicePM().getService(axisService);
-                                pf.getServicePM().handleExistingServiceInit(axisService);
-
-                                //Start this axisService and remove the special parameter.
-                                startService(axisService, axisService.getAxisConfiguration());
-                                log.info("Recovered and Deployed axis2 service: " +
-                                        axisService.getName() +
-                                        getTenantIdAndDomainString());
-                            }
-
-                        } catch (Axis2ModuleNotFound e) {
-                            addFaultyServiceDueToModule(e.getModuleName(), axisDescription);
-                        } catch (Exception e) {
-                            String msg = "Could not handle initialization of existing service " +
-                                    "group [" + axisDescription.getKey() + "]" +
-                                    getTenantIdAndDomainString();
-                            log.error(msg, e);
-                        }
-                    }
-                }
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
@@ -579,89 +358,75 @@ public class DeploymentInterceptor implements AxisObserver {
         try {
             axisConfiguration.stopService(serviceName);
             axisService.addParameter(CarbonConstants.CARBON_FAULTY_SERVICE,
-                    CarbonConstants.CARBON_FAULTY_SERVICE_DUE_TO_MODULE);
+                                     CarbonConstants.CARBON_FAULTY_SERVICE_DUE_TO_MODULE);
         } catch (AxisFault e) {
             String msg = "Cannot stop service: " + serviceName + getTenantIdAndDomainString();
             log.error(msg, e);
         }
     }
-    
-	/**
-	 * This method is used to expose admin services in HTTP
-	 * 
-	 * @param axisService
-	 */
-	private void changeAdminServiceTransport(AxisService axisService) {
-		axisService.addExposedTransport("http");
-		if (log.isDebugEnabled()) {
-			log.debug("AdminService " + axisService.getName() + " exposed in HTTP");
-		}
-	}
-    
-	/**
-	 * This method checks the service name against the list of services to be
-	 * exposed in HTTP
-	 * 
-	 * @param serviceName
-	 * @return
-	 */
-	private boolean isHttpAdminService(String serviceName) {
 
-		if (!isFirstCheck && !allAdminServicesHttp && httpAdminServicesList == null) {
-			return false;
-		}
-		// set all admin services to http
-		if (allAdminServicesHttp) {
-			return true;
-		}
-		// in this if block we set the config
-		if (isFirstCheck) {
-			String httpAdminServices =
-			                           CarbonCoreDataHolder.getInstance()
-			                                               .getServerConfigurationService()
-			                                               .getFirstProperty(CarbonConstants.AXIS2_CONFIG_PARAM +
-			                                                                         "." +
-			                                                                         CarbonConstants.HTTP_ADMIN_SERVICES);
-			// here we set the configs in memory
-			if (httpAdminServices != null && !"".equals(httpAdminServices)) {
-				if (httpAdminServices.equals("*")) {
-					allAdminServicesHttp = true;
-					isFirstCheck = false;
-					return true;
-				}
-				httpAdminServicesList = httpAdminServices.split(",");
-				isFirstCheck = false;
-			} else {
-				return isFirstCheck = false;
-			}
-		}
-		// no admin service will be exposed in http
-		if (httpAdminServicesList == null) {
-			return false;
-		}
-		// now look in the list
-		for (String httpAdminService : httpAdminServicesList) {
-			if (serviceName.equals(httpAdminService))
-				return true; // this is a http admin service
-		}
+    /**
+     * This method is used to expose admin services in HTTP
+     *
+     * @param axisService
+     */
+    private void changeAdminServiceTransport(AxisService axisService) {
+        axisService.addExposedTransport("http");
+        if (log.isDebugEnabled()) {
+            log.debug("AdminService " + axisService.getName() + " exposed in HTTP");
+        }
+    }
 
-		return false;
-	}
+    /**
+     * This method checks the service name against the list of services to be
+     * exposed in HTTP
+     *
+     * @param serviceName
+     * @return
+     */
+    private boolean isHttpAdminService(String serviceName) {
 
-//    private void sendReloadArtifactMessage(String serviceName) {
-//        // For sending clustering messages we need to use the super-tenant's AxisConfig (Main Server
-//        // AxisConfiguration) because we are using the clustering facility offered by the ST in the
-//        // tenants
-//        ClusteringAgent clusteringAgent =
-//                CarbonCoreDataHolder.getInstance().getMainServerConfigContext().
-//                        getAxisConfiguration().getClusteringAgent();
-//        if(clusteringAgent != null) {
-//            try {
-//                clusteringAgent.sendMessage(new ReloadArtifactMessage(tenantId, serviceName), true);
-//            } catch (ClusteringFault e) {
-//                log.error("Could not send ReloadArtifactMessage for tenant " + tenantId, e);
-//            }
-//        }
-//    }
+        if (!isFirstCheck && !allAdminServicesHttp && httpAdminServicesList == null) {
+            return false;
+        }
+        // set all admin services to http
+        if (allAdminServicesHttp) {
+            return true;
+        }
+        // in this if block we set the config
+        if (isFirstCheck) {
+            String httpAdminServices =
+                    CarbonCoreDataHolder.getInstance()
+                            .getServerConfigurationService()
+                            .getFirstProperty(CarbonConstants.AXIS2_CONFIG_PARAM +
+                                              "." +
+                                              CarbonConstants.HTTP_ADMIN_SERVICES);
+            // here we set the configs in memory
+            if (httpAdminServices != null && !"".equals(httpAdminServices)) {
+                if (httpAdminServices.equals("*")) {
+                    allAdminServicesHttp = true;
+                    isFirstCheck = false;
+                    return true;
+                }
+                httpAdminServicesList = httpAdminServices.split(",");
+                isFirstCheck = false;
+            } else {
+                return isFirstCheck = false;
+            }
+        }
+        // no admin service will be exposed in http
+        if (httpAdminServicesList == null) {
+            return false;
+        }
+        // now look in the list
+        for (String httpAdminService : httpAdminServicesList) {
+            if (serviceName.equals(httpAdminService)) {
+                return true; // this is a http admin service
+            }
+        }
+
+        return false;
+    }
+
 
 }

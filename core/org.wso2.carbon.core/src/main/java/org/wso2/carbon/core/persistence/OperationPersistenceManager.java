@@ -25,6 +25,7 @@ import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+@Deprecated
 public class OperationPersistenceManager extends AbstractPersistenceManager {
 
     private static final Log log = LogFactory.getLog(OperationPersistenceManager.class);
