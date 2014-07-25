@@ -37,7 +37,7 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
 
     public String computePathOnMount(final String path) {
         for (Map.Entry<String, String> e : pathMap.entrySet()) {
-            if (path.startsWith(e.getKey())) {
+            if (path.startsWith(e.getKey()) && !path.startsWith(e.getValue())) {
                 return e.getValue() + path.substring(e.getKey().length());
             }
         }
