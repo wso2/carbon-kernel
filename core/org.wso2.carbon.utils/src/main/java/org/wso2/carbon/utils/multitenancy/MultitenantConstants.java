@@ -82,7 +82,10 @@ public class MultitenantConstants {
      * Properties required for evaluating Content-Length and Chunk Disabling
      */
     public static final String FORCE_HTTP_CONTENT_LENGTH = "FORCE_HTTP_CONTENT_LENGTH";
-
+    /**
+     * Properties required for evaluating POST_TO_URI
+     */    
+    public static final String POST_TO_URI = "POST_TO_URI";
     public static final String COPY_CONTENT_LENGTH_FROM_INCOMING = "COPY_CONTENT_LENGTH_FROM_INCOMING";
     public final static String PASSTROUGH_MESSAGE_LENGTH = "PASSTROUGH_MESSAGE_LENGTH";
     public static final String ORGINAL_CONTENT_LENGTH = "ORGINAL_CONTENT_LENGTH";
