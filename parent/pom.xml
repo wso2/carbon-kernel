@@ -1175,6 +1175,11 @@
                 <version>${orbit.version.tomcat}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-annotations-api</artifactId>
+                <version>${version.tomcat}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.igniterealtime.smack.wso2</groupId>
                 <artifactId>smack</artifactId>
                 <version>${orbit.version.smack}</version>
