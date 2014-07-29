@@ -106,18 +106,7 @@ public class LDAPConnectionContext {
                 .getUserStoreProperty(LDAPConstants.CONNECTION_PASSWORD);
 
         if (log.isDebugEnabled()) {
-        	String password = "";
-			MessageDigest dgst;
-            try {
-	            dgst = MessageDigest.getInstance("SHA");
-				byte[] byteValue = dgst.digest(connectionPassword.getBytes());
-				password = Base64.encode(byteValue);
-            } catch (NoSuchAlgorithmException e) {
-            	log.debug("Error while hashing connection password using SHA. Setting dummy password instead");
-            	password = "xxxDummyPasswordxxx";
-            }
-            log.debug("Connection Name :: " + connectionName + " ," + "Connection Password (SHA Hashed) :: "
-                    + password + " ," + "Connection URL :: " + connectionURL);
+	        log.debug("Connection Name :: " + connectionName + ", Connection URL :: " + connectionURL);
         }
 
         environment = new Hashtable();
