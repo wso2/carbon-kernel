@@ -18,15 +18,7 @@
 package org.wso2.carbon.user.core.common;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -572,70 +564,70 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		return finalValues;
 	}
 
-	/**
-	 * {@inheritDoc} TODO : This does not support multiple user stores yet.
-	 */
-	public final String[] getUserList(String claim, String claimValue, String profileName)
-	                                                                                      throws UserStoreException {
-
-		String property;
-		String domainName = null;
-		try {
-			// Attributed id from corresponding to the underlying user store,
-			// corresponding to the
-			// domain which this user store manager belongs to.
-			domainName = this.getMyDomainName();
-			if (domainName != null && !domainName.isEmpty() &&
-			    !domainName.equals(UserStoreConfigConstants.PRIMARY)) {
-				property = claimManager.getAttributeName(domainName, claim);
-				if (property == null) {
-					// claim is not defined for the secondary user store. In
-					// this case property is taken from the primary user store
-					property = claimManager.getAttributeName(claim);
-				}
-			} else {
-				property = claimManager.getAttributeName(claim);
-			}
-		} catch (org.wso2.carbon.user.api.UserStoreException e) {
-			throw new UserStoreException(e);
-		}
-
-		if (property == null) {
-			throw new UserStoreException("Claim " + claim + " is not defined for " +
-			                             this.getMyDomainName());
-		}
-
-		String[] userList = getUserListFromProperties(property, claimValue, profileName);
-
-		if ((userList == null || userList.length < 1) &&
-		    this.getSecondaryUserStoreManager() != null) {
-			if (log.isDebugEnabled()) {
-				String currentDomain = this.getMyDomainName();
-				String childDomain =
-				                     ((AbstractUserStoreManager) this.getSecondaryUserStoreManager()).getMyDomainName();
-				log.debug("No users found in: " + currentDomain +
-				          " Looking in the secondary user store " + childDomain);
-			}
-			userList =
-			           ((AbstractUserStoreManager) this.getSecondaryUserStoreManager()).getUserList(claim,
-			                                                                                        claimValue,
-			                                                                                        profileName);
-
-		} else if (!UserStoreConfigConstants.PRIMARY.equals(domainName)) {
-			// if we find any result, we should append the domain
-			List<String> usersWithDomain = new ArrayList<String>();
-			for (String user : userList) {
-				if (log.isDebugEnabled()) {
-					log.debug("Found user: " + user);
-				}
-				String nameWithDomain = UserCoreUtil.addDomainToName(user, domainName);
-				usersWithDomain.add(nameWithDomain);
-			}
-			return usersWithDomain.toArray(new String[usersWithDomain.size()]);
-		}
-		// no multipe user store configs
-		return userList;
-	}
+    /**
+     * If the claim is domain qualified, search the users respective user store. Else we
+     * return the users in all the user-stores recursively
+     * {@inheritDoc}
+     */
+    public final String[] getUserList(String claim, String claimValue, String profileName)
+            throws UserStoreException {
+        try {
+            String property;
+            //extracting the domain from claimValue
+            String extractedDomain = UserCoreUtil.extractDomainFromClaimValue(claimValue);
+            claimValue = UserCoreUtil.removeDomainFromName(claimValue);
+            //if domain is present, then we search within that domain only
+            if (extractedDomain != null && !extractedDomain.isEmpty()) {
+                property = claimManager.getAttributeName(extractedDomain, claim);
+                if (property == null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Could not find matching property for\n" +
+                                "claim :" + claim +
+                                "domain :" + extractedDomain);
+                    }
+                    return new String[0];
+                }
+                // get the user list and return with domain appended
+                AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager)
+                        getSecondaryUserStoreManager(extractedDomain);
+                String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
+                return UserCoreUtil.addDomainToNames(userArray, extractedDomain);
+            }
+            //if no domain is given then search all the user stores
+            List<String> usersFromAllStoresList = new LinkedList<String>();
+            AbstractUserStoreManager currentUserStoreManager = this;
+            if (log.isDebugEnabled()) {
+                log.debug("No domain name found in claim value. Searching through all user stores for possible matches");
+            }
+            do {
+                String currentDomain = currentUserStoreManager.getMyDomainName();
+                property = claimManager.getAttributeName(currentDomain, claim);
+                if (property == null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Could not find matching property for\n" +
+                                "claim :" + claim +
+                                "domain :" + currentDomain);
+                    }
+                    continue; // continue look in other stores
+                }
+                String[] userArray2 = currentUserStoreManager.getUserListFromProperties(property, claimValue, profileName);
+                if (log.isDebugEnabled()) {
+                    log.debug("searching the property :" + property + "in user store" + currentDomain +
+                            "for given claim value : " + claimValue);
+                }
+                String[] userWithDomainArray = UserCoreUtil.addDomainToNames(userArray2, currentDomain);
+                usersFromAllStoresList.addAll(Arrays.asList(userWithDomainArray));
+            } while ((currentUserStoreManager = (AbstractUserStoreManager) currentUserStoreManager.
+                    getSecondaryUserStoreManager()) != null);
+            //done with all user store processing. Return the user array if not empty
+            String[] fullUserList = usersFromAllStoresList.toArray(new String[0]);
+            Arrays.sort(fullUserList);
+            return fullUserList;
+        } catch (org.wso2.carbon.user.api.UserStoreException exception) {
+            log.error("Error while searching the user stores", exception);
+            throw new UserStoreException(exception);
+        }
+    }
 
 	/**
 	 * {@inheritDoc}
