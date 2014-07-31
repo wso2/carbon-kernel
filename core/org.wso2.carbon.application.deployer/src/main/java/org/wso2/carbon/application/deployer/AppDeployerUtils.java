@@ -526,6 +526,11 @@ public final class AppDeployerUtils {
     public static String formatPath(String path) {
         // removing white spaces
         String pathformatted = path.replaceAll("\\b\\s+\\b", "%20");
+        try {
+                pathformatted = java.net.URLDecoder.decode(pathformatted, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            log.error("Unsupported Encoding in the path :"+ pathformatted);
+        }
         // replacing all "\" with "/"
         return pathformatted.replace('\\', '/');
     }
