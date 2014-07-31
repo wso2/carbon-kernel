@@ -102,8 +102,10 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
                     getValue(LauncherConstants.BUNDLE_SYMBOLIC_NAME);
             //BSN can have values like, Bundle-SymbolicName: com.example.acme;singleton:=true
             // refer - http://wiki.osgi.org/wiki/Bundle-SymbolicName for more details
-            if(bundleSymbolicName.contains(";")){
-                bundleSymbolicName = bundleSymbolicName.split(";")[0];
+            if (bundleSymbolicName != null) {
+                if (bundleSymbolicName.contains(";")) {
+                    bundleSymbolicName = bundleSymbolicName.split(";")[0];
+                }
             }
             String bundleVersion = jarFile.getManifest().getMainAttributes().
                     getValue(LauncherConstants.BUNDLE_VERSION);
