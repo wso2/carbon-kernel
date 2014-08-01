@@ -100,19 +100,18 @@ public class DropinsBundleDeployer implements CarbonLaunchExtension {
 
             String bundleSymbolicName = jarFile.getManifest().getMainAttributes().
                     getValue(LauncherConstants.BUNDLE_SYMBOLIC_NAME);
-            //BSN can have values like, Bundle-SymbolicName: com.example.acme;singleton:=true
-            // refer - http://wiki.osgi.org/wiki/Bundle-SymbolicName for more details
-            if (bundleSymbolicName != null) {
-                if (bundleSymbolicName.contains(";")) {
-                    bundleSymbolicName = bundleSymbolicName.split(";")[0];
-                }
-            }
-            String bundleVersion = jarFile.getManifest().getMainAttributes().
-                    getValue(LauncherConstants.BUNDLE_VERSION);
+	        String bundleVersion = jarFile.getManifest().getMainAttributes().
+			        getValue(LauncherConstants.BUNDLE_VERSION);
 
             if (bundleSymbolicName == null || bundleVersion == null) {
                 log.error("Required Bundle manifest headers do not exists: " + file.getAbsoluteFile());
                 continue;
+            } else {
+	            //BSN can have values like, Bundle-SymbolicName: com.example.acme;singleton:=true
+	            // refer - http://wiki.osgi.org/wiki/Bundle-SymbolicName for more details
+	            if (bundleSymbolicName.contains(";")) {
+		            bundleSymbolicName = bundleSymbolicName.split(";")[0];
+	            }
             }
 
             //Checking whether this bundle is a fragment or not.
