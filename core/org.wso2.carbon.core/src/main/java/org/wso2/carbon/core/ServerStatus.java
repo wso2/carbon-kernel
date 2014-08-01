@@ -23,6 +23,11 @@ import org.apache.axis2.context.ConfigurationContext;
  */
 public final class ServerStatus {
     /**
+     * Server is starting
+     */
+    private static final String STATUS_STARTING = "STARTING";
+
+    /**
      * Server is running
      */
     public static final String STATUS_RUNNING = "RUNNING";
@@ -61,8 +66,8 @@ public final class ServerStatus {
                 CarbonConfigurationContextFactory.getConfigurationContext();
         String currentStatus = (String) configCtx.getProperty(CURRENT_SERVER_STATUS);
         if (currentStatus == null) {
-            configCtx.setProperty(CURRENT_SERVER_STATUS, STATUS_RUNNING);
-            return STATUS_RUNNING;
+            configCtx.setProperty(CURRENT_SERVER_STATUS, STATUS_STARTING);
+            return STATUS_STARTING;
         }
         return currentStatus;
     }
