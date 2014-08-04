@@ -81,11 +81,6 @@ public class AppDeployerServiceComponent implements ServiceListener {
             applicationManager.registerDeploymentHandler(new RegistryResourceDeployer());
             applicationManager.registerDeploymentHandler(new DefaultAppDeployer());
 
-            // register app handlers coming from other bundles
-            /*for (AppDeploymentHandler handler : appHandlers) {
-                applicationManager.registerDeploymentHandler(handler);
-            }*/
-
             // register ApplicationManager as a service
             appManagerRegistration = ctxt.getBundleContext().registerService(
                     ApplicationManagerService.class.getName(), applicationManager, null);
