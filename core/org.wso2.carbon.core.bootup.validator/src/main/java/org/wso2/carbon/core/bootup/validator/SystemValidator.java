@@ -33,9 +33,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -375,7 +373,30 @@ public class SystemValidator extends ConfigurationValidator {
                                             AttributeNotFoundException, InstanceNotFoundException,
                                             MBeanException, ReflectionException {
         ObjectName osBean = new ObjectName(ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME);
-        Long maxFDValue = (Long) mBeanServer.getAttribute(osBean, "MaxFileDescriptorCount");
+        Long maxFDValue = null;
+        if(IBM_J9_VM.equals(System.getProperty("java.vm.name"))){
+            BufferedReader output;
+            try {
+                Process p = Runtime.getRuntime().exec(new String[] { "bash", "-c", "ulimit -n" });
+                InputStream in = p.getInputStream();
+                output = new BufferedReader(new InputStreamReader(in));
+                try{
+                    String maxFileDesCount;
+                    if ((maxFileDesCount = output.readLine()) != null) {
+                        maxFDValue = Long.parseLong(maxFileDesCount);
+                    }
+                } finally {
+                    if (output != null) {
+                        output.close();
+                    }
+                }
+
+            }catch (IOException exception){
+                log.warn("Could not get the maximum file descriptor count ",exception);
+            }
+        } else {
+            maxFDValue = (Long) mBeanServer.getAttribute(osBean, "MaxFileDescriptorCount");
+        }
         return maxFDValue;
     }
 
