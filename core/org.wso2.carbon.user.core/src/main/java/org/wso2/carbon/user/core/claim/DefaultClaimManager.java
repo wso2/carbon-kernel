@@ -117,8 +117,12 @@ public class DefaultClaimManager implements ClaimManager {
 		ClaimMapping mapping = claimMapping.get(claimURI);
 		if (mapping != null) {
 			if (domainName != null) {
-				return mapping.getMappedAttribute(domainName.toUpperCase());
-			} else {
+                String mappedAttrib = mapping.getMappedAttribute(domainName.toUpperCase());
+                if (mappedAttrib != null) {
+                    return mappedAttrib;
+                }
+                return mapping.getMappedAttribute();
+            } else {
 				return mapping.getMappedAttribute();
 			}
 		}
