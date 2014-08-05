@@ -35,6 +35,17 @@ public class CarbonConsoleAppender extends ConsoleAppender implements LoggingBri
         doAppend(loggingEvent);
     }
 
+    /**
+     * This overriden method takes a Logging event, get it wrapped with tenant information taken
+     * from PrivilegedCarbonContext (by utilizing LoggingUtils.getTenantAwareLogEvent) and passes
+     * the TenantAwareLoggingEvent to super class.
+     * <p/>
+     * The passed TenantAwareLoggingEvent is later used in TenantAwareNamedPatternConverter to
+     * extract the required tenant information as well as other logging information.
+     *
+     * @param loggingEvent
+     *         - the logging event without tenant information
+     */
     @Override
     protected void subAppend(LoggingEvent loggingEvent) {
         PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
