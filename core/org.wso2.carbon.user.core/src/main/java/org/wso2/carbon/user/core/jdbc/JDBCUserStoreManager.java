@@ -1172,10 +1172,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				                                  tenantId);
 			} else if (!sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) &&
 			           (saltValue == null)) {
-				this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password, null,
+				this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password, "",
 				                                  requirePasswordChange, new Date());
 			} else {
-				this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password,
+				this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password, saltValue,
 				                                  requirePasswordChange, new Date());
 			}
 
@@ -1213,8 +1213,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 							                                              tenantId);
 						}
 					} else {
-						DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2,
-						                                              roleList, tenantId, userName);
+						DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, roleList, userName);
 					}
 
 				}
@@ -1297,8 +1296,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 								userList, tenantId, roleName, tenantId, tenantId);
 					}
 				} else {
-					DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userList,
-							tenantId, roleName);
+					DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, userList, roleName);
 				}
 
 			}
@@ -1563,8 +1561,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 						                                              roleName, tenantId, tenantId);
 					} else {
 						DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1,
-						                                              deletedUsers, tenantId,
-						                                              roleName);
+						                                              deletedUsers, roleName);
 					}
 				}
 			}
@@ -1589,7 +1586,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 						}
 					} else {
 						DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2,
-						                                              newUsers, tenantId, roleName);
+						                                              newUsers, roleName);
 					}
 				}
 			}
@@ -1692,8 +1689,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 						                                              roles, tenantId, userName,
 						                                              tenantId, tenantId);
 					} else {
-						DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1,
-						                                              roles, tenantId, userName);
+						DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, roles, userName);
 					}
 				}
 				if (sharedRoles.length > 0) {
@@ -1746,8 +1742,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 							                                              tenantId);
 						}
 					} else {
-						DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2,
-						                                              newRoles, tenantId, userName);
+						DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, newRoles, userName);
 					}
 				}
 				if (sharedRoles.length > 0) {
@@ -2085,13 +2080,18 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			if (sqlStmt == null) {
 				throw new UserStoreException("The sql statement for add user property sql is null");
 			}
-			if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
-				updateStringValuesToDatabase(dbConnection, sqlStmt, propertyName, value,
-						profileName, tenantId, userName, tenantId);
-			} else {
-				updateStringValuesToDatabase(dbConnection, sqlStmt, userName, tenantId,
-						propertyName, value, profileName, tenantId);
-			}
+
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                    updateStringValuesToDatabase(dbConnection, sqlStmt, propertyName, value,
+                            profileName, tenantId, userName, tenantId);
+                } else {
+                    updateStringValuesToDatabase(dbConnection, sqlStmt, userName, tenantId,
+                            propertyName, value, profileName, tenantId);
+                }
+            } else {
+                updateStringValuesToDatabase(dbConnection, sqlStmt, userName, propertyName, value, profileName);
+            }
 		} catch (UserStoreException e) {
 			throw e;
 		} catch (Exception e) {
@@ -2114,8 +2114,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 		if (sqlStmt == null) {
 			throw new UserStoreException("The sql statement for add user property sql is null");
 		}
-		updateStringValuesToDatabase(dbConnection, sqlStmt, value, userName, tenantId,
-				propertyName, profileName, tenantId);
+
+        if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+            updateStringValuesToDatabase(dbConnection, sqlStmt, value, userName, tenantId,
+                    propertyName, profileName, tenantId);
+        } else {
+            updateStringValuesToDatabase(dbConnection, sqlStmt, value, userName, propertyName, profileName);
+        }
+
 	}
 
 	/**
@@ -2132,8 +2138,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 		if (sqlStmt == null) {
 			throw new UserStoreException("The sql statement for add user property sql is null");
 		}
-		updateStringValuesToDatabase(dbConnection, sqlStmt, userName, tenantId, propertyName,
-				profileName, tenantId);
+
+        if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+            updateStringValuesToDatabase(dbConnection, sqlStmt, userName, tenantId, propertyName,
+                    profileName, tenantId);
+        } else {
+            updateStringValuesToDatabase(dbConnection, sqlStmt, userName, propertyName, profileName);
+        }
 	}
 
 	/**
@@ -2287,7 +2298,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			log.error("Using sql : " + HybridJDBCConstants.GET_REMEMBERME_VALUE_SQL);
 			throw new UserStoreException(e.getMessage(), e);
 		} finally {
-			DatabaseUtil.closeAllConnections(null, rs, prepStmt);
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
 
 		if (value != null && createdTime != null) {

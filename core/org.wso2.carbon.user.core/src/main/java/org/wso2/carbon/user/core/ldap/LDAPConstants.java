@@ -69,7 +69,7 @@ public class LDAPConstants {
     public static final String GROUP_CONTEXT_NAME = "groups";
 
     //password
-    public static final String PASSWORD_HASH_METHOD = "passwordHashMethod";
+    public static final String PASSWORD_HASH_METHOD = "PasswordHashMethod";
     
     // Active Directory specific constants
     public static final String ACTIVE_DIRECTORY_LDS_ROLE = "isADLDSRole";

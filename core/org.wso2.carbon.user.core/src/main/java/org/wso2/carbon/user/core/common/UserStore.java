@@ -1,8 +1,10 @@
 package org.wso2.carbon.user.core.common;
 
+import org.wso2.carbon.user.core.UserStoreManager;
+
 public class UserStore {
 
-	private AbstractUserStoreManager userStoreManager;
+	private UserStoreManager userStoreManager;
 
 	private String domainAwareName;
 
@@ -33,11 +35,11 @@ public class UserStore {
 		this.recurssive = recurssive;
 	}
 
-	public AbstractUserStoreManager getUserStoreManager() {
+	public UserStoreManager getUserStoreManager() {
 		return userStoreManager;
 	}
 
-	public void setUserStoreManager(AbstractUserStoreManager userStoreManager) {
+	public void setUserStoreManager(UserStoreManager userStoreManager) {
 		this.userStoreManager = userStoreManager;
 	}
 

@@ -28,52 +28,63 @@ public class ReadOnlyLDAPUserStoreConstants {
     public static final ArrayList<Property> ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTIONAL_ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     static {
-        setMandatoryProperty(UserStoreConfigConstants.connectionName,"uid=,ou=",UserStoreConfigConstants.connectionNameDescription);
-        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"ldap://",UserStoreConfigConstants.connectionURLDescription);
-        setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"",UserStoreConfigConstants.connectionPasswordDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"ou=system",UserStoreConfigConstants.userSearchBaseDescription);
-        setMandatoryProperty(UserStoreConfigConstants.disabled,"false",UserStoreConfigConstants.disabledDescription);
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "uid", UserStoreConfigConstants.userNameAttributeDescription);
-        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"(&amp;(objectClass=person)(uid=?))",UserStoreConfigConstants.usernameSearchFilterDescription);
-        setMandatoryProperty("ReadOnly","true","Indicates whether the user store is in read only mode or not");
+        setMandatoryProperty(UserStoreConfigConstants.connectionName,"Connection Name","uid=,ou=",UserStoreConfigConstants.connectionNameDescription);
+        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldap://",UserStoreConfigConstants.connectionURLDescription);
+        setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"Connection Password","",UserStoreConfigConstants.connectionPasswordDescription);
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Base","ou=system",UserStoreConfigConstants.userSearchBaseDescription);
+        setMandatoryProperty(UserStoreConfigConstants.disabled,"Disabled","false",UserStoreConfigConstants.disabledDescription);
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class", "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription);
+        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute", "uid", UserStoreConfigConstants.userNameAttributeDescription);
+        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter","(&amp;(objectClass=person)(uid=?))",UserStoreConfigConstants.usernameSearchFilterDescription);
+        setMandatoryProperty("ReadOnly","Read-only","true","Indicates whether the user store is in read only mode or not");
 
-        setProperty(UserStoreConfigConstants.maxUserNameListLength, "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
-        setProperty(UserStoreConfigConstants.maxRoleNameListLength, "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
-        setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
-        setProperty(UserStoreConfigConstants.SCIMEnabled, "false", UserStoreConfigConstants.SCIMEnabledDescription);
+        setProperty(UserStoreConfigConstants.maxUserNameListLength,"Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
+        setProperty(UserStoreConfigConstants.maxRoleNameListLength,"Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
+        setProperty(UserStoreConfigConstants.userRolesCacheEnabled,"Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
+        setProperty(UserStoreConfigConstants.SCIMEnabled,"Enable SCIM", "false", UserStoreConfigConstants.SCIMEnabledDescription);
 
-        Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups,"false",UserStoreConfigConstants.readLDAPGroupsDescription,null);
+        Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups,"false","Enable Read Groups#"+UserStoreConfigConstants.readLDAPGroupsDescription,null);
         //Mandatory only if readGroups is enabled
-        Property groupSearchBase = new Property(UserStoreConfigConstants.groupSearchBase,"ou=system",UserStoreConfigConstants.groupSearchBaseDescription,null);
-        Property groupNameListFilter = new Property(UserStoreConfigConstants.groupNameListFilter,"(objectClass=groupOfNames)",UserStoreConfigConstants.groupNameListFilterDescription,null);
-        Property groupNameAttribute = new Property(UserStoreConfigConstants.groupNameAttribute,"cn",UserStoreConfigConstants.groupNameAttributeDescription,null);
-        Property membershipAttribute = new Property(UserStoreConfigConstants.membershipAttribute,"member",UserStoreConfigConstants.membershipAttributeDescription,null);
-        readLDAPGroups.setChildProperties(new Property[]{groupSearchBase,groupNameListFilter,groupNameAttribute,membershipAttribute});
+        Property groupSearchBase = new Property(UserStoreConfigConstants.groupSearchBase,
+                "ou=system", "Group Search Base#"
+                        + UserStoreConfigConstants.groupSearchBaseDescription, null);
+        Property groupNameListFilter = new Property(UserStoreConfigConstants.groupNameListFilter,
+                "(objectClass=groupOfNames)", "Group Object Class#"
+                        + UserStoreConfigConstants.groupNameListFilterDescription, null);
+        Property groupNameAttribute = new Property(UserStoreConfigConstants.groupNameAttribute,
+                "cn", "Group Name Attribute#"
+                        + UserStoreConfigConstants.groupNameAttributeDescription, null);
+        Property membershipAttribute = new Property(UserStoreConfigConstants.membershipAttribute,
+                "member", "Membership Attribute#"
+                        + UserStoreConfigConstants.membershipAttributeDescription, null);
+        readLDAPGroups.setChildProperties(new Property[] { groupSearchBase, groupNameListFilter,
+                groupNameAttribute, membershipAttribute });
         OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.add(readLDAPGroups);
-        
-        setProperty(UserStoreConfigConstants.groupSearchBase,"ou=system",UserStoreConfigConstants.groupSearchBaseDescription);
-        setProperty(UserStoreConfigConstants.groupNameListFilter,"(objectClass=groupOfNames)",UserStoreConfigConstants.groupNameListFilterDescription);
-        setProperty(UserStoreConfigConstants.groupNameSearchFilter,"(&amp;(objectClass=groupOfNames)(cn=?))",UserStoreConfigConstants.groupNameSearchFilterDescription);
-        setProperty(UserStoreConfigConstants.groupNameAttribute,"cn",UserStoreConfigConstants.groupNameAttributeDescription);
-        setProperty(UserStoreConfigConstants.membershipAttribute,"member",UserStoreConfigConstants.membershipAttributeDescription);
-        setProperty(UserStoreConfigConstants.memberOfAttribute,"",UserStoreConfigConstants.memberOfAttribute);
+
+        setProperty(UserStoreConfigConstants.groupSearchBase,"Group Search Base","ou=system",UserStoreConfigConstants.groupSearchBaseDescription);
+        setProperty(UserStoreConfigConstants.groupNameListFilter,"Group Object Class","(objectClass=groupOfNames)",UserStoreConfigConstants.groupNameListFilterDescription);
+        setProperty(UserStoreConfigConstants.groupNameSearchFilter,"Group Search Filter","(&amp;(objectClass=groupOfNames)(cn=?))",UserStoreConfigConstants.groupNameSearchFilterDescription);
+        setProperty(UserStoreConfigConstants.groupNameAttribute,"Group Name Attribute","cn",UserStoreConfigConstants.groupNameAttributeDescription);
+        setProperty(UserStoreConfigConstants.membershipAttribute,"Membership Attribute","member",UserStoreConfigConstants.membershipAttributeDescription);
+        setProperty(UserStoreConfigConstants.memberOfAttribute,"Member Of Attribute","",UserStoreConfigConstants.memberOfAttribute);
         
 
 //      LDAP Specific Properties
-        setProperty(UserStoreConfigConstants.passwordHashMethod,"PLAIN_TEXT",UserStoreConfigConstants.passwordHashMethodDescription);
-        setProperty("ReplaceEscapeCharactersAtUserLogin","true","Whether replace escape character when user login");
+        setProperty(UserStoreConfigConstants.passwordHashMethod,"Password Hashing Algorithm","PLAIN_TEXT",UserStoreConfigConstants.passwordHashMethodDescription);
+        setProperty("ReplaceEscapeCharactersAtUserLogin","Enable Escape Characters at User Login","true","Whether replace escape character when user login");
 
     }
 
-    private static void setMandatoryProperty(String name,String value,String description){
-        Property property = new Property(name,value,description,null);
+    private static void setMandatoryProperty(String name, String displayName, String value,
+            String description) {
+        Property property = new Property(name, value, displayName + "#" + description, null);
         ROLDAP_USERSTORE_PROPERTIES.add(property);
 
     }
 
-    private static void setProperty(String name,String value,String description){
-        Property property = new Property(name,value,description,null);
+    private static void setProperty(String name, String displayName, String value,
+            String description) {
+        Property property = new Property(name, value, displayName + "#" + description, null);
         OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.add(property);
 
     }

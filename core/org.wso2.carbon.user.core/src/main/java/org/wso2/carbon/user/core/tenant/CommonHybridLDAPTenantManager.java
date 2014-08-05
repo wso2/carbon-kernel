@@ -350,10 +350,12 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
            
             //create user password attribute
             Attribute password = new BasicAttribute(USER_PASSWORD_ATTRIBUTE_NAME);
+            String passwordHashMethod = realmConfig.getUserStoreProperty(LDAPConstants.PASSWORD_HASH_METHOD);
+            if(passwordHashMethod == null)  {
+                passwordHashMethod =  realmConfig.getUserStoreProperty("passwordHashMethod");
+            }
             String passwordToStore = UserCoreUtil.getPasswordToStore(
-                    tenant.getAdminPassword(),
-                    realmConfig.getUserStoreProperties().get(LDAPConstants.PASSWORD_HASH_METHOD),
-                    isKDCEnabled());
+                    tenant.getAdminPassword(), passwordHashMethod, isKDCEnabled());
             password.add(passwordToStore);
             userAttributes.put(password);
 
