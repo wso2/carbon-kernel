@@ -77,10 +77,6 @@ public class AppDeployerServiceComponent implements ServiceListener {
             ApplicationManager applicationManager = ApplicationManager.getInstance();
             applicationManager.init(); // this will allow application manager to register deployment handlers
 
-            // now register deployment handlers
-            applicationManager.registerDeploymentHandler(new RegistryResourceDeployer());
-            applicationManager.registerDeploymentHandler(new DefaultAppDeployer());
-
             // register ApplicationManager as a service
             appManagerRegistration = ctxt.getBundleContext().registerService(
                     ApplicationManagerService.class.getName(), applicationManager, null);
