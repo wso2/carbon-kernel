@@ -25,6 +25,7 @@ import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipListener;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
@@ -171,6 +172,11 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
                 allMembers.remove(uuid);
             }
         }
+
+        @Override
+        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+        }
+
     }
 
     /**
