@@ -22,10 +22,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.common.TenantStatusListener;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
+import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
 
@@ -55,6 +57,9 @@ public class UserStoreMgtDSComponent {
 
             UserStoreManager activeDirectoryUserStoreManager = new ActiveDirectoryUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), activeDirectoryUserStoreManager, null);
+
+            TenantStatusListener tenantStatusListener = new TenantStatusListener();
+            ctxt.getBundleContext().registerService(UserOperationEventListener.class.getName(), tenantStatusListener, null);
 
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
 
