@@ -143,9 +143,11 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Activator>org.wso2.carbon.user.core.internal.Activator
                         </Bundle-Activator>
-                        <Private-Package>org.wso2.carbon.user.core.internal</Private-Package>
+                        <Private-Package>org.wso2.carbon.user.core.internal,org.wso2.carbon.user.core.common.
+                            TenantStatusListener</Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.user.core.internal,
+                            !org.wso2.carbon.user.core.common.TenantStatusListener,
                             org.wso2.carbon.user.core.*
                         </Export-Package>
                         <Import-Package>
