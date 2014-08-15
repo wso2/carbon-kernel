@@ -889,6 +889,13 @@ public final class CarbonServerManager implements Controllable {
         }
         shutdownHook = new Thread() {
             public void run() {
+                // During shutdown we assume it is triggered by super tenant
+                PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
+                        .getThreadLocalCarbonContext();
+                privilegedCarbonContext
+                        .setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                privilegedCarbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+
                 log.info("Shutdown hook triggered....");
                 isShutdownTriggeredByShutdownHook = true;
                 shutdownGracefully();

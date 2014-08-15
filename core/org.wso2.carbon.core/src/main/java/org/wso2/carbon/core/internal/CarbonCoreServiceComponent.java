@@ -29,6 +29,7 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +86,11 @@ public class CarbonCoreServiceComponent {
 
     protected void deactivate(ComponentContext ctxt) {
         try {
+            // We assume it's super tenant during component deactivate time
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            privilegedCarbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            privilegedCarbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonServerManager.stop();  
         } catch (Throwable e) {
             log.error("Failed clean up Carbon core", e);
