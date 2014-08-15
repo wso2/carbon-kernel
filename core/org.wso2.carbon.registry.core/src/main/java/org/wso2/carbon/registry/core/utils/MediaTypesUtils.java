@@ -18,6 +18,7 @@
  */
 package org.wso2.carbon.registry.core.utils;
 
+import org.apache.axis2.context.MessageContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.registry.core.Registry;
@@ -25,6 +26,8 @@ import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.pagination.PaginationContext;
+import org.wso2.carbon.registry.core.pagination.PaginationUtils;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import java.io.*;
@@ -72,6 +75,83 @@ public class MediaTypesUtils {
         } else {
             return registryContext.getCollectionMediaTypes();
         }
+    }
+
+    /**
+     * Method to obtain a list of paths having resources of the given media type.
+     *
+     * @param registry  the registry instance to run query on.
+     * @param mediaType the media type.
+     * @return an array of resource paths.
+     * @throws RegistryException if the operation failed.
+     */
+    public static String[] getResultPaths(Registry registry, String mediaType) throws RegistryException {
+        String[] result;
+        String[] paginatedResult;
+        try {
+            Map<String, String> parameter = new HashMap<String, String>();
+            parameter.put("1", mediaType);
+            parameter.put("query", "SELECT DISTINCT REG_PATH_ID, REG_NAME FROM REG_RESOURCE WHERE REG_MEDIA_TYPE=?");
+            result = (String[]) registry.executeQuery(null, parameter).getContent();
+            if (result == null || result.length == 0) {
+                return new String[0];
+            }
+            result = removeMountPaths(result, registry);
+            MessageContext messageContext = MessageContext.getCurrentMessageContext();
+            if (PaginationUtils.isPaginationAnnotationFound("getPaginatedGovernanceArtifacts") &&
+                    ((messageContext != null && PaginationUtils.isPaginationHeadersExist(messageContext)) || PaginationContext.getInstance() != null)) {
+
+                int rowCount = result.length;
+                PaginationContext paginationContext;
+                try {
+                    if (messageContext != null) {
+                        PaginationUtils.setRowCount(messageContext, Integer.toString(rowCount));
+                        paginationContext = PaginationUtils.initPaginationContext(messageContext);
+                    } else {
+                        paginationContext = PaginationContext.getInstance();
+                    }
+
+                    int start = paginationContext.getStart();
+                    int count = paginationContext.getCount();
+
+                    int startIndex;
+                    if (start == 1) {
+                        startIndex = 0;
+                    } else {
+                        startIndex = start;
+                    }
+                    if (rowCount < start + count) {
+                        paginatedResult = new String[rowCount - startIndex];
+                        System.arraycopy(result, startIndex, paginatedResult, 0, (rowCount - startIndex));
+                    } else {
+                        paginatedResult = new String[count];
+                        System.arraycopy(result, startIndex, paginatedResult, 0, count);
+                    }
+                    return paginatedResult;
+
+                } finally {
+                    PaginationContext.destroy();
+                }
+            }
+        } catch (RegistryException e) {
+            String msg = "Error in getting the result for media type: " + mediaType + ".";
+            log.error(msg, e);
+            throw new RegistryException(msg, e);
+        }
+        return result;
+    }
+
+    private static String[] removeMountPaths(String[] paths, Registry registry) {
+        if (paths == null) {
+            return new String[0];
+        }
+        List<String> fixedPaths = new LinkedList<String>();
+        for (String path : paths) {
+            if (!path.contains(RegistryConstants.SYSTEM_MOUNT_PATH)) {
+                fixedPaths.add(path);
+            }
+        }
+        return fixedPaths.toArray(new String[fixedPaths.size()]);
     }
 
     /**
