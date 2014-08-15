@@ -49,6 +49,7 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -384,6 +385,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			}
 		}
 		// #################### </Listeners> #####################################################
+
+        int tenantId = getTenantId();
+
+        try {
+            RealmService realmService = UserCoreUtil.getRealmService();
+            if (realmService != null) {
+                boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
+
+                if (!tenantActive) {
+                    throw new UserStoreException("Tenant has been deactivated. TenantID : "
+                            + tenantId);
+                }
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while trying to check Tenant status for Tenant : "
+                    + tenantId, e);
+        }
 
 		// We are here due to two reason. Either there is no secondary UserStoreManager or no
 		// domain name provided with user name.

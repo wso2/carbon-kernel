@@ -58,9 +58,6 @@ public class UserStoreMgtDSComponent {
             UserStoreManager activeDirectoryUserStoreManager = new ActiveDirectoryUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), activeDirectoryUserStoreManager, null);
 
-            TenantStatusListener tenantStatusListener = new TenantStatusListener();
-            ctxt.getBundleContext().registerService(UserOperationEventListener.class.getName(), tenantStatusListener, null);
-
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
 
             log.info("Carbon UserStoreMgtDSComponent activated successfully.");
