@@ -417,7 +417,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		if (!authenticated && !domainProvided && this.getSecondaryUserStoreManager() != null) {
 			authenticated = ((AbstractUserStoreManager) this.getSecondaryUserStoreManager())
 					.authenticate(userName, credential, domainProvided);
-            return authenticated;
 		}
 
 		// You cannot change authentication decision in post handler to TRUE
