@@ -55,13 +55,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * TODO: class description
@@ -71,6 +65,10 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unchecked")
 public class CacheImpl<K, V> implements Cache<K, V> {
     private static final Log log = LogFactory.getLog(CacheImpl.class);
+    private static final int TIME_STAMP_REPLICATOR_THREADS = 2;
+    private static final int TIME_STAMP_REPLICATING_INTERVAL = 50;
+    private static final long MAX_CLEANUP_TIME = 60000;
+    private int timeStampReplicatorCount;
     private static final int CACHE_LOADER_THREADS = 2;
     private static final long DEFAULT_CACHE_EXPIRY_MINS = 15;
     private static final long DEFAULT_CACHE_EXPIRY_MILLIS = DEFAULT_CACHE_EXPIRY_MINS * 60 * 1000;
@@ -80,6 +78,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private boolean isLocalCache;
     private Map<K, CacheEntry<K, V>> distributedCache;
     private Map<K, Long> distributedTimestampMap;
+    private Map<K, Long> localTimestampMap;
     private final Map<K, CacheEntry<K, V>> localCache = new ConcurrentHashMap<K, CacheEntry<K, V>>();
     private CacheConfiguration<K, V> cacheConfiguration;
 
@@ -126,6 +125,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                     new MapEntryListenerImpl());
             distributedTimestampMap = distributedMapProvider.getMap(getMapName(CachingConstants.TIMESTAMP_CACHE_PREFIX +
                     cacheName, cacheManager), new TimestampMapEntryListenerImpl());
+            initTimestampReplicator();
         }
         cacheStatistics = new CacheStatisticsImpl();
         registerMBean();
@@ -149,6 +149,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 + cacheName, cacheManager),new TimestampMapEntryListenerImpl());
         isLocalCache = false;
 
+        initTimestampReplicator();
         // copy cache entries from localCache to distributed cache
         for (Map.Entry<K, CacheEntry<K, V>> entry : localCache.entrySet()) {
             distributedCache.put(entry.getKey(), entry.getValue());
@@ -158,6 +159,27 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private String getMapName(String cacheName, CacheManager cacheManager) {
         return "$cache.$domain[" + ownerTenantDomain + "]" +
                 cacheManager.getName() + "#" + cacheName;
+    }
+
+    private void initTimestampReplicator(){
+
+        ScheduledExecutorService timeStampReplicator = Executors.newScheduledThreadPool(TIME_STAMP_REPLICATOR_THREADS, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable runnable) {
+                Thread th = new Thread(runnable);
+                th.setName("TimeStampReplicator (" + ownerTenantDomain + ")-" + cacheName + "-" + timeStampReplicatorCount++);
+                return th;
+            }
+        });
+        localTimestampMap = new ConcurrentHashMap<K, Long>();
+        String replicateFrequency = System.getProperty("timestamp.replication.frequency");
+        int frequency = TIME_STAMP_REPLICATING_INTERVAL;
+        if (replicateFrequency != null) {
+            frequency = Integer.parseInt(replicateFrequency);
+        }
+        log.debug("Timestamp Replication Frequency set to " + frequency);
+        timeStampReplicator.scheduleAtFixedRate(new TimestampReplicateTask(), frequency, frequency,
+                TimeUnit.MILLISECONDS);
     }
 
     private MBeanServer getMBeanServer() {
@@ -201,7 +223,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         if (entry != null) {
             value = (V) entry.getValue();
             if (!isLocalCache) {
-                distributedTimestampMap.put(key, lastAccessed); // Need to put this back so that the accessed timestamp change is visible throughout the cluster
+                synchronized (key){
+                    localTimestampMap.put(key,lastAccessed);
+                }
             }
             notifyCacheEntryRead(key, value);
         } else if(!isLocalCache) {    // Try reading it from the distributed cache
@@ -210,7 +234,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 entry.setLastAccessed(lastAccessed);
                 localCache.put(key, entry);
                 value = (V) entry.getValue();
-                distributedTimestampMap.put(key, lastAccessed); // Need to put this back so that the accessed timestamp change is visible throughout the cluster
+                synchronized (key){
+                    localTimestampMap.put(key,lastAccessed);
+                }
                 notifyCacheEntryRead(key, value);
             }
         }
@@ -924,6 +950,25 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 throw e;
             }
             return entry.getValue();
+        }
+    }
+
+    private class TimestampReplicateTask implements Runnable{
+
+        @Override
+        public void run() {
+           if(!isLocalCache){
+               if(localTimestampMap != null && localTimestampMap.size() > 0){
+                   Iterator<Map.Entry<K,Long>> iterator = localTimestampMap.entrySet().iterator();
+                   while (iterator.hasNext()){
+                       Map.Entry<K, Long> entry = iterator.next();
+                       synchronized (entry.getKey()){
+                       distributedTimestampMap.put(entry.getKey(),entry.getValue());
+                       iterator.remove();
+                       }
+                   }
+               }
+           }
         }
     }
 
