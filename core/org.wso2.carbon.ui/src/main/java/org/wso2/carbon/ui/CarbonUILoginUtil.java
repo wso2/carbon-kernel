@@ -18,14 +18,15 @@
 
 package org.wso2.carbon.ui;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.ui.tracker.AuthenticatorRegistry;
-import org.wso2.carbon.utils.UserUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
+
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -93,7 +94,11 @@ public final class CarbonUILoginUtil {
             } else {
                 tmpURI = requestedURI;
             }
-            tmpURI = "../.." + tmpURI;
+            if("".equals(contextPath)){
+                tmpURI = "../.." + tmpURI;
+            }else{
+                tmpURI= uRIContextBuilder(contextPath) +tmpURI;
+            }
             request.getSession(false).setAttribute("requestedUri", tmpURI);
             if (!tmpURI.contains("session-validate.jsp") && !("/null").equals(requestedURI)) {
                 // Also setting it in a cookie, for non-remember-me cases
@@ -593,5 +598,14 @@ public final class CarbonUILoginUtil {
         }
 
         return requestedURI;
+    }
+
+    protected static String uRIContextBuilder(String contextPath){
+        int count = StringUtils.countMatches(contextPath, "/");
+        String relativeURI = "../.."; //cause /carbon/admin/ context
+        for(int i=0;i<count;i++){
+            relativeURI=relativeURI+"/..";
+        }
+        return relativeURI;
     }
 }

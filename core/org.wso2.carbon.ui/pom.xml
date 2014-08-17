@@ -168,6 +168,11 @@
             <artifactId>javax.servlet</artifactId>
             <version>${version.equinox.javax.servlet}</version>
         </dependency>
+                <dependency>
+                    <groupId>commons-lang.wso2</groupId>
+                    <artifactId>commons-lang</artifactId>
+                    <version>${orbit.version.commons.lang}</version>
+                </dependency>
     </dependencies>
 
     <build>
