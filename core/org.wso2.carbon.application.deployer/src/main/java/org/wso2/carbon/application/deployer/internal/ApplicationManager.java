@@ -31,6 +31,8 @@ import org.wso2.carbon.application.deployer.CarbonApplication;
 import org.wso2.carbon.application.deployer.config.ApplicationConfiguration;
 import org.wso2.carbon.application.deployer.config.Artifact;
 import org.wso2.carbon.application.deployer.handler.AppDeploymentHandler;
+import org.wso2.carbon.application.deployer.handler.DefaultAppDeployer;
+import org.wso2.carbon.application.deployer.handler.RegistryResourceDeployer;
 import org.wso2.carbon.application.deployer.persistence.CarbonAppPersistenceManager;
 import org.wso2.carbon.application.deployer.service.ApplicationManagerService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -89,6 +91,9 @@ public final class ApplicationManager implements ApplicationManagerService {
         appDeploymentHandlers = new ArrayList<AppDeploymentHandler>();
         pendingCarbonApps = new ArrayList<PendingApplication>();
 
+        // Register default deployment handlers. These two handlers must be registered first before the other handlers
+        registerDeploymentHandler(new RegistryResourceDeployer());
+        registerDeploymentHandler(new DefaultAppDeployer());
     }
 
     // this init method should called by AppDeployerServiceComponent.activate method
