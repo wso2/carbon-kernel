@@ -183,7 +183,6 @@ public final class RegistryUtils {
             if (connectionMetaData != null) {
                 return (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
                         connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
-//                return connectionMetaData.getUserName() + "@" + connectionMetaData.getURL();
             }
         } catch (SQLException ignore) {
             log.debug("Failed to construct the connectionId ." + ignore.getMessage());
