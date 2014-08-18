@@ -55,7 +55,7 @@ public class AuthorizationHandler extends AbstractHandler {
             HttpServletResponse response =
                     (HttpServletResponse) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            log.warn("Invoking admin services on worker node is forbidden...");
+            log.error("Invoking admin services on worker node is forbidden...");
             return InvocationResponse.ABORT;
         }
 
