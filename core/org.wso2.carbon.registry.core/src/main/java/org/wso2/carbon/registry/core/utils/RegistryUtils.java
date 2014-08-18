@@ -181,9 +181,11 @@ public final class RegistryUtils {
             // makes one connection to the given URL according to our model.
             DatabaseMetaData connectionMetaData = connection.getMetaData();
             if (connectionMetaData != null) {
-                return connectionMetaData.getUserName() + "@" + connectionMetaData.getURL();
+                return (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
+                        connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
             }
         } catch (SQLException ignore) {
+            log.debug("Failed to construct the connectionId ." + ignore.getMessage());
         }
         return null;
     }
