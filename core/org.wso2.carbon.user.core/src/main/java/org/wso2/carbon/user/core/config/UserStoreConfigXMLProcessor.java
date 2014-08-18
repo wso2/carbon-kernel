@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -32,6 +33,7 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -121,7 +123,8 @@ public class UserStoreConfigXMLProcessor {
 
         realmConfig.setUserStoreClass(userStoreClass);
         realmConfig.setAuthorizationManagerClass(primaryRealm.getAuthorizationManagerClass());
-        realmConfig.setEveryOneRoleName(UserCoreConstants.INTERNAL_DOMAIN + "/" + primaryRealm.getEveryOneRoleName());
+        realmConfig.setEveryOneRoleName(UserCoreUtil.addDomainToName(primaryRealm.getEveryOneRoleName(),
+                                                                                    UserCoreConstants.INTERNAL_DOMAIN));
         realmConfig.setUserStoreProperties(userStoreProperties);
         realmConfig.setPasswordsExternallyManaged(passwordsExternallyManaged);
         realmConfig.setAuthzProperties(primaryRealm.getAuthzProperties());
@@ -147,6 +150,17 @@ public class UserStoreConfigXMLProcessor {
 
     private Map<String, String> getChildPropertyElements(OMElement omElement,
                                                          SecretResolver secretResolver) {
+        String domainName = "";
+        try {
+            AXIOMXPath xPath = new AXIOMXPath(UserCoreConstants.RealmConfig.DOMAIN_NAME_XPATH);
+            OMElement val = (OMElement) xPath.selectSingleNode(omElement);
+            if (val != null) {
+                domainName = "." + val.getText();
+            }
+        } catch (Exception e) {
+            log.debug("Error While getting DomainName from Configurations ");
+        }
+
         Map<String, String> map = new HashMap<String, String>();
         Iterator<?> ite = omElement.getChildrenWithName(new QName(
                 UserCoreConstants.RealmConfig.LOCAL_NAME_PROPERTY));
@@ -157,12 +171,12 @@ public class UserStoreConfigXMLProcessor {
             String propValue = propElem.getText();
             if (secretResolver != null && secretResolver.isInitialized()) {
                 if (secretResolver.isTokenProtected("UserManager.Configuration.Property."
-                        + propName)) {
+                        + propName + domainName)) {
                     propValue = secretResolver.resolve("UserManager.Configuration.Property."
-                            + propName);
+                            + propName + domainName);
                 }
-                if (secretResolver.isTokenProtected("UserStoreManager.Property." + propName)) {
-                    propValue = secretResolver.resolve("UserStoreManager.Property." + propName);
+                if (secretResolver.isTokenProtected("UserStoreManager.Property." + propName + domainName)) {
+                    propValue = secretResolver.resolve("UserStoreManager.Property." + propName + domainName);
                 }
             }
             map.put(propName.trim(), propValue.trim());

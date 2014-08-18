@@ -269,8 +269,7 @@ public class HybridRoleManager {
 	public String[] getUserListOfHybridRole(String roleName) throws UserStoreException {
 
 		if (UserCoreUtil.isEveryoneRole(roleName, realmConfig)) {
-			throw new UserStoreException(
-					"Invalid operation. You are trying to retrieve all users from the external userstore.");
+            return userRealm.getUserStoreManager().listUsers("*", -1);
 		}
 
 		// ########### Domain-less Roles and Domain-aware Users from here onwards #############

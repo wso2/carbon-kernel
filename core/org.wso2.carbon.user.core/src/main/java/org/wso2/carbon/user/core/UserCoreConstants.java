@@ -66,7 +66,7 @@ public class UserCoreConstants {
     
     public static final String PRINCIPAL_USERNAME_SEPARATOR = "_";
     
-    public static final String SHARED_ROLE_TENANT_SEPERATOR = "@";
+    public static final String SHARED_ROLE_TENANT_SEPERATOR = "@SharedRoleSeperator@";
 
     public static final String NAME_COMBINER = "|";
     
@@ -175,6 +175,7 @@ public class UserCoreConstants {
         public static final String ATTR_NAME_TYPE = "type";
 
         public static final String SHARED_GROUPS_ENABLED = "SharedGroupEnabled";
+        public static final String DOMAIN_NAME_XPATH = "//UserStoreManager/Property[@name='DomainName']";
     }
 
 

@@ -18,16 +18,7 @@
 package org.wso2.carbon.user.core.common;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +36,8 @@ import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
+import org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager;
+import org.wso2.carbon.user.core.authorization.PermissionTree;
 import org.wso2.carbon.user.core.claim.Claim;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
@@ -56,6 +49,7 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -369,8 +363,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		boolean authenticated = false;
 
 		UserStore userStore = getUserStore(userName);
-		if (userStore.isRecurssive()) {
-			return userStore.getUserStoreManager().authenticate(userStore.getDomainFreeName(),
+		if (userStore.isRecurssive() && userStore.getUserStoreManager() instanceof AbstractUserStoreManager ) {
+			return ((AbstractUserStoreManager)userStore.getUserStoreManager()).authenticate(userStore.getDomainFreeName(),
 					credential, domainProvided);
 		}
 
@@ -391,6 +385,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			}
 		}
 		// #################### </Listeners> #####################################################
+
+        int tenantId = getTenantId();
+
+        try {
+            RealmService realmService = UserCoreUtil.getRealmService();
+            if (realmService != null) {
+                boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
+
+                if (!tenantActive) {
+                    throw new UserStoreException("Tenant has been deactivated. TenantID : "
+                            + tenantId);
+                }
+            }
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException("Error while trying to check Tenant status for Tenant : "
+                    + tenantId, e);
+        }
 
 		// We are here due to two reason. Either there is no secondary UserStoreManager or no
 		// domain name provided with user name.
@@ -414,11 +425,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
 		// If authentication fails in the previous step and if the user has not specified a
 		// domain- then we need to execute chained UserStoreManagers recursively.
-		if (!authenticated && !domainProvided && this.getSecondaryUserStoreManager() != null) {
-			authenticated = ((AbstractUserStoreManager) this.getSecondaryUserStoreManager())
-					.authenticate(userName, credential, domainProvided);
+        if (!authenticated && !domainProvided && this.getSecondaryUserStoreManager() != null
+                && this.getSecondaryUserStoreManager() instanceof AbstractUserStoreManager) {
+            authenticated = ((AbstractUserStoreManager) this.getSecondaryUserStoreManager())
+                    .authenticate(userName, credential, domainProvided);
             return authenticated;
-		}
+        }
 
 		// You cannot change authentication decision in post handler to TRUE
 		for (UserOperationEventListener listener : UMListenerServiceComponent
@@ -582,8 +594,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throws UserStoreException {
         try {
             String property;
-            //extracting the domain from claimValue
-            String extractedDomain = UserCoreUtil.extractDomainFromClaimValue(claimValue);
+            //extracting the domain from claimValue. Not introducing a new method due to carbon patch process..
+            String extractedDomain = null;
+            int index;
+            index = claimValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+            if (index > 0){
+                String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
+                extractedDomain = names[0].trim();
+            }
             claimValue = UserCoreUtil.removeDomainFromName(claimValue);
             //if domain is present, then we search within that domain only
             if (extractedDomain != null && !extractedDomain.isEmpty()) {
@@ -1504,7 +1522,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			boolean exist = hybridRoleManager.isExistingRole(userStore.getDomainFreeName());
 			if(exist) {
 				return true;
-			} else if(!readGroupsEnabled) {
+			} else {
 				return false;
 			}
 		}
@@ -1546,7 +1564,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if(manager == null){
             throw new UserStoreException("Share Groups are not supported by this realm");
         }
-
+        
         return ((AbstractUserStoreManager)manager).doCheckExistingRole(roleName);
     }
 
@@ -1749,8 +1767,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         UserStore userStore = getUserStore(userName);
-        if (userStore.isRecurssive()) {
-            return userStore.getUserStoreManager().isUserInRole(userStore.getDomainFreeName(), roleName);
+        if (userStore.isRecurssive()
+                && (userStore.getUserStoreManager() instanceof AbstractUserStoreManager)) {
+            return ((AbstractUserStoreManager) userStore.getUserStoreManager()).isUserInRole(
+                    userStore.getDomainFreeName(), roleName);
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
@@ -1839,7 +1859,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		// #################### Domain Name Free Zone Starts Here ################################
 
 		if(userStore.isSystemStore()){
-            systemUserRoleManager.isExistingSystemUser(userName);
+            return systemUserRoleManager.isExistingSystemUser(userStore.getDomainFreeName());
         }
         
         
@@ -1867,6 +1887,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 				if (secManager instanceof AbstractUserStoreManager) {
 					return ((AbstractUserStoreManager) secManager)
 							.doListUsers(filter, maxItemLimit);
+				} else {
+				    return secManager.listUsers(filter, maxItemLimit);
 				}
 			} else {
 				// Exception is not need to as listing of users
@@ -1896,7 +1918,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 						// We can ignore and proceed. Ignore the results from this user store.
 						log.error(ex);
 					}
-				}
+                } else {
+                    String[] secondUserList = storeManager.listUsers(filter, maxItemLimit);
+                    userList = UserCoreUtil.combineArrays(userList, secondUserList);
+                }
 			}
 		}
 
@@ -1948,9 +1973,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         UserStoreManager userManager = userStoreManagerHolder.get(domainName);
                         userName = UserCoreUtil.removeDomainFromName(userName);
                         if(userManager != null){
-                            // get displayNames
-                            String[] displayNames =  ((AbstractUserStoreManager) userManager).
-                                                    doGetDisplayNamesForInternalRole(new String[]{userName});
+                            String[] displayNames = null;
+                            if (userManager instanceof AbstractUserStoreManager) {
+                                // get displayNames
+                                displayNames = ((AbstractUserStoreManager) userManager)
+                                        .doGetDisplayNamesForInternalRole(new String[] { userName });
+                            } else {
+                                displayNames = userManager.getRoleNames();
+                            }
+
                             for (String displayName : displayNames) {
                                 // if domain names are not added by above method, add it
                                 // here
@@ -1978,20 +2009,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	public String[] getRoleListOfUser(String userName) throws UserStoreException {
 		String[] roleNames = null;
 
-		// If user does not exist, just return
-		if (!isExistingUser(userName)) {
-			return new String[0];
-		}
 
-		// Check whether roles exist in cache
-		try {
-			roleNames = getRoleListOfUserFromCache(this.tenantId, userName);
-			if (roleNames != null) {
-				return roleNames;
-			}
-		} catch (Exception e) {
-			// If not exist in cache, continue
-		}
+        // anonymous user is only assigned to  anonymous role
+        if(CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equalsIgnoreCase(userName)){
+            return new String[] {CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME};
+        }       
+
+        // Check whether roles exist in cache
+        try {
+            roleNames = getRoleListOfUserFromCache(this.tenantId, userName);
+            if (roleNames != null) {
+                return roleNames;
+            }
+        } catch (Exception e) {
+            // If not exist in cache, continue
+        }
 
 		UserStore userStore = getUserStore(userName);
 		if (userStore.isRecurssive()) {
@@ -2004,9 +2036,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		// #################### Domain Name Free Zone Starts Here ################################
 
         roleNames = doGetRoleListOfUser(userName, "*");
-
-		addToUserRolesCache(this.tenantId,
-				UserCoreUtil.addDomainToName(userName, getMyDomainName()), roleNames);
 
 		return roleNames;
 
@@ -2258,7 +2287,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			domainFreeName = user.substring(index + 1);
 
 			if (secManager != null) {
-				userStore.setUserStoreManager((AbstractUserStoreManager) secManager);
+				userStore.setUserStoreManager(secManager);
 				userStore.setDomainAwareName(user);
 				userStore.setDomainFreeName(domainFreeName);
 				userStore.setDomainName(domain);
@@ -2478,6 +2507,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                                 .doGetRoleNames(filter, maxItemLimit);
                         return UserCoreUtil.combineArrays(roleList, externalRoles);
                     }
+				} else {
+				    String[] externalRoles = secManager.getRoleNames();
+                    return UserCoreUtil.combineArrays(roleList, externalRoles);
 				}
 			} else {
 				throw new UserStoreException("Invalid Domain Name");
@@ -2513,6 +2545,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 						// We can ignore and proceed. Ignore the results from this user store.
 						log.error(e);
 					}
+				} else {
+				    storeManager.getRoleNames();
 				}
 			}
 		}
@@ -2979,13 +3013,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	public final String[] doGetRoleListOfUser(String userName, String filter)
 			throws UserStoreException {
 
-		String[] roleList;
+        String[] roleList;
 
 		String[] internalRoles = doGetInternalRoleListOfUser(userName, filter);
 
 		String[] modifiedExternalRoleList = new String[0];
 
-		if (readGroupsEnabled) {
+		if (readGroupsEnabled && doCheckExistingUser(userName)) {
 			List<String> roles = new ArrayList<String>();
 			String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
 			roles.addAll(Arrays.asList(externalRoles));
@@ -3001,6 +3035,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		}
 
 		roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
+
+        addToUserRolesCache(this.tenantId,
+                UserCoreUtil.addDomainToName(userName, getMyDomainName()), roleList);
 
 		return roleList;
 	}
@@ -3283,17 +3320,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		}
 
 		Map<String, Integer> maxListCount = new HashMap<String, Integer>();
-		for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
-			UserStoreManager storeManager = entry.getValue();
-			if (storeManager instanceof AbstractUserStoreManager) {
-				String maxConfig = storeManager.getRealmConfiguration().getUserStoreProperty(type);
-				if (maxConfig == null) {
-					// set a default value
-					maxConfig = MAX_LIST_LENGTH;
-				}
-				maxListCount.put(entry.getKey(), Integer.parseInt(maxConfig));
-			}
-		}
+        for (Map.Entry<String, UserStoreManager> entry : userStoreManagerHolder.entrySet()) {
+            UserStoreManager storeManager = entry.getValue();
+            String maxConfig = storeManager.getRealmConfiguration().getUserStoreProperty(type);
+
+            if (maxConfig == null) {
+                // set a default value
+                maxConfig = MAX_LIST_LENGTH;
+            }
+            maxListCount.put(entry.getKey(), Integer.parseInt(maxConfig));
+        }
 
 		if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME) == null) {
 			String maxConfig = realmConfig.getUserStoreProperty(type);
@@ -3356,6 +3392,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         		log.debug("Renaming persisted domain " + oldDomain + " to " + newDomain);
         	}
             UserCoreUtil.updatePersistedDomain(oldDomain, newDomain, this.tenantId, this.dataSource);
+
         }
     }
 
