@@ -28,6 +28,8 @@
         <Property name="OrganizationalAttribute">ou</Property>
         <Property name="OrganizationalSubContextObjectClass">organizationalUnit</Property>
         <Property name="OrganizationalSubContextAttribute">ou</Property>
+        <Property name="OrganizationalSubContextUserContextName">users</Property>
+        <Property name="OrganizationalSubContextGroupContextName">groups</Property>
     </TenantManager>
 </TenantManagers>
 

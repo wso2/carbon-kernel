@@ -247,6 +247,10 @@ public class UserCoreConstants {
                 "OrganizationalSubContextObjectClass";
         public static final String PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE =
                 "OrganizationalSubContextAttribute";
+        public static final String PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE =
+                "OrganizationalSubContextUserContextName";
+        public static final String PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE =
+                "OrganizationalSubContextGroupContextName";
         public static final String PROPERTY_MULTI_TENANT_REALM_CONFIG_BUILDER =
         		"MultiTenantRealmConfigBuilder";
 
