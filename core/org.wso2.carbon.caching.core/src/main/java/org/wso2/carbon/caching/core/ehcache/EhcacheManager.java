@@ -56,9 +56,11 @@ public class EhcacheManager extends net.sf.jsr107cache.CacheManager implements C
             synchronized (lock) {
                 cache = manager.getJCache(cacheName);
                 if (cache == null) {
-                    net.sf.ehcache.config.CacheConfiguration cacheConfig =
-                                                                           new net.sf.ehcache.config.CacheConfiguration();
-
+                    manager.addCache(cacheName);
+                    cache = manager.getJCache(cacheName);
+                    
+                    net.sf.ehcache.config.CacheConfiguration cacheConfig = 
+                    			manager.getCache(cacheName).getCacheConfiguration();
                     cacheConfig.setDiskPersistent(false);
                     cacheConfig.setDiskSpoolBufferSizeMB(0);
                     cacheConfig.setOverflowToDisk(false);
@@ -66,8 +68,8 @@ public class EhcacheManager extends net.sf.jsr107cache.CacheManager implements C
                     cacheConfig.setTimeToLiveSeconds(maxExpirationMillis / 1000L);
                     cacheConfig.setMaxElementsInMemory(maxEntries);
 
-                    manager.addCache(cacheName);
-                    cache = manager.getJCache(cacheName);
+
+
                 }
             }
         }
