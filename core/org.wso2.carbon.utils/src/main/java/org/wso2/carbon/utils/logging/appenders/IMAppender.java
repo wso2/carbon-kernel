@@ -31,7 +31,7 @@
  *
  */
 
-package org.wso2.carbon.utils.logging;
+package org.wso2.carbon.utils.logging.appenders;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Layout;
@@ -47,6 +47,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.packet.Message;
+import org.wso2.carbon.utils.logging.DefaultEvaluator;
 
 
 /**
