@@ -425,12 +425,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
 		// If authentication fails in the previous step and if the user has not specified a
 		// domain- then we need to execute chained UserStoreManagers recursively.
-        if (!authenticated && !domainProvided && this.getSecondaryUserStoreManager() != null
-                && this.getSecondaryUserStoreManager() instanceof AbstractUserStoreManager) {
-            authenticated = ((AbstractUserStoreManager) this.getSecondaryUserStoreManager())
-                    .authenticate(userName, credential, domainProvided);
-            return authenticated;
-        }
+		if (!authenticated && !domainProvided && this.getSecondaryUserStoreManager() != null) {
+			authenticated = ((AbstractUserStoreManager) this.getSecondaryUserStoreManager())
+					.authenticate(userName, credential, domainProvided);
+		}
 
 		// You cannot change authentication decision in post handler to TRUE
 		for (UserOperationEventListener listener : UMListenerServiceComponent
