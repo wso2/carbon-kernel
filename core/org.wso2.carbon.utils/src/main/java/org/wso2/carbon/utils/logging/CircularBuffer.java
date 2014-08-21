@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.wso2.carbon.logging.appenders;
+package org.wso2.carbon.utils.logging;
 
 /**
  * This is a Circular Buffer implementation. In this implementaion it is assumed that items

@@ -21,6 +21,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.core.*;
 import com.hazelcast.core.Member;
 import org.apache.axis2.clustering.*;
@@ -145,7 +146,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         MapConfig mapConfig = new MapConfig("carbon-map-config");
         mapConfig.setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
         if (licenseKey != null) {
-            mapConfig.setStorageType(MapConfig.StorageType.OFFHEAP);
+            mapConfig.setInMemoryFormat(InMemoryFormat.OFFHEAP);
         }
         primaryHazelcastConfig.addMapConfig(mapConfig);
 

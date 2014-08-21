@@ -117,8 +117,15 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             //eg: ou=users
             String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
                     UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
-            String userContextRDN = orgSubContextAttribute + "=" +
-                                    LDAPConstants.USER_CONTEXT_NAME;
+            String userContextRDN;
+            if (tenantMgtConfig.getTenantStoreProperties().get(
+                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE) != null) {
+                userContextRDN = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().get(
+                        UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE);
+            } else {
+                //if property value is not set use default value
+                userContextRDN = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME;
+            }
             //eg: ou=users,o=cse.org, dc=cloud, dc=com
             String userSearchBase = userContextRDN + "," + organizationRDN + "," +
                                     partitionDN;
@@ -150,9 +157,16 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             //if read ldap group is enabled, set the tenant specific group search base
             if (("true").equals(bootStrapConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
+                String groupContextRDN;
                 //eg: ou=groups
-                String groupContextRDN = orgSubContextAttribute + "=" +
-                                         LDAPConstants.GROUP_CONTEXT_NAME;
+                if (tenantMgtConfig.getTenantStoreProperties().
+                        get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE) != null) {
+                    groupContextRDN = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().
+                            get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
+                } else {
+                    //if property value is not set use default value
+                    groupContextRDN = orgSubContextAttribute + "=" + LDAPConstants.GROUP_CONTEXT_NAME;
+                }
                 //eg: ou=users,o=cse.org, dc=cloud, dc=com
                 String groupSearchBase = groupContextRDN + "," + organizationRDN + "," + partitionDN;
 
@@ -216,6 +230,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.CONNECTION_PASSWORD);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.CONNECTION_URL);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.PASSWORD_HASH_METHOD);
+        tenantRealmConfiguration.getUserStoreProperties().remove("passwordHashMethod");
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.USER_SEARCH_BASE);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.GROUP_SEARCH_BASE);
         tenantRealmConfiguration.getUserStoreProperties().put(tenantManagerKey, tenantManagerValue);
