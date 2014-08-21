@@ -50,24 +50,22 @@ public class EhcacheManager extends net.sf.jsr107cache.CacheManager implements C
 		if (cacheName == null) {
 			cacheName = DefaultCacheManager.DEFAULT_CACHE_NAME;
 		}
-        net.sf.ehcache.CacheManager manager = net.sf.ehcache.CacheManager.getInstance();
-        Cache cache = manager.getJCache(cacheName);
-        if (cache == null) {
-            synchronized (lock) {
-                cache = manager.getJCache(cacheName);
-                if (cache == null) {
-                    net.sf.ehcache.config.CacheConfiguration cacheConfig =
-                                                                           new net.sf.ehcache.config.CacheConfiguration();
-
-                    cacheConfig.setDiskPersistent(false);
-                    cacheConfig.setDiskSpoolBufferSizeMB(0);
-                    cacheConfig.setOverflowToDisk(false);
-                    cacheConfig.setTimeToIdleSeconds(maxIdleExpirationMillis / 1000L);
-                    cacheConfig.setTimeToLiveSeconds(maxExpirationMillis / 1000L);
-                    cacheConfig.setMaxElementsInMemory(maxEntries);
-
-                    manager.addCache(cacheName);
-                    cache = manager.getJCache(cacheName);
+	    net.sf.ehcache.CacheManager manager = net.sf.ehcache.CacheManager.getInstance();
+	    Cache cache = manager.getJCache(cacheName);
+	    if (cache == null) {
+		    synchronized (lock) {
+			    cache = manager.getJCache(cacheName);
+			    if (cache == null) {
+				    manager.addCache(cacheName);
+				    cache = manager.getJCache(cacheName);
+				    net.sf.ehcache.config.CacheConfiguration cacheConfig =
+						    manager.getCache(cacheName).getCacheConfiguration();
+				    cacheConfig.setDiskPersistent(false);
+				    cacheConfig.setDiskSpoolBufferSizeMB(0);
+				    cacheConfig.setOverflowToDisk(false);
+				    cacheConfig.setTimeToIdleSeconds(maxIdleExpirationMillis / 1000L);
+				    cacheConfig.setTimeToLiveSeconds(maxExpirationMillis / 1000L);
+				    cacheConfig.setMaxElementsInMemory(maxEntries);
                 }
             }
         }
