@@ -21,6 +21,7 @@ package org.wso2.carbon.user.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
@@ -28,6 +29,7 @@ import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 /**
  * @scr.component name="user.store.mgt.dscomponent" immediate=true
@@ -43,6 +45,11 @@ public class UserStoreMgtDSComponent {
 
     protected void activate(ComponentContext ctxt) {
         try {
+            // We assume this component gets activated by super tenant
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+            carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
 
             UserStoreManager jdbcUserStoreManager = new JDBCUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), jdbcUserStoreManager, null);
