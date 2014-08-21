@@ -58,8 +58,10 @@ public class CacheCleanupTask implements Runnable {
             cc.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             cc.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             for (CacheImpl cache : caches) {
-                cache.syncCaches();
                 cache.runCacheExpiry();
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache expiry completed for cache " + cache.getName());
+                }
             }
         } catch (IllegalStateException e) {
             log.debug("Error occurred while running CacheCleanupTask", e);
