@@ -178,6 +178,9 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
             log.error(msg, e);
             throw new RuntimeException(msg, e);
         }
+
+        /* notify listeners of server startup */
+        CarbonCoreServiceComponent.startup();
         
         if (CarbonUtils.isRunningInStandaloneMode()) {
             try {
@@ -201,8 +204,6 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         if (log.isDebugEnabled()) {
             log.debug("Started Transport Listener Manager");
         }
-        /* notify listeners of server startup */
-        CarbonCoreServiceComponent.startup();
         setServerStartTimeParam();
         printInfo();
     }
