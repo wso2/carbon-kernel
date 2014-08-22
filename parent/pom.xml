@@ -432,9 +432,7 @@
         <hibernate.orbit.version>3.2.5.ga-wso2v1</hibernate.orbit.version>
 
         <!-- bouncycastle -->
-        <bouncycastle.version>132</bouncycastle.version>
-        <exp.pkg.version.bc>132</exp.pkg.version.bc>
-        <imp.pkg.version.bc>132</imp.pkg.version.bc>
+        <bouncycastle.version>1.32.wso2v1</bouncycastle.version>
 
         <!--BPS specific-->
         <saxon-bps.wso2.version.human-task>9.0.0.x-wso2v1</saxon-bps.wso2.version.human-task>
@@ -838,6 +836,11 @@
                 <groupId>org.apache.ws.security.wso2</groupId>
                 <artifactId>wss4j</artifactId>
                 <version>${orbit.version.wss4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle.wso2</groupId>
+                <artifactId>bcprov-jdk15</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>opensaml.wso2</groupId>

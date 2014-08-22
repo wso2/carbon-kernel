@@ -73,6 +73,10 @@
             <artifactId>wss4j</artifactId>
             <version>1.5.11.wso2v7-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.bouncycastle.wso2</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
