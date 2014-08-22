@@ -23,6 +23,7 @@ import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipListener;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
@@ -150,5 +151,9 @@ public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
             carbonCluster.memberRemoved(member);
             log.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
         }
+
+        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+        }
+
     }
 }

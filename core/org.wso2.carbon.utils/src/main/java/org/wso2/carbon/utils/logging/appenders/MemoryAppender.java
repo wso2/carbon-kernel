@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.wso2.carbon.logging.appenders;
+package org.wso2.carbon.utils.logging.appenders;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
+import org.wso2.carbon.utils.logging.CircularBuffer;
 
 /**
  * This appender will be used to capture the logs and later send to clients, if requested via the

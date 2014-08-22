@@ -134,6 +134,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         boolean contentLengthCopy = msgContext.isPropertyTrue(MultitenantConstants.
                 COPY_CONTENT_LENGTH_FROM_INCOMING);
 
+        superTenantOutMessageContext.setProperty(MultitenantConstants.POST_TO_URI, 
+        		 msgContext.getProperty(MultitenantConstants.POST_TO_URI));        
+        
         superTenantOutMessageContext.setProperty(MultitenantConstants.FORCE_HTTP_CONTENT_LENGTH,
                 forceContentLength);
         superTenantOutMessageContext.setProperty(MultitenantConstants.COPY_CONTENT_LENGTH_FROM_INCOMING,

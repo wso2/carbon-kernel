@@ -59,6 +59,7 @@ public class CheckOutCommand {
     private String workingDir = null;
     private String username = null;
     private boolean cleanRegistry = false;
+    private boolean dumpLite = true;
 
     ////////////////////////////////////////////////////////
     // Fields maintaining status of command execution
@@ -139,6 +140,15 @@ public class CheckOutCommand {
      */
     public int getNonOverwrittenCount() {
         return nonOverwrittenCount;
+    }
+
+    /**
+     * Method to specify weather to use dump or dump lite
+     *
+     * @param dumpLite
+     */
+    public void setDumpLite(boolean dumpLite) {
+        this.dumpLite = dumpLite;
     }
 
     /**
@@ -260,7 +270,11 @@ public class CheckOutCommand {
                     writer = new FileWriter(tempFile);
                     // doing the dump
                     log.debug("Starting to do registry 'dumpToFileSystem' for : " + checkOutPath + " with : " + tempFile.getName());
-                    registry.dumpLite(checkOutPath, writer);
+                    if (dumpLite) {
+                        registry.dumpLite(checkOutPath, writer);
+                    } else  {
+                        registry.dump(checkOutPath, writer);
+                    }
                     log.debug("Registry 'dumpToFileSystem' completed for : " + checkOutPath + " in : " + tempFile.getName());
 
                 } finally {

@@ -87,7 +87,7 @@
     </mount-->
 
     
-    <versionResourcesOnChange>true</versionResourcesOnChange>
+    <versionResourcesOnChange>false</versionResourcesOnChange>
 
     <!-- NOTE: You can edit the options under "StaticConfiguration" only before the
      startup. -->

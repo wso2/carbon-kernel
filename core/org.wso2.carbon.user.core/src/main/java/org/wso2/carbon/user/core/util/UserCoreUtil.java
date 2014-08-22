@@ -362,7 +362,8 @@ public final class UserCoreUtil {
 			threadLocalToSetDomain.set(domain.toUpperCase());
 		}
 		
-		if (domain == null) {
+		if (domain == null ||(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME.equalsIgnoreCase
+                	(domain) && threadLocalToSetDomain.get()!=null)) {
 			// clear the thread local variable.
 			threadLocalToSetDomain.remove();
 		}

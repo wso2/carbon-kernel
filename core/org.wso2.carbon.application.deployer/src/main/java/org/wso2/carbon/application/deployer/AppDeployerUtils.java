@@ -41,13 +41,24 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.feature.mgt.core.util.ProvisioningUtils;
 import org.wso2.carbon.roles.mgt.ServerRoleConstants;
 import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.xml.namespace.QName;
-
-import java.io.*;
-import java.util.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -526,6 +537,11 @@ public final class AppDeployerUtils {
     public static String formatPath(String path) {
         // removing white spaces
         String pathformatted = path.replaceAll("\\b\\s+\\b", "%20");
+        try {
+                pathformatted = java.net.URLDecoder.decode(pathformatted, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            log.error("Unsupported Encoding in the path :"+ pathformatted);
+        }
         // replacing all "\" with "/"
         return pathformatted.replace('\\', '/');
     }
