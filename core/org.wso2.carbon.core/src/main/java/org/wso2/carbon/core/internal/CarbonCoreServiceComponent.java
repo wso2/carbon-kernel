@@ -167,7 +167,8 @@ public class CarbonCoreServiceComponent {
     	synchronized (this.getClass()) {
     		if (serverStarted) {
     		    startupHandler.invoke();
-    		} else {
+                startupHandler.afterTransportStart();
+            } else {
     			startupHandlers.add(startupHandler);
     		}
 		}        
@@ -189,12 +190,19 @@ public class CarbonCoreServiceComponent {
         }
     }
     
-    public static synchronized void startup() {
+    public static synchronized void startupBefore() {
         for (ServerStartupHandler startupHandler : startupHandlers) {
-        	startupHandler.invoke();
+            startupHandler.beforeTransportStart();
+        }
+        serverStarted = true;
+    }
+
+    public static synchronized void startupAfter(){
+        for (ServerStartupHandler startupHandler : startupHandlers) {
+            startupHandler.invoke();
+            startupHandler.afterTransportStart();
         }
         startupHandlers.clear();
-        serverStarted = true;
     }
 
     protected void addCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
