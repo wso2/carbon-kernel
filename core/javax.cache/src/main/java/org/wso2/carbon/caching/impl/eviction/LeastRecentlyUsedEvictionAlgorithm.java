@@ -17,30 +17,17 @@
 */
 package org.wso2.carbon.caching.impl.eviction;
 
-//import org.wso2.carbon.core.clustering.hazelcast.jsr107.CacheEntry;
-//import org.wso2.carbon.core.clustering.hazelcast.jsr107.CacheImpl;
-
 import org.wso2.carbon.caching.impl.CacheEntry;
-import org.wso2.carbon.caching.impl.CacheImpl;
+
+import java.util.TreeSet;
 
 /**
- * TODO: class description
+ * LRU cache eviction algorithm
  */
 public class LeastRecentlyUsedEvictionAlgorithm implements EvictionAlgorithm {
 
-    @SuppressWarnings("unchecked")
-    public void evict(CacheImpl cache) {
-        CacheEntry lruCacheEntry = null;
-        for (Object o : cache.getAll()) {
-            CacheEntry cacheEntry = (CacheEntry) o;
-            if (lruCacheEntry == null) {
-                lruCacheEntry = cacheEntry;
-            } else if (lruCacheEntry.getLastAccessed() > cacheEntry.getLastAccessed()) {
-                lruCacheEntry = cacheEntry;
-            }
-        }
-        if (lruCacheEntry != null) {
-            cache.evict(lruCacheEntry.getKey());
-        }
+    @Override
+    public CacheEntry getEntryForEviction(TreeSet<CacheEntry> evictionList) {
+        return evictionList.pollFirst();
     }
 }
