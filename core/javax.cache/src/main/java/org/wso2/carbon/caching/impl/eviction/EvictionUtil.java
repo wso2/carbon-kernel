@@ -25,14 +25,13 @@ import org.wso2.carbon.caching.impl.CarbonCacheManager;
  */
 public class EvictionUtil {
 
+    /**
+     * @deprecated Do not use this method
+     * @param cache
+     * @param algorithm
+     */
     public static void evict(CacheImpl cache, EvictionAlgorithm algorithm) {
 
-        CarbonCacheManager cacheManager = (CarbonCacheManager) cache.getCacheManager();
-        int ownerTenantId = cacheManager.getOwnerTenantId();
-        String cacheManagerName = cacheManager.getName();
-        String cacheName = cache.getName();
-        synchronized ((ownerTenantId + "." + cacheManagerName + "." + cacheName).intern()) {
-            algorithm.evict(cache);
-        }
+
     }
 }

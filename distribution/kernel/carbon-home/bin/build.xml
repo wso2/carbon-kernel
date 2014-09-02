@@ -229,7 +229,7 @@
 						
 						<mkdir dir="${dropins.directory}"/>
 						<mkdir dir="${temp.dir}"/>
-						<ac:propertyregex property="propB" input="${ExportPackage}" regexp="\." replace="/" global="true" />
+						<ac:propertyregex property="propB" input="${ExportPackage}" regexp="\." replace="/" global="true" override="true" />
 						<echo message="step2 = ${propB}"/>
 						
 						<ac:var name="dest.dir" unset="true" />
