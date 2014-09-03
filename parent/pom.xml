@@ -432,7 +432,7 @@
         <hibernate.orbit.version>3.2.5.ga-wso2v1</hibernate.orbit.version>
 
         <!-- bouncycastle -->
-        <bouncycastle.version>1.32.wso2v1</bouncycastle.version>
+        <bouncycastle.version>1.49.wso2v1</bouncycastle.version>
 
         <!--BPS specific-->
         <saxon-bps.wso2.version.human-task>9.0.0.x-wso2v1</saxon-bps.wso2.version.human-task>
@@ -839,7 +839,7 @@
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle.wso2</groupId>
-                <artifactId>bcprov-jdk15</artifactId>
+                <artifactId>bcprov-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>

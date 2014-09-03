@@ -75,7 +75,7 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle.wso2</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
+            <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
     </dependencies>
 
