@@ -40,6 +40,8 @@ public class CacheListenerTestCase {
     public static final String TEST_CACHE_ENTRY_REMOVED = "testCacheEntryRemoved";
     public static final String TEST_CACHE_ENTRY_EXPIRED = "testCacheEntryExpired";
     public static final String TEST_CACHE_ENTRY_CREATED = "testCacheEntryCreated";
+    private static final String TEST_FULL_SCENARIO_CACHE_REMOVED = "testFullScenarioCacheRemoved";
+    private static final String TEST_FULL_SCENARIO_CACHE_EXPIRED = "testFullScenarioCacheExpired";
     public static final String CACHE_NAME = "CacheListenerTestCase-cache";
     private Cache<String, Long> cache;
     private CacheEntryCreatedListenerImpl<String, Long> cacheEntryCreatedListener;
@@ -144,6 +146,48 @@ public class CacheListenerTestCase {
         assertFalse(cacheEntryRemovedListener.isInvoked());
         assertFalse(cacheEntryReadListener.isInvoked());
         assertFalse(cacheEntryUpdatedListener.isInvoked());
+    }
+
+    @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
+            description = "")
+    public void testFullScenarioCacheEntryRemoved(){
+        String key = TEST_FULL_SCENARIO_CACHE_REMOVED;
+        setKey(key);
+        cache.put(key, System.currentTimeMillis());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignored) {
+        }
+        cache.put(key, System.currentTimeMillis());
+        cache.get(key);
+        cache.remove(key);
+
+        assertTrue(cacheEntryCreatedListener.isInvoked());
+        assertTrue(cacheEntryReadListener.isInvoked());
+        assertTrue(cacheEntryUpdatedListener.isInvoked());
+        assertTrue(cacheEntryRemovedListener.isInvoked());
+        assertFalse(cacheEntryExpiredListener.isInvoked());
+    }
+
+    @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
+            description = "")
+    public void testFullScenarioCacheEntryExpired(){
+        String key = TEST_FULL_SCENARIO_CACHE_EXPIRED;
+        setKey(key);
+        cache.put(key, System.currentTimeMillis());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ignored) {
+        }
+        cache.put(key, System.currentTimeMillis());
+        cache.get(key);
+        ((CacheImpl)cache).expire(key);
+
+        assertTrue(cacheEntryCreatedListener.isInvoked());
+        assertTrue(cacheEntryReadListener.isInvoked());
+        assertTrue(cacheEntryUpdatedListener.isInvoked());
+        assertTrue(cacheEntryExpiredListener.isInvoked());
+        assertFalse(cacheEntryRemovedListener.isInvoked());
     }
 
     private void setKey(String key){
