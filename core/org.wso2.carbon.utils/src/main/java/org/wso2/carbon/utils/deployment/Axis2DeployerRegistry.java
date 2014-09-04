@@ -32,6 +32,7 @@ import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -50,9 +51,13 @@ public class Axis2DeployerRegistry implements BundleListener {
         this.deploymentEngine = (DeploymentEngine) axisConfiguration.getConfigurator();
     }
 
-    public void register(Bundle[] bundles) {
+    public void register(Bundle[] bundles, List<DeployerConfig> deployerConfigs) {
         for (Bundle bundle : bundles) {
             register(bundle);
+        }
+        for (DeployerConfig deployerConfig : deployerConfigs) {
+            Deployer deployer = getDeployer(deployerConfig.getClassStr());
+            addDeployer(deployerConfig, deployer);
         }
     }
 
@@ -60,8 +65,8 @@ public class Axis2DeployerRegistry implements BundleListener {
         lock.lock();
         try {
 
-            if(deployerMap.get(bundle) != null /* Bundle already processed */ ||
-               bundle.getState() != Bundle.ACTIVE /* Bundle has become inactive */){
+            if (deployerMap.get(bundle) != null /* Bundle already processed */ ||
+                    bundle.getState() != Bundle.ACTIVE /* Bundle has become inactive */) {
 
                 return;
             }
@@ -91,13 +96,7 @@ public class Axis2DeployerRegistry implements BundleListener {
                     }
 
                     Deployer deployer = (Deployer) deployerClass.newInstance();
-                    String directory = deployerConfig.getDirectory();
-                    String extension = deployerConfig.getExtension();
-                    deployer.setDirectory(directory);
-                    deployer.setExtension(extension);
-
-                    //Add the deployer to deployment engine
-                    deploymentEngine.addDeployer(deployer, directory, extension);
+                    addDeployer(deployerConfig, deployer);
                     deployerMap.put(bundle, deployer);
                 }
             }
@@ -108,6 +107,34 @@ public class Axis2DeployerRegistry implements BundleListener {
         } finally {
             lock.unlock();
         }
+    }
+
+    private void addDeployer(DeployerConfig deployerConfig, Deployer deployer) {
+
+        String directory = deployerConfig.getDirectory();
+        String extension = deployerConfig.getExtension();
+        deployer.setDirectory(directory);
+        deployer.setExtension(extension);
+
+        //Add the deployer to deployment engine
+        deploymentEngine.addDeployer(deployer, directory, extension);
+
+    }
+
+    private Deployer getDeployer(String className) {
+        Deployer deployer = null;
+        try {
+            Class deployerClass = Class.forName(className);
+            deployer = (Deployer) deployerClass.newInstance();
+
+        } catch (ClassNotFoundException e) {
+            log.error("Deployer class not found ", e);
+        } catch (InstantiationException e) {
+            log.error("Cannot create new deployer instance", e);
+        } catch (IllegalAccessException e) {
+            log.error("Error creating deployer", e);
+        }
+        return deployer;
     }
 
     public void unRegister(Bundle bundle) {
