@@ -37,8 +37,7 @@ public class LogEventHandler extends Handler{
 
     @Override
     public void publish(LogRecord record) {
-        LogRecord formatted = LoggingUtils.formatMessage(getFormatter(), record);
-        LoggingUtils.pushLogRecord(BRIDGE_NAME, LogEventHandler.loggingBridge, formatted, logQueue);
+        LoggingUtils.pushLogRecord(BRIDGE_NAME, LogEventHandler.loggingBridge, record, logQueue);
 
     }
 

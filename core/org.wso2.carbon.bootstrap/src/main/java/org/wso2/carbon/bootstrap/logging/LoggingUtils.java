@@ -19,7 +19,6 @@ package org.wso2.carbon.bootstrap.logging;
 
 
 import java.util.Queue;
-import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 public class LoggingUtils {
@@ -49,11 +48,5 @@ public class LoggingUtils {
                 loggingBridge.push(record);
             }
         }
-    }
-
-
-    public static LogRecord formatMessage(Formatter formatter, LogRecord record){
-        record.setMessage(formatter.formatMessage(record));
-        return record;
     }
 }

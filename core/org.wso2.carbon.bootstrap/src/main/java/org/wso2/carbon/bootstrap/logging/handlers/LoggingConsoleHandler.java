@@ -24,7 +24,6 @@ import org.wso2.carbon.bootstrap.logging.LoggingUtils;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 
@@ -40,14 +39,8 @@ public class LoggingConsoleHandler extends ConsoleHandler{
 
     @Override
     public void publish(LogRecord record) {
-        Formatter formatter = getFormatter();
-        String format = formatter.format(record);
-        if(format != null){
-            record.setMessage(format);
-        }
         synchronized (logQueue){
-            LogRecord formatted = LoggingUtils.formatMessage(getFormatter(), record);
-            LoggingUtils.pushLogRecord(BRIDGE_NAME, LoggingConsoleHandler.loggingBridge, formatted, logQueue);
+            LoggingUtils.pushLogRecord(BRIDGE_NAME, LoggingConsoleHandler.loggingBridge, record, logQueue);
         }
     }
 }
