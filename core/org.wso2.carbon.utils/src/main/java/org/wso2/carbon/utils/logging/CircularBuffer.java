@@ -15,28 +15,29 @@
  */
 package org.wso2.carbon.utils.logging;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This is a Circular Buffer implementation. In this implementaion it is assumed that items
- * will never be removed from this buffer. It can be used for a case such as a Rolling Log.
+ * will never be removed from this buffer. This can be used for a case such as a Rolling Log.
  * A client can request the latest 'n' number of items that are stored in this buffer.
  */
-public class CircularBuffer {
-    private Object[] buffer;
+public class CircularBuffer<K> {
+    private List<K> bufferList;
     private static final int MAX_ALLOWED_SIZE = 10000;
     private int startIndex;
     private int endIndex;
 
     public CircularBuffer(int size) {
         if (size <= 0) {
-            throw new IllegalArgumentException("Requested size of circular buffer (" +
-                    size + ") is invalid");
+            throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is invalid");
         }
         if (size > MAX_ALLOWED_SIZE) {
-            throw new IllegalArgumentException("Requested size of circular buffer (" +
-                    size + ") is greater than the allowed max size " +
-                    MAX_ALLOWED_SIZE);
+            throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is greater than the " +
+                    "allowed max size " + MAX_ALLOWED_SIZE);
         }
-        buffer = new Object[size];
+        bufferList = new ArrayList<K>(size);
         startIndex = 0;
         endIndex = -1;
     }
@@ -45,57 +46,69 @@ public class CircularBuffer {
         this(MAX_ALLOWED_SIZE);
     }
 
-    public synchronized void append(Object obj) {
-        if (startIndex == buffer.length - 1) { // are we at the end of the buffer?
+    public synchronized void append(K element) {
+        if (element == null) {
+            throw new NullPointerException("Circular buffer doesn't support null values to be added to buffer");
+        }
+
+        if (startIndex == bufferList.size() - 1) {
             startIndex = 0;
-        } else if (endIndex == buffer.length - 1) {
+        } else if (endIndex == bufferList.size() - 1) {
             endIndex = -1;
             startIndex = 1;
         } else if (startIndex != 0) {
             startIndex++;
         }
         endIndex++;
-        buffer[endIndex] = obj;
+        bufferList.add(endIndex, element);
     }
 
-    public synchronized Object[] getObjects(int amount) {
-        Object[] result;
-        if (startIndex == 0) { // simple case. startIndex is beginning of buffer array              
-            if (endIndex + 1 >= amount) {// amount to be retrieved is less than the
-                // total size of contents of buffer array
-                result = new Object[amount];
-                System.arraycopy(buffer, 0, result, 0, amount);
+    public synchronized List<K> get(int amount) {
+        List<K> result;
+        if (startIndex == 0) { // simple case. startIndex is beginning of the buffer
+            if (endIndex + 1 >= amount) {
+                result = new ArrayList<K>(amount);
+                for (int i = startIndex; i < amount; i++) {
+                    result.add(bufferList.get(i));
+                }
             } else { // amount to be retrieved is more than the total size of buffer array
-                result = new Object[endIndex + 1];
-                System.arraycopy(buffer, 0, result, 0, endIndex + 1);
+                result = new ArrayList<K>(endIndex + 1);
+                for (int i = startIndex; i < endIndex; i++) {
+                    result.add(bufferList.get(i));
+                }
             }
-
         } else { // starIndex is in the middle or end of the buffer array.
             // Note that buffer array is completely fille in this case.
-            if (amount < buffer.length) {// amount to be retrieved is less than the total size of
-                // contents of buffer array
-                result = new Object[amount];
-                if (amount <= buffer.length - startIndex) { // no. of items remaining to the
+            if (amount < bufferList.size()) {// amount to be retrieved is less than the total size of contents of buffer
+                result = new ArrayList<K>(amount);
+                if (amount <= bufferList.size() - startIndex) { // no. of items remaining to the
                     //  right of startIndex is less than the amount to be retrieved
-                    System.arraycopy(buffer, startIndex, result, 0, amount);
+                    for (int i = startIndex; i < amount; i++) {
+                        result.add(bufferList.get(i));
+                    }
                 } else {
-                    System.arraycopy(buffer, startIndex, result, 0, buffer.length - startIndex);
-                    System.arraycopy(buffer, 0, result, buffer.length - startIndex,
-                            amount - buffer.length + startIndex);
+                    for (int i = startIndex; i < bufferList.size(); i++) {
+                        result.add(bufferList.get(i));
+                    }
+                    for (int i = 0; i < (amount - (bufferList.size() - startIndex)); i++) {
+                        result.add(bufferList.get(i));
+                    }
                 }
-            } else {// amount to be retrieved is more than the total size of buffer array
-                result = new Object[buffer.length];
-                System.arraycopy(buffer, startIndex, result, 0, buffer.length - startIndex);
-                System.arraycopy(buffer, 0, result, buffer.length - startIndex, endIndex + 1);
+            } else {// amount to be retrieved is more than the total size of buffer
+                result = new ArrayList<K>(bufferList.size());
+                for (int i = startIndex; i < bufferList.size(); i++) {
+                    result.add(bufferList.get(i));
+                }
+                for (int i = 0; i < endIndex; i++) {
+                    result.add(bufferList.get(i));
+                }
             }
         }
         return result;
     }
 
     public synchronized void clear() {
-        for (int i = 0; i < buffer.length; i++) {
-            buffer[i] = null;
-        }
+        bufferList.clear();
         startIndex = 0;
         endIndex = -1;
     }
