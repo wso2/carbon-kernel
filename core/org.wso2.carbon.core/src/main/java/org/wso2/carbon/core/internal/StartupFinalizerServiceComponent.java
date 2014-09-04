@@ -34,6 +34,7 @@ import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.init.JMXServerManager;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.core.util.ClusteringUtil;
+import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -179,7 +180,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         }
 
         /* notify listeners of server startup */
-        CarbonCoreServiceComponent.startupBefore();
+        CarbonCoreServiceComponent.startup();
         
         if (CarbonUtils.isRunningInStandaloneMode()) {
             try {
@@ -203,9 +204,6 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         if (log.isDebugEnabled()) {
             log.debug("Started Transport Listener Manager");
         }
-
-        CarbonCoreServiceComponent.startupAfter();
-
         setServerStartTimeParam();
         printInfo();
     }

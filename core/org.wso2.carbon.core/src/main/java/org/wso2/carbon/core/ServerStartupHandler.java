@@ -22,18 +22,7 @@ public interface ServerStartupHandler {
 
 	/**
 	 * Called when the server startup is done.
-     * @deprecated  use {@link #beforeTransportStart()} instead.
 	 */
 	void invoke();
-
-    /**
-     * This will get called during the server startup but just before transports connectors start.
-     */
-    public void beforeTransportStart();
-
-    /**
-     * This will get called during the server startup but just after transports connectors start.
-     */
-    public void afterTransportStart();
 	
 }
