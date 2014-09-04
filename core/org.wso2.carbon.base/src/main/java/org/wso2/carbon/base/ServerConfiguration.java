@@ -91,6 +91,7 @@ public class ServerConfiguration implements ServerConfigurationService {
 	 */
 	public static ServerConfiguration getInstance() {
 		// Need permissions in order to instantiate ServerConfiguration
+		CarbonBaseUtils.checkSecurity();
 		return instance;
 	}
 
