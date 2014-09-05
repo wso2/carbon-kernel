@@ -193,6 +193,11 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         }
     }
 
+    /**
+     *
+     * @param baseDir web application directory path
+     * @return host name that matches the directory path
+     */
     private Host getMatchingVirtualHost(String baseDir) {
         Host virtualHost = null;
         Container[] virtualHosts = this.getEngine().findChildren();
@@ -215,6 +220,12 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         return virtualHost;
     }
 
+    /**
+     *
+     * @param webAppFilePath web application path
+     * @param baseName appBase value
+     * @return true if values are equal, false otherwise
+     */
     private boolean isEqualTo(String webAppFilePath, String baseName) {
         return webAppFilePath.equals(baseName);
     }
