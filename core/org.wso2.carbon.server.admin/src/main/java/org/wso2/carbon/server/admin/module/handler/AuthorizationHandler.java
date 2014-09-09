@@ -160,8 +160,8 @@ public class AuthorizationHandler extends AbstractHandler {
     
     private boolean skipAuthentication(MessageContext msgContext) {
         boolean skipAuth  = false;
-        AxisService service = msgContext.getAxisService();
-        Parameter param = service.getParameter("DoAuthentication");
+        AxisOperation operation = msgContext.getAxisOperation();
+        Parameter param = operation.getParameter("DoAuthentication");
         if (param != null && "false".equals(param.getValue())) {
         	skipAuth = true;
         }
