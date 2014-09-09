@@ -55,7 +55,8 @@ public class LoggingFileHandler extends FileHandler{
 
     @Override
     public synchronized void publish(LogRecord record) {
-        LoggingUtils.pushLogRecord(BRIDGE_NAME, LoggingFileHandler.loggingBridge, record, logQueue);
+        LogRecord formatted = LoggingUtils.formatMessage(getFormatter(), record);
+        LoggingUtils.pushLogRecord(BRIDGE_NAME, LoggingFileHandler.loggingBridge, formatted, logQueue);
     }
 
 }
