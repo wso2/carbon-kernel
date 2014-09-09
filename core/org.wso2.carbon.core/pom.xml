@@ -57,9 +57,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
-            <version>132</version>
+            <groupId>org.bouncycastle.wso2</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
         <dependency>
             <groupId>org.infinispan.wso2</groupId>
