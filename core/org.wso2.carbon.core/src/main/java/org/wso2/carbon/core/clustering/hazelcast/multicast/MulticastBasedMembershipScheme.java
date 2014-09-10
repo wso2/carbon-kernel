@@ -21,6 +21,7 @@ import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipListener;
 import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
@@ -138,5 +139,10 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
             log.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
             members.remove(member.getUuid());
         }
+
+        @Override
+        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+        }
+
     }
 }

@@ -21,12 +21,16 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
 import org.wso2.carbon.caching.impl.MapEntryListener;
 
 import java.util.*;
 
 public class HazelcastDistributedMapProvider implements DistributedMapProvider {
+
+    private static final Log log = LogFactory.getLog(HazelcastDistributedMapProvider.class);
 
     private HazelcastInstance hazelcastInstance;
     private Map<String, DistMap> maps = new HashMap<String, DistMap>();
@@ -52,30 +56,38 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
     }
 
     private class DistMap<K, V> implements Map<K, V> {
-        private Map<K, V> map;
+        private IMap<K, V> map;
 
         public DistMap(String mapName, final MapEntryListener entryListener) {
             this.map = hazelcastInstance.getMap(mapName);
             if (entryListener != null) {
-                ((IMap<K, V>) map).addEntryListener(new EntryListener<K, V>() {
+                map.addEntryListener(new EntryListener<K, V>() {
                     @Override
                     public void entryAdded(EntryEvent<K, V> kvEntryEvent) {
-                        entryListener.entryAdded(kvEntryEvent.getKey());
+                        if (!kvEntryEvent.getMember().equals(hazelcastInstance.getCluster().getLocalMember())) {
+                            entryListener.entryAdded(kvEntryEvent.getKey());
+                        }
                     }
 
                     @Override
                     public void entryRemoved(EntryEvent<K, V> kvEntryEvent) {
-                        entryListener.entryRemoved(kvEntryEvent.getKey());
+                        if (!kvEntryEvent.getMember().equals(hazelcastInstance.getCluster().getLocalMember())) {
+                            entryListener.entryRemoved(kvEntryEvent.getKey());
+                        }
                     }
 
                     @Override
                     public void entryUpdated(EntryEvent<K, V> kvEntryEvent) {
-                        entryListener.entryUpdated(kvEntryEvent.getKey());
+                        if (!kvEntryEvent.getMember().equals(hazelcastInstance.getCluster().getLocalMember())) {
+                            entryListener.entryUpdated(kvEntryEvent.getKey());
+                        }
                     }
 
                     @Override
                     public void entryEvicted(EntryEvent<K, V> kvEntryEvent) {
-                        entryListener.entryRemoved(kvEntryEvent.getKey());
+                        if (!kvEntryEvent.getMember().equals(hazelcastInstance.getCluster().getLocalMember())) {
+                            entryListener.entryRemoved(kvEntryEvent.getKey());
+                        }
                     }
                 }, false);
             }
@@ -118,7 +130,7 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
         @Override
         public V put(K key, V value) {
             if (hazelcastInstance.getLifecycleService().isRunning()) {
-                return map.put(key, value);
+                map.set(key, value);
             }
             return value;
         }
@@ -126,7 +138,7 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
         @Override
         public V remove(Object key) {
             if (hazelcastInstance.getLifecycleService().isRunning()) {
-                return map.remove(key);
+                map.remove((K)key);
             }
             return null;
         }

@@ -18,34 +18,19 @@
 package org.wso2.carbon.caching.impl.eviction;
 
 import org.wso2.carbon.caching.impl.CacheEntry;
-import org.wso2.carbon.caching.impl.CacheImpl;
 
-import java.util.Collection;
 import java.util.Random;
+import java.util.TreeSet;
 
 /**
- * TODO: class description
+ * Random cache eviction algorithm
  */
 public class RandomEvictionAlgorithm implements EvictionAlgorithm {
     private static Random random = new Random();
 
-    @SuppressWarnings("unchecked")
-    public void evict(CacheImpl cache) {
-        CacheEntry lruCacheEntry = null;
-        Collection all = cache.getAll();
-        int evictionIndex = random.nextInt(all.size());
-        int index = 0;
-
-        for (Object anAll : all) {
-            CacheEntry cacheEntry = (CacheEntry) anAll;
-            if (index == evictionIndex) {
-                lruCacheEntry = cacheEntry;
-                break;
-            }
-            index++;
-        }
-        if (lruCacheEntry != null) {
-            cache.evict(lruCacheEntry.getKey());
-        }
+    @Override
+    public CacheEntry getEntryForEviction(TreeSet<CacheEntry> evictionSet) {
+        int evictionIndex = random.nextInt(2);
+        return evictionIndex == 0? evictionSet.pollFirst() : evictionSet.pollLast();
     }
 }

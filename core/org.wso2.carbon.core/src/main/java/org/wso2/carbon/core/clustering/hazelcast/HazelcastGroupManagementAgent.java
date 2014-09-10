@@ -30,6 +30,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
@@ -198,6 +199,9 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
             log.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().toString());
             Member removed = members.remove(membershipEvent.getMember().getUuid());
             connectedMembers.remove(removed);
+        }
+
+        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
         }
     }
 

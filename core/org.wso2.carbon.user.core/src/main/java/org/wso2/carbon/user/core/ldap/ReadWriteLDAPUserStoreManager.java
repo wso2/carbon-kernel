@@ -592,7 +592,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // TODO: what to do if there are more than one user
             SearchResult searchResult = null;
             String passwordHashMethod = realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
-
+            if(passwordHashMethod == null)  {
+                passwordHashMethod =  realmConfig.getUserStoreProperty("passwordHashMethod");
+            }
             while (namingEnumeration.hasMore()) {
                 searchResult = namingEnumeration.next();
 
@@ -656,6 +658,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             while(namingEnumeration.hasMore()) {
                 searchResult = namingEnumeration.next();
                 String passwordHashMethod = realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
+                if(passwordHashMethod == null)  {
+                    passwordHashMethod =  realmConfig.getUserStoreProperty("passwordHashMethod");
+                }
                 if(!UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT.
                         equalsIgnoreCase(passwordHashMethod)){
                     Attributes attributes = searchResult.getAttributes();
@@ -989,6 +994,155 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 	}
 
 
+    @Override
+    public void doDeleteUserClaimValue(String userName, String claimURI, String profileName) throws UserStoreException {
+
+        // get the LDAP Directory context
+        DirContext dirContext = this.connectionSource.getContext();
+        DirContext subDirContext = null;
+        // search the relevant user entry by user name
+        String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        String userSearchFilter = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        userSearchFilter = userSearchFilter.replace("?", userName);
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(null);
+
+        NamingEnumeration<SearchResult> returnedResultList = null;
+        String returnedUserEntry = null;
+
+        try {
+
+            returnedResultList = dirContext
+                    .search(userSearchBase, userSearchFilter, searchControls);
+            // assume only one user is returned from the search
+            // TODO:what if more than one user is returned
+            returnedUserEntry = returnedResultList.next().getName();
+
+        } catch (NamingException e) {
+            throw new UserStoreException("Results could not be retrieved from the directory "
+                    + "context", e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(returnedResultList);
+        }
+
+        try {
+            Attributes updatedAttributes = new BasicAttributes(true);
+            // if there is no attribute for profile configuration in LDAP, skip
+            // updating it.
+            // get the claimMapping related to this claimURI
+            String attributeName = null;
+            attributeName = getClaimAtrribute(claimURI, userName, null);
+
+            Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
+
+            updatedAttributes.put(currentUpdatedAttribute);
+
+            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REMOVE_ATTRIBUTE,
+                    updatedAttributes);
+
+        } catch (InvalidAttributeValueException e) {
+            String errorMessage = "One or more attribute values provided are incompatible. "
+                    + "Please check and try again.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (InvalidAttributeIdentifierException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (NoSuchAttributeException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (NamingException e) {
+            String errorMessage = "Profile information could not be updated in ApacheDS "
+                    + "LDAP user store";
+            throw new UserStoreException(errorMessage, e);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error in obtaining claim mapping.";
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+        }
+    }
+
+    @Override
+    public void doDeleteUserClaimValues(String userName, String[] claims, String profileName) throws UserStoreException {
+        // get the LDAP Directory context
+        DirContext dirContext = this.connectionSource.getContext();
+        DirContext subDirContext = null;
+        // search the relevant user entry by user name
+        String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        String userSearchFilter = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        userSearchFilter = userSearchFilter.replace("?", userName);
+
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(null);
+
+        NamingEnumeration<SearchResult> returnedResultList = null;
+        String returnedUserEntry = null;
+
+        try {
+
+            returnedResultList = dirContext
+                    .search(userSearchBase, userSearchFilter, searchControls);
+            // assume only one user is returned from the search
+            // TODO:what if more than one user is returned
+            returnedUserEntry = returnedResultList.next().getName();
+
+        } catch (NamingException e) {
+            throw new UserStoreException("Results could not be retrieved from the directory "
+                    + "context", e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(returnedResultList);
+        }
+
+        try {
+            Attributes updatedAttributes = new BasicAttributes(true);
+            // if there is no attribute for profile configuration in LDAP, skip
+            // updating it.
+            // get the claimMapping related to this claimURI
+
+            for(String claimURI : claims){
+                String attributeName = getClaimAtrribute(claimURI, userName, null);
+                Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
+                updatedAttributes.put(currentUpdatedAttribute);
+            }
+
+            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REMOVE_ATTRIBUTE,
+                    updatedAttributes);
+
+        } catch (InvalidAttributeValueException e) {
+            String errorMessage = "One or more attribute values provided are incompatible. "
+                    + "Please check and try again.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (InvalidAttributeIdentifierException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (NoSuchAttributeException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (NamingException e) {
+            String errorMessage = "Profile information could not be updated in ApacheDS "
+                    + "LDAP user store";
+            throw new UserStoreException(errorMessage, e);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error in obtaining claim mapping.";
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+        }        
+    }
+
     /**
      * Add roles by writing groups to LDAP.
      *
@@ -1290,7 +1444,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 				                                 realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
 				String[] returningAttributes = new String[] { membershipAttributeName };
 
-                String searchBase = ctx.getRoleNameProperty() + "=" + roleName + ","+  ctx.getSearchBase() ;
+                String searchBase = ctx.getSearchBase();
 				groupSearchResults =
 				                     searchInGroupBase(searchFilter, returningAttributes,
 				                                       SearchControls.SUBTREE_SCOPE,

@@ -60,6 +60,7 @@ public class UpdateCommand {
     private String username = null;
     private boolean cleanRegistry = false;
     private boolean isSilentUpdate = false;
+    private boolean dumpLite = true;
 
     ////////////////////////////////////////////////////////
     // Fields maintaining status of command execution
@@ -180,6 +181,15 @@ public class UpdateCommand {
     }
 
     /**
+     * Method to specify weather to use dump or dump lite
+     *
+     * @param dumpLite
+     */
+    public void setDumpLite(boolean dumpLite) {
+        this.dumpLite = dumpLite;
+    }
+
+    /**
      * This method will execute the update command utilizing the various parameters passed when
      * creating the instance of the command. This method accepts the users preference to whether a
      * file or directory should be deleted on the filesystem.
@@ -211,7 +221,11 @@ public class UpdateCommand {
                     writer = new FileWriter(tempFile);
                     // doing the dump
                     log.debug("Starting to do registry dump for : " + checkOutPath + " with : " + tempFile.getName());
-                    registry.dumpLite(checkOutPath, writer);
+                    if (dumpLite) {
+                        registry.dumpLite(checkOutPath, writer);
+                    } else  {
+                        registry.dump(checkOutPath, writer);
+                    }
                     log.debug("Registry dump completed for : " + checkOutPath + " in : " + tempFile.getName());
                 } finally {
                     if (writer != null) {

@@ -55,7 +55,7 @@ public class AuthorizationHandler extends AbstractHandler {
             HttpServletResponse response =
                     (HttpServletResponse) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            log.warn("Invoking admin services on worker node is forbidden...");
+            log.error("Invoking admin services on worker node is forbidden...");
             return InvocationResponse.ABORT;
         }
 
@@ -160,8 +160,8 @@ public class AuthorizationHandler extends AbstractHandler {
     
     private boolean skipAuthentication(MessageContext msgContext) {
         boolean skipAuth  = false;
-        AxisService service = msgContext.getAxisService();
-        Parameter param = service.getParameter("DoAuthentication");
+        AxisOperation operation = msgContext.getAxisOperation();
+        Parameter param = operation.getParameter("DoAuthentication");
         if (param != null && "false".equals(param.getValue())) {
         	skipAuth = true;
         }
