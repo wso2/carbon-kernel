@@ -28,6 +28,7 @@ public class CircularBuffer<K> {
     private static final int MAX_ALLOWED_SIZE = 10000;
     private int startIndex;
     private int endIndex;
+    private final int capacity;
 
     public CircularBuffer(int size) {
         if (size <= 0) {
@@ -37,7 +38,8 @@ public class CircularBuffer<K> {
             throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is greater than the " +
                     "allowed max size " + MAX_ALLOWED_SIZE);
         }
-        bufferList = new ArrayList<K>(size);
+        capacity = size;
+        bufferList = new ArrayList<K>(capacity);
         startIndex = 0;
         endIndex = -1;
     }
@@ -50,13 +52,12 @@ public class CircularBuffer<K> {
         if (element == null) {
             throw new NullPointerException("Circular buffer doesn't support null values to be added to buffer");
         }
-
-        if (startIndex == bufferList.size() - 1) {
+        if (startIndex == capacity - 1) {
             startIndex = 0;
-        } else if (endIndex == bufferList.size() - 1) {
+        } else if (endIndex == capacity - 1) {
             endIndex = -1;
             startIndex = 1;
-        } else if (startIndex != 0) {
+        } else if (startIndex != 0) {   // start index is not in beginning of the buffer
             startIndex++;
         }
         endIndex++;
@@ -105,6 +106,11 @@ public class CircularBuffer<K> {
             }
         }
         return result;
+    }
+
+    public synchronized Object[] getObjects(int amount){
+        List<K> objectsList = get(amount);
+        return objectsList.toArray(new Object[objectsList.size()]);
     }
 
     public synchronized void clear() {
