@@ -28,8 +28,14 @@ public class CircularBuffer<K> {
     private static final int MAX_ALLOWED_SIZE = 10000;
     private int startIndex;
     private int endIndex;
-    private final int capacity;
+    private final int sizeOfBuffer;
 
+    /**
+     * Create a circular buffer with the given size
+     *
+     * @param size
+     *         - fixed size of the buffer
+     */
     public CircularBuffer(int size) {
         if (size <= 0) {
             throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is invalid");
@@ -38,81 +44,158 @@ public class CircularBuffer<K> {
             throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is greater than the " +
                     "allowed max size " + MAX_ALLOWED_SIZE);
         }
-        capacity = size;
-        bufferList = new ArrayList<K>(capacity);
+        sizeOfBuffer = size;
+        bufferList = new ArrayList<K>(sizeOfBuffer);
         startIndex = 0;
         endIndex = -1;
     }
 
+    /**
+     * Create a circular buffer with the maximum allowed size
+     */
     public CircularBuffer() {
         this(MAX_ALLOWED_SIZE);
     }
 
+    /**
+     * Append elements while preserving the circular nature of the buffer.
+     *
+     * @param element
+     *         - element to be appended
+     */
     public synchronized void append(K element) {
         if (element == null) {
             throw new NullPointerException("Circular buffer doesn't support null values to be added to buffer");
         }
-        if (startIndex == capacity - 1) {
+        if (startIndex == sizeOfBuffer - 1) {
             startIndex = 0;
-        } else if (endIndex == capacity - 1) {
+        } else if (endIndex == sizeOfBuffer - 1) {
             endIndex = -1;
             startIndex = 1;
-        } else if (startIndex != 0) {   // start index is not in beginning of the buffer
+        } else if (startIndex != 0) {
+            // start index is not in beginning of the buffer
             startIndex++;
         }
         endIndex++;
-        bufferList.add(endIndex, element);
+        if (sizeOfBuffer == bufferList.size()) {
+            // if the buffer capacity has been reached, replace the existing elements,
+            // set method replaces the element in the given index
+            bufferList.set(endIndex, element);
+        } else {
+            // if the buffer capacity has not been reached add elements to the list,
+            // add method lets the array list grow, and appends elements to the end of list
+            bufferList.add(endIndex, element);
+        }
     }
 
+    /**
+     * Retrieve the given amount of elements from the circular buffer. This is a forgiving
+     * operation, if the amount asked is greater than the size of the buffer it will return all the
+     * available elements
+     *
+     * @param amount
+     *         - no of elements to return
+     * @return - a list of elements
+     */
     public synchronized List<K> get(int amount) {
+        System.out.println("start: "+ startIndex + " end: " + endIndex + " amount: " + amount);
+        if (amount < 0) {
+            // if a negative amount is requested
+            return new ArrayList<K>();
+        }
         List<K> result;
-        if (startIndex == 0) { // simple case. startIndex is beginning of the buffer
+        if (startIndex == 0) {
+            // simple case. startIndex is beginning of the buffer
             if (endIndex + 1 >= amount) {
                 result = new ArrayList<K>(amount);
                 for (int i = startIndex; i < amount; i++) {
                     result.add(bufferList.get(i));
                 }
-            } else { // amount to be retrieved is more than the total size of buffer array
+            } else {
+                // amount to be retrieved is more than the capacity of the buffer
                 result = new ArrayList<K>(endIndex + 1);
-                for (int i = startIndex; i < endIndex; i++) {
+                for (int i = startIndex; i <= endIndex; i++) {
                     result.add(bufferList.get(i));
                 }
             }
-        } else { // starIndex is in the middle or end of the buffer array.
-            // Note that buffer array is completely fille in this case.
-            if (amount < bufferList.size()) {// amount to be retrieved is less than the total size of contents of buffer
-                result = new ArrayList<K>(amount);
-                if (amount <= bufferList.size() - startIndex) { // no. of items remaining to the
-                    //  right of startIndex is less than the amount to be retrieved
-                    for (int i = startIndex; i < amount; i++) {
-                        result.add(bufferList.get(i));
-                    }
-                } else {
-                    for (int i = startIndex; i < bufferList.size(); i++) {
-                        result.add(bufferList.get(i));
-                    }
-                    for (int i = 0; i < (amount - (bufferList.size() - startIndex)); i++) {
-                        result.add(bufferList.get(i));
-                    }
-                }
-            } else {// amount to be retrieved is more than the total size of buffer
-                result = new ArrayList<K>(bufferList.size());
-                for (int i = startIndex; i < bufferList.size(); i++) {
-                    result.add(bufferList.get(i));
-                }
-                for (int i = 0; i < endIndex; i++) {
-                    result.add(bufferList.get(i));
-                }
+        } else {
+            // starIndex is in the middle or end of the buffer.
+            // Note that buffer is completely filled in this case.
+            if (amount <= sizeOfBuffer) {
+                result = getListIfAmountLessThanOrEqualSizeOfBuffer(amount);
+            } else {
+                result = getListIfAmountGreaterThanSizeOfBuffer();
             }
         }
         return result;
     }
 
-    public synchronized Object[] getObjects(int amount){
+    /**
+     * Get the list if the amount to be retrieved is more than the capacity of the buffer
+     *
+     * @return - list of elements
+     */
+    private List<K> getListIfAmountGreaterThanSizeOfBuffer() {
+        List<K> result;
+        result = new ArrayList<K>(sizeOfBuffer);
+        // make sure the order is preserved by starting to copy from the start index
+        // until capacity and then copy from beginning to end index
+        for (int i = startIndex; i < sizeOfBuffer; i++) {
+            result.add(bufferList.get(i));
+        }
+        for (int i = 0; i <= endIndex; i++) {
+            result.add(bufferList.get(i));
+        }
+        return result;
+    }
+
+    /**
+     * Get the list if the amount to be retrieved is less than the capacity of the buffer
+     *
+     * @param amount
+     *         - amount of elements to return from the buffer
+     * @return - list of elements
+     */
+    private List<K> getListIfAmountLessThanOrEqualSizeOfBuffer(int amount) {
+        List<K> result;
+        result = new ArrayList<K>(amount);
+        if (amount <= sizeOfBuffer - startIndex) {
+            // no. of items remaining to the
+            // right of startIndex is greater than the amount to be retrieved
+            int tempEndIndexToRead = amount + startIndex;
+            // copy "amount" number of elements starting from the start index
+            for (int i = startIndex; i < tempEndIndexToRead; i++) {
+                result.add(bufferList.get(i));
+            }
+        } else {
+            // no of elements remaining to the right of start index is less than the
+            // amount to be retrieved
+            for (int i = startIndex; i < sizeOfBuffer; i++) {
+                result.add(bufferList.get(i));
+            }
+            int tempAmountFromEndIndexToStartIndex = amount - (sizeOfBuffer - startIndex);
+            for (int i = 0; i < tempAmountFromEndIndexToStartIndex; i++) {
+                result.add(bufferList.get(i));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * This method is added for backward compatibility.
+     *
+     * @param amount
+     *         - amount of elements to return from the buffer
+     * @return - an object array of amount number of elements in the buffer
+     */
+    public synchronized Object[] getObjects(int amount) {
         List<K> objectsList = get(amount);
         return objectsList.toArray(new Object[objectsList.size()]);
     }
 
+    /**
+     * Clear the circular buffer and reset the indices.
+     */
     public synchronized void clear() {
         bufferList.clear();
         startIndex = 0;
