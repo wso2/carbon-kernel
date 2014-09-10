@@ -1256,7 +1256,12 @@ public class Repository {
                 }
             }
         }
-        DumpReader dumpReader = new DumpReader(reader);
+        DumpReader dumpReader = new DumpReader(reader){
+            @Override
+            public void close() throws IOException {
+                // close the inner stream on finally block
+            }
+        };
         XMLStreamReader xmlReader;
         try {
             xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(dumpReader);
@@ -1271,6 +1276,14 @@ public class Repository {
             String msg = "Failed to serialize the dumped element at " + path + ".";
             log.error(msg, e);
             throw new RegistryException(msg, e);
+        } finally{
+            if(reader!=null){
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    //ignored
+                }
+            }
         }
     }
 
