@@ -45,7 +45,7 @@ public class CircularBuffer<K> {
                     "allowed max size " + MAX_ALLOWED_SIZE);
         }
         sizeOfBuffer = size;
-        bufferList = new ArrayList<K>(sizeOfBuffer);
+        bufferList = new ArrayList<K>(getSizeOfBuffer());
         startIndex = 0;
         endIndex = -1;
     }
@@ -67,9 +67,9 @@ public class CircularBuffer<K> {
         if (element == null) {
             throw new NullPointerException("Circular buffer doesn't support null values to be added to buffer");
         }
-        if (startIndex == sizeOfBuffer - 1) {
+        if (startIndex == getSizeOfBuffer() - 1) {
             startIndex = 0;
-        } else if (endIndex == sizeOfBuffer - 1) {
+        } else if (endIndex == getSizeOfBuffer() - 1) {
             endIndex = -1;
             startIndex = 1;
         } else if (startIndex != 0) {
@@ -77,7 +77,7 @@ public class CircularBuffer<K> {
             startIndex++;
         }
         endIndex++;
-        if (sizeOfBuffer == bufferList.size()) {
+        if (getSizeOfBuffer() == bufferList.size()) {
             // if the buffer capacity has been reached, replace the existing elements,
             // set method replaces the element in the given index
             bufferList.set(endIndex, element);
@@ -98,9 +98,8 @@ public class CircularBuffer<K> {
      * @return - a list of elements
      */
     public synchronized List<K> get(int amount) {
-        System.out.println("start: "+ startIndex + " end: " + endIndex + " amount: " + amount);
         if (amount < 0) {
-            // if a negative amount is requested
+            // if a negative amount is requested send an empty list
             return new ArrayList<K>();
         }
         List<K> result;
@@ -121,7 +120,7 @@ public class CircularBuffer<K> {
         } else {
             // starIndex is in the middle or end of the buffer.
             // Note that buffer is completely filled in this case.
-            if (amount <= sizeOfBuffer) {
+            if (amount <= getSizeOfBuffer()) {
                 result = getListIfAmountLessThanOrEqualSizeOfBuffer(amount);
             } else {
                 result = getListIfAmountGreaterThanSizeOfBuffer();
@@ -137,10 +136,10 @@ public class CircularBuffer<K> {
      */
     private List<K> getListIfAmountGreaterThanSizeOfBuffer() {
         List<K> result;
-        result = new ArrayList<K>(sizeOfBuffer);
+        result = new ArrayList<K>(getSizeOfBuffer());
         // make sure the order is preserved by starting to copy from the start index
         // until capacity and then copy from beginning to end index
-        for (int i = startIndex; i < sizeOfBuffer; i++) {
+        for (int i = startIndex; i < getSizeOfBuffer(); i++) {
             result.add(bufferList.get(i));
         }
         for (int i = 0; i <= endIndex; i++) {
@@ -159,7 +158,7 @@ public class CircularBuffer<K> {
     private List<K> getListIfAmountLessThanOrEqualSizeOfBuffer(int amount) {
         List<K> result;
         result = new ArrayList<K>(amount);
-        if (amount <= sizeOfBuffer - startIndex) {
+        if (amount <= getSizeOfBuffer() - startIndex) {
             // no. of items remaining to the
             // right of startIndex is greater than the amount to be retrieved
             int tempEndIndexToRead = amount + startIndex;
@@ -170,10 +169,10 @@ public class CircularBuffer<K> {
         } else {
             // no of elements remaining to the right of start index is less than the
             // amount to be retrieved
-            for (int i = startIndex; i < sizeOfBuffer; i++) {
+            for (int i = startIndex; i < getSizeOfBuffer(); i++) {
                 result.add(bufferList.get(i));
             }
-            int tempAmountFromEndIndexToStartIndex = amount - (sizeOfBuffer - startIndex);
+            int tempAmountFromEndIndexToStartIndex = amount - (getSizeOfBuffer() - startIndex);
             for (int i = 0; i < tempAmountFromEndIndexToStartIndex; i++) {
                 result.add(bufferList.get(i));
             }
@@ -200,5 +199,14 @@ public class CircularBuffer<K> {
         bufferList.clear();
         startIndex = 0;
         endIndex = -1;
+    }
+
+    /**
+     * Return the capacity of the circular buffer. This is set during buffer initialization.
+     *
+     * @return - capacity of the buffer
+     */
+    public int getSizeOfBuffer() {
+        return sizeOfBuffer;
     }
 }
