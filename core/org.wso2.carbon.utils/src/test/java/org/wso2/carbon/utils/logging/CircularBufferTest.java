@@ -39,6 +39,9 @@ public class CircularBufferTest {
         assertNotNull(buffer.get(1), "Items were not appended.");
     }
 
+    /***
+     * Test if appending a null element throws a NullPointerException
+     */
     @Test(expectedExceptions = NullPointerException.class)
     public void testAppendNullElement() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
