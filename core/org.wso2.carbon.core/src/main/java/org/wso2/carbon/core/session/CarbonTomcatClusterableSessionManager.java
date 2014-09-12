@@ -36,9 +36,9 @@ import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A Clusterable SessionManager implementation which ensures that sessions of distributable
@@ -49,19 +49,12 @@ public class CarbonTomcatClusterableSessionManager extends DeltaManager {
 
     private static final List<String> allowedClasses = new ArrayList<String>();
     private static final Log log = LogFactory.getLog(CarbonTomcatClusterableSessionManager.class);
+    private Map<String, CarbonTomcatSessionMessage> messageMap = new HashMap();
 
     /**
      * The string manager for this package.
      */
     protected static final StringManager sm = StringManager.getManager(Constants.Package);
-
-    // ----------------------------------------------------- Instance Variables
-
-
-    /**
-     * The descriptive name of this Manager implementation (for logging).
-     */
-    protected String name = "CarbonTomcatSessionManager";
 
 
     private boolean expireSessionsOnShutdown = false;
@@ -186,6 +179,9 @@ public class CarbonTomcatClusterableSessionManager extends DeltaManager {
     }
 
     public void clusterMessageReceived(ClusterMessage msg) {
+        if (log.isDebugEnabled()) {
+            log.debug(((SessionMessage)msg).getEventTypeString());
+        }
         super.messageDataReceived(msg);
     }
 
@@ -353,62 +349,26 @@ public class CarbonTomcatClusterableSessionManager extends DeltaManager {
     @Override
     public synchronized void getAllClusterSessions() {
         if (cluster != null && cluster.getMembers().length > 0) {
-            long beforeSendTime = System.currentTimeMillis();
             Member mbr = findSessionMasterMember();
-            if(mbr == null) { // No domain member found
-                 return;
+            if (mbr == null) { // No domain member found
+                return;
             }
             CarbonTomcatSessionMessage msg =
-                    new CarbonTomcatSessionMessage(this.getName(),SessionMessage.EVT_GET_ALL_SESSIONS,
-                                             null, "GET-ALL","GET-ALL-" + getName());
-            // set reference time
-            stateTransferCreateSendTime = beforeSendTime ;
-            // request session state
+                    new CarbonTomcatSessionMessage(this.getName(), SessionMessage.EVT_GET_ALL_SESSIONS,
+                                                   null, "GET-ALL", "GET-ALL-" + getName());
 
-            stateTransfered = false;
+            synchronized (receivedMessageQueue) {
+                receiverQueue = true;
+            }
+            // Save this message so that it can be sent to the cluster nodes later, because at
+            // the this method gets called, the cluster is not initialized
+            messageMap.put(mbr.getName(), msg);
 
-            try {
-                synchronized(receivedMessageQueue) {
-                     receiverQueue = true ;
-                }
-                cluster.send(msg, mbr);
-                if (log.isInfoEnabled())
-                    log.info(sm.getString("deltaManager.waitForSessionState",getName(),
-                                          mbr, Integer.valueOf(getStateTransferTimeout())));
-            // TODO waitForSendAllSessions
-//                waitForSendAllSessions(beforeSendTime);
-            } finally {
-                synchronized(receivedMessageQueue) {
-                    for (Iterator<CarbonTomcatSessionMessage> iter =
-                                 receivedMessageQueue.iterator(); iter.hasNext();) {
-                        SessionMessage smsg = iter.next();
-                        if (!stateTimestampDrop) {
-                            messageReceived(smsg, smsg.getAddress() !=
-                                                  null ? (Member) smsg.getAddress() : null);
-                        } else {
-                            if (smsg.getEventType() != SessionMessage.EVT_GET_ALL_SESSIONS &&
-                                smsg.getTimestamp() >= stateTransferCreateSendTime) {
-
-                                messageReceived(smsg,smsg.getAddress() !=
-                                                     null ? (Member) smsg.getAddress() : null);
-                            } else {
-                                if (log.isWarnEnabled()) {
-                                    log.warn(sm.getString("deltaManager.dropMessage",getName(),
-                                                          smsg.getEventTypeString(),
-                                                          new Date(stateTransferCreateSendTime),
-                                                          new Date(smsg.getTimestamp())));
-                                }
-                            }
-                        }
-                    }
-                    receivedMessageQueue.clear();
-                    receiverQueue = false ;
-                }
-           }
         } else {
-            if (log.isInfoEnabled()) log.info(sm.getString("deltaManager.noMembers", getName()));
+            if (log.isInfoEnabled()) {
+                log.info(sm.getString("deltaManager.noMembers", getName()));
+            }
         }
-
     }
 
     @Override
@@ -426,5 +386,9 @@ public class CarbonTomcatClusterableSessionManager extends DeltaManager {
         result.stateTimestampDrop = stateTimestampDrop;
         result.stateTransferCreateSendTime = stateTransferCreateSendTime;
         return result;
+    }
+
+    public Map<String, CarbonTomcatSessionMessage> getQueuedSessionMsgMap() {
+        return messageMap;
     }
 }

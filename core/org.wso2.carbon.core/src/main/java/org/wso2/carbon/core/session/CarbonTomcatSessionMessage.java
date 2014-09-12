@@ -24,6 +24,8 @@ import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.catalina.ha.session.SessionMessage;
 import org.apache.catalina.tribes.Member;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 
 import java.util.Map;
@@ -37,6 +39,7 @@ import java.util.Set;
 
 public class CarbonTomcatSessionMessage extends ClusteringMessage implements SessionMessage {
 
+    private static final Log log = LogFactory.getLog(CarbonTomcatSessionMessage.class);
     private static final long serialVersionUID = 1L;
 
 
@@ -222,7 +225,9 @@ public class CarbonTomcatSessionMessage extends ClusteringMessage implements Ses
 
     @Override
     public void execute(ConfigurationContext configContext) throws ClusteringFault {
-
+        if (log.isDebugEnabled()) {
+            log.debug("Recived CarbonTomcatSessionMessage");
+        }
         Map<String, CarbonTomcatClusterableSessionManager> sessionManagerMap =
                 (Map<String, CarbonTomcatClusterableSessionManager>) configContext.
                         getProperty(CarbonConstants.TOMCAT_SESSION_MANAGER_MAP);
@@ -240,7 +245,7 @@ public class CarbonTomcatSessionMessage extends ClusteringMessage implements Ses
 
     private String getWebappContext(String path, Set<String> contextSet) {
         for (String key : contextSet) {
-            if (path.contains(key)) {
+            if (path.contains(key) && path.endsWith(key)) {
                 return key;
             }
         }
