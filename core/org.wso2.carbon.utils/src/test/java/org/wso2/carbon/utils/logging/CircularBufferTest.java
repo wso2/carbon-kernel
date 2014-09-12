@@ -274,7 +274,7 @@ public class CircularBufferTest {
      */
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testIllegalArgumentExceptionSizeGreaterThanMaxAllowed() {
-        CircularBuffer<String> buffer = new CircularBuffer<String>(20000);
+        CircularBuffer<String> buffer = new CircularBuffer<String>(MAX_ALLOWED_SIZE + 1000);
     }
 
     /**
