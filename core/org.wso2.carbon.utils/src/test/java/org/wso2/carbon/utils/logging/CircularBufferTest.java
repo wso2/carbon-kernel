@@ -34,7 +34,7 @@ public class CircularBufferTest {
           description = "")
     public void testAppend() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
-        assertEquals(buffer.getSizeOfBuffer(), 5, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");
         buffer.append("item");
         assertNotNull(buffer.get(1), "Items were not appended.");
     }
@@ -45,7 +45,7 @@ public class CircularBufferTest {
     @Test(expectedExceptions = NullPointerException.class)
     public void testAppendNullElement() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
-        assertEquals(buffer.getSizeOfBuffer(), 5, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");
         buffer.append(null);
     }
 
@@ -56,7 +56,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetLessThanBufferCapacity1() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 11; i++) {
             buffer.append("item" + i);
         }
@@ -70,7 +70,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetLessThanBufferCapacity2() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 11; i++) {
             buffer.append("item" + i);
         }
@@ -85,7 +85,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetLessThanBufferCapacity3() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 11; i++) {
             buffer.append("item" + i);
         }
@@ -100,7 +100,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetLessThanBufferCapacity4() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 11; i++) {
             buffer.append("item" + i);
         }
@@ -115,7 +115,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetLessThanBufferCapacity5() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 15; i++) {
             buffer.append("item" + i);
         }
@@ -130,7 +130,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetLessThanBufferCapacity6() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 5; i++) {
             buffer.append("item" + i);
         }
@@ -145,7 +145,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetLessThanBufferCapacity7() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 5; i++) {
             buffer.append("item" + i);
         }
@@ -160,7 +160,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetEqualToBufferCapacity1() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 11; i++) {
             buffer.append("item" + i);
         }
@@ -175,7 +175,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetEqualToBufferCapacity2() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 15; i++) {
             buffer.append("item" + i);
         }
@@ -189,7 +189,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetMoreThanBufferCapacity1() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
-        assertEquals(buffer.getSizeOfBuffer(), 5, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 11; i++) {
             buffer.append("item" + i);
         }
@@ -208,7 +208,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetMoreThanBufferCapacity2() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
-        assertEquals(buffer.getSizeOfBuffer(), 5, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 11; i++) {
             buffer.append("item" + i);
         }
@@ -224,7 +224,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetMoreThanBufferCapacity3() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(10);
-        assertEquals(buffer.getSizeOfBuffer(), 10, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 10, "Buffer is not initialized with expected size.");
         for (int i = 0; i < 10; i++) {
             buffer.append("item" + i);
         }
@@ -240,7 +240,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetNegativeAmount() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
-        assertEquals(buffer.getSizeOfBuffer(), 5, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 10; i++) {
             buffer.append("item" + i);
         }
@@ -264,7 +264,7 @@ public class CircularBufferTest {
           description = "")
     public void testInitializingMaximumSizedBuffer() {
         CircularBuffer<String> buffer = new CircularBuffer<String>();
-        assertEquals(buffer.getSizeOfBuffer(), MAX_ALLOWED_SIZE,
+        assertEquals(buffer.getSize(), MAX_ALLOWED_SIZE,
                      "Buffer is not initialized with maximum allowed size.");
     }
 
@@ -284,7 +284,7 @@ public class CircularBufferTest {
           description = "")
     public void testGetObjects() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
-        assertEquals(buffer.getSizeOfBuffer(), 5, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 10; i++) {
             buffer.append("item" + i);
         }
@@ -306,7 +306,7 @@ public class CircularBufferTest {
           description = "")
     public void testClear() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
-        assertEquals(buffer.getSizeOfBuffer(), 5, "Buffer is not initialized with expected size.");
+        assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");
         for (int i = 0; i <= 10; i++) {
             buffer.append("item" + i);
         }
