@@ -23,8 +23,8 @@ import java.util.List;
  * will never be removed from this buffer. This can be used for a case such as a Rolling Log.
  * A client can request the latest 'n' number of items that are stored in this buffer.
  */
-public class CircularBuffer<K> {
-    private List<K> bufferList;
+public class CircularBuffer<E> {
+    private List<E> bufferList;
     private static final int MAX_ALLOWED_SIZE = 10000;
     private int startIndex;
     private int endIndex;
@@ -45,7 +45,7 @@ public class CircularBuffer<K> {
                     "allowed max size " + MAX_ALLOWED_SIZE);
         }
         sizeOfBuffer = size;
-        bufferList = new ArrayList<K>(getSizeOfBuffer());
+        bufferList = new ArrayList<E>(getSizeOfBuffer());
         startIndex = 0;
         endIndex = -1;
     }
@@ -63,7 +63,7 @@ public class CircularBuffer<K> {
      * @param element
      *         - element to be appended
      */
-    public synchronized void append(K element) {
+    public synchronized void append(E element) {
         if (element == null) {
             throw new NullPointerException("Circular buffer doesn't support null values to be added to buffer");
         }
@@ -97,22 +97,22 @@ public class CircularBuffer<K> {
      *         - no of elements to return
      * @return - a list of elements
      */
-    public synchronized List<K> get(int amount) {
+    public synchronized List<E> get(int amount) {
         if (amount < 0) {
             // if a negative amount is requested send an empty list
-            return new ArrayList<K>();
+            return new ArrayList<E>();
         }
-        List<K> result;
+        List<E> result;
         if (startIndex == 0) {
             // simple case. startIndex is beginning of the buffer
             if (endIndex + 1 >= amount) {
-                result = new ArrayList<K>(amount);
+                result = new ArrayList<E>(amount);
                 for (int i = startIndex; i < amount; i++) {
                     result.add(bufferList.get(i));
                 }
             } else {
                 // amount to be retrieved is more than the capacity of the buffer
-                result = new ArrayList<K>(endIndex + 1);
+                result = new ArrayList<E>(endIndex + 1);
                 for (int i = startIndex; i <= endIndex; i++) {
                     result.add(bufferList.get(i));
                 }
@@ -134,9 +134,9 @@ public class CircularBuffer<K> {
      *
      * @return - list of elements
      */
-    private List<K> getListIfAmountGreaterThanSizeOfBuffer() {
-        List<K> result;
-        result = new ArrayList<K>(getSizeOfBuffer());
+    private List<E> getListIfAmountGreaterThanSizeOfBuffer() {
+        List<E> result;
+        result = new ArrayList<E>(getSizeOfBuffer());
         // make sure the order is preserved by starting to copy from the start index
         // until capacity and then copy from beginning to end index
         for (int i = startIndex; i < getSizeOfBuffer(); i++) {
@@ -155,9 +155,9 @@ public class CircularBuffer<K> {
      *         - amount of elements to return from the buffer
      * @return - list of elements
      */
-    private List<K> getListIfAmountLessThanOrEqualSizeOfBuffer(int amount) {
-        List<K> result;
-        result = new ArrayList<K>(amount);
+    private List<E> getListIfAmountLessThanOrEqualSizeOfBuffer(int amount) {
+        List<E> result;
+        result = new ArrayList<E>(amount);
         if (amount <= getSizeOfBuffer() - startIndex) {
             // no. of items remaining to the
             // right of startIndex is greater than the amount to be retrieved
@@ -188,7 +188,7 @@ public class CircularBuffer<K> {
      * @return - an object array of amount number of elements in the buffer
      */
     public synchronized Object[] getObjects(int amount) {
-        List<K> objectsList = get(amount);
+        List<E> objectsList = get(amount);
         return objectsList.toArray(new Object[objectsList.size()]);
     }
 
