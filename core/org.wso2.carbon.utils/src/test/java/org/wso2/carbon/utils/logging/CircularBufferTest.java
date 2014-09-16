@@ -17,6 +17,8 @@ package org.wso2.carbon.utils.logging;
 
 import org.testng.annotations.Test;
 
+import java.util.List;
+
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
@@ -39,7 +41,7 @@ public class CircularBufferTest {
         assertNotNull(buffer.get(1), "Items were not appended.");
     }
 
-    /***
+    /**
      * Test if appending a null element throws a NullPointerException
      */
     @Test(expectedExceptions = NullPointerException.class)
@@ -313,5 +315,23 @@ public class CircularBufferTest {
         assertEquals(buffer.get(3).size(), 3, "Returned an unexpected amount!");
         buffer.clear();
         assertEquals(buffer.get(3).size(), 0, "Returned an unexpected amount!");
+    }
+
+    /**
+     * Test if the returned items are in proper order.
+     */
+    @Test(groups = {"org.wso2.carbon.utils.logging"},
+          description = "")
+    public void testOrderOfItems() {
+        CircularBuffer<String> buffer = new CircularBuffer<String>(5);
+        assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");
+        for (int i = 0; i <= 6; i++) {
+            buffer.append("item" + i);
+        }
+        List<String> result = buffer.get(3);
+        assertEquals(result.size(), 3, "Returned an unexpected amount!");
+        assertEquals(result.get(0), "item2", "");
+        assertEquals(result.get(1), "item3", "");
+        assertEquals(result.get(2), "item4", "");
     }
 }
