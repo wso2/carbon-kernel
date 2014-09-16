@@ -98,84 +98,25 @@ public class CircularBuffer<E> {
      * @return - a list of elements
      */
     public synchronized List<E> get(int amount) {
-        if (amount < 0) {
+        if (bufferList.isEmpty()) {
+            // if the container is empty return an empty list
+            return new ArrayList<E>();
+        }
+        if (amount <= 0) {
             // if a negative amount is requested send an empty list
             return new ArrayList<E>();
         }
-        List<E> result;
-        if (startIndex == 0) {
-            // simple case. startIndex is beginning of the buffer
-            if (endIndex + 1 >= amount) {
-                result = new ArrayList<E>(amount);
-                for (int i = startIndex; i < amount; i++) {
-                    result.add(bufferList.get(i));
-                }
-            } else {
-                // amount to be retrieved is more than the capacity of the buffer
-                result = new ArrayList<E>(endIndex + 1);
-                for (int i = startIndex; i <= endIndex; i++) {
-                    result.add(bufferList.get(i));
-                }
-            }
-        } else {
-            // starIndex is in the middle or end of the buffer.
-            // Note that buffer is completely filled in this case.
-            if (amount <= getSize()) {
-                result = getListIfAmountLessThanOrEqualSizeOfBuffer(amount);
-            } else {
-                result = getListIfAmountGreaterThanSizeOfBuffer();
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Get the list if the amount to be retrieved is more than the capacity of the buffer
-     *
-     * @return - list of elements
-     */
-    private List<E> getListIfAmountGreaterThanSizeOfBuffer() {
-        List<E> result;
-        result = new ArrayList<E>(getSize());
-        // make sure the order is preserved by starting to copy from the start index
-        // until capacity and then copy from beginning to end index
-        for (int i = startIndex; i < getSize(); i++) {
-            result.add(bufferList.get(i));
-        }
-        for (int i = 0; i <= endIndex; i++) {
-            result.add(bufferList.get(i));
-        }
-        return result;
-    }
-
-    /**
-     * Get the list if the amount to be retrieved is less than the capacity of the buffer
-     *
-     * @param amount
-     *         - amount of elements to return from the buffer
-     * @return - list of elements
-     */
-    private List<E> getListIfAmountLessThanOrEqualSizeOfBuffer(int amount) {
-        List<E> result;
-        result = new ArrayList<E>(amount);
-        if (amount <= getSize() - startIndex) {
-            // no. of items remaining to the
-            // right of startIndex is greater than the amount to be retrieved
-            int tempEndIndexToRead = amount + startIndex;
-            // copy "amount" number of elements starting from the start index
-            for (int i = startIndex; i < tempEndIndexToRead; i++) {
-                result.add(bufferList.get(i));
-            }
-        } else {
-            // no of elements remaining to the right of start index is less than the
-            // amount to be retrieved
-            for (int i = startIndex; i < getSize(); i++) {
-                result.add(bufferList.get(i));
-            }
-            int tempAmountFromEndIndexToStartIndex = amount - (getSize() - startIndex);
-            for (int i = 0; i < tempAmountFromEndIndexToStartIndex; i++) {
-                result.add(bufferList.get(i));
-            }
+        int amountOfElementsInContainer = bufferList.size();
+        int amountToRetrieve = amount;
+        List<E> result = new ArrayList<E>(amountOfElementsInContainer);
+        for (int i = startIndex; amountOfElementsInContainer > 0 && amountToRetrieve > 0;
+             i++, amountToRetrieve--, amountOfElementsInContainer--) {
+            // Use the size of the internal container to retrieve elements.
+            // Here starting from the start index we insert elements to the result.
+            // if the requested amount is added, we stop adding more elements to the result or
+            // if all the elements in the internal container is added, we stop adding more elements
+            // to the result.
+            result.add(bufferList.get(i % this.size));
         }
         return result;
     }
