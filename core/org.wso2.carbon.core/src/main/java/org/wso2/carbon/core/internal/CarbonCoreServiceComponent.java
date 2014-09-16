@@ -24,6 +24,7 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
+import org.wso2.carbon.core.ServerStartupObserver;
 import org.wso2.carbon.core.init.CarbonServerManager;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
@@ -54,6 +55,8 @@ import java.util.List;
  * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader" unbind="unSetTenantRegistryLoader"
  * @scr.reference name="coordinatedActivity" interface="org.wso2.carbon.core.clustering.api.CoordinatedActivity"
  * cardinality="0..n" policy="dynamic" bind="addCoordinatedActivity" unbind="removeCoordinatedActivity"
+ * @scr.reference name="serverStartupObserver" interface="org.wso2.carbon.core.ServerStartupObserver"
+ * cardinality="0..n" policy="dynamic"  bind="addServerStartupObserver" unbind="removeServerStartupObserver"
   */
 public class CarbonCoreServiceComponent {
 
@@ -66,7 +69,9 @@ public class CarbonCoreServiceComponent {
     private static List<ServerRestartHandler> restartHandlers = new ArrayList<ServerRestartHandler>();
     
     private static List<ServerStartupHandler> startupHandlers = new ArrayList<ServerStartupHandler>();
-    
+
+    private static List<ServerStartupObserver> serverStartupObservers = new ArrayList<ServerStartupObserver>();
+
     private static boolean serverStarted;
     
     private CarbonServerManager carbonServerManager;
@@ -203,5 +208,35 @@ public class CarbonCoreServiceComponent {
 
     protected void removeCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
         CarbonCoreDataHolder.getInstance().removeCoordinatedActivity(coordinatedActivity);
+    }
+
+    protected void addServerStartupObserver(ServerStartupObserver startupObserver) {
+        synchronized (this.getClass()) {
+            if (serverStarted) {
+                startupObserver.completedServerStartup();
+            } else {
+                serverStartupObservers.add(startupObserver);
+            }
+        }
+    }
+
+    protected void removeServerStartupObserver(ServerStartupObserver startupObserver) {
+        serverStartupObservers.remove(startupObserver);
+    }
+
+
+    public static synchronized void startupBefore() {
+        for (ServerStartupObserver observer : serverStartupObservers) {
+            observer.completingServerStartup();
+        }
+    }
+
+    public static synchronized void startupAfter(){
+        for (ServerStartupObserver observer : serverStartupObservers) {
+            observer.completedServerStartup();
+        }
+        serverStarted = true;
+        startupHandlers.clear();
+
     }
 }

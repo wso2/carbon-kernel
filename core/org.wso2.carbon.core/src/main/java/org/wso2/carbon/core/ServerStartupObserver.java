@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.wso2.carbon.core;
 
 /**
  * This class is used as a listener for getting notifications when the server startup happens.
- * @deprecated  use {@link org.wso2.carbon.core.ServerStartupObserver} instead.
  */
-public interface ServerStartupHandler {
+public interface ServerStartupObserver {
 
-	/**
-	 * Called when the server startup is done.
-     * @deprecated
+    /**
+     * This method will be invoked just before completing server startup.
+     * E.g. before starting all the transports.
      */
-	void invoke();
-	
+    public void completingServerStartup();
+
+
+    /**
+     * This method will be invoked just after completing server startup.
+     * E.g. after starting all the transports.
+     */
+    public void completedServerStartup();
+
 }
