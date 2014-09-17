@@ -803,12 +803,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	 * {@inheritDoc}
 	 */
 	public final void deleteUser(String userName) throws UserStoreException {
-		String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-		loggedInUser =  UserCoreUtil.addDomainToName(loggedInUser , UserCoreUtil.getDomainFromThreadLocal());
-		loggedInUser = addPrimaryDomainIfNotExists(loggedInUser);
 
+		String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
+		if(loggedInUser != null){
+			loggedInUser = UserCoreUtil.addDomainToName(loggedInUser , UserCoreUtil.getDomainFromThreadLocal());
+			if ((loggedInUser.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
+				loggedInUser = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
+				           CarbonConstants.DOMAIN_SEPARATOR + loggedInUser;
+			}	
+		}	
+		
 		String deletingUser = UserCoreUtil.addDomainToName(userName, getMyDomainName());
-		deletingUser = addPrimaryDomainIfNotExists(deletingUser);
+		if ((deletingUser.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
+			deletingUser = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
+			               CarbonConstants.DOMAIN_SEPARATOR + deletingUser;
+		}
 
 		if(loggedInUser!= null && loggedInUser.equals(deletingUser)) {
 			log.debug("User " + loggedInUser + " tried to delete him/her self");
