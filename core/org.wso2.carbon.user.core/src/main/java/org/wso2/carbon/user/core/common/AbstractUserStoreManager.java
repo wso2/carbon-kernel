@@ -883,20 +883,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
 	}
 
-	/**
-	 * Add the PRIMARY domain to username if username does not contain any domain
-	 * @param userName
-	 * @return
-	 */
-	private final String addPrimaryDomainIfNotExists(String userName) {
-
-		if ((userName.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
-			userName = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
-			           CarbonConstants.DOMAIN_SEPARATOR + userName;
-		}
-
-		return userName;
-	}
 
 	/**
 	 * {@inheritDoc}
