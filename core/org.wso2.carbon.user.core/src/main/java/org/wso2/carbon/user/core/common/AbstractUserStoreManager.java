@@ -803,7 +803,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	 * {@inheritDoc}
 	 */
 	public final void deleteUser(String userName) throws UserStoreException {
-
+		
 		String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
 		if(loggedInUser != null){
 			loggedInUser = UserCoreUtil.addDomainToName(loggedInUser , UserCoreUtil.getDomainFromThreadLocal());
@@ -882,7 +882,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		// #################### </Listeners> #####################################################
 
 	}
-
 
 	/**
 	 * {@inheritDoc}
