@@ -2352,6 +2352,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			profileName = UserCoreConstants.DEFAULT_PROFILE;
 		}
 
+        if(value.contains("*")){
+            if((value.startsWith("*") && !value.substring(1).contains("*"))||
+                    value.endsWith("*")&& !value.substring(0,value.length()-1).contains("*")){
+                value = value.replace('*','%');
+            }
+        }
+
 		String[] users = new String[0];
 		Connection dbConnection = null;
 		String sqlStmt = null;
