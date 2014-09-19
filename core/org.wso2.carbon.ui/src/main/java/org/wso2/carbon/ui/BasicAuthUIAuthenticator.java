@@ -1,5 +1,6 @@
 package org.wso2.carbon.ui;
 
+import java.rmi.RemoteException;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -159,12 +160,12 @@ public class BasicAuthUIAuthenticator extends AbstractCarbonUIAuthenticator {
     public void unauthenticate(Object object) throws Exception {
         try {
             getAuthenticationAdminCient(((HttpServletRequest) object)).logout();
-        } catch (Exception ignored) {
+        } catch (AxisFault axisFault) {
             String msg = "Configuration context is null.";
             log.error(msg);
-            throw new Exception(msg);
+            axisFault.printStackTrace();
+            throw new AxisFault(axisFault.getMessage());
         }
-
     }
 
     protected AuthenticationAdminClient getAuthenticationAdminCient(HttpServletRequest request)
