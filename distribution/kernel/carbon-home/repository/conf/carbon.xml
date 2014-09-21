@@ -86,9 +86,23 @@
     <Package>org.wso2.carbon</Package>
 
     <!--
-       Webapp context root of WSO2 Carbon.
+       Webapp context root of WSO2 Carbon management console.
     -->
     <WebContextRoot>/</WebContextRoot>
+
+    <!--
+    	Proxy context path is a useful parameter to add a proxy path when a Carbon server is fronted by reverse proxy. In addtion
+        to the proxy host and proxy port this parameter allows you add a path component to external URLs. e.g.
+     		URL of the Carbon server -> https://10.100.1.1:9443/carbon
+   		URL of the reverse proxy -> https://prod.abc.com/appserver/carbon
+
+   	appserver - proxy context path. This specially required whenever you are generating URLs to displace in
+   	Carbon UI components.
+    -->
+    <!--
+    	<MgtProxyContextPath></MgtProxyContextPath>
+    	<ProxyContextPath></ProxyContextPath>
+    -->
 
     <!-- In-order to  get the registry http Port from the back-end when the default http transport is not the same-->
     <!--RegistryHttpPort>9763</RegistryHttpPort-->
