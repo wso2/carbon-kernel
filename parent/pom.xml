@@ -416,7 +416,7 @@
         <version.lucene.core>2.3.2</version.lucene.core>
 
         <version.tomcat>7.0.52</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v3</orbit.version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v5</orbit.version.tomcat>
         <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1</orbit.version.tomcat.servlet.api>
         <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
         <orbit.version.tomcat.el.api>${version.tomcat}.wso2v1</orbit.version.tomcat.el.api>
@@ -1176,6 +1176,11 @@
                 <groupId>org.apache.tomcat.wso2</groupId>
                 <artifactId>tomcat</artifactId>
                 <version>${orbit.version.tomcat}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-annotations-api</artifactId>
+                <version>${version.tomcat}</version>
             </dependency>
             <dependency>
                 <groupId>org.igniterealtime.smack.wso2</groupId>
