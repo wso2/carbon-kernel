@@ -365,7 +365,10 @@ public final class CarbonConstants {
      * Name of the property which is used for storing the WebApplicationsHolder
      */
     public static final String WEB_APPLICATIONS_HOLDER = "carbon.webapps.holder";
-
+    /**
+     * Name of the property which is used for storing web applications holders list
+     */
+    public static final String WEB_APPLICATIONS_HOLDER_LIST = "carbon.webapps.holderlist";
     /**
      * Name of the property to hold the servletContextParameters list
      */

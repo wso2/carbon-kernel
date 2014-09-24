@@ -41,6 +41,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.NetworkUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.base.ServerConfiguration;
 
 /**
  * Utility class for Carbon UI
@@ -164,6 +165,8 @@ public class CarbonUIUtil {
             context = "";
         }
 
+        String proxyContextPath = CarbonUtils.getProxyContextPath(false);
+
         if (httpsPort == -1) {
             return null;
         }
@@ -176,12 +179,15 @@ public class CarbonUIUtil {
                 && "true".equalsIgnoreCase(enableHTTPAdminConsole.trim())) {
             int httpPort = CarbonUtils.getTransportPort(
                     CarbonUIServiceComponent.getConfigurationContextService(), "http");
-            adminConsoleURL = "http://" + hostName + ":" + httpPort + context + "/carbon/";
+            adminConsoleURL = "http://" + hostName + ":" + httpPort + proxyContextPath + context + "/carbon/";
         } else {
             adminConsoleURL = "https://" + hostName + ":"
-                    + (httpsProxyPort != -1 ? httpsProxyPort : httpsPort) + context + "/carbon/";
+                    + (httpsProxyPort != -1 ? httpsProxyPort : httpsPort) + proxyContextPath + context + "/carbon/";
         }
 
+        if(log.isDebugEnabled()){
+            log.debug("Generated admin console URL: " + adminConsoleURL);
+        }
         return adminConsoleURL;
     }
 
@@ -211,8 +217,17 @@ public class CarbonUIUtil {
         if ("/".equals(context)) {
             context = "";
         }
-        return "https://" + hostName + ":" + (httpsProxyPort != -1? httpsProxyPort : httpsPort) +
-            context + "/carbon/";
+
+        String proxyContextPath = CarbonUtils.getProxyContextPath(false);
+
+        String adminConsoleURL =  "https://" + hostName + ":" + (httpsProxyPort != -1 ? httpsProxyPort : httpsPort) +
+                proxyContextPath + context + "/carbon/";
+
+        if(log.isDebugEnabled()){
+            log.debug("Generated admin console URL: " + adminConsoleURL);
+        }
+
+        return adminConsoleURL;
     }
 
     /**

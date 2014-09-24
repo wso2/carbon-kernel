@@ -1,16 +1,22 @@
 package org.wso2.carbon.ui;
 
+import java.rmi.RemoteException;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.context.ConfigurationContext;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.authenticator.proxy.AuthenticationAdminClient;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.ui.util.CarbonUIAuthenticationUtil;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 public class BasicAuthUIAuthenticator extends AbstractCarbonUIAuthenticator {
@@ -152,8 +158,32 @@ public class BasicAuthUIAuthenticator extends AbstractCarbonUIAuthenticator {
 
     @Override
     public void unauthenticate(Object object) throws Exception {
-        // TODO Auto-generated method stub
+        try {
+            getAuthenticationAdminCient(((HttpServletRequest) object)).logout();
+        } catch (AxisFault axisFault) {
+            String msg = "Configuration context is null.";
+            log.error(msg);
+            axisFault.printStackTrace();
+            throw new AxisFault(axisFault.getMessage());
+        }
+    }
 
+    protected AuthenticationAdminClient getAuthenticationAdminCient(HttpServletRequest request)
+            throws AxisFault {
+        HttpSession session = request.getSession();
+        ServletContext servletContext = session.getServletContext();
+        String backendServerURL = request.getParameter("backendURL");
+        if (backendServerURL == null) {
+            backendServerURL = CarbonUIUtil.getServerURL(servletContext, request.getSession());
+        }
+        session.setAttribute(CarbonConstants.SERVER_URL, backendServerURL);
+
+        ConfigurationContext configContext = (ConfigurationContext) servletContext
+                .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
+
+        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN);
+
+        return new AuthenticationAdminClient(configContext, backendServerURL, cookie, session, true);
     }
 
     @Override

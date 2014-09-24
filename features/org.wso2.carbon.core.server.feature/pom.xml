@@ -65,6 +65,7 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.user.core</bundleDef>
                                 <bundleDef>org.apache.ws.security.wso2:wss4j:${wss4j.osgi.version}</bundleDef>
+                                <bundleDef>org.bouncycastle.wso2:bcprov-jdk15on:${bouncycastle.version}</bundleDef>
                                 <bundleDef>org.apache.poi.wso2:poi-ooxml:${orbit.version.poi.ooxml}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.p2.touchpoint:${carbon.platform.version}</bundleDef>
                             </bundles>

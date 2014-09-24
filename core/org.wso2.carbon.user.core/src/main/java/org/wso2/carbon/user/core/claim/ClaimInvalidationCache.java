@@ -106,9 +106,7 @@ public class ClaimInvalidationCache {
 	private Integer getValueFromCache(String key) {
 		Cache<String,Integer> cache = getClaimCache();
 		if (cache != null) {
-			if (cache.containsKey(key)) {
-				return cache.get(key);
-			}
+            return cache.get(key);
 		}
 		return null;
 	}
@@ -122,9 +120,7 @@ public class ClaimInvalidationCache {
 	private void clearCacheEntry(String key) {
 		Cache<String,Integer> cache = getClaimCache();
 		if (cache != null) {
-			if (cache.containsKey(key)) {
-				cache.remove(key);
-			}
+            cache.remove(key);
 		}
 	}
 }

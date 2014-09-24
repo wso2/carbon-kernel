@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,11 +17,6 @@
 */
 package org.wso2.carbon.context;
 
-
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.description.AxisService;
-import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
@@ -34,10 +29,8 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.ThriftSession;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -89,102 +82,12 @@ public class PrivilegedCarbonContext extends CarbonContext {
     }
 
     /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder.
-     *
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext() {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(null);
-    }
-
-    /**
      *
      * @return PrivilegedCarbonContext from the current thread
      */
     public static PrivilegedCarbonContext getThreadLocalCarbonContext(){
         CarbonUtils.checkSecurity();
         return new PrivilegedCarbonContext(CarbonContextDataHolder.getThreadLocalCarbonContextHolder());
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given Message
-     * Context. If an instance does not exist, it will first be added to the Message Context.
-     *
-     * @param messageContext The Message Context on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(MessageContext messageContext) {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder(messageContext));
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given Axis2
-     * Configuration Context. If an instance does not exist, it will first be added to the
-     * Axis2 Configuration Context.
-     *
-     * @param configContext The Axis2 Configuration Context on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(ConfigurationContext configContext) {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder(configContext));
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given Axis2
-     * Configuration. If an instance does not exist, it will first be added to the Axis2
-     * Configuration.
-     *
-     * @param axisConfiguration The Axis2 Configuration on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(AxisConfiguration axisConfiguration) {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder(axisConfiguration));
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder attached to the given
-     * Axis2 Service. If an instance does not exist, it will first be attached to the Axis2 Service.
-     *
-     * @param axisService The Axis2 Service on which the CarbonContext is attached to.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(AxisService axisService) {
-        CarbonUtils.checkSecurity();
-        AxisConfiguration axisConfiguration = axisService.getAxisConfiguration();
-        return (axisConfiguration != null) ? getCurrentContext(axisConfiguration) :
-               getCurrentContext();
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given HTTP
-     * Session. If an instance does not exist, it will first be added to the HTTP Session
-     * Configuration.
-     *
-     * @param httpSession The HTTP Session on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(HttpSession httpSession) {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder(httpSession));
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given Thrift
-     * Session. If an instance does not exist, it will first be added to the Thrift Session.
-     *
-     * @param thriftSession The HTTP Session on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(ThriftSession thriftSession) {
-        CarbonUtils.checkSecurity();
-        PrivilegedCarbonContext privilegedCarbonContext =
-                new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder());
-        thriftSession.setAttribute("carbonContextHolder",privilegedCarbonContext);
-        return privilegedCarbonContext;
     }
 
     /**

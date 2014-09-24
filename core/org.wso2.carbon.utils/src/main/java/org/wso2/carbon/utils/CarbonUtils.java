@@ -1175,4 +1175,51 @@ public class CarbonUtils {
         }
         return ghostMetaFileDir.getPath();
     }
+
+
+	/**
+	 * Returns the proxy context path value specified in the carbon.xml.(Duplicated Util Method)
+	 *
+	 * @param isWorkerNode If isWorkerNode is true then this method returns the proxy context path of the
+	 *                     corresponding worker node. If the worker proxy context path is not specified, this method
+	 *                     returns the value specified for the proxy context path.
+	 * @return the proxy context path value.
+	 */
+	public static String getProxyContextPath(boolean isWorkerNode) {
+		String proxyContextPath = "";
+
+		if (isWorkerNode) {
+			proxyContextPath = getProxyContextPathValue(ServerConstants.WORKER_PROXY_CONTEXT_PATH);
+			if ("".equals(proxyContextPath)) {
+				proxyContextPath = getProxyContextPathValue(ServerConstants.PROXY_CONTEXT_PATH);
+			}
+		} else {
+			proxyContextPath = getProxyContextPathValue(ServerConstants.PROXY_CONTEXT_PATH);
+		}
+
+		if(log.isDebugEnabled()){
+			log.debug("Proxy context path : " + proxyContextPath);
+		}
+		return proxyContextPath;
+	}
+
+	/**
+	 * Retrieves the proxy context path from the ServerConfiguration and process it before returning. (Duplicated Util Method)
+	 *
+	 * @param key Property key
+	 * @return the processed proxy context path.
+	 */
+	private static String getProxyContextPathValue(String key) {
+		String proxyContextPath = ServerConfiguration.getInstance().getFirstProperty(key);
+
+		if (proxyContextPath == null || proxyContextPath.length() == 0 | "/".equals(proxyContextPath)) {
+			proxyContextPath = "";
+		} else {
+			proxyContextPath = proxyContextPath.trim();
+			if (!proxyContextPath.startsWith("/")) {
+				proxyContextPath = "/" + proxyContextPath;
+			}
+		}
+		return proxyContextPath;
+	}
 }
