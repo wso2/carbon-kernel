@@ -35,8 +35,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.apache.log4j</artifactId>
+            <groupId>org.apache.log4j.wso2</groupId>
+            <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
