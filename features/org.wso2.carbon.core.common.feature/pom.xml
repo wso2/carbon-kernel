@@ -134,8 +134,6 @@
                                 <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${jdbc-pool.version}</bundleDef>
                                 <bundleDef>org.eclipse.jdt.core.compiler:ecj:${version.eclipse.ecj}</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.framework.exporter</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.patch</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.fragment.dummy</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
