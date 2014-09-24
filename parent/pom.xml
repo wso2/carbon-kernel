@@ -481,9 +481,9 @@
         <version.drools>5.1.1</version.drools>
         <version.jsr94>1.1</version.jsr94>
 
+        <orbit.version.log4j>1.2.17.wso2v1</orbit.version.log4j>
         <version.xmlunit>1.1</version.xmlunit>
         <version.jaxen>1.1.1</version.jaxen>
-        <version.log4j>1.2.17.wso2v1</version.log4j>
         <version.junit>3.8.2</version.junit>
         <version.xmlunit1>1.0</version.xmlunit1>
         <version.tcpmon>1.0</version.tcpmon>
@@ -764,7 +764,7 @@
             <dependency>
                 <groupId>org.apache.log4j.wso2</groupId>
                 <artifactId>log4j</artifactId>
-                <version>${version.log4j}</version>
+                <version>${orbit.version.log4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
