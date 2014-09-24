@@ -449,7 +449,7 @@
 
         <!-- findbugs -->
         <version.findbugs.annotations>1.3.2</version.findbugs.annotations>
-        <version.commons.logging>1.1.1</version.commons.logging>
+        <version.commons.logging>1.2</version.commons.logging>
 
         <version.opensaml2>2.4.1.wso2v1</version.opensaml2>
         <version.compass>2.0.1.wso2v2</version.compass>
@@ -481,9 +481,9 @@
         <version.drools>5.1.1</version.drools>
         <version.jsr94>1.1</version.jsr94>
 
+        <orbit.version.log4j>1.2.17.wso2v1</orbit.version.log4j>
         <version.xmlunit>1.1</version.xmlunit>
         <version.jaxen>1.1.1</version.jaxen>
-        <version.log4j>1.2.13</version.log4j>
         <version.junit>3.8.2</version.junit>
         <version.xmlunit1>1.0</version.xmlunit1>
         <version.tcpmon>1.0</version.tcpmon>
@@ -507,7 +507,6 @@
         <!--Wso2 Secure Vault -->
         <securevault.version>1.0.0-wso2v2</securevault.version>
 
-        <version.commons.logging>1.1.1</version.commons.logging>
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
 	
     </properties>
@@ -762,11 +761,10 @@
                 <artifactId>ecj</artifactId>
                 <version>${version.eclipse.ecj}</version>
             </dependency>
-
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.apache.log4j</artifactId>
-                <version>1.2.13.v200706111418</version>
+                <groupId>org.apache.log4j.wso2</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${orbit.version.log4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
@@ -1108,11 +1106,6 @@
                 <groupId>org.apache.poi.wso2</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>3.9.0.wso2v2</version>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${version.log4j}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
