@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2005-2009, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -60,11 +60,7 @@ public class CarbonContext {
      * @see CarbonContextDataHolder
      */
     protected CarbonContext(CarbonContextDataHolder carbonContextHolder) {
-        if (carbonContextHolder != null) {
-            this.carbonContextHolder = carbonContextHolder;
-        } else {
-            this.carbonContextHolder = CarbonContextDataHolder.getCurrentCarbonContextHolder();
-        }
+        this.carbonContextHolder = carbonContextHolder;
     }
 
     /**
@@ -74,19 +70,7 @@ public class CarbonContext {
      * @return the current CarbonContext holder
      */
     protected CarbonContextDataHolder getCarbonContextDataHolder() {
-        if (carbonContextHolder == null) {
-            return CarbonContextDataHolder.getCurrentCarbonContextHolder();
-        }
         return carbonContextHolder;
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder.
-     *
-     * @return the CarbonContext instance.
-     */
-    public static CarbonContext getCurrentContext() {
-        return new CarbonContext(null);
     }
 
     public static CarbonContext getThreadLocalCarbonContext(){

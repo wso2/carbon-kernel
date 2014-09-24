@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -19,11 +19,6 @@ package org.wso2.carbon.context.internal;
 
 
 import org.apache.axiom.om.OMElement;
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.description.Parameter;
-import org.apache.axis2.engine.AxisConfiguration;
-import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.util.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +34,6 @@ import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
-import org.wso2.carbon.utils.ThriftSession;
 import org.wso2.carbon.utils.multitenancy.MultitenantCarbonQueueManager;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -66,10 +60,7 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 import javax.naming.spi.NamingManager;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.xml.namespace.QName;
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
@@ -341,243 +332,6 @@ public final class CarbonContextDataHolder {
         // The security checks are done at the CarbonContextHolderBase level.
         int tenantId = getTenantId();
         unloadTenant(tenantId);
-    }
-
-    ////////////////////////////////////////////////////////
-    // The CarbonContext will be obtained in the following manner:
-    //
-    // 1. If a NoClassDefFoundError occurs, Axis2 libraries are not on the classpath and hence the
-    //    CarbonContext will be obtained from the thread local copy.
-    //
-    // 2. If a message context does not exist, the CarbonContext will be obtained from the thread
-    //    local copy.
-    //
-    // 3. If a message context exists, and if a HTTP session exists, we will attempt to fetch the
-    //    CarbonContext from the HTTP session. If a CarbonContext exists on the HTTP session, it
-    //    will be returned.
-    //
-    // 4. If not, we will attempt to fetch the CarbonContext from the Axis2 Configuration. If a
-    //    CarbonContext exists on the Axis2 Configuration, it will be returned.
-    //
-    // 5. If the CarbonContext is still not found and a HTTP session exists, the thread local copy
-    //    will first be copied to the HTTP session and then returned.
-    //
-    // 6. If no HTTP session exists, and the Axis2 Configuration exists, the thread local copy will
-    //    first be copied to the Axis2 Configuration and then returned.
-    ////////////////////////////////////////////////////////
-
-    /**
-     * Provides an instance of the current CarbonContext available on the Axis2 Configuration
-     * Context. If an instance is not available, this method will first add a new CarbonContext onto
-     * the Axis2 Configuration Context.
-     *
-     * @param configurationContext the Axis2 Configuration Context.
-     * @return the CarbonContext holder.
-     */
-    public static CarbonContextDataHolder getCurrentCarbonContextHolder(
-            ConfigurationContext configurationContext) {
-        return getCurrentCarbonContextHolder(configurationContext, true);
-    }
-
-    /**
-     * This utility method is used to obtain an instance of the CarbonContext available on the Axis
-     * Configuration Context. It also accepts an argument explaining whether we need to add the
-     * CarbonContext if it was not already available.
-     *
-     * @param configurationContext the Axis2 Configuration.
-     * @param addToConfigContext   whether the CarbonContext should be added if it doesn't already
-     *                             exist.
-     * @return the CarbonContext holder if it was existing, or if it was newly added.
-     */
-    private static CarbonContextDataHolder getCurrentCarbonContextHolder(
-            ConfigurationContext configurationContext, boolean addToConfigContext) {
-        if (configurationContext != null) {
-            if (configurationContext.getAxisConfiguration() != null) {
-                return getCurrentCarbonContextHolder(configurationContext.getAxisConfiguration(),
-                                                     addToConfigContext);
-            }
-        }
-        return getThreadLocalCarbonContextHolder();
-    }
-
-    /**
-     * Provides an instance of the current CarbonContext available on the Axis2 Configuration. If an
-     * instance is not available, this method will first add a new CarbonContext onto the Axis2
-     * Configuration.
-     *
-     * @param axisConfiguration the Axis2 Configuration.
-     * @return the CarbonContext holder.
-     */
-    public static CarbonContextDataHolder getCurrentCarbonContextHolder(
-            AxisConfiguration axisConfiguration) {
-        return getCurrentCarbonContextHolder(axisConfiguration, true);
-    }
-
-    private static CarbonContextDataHolder getClone() {
-        return new CarbonContextDataHolder(getCurrentCarbonContextHolder());
-    }
-
-    /**
-     * This utility method is used to obtain an instance of the CarbonContext available on the Axis
-     * Configuration. It also accepts an argument explaining whether we need to add the
-     * CarbonContext if it was not already available.
-     *
-     * @param axisConfiguration  the Axis2 Configuration.
-     * @param addToConfiguration whether the CarbonContext should be added if it doesn't already
-     *                           exist.
-     * @return the CarbonContext holder if it was existing, or if it was newly added.
-     */
-    private static CarbonContextDataHolder getCurrentCarbonContextHolder(
-            AxisConfiguration axisConfiguration, boolean addToConfiguration) {
-        Parameter param = axisConfiguration.getParameter(CARBON_CONTEXT_HOLDER);
-        if (param != null && param.getValue() != null) {
-            return (CarbonContextDataHolder) param.getValue();
-        } else if (!addToConfiguration) {
-            return null;
-        }
-        try {
-            CarbonContextDataHolder context = getClone();
-            log.debug("Added CarbonContext to the Axis Configuration");
-            axisConfiguration.addParameter(CARBON_CONTEXT_HOLDER, context);
-            return context;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to add CarbonContext to the AxisConfiguration.", e);
-        }
-    }
-
-    /**
-     * Provides an instance of the current CarbonContext available on the HTTP Session. If an
-     * instance is not available, this method will first add a new CarbonContext onto the HTTP
-     * Session.
-     *
-     * @param httpSession the HTTP Session.
-     * @return the CarbonContext holder.
-     */
-    public static CarbonContextDataHolder getCurrentCarbonContextHolder(HttpSession httpSession) {
-        return getCurrentCarbonContextHolder(httpSession, true);
-    }
-
-    /**
-     * This utility method is used to obtain an instance of the CarbonContext available on the HTTP
-     * Session. It also accepts an argument explaining whether we need to add the CarbonContext if
-     * it was not already available.
-     *
-     * @param httpSession  the HTTP Session.
-     * @param addToSession whether the CarbonContext should be added if it doesn't already exist.
-     * @return the CarbonContext holder if it was existing, or if it was newly added.
-     */
-    private static CarbonContextDataHolder getCurrentCarbonContextHolder(HttpSession httpSession,
-                                                                         boolean addToSession) {
-        Object contextObject = httpSession.getAttribute(CARBON_CONTEXT_HOLDER);
-        if (contextObject != null) {
-            return (CarbonContextDataHolder) contextObject;
-        } else if (!addToSession) {
-            return null;
-        }
-        CarbonContextDataHolder context = getClone();
-        log.debug("Added CarbonContext to the HTTP Session");
-        httpSession.setAttribute(CARBON_CONTEXT_HOLDER, context);
-        return context;
-    }
-
-    /**
-     * Provides an instance of the current CarbonContext available on the Thrift Session. If an
-     * instance is not available, this method will first add a new CarbonContext onto the Thrift
-     * Session.
-     *
-     * @param thriftSession the Thrift Session.
-     * @return the CarbonContext holder.
-     */
-    public static CarbonContextDataHolder getCurrentCarbonContextHolder(ThriftSession thriftSession) {
-        return getCurrentCarbonContextHolder(thriftSession, true);
-    }
-
-    /**
-     * This utility method is used to obtain an instance of the CarbonContext available on the Thrift
-     * Session. It also accepts an argument explaining whether we need to add the CarbonContext if
-     * it was not already available.
-     *
-     * @param thriftSession the Thirft Session.
-     * @param addToSession  whether the CarbonContext should be added if it doesn't already exist.
-     * @return the CarbonContext holder if it was existing, or if it was newly added.
-     */
-    private static CarbonContextDataHolder getCurrentCarbonContextHolder(ThriftSession thriftSession,
-                                                                         boolean addToSession) {
-        Object contextObject = thriftSession.getSessionCarbonContextHolder();
-        if (contextObject != null) {
-            return (CarbonContextDataHolder) contextObject;
-        } else if (!addToSession) {
-            return null;
-        }
-        CarbonContextDataHolder context = getClone();
-        log.debug("Added CarbonContext to the Thrift Session");
-       //thriftSession.setAttribute(CARBON_CONTEXT_HOLDER, context);
-        return context;
-    }
-
-    /**
-     * Provides an instance of the current CarbonContext available on the Message Context. This
-     * method will lookup the Message Context and see whether a CarbonContext is available on either
-     * the HTTP Session or the Axis2 Configuration available through the Message Context. If an
-     * instance is not available, this method will add it to the HTTP Session if an HTTP Session is
-     * already available. Failing that, it will try to add it to the Axis2 Configuration.
-     *
-     * @param messageContext the Message Context.
-     * @return the CarbonContext holder.
-     */
-    public static CarbonContextDataHolder getCurrentCarbonContextHolder(
-            MessageContext messageContext) {
-        HttpServletRequest request = (HttpServletRequest) messageContext.getProperty(
-                HTTPConstants.MC_HTTP_SERVLETREQUEST);
-        if (request != null) {
-            HttpSession httpSession = request.getSession(false);
-            if (httpSession != null) {
-                CarbonContextDataHolder context = getCurrentCarbonContextHolder(httpSession, false);
-                if (context != null) {
-                    return context;
-                }
-                if (messageContext.getConfigurationContext() != null) {
-                    context = getCurrentCarbonContextHolder(
-                            messageContext.getConfigurationContext(), false);
-                    if (context != null) {
-                        return context;
-                    }
-                }
-                context = getClone();
-                log.debug("Added CarbonContext to the HTTP Session");
-                httpSession.setAttribute(CARBON_CONTEXT_HOLDER, context);
-                return context;
-            }
-        }
-        return getCurrentCarbonContextHolder(messageContext.getConfigurationContext());
-    }
-
-    /**
-     * This method will return the current CarbonContext from the thread-local copy.
-     * If that is not available, then this method will attempt to obtain an instance of a CarbonContext on the Message Context.
-     * This method will lookup the Message Context and see whether a CarbonContext is available on
-     * either the HTTP Session or the Axis2 Configuration available through the Message Context.
-     *
-     * @return the CarbonContext holder.
-     */
-
-    public static CarbonContextDataHolder getCurrentCarbonContextHolder() {
-        try {
-            MessageContext messageContext = MessageContext.getCurrentMessageContext();
-            if (messageContext != null) {
-                return getCurrentCarbonContextHolder(messageContext);
-            } else {
-                return getCurrentCarbonContextHolder((ConfigurationContext) null);
-            }
-        } catch (NullPointerException ignore) {
-            // This is thrown when the message context is not initialized
-            // So return the Threadlocal
-            return getThreadLocalCarbonContextHolder();
-        } catch (NoClassDefFoundError ignore) {
-            // There can be situations where the CarbonContext is accessed, when there is no Axis2
-            // library on the classpath.
-            return getThreadLocalCarbonContextHolder();
-        }
     }
 
     /**

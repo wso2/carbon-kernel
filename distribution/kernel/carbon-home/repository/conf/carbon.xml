@@ -602,8 +602,8 @@
        Default Feature Repository of WSO2 Carbon.
     -->
     <FeatureRepository>
-	<RepositoryName>default repository</RepositoryName>
-	<RepositoryURL>${p2.repo.url}</RepositoryURL>
+	    <RepositoryName>default repository</RepositoryName>
+	    <RepositoryURL>${p2.repo.url}</RepositoryURL>
     </FeatureRepository>
 
     <!--
