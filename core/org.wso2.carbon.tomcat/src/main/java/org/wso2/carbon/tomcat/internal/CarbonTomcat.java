@@ -230,6 +230,8 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         if (webAppFilePath.equals(baseName)) {
             return true;
         } else {
+            //if the webapp is uploaded to tenant-space (eg: <CARBON_HOME>/repository/tenants/1/webapps),
+            //webAppFilePath will not be equal to any of appBase value in catalina-server.xml
             String baseDir = baseName.substring(0,baseName.lastIndexOf(File.separator));
             baseDir = baseDir.substring(baseDir.lastIndexOf(File.separator) + 1, baseDir.length());
             return webAppFilePath.contains(File.separator + "repository" + File.separator) &&
