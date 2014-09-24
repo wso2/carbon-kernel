@@ -37,6 +37,7 @@ import org.apache.axis2.util.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.deployment.CarbonDeploymentSchedulerTask;
@@ -47,10 +48,8 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.Axis2ConfigItemHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerException;
-import org.wso2.carbon.utils.deployment.Axis2DeployerRegistry;
-import org.wso2.carbon.utils.deployment.Axis2ModuleRegistry;
-import org.wso2.carbon.utils.deployment.GhostDeployerRegistry;
-import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
+import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
+import org.wso2.carbon.utils.deployment.*;
 import org.wso2.carbon.utils.deployment.service.listeners.Axis2ConfigServiceListener;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -62,10 +61,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -197,11 +193,32 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             configServiceListener = new Axis2ConfigServiceListener(axisConfig, bundleContext);
         }
 
-        // Adding deployers which come inside bundles
+        //reading deployers for virtual hosts
+        ServiceTracker deployerServiceTracker = null;
+        Axis2DeployerProvider[] axis2DeployerProviderList = null;
+        try {
+            deployerServiceTracker = new ServiceTracker(bundleContext,
+                    Axis2DeployerProvider.class.getName(), null);
+            deployerServiceTracker.open();
+            if (deployerServiceTracker.getServices() == null) {
+                axis2DeployerProviderList = new Axis2DeployerProvider[]{};
+            } else {
+                axis2DeployerProviderList = Arrays.copyOf(deployerServiceTracker.getServices(),
+                        deployerServiceTracker.getServices().length, Axis2DeployerProvider[].class);
+            }
+        } finally {
+            if (deployerServiceTracker != null) {
+                deployerServiceTracker.close();
+            }
+        }
+        List<DeployerConfig> deployerConfigs = readDeployerConfigs(axis2DeployerProviderList);
+        // Adding deployers from vhosts and deployers which come inside bundles
         if (GhostDeployerUtils.isGhostOn()) {
-            new GhostDeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles());
+            new GhostDeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles(),
+                    deployerConfigs);
         } else {
-            new Axis2DeployerRegistry((axisConfig)).register(configItemHolder.getDeployerBundles());
+            new Axis2DeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles(),
+                    deployerConfigs);
         }
 
         //Deploying modules which come inside bundles.
@@ -249,6 +266,14 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             axisConfig.addParameter(contextRootParam);
         }
         return axisConfig;
+    }
+
+    private List<DeployerConfig> readDeployerConfigs(Axis2DeployerProvider[] axis2DeployerProviders) {
+        List<DeployerConfig> allDeployerConfig = new ArrayList<DeployerConfig>();
+        for (Axis2DeployerProvider axis2DeployerProvider : axis2DeployerProviders) {
+            allDeployerConfig.addAll(axis2DeployerProvider.getDeployerConfigs());
+        }
+        return allDeployerConfig;
     }
 
     public boolean isGlobalyEngaged(AxisModule axisModule) {
