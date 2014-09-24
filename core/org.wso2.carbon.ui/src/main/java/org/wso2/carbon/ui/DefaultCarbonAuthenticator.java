@@ -135,13 +135,7 @@ public class DefaultCarbonAuthenticator extends BasicAuthUIAuthenticator {
      *
      */
     public void unauthenticate(Object object) throws Exception {
-        try {
-            getAuthenticationAdminCient(((HttpServletRequest) object)).logout();
-        } catch (Exception ignored) {
-            String msg = "Configuration context is null.";
-            log.error(msg);
-            throw new Exception(msg);
-        }
+        super.unauthenticate(object);
     }
 
     /**
@@ -151,29 +145,6 @@ public class DefaultCarbonAuthenticator extends BasicAuthUIAuthenticator {
         return AUTHENTICATOR_NAME;
     }
 
-    /**
-     * 
-     * @param request
-     * @return
-     * @throws AxisFault
-     */
-    private AuthenticationAdminClient getAuthenticationAdminCient(HttpServletRequest request)
-            throws AxisFault {
-        HttpSession session = request.getSession();
-        ServletContext servletContext = session.getServletContext();
-        String backendServerURL = request.getParameter("backendURL");
-        if (backendServerURL == null) {
-            backendServerURL = CarbonUIUtil.getServerURL(servletContext, request.getSession());
-        }
-        session.setAttribute(CarbonConstants.SERVER_URL, backendServerURL);
-
-        ConfigurationContext configContext = (ConfigurationContext) servletContext
-                .getAttribute(CarbonConstants.CONFIGURATION_CONTEXT);
-
-        String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN);
-
-        return new AuthenticationAdminClient(configContext, backendServerURL, cookie, session, true);
-    }
 
     @SuppressWarnings("rawtypes")
     @Override
