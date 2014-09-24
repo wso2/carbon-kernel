@@ -211,7 +211,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
                     break;
                 }
             } else {
-                if (isEqualTo(baseDir, childHost.getAppBase())) {
+                if (isEqualTo(baseDir + File.separator, childHost.getAppBase() + File.separator)) {
                     virtualHost = childHost;
                     break;
                 }
@@ -227,7 +227,14 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
      * @return true if values are equal, false otherwise
      */
     private boolean isEqualTo(String webAppFilePath, String baseName) {
-        return webAppFilePath.equals(baseName);
+        if (webAppFilePath.equals(baseName)) {
+            return true;
+        } else {
+            String baseDir = baseName.substring(0,baseName.lastIndexOf(File.separator));
+            baseDir = baseDir.substring(baseDir.lastIndexOf(File.separator) + 1, baseDir.length());
+            return webAppFilePath.contains(File.separator + "repository" + File.separator) &&
+                    webAppFilePath.contains(File.separator + baseDir + File.separator);
+        }
     }
 
     /**
