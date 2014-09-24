@@ -483,7 +483,7 @@
 
         <version.xmlunit>1.1</version.xmlunit>
         <version.jaxen>1.1.1</version.jaxen>
-        <version.log4j>1.2.13</version.log4j>
+        <version.log4j>1.2.17.wso2v1</version.log4j>
         <version.junit>3.8.2</version.junit>
         <version.xmlunit1>1.0</version.xmlunit1>
         <version.tcpmon>1.0</version.tcpmon>
@@ -762,11 +762,10 @@
                 <artifactId>ecj</artifactId>
                 <version>${version.eclipse.ecj}</version>
             </dependency>
-
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.apache.log4j</artifactId>
-                <version>1.2.13.v200706111418</version>
+                <groupId>org.apache.log4j.wso2</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${version.log4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
@@ -1108,11 +1107,6 @@
                 <groupId>org.apache.poi.wso2</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>3.9.0.wso2v2</version>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${version.log4j}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
