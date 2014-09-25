@@ -42,9 +42,9 @@ public class CircularBufferTest {
     }
 
     /**
-     * Test if appending a null element throws a NullPointerException
+     * Test if appending a null element throws an IllegalArgumentException
      */
-    @Test(expectedExceptions = NullPointerException.class)
+    @Test(expectedExceptions = IllegalArgumentException.class)
     public void testAppendNullElement() {
         CircularBuffer<String> buffer = new CircularBuffer<String>(5);
         assertEquals(buffer.getSize(), 5, "Buffer is not initialized with expected size.");

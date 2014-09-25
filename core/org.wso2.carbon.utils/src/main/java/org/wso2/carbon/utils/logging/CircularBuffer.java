@@ -38,10 +38,12 @@ public class CircularBuffer<E> {
      */
     public CircularBuffer(int size) {
         if (size <= 0) {
-            throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is invalid");
+            throw new IllegalArgumentException(
+                    "Requested size of circular buffer (" + size + ") is invalid");
         }
         if (size > MAX_ALLOWED_SIZE) {
-            throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is greater than the " +
+            throw new IllegalArgumentException(
+                    "Requested size of circular buffer (" + size + ") is greater than the " +
                     "allowed max size " + MAX_ALLOWED_SIZE);
         }
         this.size = size;
@@ -65,7 +67,8 @@ public class CircularBuffer<E> {
      */
     public synchronized void append(E element) {
         if (element == null) {
-            throw new NullPointerException("Circular buffer doesn't support null values to be added to buffer");
+            throw new IllegalArgumentException(
+                    "Circular buffer doesn't support null values to be added to buffer");
         }
         if (startIndex == getSize() - 1) {
             startIndex = 0;
