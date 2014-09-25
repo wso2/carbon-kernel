@@ -450,20 +450,8 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
     }
 
     public void loadServices() {
-        //TODO: Do DeploymentSynchronization
-
-        setWebLocationString(webLocation);
-        if (repoLocation != null && repoLocation.trim().length() != 0) {
-            if (isUrlRepo) {
-                try {
-                    loadServicesFromUrl(new URL(repoLocation));
-                } catch (MalformedURLException e) {
-                    log.error("Services repository URL " + repoLocation + " is invalid");
-                }
-            } else {
-                super.loadServices();
-            }
-        }
+        //We don't deploy any artifacts at this time, DeploymentServerStartupObserver will take care about
+        //deployment in later stage of server startup (Refer CARBON-14977 ).
     }
 
     public void addAxis2ConfigServiceListener() throws Exception{
@@ -531,5 +519,20 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             log.error("Cannot find axis2.xml file",e);
         }
         return axis2xmlStream;
+    }
+
+    public void deployServices() {
+        setWebLocationString(webLocation);
+        if (repoLocation != null && repoLocation.trim().length() != 0) {
+            if (isUrlRepo) {
+                try {
+                    loadServicesFromUrl(new URL(repoLocation));
+                } catch (MalformedURLException e) {
+                    log.error("Services repository URL " + repoLocation + " is invalid");
+                }
+            } else {
+                super.loadServices();
+            }
+        }
     }
 }

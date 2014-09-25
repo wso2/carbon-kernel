@@ -30,6 +30,7 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
+import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
@@ -82,8 +83,10 @@ public class CarbonCoreServiceComponent {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID);
+            ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null) ;
+            ctxt.getBundleContext().registerService(Axis2ConfigurationContextObserver.class.getName(), new DeploymentAxis2ConfigurationContextObserver(), null);
             carbonServerManager = new CarbonServerManager();
-            carbonServerManager.start(ctxt.getBundleContext());        
+            carbonServerManager.start(ctxt.getBundleContext());
         } catch (Throwable e) {
             log.error("Failed to activate Carbon Core bundle ", e);
         }
@@ -225,13 +228,13 @@ public class CarbonCoreServiceComponent {
     }
 
 
-    public static synchronized void startupBefore() {
+    public static synchronized void notifyBefore() {
         for (ServerStartupObserver observer : serverStartupObservers) {
             observer.completingServerStartup();
         }
     }
 
-    public static synchronized void startupAfter(){
+    public static synchronized void notifyAfter(){
         for (ServerStartupObserver observer : serverStartupObservers) {
             observer.completedServerStartup();
         }
