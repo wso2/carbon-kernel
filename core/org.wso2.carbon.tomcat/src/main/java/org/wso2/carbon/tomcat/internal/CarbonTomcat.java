@@ -423,9 +423,12 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
      * starting the connectors. We have overridden the CatalinaService. It doesn't start the connectors during
      * Engine startup
      *
+     * @deprecated use {@link #startConnectors(int)} instead.
+     *
      * @param portOffset that to be set while starting connectors
      */
     @Override
+    @Deprecated
     public void startConnectors(int portOffset, String keyPass, String keyStorePass, String keyStoreFile) {
         //getting the list of connectors bound to this tomcat instance
 
@@ -434,12 +437,29 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
             try {
                 int currentPort = connector.getPort();
                 connector.setPort(currentPort + portOffset);
-
                 if (connector.getProtocolHandler() instanceof Http11NioProtocol) {
                     ((Http11NioProtocol) connector.getProtocolHandler()).setKeyPass(keyPass);
                     ((Http11NioProtocol) connector.getProtocolHandler()).setKeystorePass(keyStorePass);
                     ((Http11NioProtocol) connector.getProtocolHandler()).setKeystoreFile(keyStoreFile);
                 }
+                connector.start();
+                if (log.isDebugEnabled()) {
+                    log.debug("staring the tomcat connector : " + connector.getProtocol());
+                }
+            } catch (LifecycleException e) {
+                log.error("LifeCycleException while starting tomcat connector", e);
+            }
+        }
+    }
+
+    @Override
+    public void startConnectors(int portOffset) {
+        //getting the list of connectors bound to this tomcat instance
+        Connector[] connectors = this.getService().findConnectors();
+        for (Connector connector : connectors) {
+            try {
+                int currentPort = connector.getPort();
+                connector.setPort(currentPort + portOffset);
                 connector.start();
                 if (log.isDebugEnabled()) {
                     log.debug("staring the tomcat connector : " + connector.getProtocol());

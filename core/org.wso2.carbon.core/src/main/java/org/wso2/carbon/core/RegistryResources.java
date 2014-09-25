@@ -145,7 +145,7 @@ public final class RegistryResources {
         public static final String SERVER_PRIMARY_KEYSTORE_TYPE = "Security.KeyStore.Type";
 
         public static final String DEFAULT_SECURITY_CERTIFICATE_ALIAS = "wso2carbon";
-        
+
         //Registry store
         public static final String SERVER_REGISTRY_KEYSTORE_FILE = "Security.RegistryKeyStore.Location";
         public static final String SERVER_REGISTRY_KEYSTORE_PASSWORD = "Security.RegistryKeyStore.Password";

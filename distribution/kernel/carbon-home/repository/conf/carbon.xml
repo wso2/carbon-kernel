@@ -323,22 +323,6 @@
             <!-- Private Key password-->
             <KeyPassword>wso2carbon</KeyPassword>
         </KeyStore>
-		
-		 <!--
-			Encrypt Decrypt Store will be used for encrypting and decrypting
-		-->
-        <RegistryKeyStore>
-            <!-- Keystore file location-->
-            <Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
-            <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>JKS</Type>
-            <!-- Keystore password-->
-            <Password>wso2carbon</Password>
-            <!-- Private Key alias-->
-            <KeyAlias>wso2carbon</KeyAlias>
-            <!-- Private Key password-->
-            <KeyPassword>wso2carbon</KeyPassword>
-        </RegistryKeyStore>
 
         <!--
             System wide trust-store which is used to maintain the certificates of all

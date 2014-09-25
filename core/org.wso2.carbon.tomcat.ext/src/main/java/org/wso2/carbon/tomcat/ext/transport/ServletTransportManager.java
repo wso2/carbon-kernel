@@ -75,11 +75,7 @@ public class ServletTransportManager {
 
     @SuppressWarnings("unused")
     public static void startTransports() {
-        ServerConfigurationService serverConfigurationService = CarbonTomcatServiceHolder.getServerConfigurationService();
-        CarbonTomcatServiceHolder.getCarbonTomcatService().startConnectors(ServletTransportManager.portOffset,
-                serverConfigurationService.getFirstProperty("Security.KeyStore.KeyPassword"),
-                serverConfigurationService.getFirstProperty("Security.KeyStore.Password"),
-                serverConfigurationService.getFirstProperty("Security.KeyStore.Location"));
+        CarbonTomcatServiceHolder.getCarbonTomcatService().startConnectors(ServletTransportManager.portOffset);
     }
 
     @SuppressWarnings("unused")
