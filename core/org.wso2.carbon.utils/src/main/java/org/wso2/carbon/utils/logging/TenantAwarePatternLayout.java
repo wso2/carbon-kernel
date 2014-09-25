@@ -1,25 +1,18 @@
 /*
- *  Copyright (c) 2005-2009, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright 2005,2014 WSO2, Inc. http://www.wso2.org
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.wso2.carbon.utils.logging;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.helpers.FormattingInfo;
@@ -28,8 +21,10 @@ import org.apache.log4j.helpers.PatternParser;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * A log4j pattern layout implementation capable of capturing tenant details
@@ -201,20 +196,21 @@ public class TenantAwarePatternLayout extends PatternLayout {
         }
 
         private static class TenantIdPatternConverter extends TenantAwareNamedPatternConverter {
-            int tenantId;
+            int tenantIdentifier;
 
-            public TenantIdPatternConverter(FormattingInfo formattingInfo, int precision, int tenantId1) {
+            public TenantIdPatternConverter(FormattingInfo formattingInfo, int precision,
+                                            int tenantId) {
                 super(formattingInfo, precision);
-                tenantId = tenantId1;
+                tenantIdentifier = tenantId;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
                 if (event instanceof TenantAwareLoggingEvent) {
                     return ((TenantAwareLoggingEvent) event).getTenantId();
                 } else {
-                    if (tenantId !=
+                    if (tenantIdentifier !=
                             MultitenantConstants.INVALID_TENANT_ID) {
-                        return Integer.toString(tenantId);
+                        return Integer.toString(tenantIdentifier);
                     }
                 }
 
@@ -223,49 +219,55 @@ public class TenantAwarePatternLayout extends PatternLayout {
         }
 
         private static class UserNamePatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext carbonContext;
+            CarbonContext carbonCtx;
 
-            public UserNamePatternConverter(FormattingInfo formattingInfo, int precision, CarbonContext carbonContext1) {
+            public UserNamePatternConverter(FormattingInfo formattingInfo, int precision,
+                                            CarbonContext carbonContext) {
                 super(formattingInfo, precision);
-                carbonContext = carbonContext1;
+                carbonCtx = carbonContext;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
 
-                return carbonContext.getUsername();
+                return carbonCtx.getUsername();
             }
         }
 
         private static class TenantDomainPatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext carbonContext;
+            CarbonContext carbonCtx;
 
-            public TenantDomainPatternConverter(FormattingInfo formattingInfo, int precision, CarbonContext carbonContext1) {
+            public TenantDomainPatternConverter(FormattingInfo formattingInfo, int precision,
+                                                CarbonContext carbonContext) {
                 super(formattingInfo, precision);
-                carbonContext = carbonContext1;
+                carbonCtx = carbonContext;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-                return carbonContext.getTenantDomain();
+                return carbonCtx.getTenantDomain();
             }
         }
 
         private static class ServiceNamePatternConverter extends TenantAwareNamedPatternConverter {
-            String serverName;
-            public ServiceNamePatternConverter(FormattingInfo formattingInfo, int precision, String serverName1) {
+            String name;
+
+            public ServiceNamePatternConverter(FormattingInfo formattingInfo, int precision,
+                                               String serverName) {
                 super(formattingInfo, precision);
-                serverName = serverName1;
+                name = serverName;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-                return serverName;
+                return name;
             }
         }
 
         private static class HostNamePatternConverter extends TenantAwareNamedPatternConverter {
             String address;
-            public HostNamePatternConverter(FormattingInfo formattingInfo, int precision, String address1) {
+
+            public HostNamePatternConverter(FormattingInfo formattingInfo, int precision,
+                                            String hostAddress) {
                 super(formattingInfo, precision);
-                address = address1;
+                address = hostAddress;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
@@ -290,10 +292,12 @@ public class TenantAwarePatternLayout extends PatternLayout {
 
 
         private static class AppNamePatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext context;
-            public AppNamePatternConverter(FormattingInfo formattingInfo, int precision, CarbonContext carbonContext1) {
+            CarbonContext carbonCtx;
+
+            public AppNamePatternConverter(FormattingInfo formattingInfo, int precision,
+                                           CarbonContext carbonContext) {
                 super(formattingInfo, precision);
-                context = carbonContext1;
+                carbonCtx = carbonContext;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
@@ -304,7 +308,7 @@ public class TenantAwarePatternLayout extends PatternLayout {
                         return "";
                     }
                 } else {
-                    String temp =  context.getApplicationName();
+                    String temp =  carbonCtx.getApplicationName();
                     if (temp != null) {
                         return temp;
                     } else {
@@ -312,7 +316,6 @@ public class TenantAwarePatternLayout extends PatternLayout {
                     }
 
                 }
-//				
             }
         }
 
@@ -331,16 +334,18 @@ public class TenantAwarePatternLayout extends PatternLayout {
         }
 
         private static class TenantPatternConverter extends TenantAwareNamedPatternConverter {
-            int tenantId;
-            public TenantPatternConverter(FormattingInfo formattingInfo, int precision, int tenantId1) {
+            int tenantIdentifier;
+
+            public TenantPatternConverter(FormattingInfo formattingInfo, int precision,
+                                          int tenantId) {
                 super(formattingInfo, precision);
-                tenantId = tenantId1;
+                tenantIdentifier = tenantId;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-                if (tenantId !=
+                if (tenantIdentifier !=
                         MultitenantConstants.INVALID_TENANT_ID
-                        && tenantId != MultitenantConstants.SUPER_TENANT_ID) {
+                        && tenantIdentifier != MultitenantConstants.SUPER_TENANT_ID) {
                     return new TenantAwarePatternLayout(tenantPattern).format(event);
                 }
                 return superTenantText;
