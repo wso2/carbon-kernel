@@ -49,16 +49,6 @@
                 <artifactId>org.wso2.carbon.tomcat.ext</artifactId>
                 <version>${project.version}</version>
 			</dependency>
-			<dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.tomcat.patch</artifactId>
-                <version>${project.version}</version>
-			</dependency>
-			<dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.tomcat.fragment.dummy</artifactId>
-                <version>${project.version}</version>
-			</dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.server.admin</artifactId>

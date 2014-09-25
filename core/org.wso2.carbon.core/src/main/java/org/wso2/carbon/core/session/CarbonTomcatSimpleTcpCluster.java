@@ -19,9 +19,11 @@
 
 package org.wso2.carbon.core.session;
 
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.catalina.Manager;
 import org.apache.catalina.ha.ClusterManager;
 import org.apache.catalina.ha.tcp.SimpleTcpCluster;
+import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 
 /**
  * The class extends tomcat's SimpleTcpCluster. The main use of this class is to have our
@@ -58,6 +60,12 @@ public class CarbonTomcatSimpleTcpCluster extends SimpleTcpCluster{
         try {
             manager = managerTemplate.cloneFromTemplate();
             ((ClusterManager)manager).setName(name);
+
+            // TODO The following is the correct place to set sessionReplication is enabled, but CC is not yet ready
+            /*ConfigurationContext configurationContext = CarbonCoreDataHolder.getInstance().getMainServerConfigContext();
+            if (configurationContext != null) {
+                configurationContext.setProperty(SessionConstants.SESSION_REPLICATION_INITIALIZED, true);
+            }*/
         } catch (Exception x) {
             log.error("Unable to clone cluster manager, " +
                       "defaulting to org.apache.catalina.ha.session.DeltaManager", x);

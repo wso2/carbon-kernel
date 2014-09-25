@@ -419,7 +419,28 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 	 */
 	public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames,
 	                                                 String profileName) throws UserStoreException {
-		Map<String, String> values = new HashMap<String, String>();
+
+        String userDN = userCache.get(userName);
+
+        if(userDN == null){
+            // read list of patterns from user-mgt.xml
+            String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
+
+            if (patterns != null && !patterns.isEmpty()) {
+
+                if(log.isDebugEnabled()) {
+                    log.debug("Using User DN Patterns " + patterns);
+                }
+
+                if(patterns.contains("#")){
+                    userDN = getNameInSpaceForUserName(userName);
+                } else {
+                    userDN = MessageFormat.format(patterns, userName);
+                }
+            }
+        }
+
+        Map<String, String> values = new HashMap<String, String>();
 		String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
 		String userNameProperty =
 		                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
@@ -428,13 +449,41 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		if (userNames.length > 1) {
 			userName = userNames[1];
 		}
-		searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
 
+        searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
 		DirContext dirContext = this.connectionSource.getContext();
 		NamingEnumeration<?> answer = null;
 		NamingEnumeration<?> attrs = null;
 		try {
-			answer = this.searchForUser(searchFilter, propertyNames, dirContext);
+			if(userDN != null){
+                SearchControls searchCtls = new SearchControls();
+                searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                if (propertyNames != null && propertyNames.length > 0) {
+                    searchCtls.setReturningAttributes(propertyNames);
+                }
+                if(log.isDebugEnabled()) {
+                    try {
+                        log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext.getNameInNamespace());
+                    } catch (NamingException e) {
+                        log.debug("Error while getting DN of search base", e);
+                    }
+                    if (propertyNames == null) {
+                        log.debug("No attributes requested");
+                    } else {
+                        for (String attribute : propertyNames) {
+                            log.debug("Requesting attribute :" + attribute);
+                        }
+                    }
+                }
+                try {
+                    answer = dirContext.search(userDN, searchFilter, searchCtls);
+                } catch (NamingException e) {
+                    log.debug(e.getMessage(), e);
+                    throw new UserStoreException(e.getMessage());
+                }
+            } else {
+                answer = this.searchForUser(searchFilter, propertyNames, dirContext);
+            }
 			while (answer.hasMoreElements()) {
 				SearchResult sr = (SearchResult) answer.next();
 				Attributes attributes = sr.getAttributes();
@@ -935,6 +984,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		}
 		return answer;
 	}
+
 
 	/**
 	 * 

@@ -163,12 +163,12 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
 
     @Override
     public void applicationMemberAdded(Member member) {
-        // Nothing to implement
+    	// Nothing to implement
     }
 
     @Override
     public void applicationMemberRemoved(Member member) {
-        // Nothing to implement
+    	// Nothing to implement
     }
 
     @Override
@@ -219,6 +219,7 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
         @Override
         public void entryRemoved(EntryEvent<String, Member> entryEvent) {
             connectedMembers.remove(entryEvent.getValue());
+            applicationMemberRemoved(entryEvent.getValue());
         }
 
         @Override

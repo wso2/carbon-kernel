@@ -15,88 +15,139 @@
  */
 package org.wso2.carbon.utils.logging;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This is a Circular Buffer implementation. In this implementaion it is assumed that items
- * will never be removed from this buffer. It can be used for a case such as a Rolling Log.
+ * will never be removed from this buffer. This can be used for a case such as a Rolling Log.
  * A client can request the latest 'n' number of items that are stored in this buffer.
  */
-public class CircularBuffer {
-    private Object[] buffer;
+public class CircularBuffer<E> {
+    private List<E> bufferList;
     private static final int MAX_ALLOWED_SIZE = 10000;
     private int startIndex;
     private int endIndex;
+    private final int size;
 
+    /**
+     * Create a circular buffer with the given size
+     *
+     * @param size
+     *         - fixed size of the buffer
+     */
     public CircularBuffer(int size) {
         if (size <= 0) {
-            throw new IllegalArgumentException("Requested size of circular buffer (" +
-                    size + ") is invalid");
+            throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is invalid");
         }
         if (size > MAX_ALLOWED_SIZE) {
-            throw new IllegalArgumentException("Requested size of circular buffer (" +
-                    size + ") is greater than the allowed max size " +
-                    MAX_ALLOWED_SIZE);
+            throw new IllegalArgumentException("Requested size of circular buffer (" + size + ") is greater than the " +
+                    "allowed max size " + MAX_ALLOWED_SIZE);
         }
-        buffer = new Object[size];
-        startIndex = 0;
-        endIndex = -1;
+        this.size = size;
+        this.bufferList = new ArrayList<E>(getSize());
+        this.startIndex = 0;
+        this.endIndex = -1;
     }
 
+    /**
+     * Create a circular buffer with the maximum allowed size
+     */
     public CircularBuffer() {
         this(MAX_ALLOWED_SIZE);
     }
 
-    public synchronized void append(Object obj) {
-        if (startIndex == buffer.length - 1) { // are we at the end of the buffer?
+    /**
+     * Append elements while preserving the circular nature of the buffer.
+     *
+     * @param element
+     *         - element to be appended
+     */
+    public synchronized void append(E element) {
+        if (element == null) {
+            throw new NullPointerException("Circular buffer doesn't support null values to be added to buffer");
+        }
+        if (startIndex == getSize() - 1) {
             startIndex = 0;
-        } else if (endIndex == buffer.length - 1) {
+        } else if (endIndex == getSize() - 1) {
             endIndex = -1;
             startIndex = 1;
         } else if (startIndex != 0) {
+            // start index is not in beginning of the buffer
             startIndex++;
         }
         endIndex++;
-        buffer[endIndex] = obj;
+        if (getSize() == bufferList.size()) {
+            // if the buffer capacity has been reached, replace the existing elements,
+            // set method replaces the element in the given index
+            bufferList.set(endIndex, element);
+        } else {
+            // if the buffer capacity has not been reached add elements to the list,
+            // add method lets the array list grow, and appends elements to the end of list
+            bufferList.add(endIndex, element);
+        }
     }
 
-    public synchronized Object[] getObjects(int amount) {
-        Object[] result;
-        if (startIndex == 0) { // simple case. startIndex is beginning of buffer array              
-            if (endIndex + 1 >= amount) {// amount to be retrieved is less than the
-                // total size of contents of buffer array
-                result = new Object[amount];
-                System.arraycopy(buffer, 0, result, 0, amount);
-            } else { // amount to be retrieved is more than the total size of buffer array
-                result = new Object[endIndex + 1];
-                System.arraycopy(buffer, 0, result, 0, endIndex + 1);
-            }
-
-        } else { // starIndex is in the middle or end of the buffer array.
-            // Note that buffer array is completely fille in this case.
-            if (amount < buffer.length) {// amount to be retrieved is less than the total size of
-                // contents of buffer array
-                result = new Object[amount];
-                if (amount <= buffer.length - startIndex) { // no. of items remaining to the
-                    //  right of startIndex is less than the amount to be retrieved
-                    System.arraycopy(buffer, startIndex, result, 0, amount);
-                } else {
-                    System.arraycopy(buffer, startIndex, result, 0, buffer.length - startIndex);
-                    System.arraycopy(buffer, 0, result, buffer.length - startIndex,
-                            amount - buffer.length + startIndex);
-                }
-            } else {// amount to be retrieved is more than the total size of buffer array
-                result = new Object[buffer.length];
-                System.arraycopy(buffer, startIndex, result, 0, buffer.length - startIndex);
-                System.arraycopy(buffer, 0, result, buffer.length - startIndex, endIndex + 1);
-            }
+    /**
+     * Retrieve the given amount of elements from the circular buffer. This is a forgiving
+     * operation, if the amount asked is greater than the size of the buffer it will return all the
+     * available elements
+     *
+     * @param amount
+     *         - no of elements to return
+     * @return - a list of elements
+     */
+    public synchronized List<E> get(int amount) {
+        if (bufferList.isEmpty()) {
+            // if the container is empty return an empty list
+            return new ArrayList<E>();
+        }
+        if (amount <= 0) {
+            // if a negative amount is requested send an empty list
+            return new ArrayList<E>();
+        }
+        int amountOfElementsInContainer = bufferList.size();
+        int amountToRetrieve = amount;
+        List<E> result = new ArrayList<E>(amountOfElementsInContainer);
+        for (int i = startIndex; amountOfElementsInContainer > 0 && amountToRetrieve > 0;
+             i++, amountToRetrieve--, amountOfElementsInContainer--) {
+            // Use the size of the internal container to retrieve elements.
+            // Here starting from the start index we insert elements to the result.
+            // if the requested amount is added, we stop adding more elements to the result or
+            // if all the elements in the internal container is added, we stop adding more elements
+            // to the result.
+            result.add(bufferList.get(i % this.size));
         }
         return result;
     }
 
+    /**
+     * This method is added for backward compatibility.
+     *
+     * @param amount
+     *         - amount of elements to return from the buffer
+     * @return - an object array of amount number of elements in the buffer
+     */
+    public synchronized Object[] getObjects(int amount) {
+        List<E> objectsList = get(amount);
+        return objectsList.toArray(new Object[objectsList.size()]);
+    }
+
+    /**
+     * Clear the circular buffer and reset the indices.
+     */
     public synchronized void clear() {
-        for (int i = 0; i < buffer.length; i++) {
-            buffer[i] = null;
-        }
+        bufferList.clear();
         startIndex = 0;
         endIndex = -1;
+    }
+
+    /**
+     * Return the capacity of the circular buffer. This is set during buffer initialization.
+     *
+     * @return - capacity of the buffer
+     */
+    public int getSize() {
+        return size;
     }
 }

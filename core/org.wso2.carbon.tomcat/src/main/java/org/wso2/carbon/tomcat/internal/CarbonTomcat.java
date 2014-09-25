@@ -153,11 +153,11 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
     }
 
     private Host findHost() {
-        if(this.host == null) {
+        if (this.host == null) {
             Engine engine = findEngine();
             String defaultHost = engine.getDefaultHost();
             Container child = engine.findChild(defaultHost);
-            return (Host)child;
+            return (Host) child;
         } else {
             return this.host;
         }
@@ -175,59 +175,76 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
 
     /**
      * adding web-app with default-host and default listeners
-     * @param contextPath       unique web-app context
-     * @param webappFilePath    File location of the web-app
+     *
+     * @param contextPath    unique web-app context
+     * @param webappFilePath File location of the web-app
      * @return {@link Context} object of the added web-app
      */
     public Context addWebApp(String contextPath, String webappFilePath)
             throws CarbonTomcatException {
         String baseDir = webappFilePath.substring(0, webappFilePath.lastIndexOf(File.separator));
-        Host defaultHost = (Host)this.getEngine().findChild(this.getEngine().getDefaultHost());
-        Host virtualhost = getMatchingVirtualHost(baseDir);
+        Host defaultHost = (Host) this.getEngine().findChild(this.getEngine().getDefaultHost());
+        Host virtualHost = getMatchingVirtualHost(baseDir);
 
-        if(virtualhost!=null){
-            return this.addWebApp(virtualhost,contextPath,webappFilePath,null);
-        }else {
+        if (virtualHost != null) {
+            return this.addWebApp(virtualHost, contextPath, webappFilePath, null);
+        } else {
             return this.addWebApp(defaultHost, contextPath, webappFilePath, null);
         }
     }
 
-    public Host getMatchingVirtualHost(String baseDir){
-        Host virtualhost = null;
-        Container[] virtualhosts = this.getEngine().findChildren();
-        for(Container vhost:virtualhosts){
-            Host childHost = (Host)vhost;
+    /**
+     *
+     * @param baseDir web application directory path
+     * @return host name that matches the directory path
+     */
+    private Host getMatchingVirtualHost(String baseDir) {
+        Host virtualHost = null;
+        Container[] virtualHosts = this.getEngine().findChildren();
+        for (Container vHost : virtualHosts) {
+            Host childHost = (Host) vHost;
 
-            if(childHost.getAppBase().endsWith(File.separator)){
-            //append a file separator to make webAppFilePath equal to appBase
-                if(isEqualTo(baseDir+File.separator, childHost.getAppBase())){
-                    virtualhost = childHost;
+            if (childHost.getAppBase().endsWith(File.separator)) {
+                //append a file separator to make webAppFilePath equal to appBase
+                if (isEqualTo(baseDir + File.separator, childHost.getAppBase())) {
+                    virtualHost = childHost;
                     break;
                 }
             } else {
-                if(isEqualTo(baseDir,childHost.getAppBase())){
-                    virtualhost = childHost;
+                if (isEqualTo(baseDir + File.separator, childHost.getAppBase() + File.separator)) {
+                    virtualHost = childHost;
                     break;
                 }
             }
         }
-        return virtualhost;
+        return virtualHost;
     }
 
-    public boolean isEqualTo(String webAppFilePath, String baseName){
-        if(webAppFilePath.equals(baseName)){
+    /**
+     *
+     * @param webAppFilePath web application path
+     * @param baseName appBase value
+     * @return true if values are equal, false otherwise
+     */
+    private boolean isEqualTo(String webAppFilePath, String baseName) {
+        if (webAppFilePath.equals(baseName)) {
             return true;
-        }
-        else {
-            return false;
+        } else {
+            //if the webapp is uploaded to tenant-space (eg: <CARBON_HOME>/repository/tenants/1/webapps),
+            //webAppFilePath will not be equal to any of appBase value in catalina-server.xml
+            String baseDir = baseName.substring(0,baseName.lastIndexOf(File.separator));
+            baseDir = baseDir.substring(baseDir.lastIndexOf(File.separator) + 1, baseDir.length());
+            return webAppFilePath.contains(File.separator + "repository" + File.separator) &&
+                    webAppFilePath.contains(File.separator + baseDir + File.separator);
         }
     }
 
     /**
      * adding web-app with the default life-cycle listener
-     * @param host              virtual host for the web-app
-     * @param contextPath       unique web-app context
-     * @param webappFilePath    File location of the web-app
+     *
+     * @param host           virtual host for the web-app
+     * @param contextPath    unique web-app context
+     * @param webappFilePath File location of the web-app
      * @return {@link Context} object of the added web-app
      */
     public Context addWebApp(Host host, String contextPath,
@@ -237,6 +254,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
 
     /**
      * adding web-app with default-host
+     *
      * @param contextPath       unique web-app context
      * @param webappFilePath    File location of the web-app
      * @param lifecycleListener tomcat life-cycle listener
@@ -244,7 +262,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
      */
     public Context addWebApp(String contextPath, String webappFilePath, LifecycleListener lifecycleListener)
             throws CarbonTomcatException {
-        Host defaultHost = (Host)this.getEngine().findChild(this.getEngine().getDefaultHost());
+        Host defaultHost = (Host) this.getEngine().findChild(this.getEngine().getDefaultHost());
         return this.addWebApp(defaultHost, contextPath, webappFilePath, lifecycleListener);
     }
 
@@ -267,8 +285,8 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         boolean removeContext = false;
         try {
             Container child = host.findChild(contextPath);
-            if(child != null){
-                if(ctx != null && host != null) {
+            if (child != null) {
+                if (ctx != null && host != null) {
                     ctx.setRealm(null);
                     try {
                         ctx.stop();
@@ -314,10 +332,10 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
                 contextXmlFileEntry = webappJarFile.getJarEntry(Constants.ApplicationContextXml);
                 if (contextXmlFileEntry != null) {
                     ctx.setConfigFile(new URL("jar:file:" + webappFilePath + "!/" +
-                                              Constants.ApplicationContextXml));
+                            Constants.ApplicationContextXml));
                 }
             }
-            if(ctx instanceof StandardContext) {
+            if (ctx instanceof StandardContext) {
                 ((StandardContext) ctx).setClearReferencesStopTimerThreads(true);
             }
             if (host == null) {
@@ -337,7 +355,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
             removeContext = true;
             throw new CarbonTomcatException("Webapp failed to deploy", e);
         } finally {
-            if(removeContext && ctx != null && host != null) {
+            if (removeContext && ctx != null && host != null) {
                 ctx.setRealm(null);
                 try {
                     if (!ctx.getState().equals(LifecycleState.STOPPED)) {
@@ -410,17 +428,17 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
     @Override
     public void startConnectors(int portOffset, String keyPass, String keyStorePass, String keyStoreFile) {
         //getting the list of connectors bound to this tomcat instance
-        
+
         Connector[] connectors = this.getService().findConnectors();
         for (Connector connector : connectors) {
             try {
                 int currentPort = connector.getPort();
                 connector.setPort(currentPort + portOffset);
 
-                if (connector.getProtocolHandler() instanceof Http11NioProtocol){
-                    ((Http11NioProtocol)connector.getProtocolHandler()).setKeyPass(keyPass);
-                    ((Http11NioProtocol)connector.getProtocolHandler()).setKeystorePass(keyStorePass);
-                    ((Http11NioProtocol)connector.getProtocolHandler()).setKeystoreFile(keyStoreFile);
+                if (connector.getProtocolHandler() instanceof Http11NioProtocol) {
+                    ((Http11NioProtocol) connector.getProtocolHandler()).setKeyPass(keyPass);
+                    ((Http11NioProtocol) connector.getProtocolHandler()).setKeystorePass(keyStorePass);
+                    ((Http11NioProtocol) connector.getProtocolHandler()).setKeystoreFile(keyStoreFile);
                 }
                 connector.start();
                 if (log.isDebugEnabled()) {

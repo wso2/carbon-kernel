@@ -26,14 +26,14 @@ import org.wso2.carbon.utils.logging.CircularBuffer;
  */
 public class MemoryAppender extends AppenderSkeleton {
 
-    private CircularBuffer circularBuffer;
+    private CircularBuffer<LoggingEvent> circularBuffer;
     private int bufferSize = -1;
 
     public MemoryAppender() {
-        
+
     }
 
-    public MemoryAppender(CircularBuffer circularBuffer) {
+    public MemoryAppender(CircularBuffer<LoggingEvent> circularBuffer) {
         this.circularBuffer = circularBuffer;
     }
 
@@ -52,21 +52,21 @@ public class MemoryAppender extends AppenderSkeleton {
         return true;
     }
 
-    public CircularBuffer getCircularQueue(){
+    public CircularBuffer<LoggingEvent> getCircularQueue(){
         return circularBuffer;
     }
 
-    public void setCircularBuffer(CircularBuffer circularBuffer) {
+    public void setCircularBuffer(CircularBuffer<LoggingEvent> circularBuffer) {
         this.circularBuffer = circularBuffer;
     }
 
     public void activateOptions() {
         if (bufferSize < 0) {
             if (circularBuffer == null) {
-                this.circularBuffer = new CircularBuffer();
+                this.circularBuffer = new CircularBuffer<LoggingEvent>();
             }
         } else {
-            this.circularBuffer = new CircularBuffer(bufferSize);
+            this.circularBuffer = new CircularBuffer<LoggingEvent>(bufferSize);
         }
     }
 
