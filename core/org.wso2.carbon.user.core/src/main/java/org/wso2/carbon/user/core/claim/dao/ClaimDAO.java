@@ -204,28 +204,30 @@ public class ClaimDAO {
 			if (claim.isReadOnly()) {
 				isReadOnly = 1;
 			}
-			
-			prepStmt = dbConnection.prepareStatement(ClaimDBConstants.ADD_CLAIM_SQL);
-			prepStmt.setInt(1, dialectId);
-			prepStmt.setString(2, claim.getClaimUri());
-			prepStmt.setString(3, claim.getDisplayTag());
-			prepStmt.setString(4, claim.getDescription());
 
-			prepStmt.setString(5, claimMapping.getMappedAttribute());
+			if(claimMapping.getMappedAttribute() != null) {
+				prepStmt = dbConnection.prepareStatement(ClaimDBConstants.ADD_CLAIM_SQL);
+				prepStmt.setInt(1, dialectId);
+				prepStmt.setString(2, claim.getClaimUri());
+				prepStmt.setString(3, claim.getDisplayTag());
+				prepStmt.setString(4, claim.getDescription());
 
-			prepStmt.setString(6, claim.getRegEx());
-			prepStmt.setShort(7, isSupported);
-			prepStmt.setShort(8, isRequired);
-			prepStmt.setInt(9, claim.getDisplayOrder());
-			prepStmt.setInt(10, tenantId);
+				prepStmt.setString(5, claimMapping.getMappedAttribute());
 
-			prepStmt.setString(11, null);
+				prepStmt.setString(6, claim.getRegEx());
+				prepStmt.setShort(7, isSupported);
+				prepStmt.setShort(8, isRequired);
+				prepStmt.setInt(9, claim.getDisplayOrder());
+				prepStmt.setInt(10, tenantId);
 
-			prepStmt.setShort(12, isCheckedAttributed);
-			prepStmt.setShort(13, isReadOnly);
+				prepStmt.setString(11, null);
 
-			prepStmt.executeUpdate();
-			prepStmt.close();
+				prepStmt.setShort(12, isCheckedAttributed);
+				prepStmt.setShort(13, isReadOnly);
+
+				prepStmt.executeUpdate();
+				prepStmt.close();
+			}
 
 			Map<String, String> attributes = claimMapping.getMappedAttributes();
 
