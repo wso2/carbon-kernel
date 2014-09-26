@@ -32,10 +32,11 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Integration</name>
     <modules>
-        <module>security-verifier</module>
-        <module>core</module>
-        <module>framework</module>
-        <module>tests</module>
+        <!--<module>security-verifier</module>-->
+        <!--<module>core</module>-->
+        <!--<module>framework</module>-->
+        <!--<module>tests</module>-->
+        <module>tests-new</module>
         <!--<module>authenticator</module>-->
         <!--<module>common</module>-->
         <!--<module>logviewer</module>-->
