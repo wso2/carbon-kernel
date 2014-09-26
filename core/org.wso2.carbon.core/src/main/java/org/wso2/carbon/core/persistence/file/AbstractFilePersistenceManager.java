@@ -31,10 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@Deprecated
 public abstract class AbstractFilePersistenceManager {
 
     protected AxisConfiguration axisConfig;
-    File metafilesDir;
+//    File metafilesDir;
 
     Map<String, ResourceFileData> resourceMap = new HashMap<String, ResourceFileData>();
 
@@ -62,71 +63,6 @@ public abstract class AbstractFilePersistenceManager {
 
     public synchronized void commitTransaction(String resourceId) throws PersistenceException {
 
-        //if the meta file is not modified omit overriding the meta file
-       if(!isMetaFileModification(resourceId)){
-           if (log.isDebugEnabled()){
-                log.debug("No metafile modification done for : " + resourceId);
-           }
-           resourceMap.remove(resourceId);
-           return;
-        }
-
-        if(CarbonUtils.isWorkerNode()){
-            if (log.isDebugEnabled()){
-                log.debug("Worker nodes do not need to update metafiles.");
-            }
-            resourceMap.remove(resourceId);
-            return;
-        }
-
-        OutputStream outputStream = null;
-        try {
-            synchronized (resourceMap.get(resourceId)) {
-                ResourceFileData fileData = resourceMap.get(resourceId);
-                File f;
-                if (fileData != null && fileData.getOMElement() == null) {   //the resource has been deleted
-                    String childFilePath = getFilePathFromResourceId(resourceId);
-                    f = new File(metafilesDir, childFilePath);
-                    if (f.exists()) {
-                        FileUtils.forceDelete(f);
-                    }
-
-                    if(log.isDebugEnabled()){
-                        log.debug("Successfully deleted persisted resource contents " + resourceId + " " + f.getName());
-                    }
-                    resourceMap.remove(resourceId);
-                    return;
-                } else if (fileData != null) {
-                    f = fileData.getFile();
-                } else {
-                    resourceMap.remove(resourceId);
-                    throw new PersistenceException("persistence data not found");
-                }
-                outputStream = FileUtils.openOutputStream(f);
-                fileData.getOMElement().serializeAndConsume(outputStream);
-                XMLPrettyPrinter.prettify(f);
-                resourceMap.remove(resourceId);
-                setUserModification(resourceId);
-            }
-        } catch (XMLStreamException e1) {
-            log.error("Exception in persisting the transaction of " + resourceId, e1);
-            handleExceptionWithRollback(resourceId, "Exception in persisting the transaction " + resourceId, e1);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            handleExceptionWithRollback(resourceId, "IOException in persisting the transaction " + resourceId, e);
-        } finally {
-            try{
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-            } catch (Exception e) {
-                //ignore
-            }
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Added new resource - " + resourceId);
-        }
     }
 
     /**
@@ -296,78 +232,16 @@ public abstract class AbstractFilePersistenceManager {
     }
 
     public boolean fileExists(String resourceId) {
-        ResourceFileData fileData = resourceMap.get(resourceId);
-        //if a transaction is started
-        if (fileData != null && fileData.isTransactionStarted() && fileData.getFile() != null) {
-            return fileData.getFile().exists();
-        } else {
-            return new File(metafilesDir, getFilePathFromResourceId(resourceId)).
-                    exists();
-        }
+        return true;
     }
 
     public boolean elementExists(String resourceId, String elementXpathStr) {
-        try {
-            ResourceFileData fileData = resourceMap.get(resourceId);
-            AXIOMXPath xpathExpr = new AXIOMXPath(elementXpathStr);
-            //if a transaction is started
-            if (fileData != null && fileData.isTransactionStarted() && fileData.getOMElement() != null) {
-                return xpathExpr.selectSingleNode(fileData.getOMElement()) != null;
-            } else if ((fileData != null && !fileData.isTransactionStarted()) ||
-                    fileData == null) {
-                File f = new File(metafilesDir, getFilePathFromResourceId(resourceId));
-                if (f.exists()) {
-                    OMElement element = PersistenceUtils.getResourceDocumentElement(f);
-                    return xpathExpr.selectSingleNode(element) != null;
-                }
-            }
-        } catch (JaxenException e) {
-            log.error("Xpath error " + elementXpathStr, e);
-        } catch (XMLStreamException e) {
-            log.error(e.getMessage() + resourceId, e);
-        } catch (FileNotFoundException e) {
-            log.error(e.getMessage() + resourceId, e);
-        } catch (IOException e) {
-            log.error(e.getMessage() + resourceId, e);
-        }
+
         return false;
     }
 
     public List getAll(String resourceId, String xpathStr) throws PersistenceDataNotFoundException {
-        try {
-            ResourceFileData fileData = resourceMap.get(resourceId);
-            //If a transaction is in progress. Just use the in-memory OM.
-            if (fileData != null && fileData.isTransactionStarted()) {
-                OMElement resourceElement = fileData.getOMElement();
-                AXIOMXPath xpathExpr = new AXIOMXPath(xpathStr);
-                return xpathExpr.selectNodes(resourceElement);
-            } else {
-                File resourceFile = new File(metafilesDir, getFilePathFromResourceId(resourceId));
-                if (resourceFile.exists()) {
-                    OMElement resourceOMElement = PersistenceUtils.getResourceDocumentElement(resourceFile);
 
-                    /**
-                     * xpath expression behaves differently when there is a OMDocument holding the OMElement.
-                     * So, to have one expression work everywhere, we detach the element if the parent has the
-                     * type OMDocument
-                     */
-                    if (resourceOMElement.getParent() instanceof OMDocument) {
-                        resourceOMElement.detach();
-                    }
-                    AXIOMXPath xpathExpr = new AXIOMXPath(xpathStr);
-                    return xpathExpr.selectNodes(resourceOMElement);
-                }
-            }
-        } catch (JaxenException e) {
-            log.error("Error parsing xpath string " + resourceId + xpathStr, e);
-            throw new PersistenceDataNotFoundException("Error parsing xpath string ", e);
-        } catch (IOException e) {
-            log.error("metafile for resource " + resourceId + " not found. ", e);
-            throw new PersistenceDataNotFoundException("metafile for resource " + resourceId + " not found. ", e);
-        } catch (XMLStreamException e) {
-            log.error("XMLStreamException " + resourceId + " not found. ", e);
-            throw new PersistenceDataNotFoundException("XMLStreamException " + resourceId + " not found. ", e);
-        }
         return new ArrayList(0);
     }
 
@@ -486,13 +360,13 @@ public abstract class AbstractFilePersistenceManager {
     }
 
     public void init() {
-        try {
-            if (!metafilesDir.exists()) {
-                FileUtils.forceMkdir(metafilesDir);
-            }
-        } catch (IOException e) {
-            log.error("Error creating the resource meta files directory for " + metafilesDir.getAbsolutePath(), e);
-        }
+//        try {
+//            if (!metafilesDir.exists()) {
+//                FileUtils.forceMkdir(metafilesDir);
+//            }
+//        } catch (IOException e) {
+//            log.error("Error creating the resource meta files directory for " + metafilesDir.getAbsolutePath(), e);
+//        }
     }
 
     public boolean isUserModification(String name) {

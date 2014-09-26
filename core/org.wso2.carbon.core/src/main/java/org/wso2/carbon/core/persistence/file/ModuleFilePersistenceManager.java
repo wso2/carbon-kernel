@@ -25,6 +25,7 @@ import java.net.URLDecoder;
  * <p/>
  * The methods are synchronized per ResourceFileData object.
  */
+@Deprecated
 public class ModuleFilePersistenceManager extends AbstractFilePersistenceManager {
 
     private static final Log log = LogFactory.getLog(ModuleFilePersistenceManager.class);
@@ -40,18 +41,18 @@ public class ModuleFilePersistenceManager extends AbstractFilePersistenceManager
                 if (moduleMetaFileLocation == null) {
                     moduleMetaFileLocation = Resources.MODULES_METAFILES_DIR;
                 }
-                metafilesDir = new File(repoPath +
-                        File.separator + moduleMetaFileLocation);
+//                metafilesDir = new File(repoPath +
+//                        File.separator + moduleMetaFileLocation);
             }
         } catch (UnsupportedEncodingException e) {
             log.error("metafiles directory URL can not bde decoded.", e);
             throw new AxisFault("metafiles directory URL can not bde decoded.", e);
         }
-        if (this.metafilesDir == null) {
-            log.error("metafiles directory for services must exist. ");
-            throw new AxisFault("metafiles directory for services must exist. " +
-                    "May be AxisConfiguration does not have repository url set.");
-        }
+//        if (this.metafilesDir == null) {
+//            log.error("metafiles directory for services must exist. ");
+//            throw new AxisFault("metafiles directory for services must exist. " +
+//                    "May be AxisConfiguration does not have repository url set.");
+//        }
     }
 
     /**
@@ -65,27 +66,7 @@ public class ModuleFilePersistenceManager extends AbstractFilePersistenceManager
      *
      */
     public synchronized void beginTransaction(String moduleName) throws PersistenceException {
-        File moduleFile = new File(metafilesDir, getFilePathFromResourceId(moduleName));
-        try {
-            OMElement moduleElement;
-            if (moduleFile.exists()) {
-                moduleElement = PersistenceUtils.getResourceDocumentElement(moduleFile);
-            } else {                        //the file does not exist.
-                moduleElement = omFactory.createOMElement(Resources.ModuleProperties.MODULE_XML_TAG, null);
-            }
 
-            ResourceFileData fileData = new ResourceFileData(moduleElement, moduleFile, true);
-            resourceMap.put(moduleName, fileData);
-        } catch (XMLStreamException e1) {
-            log.error("Failed to use XMLStreamReader. Exception in beginning the transaction ", e1);
-            throw new PersistenceException("Exception in beginning the transaction " + e1);
-        } catch (FileNotFoundException e) {
-            log.error("File not found. Exception in beginning the transaction " + moduleFile.getAbsolutePath(), e);
-            throw new PersistenceException("Exception in beginning the transaction", e);
-        } catch (IOException e) {
-            log.error("Exception in closing service group file " + moduleName, e);
-            throw new PersistenceException("Exception in closing service group file", e);
-        }
     }
 
     /**

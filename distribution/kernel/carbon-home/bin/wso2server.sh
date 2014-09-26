@@ -174,7 +174,7 @@ if [ "$CMD" = "--debug" ]; then
   echo "Please start the remote debugging client to continue..."
 elif [ "$CMD" = "start" ]; then
   if [ -e "$CARBON_HOME/wso2carbon.pid" ]; then
-    if  ps -p $PID >&- ; then
+    if  ps -p $PID > /dev/null ; then
       echo "Process is already running"
       exit 0
     fi
@@ -259,6 +259,11 @@ echo CARBON_HOME environment variable is set to $CARBON_HOME
 
 cd "$CARBON_HOME"
 
+TMP_DIR=$CARBON_HOME/tmp
+if [ -d "$TMP_DIR" ]; then
+rm -rf "$TMP_DIR"
+fi
+
 START_EXIT_STATUS=121
 status=$START_EXIT_STATUS
 
@@ -289,6 +294,7 @@ do
     -Dconf.location="$CARBON_HOME/repository/conf"\
     -Dcom.atomikos.icatch.file="$CARBON_HOME/lib/transactions.properties" \
     -Dcom.atomikos.icatch.hide_init_file_path=true \
+    -Dorg.apache.jasper.compiler.Parser.STRICT_QUOTE_ESCAPING=false \
     -Dorg.apache.jasper.runtime.BodyContentImpl.LIMIT_BUFFER=true \
     -Dcom.sun.jndi.ldap.connect.pool.authentication=simple  \
     -Dcom.sun.jndi.ldap.connect.pool.timeout=3000  \

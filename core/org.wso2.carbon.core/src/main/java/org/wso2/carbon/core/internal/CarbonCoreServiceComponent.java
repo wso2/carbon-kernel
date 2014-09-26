@@ -28,6 +28,8 @@ import org.wso2.carbon.core.init.CarbonServerManager;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +52,8 @@ import java.util.List;
  * cardinality="0..n" policy="dynamic"  bind="addServerStartupHandler" unbind="removeServerStartupHandler"
  * @scr.reference name="tenant.registry.loader" interface="org.wso2.carbon.registry.core.service.TenantRegistryLoader"
  * cardinality="1..1" policy="dynamic" bind="setTenantRegistryLoader" unbind="unSetTenantRegistryLoader"
+ * @scr.reference name="coordinatedActivity" interface="org.wso2.carbon.core.clustering.api.CoordinatedActivity"
+ * cardinality="0..n" policy="dynamic" bind="addCoordinatedActivity" unbind="removeCoordinatedActivity"
   */
 public class CarbonCoreServiceComponent {
 
@@ -82,6 +86,11 @@ public class CarbonCoreServiceComponent {
 
     protected void deactivate(ComponentContext ctxt) {
         try {
+            // We assume it's super tenant during component deactivate time
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
+                    .getThreadLocalCarbonContext();
+            privilegedCarbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+            privilegedCarbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonServerManager.stop();  
         } catch (Throwable e) {
             log.error("Failed clean up Carbon core", e);
@@ -186,5 +195,13 @@ public class CarbonCoreServiceComponent {
         }
         startupHandlers.clear();
         serverStarted = true;
+    }
+
+    protected void addCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
+        CarbonCoreDataHolder.getInstance().addCoordinatedActivity(coordinatedActivity);
+    }
+
+    protected void removeCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
+        CarbonCoreDataHolder.getInstance().removeCoordinatedActivity(coordinatedActivity);
     }
 }

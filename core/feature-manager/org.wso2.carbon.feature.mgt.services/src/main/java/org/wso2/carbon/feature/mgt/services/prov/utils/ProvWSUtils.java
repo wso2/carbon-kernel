@@ -162,7 +162,7 @@ public class ProvWSUtils {
                     if (installableUnit.getId().endsWith("feature.group") &&
                             !installableUnit.getId().startsWith("org.eclipse.equinox") &&
                             "org.eclipse.equinox.p2.type.category".equals(popedFeature.getFeatureType())) {
-                        IInstallableUnit requiredIU = (requiredInstallableUnits.length == 0) ? null : requiredInstallableUnits[0];
+                        IInstallableUnit requiredIU = (requiredInstallableUnits.length == 0) ? null : installableUnit;
                         if (requiredIU != null) {
                             Feature requiredFeature = wrapIU(requiredIU);
                             if (!ProvisioningUtils.isIUInstalled(requiredIU, installedFeaturesMap)) {

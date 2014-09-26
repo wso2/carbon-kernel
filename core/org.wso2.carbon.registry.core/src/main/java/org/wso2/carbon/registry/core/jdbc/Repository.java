@@ -1256,7 +1256,12 @@ public class Repository {
                 }
             }
         }
-        DumpReader dumpReader = new DumpReader(reader);
+        DumpReader dumpReader = new DumpReader(reader){
+            @Override
+            public void close() throws IOException {
+                // close the inner stream on finally block
+            }
+        };
         XMLStreamReader xmlReader;
         try {
             xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(dumpReader);
@@ -1271,6 +1276,14 @@ public class Repository {
             String msg = "Failed to serialize the dumped element at " + path + ".";
             log.error(msg, e);
             throw new RegistryException(msg, e);
+        } finally{
+            if(reader!=null){
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    //ignored
+                }
+            }
         }
     }
 
@@ -2296,6 +2309,150 @@ public class Repository {
                     throw new RegistryException(msg, e);
                 }
                 recursionRepository.dumpRecursively(childPath, new DumpWriter(writer));
+            }
+            xmlWriter.writeEndElement();
+        }
+        xmlWriter.writeEndElement();
+        xmlWriter.flush();
+    }
+    
+    protected void dumpLite(String _path, Writer writer) throws RegistryException {
+        String path=_path;
+        if (!path.equals("/") && path.endsWith("/")) {
+            // remove the / suffix
+            path = path.substring(0, path.length() - 1);
+        }
+
+        try {
+            XMLOutputFactory xof = XMLOutputFactory.newInstance();
+            XMLStreamWriter xmlWriter = xof.createXMLStreamWriter(writer);
+
+            // we are not using xmlWriter.writeStartDocument and writeEndDocument to get rid of the
+            // xml descriptor it put in every child node
+            dumpRecursivelyLight(path, xmlWriter, writer);
+        } catch (XMLStreamException e) {
+            String msg = "Failed to serialize the dumped element at " + path + ".";
+            log.error(msg);
+            throw new RegistryException(msg, e);
+        }
+    }
+    
+ // Method to do a recursive dump
+    private void dumpRecursivelyLight(String path,
+                                 XMLStreamWriter xmlWriter,
+                                 Writer writer)
+            throws RegistryException, XMLStreamException {
+        // adding resource meta data
+        ResourceImpl resource = resourceDAO.getResourceMetaData(path);
+        if (resource == null) {
+            return;
+        }
+
+        if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
+            String msg = getUserNotAuthorizedMsg() +    
+            		"check out the path " + path + ".";
+            log.warn(msg);
+            throw new AuthorizationFailedException(msg);
+        }
+
+        xmlWriter.writeStartElement(DumpConstants.RESOURCE);
+
+        // adding path as an attribute, updated dump has name instead of path
+        xmlWriter.writeAttribute(DumpConstants.RESOURCE_NAME, RegistryUtils.getResourceName(path));
+
+        // adding isCollection as an attribute
+        xmlWriter.writeAttribute(DumpConstants.RESOURCE_IS_COLLECTION,
+                (resource instanceof CollectionImpl) ? DumpConstants.RESOURCE_IS_COLLECTION_TRUE :
+                        DumpConstants.RESOURCE_IS_COLLECTION_FALSE);
+        OMElement child;
+
+        // set media type
+        String mediaType = resource.getMediaType();
+        OMFactory factory = OMAbstractFactory.getOMFactory();
+        child = factory.createOMElement(new QName(DumpConstants.MEDIA_TYPE));
+        child.setText(mediaType);
+        child.serialize(xmlWriter);
+
+        // set version
+        long version = resource.getVersionNumber();
+        child = factory.createOMElement(new QName(DumpConstants.VERSION));
+        child.setText(version + "");
+        child.serialize(xmlWriter);
+
+        // set creator
+        String creator = resource.getAuthorUserName();
+        child = factory.createOMElement(new QName(DumpConstants.CREATOR));
+        child.setText(creator);
+        child.serialize(xmlWriter);
+
+        // set createdTime
+        Date createdTime = resource.getCreatedTime();
+        child = factory.createOMElement(new QName(DumpConstants.CREATED_TIME));
+        child.setText(Long.toString(createdTime.getTime()));
+        child.serialize(xmlWriter);
+
+        // set updater
+        String updater = resource.getLastUpdaterUserName();
+        child = factory.createOMElement(new QName(DumpConstants.LAST_UPDATER));
+        child.setText(updater);
+        child.serialize(xmlWriter);
+
+        // set LastModified
+        Date lastModified = resource.getLastModified();
+        child = factory.createOMElement(new QName(DumpConstants.LAST_MODIFIED));
+        child.setText(Long.toString(lastModified.getTime()));
+        child.serialize(xmlWriter);
+
+        // set UUID
+        String uuid = resource.getUUID();
+        child = factory.createOMElement(new QName(DumpConstants.UUID));
+        child.setText(uuid);
+        child.serialize(xmlWriter);
+
+        // set Description
+        String description = resource.getDescription();
+        child = factory.createOMElement(new QName(DumpConstants.DESCRIPTION));
+        child.setText(description);
+        child.serialize(xmlWriter);
+
+        // adding contents..
+        if (!(resource instanceof CollectionImpl)) {
+            resourceDAO.fillResourceContent(resource);
+
+            byte[] content = (byte[]) resource.getContent();
+            if (content != null) {
+                child = factory.createOMElement(new QName(DumpConstants.CONTENT));
+                child.setText(Base64.encode(content));
+                child.serialize(xmlWriter);
+            }
+        }
+        
+        // getting children and applying dump recursively
+        if (resource instanceof CollectionImpl) {
+            CollectionImpl collection = (CollectionImpl) resource;
+            resourceDAO.fillChildren(collection, 0, -1);
+            String childPaths[] = collection.getChildren();
+
+            xmlWriter.writeStartElement(DumpConstants.CHILDREN);
+            OMText emptyText = factory.createOMText("");
+            emptyText.serialize(xmlWriter);
+            xmlWriter.flush();
+            for (String childPath : childPaths) {
+                // we would be writing the start element of the child and its name here.
+                try {
+                    String resourceName = RegistryUtils.getResourceName(childPath);
+                    writer.write("<resource name=\"" + resourceName + "\"");
+                    writer.flush();
+                } catch (IOException e) {
+                	String msg = "Error in writing the start element for the path: " +
+                			childPath + ".";
+                    log.error(msg, e);
+                    throw new RegistryException(msg, e);
+                }
+                if(!path.equals(childPath)){
+                    recursionRepository.dumpRecursivelyLite(childPath, new DumpWriter(writer));
+                }
+                
             }
             xmlWriter.writeEndElement();
         }

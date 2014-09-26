@@ -1,5 +1,6 @@
 package org.wso2.carbon.core.persistence.metadata;
 
+@Deprecated
 public class ArtifactType {
     
     private String artifactType;

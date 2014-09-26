@@ -179,13 +179,16 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
             if (ip == null) {
                 ip = NetworkUtils.getLocalHostname();
             }
+            //Retrieving proxy context path of the worker node.
+            String proxyContextPath = CarbonUtils.getProxyContextPath(true);
+
             String tmp = protocol + "://" + ip;
             if (proxyPort == 80 || proxyPort == 443) {
-                tmp += serviceContextPath + "/" + serviceName;
+                tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
             } else if (proxyPort != -1) {
-                tmp += ":" + proxyPort + serviceContextPath + "/" + serviceName;
+                tmp += ":" + proxyPort + proxyContextPath + serviceContextPath + "/" + serviceName;
             } else {
-                tmp += ":" + port + serviceContextPath + "/" + serviceName;
+                tmp += ":" + port + proxyContextPath + serviceContextPath + "/" + serviceName;
             }
             // This trailing / is needed for REST to work. The http Location is resolved against
             // this base URI and produce completely dirrefent results if this is not present.

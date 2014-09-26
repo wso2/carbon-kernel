@@ -37,7 +37,7 @@ public class SecurityVerifierService {
 
         // The following API calls check that the OSGi service retrieval API works
         ListenerManager listenerManager = (ListenerManager)
-                PrivilegedCarbonContext.getCurrentContext().getOSGiService(ListenerManager.class);
+                PrivilegedCarbonContext.getThreadLocalCarbonContext().getOSGiService(ListenerManager.class);
         System.out.println("Is listener running: " + !listenerManager.isStopped());
 
         AxisConfiguration axisConfig =

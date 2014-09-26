@@ -26,6 +26,10 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 
+import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This singleton data holder contains all the data required by the Carbon core OSGi bundle
  */
@@ -41,6 +45,8 @@ public class CarbonCoreDataHolder {
     private  ConfigurationContext mainServerConfigContext;
     private  ServerConfigurationService serverConfigurationService;
     private TenantRegistryLoader tenantRegistryLoader;
+
+    private List<CoordinatedActivity> coordinatedActivities = new ArrayList<CoordinatedActivity>() ;
 
     public  static CarbonCoreDataHolder getInstance() {
         return instance;
@@ -135,5 +141,17 @@ public class CarbonCoreDataHolder {
 
     public TenantRegistryLoader getTenantRegistryLoader() {
         return tenantRegistryLoader;
+    }
+
+    public void addCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
+        coordinatedActivities.add(coordinatedActivity);
+    }
+
+    public void removeCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
+        coordinatedActivities.remove(coordinatedActivity);
+    }
+
+    public List<CoordinatedActivity> getCoordinatedActivities() {
+        return coordinatedActivities ;
     }
 }

@@ -334,13 +334,14 @@ public class UserRegistry implements Registry {
     // Adds the root collection, if it doesn't exist.
     // This returns true if the root collection is added, false if it is already existing.
     private void addRootCollection() throws RegistryException {
+    	boolean isTransactionStarted = false;
+    	
         try {
-
-            coreRegistry.beginTransaction();
 
             if (isRemoteRegistry || coreRegistry.getRegistryContext() == null
                     || coreRegistry.getRegistryContext().getDataAccessManager() == null) {
                 // Atom-based RemoteRegistry or WSRegistryServiceClient
+            	isTransactionStarted = startTransaction(isTransactionStarted);
                 if (userRealm != null) {
                     AuthorizationUtils
                             .setRootAuthorizations(RegistryConstants.ROOT_PATH, userRealm);
@@ -354,24 +355,34 @@ public class UserRegistry implements Registry {
                 boolean addAuthorizations =
                         !(RegistryContext.getBaseInstance().isSystemResourcePathRegistered(
                                 RegistryConstants.ROOT_PATH));
+                if (!RegistryContext.getBaseInstance().isSystemResourcePathRegistered(RegistryConstants.ROOT_PATH)) {
+                    isTransactionStarted = startTransaction(isTransactionStarted);
+                }
                 if (RegistryUtils.systemResourceShouldBeAdded(resourceDAO,
                         RegistryConstants.ROOT_PATH)) {
 
                     if (log.isTraceEnabled()) {
                         log.trace("Creating the root collection of the Registry.");
                     }
+                    isTransactionStarted = startTransaction(isTransactionStarted);
+                    
                     CollectionImpl root = new CollectionImpl();
                     root.setUUID(UUID.randomUUID().toString());
                     resourceDAO.addRoot(root);
                 }
-                if (addAuthorizations && userRealm != null) {                                                   
+                if (addAuthorizations && userRealm != null) {    
+                	isTransactionStarted = startTransaction(isTransactionStarted);
                     AuthorizationUtils
                             .setRootAuthorizations(RegistryConstants.ROOT_PATH, userRealm);
                 }
                 String chroot = chrootWrapper.getBasePrefix();
                 if (chroot != null &&
                         !chroot.equals(RegistryConstants.ROOT_PATH)) {
+                	if (!RegistryContext.getBaseInstance().isSystemResourcePathRegistered(chroot)) {
+                        isTransactionStarted = startTransaction(isTransactionStarted);
+                    }
                     if (RegistryUtils.systemResourceShouldBeAdded(resourceDAO, chroot)) {
+                    	isTransactionStarted = startTransaction(isTransactionStarted);
                         CollectionImpl chrootColl = new CollectionImpl();
                         put(RegistryConstants.ROOT_PATH,
                                 chrootColl); // this will be extract to /chroot from the put
@@ -387,17 +398,29 @@ public class UserRegistry implements Registry {
                 }
             }
 
-            coreRegistry.commitTransaction();
+            if (isTransactionStarted){
+            	coreRegistry.commitTransaction();
+            }
 
         } catch (Exception e) {
 
             String msg = "Failed to add the root collection to the coreRegistry.";
             log.fatal(msg, e);
 
-            coreRegistry.rollbackTransaction();
+            if (isTransactionStarted){
+            	coreRegistry.rollbackTransaction();
+            }
 
             throw new RegistryException(msg, e);
         }
+    }
+    
+    private boolean startTransaction(boolean status) throws RegistryException {
+        if(!status){
+            coreRegistry.beginTransaction();
+            status = true;
+        }
+        return status;
     }
 
     public Resource newResource() throws RegistryException {
@@ -1688,6 +1711,22 @@ public class UserRegistry implements Registry {
         } finally {
             clearSessionInformation();            
         }    	    	
+    }
+    
+    @Override
+    public void dumpLite(String path, Writer writer) throws RegistryException {
+        if (log.isTraceEnabled()) {
+			log.trace("Preparing operation dump, " + "path: " + path + ".");
+        }
+        try {
+            // setting session information      chrooted incoming paths
+            setSessionInformation();
+
+            coreRegistry.dumpLite(chrootWrapper.getInPath(path), writer);
+        } finally {
+            clearSessionInformation();
+        }
+        
     }
 }
 

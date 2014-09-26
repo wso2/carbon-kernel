@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -56,7 +55,7 @@ public class AuthorizationHandler extends AbstractHandler {
             HttpServletResponse response =
                     (HttpServletResponse) msgContext.getProperty(HTTPConstants.MC_HTTP_SERVLETRESPONSE);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            log.warn("Invoking admin services on worker node is forbidden...");
+            log.error("Invoking admin services on worker node is forbidden...");
             return InvocationResponse.ABORT;
         }
 
@@ -107,8 +106,8 @@ public class AuthorizationHandler extends AbstractHandler {
             if (httpSession != null) {
                 username = (String) httpSession.getAttribute(ServerConstants.USER_LOGGED_IN);
                 UserRealm realm =
-                        (UserRealm) PrivilegedCarbonContext.
-                                getCurrentContext(httpSession).getUserRealm();
+                        (UserRealm) CarbonContext.
+                                getThreadLocalCarbonContext().getUserRealm();
 
                 if (realm == null) {
                     log.error("The realm is null for username: " + username + ".");
@@ -161,8 +160,8 @@ public class AuthorizationHandler extends AbstractHandler {
     
     private boolean skipAuthentication(MessageContext msgContext) {
         boolean skipAuth  = false;
-        AxisService service = msgContext.getAxisService();
-        Parameter param = service.getParameter("DoAuthentication");
+        AxisOperation operation = msgContext.getAxisOperation();
+        Parameter param = operation.getParameter("DoAuthentication");
         if (param != null && "false".equals(param.getValue())) {
         	skipAuth = true;
         }

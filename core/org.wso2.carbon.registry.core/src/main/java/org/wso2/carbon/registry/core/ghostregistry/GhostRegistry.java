@@ -337,5 +337,10 @@ public class GhostRegistry implements Registry{
         }
         return null;
     }
+    
+    @Override
+    public void dumpLite(String path, Writer writer) throws RegistryException {
+    	getRegistry().dumpLite(path, writer);            
+    }
 
 }

@@ -20,6 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.File;
 import java.lang.management.ManagementPermission;
@@ -39,6 +41,12 @@ public class CarbonCoreActivator implements BundleActivator {
         if (secMan != null) {
            secMan.checkPermission(new ManagementPermission("control"));
         }
+        // We assume it's super tenant during the deployment time
+        PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
+                .getThreadLocalCarbonContext();
+        privilegedCarbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+        privilegedCarbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+
         dataHolder.setBundleContext(context);
         log.info("Starting WSO2 Carbon...");
         log.info("Operating System : " + System.getProperty("os.name") + " " +

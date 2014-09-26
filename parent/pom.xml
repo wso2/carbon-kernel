@@ -414,19 +414,25 @@
         <version.sourceforge.ajaxtags>1.3.0.beta-rc7-wso2v1</version.sourceforge.ajaxtags>
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
-        <version.tomcat>7.0.34</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
+
+        <version.tomcat>7.0.52</version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v5</orbit.version.tomcat>
+        <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1</orbit.version.tomcat.servlet.api>
+        <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
+        <orbit.version.tomcat.el.api>${version.tomcat}.wso2v1</orbit.version.tomcat.el.api>
+        <orbit.version.tomcat.ha>${version.tomcat}.wso2v1</orbit.version.tomcat.ha>
         <orbit.version.tribes>7.0.34.wso2v1</orbit.version.tribes>
-        <orbit.version.hazelcast>3.0.1.wso2v1</orbit.version.hazelcast>
+
+        <version.eclipse.ecj>4.3.1</version.eclipse.ecj>
+
+        <orbit.version.hazelcast>3.2.3.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
         <hibernate.orbit.version>3.2.5.ga-wso2v1</hibernate.orbit.version>
 
         <!-- bouncycastle -->
-        <bouncycastle.version>132</bouncycastle.version>
-        <exp.pkg.version.bc>132</exp.pkg.version.bc>
-        <imp.pkg.version.bc>132</imp.pkg.version.bc>
+        <bouncycastle.version>1.49.wso2v1</bouncycastle.version>
 
         <!--BPS specific-->
         <saxon-bps.wso2.version.human-task>9.0.0.x-wso2v1</saxon-bps.wso2.version.human-task>
@@ -443,7 +449,7 @@
 
         <!-- findbugs -->
         <version.findbugs.annotations>1.3.2</version.findbugs.annotations>
-        <version.commons.logging>1.1.1</version.commons.logging>
+        <version.commons.logging>1.2</version.commons.logging>
 
         <version.opensaml2>2.4.1.wso2v1</version.opensaml2>
         <version.compass>2.0.1.wso2v2</version.compass>
@@ -475,9 +481,9 @@
         <version.drools>5.1.1</version.drools>
         <version.jsr94>1.1</version.jsr94>
 
+        <orbit.version.log4j>1.2.17.wso2v1</orbit.version.log4j>
         <version.xmlunit>1.1</version.xmlunit>
         <version.jaxen>1.1.1</version.jaxen>
-        <version.log4j>1.2.13</version.log4j>
         <version.junit>3.8.2</version.junit>
         <version.xmlunit1>1.0</version.xmlunit1>
         <version.tcpmon>1.0</version.tcpmon>
@@ -501,7 +507,6 @@
         <!--Wso2 Secure Vault -->
         <securevault.version>1.0.0-wso2v2</securevault.version>
 
-        <version.commons.logging>1.1.1</version.commons.logging>
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
 	
     </properties>
@@ -512,7 +517,7 @@
             <dependency>
                 <groupId>com.hazelcast.wso2</groupId>
                 <artifactId>hazelcast</artifactId>
-                <version>3.0.1.wso2v1</version>
+                <version>${orbit.version.hazelcast}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.osgi</groupId>
@@ -751,11 +756,15 @@
                 <version>${version.sat4j.pb}</version>
             </dependency>
 
-
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.apache.log4j</artifactId>
-                <version>1.2.13.v200706111418</version>
+                <groupId>org.eclipse.jdt.core.compiler</groupId>
+                <artifactId>ecj</artifactId>
+                <version>${version.eclipse.ecj}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.log4j.wso2</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${orbit.version.log4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
@@ -825,6 +834,11 @@
                 <groupId>org.apache.ws.security.wso2</groupId>
                 <artifactId>wss4j</artifactId>
                 <version>${orbit.version.wss4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle.wso2</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>opensaml.wso2</groupId>
@@ -1094,11 +1108,6 @@
                 <version>3.9.0.wso2v2</version>
             </dependency>
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${version.log4j}</version>
-            </dependency>
-            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${version.junit}</version>
@@ -1157,9 +1166,14 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tomcat</groupId>
+                <groupId>org.apache.tomcat.wso2</groupId>
                 <artifactId>tomcat</artifactId>
                 <version>${orbit.version.tomcat}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-annotations-api</artifactId>
+                <version>${version.tomcat}</version>
             </dependency>
             <dependency>
                 <groupId>org.igniterealtime.smack.wso2</groupId>

@@ -192,7 +192,10 @@ public final class CarbonConstants {
     public static final String MODULES_DEPLOYMENT_DIR = "axis2modules";
     public static final String JS_SERVICES_HOTDEPLOYMENT_DIR = "jsservices";
     public static final String DSS_SERVICES_HOTDEPLOYMENT_DIR = "dataservices";
+
+    @Deprecated
     public static final String SERVICE_METAFILE_HOTDEPLOYMENT_DIR = "servicemetafiles";
+    @Deprecated
     public static final String MODULE_METAFILE_HOTDEPLOYMENT_DIR = "modulemetafiles";
     public static final String GHOST_METAFILE_DIR = "ghostmetafiles";
     public static final String WEBAPP_DEPLOYMENT_FOLDER = "webapps";
@@ -362,7 +365,10 @@ public final class CarbonConstants {
      * Name of the property which is used for storing the WebApplicationsHolder
      */
     public static final String WEB_APPLICATIONS_HOLDER = "carbon.webapps.holder";
-
+    /**
+     * Name of the property which is used for storing web applications holders list
+     */
+    public static final String WEB_APPLICATIONS_HOLDER_LIST = "carbon.webapps.holderlist";
     /**
      * Name of the property to hold the servletContextParameters list
      */

@@ -171,9 +171,13 @@ public class Axis2ServiceRegistry {
                             new BundleClassLoader(bundle, Axis2ServiceRegistry.class.getClassLoader());
                     URL url = (URL) enumeration.nextElement();
                     AxisServiceGroup serviceGroup = new AxisServiceGroup(axisConfig);
+
+                    // Here we are using Bundle-SymbolicName combined with Bundle-Version as the ServiceGroupName
                     Dictionary headers = bundle.getHeaders();
                     String bundleSymbolicName = (String) headers.get("Bundle-SymbolicName");
-                    serviceGroup.setServiceGroupName(bundleSymbolicName);
+                    String bundleVersion = (String) headers.get("Bundle-Version");
+                    serviceGroup.setServiceGroupName(bundleSymbolicName + "-" + bundleVersion);
+
                     serviceGroup.addParameter(BUNDLE_ID, bundle.getBundleId());
                     serviceGroup.addParameter("last.updated", bundle.getLastModified());
                     serviceGroup.setServiceGroupClassLoader(loader);

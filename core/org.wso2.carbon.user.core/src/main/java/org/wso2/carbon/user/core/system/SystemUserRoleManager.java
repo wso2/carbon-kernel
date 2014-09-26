@@ -117,8 +117,9 @@ public class SystemUserRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = getDBConnection();
-            return DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
-                    tenantId);
+            String[] roles =  DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
+                    tenantId); 
+            return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);            
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             throw new UserStoreException(e.getMessage(), e);
@@ -133,9 +134,9 @@ public class SystemUserRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = getDBConnection();
-            return DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
+            String[] users = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
                     roleName, tenantId, tenantId);
-
+            return UserCoreUtil.addDomainToNames(users, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             throw new UserStoreException(e.getMessage(), e);
@@ -187,8 +188,9 @@ public class SystemUserRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = getDBConnection();
-            return DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
+            String[] roles = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
                     userName, tenantId, tenantId);
+            return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             throw new UserStoreException(e.getMessage(), e);
@@ -385,7 +387,7 @@ public class SystemUserRoleManager {
                 systemsUsers = lst.toArray(new String[lst.size()]);
             }
             Arrays.sort(systemsUsers);
-
+            systemsUsers =  UserCoreUtil.addDomainToNames(systemsUsers, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             log.error("Using sql : " + sqlStmt);

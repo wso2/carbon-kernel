@@ -62,8 +62,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.ha.wso2</groupId>
-            <artifactId>tomcat-ha</artifactId>
-            <version>${orbit.version.tomcat}</version>
+            <artifactId>tomcat-catalina-ha</artifactId>
+            <version>${orbit.version.tomcat.ha}</version>
             <exclusions>
                 <exclusion>
 					<groupId>org.apache.tomcat</groupId>
@@ -95,6 +95,12 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
             <version>4.3.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

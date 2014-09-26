@@ -37,6 +37,7 @@ import java.net.URLDecoder;
 import java.util.Properties;
 import java.util.Set;
 
+@Deprecated
 public class ArtifactMetadataManager {
 
     private static final Log log = LogFactory.getLog(ArtifactMetadataManager.class);

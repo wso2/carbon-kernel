@@ -19,12 +19,15 @@ package org.wso2.carbon.user.core.config.multitenancy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.TenantMgtConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+
+import java.util.Map;
 
 public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
 
@@ -40,7 +43,10 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
             realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
             realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
-            realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());            
+            realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());       
+            Map<String, String> authz = realmConfig.getAuthzProperties();
+            authz.put(UserCoreConstants.RealmConfig.PROPERTY_ADMINROLE_AUTHORIZATION,
+                      CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);     
             realmConfig.setSecondaryRealmConfig(persistedConfig.getSecondaryRealmConfig());
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration" +

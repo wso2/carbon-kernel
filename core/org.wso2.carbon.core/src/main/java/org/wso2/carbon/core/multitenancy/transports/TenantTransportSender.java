@@ -92,6 +92,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                 msgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
         
         superTenantOutMessageContext.setProperty(MultitenantConstants.HTTP_SC,msgContext.getProperty(MultitenantConstants.HTTP_SC));
+        superTenantOutMessageContext.setProperty(HTTPConstants.HTTP_HEADERS,msgContext.getProperty(HTTPConstants.HTTP_HEADERS));
 
 
         // Copy Message type and Content type from the original message ctx
@@ -133,6 +134,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         boolean contentLengthCopy = msgContext.isPropertyTrue(MultitenantConstants.
                 COPY_CONTENT_LENGTH_FROM_INCOMING);
 
+        superTenantOutMessageContext.setProperty(MultitenantConstants.POST_TO_URI, 
+        		 msgContext.getProperty(MultitenantConstants.POST_TO_URI));        
+        
         superTenantOutMessageContext.setProperty(MultitenantConstants.FORCE_HTTP_CONTENT_LENGTH,
                 forceContentLength);
         superTenantOutMessageContext.setProperty(MultitenantConstants.COPY_CONTENT_LENGTH_FROM_INCOMING,
@@ -162,6 +166,18 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         if(msgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE) != null){
         	superTenantOutMessageContext.setProperty(MultitenantConstants.PASS_THROUGH_PIPE, msgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE));
         	superTenantOutMessageContext.setProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED,msgContext.getProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED) != null?msgContext.getProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED):Boolean.FALSE);
+        }
+
+        if (msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION) != null) {
+            superTenantOutMessageContext.
+                    setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION,
+                                msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION));
+        }
+
+        if (msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION) != null) {
+            superTenantOutMessageContext.
+                    setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION,
+                                msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION));
         }
 
          /*Handling HTTP DELETE*/

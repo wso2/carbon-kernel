@@ -17,7 +17,11 @@
 */
 package org.wso2.carbon.core.persistence;
 
-import org.apache.axiom.om.*;
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.axis2.AxisFault;
@@ -25,16 +29,17 @@ import org.apache.axis2.description.AxisDescription;
 import org.apache.axis2.description.AxisModule;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.axis2.util.XMLPrettyPrinter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyEngine;
 import org.jaxen.JaxenException;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.Resources;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.persistence.file.AbstractFilePersistenceManager;
 import org.wso2.carbon.core.persistence.file.ModuleFilePersistenceManager;
 import org.wso2.carbon.core.persistence.file.ServiceGroupFilePersistenceManager;
@@ -46,9 +51,11 @@ import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +63,7 @@ import java.util.List;
 /**
  * Provides common logic for all extending PersistenceManager classes.
  */
+@Deprecated
 public abstract class AbstractPersistenceManager {
 
     private static final Log log = LogFactory.getLog(AbstractPersistenceManager.class);
@@ -133,26 +141,26 @@ public abstract class AbstractPersistenceManager {
      * If possible, use the extended classes' method - update.*Parameter
      *
      * @param resourceId       - resource id/name
-     * @param parameter        - parameter instance
+     * @param serviceParameter        - parameter instance
      * @param xpathStrOfParent xpathStrOfParent
      * @throws java.io.IOException
      */
-    public void updateParameter(String resourceId, Parameter parameter, String xpathStrOfParent) throws
+    public void updateParameter(String resourceId, Parameter serviceParameter, String xpathStrOfParent) throws
             XMLStreamException, IOException, PersistenceException, JaxenException {
-        String paramName = parameter.getName();
-        int paramType = parameter.getParameterType();
-        boolean locked = parameter.isLocked();
+        String paramName = serviceParameter.getName();
+        int paramType = serviceParameter.getParameterType();
+        boolean locked = serviceParameter.isLocked();
         if (paramName != null && paramName.trim().length() != 0) {
-            if (parameter.getParameterElement() == null && parameter.getValue() != null
-                    && parameter.getValue() instanceof String) {
+            if (serviceParameter.getParameterElement() == null && serviceParameter.getValue() != null
+                    && serviceParameter.getValue() instanceof String) {
                 try {
-                    parameter = ParameterUtil.createParameter(paramName.trim(),
-                            (String) parameter.getValue(), locked);
+                    serviceParameter = ParameterUtil.createParameter(paramName.trim(),
+                            (String) serviceParameter.getValue(), locked);
                 } catch (AxisFault ignore) {
                 }
             }
 
-            if (parameter.getParameterElement() != null) {
+            if (serviceParameter.getParameterElement() != null) {
                 boolean isTransactionStarted = getCurrentFPM().isTransactionStarted(resourceId);
                 if (!isTransactionStarted) {
                     getCurrentFPM().beginTransaction(resourceId);
@@ -165,34 +173,46 @@ public abstract class AbstractPersistenceManager {
                     paramXPath = xpathStrOfParent + "/" + Resources.ParameterProperties.PARAMETER +
                             PersistenceUtils.getXPathAttrPredicate(Resources.NAME, paramName);
                 }
-                OMElement paramElement;
-                paramElement = (OMElement) getCurrentFPM().get(resourceId, paramXPath);
+                OMElement paramElementFromMeta;
+                paramElementFromMeta = (OMElement) getCurrentFPM().get(resourceId, paramXPath);
                 // If the existing parameter is identical to what we are going to store, return
-                if (paramElement == null) {
-                    paramElement = parameter.getParameterElement().cloneOMElement();
-                    Iterator itr = paramElement.getAllDeclaredNamespaces();
+                if (paramElementFromMeta == null) {
+                    paramElementFromMeta = serviceParameter.getParameterElement().cloneOMElement();
+                    Iterator itr = paramElementFromMeta.getAllDeclaredNamespaces();
                     while (itr.hasNext()) {
                         itr.next();
                         itr.remove();
                     }
                 } else {
-                    String name = paramElement.getAttributeValue(new QName(Resources.ParameterProperties.NAME));
-                    String type = paramElement.getAttributeValue(new QName(Resources.ParameterProperties.TYPE));
-                    String content = paramElement.toString();
+                    String name = paramElementFromMeta.getAttributeValue(new QName(Resources.ParameterProperties.NAME));
+                    String type = paramElementFromMeta.getAttributeValue(new QName(Resources.ParameterProperties.TYPE));
+                    String content = paramElementFromMeta.toString();
+
                     if (name != null && name.equals(paramName) && type != null &&
-                            type.equals(Integer.toString(paramType)) && content != null &&
-                            content.equals(parameter.getParameterElement().toString())) {
-                        if(!isTransactionStarted) {
-                            getCurrentFPM().rollbackTransaction(resourceId);
+                            type.equals(Integer.toString(paramType))) {
+                        boolean isContentEqual;
+                        if (type.equals(Integer.toString(Parameter.OM_PARAMETER))) {     //compare OM
+                            isContentEqual = serviceParameter.getParameterElement() != null &&
+                                    prettyPrintXml(paramElementFromMeta).equals(
+                                    prettyPrintXml(serviceParameter.getParameterElement()));
+                        } else {
+                            isContentEqual = content != null &&
+                                    paramElementFromMeta.getText().equals(serviceParameter.getValue().toString());
                         }
-                        return;
+
+                        if (isContentEqual) {
+                            if(!isTransactionStarted) {
+                                getCurrentFPM().rollbackTransaction(resourceId);
+                            }
+                            return;
+                        }
                     }
-                    if (parameter.getParameterType() == Parameter.TEXT_PARAMETER) {
-                        paramElement.setText(parameter.getValue().toString());
-                    } else if (parameter.getParameterType() == Parameter.OM_PARAMETER) {
-                        paramElement.addChild((OMElement) parameter.getValue());
-                    } else if (parameter.getValue() instanceof OMNode) {
-                        paramElement.addChild((OMNode) parameter.getValue());
+                    if (serviceParameter.getParameterType() == Parameter.TEXT_PARAMETER) {
+                        paramElementFromMeta.setText(serviceParameter.getValue().toString());
+                    } else if (serviceParameter.getParameterType() == Parameter.OM_PARAMETER) {
+                        paramElementFromMeta = serviceParameter.getParameterElement();
+                    } else if (serviceParameter.getValue() instanceof OMNode) {
+                        paramElementFromMeta.addChild((OMNode) serviceParameter.getValue());
                     } else {
                         log.error("Not persisting the parameter because parameter is not recognized " +
                                 paramName + paramType);
@@ -200,13 +220,15 @@ public abstract class AbstractPersistenceManager {
                     }
                 }
 
-                paramElement.addAttribute(Resources.ParameterProperties.NAME, paramName, null);
-                paramElement.addAttribute(Resources.ParameterProperties.TYPE, Integer.
+                paramElementFromMeta.addAttribute(Resources.ParameterProperties.NAME, paramName, null);
+                paramElementFromMeta.addAttribute(Resources.ParameterProperties.TYPE, Integer.
                         toString(paramType), null);
-                if (parameter.isLocked()) {
-                    paramElement.addAttribute(Resources.ParameterProperties.LOCKED, Boolean.TRUE.toString(), null);
+                if (serviceParameter.isLocked()) {
+                    paramElementFromMeta.addAttribute(Resources.ParameterProperties.LOCKED, Boolean.TRUE.toString(), null);
                 }
-                getCurrentFPM().put(resourceId, paramElement, xpathStrOfParent);
+
+                getCurrentFPM().deleteAll(resourceId, paramXPath);
+                getCurrentFPM().put(resourceId, paramElementFromMeta, xpathStrOfParent);
 
                 if (!isTransactionStarted) {
                     getCurrentFPM().commitTransaction(resourceId);
@@ -679,6 +701,19 @@ public abstract class AbstractPersistenceManager {
             log.error(msg, e);
             configRegistry.rollbackTransaction();
             throw new RegistryException(e.getMessage(), e);
+        }
+    }
+
+    private String prettyPrintXml(OMElement xml) throws PersistenceException {
+        if (xml == null) {
+            return null;
+        }
+        try {
+            OutputStream baos = new ByteArrayOutputStream();
+            XMLPrettyPrinter.prettify(xml, baos);
+            return baos.toString();
+        } catch (Exception e) {
+            throw new PersistenceException("error while comparing service parameter content.", e);
         }
     }
 

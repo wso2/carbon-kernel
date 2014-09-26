@@ -3,6 +3,7 @@ package org.wso2.carbon.core.persistence;
 /**
  * This is thrown when a requested resource or parent of the request can not be found.
  */
+@Deprecated
 public class PersistenceDataNotFoundException extends PersistenceException {
 
     /**

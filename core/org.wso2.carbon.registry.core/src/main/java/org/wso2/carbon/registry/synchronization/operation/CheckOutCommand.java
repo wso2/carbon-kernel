@@ -20,6 +20,8 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
@@ -48,6 +50,8 @@ import java.util.zip.ZipOutputStream;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unused"})
 public class CheckOutCommand {
+	
+	private static final Log log = LogFactory.getLog(CheckOutCommand.class);
 
     private String outputFile = null;
     private String checkOutPath = null;
@@ -55,6 +59,7 @@ public class CheckOutCommand {
     private String workingDir = null;
     private String username = null;
     private boolean cleanRegistry = false;
+    private boolean dumpLite = true;
 
     ////////////////////////////////////////////////////////
     // Fields maintaining status of command execution
@@ -138,6 +143,15 @@ public class CheckOutCommand {
     }
 
     /**
+     * Method to specify weather to use dump or dump lite
+     *
+     * @param dumpLite
+     */
+    public void setDumpLite(boolean dumpLite) {
+        this.dumpLite = dumpLite;
+    }
+
+    /**
      * This method will execute the check-out command utilizing the various parameters passed when
      * creating the instance of the command. This method accepts the users preference to whether a
      * file or directory should be overwritten on the filesystem.
@@ -210,7 +224,9 @@ public class CheckOutCommand {
 
             Writer zipWriter = new OutputStreamWriter(zos);
 
-            registry.dump(checkOutPath, zipWriter);
+            log.debug("Starting to do registry 'dumpToFile' for : " + checkOutPath + " with : " + outputXml);
+            registry.dumpLite(checkOutPath, zipWriter);
+            log.debug("Registry 'dumpToFile' completed for : " + checkOutPath + " in : " + outputXml);
 
             zos.close();
         } catch (Exception e) {
@@ -253,7 +269,14 @@ public class CheckOutCommand {
                 try {
                     writer = new FileWriter(tempFile);
                     // doing the dump
-                    registry.dump(checkOutPath, writer);
+                    log.debug("Starting to do registry 'dumpToFileSystem' for : " + checkOutPath + " with : " + tempFile.getName());
+                    if (dumpLite) {
+                        registry.dumpLite(checkOutPath, writer);
+                    } else  {
+                        registry.dump(checkOutPath, writer);
+                    }
+                    log.debug("Registry 'dumpToFileSystem' completed for : " + checkOutPath + " in : " + tempFile.getName());
+
                 } finally {
                     if (writer != null) {
                         writer.close();
@@ -275,7 +298,9 @@ public class CheckOutCommand {
                 try {
                     reader = new FileReader(tempFile);
                     xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
+                    log.debug("Starting registry 'checkOutRecursively' for repository : " + checkOutPath + " with : " + tempFile.getName());
                     checkOutRecursively(xmlReader, workingDir, checkOutPath, callback);
+                    log.debug("Checkout recursively completed for repository : " + checkOutPath + " with : " + tempFile.getName());
                 } finally {
                     try {
                         if (xmlReader != null) {

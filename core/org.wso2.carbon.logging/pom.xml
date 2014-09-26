@@ -35,8 +35,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.apache.log4j</artifactId>
+            <groupId>org.apache.log4j.wso2</groupId>
+            <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -68,7 +68,8 @@
                         <Bundle-Activator>org.wso2.carbon.logging.appenders.internal.CarbonLoggingActivator</Bundle-Activator>
                         <Export-Package>
                             org.apache.log4j.*;-split-package:=merge-last,
-                            org.apache.commons.logging.*; version="1.1.1",
+                            org.apache.commons.logging.*; version="${version.commons.logging}",
+                            !org.wso2.carbon.logging.appenders.internal,
                             org.wso2.carbon.logging.*,
                         </Export-Package>
                         <Import-Package>

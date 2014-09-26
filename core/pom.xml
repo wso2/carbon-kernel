@@ -67,11 +67,11 @@
         </mailingList>
     </mailingLists>
 
-    <scm>
-        <connection>scm:svn:http://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/</connection>
-        <developerConnection>scm:svn:https://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/
-        </developerConnection>
-    </scm>
+    <!--<scm>-->
+        <!--<connection>scm:svn:http://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/</connection>-->
+        <!--<developerConnection>scm:svn:https://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/-->
+        <!--</developerConnection>-->
+    <!--</scm>-->
 
     <build>
         <plugins>
@@ -125,8 +125,6 @@
         <module>javax.cache</module>
         <module>org.wso2.carbon.tomcat</module>
         <module>org.wso2.carbon.tomcat.ext</module>
-        <module>org.wso2.carbon.tomcat.patch</module>
-        <module>org.wso2.carbon.tomcat.fragment.dummy</module>
         <module>org.wso2.carbon.registry.api</module>
         <module>org.wso2.carbon.user.api</module>
         <module>org.wso2.carbon.osgi.security</module>

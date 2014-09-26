@@ -57,9 +57,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
-            <version>132</version>
+            <groupId>org.bouncycastle.wso2</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
         <dependency>
             <groupId>org.infinispan.wso2</groupId>
@@ -121,10 +120,10 @@
             <artifactId>httpcore</artifactId>
             <version>${orbit.version.httpcore}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.ha.wso2</groupId>
-            <artifactId>tomcat-ha</artifactId>
-            <version>${orbit.version.tomcat}</version>
+         <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina-ha</artifactId>
+            <version>${version.tomcat}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.tomcat</groupId>
@@ -215,7 +214,6 @@
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <DynamicImport-Package>*</DynamicImport-Package>
-                        <Axis2Deployer>PersistenceMetaDataDeployer</Axis2Deployer>
                     </instructions>
                 </configuration>
             </plugin>

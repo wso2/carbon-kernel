@@ -30,6 +30,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
@@ -162,12 +163,12 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
 
     @Override
     public void applicationMemberAdded(Member member) {
-        // Nothing to implement
+    	// Nothing to implement
     }
 
     @Override
     public void applicationMemberRemoved(Member member) {
-        // Nothing to implement
+    	// Nothing to implement
     }
 
     @Override
@@ -199,6 +200,9 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
             Member removed = members.remove(membershipEvent.getMember().getUuid());
             connectedMembers.remove(removed);
         }
+
+        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+        }
     }
 
     private class MemberEntryListener implements EntryListener<String, Member> {
@@ -215,6 +219,7 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
         @Override
         public void entryRemoved(EntryEvent<String, Member> entryEvent) {
             connectedMembers.remove(entryEvent.getValue());
+            applicationMemberRemoved(entryEvent.getValue());
         }
 
         @Override

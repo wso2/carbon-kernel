@@ -18,26 +18,16 @@
 package org.wso2.carbon.caching.impl.eviction;
 
 import org.wso2.carbon.caching.impl.CacheEntry;
-import org.wso2.carbon.caching.impl.CacheImpl;
+
+import java.util.TreeSet;
 
 /**
- * TODO: class description
+ * MRU cache eviction algorithm
  */
 public class MostRecentlyUsedEvictionAlgorithm implements EvictionAlgorithm {
 
-    @SuppressWarnings("unchecked")
-    public void evict(CacheImpl cache) {
-        CacheEntry mruCacheEntry = null;
-        for (Object o : cache.getAll()) {
-            CacheEntry cacheEntry = (CacheEntry) o;
-            if (mruCacheEntry == null) {
-                mruCacheEntry = cacheEntry;
-            } else if (mruCacheEntry.getLastAccessed() < cacheEntry.getLastAccessed()) {
-                mruCacheEntry = cacheEntry;
-            }
-        }
-        if (mruCacheEntry != null) {
-            cache.evict(mruCacheEntry.getKey());
-        }
+    @Override
+    public CacheEntry getEntryForEviction(TreeSet<CacheEntry> evictionList) {
+        return evictionList.pollLast();
     }
 }

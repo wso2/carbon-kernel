@@ -15,18 +15,26 @@
  */
 package org.wso2.carbon.ui;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.wso2.carbon.ui.internal.CarbonUIServiceComponent;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.security.PermissionCollection;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
 import java.util.StringTokenizer;
 
 /**
@@ -46,6 +54,13 @@ public class JspClassLoader extends URLClassLoader {
     private static final Bundle JASPERBUNDLE = CarbonUIServiceComponent.getBundle(JspServlet.class);
     private static final ClassLoader PARENT = JspClassLoader.class.getClassLoader().getParent();
     private static final String JAVA_PACKAGE = "java.";     //$NON-NLS-1$
+
+    /**
+     * The system class loader.
+     */
+    protected ClassLoader system = null;
+
+
     private static final ClassLoader EMPTY_CLASSLOADER = new ClassLoader(null) {
         public URL getResource(String name) {
             return null;
@@ -69,13 +84,23 @@ public class JspClassLoader extends URLClassLoader {
     };
 
      private PermissionCollection permissions;
+    private List<String> systemPackages;
+    private Log log = LogFactory.getLog(JspClassLoader.class);
 
     public JspClassLoader(Bundle bundle, PermissionCollection permissions) {
         super(new URL[0], new BundleProxyClassLoader(bundle, new BundleProxyClassLoader(
                 JASPERBUNDLE, new JSPContextFinder(EMPTY_CLASSLOADER))));
         this.permissions = permissions;
         addBundleClassPathJars(bundle);
+
+        system = getSystemClassLoader();
+
+        String launchIniPath = System.getProperty("carbon.home") + File.separator + "repository" +
+                File.separator + "conf" + File.separator + "etc" + File.separator + "launch.ini";
+        readSystemPackagesList(launchIniPath);
+
     }
+
 
     private void addBundleClassPathJars(Bundle bundle) {
         Dictionary headers = bundle.getHeaders();
@@ -116,4 +141,60 @@ public class JspClassLoader extends URLClassLoader {
     protected PermissionCollection getPermissions(CodeSource codesource) {
         return permissions;
     }
+
+    private boolean isSystemPackage(String resourceName) {
+        resourceName = resourceName.replace(".class", "").
+                replace("/", ".");
+        String packageName = resourceName.lastIndexOf(".") == -1 ?
+                resourceName : resourceName.substring(0, resourceName.lastIndexOf("."));
+
+        return systemPackages.contains(packageName);
+    }
+    @Override
+    public InputStream getResourceAsStream(String name) {
+        InputStream stream = super.getResourceAsStream(name);
+        if (stream != null) {
+            return stream;
+        } else if (name.endsWith(".class") && isSystemPackage(name)) {
+            ClassLoader loader = system;
+            stream = loader.getResourceAsStream(name);
+
+            if (stream != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("  --> Returning stream from system classloader");
+                }
+                return stream;
+            }
+        }
+
+        return null;
+    }
+
+    private void readSystemPackagesList(String launchIniPath) {
+
+            Properties properties = new Properties();
+            FileInputStream fileInputStream = null;
+            try {
+                fileInputStream = new FileInputStream(launchIniPath);
+                properties.load(fileInputStream);
+
+                String rawSystemPackages = properties.getProperty("org.osgi.framework.system.packages");
+
+                String[] systemPackagesArray = rawSystemPackages.split("[ ]?,[ ]?");
+                this.systemPackages = Arrays.asList(systemPackagesArray);
+
+            } catch (IOException e) {
+                log.warn("Error reading system packages list from launch.ini", e);
+            } finally {
+                if (fileInputStream != null) {
+                    try {
+                        fileInputStream.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+            }
+
+    }
+
 }

@@ -22,8 +22,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -52,8 +54,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private UserRealm userRealm = null;
     private RealmConfiguration realmConfig = null;
     private boolean caseInSensitiveAuthorizationRules;
+    private boolean verifyByRetrievingAllUserRoles;
     private String cacheIdentifier;
     private int tenantId;
+    private final String GET_ALL_ROLES_OF_USER_ENABLED = "GetAllRolesOfUserEnabled";
+
     /**
      * The root node of the tree
      */
@@ -73,6 +78,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         if(!"true".equals(realmConfig.getAuthorizationManagerProperty(UserCoreConstants.
                                         RealmConfig.PROPERTY_CASE_SENSITIVITY))){
             caseInSensitiveAuthorizationRules = true;
+        }
+
+        if("true".equals(realmConfig.getAuthorizationManagerProperty(GET_ALL_ROLES_OF_USER_ENABLED))){
+            verifyByRetrievingAllUserRoles = true;
         }
 
         String userCoreCacheIdentifier = realmConfig.getUserStoreProperty(UserCoreConstants.
@@ -197,22 +206,59 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 for(String allowedRole : allowedRoles){
                     log.debug("Role :  " + allowedRole);
                 }
-            }
-
-            AbstractUserStoreManager manager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
-            for (String role : allowedRoles) {
-                if (manager.isUserInRole(unModifiedUser, role)) {
+            }   
+            
+            if(verifyByRetrievingAllUserRoles){
+                String[] roles = null;
+                try {
+                    roles = userRealm.getUserStoreManager().getRoleListOfUser(userName);
+                } catch (UserStoreException e){
                     if(log.isDebugEnabled()) {
-                        log.debug( unModifiedUser + " user is in role :  " + role);
-                    }
-                    userAllowed = true;
-                    break;
-                } else {
-                    if(log.isDebugEnabled()) {
-                        log.debug( unModifiedUser + " user is not in role :  " + role);
+                        log.debug("Error getting role list of user : " + userName, e);
                     }
                 }
-            }
+
+                if(roles == null || roles.length == 0){
+                    AbstractUserStoreManager manager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
+                    roles = manager.doGetRoleListOfUser(userName, "*");
+                }
+
+                Set<String> allowedRoleSet = new HashSet<String>(Arrays.asList(allowedRoles));
+                Set<String> userRoleSet = new HashSet<String>(Arrays.asList(modify(roles)));
+                allowedRoleSet.retainAll(userRoleSet);
+
+                if (log.isDebugEnabled()) {
+                    for (String allowedRole : allowedRoleSet) {
+                        log.debug(userName + " user has permitted role :  "	+ allowedRole);
+                    }
+                }
+
+                if(!allowedRoleSet.isEmpty()){
+                    userAllowed =  true;
+                }
+
+            } else {
+                AbstractUserStoreManager manager = (AbstractUserStoreManager) userRealm.getUserStoreManager();
+                for (String role : allowedRoles) {
+                    try {
+                        if (manager.isUserInRole(unModifiedUser, role)) {
+                            if (log.isDebugEnabled()) {
+                                log.debug(unModifiedUser + " user is in role :  " + role);
+                            }
+                            userAllowed = true;
+                            break;
+                        } else {
+                            if (log.isDebugEnabled()) {
+                                log.debug(unModifiedUser + " user is not in role :  " + role);
+                            }
+                        }
+                    } catch (UserStoreException e) {
+                        if(log.isDebugEnabled()) {
+                            log.debug(unModifiedUser + " user is not in role :  " + role, e);
+                        }
+                    }
+                }
+            } 
         } else {
             if(log.isDebugEnabled()) {
                 log.debug("No roles have permission for resource : " + resourceId + " action : " + action);    
@@ -313,29 +359,48 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public String[] getAllowedUIResourcesForUser(String userName, String permissionRootPath)
             throws UserStoreException {
 
-		permissionRootPath = modify(permissionRootPath);
-		List<String> lstPermissions = new ArrayList<String>();
-        List<String> resourceIds = getUIPermissionId();
-        if(resourceIds != null){
-            for(String resourceId : resourceIds){
-                if(isUserAuthorized(userName, resourceId, CarbonConstants.UI_PERMISSION_ACTION)){
-                    lstPermissions.add(resourceId);
-                }
-            }
-        }
+    	if(verifyByRetrievingAllUserRoles){
+    		
+            List<String> lstPermissions = new ArrayList<String>();
+            String[] roles = this.userRealm.getUserStoreManager().getRoleListOfUser(userName);
+            roles = modify(roles);
+            permissionTree.updatePermissionTree();
+            permissionTree.getUIResourcesForRoles(roles, lstPermissions, permissionRootPath);
+            String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
+            return UserCoreUtil.optimizePermissions(permissions);
+    	
+    	} else {
 
-		String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
-		String[] optimizedList = UserCoreUtil.optimizePermissions(permissions);
-		
-		if(debug) {
-			log.debug("Allowed UI Resources for User: " + userName + " in permissionRootPath: " +
-			          permissionRootPath);
-			for(String resource : optimizedList) {
-				log.debug("Resource: " + resource);
-			}
-		}
-		
-		return optimizedList;
+    		permissionRootPath = modify(permissionRootPath);
+    		List<String> lstPermissions = new ArrayList<String>();
+    		List<String> resourceIds = getUIPermissionId();
+    		if (resourceIds != null) {
+    			for (String resourceId : resourceIds) {
+    				if (isUserAuthorized(userName, resourceId,CarbonConstants.UI_PERMISSION_ACTION)) {
+    					if (permissionRootPath == null) {
+    						lstPermissions.add(resourceId);
+    					} else {
+    						if (resourceId.contains(permissionRootPath)) {
+    							lstPermissions.add(resourceId);
+    						}
+    					}
+    				}//authorization check up
+    			}//loop over resource list 
+    		}//resource ID checkup
+
+    		String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
+    		String[] optimizedList = UserCoreUtil.optimizePermissions(permissions);
+    		
+    		if(debug) {
+    			log.debug("Allowed UI Resources for User: " + userName + " in permissionRootPath: " +
+    			          permissionRootPath);
+    			for(String resource : optimizedList) {
+    				log.debug("Resource: " + resource);
+    			}
+    		}
+    		
+    		return optimizedList;
+    	}
     }
 
     public void authorizeRole(String roleName, String resourceId, String action)
@@ -977,4 +1042,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 		}
 		return roles;
 	}
+
+
 }

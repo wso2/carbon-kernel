@@ -117,7 +117,11 @@ public class DefaultClaimManager implements ClaimManager {
 		ClaimMapping mapping = claimMapping.get(claimURI);
 		if (mapping != null) {
 			if (domainName != null) {
-				return mapping.getMappedAttribute(domainName.toUpperCase());
+				 String mappedAttrib = mapping.getMappedAttribute(domainName.toUpperCase());
+                 if(mappedAttrib != null){
+                     return mappedAttrib;
+                 }
+                return mapping.getMappedAttribute();
 			} else {
 				return mapping.getMappedAttribute();
 			}
@@ -379,11 +383,12 @@ public class DefaultClaimManager implements ClaimManager {
 	}
 
 	private ClaimMapping getClaimMapping(org.wso2.carbon.user.api.ClaimMapping claimMapping) {
-		ClaimMapping claimMap = new ClaimMapping();
+		ClaimMapping claimMap = null;
 		if (claimMapping != null) {
-			claimMap.setClaim(getClaim(claimMapping.getClaim()));
-			claimMap.setMappedAttribute(claimMapping.getMappedAttribute());
+			claimMap = new ClaimMapping(getClaim(claimMapping.getClaim()),claimMapping.getMappedAttribute());
 			claimMap.setMappedAttributes(claimMapping.getMappedAttributes());
+		} else {
+			return new ClaimMapping();
 		}
 		return claimMap;
 	}

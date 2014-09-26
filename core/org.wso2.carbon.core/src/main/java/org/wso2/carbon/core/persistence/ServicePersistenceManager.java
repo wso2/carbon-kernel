@@ -49,6 +49,7 @@ import java.util.*;
  * Use the serviceGroupName when accessing lower layer ServiceGroupFilePersistenceManager
  * serviceGroupName = axisService.getAxisServiceGroup().getServiceGroupName();
  */
+@Deprecated
 public class ServicePersistenceManager extends AbstractPersistenceManager {
 
     private static final String ADDRESSING_MODULE = "addressing";
@@ -458,13 +459,10 @@ public class ServicePersistenceManager extends AbstractPersistenceManager {
                         for (AxisModule axisModule : axisOperation.getEngagedModules()) {
                                 axisOperation.disengageModule(axisModule);
                         }
-//                        axisOperation.getEngagedModules().clear();
 
                         List moduleList = getServiceGroupFilePM().getAll(serviceGroupId,
                                 operationXPath + "/" + Resources.ModuleProperties.MODULE_XML_TAG);
 
-//                        Associat ion[] associations = configRegistry.getAssociations(operationPath,
-//                                Resources.Associations.ENGAGED_MODULES);
                         for (Object node : moduleList) {
                             OMElement module = (OMElement) node;
                             String modName = module.getAttributeValue(new QName(Resources.NAME));

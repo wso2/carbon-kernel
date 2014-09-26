@@ -20,7 +20,6 @@ package org.wso2.carbon.caching.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.eviction.EvictionAlgorithm;
-import org.wso2.carbon.caching.impl.eviction.EvictionUtil;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -46,21 +45,15 @@ import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -71,16 +64,24 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unchecked")
 public class CacheImpl<K, V> implements Cache<K, V> {
     private static final Log log = LogFactory.getLog(CacheImpl.class);
+    private static final int TIME_STAMP_REPLICATOR_THREADS = 2;
+    private static final int TIME_STAMP_REPLICATING_INTERVAL = 50;
+    private static final long MAX_CLEANUP_TIME = 60000;
+    private int timeStampReplicatorCount;
     private static final int CACHE_LOADER_THREADS = 2;
     private static final long DEFAULT_CACHE_EXPIRY_MINS = 15;
     private static final long DEFAULT_CACHE_EXPIRY_MILLIS = DEFAULT_CACHE_EXPIRY_MINS * 60 * 1000;
+    private static final float CACHE_OVERCAPACITY_FACTOR = 0.75f;
+    private static final float CACHE_EVICTION_FACTOR = 0.25f;
 
     private String cacheName;
     private CacheManager cacheManager;
     private boolean isLocalCache;
     private Map<K, CacheEntry<K, V>> distributedCache;
     private Map<K, Long> distributedTimestampMap;
-    private final Map<K, CacheEntry<K, V>> localCache = new ConcurrentHashMap<K, CacheEntry<K, V>>();
+    private Map<K, Long> localTimestampMap;
+    private long capacity = CachingConstants.DEFAULT_CACHE_CAPACITY;
+    private final Map<K, CacheEntry<K, V>> localCache = new ConcurrentHashMap<K, CacheEntry<K, V>>((int)capacity, 0.75f, 50);
     private CacheConfiguration<K, V> cacheConfiguration;
 
     private List<CacheEntryListener> cacheEntryListeners = new ArrayList<CacheEntryListener>();
@@ -93,7 +94,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private int ownerTenantId;
     private long lastAccessed = System.currentTimeMillis();
 
-    private long capacity = CachingConstants.DEFAULT_CACHE_CAPACITY;
     private EvictionAlgorithm evictionAlgorithm = CachingConstants.DEFAULT_EVICTION_ALGORITHM;
 
     public CacheImpl(String cacheName, CacheManager cacheManager) {
@@ -126,6 +126,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                     new MapEntryListenerImpl());
             distributedTimestampMap = distributedMapProvider.getMap(getMapName(CachingConstants.TIMESTAMP_CACHE_PREFIX +
                     cacheName, cacheManager), new TimestampMapEntryListenerImpl());
+            initTimestampReplicator();
         }
         cacheStatistics = new CacheStatisticsImpl();
         registerMBean();
@@ -147,8 +148,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 new MapEntryListenerImpl());
         distributedTimestampMap = distributedMapProvider.getMap(getMapName(CachingConstants.TIMESTAMP_CACHE_PREFIX
                 + cacheName, cacheManager),new TimestampMapEntryListenerImpl());
+
         isLocalCache = false;
 
+        initTimestampReplicator();
         // copy cache entries from localCache to distributed cache
         for (Map.Entry<K, CacheEntry<K, V>> entry : localCache.entrySet()) {
             distributedCache.put(entry.getKey(), entry.getValue());
@@ -158,6 +161,27 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private String getMapName(String cacheName, CacheManager cacheManager) {
         return "$cache.$domain[" + ownerTenantDomain + "]" +
                 cacheManager.getName() + "#" + cacheName;
+    }
+
+    private void initTimestampReplicator(){
+
+        ScheduledExecutorService timeStampReplicator = Executors.newScheduledThreadPool(TIME_STAMP_REPLICATOR_THREADS, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable runnable) {
+                Thread th = new Thread(runnable);
+                th.setName("TimeStampReplicator (" + ownerTenantDomain + ")-" + cacheName + "-" + timeStampReplicatorCount++);
+                return th;
+            }
+        });
+        localTimestampMap = new ConcurrentHashMap<K, Long>();
+        String replicateFrequency = System.getProperty("timestamp.replication.frequency");
+        int frequency = TIME_STAMP_REPLICATING_INTERVAL;
+        if (replicateFrequency != null) {
+            frequency = Integer.parseInt(replicateFrequency);
+        }
+        log.debug("Timestamp Replication Frequency set to " + frequency);
+        timeStampReplicator.scheduleAtFixedRate(new TimestampReplicateTask(), frequency, frequency,
+                TimeUnit.MILLISECONDS);
     }
 
     private MBeanServer getMBeanServer() {
@@ -201,7 +225,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         if (entry != null) {
             value = (V) entry.getValue();
             if (!isLocalCache) {
-                distributedTimestampMap.put(key, lastAccessed); // Need to put this back so that the accessed timestamp change is visible throughout the cluster
+               // distributedTimestampMap.put(key, lastAccessed);
+                synchronized (key){
+                    localTimestampMap.put(key,lastAccessed);
+                }
             }
             notifyCacheEntryRead(key, value);
         } else if(!isLocalCache) {    // Try reading it from the distributed cache
@@ -210,7 +237,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 entry.setLastAccessed(lastAccessed);
                 localCache.put(key, entry);
                 value = (V) entry.getValue();
-                distributedTimestampMap.put(key, lastAccessed); // Need to put this back so that the accessed timestamp change is visible throughout the cluster
+                //distributedTimestampMap.put(key, lastAccessed);
+                synchronized (key){
+                    localTimestampMap.put(key,lastAccessed);
+                }
                 notifyCacheEntryRead(key, value);
             }
         }
@@ -222,7 +252,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
-        syncCaches();
         Map<K, CacheEntry<K, V>> source = localCache;
         Map<K, V> destination = new HashMap<K, V>(keys.size());
         for (K key : keys) {
@@ -231,6 +260,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         return destination;
     }
 
+    /**
+     * @deprecated This method is highly inefficient. Do not use.
+     */
     public void syncCaches() {
         if(!isLocalCache){
             for(Map.Entry<K, CacheEntry<K, V>> entry : distributedCache.entrySet()){
@@ -248,8 +280,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     public Collection<CacheEntry<K, V>> getAll() {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
-        syncCaches();
-        return Collections.unmodifiableCollection(localCache.values());
+        return localCache.values();
     }
 
     @Override
@@ -265,20 +296,26 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 if (value != null) {
                     if (distributedTimestampMap.containsKey(key)) {
                         Long distributedLastAccessed = distributedTimestampMap.get(key);
-                        if (distributedLastAccessed > value.getLastAccessed()) {
-                            value.setLastAccessed(distributedLastAccessed);
-                        }
+                        setLastAccessed(value, distributedLastAccessed);
                     }
                     localCache.put(key, value);
                 } else {
                     if (distributedCache.containsKey(key)) {
-                        log.warn("Cache value is null but key [" + key + "] is avaialble!");
+//                        log.warn("Cache value is null but key [" + key + "] is available!");
                     }
                     containsKey = false;
                 }
             }
         }
         return containsKey;
+    }
+
+    private void setLastAccessed(CacheEntry<K, V> value, Long distributedLastAccessed) {
+        if (distributedLastAccessed != null && distributedLastAccessed > value.getLastAccessed()) {
+            value.setLastAccessed(distributedLastAccessed);
+        } else {
+            value.setLastAccessed(System.currentTimeMillis());
+        }
     }
 
     @Override
@@ -341,6 +378,10 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     }
 
     private void internalPut(K key, V value) {
+        // If the cache capacity has been exceeded by more than CACHE_OVERCAPACITY_FACTOR, do not put anymore until cache gets cleared
+        if(localCache.size() >= capacity * (1 + CACHE_OVERCAPACITY_FACTOR)){
+            return;
+        }
         this.localCache.put(key, new CacheEntry(key, value));
         if (!isLocalCache) {
             this.distributedCache.put(key, new CacheEntry(key, value));
@@ -352,9 +393,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
-        if (localCache.size() >= capacity) {
-            EvictionUtil.evict(this, evictionAlgorithm);
-        }
         CacheEntry entry = localCache.get(key);
         V oldValue = entry != null ? (V) entry.getValue() : null;
         if (oldValue == null) {
@@ -424,9 +462,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
-        if (localCache.size() >= capacity) {
-            EvictionUtil.evict(this, evictionAlgorithm);
-        }
         V oldValue = localCache.get(key).getValue();
         put(key, value);
         return oldValue;
@@ -445,9 +480,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             }
             V value = entry.getValue();
             internalPut(key, value);
-            if (localCache.size() >= capacity) {
-                EvictionUtil.evict(this, evictionAlgorithm);
-            }
             if (entryExists) {
                 notifyCacheEntryUpdated(key, value);
             } else {
@@ -461,9 +493,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
-        if (localCache.size() >= capacity) {
-            EvictionUtil.evict(this, evictionAlgorithm);
-        }
         if (!localCache.containsKey(key)) {
             internalPut(key, value);
             notifyCacheEntryCreated(key, value);
@@ -481,12 +510,13 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         if (!isLocalCache) {
             distributedCache.remove(key);
             distributedTimestampMap.remove(key);
+            localTimestampMap.remove(key);
         }
         boolean removed = entry != null;
         if (removed) {
             notifyCacheEntryRemoved((K) key, (V) entry.getValue());
         }
-        return true;
+        return localCache.get(key) == null;
     }
 
     @Override
@@ -495,10 +525,13 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         checkStatusStarted();
         lastAccessed = System.currentTimeMillis();
         CacheEntry<K, V> cacheEntry = localCache.remove(key);
-        distributedCache.remove(key);
-        distributedTimestampMap.remove(key);
+        if (!isLocalCache) {
+            distributedCache.remove(key);
+            distributedTimestampMap.remove(key);
+            localTimestampMap.remove(key);
+        }
         notifyCacheEntryRemoved(key, oldValue);
-        return cacheEntry != null;
+        return localCache.get(key) == null;
     }
 
     @Override
@@ -510,6 +543,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         if (!isLocalCache) {
             distributedCache.remove(key);
             distributedTimestampMap.remove(key);
+            localTimestampMap.remove(key);
         }
         if (entry != null) {
             V value = (V) entry.getValue();
@@ -747,6 +781,7 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             try {
                 distributedCache.remove(key);
                 distributedTimestampMap.remove(key);
+                localTimestampMap.remove(key);
             } catch (Exception e) {
                 log.warn("Exception occurred while expiring item from distributed cache. " + e.getMessage());
             }
@@ -763,10 +798,18 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
         checkStatusStarted();
         localCache.remove(key);
+        /*if (log.isDebugEnabled()) {
+            log.debug("Evicted entry:" + key + ", from local cache:" + cacheName);
+        }*/
         if(!isLocalCache){
             try {
                 distributedCache.remove(key);
                 distributedTimestampMap.remove(key);
+                localTimestampMap.remove(key);
+
+                /*if (log.isDebugEnabled()) {
+                    log.debug("Evicted entry:" + key + ", from distributed cache:" + cacheName);
+                }*/
             } catch (Exception e) {
                 log.warn("Exception occurred while evicting item from distributed cache. " + e.getMessage());
             }
@@ -868,22 +911,67 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                         accessedExpiry.getTimeUnit().toMillis(accessedExpiry.getDurationAmount());
 
         Collection<CacheEntry<K, V>> cacheEntries = getAll();
-        for (CacheEntry<K, V> entry : cacheEntries) { // All Cache entries in a Cache
-            long lastAccessed = entry.getLastAccessed();
-            long lastModified = entry.getLastModified();
-            long now = System.currentTimeMillis();
 
-            if (log.isDebugEnabled()) {
-                log.debug("Cache:" + cacheName + ", entry:" + entry.getKey() + ", lastAccessed: " +
-                        new Date(lastAccessed) + ", lastModified: " + new Date(lastModified));
-            }
-            if (now - lastAccessed >= accessedExpiryDuration ||
-                    now - lastModified >= modifiedExpiryDuration) {
-                expire(entry.getKey());
-                if (log.isDebugEnabled()) {
-                    log.debug("Expired: Cache:" + cacheName + ", entry:" + entry.getKey());
+        long evictionListSize = 0;
+        if (localCache.size() > capacity) {
+            evictionListSize = localCache.size() - capacity; // Evict all extra entries
+            evictionListSize += (long) (capacity * CachingConstants.CACHE_EVICTION_FACTOR); // Evict 25% of cache
+        }
+
+        TreeSet<CacheEntry> evictionList = new TreeSet<CacheEntry>(new Comparator<CacheEntry>() {
+
+            @Override
+            /**
+             * Compares its two arguments for order.  Returns a negative integer,
+             * zero, or a positive integer as the first argument is less than, equal
+             * to, or greater than the second.
+             */
+            public int compare(CacheEntry o1, CacheEntry o2) {
+                if(o1.getLastAccessed() == o2.getLastAccessed()) {
+                    if(o1.getKey().equals(o2.getKey())){
+                        return 0;
+                    }
+                    return -1;
+                } else {
+                    return (int) (o1.getLastAccessed() - o2.getLastAccessed());
                 }
             }
+        });
+        long start = System.currentTimeMillis();
+        for (CacheEntry<K, V> localCacheEntry : cacheEntries) { // All Cache entries in a Cache
+            K key = localCacheEntry.getKey();
+            if (localCache.size() >= capacity) {
+                evictionList.add(localCacheEntry);
+            }
+
+            long lastAccessed = localCacheEntry.getLastAccessed();
+            long lastModified = localCacheEntry.getLastModified();
+            long now = System.currentTimeMillis();
+
+            if (now - lastAccessed >= accessedExpiryDuration ||
+                    now - lastModified >= modifiedExpiryDuration) {
+                expire(key);
+                if (log.isDebugEnabled()) {
+                    log.debug("Expired: Cache:" + cacheName + ", entry:" + key);
+                }
+                if (System.currentTimeMillis() - start > MAX_CLEANUP_TIME) {
+                    break;
+                }
+            }
+        }
+
+        if (localCache.size() >= capacity) {
+            start = System.currentTimeMillis();
+            for (int i = 0; i < evictionListSize; i++) {
+                CacheEntry entry = evictionAlgorithm.getEntryForEviction(evictionList);
+                if (entry != null) {
+                    this.evict((K) entry.getKey());
+                }
+                if (System.currentTimeMillis() - start > MAX_CLEANUP_TIME) {
+                    break;
+                }
+            }
+            log.info("Evicted " + evictionListSize + " entries from cache " + cacheName);
         }
     }
 
@@ -924,6 +1012,25 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 throw e;
             }
             return entry.getValue();
+        }
+    }
+
+    private class TimestampReplicateTask implements Runnable{
+
+        @Override
+        public void run() {
+           if(!isLocalCache){
+               if(localTimestampMap != null && localTimestampMap.size() > 0){
+                   Iterator<Map.Entry<K,Long>> iterator = localTimestampMap.entrySet().iterator();
+                   while (iterator.hasNext()){
+                       Map.Entry<K, Long> entry = iterator.next();
+                       synchronized (entry.getKey()){
+                       distributedTimestampMap.put(entry.getKey(),entry.getValue());
+                       iterator.remove();
+                       }
+                   }
+               }
+           }
         }
     }
 
@@ -978,17 +1085,16 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryAdded(X key) {
+            if (!localCache.containsKey(key)) return;
             CacheEntry<K, V> value = distributedCache.get(key);
             if (value != null) {
                 if (distributedTimestampMap.containsKey(key)) {
-                    long distributedLastAccessed = distributedTimestampMap.get(key);
-                    if (distributedLastAccessed > value.getLastAccessed()) {
-                        value.setLastAccessed(distributedLastAccessed);
-                    }
-                }   else {
-                    distributedTimestampMap.put((K) key,value.getLastAccessed());
+                    Long distributedLastAccessed = distributedTimestampMap.get(key);
+                    setLastAccessed(value, distributedLastAccessed);
+                } else {
+                    distributedTimestampMap.put((K) key, value.getLastAccessed());
                 }
-                localCache.put((K)key, value);
+                localCache.put((K) key, value);
             }
         }
 
@@ -999,13 +1105,12 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryUpdated(X key) {
+            if (!localCache.containsKey(key)) return;
             CacheEntry<K, V> value = distributedCache.get(key);
             if (value != null) {
                 if (distributedTimestampMap.containsKey(key)) {
                     Long distributedLastAccessed = distributedTimestampMap.get(key);
-                    if (distributedLastAccessed > value.getLastAccessed()) {
-                        value.setLastAccessed(distributedLastAccessed);
-                    }
+                    setLastAccessed(value, distributedLastAccessed);
                 }else{
                     distributedTimestampMap.put((K) key,value.getLastAccessed());
                 }
@@ -1018,9 +1123,15 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryAdded(X key) {
+            if (!localCache.containsKey(key)) return;
             CacheEntry<K, V> value = localCache.get(key);
-            if (value != null && distributedTimestampMap.containsKey(key)) {
-                value.setLastAccessed(distributedTimestampMap.get(key));
+            if (value != null) {
+            	Long timeStamp = distributedTimestampMap.get(key);
+            	if(timeStamp != null){
+            		value.setLastAccessed(timeStamp);
+            	} else {
+            		value.setLastAccessed(new Date().getTime());
+            	}
             }
         }
 
@@ -1030,9 +1141,15 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryUpdated(X key) {
+            if (!localCache.containsKey(key)) return;
             CacheEntry<K, V> value = localCache.get(key);
-            if (value != null && distributedTimestampMap.containsKey(key)) {
-                value.setLastAccessed(distributedTimestampMap.get(key));
+            if (value != null) {
+            	Long timeStamp = distributedTimestampMap.get(key);
+            	if(timeStamp != null){
+            		value.setLastAccessed(timeStamp);            		
+            	} else {
+            		value.setLastAccessed(new Date().getTime());
+            	}
             }
         }
     }

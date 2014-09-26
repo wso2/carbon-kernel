@@ -31,6 +31,8 @@ import org.wso2.carbon.application.deployer.CarbonApplication;
 import org.wso2.carbon.application.deployer.config.ApplicationConfiguration;
 import org.wso2.carbon.application.deployer.config.Artifact;
 import org.wso2.carbon.application.deployer.handler.AppDeploymentHandler;
+import org.wso2.carbon.application.deployer.handler.DefaultAppDeployer;
+import org.wso2.carbon.application.deployer.handler.RegistryResourceDeployer;
 import org.wso2.carbon.application.deployer.persistence.CarbonAppPersistenceManager;
 import org.wso2.carbon.application.deployer.service.ApplicationManagerService;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -76,10 +78,7 @@ public final class ApplicationManager implements ApplicationManagerService {
 
     private int initialHandlers;
     private int handlerCount;
-
-    //provisioning actions can't be performed paralelly.. this lock is used for those actions
-//    private final ReentrantLock lock = new ReentrantLock();
-
+    private boolean isInitialized;
 
     /**
      * Constructor initializes public instances and finds the initial handlers
@@ -92,8 +91,17 @@ public final class ApplicationManager implements ApplicationManagerService {
         appDeploymentHandlers = new ArrayList<AppDeploymentHandler>();
         pendingCarbonApps = new ArrayList<PendingApplication>();
 
+        // Register default deployment handlers. These two handlers must be registered first before the other handlers
+        registerDeploymentHandler(new RegistryResourceDeployer());
+        registerDeploymentHandler(new DefaultAppDeployer());
+    }
+
+    // this init method should called by AppDeployerServiceComponent.activate method
+    public void init() {
         // set the initial handler counter. default handler and registry handler are always there
         initialHandlers = 2 + findInitialHandlerCount();
+        isInitialized = true;
+        tryDeployPendingCarbonApps();
     }
 
     /**
@@ -111,8 +119,12 @@ public final class ApplicationManager implements ApplicationManagerService {
     public synchronized void registerDeploymentHandler(AppDeploymentHandler handler) {
         appDeploymentHandlers.add(handler);
         handlerCount++;
+        tryDeployPendingCarbonApps();
 
-        if (handlerCount == initialHandlers) {
+    }
+
+    private synchronized void tryDeployPendingCarbonApps(){
+        if ( isInitialized && (handlerCount == initialHandlers)) {
             //if we have cApps waiting to be deployed, deploy those as well
             for (PendingApplication application : pendingCarbonApps) {
                 try {

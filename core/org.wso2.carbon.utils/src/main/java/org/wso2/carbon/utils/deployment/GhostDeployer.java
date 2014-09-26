@@ -95,13 +95,13 @@ public class GhostDeployer extends AbstractDeployer {
         String absoluteFilePath = deploymentFileData.getAbsolutePath();
         String directoryName = calculateDirectoryName(absoluteFilePath);
 
-        if(!"servicemetafiles".equals(directoryName) && !"modulemetafiles".equals(directoryName)){
+        if(log.isDebugEnabled()){
+            log.debug("Ghost Deployer Deploying Artifact : " + absoluteFilePath);
+        }
+        /*if(!"servicemetafiles".equals(directoryName) && !"modulemetafiles".equals(directoryName)){
             log.info("Ghost Deployer Deploying Artifact : " + absoluteFilePath);
         } else {
-            if(log.isDebugEnabled()){
-                log.debug("Ghost Deployer Deploying Artifact : " + absoluteFilePath);
-            }
-        }
+        }*/
 
         // First extract out the file extension and the deployment folder
         String fileExtension = getFileExtension(deploymentFileData.getFile());
@@ -187,12 +187,12 @@ public class GhostDeployer extends AbstractDeployer {
         String extension = getFileExtension(deployementFile);
         Deployer deployer = getDeployer(calculateDirectoryName(fileName), extension);
         if (deployer != null) {
-            if((fileName.contains("servicemetafiles") || fileName.contains("modulemetafiles") &&
+            log.info("Undeploying file : " + fileName);
+            /*if((fileName.contains("servicemetafiles") || fileName.contains("modulemetafiles") &&
                 log.isDebugEnabled())){
                 log.debug("Undeploying file : " + fileName);
             } else {
-                log.info("Undeploying file : " + fileName);
-            }
+            }*/
             deployer.undeploy(fileName);
         }
     }

@@ -4,6 +4,7 @@ import org.apache.axiom.om.OMElement;
 
 import java.io.File;
 
+@Deprecated
 public class ResourceFileData {
     /**
      * The object model of the servicegroup

@@ -3106,4 +3106,39 @@ public class EmbeddedRegistry implements Registry {
     	
     	return false;
     }
+    
+    @Override
+    public void dumpLite(String path, Writer writer) throws RegistryException {
+        boolean transactionSucceeded = false;
+        RequestContext context = new RequestContext(this, repository, versionRepository);
+        try {
+            // start the transaction
+            beginTransaction();
+
+            context.setResourcePath(new ResourcePath(path));
+            context.setDumpingWriter(writer);
+            registryContext.getHandlerManager().dumpLite(context);
+            if (!context.isSimulation()) {
+                if (!context.isProcessingComplete()) {
+                    repository.dumpLite(path, writer);
+                }
+
+                registryContext.getHandlerManager(
+                        HandlerLifecycleManager.COMMIT_HANDLER_PHASE).dumpLite(context);
+                // transaction succeeded
+                transactionSucceeded = true;
+            }
+        } finally {
+            if (transactionSucceeded) {
+                commitTransaction();
+            } else {
+                try {
+                    registryContext.getHandlerManager(
+                            HandlerLifecycleManager.ROLLBACK_HANDLER_PHASE).dumpLite(context);
+                } finally {
+                    rollbackTransaction();
+                }
+            }
+        }
+    }
 }
