@@ -58,7 +58,7 @@ public class SCIRegistrarContextConfig extends ContextConfig {
             log.error(sm.getString(
                     "contextConfig.servletContainerInitializerFail",
                     context.getName()),
-                    e);
+                    e);//prints the full stack trace
             ok = false;
             return;
         }
@@ -67,6 +67,7 @@ public class SCIRegistrarContextConfig extends ContextConfig {
         List<ServletContainerInitializer> mutableDetectedScis = getCustomSciList(detectedScis);
 
         // Code below is from {@link org.apache.catalina.startup.ContextConfig}
+        //made changes in logging.
         for (ServletContainerInitializer sci : mutableDetectedScis) {
             initializerClassMap.put(sci, new HashSet<Class<?>>());
             HandlesTypes ht;
@@ -74,9 +75,9 @@ public class SCIRegistrarContextConfig extends ContextConfig {
                 ht = sci.getClass().getAnnotation(HandlesTypes.class);
             } catch (Exception e) {
                 if (log.isDebugEnabled()) {
-                    log.info(sm.getString("contextConfig.sci.debug",
+                    log.debug(sm.getString("contextConfig.sci.debug",
                             sci.getClass().getName()),
-                            e);
+                            e);//changed log.info to log.debug.The debug level prints the full stack trace.
                 } else {
                     log.info(sm.getString("contextConfig.sci.info",
                             sci.getClass().getName()));
