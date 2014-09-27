@@ -425,7 +425,7 @@
 
         <version.eclipse.ecj>4.3.1</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>3.2.3.wso2v1</orbit.version.hazelcast>
+        <orbit.version.hazelcast>3.2.6.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
@@ -510,7 +510,6 @@
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
 	
     </properties>
-
 
     <dependencyManagement>
         <dependencies>
