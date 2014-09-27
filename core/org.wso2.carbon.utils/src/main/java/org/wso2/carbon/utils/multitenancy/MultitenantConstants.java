@@ -92,4 +92,6 @@ public class MultitenantConstants {
     public static final String CONTENT_LENGTH = "Content-Length";
     public static final String DISABLE_CHUNKING = "DISABLE_CHUNKING";
     public static final String NO_KEEPALIVE = "NO_KEEPALIVE";
+
+    public static final String SYNAPSE_JSON_INPUT_STREAM = "org.apache.synapse.commons.json.JsonInputStream";
 }
