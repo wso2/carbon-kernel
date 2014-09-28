@@ -38,7 +38,6 @@ import java.util.Set;
  */
 public class SCIRegistrarContextConfig extends ContextConfig {
     private static Log log = LogFactory.getLog(SCIRegistrarContextConfig.class);
-    private static DataHolder dataHolder = DataHolder.getInstance();
 
     public SCIRegistrarContextConfig() {
         super();
@@ -73,7 +72,8 @@ public class SCIRegistrarContextConfig extends ContextConfig {
             HandlesTypes ht;
             try {
                 ht = sci.getClass().getAnnotation(HandlesTypes.class);
-            } catch (Exception e) {
+            } catch (Exception e) {//class defined in the @HandlesTypes annotation can be missing.Can throw
+                // RuntimeException.
                 if (log.isDebugEnabled()) {
                     log.debug(sm.getString("contextConfig.sci.debug",
                             sci.getClass().getName()),
