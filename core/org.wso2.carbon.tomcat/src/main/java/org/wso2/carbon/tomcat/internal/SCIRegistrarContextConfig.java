@@ -73,7 +73,7 @@ public class SCIRegistrarContextConfig extends ContextConfig {
             try {
                 ht = sci.getClass().getAnnotation(HandlesTypes.class);
             } catch (Exception e) {//class defined in the @HandlesTypes annotation can be missing.Can throw
-                // RuntimeException.
+                // NullPointerException.
                 if (log.isDebugEnabled()) {
                     log.debug(sm.getString("contextConfig.sci.debug",
                             sci.getClass().getName()),
