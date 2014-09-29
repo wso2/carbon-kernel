@@ -584,4 +584,15 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
             throw new DeploymentException(axisFault.getMessage(), axisFault);
         }
     }
+
+    @Override
+    public void loadServices() {
+        //We don't deploy any artifacts at this time, DeploymentAxis2ConfigurationContextObserver will take care about
+        //deployment in later stage of server startup (Refer CARBON-14977 ).
+
+    }
+
+    public  void deployServices() {
+        super.loadServices();
+    }
 }

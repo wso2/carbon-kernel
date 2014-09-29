@@ -425,14 +425,15 @@
 
         <version.eclipse.ecj>4.3.1</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>3.2.3.wso2v1</orbit.version.hazelcast>
+        <orbit.version.hazelcast>3.2.6.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
         <hibernate.orbit.version>3.2.5.ga-wso2v1</hibernate.orbit.version>
 
         <!-- bouncycastle -->
-        <bouncycastle.version>1.49.wso2v1</bouncycastle.version>
+        <bouncycastle.version>1.49.0.wso2v2</bouncycastle.version>
+	<imp.pkg.version.bcp>[1.49.0.wso2v2, 1.50.0)</imp.pkg.version.bcp>
 
         <!--BPS specific-->
         <saxon-bps.wso2.version.human-task>9.0.0.x-wso2v1</saxon-bps.wso2.version.human-task>
@@ -510,7 +511,6 @@
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
 	
     </properties>
-
 
     <dependencyManagement>
         <dependencies>
