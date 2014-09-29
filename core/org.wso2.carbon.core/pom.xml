@@ -207,10 +207,11 @@
                             javax.xml.stream.*; version=1.0.1,
                             org.wso2.carbon.registry.core.service,
                             org.wso2.carbon.user.core.*; version=0.0.0,
+			                org.bouncycastle.*; version="${imp.pkg.version.bcp}",
                             *;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>
-                            bcprov-jdk15|naming-factory|naming-resources|commons-collections;scope=compile|runtime;inline=false
+                            naming-factory|naming-resources|commons-collections;scope=compile|runtime;inline=false
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <DynamicImport-Package>*</DynamicImport-Package>
