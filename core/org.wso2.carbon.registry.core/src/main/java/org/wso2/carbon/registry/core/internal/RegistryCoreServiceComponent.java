@@ -264,7 +264,7 @@ public class RegistryCoreServiceComponent {
     }
 
     // Do tenant-specific initialization.
-    private static void initializeTenant(RegistryService registryService, int tenantId) {
+    private static void initializeTenant(RegistryService registryService, int tenantId) throws RegistryException {
         try {
             UserRegistry systemRegistry = registryService.getConfigSystemRegistry();
             if (systemRegistry.getRegistryContext() != null) {
@@ -298,7 +298,7 @@ public class RegistryCoreServiceComponent {
                 CurrentSession.removeTenantId();
             }
         } catch (RegistryException e) {
-            log.error("Unable to initialize registry for tenant " + tenantId + ".", e);
+            throw new RegistryException("Unable to initialize registry for tenant " + tenantId + ".", e);
         }
     }
 
@@ -890,16 +890,16 @@ public class RegistryCoreServiceComponent {
             return true;
         }
 
-        public void createdConfigurationContext(ConfigurationContext configurationContext) {
+        public void createdConfigurationContext(ConfigurationContext configurationContext) throws RegistryException{
             int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             loadTenantRegistry(tenantId);
         }
 
-        public void startedAuthentication(int tenantId) {
+        public void startedAuthentication(int tenantId) throws RegistryException{
             loadTenantRegistry(tenantId);
         }
 
-        public void loadTenantRegistry(int tenantId) {
+        public void loadTenantRegistry(int tenantId) throws RegistryException{
             // Only signed code can load the registry of a tenant, for security reasons. Accessing
             // the registry can be done by unsigned code, after the registry has been properly
             // loaded.

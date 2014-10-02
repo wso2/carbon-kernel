@@ -16,6 +16,7 @@
 package org.wso2.carbon.utils;
 
 import org.apache.axis2.context.ConfigurationContext;
+import org.wso2.carbon.registry.api.RegistryException;
 
 /**
  * This observer will be notified when a new Axis2 ConfigurationContext is created & populated
@@ -35,7 +36,7 @@ public interface Axis2ConfigurationContextObserver {
      *
      * @param configContext  The newly created ConfigurationContext
      */
-    void createdConfigurationContext(ConfigurationContext configContext);
+    void createdConfigurationContext(ConfigurationContext configContext) throws RegistryException;
 
      /**
      * Notification before a ConfigurationContext is terminated

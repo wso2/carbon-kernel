@@ -21,6 +21,7 @@ import org.apache.axis2.engine.AxisConfigurator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.multitenancy.TenantAxisConfigurator;
+import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.utils.AbstractAxis2ConfigurationContextObserver;
 
 /**
@@ -33,7 +34,7 @@ public class DeploymentAxis2ConfigurationContextObserver extends AbstractAxis2Co
     private static Log log = LogFactory.getLog(DeploymentAxis2ConfigurationContextObserver.class);
 
     @Override
-    public void createdConfigurationContext(ConfigurationContext configContext) {
+    public void createdConfigurationContext(ConfigurationContext configContext) throws RegistryException{
         log.debug("Invoke registered deployers");
         super.createdConfigurationContext(configContext);
         AxisConfigurator axisConfigurator = configContext.getAxisConfiguration().getConfigurator();

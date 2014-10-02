@@ -136,7 +136,7 @@ public class PermissionUpdater {
         return true;
     }
 
-    private static void initializeRegistry(int tenantId) {
+    private static void initializeRegistry(int tenantId) throws org.wso2.carbon.registry.api.RegistryException{
         BundleContext bundleContext = dataHolder.getBundleContext();
         if (bundleContext != null) {
             ServiceTracker tracker =
