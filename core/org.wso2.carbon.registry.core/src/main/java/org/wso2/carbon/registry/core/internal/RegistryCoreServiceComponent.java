@@ -23,6 +23,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
@@ -264,7 +265,7 @@ public class RegistryCoreServiceComponent {
     }
 
     // Do tenant-specific initialization.
-    private static void initializeTenant(RegistryService registryService, int tenantId) {
+    private static void initializeTenant(RegistryService registryService, int tenantId) throws RegistryException {
         try {
             UserRegistry systemRegistry = registryService.getConfigSystemRegistry();
             if (systemRegistry.getRegistryContext() != null) {
@@ -299,6 +300,7 @@ public class RegistryCoreServiceComponent {
             }
         } catch (RegistryException e) {
             log.error("Unable to initialize registry for tenant " + tenantId + ".", e);
+            throw new RegistryException("Unable to initialize registry for tenant " + tenantId + ".", e);
         }
     }
 
@@ -890,23 +892,28 @@ public class RegistryCoreServiceComponent {
             return true;
         }
 
-        public void createdConfigurationContext(ConfigurationContext configurationContext) {
+        public void createdConfigurationContext(ConfigurationContext configurationContext) throws CarbonException{
             int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
             loadTenantRegistry(tenantId);
         }
 
-        public void startedAuthentication(int tenantId) {
+        public void startedAuthentication(int tenantId) throws CarbonException{
             loadTenantRegistry(tenantId);
         }
 
-        public void loadTenantRegistry(int tenantId) {
+        public void loadTenantRegistry(int tenantId) throws CarbonException {
             // Only signed code can load the registry of a tenant, for security reasons. Accessing
             // the registry can be done by unsigned code, after the registry has been properly
             // loaded.
             if (tenantId != MultitenantConstants.INVALID_TENANT_ID &&
             		tenantId != MultitenantConstants.SUPER_TENANT_ID && 
             		canInitializeTenant(tenantId)) {
-                RegistryCoreServiceComponent.initializeTenant(service, tenantId);
+                try {
+                    RegistryCoreServiceComponent.initializeTenant(service, tenantId);
+                } catch (RegistryException e) {
+                    log.error("Failed to initialize registry",e);
+                    throw new CarbonException("Failed to initialize Registry",e);
+                }
             }
         }
 

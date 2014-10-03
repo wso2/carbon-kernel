@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -136,7 +137,7 @@ public class PermissionUpdater {
         return true;
     }
 
-    private static void initializeRegistry(int tenantId) {
+    private static void initializeRegistry(int tenantId) throws CarbonException{
         BundleContext bundleContext = dataHolder.getBundleContext();
         if (bundleContext != null) {
             ServiceTracker tracker =

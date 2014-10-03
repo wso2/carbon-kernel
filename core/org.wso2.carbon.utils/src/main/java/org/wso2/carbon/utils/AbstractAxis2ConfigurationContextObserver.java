@@ -19,6 +19,7 @@
 package org.wso2.carbon.utils;
 
 import org.apache.axis2.context.ConfigurationContext;
+import org.wso2.carbon.CarbonException;
 
 /**
  * This is an abstract implementation of the Axis2ConfigurationContextObserver interface. It
@@ -32,7 +33,7 @@ public abstract class AbstractAxis2ConfigurationContextObserver implements
 
     }
 
-    public void createdConfigurationContext(ConfigurationContext configContext) {
+    public void createdConfigurationContext(ConfigurationContext configContext) throws CarbonException {
 
     }
 
