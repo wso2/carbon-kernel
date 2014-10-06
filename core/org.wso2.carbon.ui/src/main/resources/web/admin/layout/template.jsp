@@ -110,7 +110,7 @@
     <link rel="icon" href="../admin/images/favicon.ico" type="image/x-icon"/>
     <link rel="shortcut icon" href="../admin/images/favicon.ico" type="image/x-icon"/>
 
-    <script type="text/javascript" src="../admin/js/jquery-1.5.2.min.js"></script>
+    <script type="text/javascript" src="../admin/js/jquery-1.6.3.min.js"></script>
     <script type="text/javascript" src="../admin/js/jquery.form.js"></script>
     <script type="text/javascript" src="../dialog/js/jqueryui/jquery-ui.min.js"></script>
     <script type="text/javascript" src="../admin/js/jquery.validate.js"></script>    
