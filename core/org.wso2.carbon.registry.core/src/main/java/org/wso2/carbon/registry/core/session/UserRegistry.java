@@ -431,7 +431,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Resource>() {
                 @Override
                 public Resource run() throws Exception {
-                    return _newResource();
+                    return newResourceInternal();
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -439,7 +439,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Resource _newResource() throws RegistryException {
+    private Resource newResourceInternal() throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation new resource.");
         }
@@ -456,7 +456,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Collection>() {
                 @Override
                 public Collection run() throws Exception {
-                    return _newCollection();
+                    return newCollectionInternal();
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -464,7 +464,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Collection _newCollection() throws RegistryException {
+    private Collection newCollectionInternal() throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation new collection.");
         }
@@ -568,7 +568,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Resource>() {
                 @Override
                 public Resource run() throws Exception {
-                    return _get(path);
+                    return getInternal(path);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -576,7 +576,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Resource _get(String path) throws RegistryException {
+    private Resource getInternal(String path) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get, " +
                     "path: " + path + ".");
@@ -617,7 +617,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Resource>() {
                 @Override
                 public Resource run() throws Exception {
-                    return _getMetaData(path);
+                    return getMetaDataInternal(path);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -625,7 +625,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Resource _getMetaData(String path) throws RegistryException {
+    private Resource getMetaDataInternal(String path) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get meta data, " +
                     "path: " + path + ".");
@@ -655,7 +655,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _importResource(suggestedPath, sourceURL, resource);
+                    return importResourceInternal(suggestedPath, sourceURL, resource);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -663,10 +663,10 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _importResource(String suggestedPath, String sourceURL,
+    private String importResourceInternal(String suggestedPath, String sourceURL,
                                  org.wso2.carbon.registry.api.Resource resource)
             throws org.wso2.carbon.registry.api.RegistryException {
-        return _importResource(suggestedPath, sourceURL, (Resource) resource);
+        return importResourceInternal(suggestedPath, sourceURL, (Resource) resource);
     }
 
     public Collection get(final String path, final int start, final int pageSize) throws RegistryException {
@@ -674,7 +674,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Collection>() {
                 @Override
                 public Collection run() throws Exception {
-                    return _get(path, start, pageSize);
+                    return getInternal(path, start, pageSize);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -682,7 +682,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Collection _get(String path, int start, int pageSize) throws RegistryException {
+    private Collection getInternal(String path, int start, int pageSize) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get with pagination, " +
                     "path: " + path + ", " +
@@ -725,7 +725,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Boolean>() {
                 @Override
                 public Boolean run() throws Exception {
-                    return _resourceExists(path);
+                    return resourceExistsInternal(path);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -733,7 +733,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private boolean _resourceExists(String path) throws RegistryException {
+    private boolean resourceExistsInternal(String path) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation resource exists, " +
                     "path: " + path + ".");
@@ -754,7 +754,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _put(suggestedPath, resource);
+                    return putInternal(suggestedPath, resource);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -762,9 +762,9 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _put(String suggestedPath, org.wso2.carbon.registry.api.Resource resource)
+    private String putInternal(String suggestedPath, org.wso2.carbon.registry.api.Resource resource)
             throws org.wso2.carbon.registry.api.RegistryException {
-        return _put(suggestedPath, (Resource) resource);
+        return putInternal(suggestedPath, (Resource) resource);
     }
 
     public String put(final String suggestedPath, final Resource resource) throws RegistryException {
@@ -772,7 +772,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _put(suggestedPath, resource);
+                    return putInternal(suggestedPath, resource);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -780,7 +780,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _put(String suggestedPath, Resource resource) throws RegistryException {
+    private String putInternal(String suggestedPath, Resource resource) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation put, " +
                     "path: " + suggestedPath + ".");
@@ -810,7 +810,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _delete(path);
+                    deleteInternal(path);
                     return null;
                 }
             });
@@ -819,7 +819,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _delete(String path) throws RegistryException {
+    private void deleteInternal(String path) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation delete, " +
                     "path: " + path + ".");
@@ -846,7 +846,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _importResource(suggestedPath, sourceURL, resource);
+                    return importResourceInternal(suggestedPath, sourceURL, resource);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -854,7 +854,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _importResource(String suggestedPath, String sourceURL, Resource resource)
+    private String importResourceInternal(String suggestedPath, String sourceURL, Resource resource)
             throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation import resource. " +
@@ -887,7 +887,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _rename(currentPath, newName);
+                    return renameInternal(currentPath, newName);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -895,7 +895,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _rename(String currentPath, String newPath) throws RegistryException {
+    private String renameInternal(String currentPath, String newPath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation rename. " +
                     "source: " + currentPath + ", " +
@@ -932,7 +932,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _move(currentPath, newPath);
+                    return moveInternal(currentPath, newPath);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -940,7 +940,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _move(String currentPath, String newPath) throws RegistryException {
+    private String moveInternal(String currentPath, String newPath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation move. " +
                     "source: " + currentPath + ", " +
@@ -973,7 +973,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _copy(sourcePath, targetPath);
+                    return copyInternal(sourcePath, targetPath);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -981,7 +981,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _copy(String sourcePath, String targetPath) throws RegistryException {
+    private String copyInternal(String sourcePath, String targetPath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation copy. " +
                     "source: " + sourcePath + ", " +
@@ -1014,7 +1014,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _createVersion(path);
+                    createVersionInternal(path);
                     return null;
                 }
             });
@@ -1023,7 +1023,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _createVersion(String path) throws RegistryException {
+    private void createVersionInternal(String path) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation create version, " +
                     "path: " + path + ".");
@@ -1051,7 +1051,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String[]>() {
                 @Override
                 public String[] run() throws Exception {
-                    return _getVersions(path);
+                    return getVersionsInternal(path);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1059,7 +1059,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String[] _getVersions(String path) throws RegistryException {
+    private String[] getVersionsInternal(String path) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get versions, " +
                     "path: " + path + ".");
@@ -1084,7 +1084,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _restoreVersion(versionPath);
+                    restoreVersionInternal(versionPath);
                     return null;
                 }
             });
@@ -1093,7 +1093,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _restoreVersion(String versionPath) throws RegistryException {
+    private void restoreVersionInternal(String versionPath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation restore version, " +
                     "version path: " + versionPath + ".");
@@ -1124,7 +1124,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _addAssociation(sourcePath, targetPath, associationType);
+                    addAssociationInternal(sourcePath, targetPath, associationType);
                     return null;
                 }
             });
@@ -1133,7 +1133,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _addAssociation(String sourcePath, String targetPath, String associationType)
+    private void addAssociationInternal(String sourcePath, String targetPath, String associationType)
             throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation add association, " +
@@ -1169,7 +1169,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _removeAssociation(sourcePath, targetPath, associationType);
+                    removeAssociationInternal(sourcePath, targetPath, associationType);
                     return null;
                 }
             });
@@ -1178,7 +1178,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _removeAssociation(String sourcePath, String associationPath,
+    private void removeAssociationInternal(String sourcePath, String associationPath,
                                   String associationType)
             throws RegistryException {
         if (log.isTraceEnabled()) {
@@ -1215,7 +1215,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Association[]>() {
                 @Override
                 public Association[] run() throws Exception {
-                    return _getAllAssociations(resourcePath);
+                    return getAllAssociationsInternal(resourcePath);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1223,7 +1223,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Association[] _getAllAssociations(String resourcePath) throws RegistryException {
+    private Association[] getAllAssociationsInternal(String resourcePath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get all associations, " +
                     "path: " + resourcePath + ".");
@@ -1247,7 +1247,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Association[]>() {
                 @Override
                 public Association[] run() throws Exception {
-                    return _getAssociations(resourcePath, associationType);
+                    return getAssociationsInternal(resourcePath, associationType);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1255,7 +1255,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Association[] _getAssociations(String resourcePath, String associationType)
+    private Association[] getAssociationsInternal(String resourcePath, String associationType)
             throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get associations, " +
@@ -1282,7 +1282,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _applyTag(resourcePath, tag);
+                    applyTagInternal(resourcePath, tag);
                     return null;
                 }
             });
@@ -1291,7 +1291,7 @@ public class UserRegistry implements Registry {
         }
     }
     
-    private void _applyTag(String resourcePath, String tag) throws RegistryException {
+    private void applyTagInternal(String resourcePath, String tag) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation apply tag, " +
                     "path: " + resourcePath + ", " +
@@ -1319,7 +1319,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<TaggedResourcePath[]>() {
                 @Override
                 public TaggedResourcePath[] run() throws Exception {
-                    return _getResourcePathsWithTag(tag);
+                    return getResourcePathsWithTagInternal(tag);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1327,7 +1327,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private TaggedResourcePath[] _getResourcePathsWithTag(String tag) throws RegistryException {
+    private TaggedResourcePath[] getResourcePathsWithTagInternal(String tag) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get resource paths with tags, " +
                     "tag: " + tag + ".");
@@ -1350,7 +1350,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Tag[]>() {
                 @Override
                 public Tag[] run() throws Exception {
-                    return _getTags(resourcePath);
+                    return getTagsInternal(resourcePath);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1358,7 +1358,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Tag[] _getTags(String resourcePath) throws RegistryException {
+    private Tag[] getTagsInternal(String resourcePath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get tags, " +
                     "path: " + resourcePath + ".");
@@ -1378,7 +1378,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _removeTag(path, tag);
+                    removeTagInternal(path, tag);
                     return null;
                 }
             });
@@ -1387,7 +1387,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _removeTag(String path, String tag) throws RegistryException {
+    private void removeTagInternal(String path, String tag) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation remove tag, " +
                     "path: " + path + ", " +
@@ -1416,7 +1416,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _addComment(resourcePath, comment);
+                    return addCommentInternal(resourcePath, comment);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1424,9 +1424,9 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _addComment(String resourcePath, org.wso2.carbon.registry.api.Comment comment)
+    private String addCommentInternal(String resourcePath, org.wso2.carbon.registry.api.Comment comment)
             throws org.wso2.carbon.registry.api.RegistryException {
-        return _addComment(resourcePath, (Comment) comment);
+        return addCommentInternal(resourcePath, (Comment) comment);
     }
 
     public String addComment(final String resourcePath, final Comment comment) throws RegistryException {
@@ -1434,7 +1434,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _addComment(resourcePath, comment);
+                    return addCommentInternal(resourcePath, comment);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1442,7 +1442,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _addComment(String resourcePath, Comment comment) throws RegistryException {
+    private String addCommentInternal(String resourcePath, Comment comment) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation add comment, " +
                     "path: " + resourcePath + ".");
@@ -1471,7 +1471,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _editComment(commentPath, text);
+                    editCommentInternal(commentPath, text);
                     return null;
                 }
             });
@@ -1480,7 +1480,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _editComment(String commentPath, String text) throws RegistryException {
+    private void editCommentInternal(String commentPath, String text) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation edit comment, " +
                     "path: " + commentPath + ".");
@@ -1508,7 +1508,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _removeComment(commentPath);
+                    removeCommentInternal(commentPath);
                     return null;
                 }
             });
@@ -1517,7 +1517,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _removeComment(String commentPath) throws RegistryException {
+    private void removeCommentInternal(String commentPath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation edit comment, " +
                     "path: " + commentPath + ".");
@@ -1545,7 +1545,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Comment[]>() {
                 @Override
                 public Comment[] run() throws Exception {
-                    return _getComments(resourcePath);
+                    return getCommentsInternal(resourcePath);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1553,7 +1553,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Comment[] _getComments(String resourcePath) throws RegistryException {
+    private Comment[] getCommentsInternal(String resourcePath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get comments, " +
                     "path: " + resourcePath + ".");
@@ -1577,7 +1577,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _rateResource(resourcePath, rating);
+                    rateResourceInternal(resourcePath, rating);
                     return null;
                 }
             });
@@ -1586,7 +1586,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _rateResource(String resourcePath, int rating) throws RegistryException {
+    private void rateResourceInternal(String resourcePath, int rating) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation rate resource, " +
                     "path: " + resourcePath + ", " +
@@ -1615,7 +1615,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Float>() {
                 @Override
                 public Float run() throws Exception {
-                    return _getAverageRating(resourcePath);
+                    return getAverageRatingInternal(resourcePath);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1623,7 +1623,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private float _getAverageRating(String resourcePath) throws RegistryException {
+    private float getAverageRatingInternal(String resourcePath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get average ratings, " +
                     "path: " + resourcePath + ".");
@@ -1643,7 +1643,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Integer>() {
                 @Override
                 public Integer run() throws Exception {
-                    return _getRating(path, userName);
+                    return getRatingInternal(path, userName);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1651,7 +1651,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private int _getRating(String path, String userName) throws RegistryException {
+    private int getRatingInternal(String path, String userName) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get ratings, " +
                     "path: " + path + ", " +
@@ -1673,7 +1673,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Collection>() {
                 @Override
                 public Collection run() throws Exception {
-                    return _executeQuery(path, parameters);
+                    return executeQueryInternal(path, parameters);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1682,7 +1682,7 @@ public class UserRegistry implements Registry {
     }
 
     @SuppressWarnings("rawtypes")
-    private Collection _executeQuery(String path, Map parameters) throws RegistryException {
+    private Collection executeQueryInternal(String path, Map parameters) throws RegistryException {
         if (log.isTraceEnabled()) {
             String msg = "Preparing operation execute query, " +
                     "path: " + path + ", " +
@@ -1749,7 +1749,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<LogEntry[]>() {
                 @Override
                 public LogEntry[] run() throws Exception {
-                    return _getLogs(resourcePath, action, userName, from, to, recentFirst);
+                    return getLogsInternal(resourcePath, action, userName, from, to, recentFirst);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1757,7 +1757,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private LogEntry[] _getLogs(
+    private LogEntry[] getLogsInternal(
             String resourcePath,
             int action,
             String userName,
@@ -1818,12 +1818,12 @@ public class UserRegistry implements Registry {
         return AccessController.doPrivileged(new PrivilegedAction<String[]>() {
             @Override
             public String[] run() {
-                return _getAvailableAspects();
+                return getAvailableAspectsInternal();
             }
         });
     }
 
-    private String[] _getAvailableAspects() {
+    private String[] getAvailableAspectsInternal() {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get available actions.");
         }
@@ -1841,7 +1841,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _associateAspect(resourcePath, aspect);
+                    associateAspectInternal(resourcePath, aspect);
                     return null;
                 }
             });
@@ -1850,7 +1850,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _associateAspect(String resourcePath, String aspect) throws RegistryException {
+    private void associateAspectInternal(String resourcePath, String aspect) throws RegistryException {
 
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation associate aspect, " +
@@ -1880,7 +1880,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _invokeAspect(resourcePath, aspectName, action);
+                    invokeAspectInternal(resourcePath, aspectName, action);
                     return null;
                 }
             });
@@ -1889,7 +1889,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _invokeAspect(String resourcePath, String aspectName, String action)
+    private void invokeAspectInternal(String resourcePath, String aspectName, String action)
             throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation invoke aspects, " +
@@ -1961,7 +1961,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String[]>() {
                 @Override
                 public String[] run() throws Exception {
-                    return _getAspectActions(resourcePath, aspectName);
+                    return getAspectActionsInternal(resourcePath, aspectName);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1969,7 +1969,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String[] _getAspectActions(String resourcePath, String aspectName)
+    private String[] getAspectActionsInternal(String resourcePath, String aspectName)
             throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get aspect actions, " +
@@ -1991,7 +1991,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<Collection>() {
                 @Override
                 public Collection run() throws Exception {
-                    return _searchContent(keywords);
+                    return searchContentInternal(keywords);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -1999,7 +1999,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private Collection _searchContent(String keywords) throws RegistryException {
+    private Collection searchContentInternal(String keywords) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation search content, " +
                     "keywords: " + keywords + ".");
@@ -2031,7 +2031,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _createLink(path, target);
+                    createLinkInternal(path, target);
                     return null;
                 }
             });
@@ -2040,7 +2040,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _createLink(String path, String target) throws RegistryException {
+    private void createLinkInternal(String path, String target) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation create link, " +
                     "path: " + path + ", " +
@@ -2069,7 +2069,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _createLink(path, target, subTargetPath);
+                    createLinkInternal(path, target, subTargetPath);
                     return null;
                 }
             });
@@ -2078,7 +2078,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _createLink(String path, String target,
+    private void createLinkInternal(String path, String target,
                            String targetSubPath) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation create link, " +
@@ -2109,7 +2109,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _removeLink(path);
+                    removeLinkInternal(path);
                     return null;
                 }
             });
@@ -2118,7 +2118,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _removeLink(String path) throws RegistryException {
+    private void removeLinkInternal(String path) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation remove link, " +
                     "path: " + path + ".");
@@ -2150,7 +2150,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _restore(path, reader);
+                    restoreInternal(path, reader);
                     return null;
                 }
             });
@@ -2159,7 +2159,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _restore(String path, Reader reader) throws RegistryException {
+    private void restoreInternal(String path, Reader reader) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation restore dump, " +
                     "path: " + path + ".");
@@ -2185,7 +2185,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _dump(path, writer);
+                    dumpInternal(path, writer);
                     return null;
                 }
             });
@@ -2194,7 +2194,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _dump(String path, Writer writer) throws RegistryException {
+    private void dumpInternal(String path, Writer writer) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation dump, " +
                     "path: " + path + ".");
@@ -2214,7 +2214,7 @@ public class UserRegistry implements Registry {
             return AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    return _getEventingServiceURL(path);
+                    return getEventingServiceURLInternal(path);
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -2222,7 +2222,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private String _getEventingServiceURL(String path) throws RegistryException {
+    private String getEventingServiceURLInternal(String path) throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation get eventing service url, " +
                     "path: " + path + ".");
@@ -2244,7 +2244,7 @@ public class UserRegistry implements Registry {
             AccessController.doPrivileged(new PrivilegedExceptionAction<String>() {
                 @Override
                 public String run() throws Exception {
-                    _setEventingServiceURL(path, eventingServiceURL);
+                    setEventingServiceURLInternal(path, eventingServiceURL);
                     return null;
                 }
             });
@@ -2253,7 +2253,7 @@ public class UserRegistry implements Registry {
         }
     }
 
-    private void _setEventingServiceURL(String path, String eventingServiceURL)
+    private void setEventingServiceURLInternal(String path, String eventingServiceURL)
             throws RegistryException {
         if (log.isTraceEnabled()) {
             log.trace("Preparing operation set eventing service url, " +
