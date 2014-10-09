@@ -39,6 +39,23 @@ import java.net.UnknownHostException;
  * string will be returned. The tenant pattern can be changed via the log4j
  * configuration. You simply need to add a line in the format,
  * <code>log4j.appender.NAME.layout.TenantPattern=%U@%D [%T]</code>.
+ *
+ * Available patterns:
+ * [%D] - tenant domain
+ * [%P] - tenant pattern (TenantPattern as configured in the log4j.properties file. eg:
+ *                      %U%@%D[%T] - will be converted to "username @ tenant_domain [tenant_id]" )
+ * [%T] - tenant id
+ * [%S] - server name
+ * [%U] - user name
+ * [%A] - application name
+ * [%H] - host name/address
+ * [%I] - instance id
+ *
+ * How to use these patterns:
+ * Configure the log4j.properties file using above patterns.
+ * eg: for the console appender,
+ * log4j.appender.CARBON_CONSOLE.layout.ConversionPattern=TID: [%T] [%S] [%U] [%A] [%D] [%I] [%H]
+ * [%P] [%d] %P%5p {%c} - %x %m%n
  */
 
 public class TenantAwarePatternLayout extends PatternLayout {
