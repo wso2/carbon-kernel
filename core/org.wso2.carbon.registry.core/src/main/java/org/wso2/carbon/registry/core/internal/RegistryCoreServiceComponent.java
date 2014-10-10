@@ -252,58 +252,6 @@ public class RegistryCoreServiceComponent {
                 r.getProperty(RegistryConstants.REGISTRY_FIXED_MOUNT));
     }
 
-    // Sets-up the media types for this instance.
-    private static void setupMediaTypes(RegistryService registryService, int tenantId) {
-        try {
-            Registry registry = registryService.getConfigSystemRegistry(tenantId);
-            MediaTypesUtils.getResourceMediaTypeMappings(registry);
-            MediaTypesUtils.getCustomUIMediaTypeMappings(registry);
-            MediaTypesUtils.getCollectionMediaTypeMappings(registry);
-        } catch (RegistryException e) {
-            log.error("Unable to create fixed remote mounts.", e);
-        }
-    }
-
-    // Do tenant-specific initialization.
-    private static void initializeTenant(RegistryService registryService, int tenantId) throws RegistryException {
-        try {
-            UserRegistry systemRegistry = registryService.getConfigSystemRegistry();
-            if (systemRegistry.getRegistryContext() != null) {
-                HandlerManager handlerManager =
-                        systemRegistry.getRegistryContext().getHandlerManager();
-                if (handlerManager instanceof HandlerLifecycleManager) {
-                    ((HandlerLifecycleManager)handlerManager).init(tenantId);
-                }
-            }
-            systemRegistry = registryService.getRegistry(
-                    CarbonConstants.REGISTRY_SYSTEM_USERNAME, tenantId);
-            RegistryUtils.addMountCollection(systemRegistry);
-            RegistryUtils.registerMountPoints(systemRegistry, tenantId);
-            new RegistryCoreServiceComponent().setupMounts(registryService, tenantId);
-            setupMediaTypes(registryService, tenantId);
-
-//            We need to set the tenant ID for current session. Otherwise the underlying operations fails
-            try {
-                CurrentSession.setTenantId(tenantId);
-
-                RegistryContext registryContext = systemRegistry.getRegistryContext();
-                // Adding collection to store user profile information.
-                RegistryUtils.addUserProfileCollection(systemRegistry, RegistryUtils.getAbsolutePath(
-                       registryContext, registryContext.getProfilesPath()));
-                // Adding collection to store services.
-                RegistryUtils.addServiceStoreCollection(systemRegistry, RegistryUtils.getAbsolutePath(
-                       registryContext, registryContext.getServicePath()));
-                // Adding service configuration resources.
-                RegistryUtils.addServiceConfigResources(systemRegistry);
-            } finally {
-                CurrentSession.removeTenantId();
-            }
-        } catch (RegistryException e) {
-            log.error("Unable to initialize registry for tenant " + tenantId + ".", e);
-            throw new RegistryException("Unable to initialize registry for tenant " + tenantId + ".", e);
-        }
-    }
-
     private void createPseudoLink(Registry registry, String path, String target,
                                   String targetSubPath) throws RegistryException {
         Resource resource;
@@ -324,7 +272,7 @@ public class RegistryCoreServiceComponent {
     }
 
     // Sets-up the mounts for this instance.
-    private void setupMounts(RegistryService registryService, int tenantId) {
+    public void setupMounts(RegistryService registryService, int tenantId) {
         try {
             boolean isSuperTenant = (tenantId == MultitenantConstants.SUPER_TENANT_ID);
             Registry superTenantRegistry = registryService.getRegistry(
@@ -581,7 +529,7 @@ public class RegistryCoreServiceComponent {
         registerBuiltInHandlers(registryService);
         // Media types must be set after setting up the mounts; so that the configuration
         // system registry is available.
-        setupMediaTypes(registryService, MultitenantConstants.SUPER_TENANT_ID);
+        RegistryUtils.setupMediaTypes(registryService, MultitenantConstants.SUPER_TENANT_ID);
         // Adding collection to store user profile information.
         RegistryUtils.addUserProfileCollection(systemRegistry, registryContext.getProfilesPath());
         // Adding collection to store services.
@@ -909,7 +857,7 @@ public class RegistryCoreServiceComponent {
             		tenantId != MultitenantConstants.SUPER_TENANT_ID && 
             		canInitializeTenant(tenantId)) {
                 try {
-                    RegistryCoreServiceComponent.initializeTenant(service, tenantId);
+                    RegistryUtils.initializeTenant(service, tenantId);
                 } catch (RegistryException e) {
                     log.error("Failed to initialize registry",e);
                     throw new CarbonException("Failed to initialize Registry",e);

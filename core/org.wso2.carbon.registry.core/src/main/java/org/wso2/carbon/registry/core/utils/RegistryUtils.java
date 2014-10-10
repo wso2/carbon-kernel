@@ -16,20 +16,21 @@
 
 package org.wso2.carbon.registry.core.utils;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.api.GhostResource;
-import org.wso2.carbon.registry.core.*;
 import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.CollectionImpl;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.RegistryConstants;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.ResourceIDImpl;
+import org.wso2.carbon.registry.core.ResourceImpl;
+import org.wso2.carbon.registry.core.ResourcePath;
 import org.wso2.carbon.registry.core.caching.RegistryCacheEntry;
 import org.wso2.carbon.registry.core.caching.RegistryCacheKey;
 import org.wso2.carbon.registry.core.config.RegistryContext;
@@ -37,6 +38,7 @@ import org.wso2.carbon.registry.core.config.RemoteConfiguration;
 import org.wso2.carbon.registry.core.config.StaticConfiguration;
 import org.wso2.carbon.registry.core.dao.ResourceDAO;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.internal.RegistryCoreServiceComponent;
 import org.wso2.carbon.registry.core.jdbc.handlers.HandlerLifecycleManager;
 import org.wso2.carbon.registry.core.jdbc.handlers.HandlerManager;
 import org.wso2.carbon.registry.core.jdbc.handlers.RequestContext;
@@ -47,6 +49,7 @@ import org.wso2.carbon.registry.core.jdbc.handlers.filters.URLMatcher;
 import org.wso2.carbon.registry.core.jdbc.realm.RegistryRealm;
 import org.wso2.carbon.registry.core.jdbc.utils.ServiceConfigUtil;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
+import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.CurrentSession;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.statistics.StatisticsCollector;
@@ -59,16 +62,31 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -1102,6 +1120,58 @@ public final class RegistryUtils {
                 ".*|" + RegistryConstants.URL_SEPARATOR + ".*)";
         matcher.setPattern(matchedWith);
         return matcher;
+    }
+
+    // Sets-up the media types for this instance.
+    public static void setupMediaTypes(RegistryService registryService, int tenantId) {
+        try {
+            Registry registry = registryService.getConfigSystemRegistry(tenantId);
+            MediaTypesUtils.getResourceMediaTypeMappings(registry);
+            MediaTypesUtils.getCustomUIMediaTypeMappings(registry);
+            MediaTypesUtils.getCollectionMediaTypeMappings(registry);
+        } catch (RegistryException e) {
+            log.error("Unable to create fixed remote mounts.", e);
+        }
+    }
+
+    // Do tenant-specific initialization.
+    public static void initializeTenant(RegistryService registryService, int tenantId) throws RegistryException {
+        try {
+            UserRegistry systemRegistry = registryService.getConfigSystemRegistry();
+            if (systemRegistry.getRegistryContext() != null) {
+                HandlerManager handlerManager =
+                        systemRegistry.getRegistryContext().getHandlerManager();
+                if (handlerManager instanceof HandlerLifecycleManager) {
+                    ((HandlerLifecycleManager)handlerManager).init(tenantId);
+                }
+            }
+            systemRegistry = registryService.getRegistry(
+                    CarbonConstants.REGISTRY_SYSTEM_USERNAME, tenantId);
+            addMountCollection(systemRegistry);
+            registerMountPoints(systemRegistry, tenantId);
+            new RegistryCoreServiceComponent().setupMounts(registryService, tenantId);
+            setupMediaTypes(registryService, tenantId);
+
+//            We need to set the tenant ID for current session. Otherwise the underlying operations fails
+            try {
+                CurrentSession.setTenantId(tenantId);
+
+                RegistryContext registryContext = systemRegistry.getRegistryContext();
+                // Adding collection to store user profile information.
+                addUserProfileCollection(systemRegistry, getAbsolutePath(
+                       registryContext, registryContext.getProfilesPath()));
+                // Adding collection to store services.
+                addServiceStoreCollection(systemRegistry, getAbsolutePath(
+                       registryContext, registryContext.getServicePath()));
+                // Adding service configuration resources.
+                addServiceConfigResources(systemRegistry);
+            } finally {
+                CurrentSession.removeTenantId();
+            }
+        } catch (RegistryException e) {
+            log.error("Unable to initialize registry for tenant " + tenantId + ".", e);
+            throw new RegistryException("Unable to initialize registry for tenant " + tenantId + ".", e);
+        }
     }
 
     // This class is used to implement a URL Matcher that could be used for Mounting related
