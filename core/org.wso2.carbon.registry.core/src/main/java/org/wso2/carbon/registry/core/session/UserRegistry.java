@@ -118,9 +118,25 @@ public class UserRegistry implements Registry {
      *
      * @throws RegistryException if the creation of this instance failed.
      */
-    public UserRegistry(String userName, String password, int tenantId,
-                        Registry coreRegistry, RealmService realmService, String chroot)
+    public UserRegistry(final String userName, final String password, final int tenantId,
+                        final Registry coreRegistry, final RealmService realmService, final String chroot)
             throws RegistryException {
+        try {
+            AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                @Override
+                public Object run() throws Exception {
+                    init(userName, password, tenantId, coreRegistry, realmService, chroot);
+                    return null;
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw (RegistryException) e.getException();
+        }
+    }
+
+    private void init(String userName, String password, int tenantId,
+                Registry coreRegistry, RealmService realmService, String chroot)
+                throws RegistryException {
 
         String tenantUserName = userName;
         if (realmService == null) {
@@ -222,11 +238,20 @@ public class UserRegistry implements Registry {
      * @throws RegistryException if the creation of this instance failed.
      */
     public UserRegistry(
-            String userName, int tenantId, Registry coreRegistry,
-            RealmService realmService, String chroot, boolean disableCaching)
+            final String userName, final int tenantId, final Registry coreRegistry,
+            final RealmService realmService, final String chroot, final boolean disableCaching)
             throws RegistryException {
-
-        init(userName, tenantId, coreRegistry, realmService, chroot, disableCaching);
+        try {
+            AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                @Override
+                public Object run() throws Exception {
+                    init(userName, tenantId, coreRegistry, realmService, chroot, disableCaching);
+                    return null;
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw (RegistryException) e.getException();
+        }
     }
 
     // Initializes the user registry.
