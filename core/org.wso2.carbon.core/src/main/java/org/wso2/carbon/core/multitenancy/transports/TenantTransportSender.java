@@ -83,6 +83,8 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                 supperTenantAxisConfiguration.getTransportOut(transportOutName));
 
         superTenantOutMessageContext.setEnvelope(msgContext.getEnvelope());
+        superTenantOutMessageContext.setProperty(MultitenantConstants.SYNAPSE_JSON_INPUT_STREAM,
+                msgContext.getProperty(MultitenantConstants.SYNAPSE_JSON_INPUT_STREAM));
 
         superTenantOutMessageContext.setTo(msgContext.getTo());
         superTenantOutMessageContext.setSoapAction(msgContext.getSoapAction());

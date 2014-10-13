@@ -28,6 +28,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.bouncycastle.wso2</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.api</artifactId>
             <version>${project.parent.version}</version>
@@ -139,12 +143,10 @@
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             javax.xml.stream.*; version="1.0.1",
+			                org.bouncycastle.*; version="${imp.pkg.version.bcp}",
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
-                        <Embed-Dependency>
-                            bcprov-jdk15;scope=compile|runtime;inline=false;
-                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

@@ -12,14 +12,9 @@ pluggable Carbon components and installed into this base Carbon platform.
 
 What's New In This Release
 ----------------------------
-01. New Distributed Caching implementation based on Hazelcast.
-02. New Clustering implementation based Hazelcast.
-03. Synchronous deployment of CApp artifacts to ensure the atomicity of a CApp.
-04. Improved Patches and Service packs installation model.
-05. Multi-profile support at the Carbon platform which enables a Carbon based product to behave in multiple modes/profiles
-06. Feature Categorization.
-07. Various bug fixes(https://wso2.org/jira/browse/CARBON-14098?filter=11284) & enhancements including stabilizing WSO2 Carbon.
-
+01. Simplified logging story with pluggable log provider support.
+02. Upgraded versions of Hazelcast, Log4j, BouncyCastle.
+03. Improved Composite application support.
 
 Key Features
 ------------
@@ -46,7 +41,6 @@ Carbon Binary Distribution Directory Structure
         |-- dbscripts <directory>
         |-- lib <directory>
         |-- repository <directory>
-        |   |-- carbonapps <directory>
         |   |-- components <directory>
         |   |-- conf <directory>
         |   |-- data <directory>
@@ -81,9 +75,6 @@ Carbon Binary Distribution Directory Structure
       In addition to this other custom deployers such as
       dataservices and axis1services are also stored.
 
-    	- carbonapps
-          Contains extracted CApp artifacts.
-
     	- components
           Contains all OSGi related libraries and configurations.
 
@@ -106,9 +97,9 @@ Carbon Binary Distribution Directory Structure
         - resources
           Contains additional resources that may be required.
 
-	- tenants
-	  Directory will contain relevant tenant artifacts 
-	  in the case of a multitenant deployment.
+	    - tenants
+	        Directory will contain relevant tenant artifacts
+	        in the case of a multitenant deployment.
 
     - tmp
       Used for storing temporary files, and is pointed to by the
@@ -208,4 +199,4 @@ Apache Santuario : http://santuario.apache.org/
 Bouncycastle     : http://www.bouncycastle.org/
 
 ---------------------------------------------------------------------------
-(c) Copyright 2013 WSO2 Inc.
+(c) Copyright 2014 WSO2 Inc.

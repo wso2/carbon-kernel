@@ -115,8 +115,7 @@
                             org.wso2.carbon.core.services.authentication.*,
                             org.wso2.carbon.core.services.callback.*,
                             org.wso2.carbon.core.services.util.*,  
-                            org.wso2.carbon.core.services.loggeduserinfo.*,
-			    
+                            org.wso2.carbon.core.services.loggeduserinfo.*
                         </Export-Package>
                         <Import-Package>
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
@@ -129,6 +128,7 @@
                             org.wso2.carbon.utils,
                             org.apache.commons.logging.*,
                             org.wso2.carbon.registry.core.*,
+			                org.bouncycastle.*; version="${imp.pkg.version.bcprov}",
                             org.wso2.carbon.core.common.*;version="0.0.0"
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
