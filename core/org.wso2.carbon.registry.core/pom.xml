@@ -496,12 +496,6 @@
             <version>${orbit.version.commons.pool}</version>
         </dependency>
         <dependency>
-            <groupId>org.infinispan.wso2</groupId>
-            <artifactId>infinispan-core</artifactId>
-            <version>${orbit.version.infinispan}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>net.sf.ehcache.wso2</groupId>
             <artifactId>ehcache</artifactId>
             <version>${version.ehcache}</version>
