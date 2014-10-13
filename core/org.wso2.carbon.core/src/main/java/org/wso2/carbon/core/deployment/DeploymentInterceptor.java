@@ -116,6 +116,22 @@ public class DeploymentInterceptor implements AxisObserver {
             if (SystemFilter.isFilteredOutService(axisServiceGroup)) {
                 return;
             }
+
+            boolean isClientSide = true;
+
+            Iterator<AxisService> axisServiceGroupIterator = axisServiceGroup.getServices();
+            while (axisServiceGroupIterator.hasNext()) {
+                AxisService axisService = axisServiceGroupIterator.next();
+                if (!axisService.isClientSide()) {
+                    isClientSide = false;
+                    break;
+                }
+            }
+
+            if (isClientSide) {
+                return;
+            }
+
             int eventType = axisEvent.getEventType();
             // we only process ghost services when it is removed..
             if (SystemFilter.isGhostServiceGroup(axisServiceGroup) &&
