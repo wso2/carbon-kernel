@@ -400,7 +400,7 @@
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
         <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
         <orbit.version.poi>3.9.0.wso2v1</orbit.version.poi>
-        <orbit.version.poi.ooxml>3.9.0.wso2v2</orbit.version.poi.ooxml>
+        <orbit.version.poi.ooxml>3.9.0.wso2v3</orbit.version.poi.ooxml>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <orbit.version.commons.collection>3.2.0.wso2v1</orbit.version.commons.collection>
         <orbit.version.commons.io>2.0.0.wso2v2</orbit.version.commons.io>
@@ -1105,7 +1105,7 @@
             <dependency>
                 <groupId>org.apache.poi.wso2</groupId>
                 <artifactId>poi-ooxml</artifactId>
-                <version>3.9.0.wso2v2</version>
+                <version>${orbit.version.poi.ooxm}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
