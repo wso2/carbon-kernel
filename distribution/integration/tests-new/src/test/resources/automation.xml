@@ -209,11 +209,12 @@
                     <!--<parameter name="-DportOffset" value="1" />-->
                     <!--<parameter name="-Dprofile" value="worker" />-->
                 </class>
-<!--
+
                 <class>
-                    <name>org.wso2.carbon.integration.common.extensions.usermgt.UserPopulateExtension</name>
+                    <name>org.wso2.carbon.integration.featuremgt.FeatureMgtExtension</name>
+                    <parameter name="feature_1" value="org.wso2.carbon.student.mgt.feature.group:4.3.0.SNAPSHOT"/>+
+                    <!--<parameter name="feature_2" value="org.wso2.carbon.deployment.synchronizer.feature.group:4.3.0.SNAPSHOT"/>-->
                 </class>
--->
             </extentionClasses>
         </platformExecutionManager>
 
