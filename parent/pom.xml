@@ -54,16 +54,17 @@
 		</repository>
 	</repositories>
 
-  <distributionManagement>
+    <distributionManagement>
         <repository>
-            <id>wso2-maven2-repository</id>
-            <name>WSO2 Maven2 Repository</name>
-            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/</url>
+            <id>wso2.releases</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
         </repository>
+
         <snapshotRepository>
-            <id>wso2-maven2-snapshot-repository</id>
-            <name>WSO2 Maven2 Snapshot Repository</name>
-            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/snapshots/maven2/</url>
+            <id>wso2.snapshots</id>
+            <name>Apache Snapshot Repository</name>
+            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -242,7 +243,7 @@
         <version.equinox.p2.director>2.1.0.v20110504-1715</version.equinox.p2.director>
         <version.equinox.p2.director.app>1.0.300.v20110505</version.equinox.p2.director.app>
         <version.equinox.p2.directorywatcher>1.0.300.v20110502-1955</version.equinox.p2.directorywatcher>
-        <version.equinox.p2.engine>2.1.0.v20110511</version.equinox.p2.engine>
+        <version.equinox.p2.engine>2.1.0.v20110511-wso2v1</version.equinox.p2.engine>
         <version.equinox.p2.console></version.equinox.p2.console>
         <version.equinox.p2.extensionlocation>1.2.100.v20110510</version.equinox.p2.extensionlocation>
         <version.equinox.p2.garbagecollector>1.0.200.v20110510</version.equinox.p2.garbagecollector>
