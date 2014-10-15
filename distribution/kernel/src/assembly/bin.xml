@@ -128,7 +128,7 @@
                 <include>xml-apis.wso2:xml-apis:jar</include>
                 <include>org.apache.geronimo.specs:geronimo-jaxws_2.2_spec:jar</include>
                 <include>org.apache.geronimo.specs.wso2:geronimo-jms_1.1_spec:jar</include>
-                <include>org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec:jar</include>
+                <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar</include>
                 <include>org.apache.tomcat:tomcat-annotations-api:jar</include>
             </includes>
         </dependencySet>
