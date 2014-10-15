@@ -604,32 +604,62 @@ public class JDBCTenantManager implements TenantManager {
 		return false;
 	}
 
+    /**
+     * Delete Tenant
+     *
+     * @param tenantId
+     *            - Tenant Id
+     * @throws UserStoreException
+     */
     public void deleteTenant(int tenantId) throws UserStoreException {
+        try {
+            deleteTenant(tenantId, true);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(e);
+        }
+    }
 
+    /**
+     * Delete Tenant
+     *
+     * @param tenantId
+     *            - Tenant Id
+     * @param removeFromPersistentStorage
+     *            - Flag to decide weather delete from persistent storage
+     * @throws UserStoreException
+     */
+    public void deleteTenant(int tenantId, boolean removeFromPersistentStorage)
+            throws org.wso2.carbon.user.api.UserStoreException {
         // Remove tenant information from the cache.
-        tenantIdDomainMap.remove(tenantId);
+        getDomain(tenantId); //fill the tenantIdDomainMap
+        String tenantDomain = (String) tenantIdDomainMap.remove(tenantId);
+        if (tenantDomain != null) {
+            tenantDomainIdMap.remove(tenantDomain);
+        }
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
 
-		Connection dbConnection = null;
-		PreparedStatement prepStmt = null;
-		try {
-			dbConnection = getDBConnection();
-			String sqlStmt = TenantConstants.DELETE_TENANT_SQL;
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			prepStmt.setInt(1, tenantId);
+        if (removeFromPersistentStorage) {
+            Connection dbConnection = null;
+            PreparedStatement prepStmt = null;
+            try {
+                dbConnection = getDBConnection();
+                String sqlStmt = TenantConstants.DELETE_TENANT_SQL;
+                prepStmt = dbConnection.prepareStatement(sqlStmt);
+                prepStmt.setInt(1, tenantId);
 
-			prepStmt.executeUpdate();
-			dbConnection.commit();
-		} catch (SQLException e) {
-            DatabaseUtil.rollBack(dbConnection);
-			String msg = "Error in deleting the tenant with " + "tenant id: "
-					+ tenantId + ".";
-			log.error(msg, e);
-			throw new UserStoreException(msg, e);
-		} finally {
-            DatabaseUtil.closeAllConnections(dbConnection,prepStmt);
-		}
-	}
+                prepStmt.executeUpdate();
+                dbConnection.commit();
+            } catch (SQLException e) {
+                DatabaseUtil.rollBack(dbConnection);
+                String msg = "Error in deleting the tenant with "
+                        + "tenant id: " + tenantId + ".";
+                log.error(msg, e);
+                throw new UserStoreException(msg, e);
+            } finally {
+                DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
+            }
+        }
+    }
 
     public void setBundleContext(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
