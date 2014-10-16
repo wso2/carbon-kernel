@@ -144,4 +144,12 @@ public class CacheManagerFactoryImpl implements CacheManagerFactory {
             cacheManagers.remove(cacheManager.getName());
         }
     }
+
+    /**removing tenant data from global cache manager map
+     *
+     * @param tenantDomain
+     */
+    public void removeTenant(String tenantDomain) {
+        globalCacheManagerMap.remove(tenantDomain);
+    }
 }

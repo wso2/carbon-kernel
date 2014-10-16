@@ -115,6 +115,16 @@ public interface TenantManager {
     void deleteTenant(int tenantId) throws UserStoreException;
 
     /**
+     * Deletes a tenant from the system which use to delete the cache in each worker nodes
+     * using clustered message and delete the persistence storage in management node
+     *
+     * @param tenantId
+     * @param removeFromPersistentStorage
+     * @throws UserStoreException
+     */
+    public void deleteTenant(int tenantId, boolean removeFromPersistentStorage)throws UserStoreException;
+
+    /**
      * Checks whether the super tenant.
      * 
      * @return
