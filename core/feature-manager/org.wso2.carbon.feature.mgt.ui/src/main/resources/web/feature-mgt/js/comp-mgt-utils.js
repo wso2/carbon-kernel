@@ -999,3 +999,25 @@ function submitenter(e, installed) {
         return true;
     }
 }
+
+function restartServerGracefully() {
+    jQuery.noConflict();
+    CARBON.showConfirmationDialog(jsi18n["graceful.restart.verification"],restartServerGracefullyCallback,null);
+}
+
+function restartServerGracefullyCallback() {
+    var url = "../server-admin/proxy_ajaxprocessor.jsp?action=restartGracefully";
+    jQuery.noConflict();
+    jQuery("#output").load(url, null, function (responseText, status, XMLHttpRequest) {
+        /*if (jQuery.trim(responseText) != '') {
+                CARBON.showWarningDialog(responseText);
+                return;
+        }*/
+
+        if (status != "success") {
+            CARBON.showErrorDialog(jsi18n["graceful.restart.error"]);
+        } else {
+            CARBON.showInfoDialog(jsi18n["graceful.restart.in.progress.message"]);
+        }
+    });
+}

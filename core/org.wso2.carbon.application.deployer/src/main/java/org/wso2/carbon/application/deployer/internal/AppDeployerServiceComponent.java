@@ -34,6 +34,7 @@ import org.wso2.carbon.application.deployer.handler.AppDeploymentHandler;
 import org.wso2.carbon.application.deployer.handler.DefaultAppDeployer;
 import org.wso2.carbon.application.deployer.handler.RegistryResourceDeployer;
 import org.wso2.carbon.application.deployer.service.ApplicationManagerService;
+import org.wso2.carbon.application.deployer.service.CappDeploymentService;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
@@ -233,6 +234,7 @@ public class AppDeployerServiceComponent implements ServiceListener {
     private void completeInitialization(BundleContext bundleContext) {
         // Initialize CApp deployer here
         this.addCAppDeployer(configCtx.getAxisConfiguration());
+        registerCappdeploymentService();
     }
 
     public boolean addCAppDeployer(AxisConfiguration axisConfiguration) {
@@ -255,6 +257,20 @@ public class AppDeployerServiceComponent implements ServiceListener {
             successfullyAdded = false;
         }
         return successfullyAdded;
+    }
+
+    private void registerCappdeploymentService(){
+        try {
+            AppDeployerServiceComponent.getBundleContext().registerService(CappDeploymentService.class.getName(),
+                    new CappDeploymentServiceImpl(), null);
+
+            if(log.isDebugEnabled()) {
+                log.debug("Carbon CApp Services bundle is activated ");
+            }
+        } catch (Throwable e) {
+            log.error("Failed to activate Carbon CApp Services bundle ", e);
+        }
+
     }
 
 }

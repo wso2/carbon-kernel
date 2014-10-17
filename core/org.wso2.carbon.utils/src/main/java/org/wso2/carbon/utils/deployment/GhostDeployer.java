@@ -124,13 +124,19 @@ public class GhostDeployer extends AbstractDeployer {
             // iterate all deployed services and find the deployed service
             Set<Map.Entry<String, AxisService>> services = axisConfig.getServices().entrySet();
             for (Map.Entry<String, AxisService> entry : services) {
+                String tempAbsolutePath = null;
                 AxisService service = entry.getValue();
                 // we ignore Admin Services
                 if (CarbonUtils.isFilteredOutService(service)) {
                     continue;
                 }
-                if (service.getFileName() != null && service.getFileName().getPath()
-                        .equals(absoluteFilePath)) {
+                tempAbsolutePath = GhostDeployer.separatorsToUnix(absoluteFilePath);
+                File serviceFilePathUrlToFile = new File(service.getFileName().getPath());
+                String serviceFilePathUrlToFileAbsolutePath = serviceFilePathUrlToFile.getAbsolutePath();
+                String serviceFileAbsolutePathToUnix = GhostDeployer.separatorsToUnix(serviceFilePathUrlToFileAbsolutePath);
+
+                if (service.getFileName() != null && serviceFileAbsolutePathToUnix
+                        .equals(tempAbsolutePath)) {
                     GhostDeployerUtils.updateLastUsedTime(service);
                     try {
                         //skip ghost metafile generation for worker nodes.
@@ -363,7 +369,7 @@ public class GhostDeployer extends AbstractDeployer {
 
     private String calculateDirectoryName(String servicePathStr) {
         String pathPrefix = "";
-        if (servicePathStr != null && servicePathStr.indexOf("\\") != -1) {
+        if (servicePathStr != null && servicePathStr.contains("\\")) {
             pathPrefix = "/";
         }
         String servicePath = separatorsToUnix(servicePathStr);
@@ -378,7 +384,7 @@ public class GhostDeployer extends AbstractDeployer {
             if (dirName.startsWith("/")) {
                 dirName = dirName.substring(1);
             }
-            if (dirName.indexOf("/") != -1) {
+            if (dirName.contains("/")) {
                 dirName = dirName.substring(0, dirName.indexOf("/"));
             }
         } else {
@@ -404,7 +410,7 @@ public class GhostDeployer extends AbstractDeployer {
     }
 
     public static String  separatorsToUnix(String path) {
-        if (path == null || path.indexOf("\\") == -1) {
+        if (path == null || !path.contains("\\")) {
             return path;
         }
         return path.replace("\\", "/");
