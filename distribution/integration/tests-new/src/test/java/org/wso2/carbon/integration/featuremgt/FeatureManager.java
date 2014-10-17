@@ -25,9 +25,11 @@ import org.wso2.carbon.automation.engine.configurations.AutomationConfiguration;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.feature.mgt.core.operations.OperationFactory;
+import org.wso2.carbon.feature.mgt.stub.prov.data.Feature;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.LicenseInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.ProvisioningActionResultInfo;
+import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
 import org.wso2.carbon.integration.clients.FeatureAdminClient;
 import org.wso2.carbon.integration.clients.RepositoryAdminClient;
 import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
@@ -37,6 +39,7 @@ import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -58,7 +61,7 @@ public class FeatureManager {
     String P2_REPO_NAME = "localRepo";
     public static final String FEATURE_REPO_PATH_KEY = "p2-repo-path";
     FeatureInfo[] featureInfos;
-
+    LoginLogoutClient loginLogoutUtil;
 
     public FeatureManager(String productGroupName, String instanceName, List<FeatureInfo> featureList) throws Exception {
         this.productGroupName = productGroupName;
@@ -69,7 +72,7 @@ public class FeatureManager {
         AutomationContext automationContext = new AutomationContext(productGroupName, instanceName,
                 TestUserMode.SUPER_TENANT_ADMIN);
         backendURL = automationContext.getContextUrls().getBackEndUrl();
-        LoginLogoutClient loginLogoutUtil = new LoginLogoutClient(automationContext);
+        loginLogoutUtil = new LoginLogoutClient(automationContext);
         sessionCookie = loginLogoutUtil.login();
 
         repositoryAdminClient = new RepositoryAdminClient(backendURL, sessionCookie);
@@ -95,6 +98,7 @@ public class FeatureManager {
     }
 
     public void removeFeatures() throws Exception {
+        //todo
 //        featureAdminClient.removeAllFeaturesWithProperty(featureInfos[0].getFeatureID());
     }
 
@@ -105,6 +109,28 @@ public class FeatureManager {
             userName += "@" + domain;
         }
         return loginClient.login(userName, password, hostName);
+    }
+
+    public void checkInstalledFeatures(boolean afterRestart) throws Exception {
+        if(afterRestart) {
+            sessionCookie = loginLogoutUtil.login();
+            featureAdminClient = new FeatureAdminClient(backendURL, sessionCookie);
+        }
+        FeatureWrapper[] featuresWrappers = featureAdminClient.getInstalledFeatures();
+
+        int counter = 0;
+        Arrays.asList(featuresWrappers);
+        int length = featuresWrappers.length;
+        for (FeatureWrapper featureWrapper : featuresWrappers) {
+            Feature feature = featureWrapper.getWrappedFeature();
+            for (FeatureInfo featureInfo : featureInfos) {
+                if(featureInfo.getFeatureID().equals(feature.getFeatureID()) &&
+                        featureInfo.getFeatureVersion().equals(feature.getFeatureVersion())) {
+                    counter++;
+                }
+            }
+        }
+        assert counter == featureInfos.length;
     }
 }
 

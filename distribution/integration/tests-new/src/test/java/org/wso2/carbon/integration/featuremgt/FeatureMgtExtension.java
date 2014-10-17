@@ -27,6 +27,7 @@ import org.wso2.carbon.automation.engine.context.InstanceType;
 import org.wso2.carbon.automation.engine.extensions.ExecutionListenerExtension;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.integration.common.extensions.utils.AutomationXpathConstants;
+import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.util.ArrayList;
@@ -34,17 +35,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Pluggable class - This performs the user population
+ * Pluggable class - This performs installing a given set of features and checking if they are properly installed after
+ * restart.
  */
 public class FeatureMgtExtension extends ExecutionListenerExtension {
     private static final Log log = LogFactory.getLog(FeatureMgtExtension.class);
     public static final String FEATURE_PARAM_KEY = "feature_";
     private List<Node> productGroupsList;
     private List<FeatureInfo> featureList;
+    private ServerConfigurationManager serverConfigurationManager;
 
     public void initiate() throws Exception {
         productGroupsList = getAllProductNodes();
         getFeatureList(getParameters());
+        serverConfigurationManager = new ServerConfigurationManager(getAutomationContext());
     }
 
     // Populate all tenants and user on execution start of the test
@@ -53,12 +57,16 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
             String productGroupName = aProductGroupsList.getAttributes().
                     getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
             String instanceName = getProductGroupInstance(aProductGroupsList);
+
             FeatureManager featureManager = new FeatureManager(productGroupName, instanceName, featureList);
             featureManager.addfeatureRepo();
             featureManager.reviewInstallFeatures();
             featureManager.getLicensingInformation();
             featureManager.installFeatures();
 
+            serverConfigurationManager.restartGracefully();
+
+            featureManager.checkInstalledFeatures(Boolean.TRUE);
         }
     }
 
