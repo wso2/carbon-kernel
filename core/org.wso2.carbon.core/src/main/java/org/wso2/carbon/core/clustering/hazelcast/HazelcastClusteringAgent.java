@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
+import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
 import org.wso2.carbon.core.clustering.api.ClusterMessage;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
@@ -225,15 +226,25 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
             @Override
             public void run() {
-                primaryHazelcastInstance.getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK).lock();
-                isCoordinator = true;
-                log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
-                        "as the Coordinator for the cluster [" + carbonLocalMember.getDomain() + "]");
+                ILock lock = primaryHazelcastInstance.getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK);
 
-                // Notify all OSGi services which are waiting for this member to become the coordinator
-                List<CoordinatedActivity> coordinatedActivities = CarbonCoreDataHolder.getInstance().getCoordinatedActivities();
-                for (CoordinatedActivity coordinatedActivity : coordinatedActivities) {
-                    coordinatedActivity.execute();
+                try {
+                    lock.lock();
+                    isCoordinator = true;
+                    log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
+                            "as the Coordinator for the cluster [" + carbonLocalMember.getDomain() + "]");
+
+                    // Notify all OSGi services which are waiting for this member to become the coordinator
+                    List<CoordinatedActivity> coordinatedActivities = CarbonCoreDataHolder.getInstance().getCoordinatedActivities();
+                    for (CoordinatedActivity coordinatedActivity : coordinatedActivities) {
+                        coordinatedActivity.execute();
+                    }
+
+                } catch (HazelcastInstanceNotActiveException e) {
+                    if (!ServerStatus.STATUS_SHUTTING_DOWN.equals(ServerStatus.getCurrentStatus())) {
+                        log.error("Could not acquire Hazelcast coordinator lock", e);
+                    }
+                    // Ignoring this exception if the server is shutting down.
                 }
             }
         };

@@ -805,18 +805,31 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	public final void deleteUser(String userName) throws UserStoreException {
 		
 		String loggedInUser = CarbonContext.getThreadLocalCarbonContext().getUsername();
-		if(loggedInUser!= null && loggedInUser.equals(userName)) {
-			log.debug("User " + userName + " tried to delete him/her self");
+		if(loggedInUser != null){
+			loggedInUser = UserCoreUtil.addDomainToName(loggedInUser , UserCoreUtil.getDomainFromThreadLocal());
+			if ((loggedInUser.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
+				loggedInUser = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
+				           CarbonConstants.DOMAIN_SEPARATOR + loggedInUser;
+			}	
+		}	
+		
+		String deletingUser = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+		if ((deletingUser.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) < 0) {
+			deletingUser = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME +
+			               CarbonConstants.DOMAIN_SEPARATOR + deletingUser;
+		}
+
+		if(loggedInUser!= null && loggedInUser.equals(deletingUser)) {
+			log.debug("User " + loggedInUser + " tried to delete him/her self");
 			throw new UserStoreException("Cannot delete logged in user");
 		}
 
 		UserStore userStore = getUserStore(userName);
 		if (userStore.isRecurssive()) {
-			userStore.getUserStoreManager().deleteUser(userName);
+			userStore.getUserStoreManager().deleteUser(userStore.getDomainFreeName());
 			return;
 		}
 
-		userName = userStore.getDomainFreeName();
 		// #################### Domain Name Free Zone Starts Here ################################
 
 		if (UserCoreUtil.isPrimaryAdminUser(userName, realmConfig)) {
@@ -2207,12 +2220,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
 		UserStore userStore = getUserStore(roleName);
 		if (userStore.isRecurssive()) {
-			userStore.getUserStoreManager().deleteRole(roleName);
+			userStore.getUserStoreManager().deleteRole(userStore.getDomainFreeName());
 			return;
 		}
 
-		String roleWithDomain = roleName;
-		roleName = userStore.getDomainFreeName();
+		String roleWithDomain = UserCoreUtil.addDomainToName(roleName, getMyDomainName());
 		// #################### Domain Name Free Zone Starts Here ################################
 
 		if (userStore.isHybridRole()) {

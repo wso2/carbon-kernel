@@ -171,7 +171,7 @@ public class Main {
      */
     private static void writePID(String carbonHome) {
         byte[] bo = new byte[100];
-        String[] cmd = {"bash", "-c", "echo $PPID"};
+        String[] cmd = {"sh", "-c", "echo $PPID"};
         Process p;
         try {
             p = Runtime.getRuntime().exec(cmd);

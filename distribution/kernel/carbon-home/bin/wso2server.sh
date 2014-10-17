@@ -180,8 +180,8 @@ elif [ "$CMD" = "start" ]; then
     fi
   fi
   export CARBON_HOME=$CARBON_HOME
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
+# using nohup sh to avoid erros in solaris OS.TODO
+  nohup sh $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "stop" ]; then
   export CARBON_HOME=$CARBON_HOME
@@ -199,8 +199,8 @@ elif [ "$CMD" = "restart" ]; then
         process_status=$?
   done
 
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
+# using nohup sh to avoid erros in solaris OS.TODO
+  nohup sh $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""

@@ -142,7 +142,7 @@
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.engine</artifactId>
-            <version>2.1.0.v20110511</version>
+            <version>${version.equinox.p2.engine}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
