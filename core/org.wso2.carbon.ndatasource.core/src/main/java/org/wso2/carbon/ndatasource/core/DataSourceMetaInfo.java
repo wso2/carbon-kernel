@@ -43,6 +43,9 @@ public class DataSourceMetaInfo {
 	@XmlTransient
 	private boolean system;
 
+    @XmlTransient
+    private boolean carbonApplicationDeployed;
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -58,6 +61,10 @@ public class DataSourceMetaInfo {
 	public void setSystem(boolean system) {
 		this.system = system;
 	}
+
+    public void setCarbonApplicationDeployed(boolean carbonApplicationDeployed) {
+        this.carbonApplicationDeployed = carbonApplicationDeployed;
+    }
 
 	@XmlElement (name = "name", required = true, nillable = false)
 	public String getName() {
@@ -79,6 +86,11 @@ public class DataSourceMetaInfo {
 		return system;
 	}
 
+    @XmlTransient
+    public boolean isCarbonApplicationDeployed() {
+        return  carbonApplicationDeployed;
+    }
+
 	@XmlElement (name = "definition", required = true, nillable = false)
 	public DataSourceDefinition getDefinition() {
 		return definition;
@@ -87,6 +99,11 @@ public class DataSourceMetaInfo {
 	public void setDefinition(DataSourceDefinition definition) {
 		this.definition = definition;
 	}
+
+    @XmlTransient
+    public boolean isPersistable() {
+        return (!system && !carbonApplicationDeployed);
+    }
 
 	@XmlRootElement (name = "definition")
 	public static class DataSourceDefinition {
