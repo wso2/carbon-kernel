@@ -363,7 +363,7 @@ public class GhostDeployer extends AbstractDeployer {
 
     private String calculateDirectoryName(String servicePathStr) {
         String pathPrefix = "";
-        if (servicePathStr != null && servicePathStr.indexOf("\\") != -1) {
+        if (servicePathStr != null && servicePathStr.contains("\\")) {
             pathPrefix = "/";
         }
         String servicePath = separatorsToUnix(servicePathStr);
@@ -378,7 +378,7 @@ public class GhostDeployer extends AbstractDeployer {
             if (dirName.startsWith("/")) {
                 dirName = dirName.substring(1);
             }
-            if (dirName.indexOf("/") != -1) {
+            if (dirName.contains("/")) {
                 dirName = dirName.substring(0, dirName.indexOf("/"));
             }
         } else {
@@ -404,7 +404,7 @@ public class GhostDeployer extends AbstractDeployer {
     }
 
     public static String  separatorsToUnix(String path) {
-        if (path == null || path.indexOf("\\") == -1) {
+        if (path == null || !path.contains("\\")) {
             return path;
         }
         return path.replace("\\", "/");
