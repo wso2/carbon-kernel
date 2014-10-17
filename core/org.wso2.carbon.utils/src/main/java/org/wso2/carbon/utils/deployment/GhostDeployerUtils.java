@@ -524,8 +524,13 @@ public class GhostDeployerUtils {
 
         FileOutputStream fos = null;
         try {
-            String ghostFileName = calculateGhostFileName(servicePath,
-                    axisConfig.getRepository().getPath());
+            File axisConfigRepoPathUrlToFile = new File(axisConfig.getRepository().getPath());
+            //Add file seperator at the end of absolute path, to avoid getting an underscore in the beginning of
+            // ghost file name.
+            String axisConfigRepoPath = axisConfigRepoPathUrlToFile.getAbsolutePath().concat(File.separator);
+            String axisConfigRepoPathToUnix = GhostDeployer.separatorsToUnix(axisConfigRepoPath);
+            String ghostFileName = calculateGhostFileName(servicePath, axisConfigRepoPathToUnix);
+
             if (ghostFileName == null) {
                 log.error("Ghost file name is null. Actual service path : " + servicePath);
                 return;
@@ -557,6 +562,8 @@ public class GhostDeployerUtils {
      */
     public static String calculateGhostFileName(String fileName, String repoPath) {
         String ghostFileName = null;
+        //since in Windows env, filename & repopath get two formats.
+        fileName = GhostDeployer.separatorsToUnix(fileName);
         if (fileName != null && fileName.startsWith(repoPath)) {
             // first drop the repo path
             ghostFileName = fileName.substring(repoPath.length());
@@ -585,8 +592,14 @@ public class GhostDeployerUtils {
      */
     public static File getGhostFile(String fileName, AxisConfiguration axisConfig) {
         String ghostMetafilesDirPath = CarbonUtils.getGhostMetafileDir(axisConfig);
-        String ghostFileName = calculateGhostFileName(fileName,
-                axisConfig.getRepository().getPath());
+        File axisConfigRepoPathUrlToFile = new File(axisConfig.getRepository().getPath());
+        //Add file seperator at the end of absolute path, to avoid getting an underscore in the beginning of
+        // ghost file name.
+        String axisConfigRepoPath = axisConfigRepoPathUrlToFile.getAbsolutePath().concat(File.separator);
+        //since in Windows env, filename & repopath get two formats
+        String axisConfigRepoPathToUnix = GhostDeployer.separatorsToUnix(axisConfigRepoPath);
+        String ghostFileName = calculateGhostFileName(fileName, axisConfigRepoPathToUnix);
+
         if (ghostMetafilesDirPath != null && ghostFileName != null) {
             return new File(ghostMetafilesDirPath + File.separator +
                     CarbonConstants.GHOST_SERVICES_FOLDER + File.separator +
