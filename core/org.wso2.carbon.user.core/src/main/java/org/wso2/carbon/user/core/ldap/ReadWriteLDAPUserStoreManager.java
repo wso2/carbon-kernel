@@ -338,10 +338,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 	 */
 	protected BasicAttributes getAddUserBasicAttributes(String userName) {
 		BasicAttributes basicAttributes = new BasicAttributes(true);
-		String userObjectClass = realmConfig
+		String userEntryObjectClassProperty = realmConfig
 				.getUserStoreProperty(LDAPConstants.USER_ENTRY_OBJECT_CLASS);
 		BasicAttribute objectClass = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
-		objectClass.add(userObjectClass);
+		String[] objectClassHierarchy = userEntryObjectClassProperty.split("/");
+        	for(String userObjectClass:objectClassHierarchy){
+            		if(userObjectClass != null && !userObjectClass.trim().equals("")){
+                	objectClass.add(userObjectClass.trim());
+        	    }
+	        }
 		// If KDC is enabled we have to set KDC specific object classes also
 		if (kdcEnabled) {
 			// Add Kerberos specific object classes
