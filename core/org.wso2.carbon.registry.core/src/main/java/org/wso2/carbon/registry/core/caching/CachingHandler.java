@@ -79,6 +79,10 @@ public class CachingHandler extends Handler {
         return RegistryUtils.getResourceCache(RegistryConstants.REGISTRY_CACHE_BACKED_ID);
     }
 
+    private static Cache<String,String> getUUIDCache() {
+        return RegistryUtils.getUUIDCache(RegistryConstants.UUID_CACHE_ID);
+    }
+
     /**
      * used to clear cache for the registry write operations
      *
@@ -235,7 +239,13 @@ public class CachingHandler extends Handler {
     private boolean removeFromCache(String connectionId, int tenantId, String path, boolean doGlobalCacheInvalidation) {
         RegistryCacheKey cacheKey = RegistryUtils.buildRegistryCacheKey(connectionId, tenantId, path);
         Cache<RegistryCacheKey, GhostResource> cache = getCache();
+        Cache<String, String> UUIDCache = getUUIDCache();
+        Resource resource;
         if (cache.containsKey(cacheKey)) {
+            if((resource=((GhostResource<Resource>)cache.get(cacheKey)).getResource())!=null) {
+                String UUIDCacheKey = resource.getUUID();
+                UUIDCache.remove(UUIDCacheKey);
+            }
             cache.remove(cacheKey);
 
             // TODO: figure out how this is done and its u
@@ -251,7 +261,12 @@ public class CachingHandler extends Handler {
             // We are sending cache invalidator message to all the nodes subscribed to the topic
             if(doGlobalCacheInvalidation) {
                 if(RegistryCoreServiceComponent.getCacheInvalidator() != null) {
-                    RegistryCoreServiceComponent.getCacheInvalidator().invalidateCache(tenantId, cache.getCacheManager().getName(), cache.getName(), cacheKey);
+                    RegistryCoreServiceComponent.getCacheInvalidator().invalidateCache(
+                            tenantId, cache.getCacheManager().getName(), cache.getName(), cacheKey);
+                    if(resource!=null) {
+                        RegistryCoreServiceComponent.getCacheInvalidator().invalidateCache(tenantId,
+                                UUIDCache.getCacheManager().getName(), UUIDCache.getName(), resource.getUUID());
+                    }
                 }
             }
 
