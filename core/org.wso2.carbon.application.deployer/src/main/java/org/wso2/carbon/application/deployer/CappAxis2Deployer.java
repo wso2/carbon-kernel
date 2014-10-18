@@ -130,7 +130,8 @@ public class CappAxis2Deployer extends AbstractDeployer {
     }
 
     public void cleanup() throws DeploymentException {
-        // do nothing        
+        //cleanup the capp list of a tenant during a tenant unload
+        ApplicationManager.getInstance().cleanupCarbonApps(axisConfig);
     }
 
 //    private void loadPersistedApps() {
