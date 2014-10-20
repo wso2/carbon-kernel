@@ -651,11 +651,6 @@ public class JDBCTenantManager implements TenantManager {
     public String getSuperTenantDomain() throws UserStoreException {
 		return MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
 	}
-
-    public String[] getAllTenantDomainStrOfUser(String username)
-            throws org.wso2.carbon.user.api.UserStoreException {
-        throw new UnsupportedOperationException("Operation getAllTenantDomainStrOfUse is unsupported " );
-    }
     
     /**
      * Read in the secondary user store configurations if available

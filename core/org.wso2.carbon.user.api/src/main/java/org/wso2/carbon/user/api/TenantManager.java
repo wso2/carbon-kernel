@@ -121,13 +121,4 @@ public interface TenantManager {
      * @throws UserStoreException
      */
     String getSuperTenantDomain() throws UserStoreException;
-
-    /**
-     * Get all tenant domains of user if the cross domain membership is available
-     *
-     * @param username
-     * @return
-     * @throws UserStoreException
-     */
-    String[] getAllTenantDomainStrOfUser(String username) throws UserStoreException;
 }
