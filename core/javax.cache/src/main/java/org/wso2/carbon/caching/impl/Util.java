@@ -57,6 +57,19 @@ public final class Util {
         return carbonContext;
     }
 
+    /**
+     * Get map name of a cache in the distributed map provider
+     * @param cacheName name of the cache
+     * @param ownerTenantDomain owner tenant domain of the cache manager
+     * @param cacheManagerName name of the cache manager
+     * @return the distributed map name
+     */
+    public static String getDistributedMapNameOfCache(String cacheName, String ownerTenantDomain,
+                                                      String cacheManagerName) {
+        return "$cache.$domain[" + ownerTenantDomain + "]" +
+                cacheManagerName + "#" + cacheName;
+    }
+
     public static String getTenantDomain() {
         return getCarbonContext().getTenantDomain();
     }
