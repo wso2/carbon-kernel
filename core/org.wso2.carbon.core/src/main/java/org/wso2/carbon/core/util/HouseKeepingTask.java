@@ -47,6 +47,7 @@ public class HouseKeepingTask extends TimerTask {
     }
 
     public void run() {
+        // This task is executed by two threads. Added this synchronized block to fix CARBON-14532
         synchronized (HouseKeepingTask.class) {
             if (log.isDebugEnabled()) {
                 log.debug("Starting house-keeping task.");
