@@ -842,26 +842,34 @@ public class RegistryCoreServiceComponent {
 
         public void createdConfigurationContext(ConfigurationContext configurationContext) throws CarbonException{
             int tenantId = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
-            loadTenantRegistry(tenantId);
+            try{
+                loadTenantRegistry(tenantId);
+            } catch (RegistryException e){
+                log.error("Failed to initialize registry",e);
+                throw new CarbonException("Failed to initialize Registry",e);
+            }
+
         }
 
         public void startedAuthentication(int tenantId) throws CarbonException{
-            loadTenantRegistry(tenantId);
+            try{
+                loadTenantRegistry(tenantId);
+            } catch(RegistryException e){
+                log.error("Failed to initialize registry",e);
+                throw new CarbonException("Failed to initialize Registry",e);
+            }
+
         }
 
-        public void loadTenantRegistry(int tenantId) throws CarbonException {
+        public void loadTenantRegistry(int tenantId) throws RegistryException {
             // Only signed code can load the registry of a tenant, for security reasons. Accessing
             // the registry can be done by unsigned code, after the registry has been properly
             // loaded.
             if (tenantId != MultitenantConstants.INVALID_TENANT_ID &&
             		tenantId != MultitenantConstants.SUPER_TENANT_ID && 
             		canInitializeTenant(tenantId)) {
-                try {
                     RegistryUtils.initializeTenant(service, tenantId);
-                } catch (RegistryException e) {
-                    log.error("Failed to initialize registry",e);
-                    throw new CarbonException("Failed to initialize Registry",e);
-                }
+
             }
         }
 
