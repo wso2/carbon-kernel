@@ -18,6 +18,8 @@
  */
 package org.wso2.carbon.utils;
 
+import org.wso2.carbon.CarbonException;
+
 /**
  * This observer will be notified during the authentication process so that various initializations
  * can be done.
@@ -29,7 +31,7 @@ public interface AuthenticationObserver {
      *
      * @param tenantId The tenant identifier.
      */
-    void startedAuthentication(int tenantId);
+    void startedAuthentication(int tenantId) throws CarbonException;
 
     /**
      * This method will be notified when the authentication process is completed.
