@@ -789,6 +789,13 @@ public final class ApplicationManager implements ApplicationManagerService {
         throw new CarbonException(msg, e);
     }
 
+    public void cleanupCarbonApps(AxisConfiguration axisConfig) {
+        String tenantId = AppDeployerUtils.getTenantIdString(axisConfig);
+        tenantcAppMap.remove(tenantId);
+        tenantfaultycAppMap.remove(tenantId);
+        tenantPMMap.remove(tenantId);
+    }
+
     /**
      * A private class to hold pending cApps to be deployed
      */
