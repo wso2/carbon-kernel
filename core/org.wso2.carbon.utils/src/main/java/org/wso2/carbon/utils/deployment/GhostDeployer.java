@@ -130,13 +130,14 @@ public class GhostDeployer extends AbstractDeployer {
                 if (CarbonUtils.isFilteredOutService(service)) {
                     continue;
                 }
-                tempAbsolutePath = GhostDeployer.separatorsToUnix(absoluteFilePath);
-                File serviceFilePathUrlToFile = new File(service.getFileName().getPath());
-                String serviceFilePathUrlToFileAbsolutePath = serviceFilePathUrlToFile.getAbsolutePath();
-                String serviceFileAbsolutePathToUnix = GhostDeployer.separatorsToUnix(serviceFilePathUrlToFileAbsolutePath);
+                if (service.getFileName() != null) {
+                    tempAbsolutePath = GhostDeployer.separatorsToUnix(absoluteFilePath);
+                    File serviceFilePathUrlToFile = new File(service.getFileName().getPath());
+                    String serviceFilePathUrlToFileAbsolutePath = serviceFilePathUrlToFile.getAbsolutePath();
+                    String serviceFileAbsolutePathToUnix = GhostDeployer.separatorsToUnix(serviceFilePathUrlToFileAbsolutePath);
 
-                if (service.getFileName() != null && serviceFileAbsolutePathToUnix
-                        .equals(tempAbsolutePath)) {
+                    if (serviceFileAbsolutePathToUnix
+                            .equals(tempAbsolutePath)) {
                     GhostDeployerUtils.updateLastUsedTime(service);
                     try {
                         //skip ghost metafile generation for worker nodes.
@@ -150,6 +151,7 @@ public class GhostDeployer extends AbstractDeployer {
                     }
                     break;
                 }
+            }
             }
         } else {
             // load the ghost service group
