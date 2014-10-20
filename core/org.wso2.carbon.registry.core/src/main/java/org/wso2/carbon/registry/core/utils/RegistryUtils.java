@@ -286,6 +286,17 @@ public final class RegistryUtils {
                 Caching.getCacheManager().<RegistryCacheKey, RegistryCacheEntry>getCache(name);
     }
 
+    /**
+     * Method used to retrieve cache object for UUID, resource paths.
+     * @param name the name of the cache
+     * @return the cache object for the given cache manger and cache name
+     */
+    public static Cache<String, String> getUUIDCache(String name) {
+        CacheManager manager = getCacheManager();
+        return (manager != null) ? manager.<String, String>getCache(name) :
+                Caching.getCacheManager().<String, String>getCache(name);
+    }
+
     private static CacheManager getCacheManager() {
         return Caching.getCacheManagerFactory().getCacheManager(
                 RegistryConstants.REGISTRY_CACHE_MANAGER);
