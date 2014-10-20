@@ -420,18 +420,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 	public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames,
 	                                                 String profileName) throws UserStoreException {
 		Map<String, String> values = new HashMap<String, String>();
-		String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-		String userNameProperty =
-		                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+
 		// if user name contains domain name, remove domain name
 		String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
 		if (userNames.length > 1) {
 			userName = userNames[1];
 		}
-		searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
 
 		DirContext dirContext = this.connectionSource.getContext();
-		NamingEnumeration<?> answer = null;
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        String searchFilter = userSearchFilter.replace("?", userName);
+
+        NamingEnumeration<?> answer = null;
 		NamingEnumeration<?> attrs = null;
 		try {
 			answer = this.searchForUser(searchFilter, propertyNames, dirContext);
@@ -1534,11 +1534,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 			                          realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
 			if (memberOfProperty != null && memberOfProperty.length() > 0) {
 				// TODO Handle active directory shared roles logics here
-				String searchFilter =
-				                      realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+
 				String userNameProperty =
 				                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-				searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
+                String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+                String searchFilter = userSearchFilter.replace("?", userName);
 
 				String binaryAttribute =
 				                         realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
@@ -2110,9 +2110,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         if (memberOfProperty != null && memberOfProperty.length() > 0) {
             List<String> list;
 
-            String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
             String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-            searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
+            String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+            String searchFilter = userSearchFilter.replace("?", userName);
             String binaryAttribute =
                                      realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
             String primaryGroupId = realmConfig.getUserStoreProperty(LDAPConstants.PRIMARY_GROUP_ID);
