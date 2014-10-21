@@ -138,8 +138,6 @@ public class Main {
      * Invoke the extensions specified in the carbon.xml
      */
     public static void invokeExtensions() {
-        //TODO Read extensions from the carbon.xml and execute them - Sameera.
-
         //converting jars found under components/lib and putting them in components/dropins dir
         new DefaultBundleCreator().perform();
         new SystemBundleExtensionCreator().perform();
