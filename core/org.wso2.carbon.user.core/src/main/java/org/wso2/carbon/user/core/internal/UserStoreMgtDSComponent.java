@@ -97,12 +97,6 @@ public class UserStoreMgtDSComponent {
     }
 
 	protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		if (serverConfigurationService == null) {
-			String msg = "Before activating Carbon Core bundle, an instance of "
-			             + "ServerConfigurationService should be in existence";
-			log.error(msg);
-		}
-
 		UserStoreMgtDSComponent.serverConfigurationService = serverConfigurationService;
 	}
 
