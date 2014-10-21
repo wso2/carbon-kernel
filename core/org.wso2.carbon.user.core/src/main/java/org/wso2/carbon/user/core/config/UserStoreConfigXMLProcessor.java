@@ -57,7 +57,7 @@ public class UserStoreConfigXMLProcessor {
     private String filePath = null;
     private static BundleContext bundleContext;
 
-    private static Cipher registryKeyStoreCipher = null;
+    private static Cipher keyStoreCipher = null;
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
         initializeKeyStore();
@@ -306,7 +306,7 @@ public class UserStoreConfigXMLProcessor {
                             UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME)));
                 }
                 try {
-                    propValue = new String(registryKeyStoreCipher.doFinal(Base64.
+                    propValue = new String(keyStoreCipher.doFinal(Base64.
                             decode(propValue.trim())));
                 } catch (GeneralSecurityException e) {
                     String errMsg = "encryption of Property=" + propElem.getAttributeValue(
@@ -320,7 +320,7 @@ public class UserStoreConfigXMLProcessor {
     }
 
     /**
-     * Initializes and assign the registryKeyStoreCipher only for the first time.
+     * Initializes and assign the keyStoreCipher only for the first time.
      */
     private void initializeKeyStore() {
         ServerConfigurationService serverConfigurationService =
@@ -333,7 +333,7 @@ public class UserStoreConfigXMLProcessor {
             return;
         }
 
-        if (registryKeyStoreCipher == null) {
+        if (keyStoreCipher == null) {
 
             String password = serverConfigurationService.getFirstProperty(
                     "Security.KeyStore.Password");
@@ -351,8 +351,8 @@ public class UserStoreConfigXMLProcessor {
                 in = new FileInputStream(file);
                 store.load(in, password.toCharArray());
                 PrivateKey privateKey = (PrivateKey) store.getKey(keyAlias, keyPass.toCharArray());
-                registryKeyStoreCipher = Cipher.getInstance("RSA", "BC");
-                registryKeyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
+                keyStoreCipher = Cipher.getInstance("RSA", "BC");
+                keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
             } catch (FileNotFoundException e) {
                 String errorMsg = "Keystore File Not Found in configured location";
                 log.error(errorMsg, e);
