@@ -34,11 +34,17 @@ public class DeploymentAxis2ConfigurationContextObserver extends AbstractAxis2Co
 
     @Override
     public void createdConfigurationContext(ConfigurationContext configContext) {
-        log.debug("Invoke registered deployers");
-        super.createdConfigurationContext(configContext);
-        AxisConfigurator axisConfigurator = configContext.getAxisConfiguration().getConfigurator();
-        if (axisConfigurator instanceof TenantAxisConfigurator) {
-            ((TenantAxisConfigurator) axisConfigurator).deployServices();
+        //Any exceptions delegated from here will cause issue with tenant loading.
+        //Artifact deployment is not critical. So, we will catch it, and log it.
+        try {
+            log.debug("Invoke registered deployers");
+            super.createdConfigurationContext(configContext);
+            AxisConfigurator axisConfigurator = configContext.getAxisConfiguration().getConfigurator();
+            if (axisConfigurator instanceof TenantAxisConfigurator) {
+                ((TenantAxisConfigurator) axisConfigurator).deployServices();
+            }
+        } catch (Exception e) {
+            log.error("Runtime exception while deploying artifacts ", e);
         }
     }
 }

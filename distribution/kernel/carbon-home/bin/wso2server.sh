@@ -301,6 +301,8 @@ do
     -Dorg.terracotta.quartz.skipUpdateCheck=true \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
+    -Djava.net.preferIPv4Stack=true \
+    -Dcom.ibm.cacheLocalHost=true \
     org.wso2.carbon.bootstrap.Bootstrap $*
     status=$?
 done
