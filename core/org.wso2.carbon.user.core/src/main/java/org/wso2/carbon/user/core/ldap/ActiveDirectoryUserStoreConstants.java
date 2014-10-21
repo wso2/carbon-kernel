@@ -29,16 +29,16 @@ public class ActiveDirectoryUserStoreConstants {
     public static final ArrayList<Property> OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
 
     static {
-        setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "CN=,DC=",
-                UserStoreConfigConstants.connectionNameDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.connectionURL, "Connection URL", "ldaps://",
-                UserStoreConfigConstants.connectionURLDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "CN=," +
+                "DC=",UserStoreConfigConstants.connectionNameDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionURL, "Connection URL",
+                "ldaps://",UserStoreConfigConstants.connectionURLDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.connectionPassword, "Connection Password",
-                "", UserStoreConfigConstants.connectionPasswordDescription, true);
+                "", UserStoreConfigConstants.connectionPasswordDescription,true);
         setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
-                "CN=Users,DC=WSO2,DC=Com", UserStoreConfigConstants.userSearchBaseDescription, false);
+                "CN=Users,DC=WSO2,DC=Com", UserStoreConfigConstants.userSearchBaseDescription,false);
         setMandatoryProperty(UserStoreConfigConstants.disabled, "Diabled", "false",
-                UserStoreConfigConstants.disabledDescription, false);
+                UserStoreConfigConstants.disabledDescription,false);
         setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User Object Class",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute",
