@@ -200,7 +200,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                                     </td>
                                     <td>
                                         <input type="text" id="txtbackendURL" name="backendURL"
-                                               class="user" tabindex="1" value="<%=backendURL%>"/>
+                                               class="user" tabindex="1" value="<%=backendURL%>"  autocomplete="off" />
                                     </td>
                                 </tr>
                                 <% } %>
@@ -211,7 +211,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                                     </td>
                                     <td>
                                         <input type="text" id="txtUserName" name="username"
-                                               class="user" tabindex="1"/>
+                                               class="user" tabindex="1"  autocomplete="off" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -221,7 +221,7 @@ if (CharacterEncoder.getSafeText(request.getParameter("skipLoginPage"))!=null){
                                     </td>
                                     <td>
                                         <input type="password" id="txtPassword" name="password"
-                                               class="password" tabindex="2"/>
+                                               class="password" tabindex="2"  autocomplete="off"/>
                                     </td>
                                 </tr>
                                 <tr>

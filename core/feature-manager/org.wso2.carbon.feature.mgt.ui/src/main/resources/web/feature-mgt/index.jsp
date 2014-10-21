@@ -85,6 +85,9 @@
 <carbon:breadcrumb label="comp.management"
         resourceBundle="org.wso2.carbon.feature.mgt.ui.i18n.Resources"
         topPage="true" request="<%=request%>" />
+<carbon:jsi18n
+        resourceBundle="org.wso2.carbon.server.admin.ui.i18n.JSResources"
+        request="<%=request%>" />
 
 <link type="text/css" href="css/ui.all.css" rel="stylesheet" />
 <script type="text/javascript" src="js/jquery-1.2.6.min.js"></script>
@@ -158,11 +161,15 @@
                             </tr>
                         <tr>
                              <td class="buttonRow">
-                                <input value="<fmt:message key="finish.button"/>" tabindex="11" type="button"
-                                       class="button"
-                                       onclick="doBack('IC-AF')"
-                                       id="_btn_ic_finish"/>
-                            </td>
+                                <input value="<fmt:message key="restart.now.button"/>" tabindex="11" type="button"
+                                    class="button"
+                                    onclick="doBack('IC-AF'); restartServerGracefully();"
+                                    id="_btn_ic_restart_now"/>
+                                <input value="<fmt:message key="restart.later.button"/>" tabindex="12" type="button"
+                                    class="button"
+                                    onclick="doBack('IC-AF')"
+                                    id="_btn_ic_restart_later"/>
+                             </td>
                         </tr>
                         </tbody>
                     </table>
@@ -274,14 +281,18 @@
                                      </table>
                                 </td>
                             </tr>
-                        <tr>
-                             <td class="buttonRow">
-                                <input value="<fmt:message key="finish.button"/>" tabindex="11" type="button"
-                                       class="button"
-                                       onclick="doBack('UC-IF')"
-                                       id="_btn_uc_finish"/>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td class="buttonRow">
+                                    <input value="<fmt:message key="restart.now.button"/>" tabindex="11" type="button"
+                                        class="button"
+                                        onclick="doBack('UC-IF'); restartServerGracefully();"
+                                        id="_btn_ic_restart_now"/>
+                                    <input value="<fmt:message key="restart.later.button"/>" tabindex="12" type="button"
+                                        class="button"
+                                        onclick="doBack('UC-IF')"
+                                        id="_btn_ic_restart_later"/>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

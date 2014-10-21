@@ -89,9 +89,6 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.rdbms</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.user.api</bundleDef>
                                 <bundleDef>net.sf.jsr107cache.wso2:jsr107cache:1.1.0.wso2v3</bundleDef>
-                                <bundleDef>org.jboss.marshalling.wso2:marshalling:1.3.6.wso2v1</bundleDef>
-                                <bundleDef>org.infinispan.wso2:infinispan-core:5.1.2.wso2v1</bundleDef>
-                                <bundleDef>org.jboss.logging.wso2:jboss-logging:3.1.0.wso2v1</bundleDef>
                                 <bundleDef>org.jgroups.wso2:jgroups:3.0.6.wso2v1</bundleDef>
 			        <bundleDef>au.com.bytecode.opencsv.wso2:opencsv:1.8.wso2v1</bundleDef>
 				<bundleDef>org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2</bundleDef>

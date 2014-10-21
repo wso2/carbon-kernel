@@ -443,11 +443,12 @@ public final class AppDeployerUtils {
      * @throws org.wso2.carbon.CarbonException - error on extraction
      */
     public static String extractCarbonApp(String appCarPath) throws CarbonException {
+        createAppDirectory();
+
         String appCarPathFormatted = formatPath(appCarPath);
         String fileName = appCarPathFormatted.substring(appCarPathFormatted.lastIndexOf('/') + 1);
         String dest = APP_UNZIP_DIR + File.separator + System.currentTimeMillis() +
                 fileName + File.separator;
-        createAppDirectory();
         createDir(dest);
 
         try {

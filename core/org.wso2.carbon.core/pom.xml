@@ -38,6 +38,12 @@
         <dependency>
             <groupId>com.hazelcast.wso2</groupId>
             <artifactId>hazelcast</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.hazelcast</groupId>
+                    <artifactId>hazelcast</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.osgi</groupId>
@@ -59,11 +65,6 @@
         <dependency>
             <groupId>org.bouncycastle.wso2</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.infinispan.wso2</groupId>
-            <artifactId>infinispan-core</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>

@@ -47,22 +47,31 @@ public class HouseKeepingTask extends TimerTask {
     }
 
     public void run() {
-        log.debug("Starting house-keeping task...");
-        try {
-            File workDir = new File(this.workDir);
-            if (workDir.exists()) {
-                List<String> deletedFiles = new ArrayList<String>();
-                clean(workDir, deletedFiles, false);
-                log.debug("Clearing filemap cache...");
-                if (fileResourceMap != null) {
-                    for (Iterator iterator = deletedFiles.iterator(); iterator.hasNext();) {
-                        fileResourceMap.removeValue(iterator.next());
+        // This task is executed by two threads. Added this synchronized block to fix CARBON-14532
+        synchronized (HouseKeepingTask.class) {
+            if (log.isDebugEnabled()) {
+                log.debug("Starting house-keeping task.");
+            }
+            try {
+                File workDir = new File(this.workDir);
+                if (workDir.exists()) {
+                    List<String> deletedFiles = new ArrayList<String>();
+                    clean(workDir, deletedFiles, false);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Clearing filemap cache.");
+                    }
+                    if (fileResourceMap != null) {
+                        for (Iterator iterator = deletedFiles.iterator(); iterator.hasNext(); ) {
+                            fileResourceMap.removeValue(iterator.next());
+                        }
                     }
                 }
+                if (log.isDebugEnabled()) {
+                    log.debug("House-keeping complete.");
+                }
+            } catch (Throwable e) {
+                log.error("Could not run HousekeepingTask", e);
             }
-            log.debug("House-keeping complete.");
-        } catch (Throwable e) {
-            log.error("Could not run HousekeepingTask", e);
         }
     }
 
@@ -78,7 +87,7 @@ public class HouseKeepingTask extends TimerTask {
             if (file.listFiles() == null || file.listFiles().length == 0) { // all children deleted?
                 String absPath = file.getAbsolutePath();
                 if (log.isDebugEnabled()) {
-                    log.debug("Deleting directory " + absPath + "...");
+                    log.debug("Deleting directory " + absPath);
                 }
                 
                 if(deleteParent){
@@ -93,7 +102,7 @@ public class HouseKeepingTask extends TimerTask {
                 if (file.isDirectory()) {
                 	
                     if (log.isDebugEnabled()) {
-                        log.debug("Deleting directory " + absPath + "...");
+                        log.debug("Deleting directory " + absPath);
                     }
                     if(deleteParent){
                     	deletedFiles.add(absPath);
@@ -102,7 +111,7 @@ public class HouseKeepingTask extends TimerTask {
                     
                 } else {
                     if (log.isDebugEnabled()) {
-                        log.debug("Deleting file " + absPath + "...");
+                        log.debug("Deleting file " + absPath);
                     }
                     deletedFiles.add(absPath);
                     if(!file.delete()){

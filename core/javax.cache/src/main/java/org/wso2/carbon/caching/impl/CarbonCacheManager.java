@@ -170,7 +170,8 @@ public class CarbonCacheManager implements CacheManager {
         cacheManagerFactory.removeCacheFromMonitoring(oldCache);
         DistributedMapProvider distributedMapProvider = DataHolder.getInstance().getDistributedMapProvider();
         if (distributedMapProvider != null) {
-            distributedMapProvider.removeMap(cacheName);
+            distributedMapProvider.removeMap(Util.getDistributedMapNameOfCache(cacheName,ownerTenantDomain,
+                    this.getName()));
         }
         if (caches.isEmpty() && isIdle()) {
             cacheManagerFactory.removeCacheManager(this, ownerTenantDomain);

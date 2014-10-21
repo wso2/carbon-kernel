@@ -138,8 +138,6 @@ public class Main {
      * Invoke the extensions specified in the carbon.xml
      */
     public static void invokeExtensions() {
-        //TODO Read extensions from the carbon.xml and execute them - Sameera.
-
         //converting jars found under components/lib and putting them in components/dropins dir
         new DefaultBundleCreator().perform();
         new SystemBundleExtensionCreator().perform();
@@ -171,7 +169,7 @@ public class Main {
      */
     private static void writePID(String carbonHome) {
         byte[] bo = new byte[100];
-        String[] cmd = {"bash", "-c", "echo $PPID"};
+        String[] cmd = {"sh", "-c", "echo $PPID"};
         Process p;
         try {
             p = Runtime.getRuntime().exec(cmd);

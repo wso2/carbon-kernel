@@ -31,7 +31,10 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
 import java.net.URI;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Hashtable;
 
 /**
@@ -40,7 +43,6 @@ import java.util.Hashtable;
  * <a href="http://wso2.com/cloud/stratos">WSO2 Stratos</a>. Each CarbonContext will utilize an
  * underlying {@link org.wso2.carbon.context.internal.CarbonContextDataHolder} instance, which will store the actual data.
  */
-@SuppressWarnings("unused")
 public class CarbonContext {
 
     // The reason to why we decided to have a CarbonContext and a CarbonContextHolder is to address
@@ -113,7 +115,12 @@ public class CarbonContext {
      * @return the requested registry instance.
      */
     public Registry getRegistry(RegistryType type) {
-        int tenantId = getTenantId();
+        int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+            @Override
+            public Integer run() {
+                return getTenantId();
+            }
+        });
         Registry registry;
         switch (type) {
             case USER_CONFIGURATION:
@@ -204,6 +211,7 @@ public class CarbonContext {
      * @return the JNDI-context.
      * @throws NamingException if the operation failed.
      */
+    @SuppressWarnings("rawtypes")
     public Context getJNDIContext(Hashtable properties) throws NamingException {
         return new InitialContext(properties);
     }

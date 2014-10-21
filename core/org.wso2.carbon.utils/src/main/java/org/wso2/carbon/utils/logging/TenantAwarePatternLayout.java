@@ -39,6 +39,23 @@ import java.net.UnknownHostException;
  * string will be returned. The tenant pattern can be changed via the log4j
  * configuration. You simply need to add a line in the format,
  * <code>log4j.appender.NAME.layout.TenantPattern=%U@%D [%T]</code>.
+ *
+ * Available patterns:
+ * [%D] - tenant domain
+ * [%P] - tenant pattern (TenantPattern as configured in the log4j.properties file. eg:
+ *                      %U%@%D[%T] - will be converted to "username @ tenant_domain [tenant_id]" )
+ * [%T] - tenant id
+ * [%S] - server name
+ * [%U] - user name
+ * [%A] - application name
+ * [%H] - host name/address
+ * [%I] - instance id
+ *
+ * How to use these patterns:
+ * Configure the log4j.properties file using above patterns.
+ * eg: for the console appender,
+ * log4j.appender.CARBON_CONSOLE.layout.ConversionPattern=TID: [%T] [%S] [%U] [%A] [%D] [%I] [%H]
+ * [%P] [%d] %P%5p {%c} - %x %m%n
  */
 
 public class TenantAwarePatternLayout extends PatternLayout {
@@ -102,12 +119,10 @@ public class TenantAwarePatternLayout extends PatternLayout {
     // structure of this
     // class see log4j PatternParser code.
     private static class TenantAwarePatternParser extends PatternParser {
-        CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
-        int tenantId = carbonContext.getTenantId();
         InetAddress inetAddress;
         String address;
-
         String serverName = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+
         public TenantAwarePatternParser(String pattern) {
             super(pattern);
             try {
@@ -122,28 +137,30 @@ public class TenantAwarePatternLayout extends PatternLayout {
             PatternConverter pc = null;
             switch (c) {
                 case 'D':
-                    pc = new TenantDomainPatternConverter(formattingInfo, extractPrecisionOption(), carbonContext);
+                    pc = new TenantDomainPatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case '@':
                     pc = new AtSignPatternConverter(formattingInfo);
                     break;
                 case 'P':
-                    pc = new TenantPatternConverter(formattingInfo, extractPrecisionOption(), tenantId);
+                    pc = new TenantPatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case 'T':
-                    pc = new TenantIdPatternConverter(formattingInfo, extractPrecisionOption(), tenantId);
+                    pc = new TenantIdPatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case 'S':
-                    pc = new ServiceNamePatternConverter(formattingInfo, extractPrecisionOption(), serverName);
+                    pc = new ServerNamePatternConverter(formattingInfo, extractPrecisionOption(),
+                                                         serverName);
                     break;
                 case 'U':
-                    pc = new UserNamePatternConverter(formattingInfo, extractPrecisionOption(), carbonContext);
+                    pc = new UserNamePatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case 'A':
-                    pc = new AppNamePatternConverter(formattingInfo, extractPrecisionOption(), carbonContext);
+                    pc = new AppNamePatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case 'H':
-                    pc = new HostNamePatternConverter(formattingInfo, extractPrecisionOption(), address);
+                    pc = new HostNamePatternConverter(formattingInfo, extractPrecisionOption(),
+                                                      address);
                     break;
                 case 'I':
                     pc = new InstanceIdPatternConverter(formattingInfo, extractPrecisionOption());
@@ -196,62 +213,51 @@ public class TenantAwarePatternLayout extends PatternLayout {
         }
 
         private static class TenantIdPatternConverter extends TenantAwareNamedPatternConverter {
-            int tenantIdentifier;
-
-            public TenantIdPatternConverter(FormattingInfo formattingInfo, int precision,
-                                            int tenantId) {
+            public TenantIdPatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                tenantIdentifier = tenantId;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
                 if (event instanceof TenantAwareLoggingEvent) {
                     return ((TenantAwareLoggingEvent) event).getTenantId();
                 } else {
-                    if (tenantIdentifier !=
+                    int tenantId = CarbonContext.getThreadLocalCarbonContext()
+                                                                  .getTenantId();
+                    if (tenantId !=
                             MultitenantConstants.INVALID_TENANT_ID) {
-                        return Integer.toString(tenantIdentifier);
+                        return Integer.toString(tenantId);
                     }
                 }
-
                 return null;
             }
         }
 
         private static class UserNamePatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext carbonCtx;
-
-            public UserNamePatternConverter(FormattingInfo formattingInfo, int precision,
-                                            CarbonContext carbonContext) {
+            public UserNamePatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                carbonCtx = carbonContext;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-
-                return carbonCtx.getUsername();
+                return CarbonContext.getThreadLocalCarbonContext().getUsername();
             }
         }
 
         private static class TenantDomainPatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext carbonCtx;
 
-            public TenantDomainPatternConverter(FormattingInfo formattingInfo, int precision,
-                                                CarbonContext carbonContext) {
+            public TenantDomainPatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                carbonCtx = carbonContext;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-                return carbonCtx.getTenantDomain();
+                return CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             }
         }
 
-        private static class ServiceNamePatternConverter extends TenantAwareNamedPatternConverter {
+        private static class ServerNamePatternConverter extends TenantAwareNamedPatternConverter {
             String name;
 
-            public ServiceNamePatternConverter(FormattingInfo formattingInfo, int precision,
-                                               String serverName) {
+            public ServerNamePatternConverter(FormattingInfo formattingInfo, int precision,
+                                              String serverName) {
                 super(formattingInfo, precision);
                 name = serverName;
             }
@@ -292,12 +298,8 @@ public class TenantAwarePatternLayout extends PatternLayout {
 
 
         private static class AppNamePatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext carbonCtx;
-
-            public AppNamePatternConverter(FormattingInfo formattingInfo, int precision,
-                                           CarbonContext carbonContext) {
+            public AppNamePatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                carbonCtx = carbonContext;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
@@ -308,13 +310,13 @@ public class TenantAwarePatternLayout extends PatternLayout {
                         return "";
                     }
                 } else {
-                    String temp =  carbonCtx.getApplicationName();
-                    if (temp != null) {
-                        return temp;
+                    String appName = CarbonContext.getThreadLocalCarbonContext()
+                                                            .getApplicationName();
+                    if (appName != null) {
+                        return appName;
                     } else {
                         return "";
                     }
-
                 }
             }
         }
@@ -334,18 +336,17 @@ public class TenantAwarePatternLayout extends PatternLayout {
         }
 
         private static class TenantPatternConverter extends TenantAwareNamedPatternConverter {
-            int tenantIdentifier;
 
-            public TenantPatternConverter(FormattingInfo formattingInfo, int precision,
-                                          int tenantId) {
+            public TenantPatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                tenantIdentifier = tenantId;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-                if (tenantIdentifier !=
+                int tenantId = CarbonContext.getThreadLocalCarbonContext()
+                                                              .getTenantId();
+                if (tenantId !=
                         MultitenantConstants.INVALID_TENANT_ID
-                        && tenantIdentifier != MultitenantConstants.SUPER_TENANT_ID) {
+                        && tenantId != MultitenantConstants.SUPER_TENANT_ID) {
                     return new TenantAwarePatternLayout(tenantPattern).format(event);
                 }
                 return superTenantText;

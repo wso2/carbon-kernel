@@ -41,10 +41,6 @@ public class CappAxis2Deployer extends AbstractDeployer {
 
     private String cAppDir;
 
-    private boolean isAlreadyRegistered = false;
-
-    private List<String> pendingCAppList = new ArrayList<String>();
-
     public void init(ConfigurationContext configurationContext) {
         // create the cApp hot directory
         if (cAppDir != null && !"".equals(cAppDir)) {
@@ -59,39 +55,6 @@ public class CappAxis2Deployer extends AbstractDeployer {
         this.axisConfig = configurationContext.getAxisConfiguration();
         // load the existing Carbon apps from tenant registry space
 //        loadPersistedApps();
-
-        populatePendingCAppList();
-
-        if(pendingCAppList.isEmpty() && !isAlreadyRegistered){
-            registerCappdeploymentService();
-            isAlreadyRegistered = true;
-        }
-    }
-
-    /**
-     * Populate the names of the carbon apps to be deployed
-     *
-     * @param
-     * @throws
-     */
-    private void populatePendingCAppList(){
-
-        File cAppDirFile = new File(CarbonUtils.getCarbonRepository() + File.separator + cAppDir);
-
-        if(cAppDirFile.exists()){
-            File [] cAppFiles = cAppDirFile.listFiles();
-            for(int i = 0 ; i< cAppFiles.length ; i++){
-                String extension = "";
-                String fileName = cAppFiles[i].getName();
-                int index = fileName.lastIndexOf('.');
-                if (index > 0) {
-                    extension = fileName.substring(index+1);
-                    if(extension.equalsIgnoreCase("car")){
-                        pendingCAppList.add(fileName);
-                    }
-                }
-            }
-        }
 
     }
 
@@ -118,13 +81,6 @@ public class CappAxis2Deployer extends AbstractDeployer {
 
         super.deploy(deploymentFileData);
 
-        pendingCAppList.remove(deploymentFileData.getName());
-
-        if(pendingCAppList.isEmpty() && !isAlreadyRegistered){
-            //If there are no pending Capps register CAPP Deployer Service
-            registerCappdeploymentService();
-            isAlreadyRegistered = true;
-        }
     }
 
     public void setDirectory(String s) {
@@ -132,17 +88,6 @@ public class CappAxis2Deployer extends AbstractDeployer {
     }
 
     public void setExtension(String s) {
-
-    }
-
-    private void registerCappdeploymentService(){
-        try {
-            AppDeployerServiceComponent.getBundleContext().registerService(CappDeploymentService.class.getName(),
-                    new CappDeploymentServiceImpl(), null);
-            log.debug("Carbon CAPP Services bundle is activated ");
-        } catch (Throwable e) {
-            log.error("Failed to activate Carbon CAPP Services bundle ", e);
-        }
 
     }
 
@@ -185,7 +130,8 @@ public class CappAxis2Deployer extends AbstractDeployer {
     }
 
     public void cleanup() throws DeploymentException {
-        // do nothing        
+        //cleanup the capp list of a tenant during a tenant unload
+        ApplicationManager.getInstance().cleanupCarbonApps(axisConfig);
     }
 
 //    private void loadPersistedApps() {
