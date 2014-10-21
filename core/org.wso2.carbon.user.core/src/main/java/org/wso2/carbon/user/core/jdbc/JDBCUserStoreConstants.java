@@ -32,10 +32,11 @@ public class JDBCUserStoreConstants {
 
     static {
 
-    	setMandatoryProperty(JDBCRealmConstants.DRIVER_NAME,"Driver Name", "", "Full qualified driver name");
-    	setMandatoryProperty(JDBCRealmConstants.URL,"Connection URL", "", "URL of the user store database");
-    	setMandatoryProperty(JDBCRealmConstants.USER_NAME,"Connection Name", "", "Username for the database");
-    	setMandatoryProperty(JDBCRealmConstants.PASSWORD,"Connection Password", "", "Password for the database");
+    	setMandatoryProperty(JDBCRealmConstants.DRIVER_NAME,"Driver Name", "",
+                "Full qualified driver name", false);
+    	setMandatoryProperty(JDBCRealmConstants.URL,"Connection URL", "", "URL of the user store database", false);
+    	setMandatoryProperty(JDBCRealmConstants.USER_NAME,"Connection Name", "", "Username for the database", false);
+    	setMandatoryProperty(JDBCRealmConstants.PASSWORD,"Connection Password", "", "Password for the database", false);
 //        setMandatoryProperty(UserStoreConfigConstants.dataSource, "jdbc/WSO2CarbonDB", UserStoreConfigConstants.dataSourceDescription);
 
         setProperty(UserStoreConfigConstants.disabled,"Disabled", "false", UserStoreConfigConstants.disabledDescription);
@@ -184,7 +185,7 @@ public class JDBCUserStoreConstants {
                 "UU.UM_USER_NAME=? AND UU.UM_TENANT_ID=?","");
         setAdvancedProperty("AddUserPropertySQL-openedge", "Add User Property (OpenEdge)","INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, UM_ATTR_NAME, " +
                 "UM_ATTR_VALUE, UM_PROFILE_ID, UM_TENANT_ID) SELECT UM_ID, ?, ?, ?, ? FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?","");
-
+        setProperty("UniqueID", "","","");
     }
 
 
@@ -196,8 +197,12 @@ public class JDBCUserStoreConstants {
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
-            String description) {
-        Property property = new Property(name, value, displayName + "#" + description, null);
+            String description, boolean encrypt) {
+        String propertyDescription = displayName + "#" + description;
+        if(encrypt){
+            propertyDescription += "#encrypt";
+        }
+        Property property = new Property(name, value, propertyDescription, null);
         JDBC_UM_MANDATORY_PROPERTIES.add(property);
 
     }

@@ -28,15 +28,17 @@ public class ReadOnlyLDAPUserStoreConstants {
     public static final ArrayList<Property> ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTIONAL_ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     static {
-        setMandatoryProperty(UserStoreConfigConstants.connectionName,"Connection Name","uid=,ou=",UserStoreConfigConstants.connectionNameDescription);
-        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldap://",UserStoreConfigConstants.connectionURLDescription);
-        setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"Connection Password","",UserStoreConfigConstants.connectionPasswordDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Base","ou=system",UserStoreConfigConstants.userSearchBaseDescription);
-        setMandatoryProperty(UserStoreConfigConstants.disabled,"Disabled","false",UserStoreConfigConstants.disabledDescription);
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class", "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute", "uid", UserStoreConfigConstants.userNameAttributeDescription);
-        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter","(&amp;(objectClass=person)(uid=?))",UserStoreConfigConstants.usernameSearchFilterDescription);
-        setMandatoryProperty("ReadOnly","Read-only","true","Indicates whether the user store is in read only mode or not");
+        setMandatoryProperty(UserStoreConfigConstants.connectionName,"Connection Name","uid=," +
+                "ou=",UserStoreConfigConstants.connectionNameDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldap://",UserStoreConfigConstants.connectionURLDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"Connection Password",
+                "",UserStoreConfigConstants.connectionPasswordDescription, true);
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Base","ou=system",UserStoreConfigConstants.userSearchBaseDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.disabled,"Disabled","false",UserStoreConfigConstants.disabledDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class", "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute", "uid", UserStoreConfigConstants.userNameAttributeDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter","(&amp;(objectClass=person)(uid=?))",UserStoreConfigConstants.usernameSearchFilterDescription,false);
+        setMandatoryProperty("ReadOnly","Read-only","true","Indicates whether the user store is in read only mode or not",false);
 
         setProperty(UserStoreConfigConstants.maxUserNameListLength,"Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
         setProperty(UserStoreConfigConstants.maxRoleNameListLength,"Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
@@ -73,11 +75,17 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.passwordHashMethod,"Password Hashing Algorithm","PLAIN_TEXT",UserStoreConfigConstants.passwordHashMethodDescription);
         setProperty("ReplaceEscapeCharactersAtUserLogin","Enable Escape Characters at User Login","true","Whether replace escape character when user login");
 
+        setProperty("UniqueID", "","","");
+
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
-            String description) {
-        Property property = new Property(name, value, displayName + "#" + description, null);
+            String description, boolean encrypt) {
+        String propertyDescription = displayName + "#" + description;
+        if(encrypt){
+            propertyDescription += "#encrypt";
+        }
+        Property property = new Property(name, value, propertyDescription, null);
         ROLDAP_USERSTORE_PROPERTIES.add(property);
 
     }
