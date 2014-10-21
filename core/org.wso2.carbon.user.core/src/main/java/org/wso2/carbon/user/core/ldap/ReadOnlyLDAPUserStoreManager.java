@@ -441,21 +441,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         Map<String, String> values = new HashMap<String, String>();
-		String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-		String userNameProperty =
-		                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 		// if user name contains domain name, remove domain name
 		String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
 		if (userNames.length > 1) {
 			userName = userNames[1];
 		}
 
-        searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
 		DirContext dirContext = this.connectionSource.getContext();
-        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        String searchFilter = userSearchFilter.replace("?", userName);
+        	String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        	String searchFilter = userSearchFilter.replace("?", userName);
 
-        NamingEnumeration<?> answer = null;
+        	NamingEnumeration<?> answer = null;
 		NamingEnumeration<?> attrs = null;
 		try {
 			if(userDN != null){
@@ -1590,8 +1586,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
 				String userNameProperty =
 				                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-                String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-                String searchFilter = userSearchFilter.replace("?", userName);
+                		String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+                		String searchFilter = userSearchFilter.replace("?", userName);
 
 				String binaryAttribute =
 				                         realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
