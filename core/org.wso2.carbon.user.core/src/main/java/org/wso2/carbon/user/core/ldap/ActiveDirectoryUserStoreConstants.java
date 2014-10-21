@@ -29,25 +29,25 @@ public class ActiveDirectoryUserStoreConstants {
     public static final ArrayList<Property> OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
 
     static {
-        setMandatoryProperty(UserStoreConfigConstants.connectionName,"Connection Name","CN=,DC=",
+        setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "CN=,DC=",
                 UserStoreConfigConstants.connectionNameDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldaps://",
+        setMandatoryProperty(UserStoreConfigConstants.connectionURL, "Connection URL", "ldaps://",
                 UserStoreConfigConstants.connectionURLDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"Connection Password",
-                "",UserStoreConfigConstants.connectionPasswordDescription, true);
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Base",
-                "CN=Users,DC=WSO2,DC=Com",UserStoreConfigConstants.userSearchBaseDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.disabled,"Diabled","false",
-                UserStoreConfigConstants.disabledDescription,false);
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class",
+        setMandatoryProperty(UserStoreConfigConstants.connectionPassword, "Connection Password",
+                "", UserStoreConfigConstants.connectionPasswordDescription, true);
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
+                "CN=Users,DC=WSO2,DC=Com", UserStoreConfigConstants.userSearchBaseDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.disabled, "Diabled", "false",
+                UserStoreConfigConstants.disabledDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User Object Class",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute",
+        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute",
                 "cn", UserStoreConfigConstants.userNameAttributeDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter",
-                "(&amp;(objectClass=user)(cn=?))",UserStoreConfigConstants
+        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
+                "(&amp;(objectClass=user)(cn=?))", UserStoreConfigConstants
                         .usernameSearchFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userEntryObjectClass,
-                "User Entry Object Class","user",UserStoreConfigConstants
+                "User Entry Object Class", "user", UserStoreConfigConstants
                         .userEntryObjectClassDescription, false);
         setProperty(UserStoreConfigConstants.groupEntryObjectClass,"Group Entry Object Class","group",UserStoreConfigConstants.groupEntryObjectClassDescription);
 
