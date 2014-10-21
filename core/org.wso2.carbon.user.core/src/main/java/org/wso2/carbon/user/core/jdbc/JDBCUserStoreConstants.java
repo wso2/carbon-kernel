@@ -35,11 +35,11 @@ public class JDBCUserStoreConstants {
     	setMandatoryProperty(JDBCRealmConstants.DRIVER_NAME,"Driver Name", "",
                 "Full qualified driver name", false);
         setMandatoryProperty(JDBCRealmConstants.URL, "Connection URL", "",
-                "URL of the user store database", false);
+                "URL of the user store database",false);
         setMandatoryProperty(JDBCRealmConstants.USER_NAME, "Connection Name", "",
                 "Username for the database", false);
         setMandatoryProperty(JDBCRealmConstants.PASSWORD,"Connection Password", "",
-                "Password for the database", true);
+                "Password for the database",true);
 //        setMandatoryProperty(UserStoreConfigConstants.dataSource, "jdbc/WSO2CarbonDB", UserStoreConfigConstants.dataSourceDescription);
 
         setProperty(UserStoreConfigConstants.disabled,"Disabled", "false", UserStoreConfigConstants.disabledDescription);
