@@ -219,7 +219,6 @@
     -->
     <GhostDeployment>
         <Enabled>false</Enabled>
-        <PartialUpdate>false</PartialUpdate>
     </GhostDeployment>
 
     <!--
