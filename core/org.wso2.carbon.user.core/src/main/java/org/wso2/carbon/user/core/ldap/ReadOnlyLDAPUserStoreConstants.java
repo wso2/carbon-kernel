@@ -30,15 +30,23 @@ public class ReadOnlyLDAPUserStoreConstants {
     static {
         setMandatoryProperty(UserStoreConfigConstants.connectionName,"Connection Name","uid=," +
                 "ou=",UserStoreConfigConstants.connectionNameDescription,false);
-        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldap://",UserStoreConfigConstants.connectionURLDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldap://",
+                UserStoreConfigConstants.connectionURLDescription,false);
         setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"Connection Password",
                 "",UserStoreConfigConstants.connectionPasswordDescription, true);
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Base","ou=system",UserStoreConfigConstants.userSearchBaseDescription,false);
-        setMandatoryProperty(UserStoreConfigConstants.disabled,"Disabled","false",UserStoreConfigConstants.disabledDescription,false);
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class", "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription,false);
-        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute", "uid", UserStoreConfigConstants.userNameAttributeDescription,false);
-        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter","(&amp;(objectClass=person)(uid=?))",UserStoreConfigConstants.usernameSearchFilterDescription,false);
-        setMandatoryProperty("ReadOnly","Read-only","true","Indicates whether the user store is in read only mode or not",false);
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Base","ou=system",
+                UserStoreConfigConstants.userSearchBaseDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.disabled,"Disabled","false",
+                UserStoreConfigConstants.disabledDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class",
+                "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute", "uid",
+                UserStoreConfigConstants.userNameAttributeDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter",
+                "(&amp;(objectClass=person)(uid=?))",
+                UserStoreConfigConstants.usernameSearchFilterDescription,false);
+        setMandatoryProperty("ReadOnly","Read-only","true","Indicates whether the user store is in " +
+                "read only mode or not",false);
 
         setProperty(UserStoreConfigConstants.maxUserNameListLength,"Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
         setProperty(UserStoreConfigConstants.maxRoleNameListLength,"Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
