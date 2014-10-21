@@ -428,10 +428,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		}
 
 		DirContext dirContext = this.connectionSource.getContext();
-        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        String searchFilter = userSearchFilter.replace("?", userName);
+        	String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        	String searchFilter = userSearchFilter.replace("?", userName);
 
-        NamingEnumeration<?> answer = null;
+        	NamingEnumeration<?> answer = null;
 		NamingEnumeration<?> attrs = null;
 		try {
 			answer = this.searchForUser(searchFilter, propertyNames, dirContext);
@@ -1537,8 +1537,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
 				String userNameProperty =
 				                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-                String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-                String searchFilter = userSearchFilter.replace("?", userName);
+                		String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+                		String searchFilter = userSearchFilter.replace("?", userName);
 
 				String binaryAttribute =
 				                         realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);

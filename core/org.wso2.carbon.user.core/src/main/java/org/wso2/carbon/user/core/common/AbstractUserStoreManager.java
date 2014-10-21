@@ -85,7 +85,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	protected static final String TRUE_VALUE = "true";
 	protected static final String FALSE_VALUE = "false";
 
-    private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
+        private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
 
 	/**
 	 * This method is used by the support system to read properties
@@ -259,17 +259,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	 * @return
 	 * @throws UserStoreException
 	 */
-	protected String[] doGetInternalRoleListOfUser(String userName, String filter) throws UserStoreException {
-        if(Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))){
-            String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-            if(userNameAttribute != null && userNameAttribute.trim().length() > 0) {
-                Map<String, String> map = getUserPropertyValues(userName, new String[]{userNameAttribute}, null);
-                userName = map.get(userNameAttribute);
+        protected String[] doGetInternalRoleListOfUser(String userName, String filter) throws UserStoreException {
+            if(Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))){
+                String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+                if(userNameAttribute != null && userNameAttribute.trim().length() > 0) {
+                    Map<String, String> map = getUserPropertyValues(userName, new String[]{userNameAttribute}, null);
+                    userName = map.get(userNameAttribute);
+                }
             }
+            log.debug("Retrieving internals roles for user name :  " + userName + " and search filter " + filter);
+            return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
         }
-        log.debug("Retrieving internals roles for user name :  " + userName + " and search filter " + filter);
-        return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
-	}
 
 	/**
 	 * Only gets the external roles of the user.
