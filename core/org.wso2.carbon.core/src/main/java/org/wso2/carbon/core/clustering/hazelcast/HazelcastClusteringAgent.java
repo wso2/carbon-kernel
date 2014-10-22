@@ -128,6 +128,9 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         String localMemberHost = "";
         if (localMemberHostParam != null) {
             localMemberHost = ((String) localMemberHostParam.getValue()).trim();
+            log.warn("localMemberHost is configured to use the loopback address. " +
+                    "Hazelcast Clustering needs ip addresses for localMemberHost and well-known members.");
+
         } else {
             try {
                 localMemberHost = Utils.getIpAddress();
@@ -241,7 +244,9 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                     }
 
                 } catch (HazelcastInstanceNotActiveException e) {
-                    if (!ServerStatus.STATUS_SHUTTING_DOWN.equals(ServerStatus.getCurrentStatus())) {
+                    String serverStatus = ServerStatus.getCurrentStatus();
+                    if ( !(ServerStatus.STATUS_SHUTTING_DOWN.equals(serverStatus) ||
+                            ServerStatus.STATUS_RESTARTING.equals(serverStatus)) ) {
                         log.error("Could not acquire Hazelcast coordinator lock", e);
                     }
                     // Ignoring this exception if the server is shutting down.
