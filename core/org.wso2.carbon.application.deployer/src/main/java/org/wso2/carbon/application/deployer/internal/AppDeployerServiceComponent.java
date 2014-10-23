@@ -28,7 +28,6 @@ import org.apache.axis2.engine.ListenerManager;
 import org.apache.axis2.AxisFault;
 import org.osgi.framework.*;
 import org.osgi.service.component.ComponentContext;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.application.deployer.*;
 import org.wso2.carbon.application.deployer.handler.AppDeploymentHandler;
 import org.wso2.carbon.application.deployer.handler.DefaultAppDeployer;
@@ -42,6 +41,7 @@ import org.wso2.carbon.utils.ConfigurationContextService;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.String;
 import java.net.URL;
 import java.util.*;
 
@@ -70,6 +70,8 @@ public class AppDeployerServiceComponent implements ServiceListener {
 
     private static final Log log = LogFactory.getLog(AppDeployerServiceComponent.class);
     private Timer pendingServicesObservationTimer = new Timer();
+
+    private static final String CAPP_MANGER_INIT_REQUIRED_SERVICE = "CAPP_MANAGER-RequiredServices";
 
     protected void activate(ComponentContext ctxt) {
 
@@ -206,7 +208,7 @@ public class AppDeployerServiceComponent implements ServiceListener {
         for (Bundle bundle : bundles) {
             String requiredServiceList =
                     (String) bundle.getHeaders().
-                            get(CarbonConstants.CarbonManifestHeaders.CAPP_MANGER_INIT_REQUIRED_SERVICE );
+                            get(CAPP_MANGER_INIT_REQUIRED_SERVICE );
             if (requiredServiceList != null) {
                 String[] values = requiredServiceList.split(",");
                 for (String value : values) {
