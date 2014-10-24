@@ -587,7 +587,7 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
 
     @Override
     public void loadServices() {
-        //We don't deploy any artifacts at this time, DeploymentAxis2ConfigurationContextObserver will take care about
+        //We don't deploy any artifacts at this time, TenantAxisUtils will take care of
         //deployment in later stage of server startup (Refer CARBON-14977 ).
 
     }
