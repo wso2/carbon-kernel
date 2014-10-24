@@ -152,6 +152,7 @@ public class CarbonAppPersistenceManager {
                 }
             }
 
+            if (configRegistry.resourceExists(AppDeployerConstants.REG_PATH_MAPPING + registryConfig.getAppName())) {
             Resource pathMappingResource = configRegistry.
                     get(AppDeployerConstants.REG_PATH_MAPPING + registryConfig.getAppName());
             OMElement pathMappingElement = AXIOMUtil.stringToOM(new String((byte[])pathMappingResource.getContent()));
@@ -183,6 +184,7 @@ public class CarbonAppPersistenceManager {
                     if (AppDeployerConstants.REG_GAR_MEDIATYPE.equals(mediaType)) {
                         String garName = fileName.substring(0, fileName.lastIndexOf("."));
                         String garMappingResourcePath = AppDeployerConstants.REG_GAR_PATH_MAPPING + garName;
+                    if (configRegistry.resourceExists(garMappingResourcePath)) {
                         Resource garMappingResource = configRegistry.get(garMappingResourcePath);
                         OMElement garMappingElement = AXIOMUtil.
                                 stringToOM(new String((byte[]) garMappingResource.getContent()));
@@ -198,7 +200,9 @@ public class CarbonAppPersistenceManager {
                         }
                         configRegistry.delete(garMappingResourcePath);
                     }
+                    }
                 }
+            }
             }
             // remove associations
             List<RegistryConfig.Association> associations = registryConfig.getAssociations();
