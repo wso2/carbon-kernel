@@ -45,6 +45,11 @@ import java.io.IOException;
 public class CarbonContextCreatorValve extends ValveBase {
     private static Log log = LogFactory.getLog(CarbonContextCreatorValve.class);
 
+    public CarbonContextCreatorValve() {
+        //enable async support
+        super(true);
+    }
+
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
