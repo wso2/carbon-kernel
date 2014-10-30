@@ -1192,6 +1192,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			}
 		}
 		// #################### </Listeners> #####################################################
+		
+		try {
+			roleList = UserCoreUtil
+					.combine(doGetInternalRoleListOfUser(userName, "*"), Arrays.asList(roleList));
+			addToUserRolesCache(tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
+			                    roleList);
+		} catch (Exception e) {
+			//ignore
+		}
 	}
 
 	/**
