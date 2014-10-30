@@ -22,7 +22,6 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.logging.LoggingUtils;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 
@@ -54,7 +53,7 @@ public class CarbonConsoleAppender extends ConsoleAppender implements LoggingBri
 
         int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
             public Integer run() {
-                return PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+                return CarbonContext.getThreadLocalCarbonContext().getTenantId();
             }
         });
 

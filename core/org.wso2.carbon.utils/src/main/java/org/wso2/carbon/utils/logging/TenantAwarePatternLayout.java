@@ -21,7 +21,6 @@ import org.apache.log4j.helpers.PatternParser;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.net.InetAddress;
@@ -230,7 +229,7 @@ public class TenantAwarePatternLayout extends PatternLayout {
                 } else {
                     int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
                         public Integer run() {
-                            return PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+                            return CarbonContext.getThreadLocalCarbonContext().getTenantId();
                         }
                     });
                     if (tenantId !=
@@ -354,7 +353,7 @@ public class TenantAwarePatternLayout extends PatternLayout {
             public String getFullyQualifiedName(LoggingEvent event) {
                 int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
                     public Integer run() {
-                        return PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantId();
+                        return CarbonContext.getThreadLocalCarbonContext().getTenantId();
                     }
                 });
                 if (tenantId !=
