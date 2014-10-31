@@ -19,6 +19,14 @@
 package org.wso2.carbon.context;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.util.tracker.ServiceTracker;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.context.internal.CarbonContextDataHolder;
 import org.wso2.carbon.context.internal.OSGiDataHolder;
@@ -26,16 +34,21 @@ import org.wso2.carbon.queuing.CarbonQueue;
 import org.wso2.carbon.queuing.CarbonQueueManager;
 import org.wso2.carbon.registry.api.Registry;
 import org.wso2.carbon.user.api.UserRealm;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Hashtable;
+import java.util.*;
 
 /**
  * This provides the API for sub-tenant programming around
@@ -45,15 +58,44 @@ import java.util.Hashtable;
  */
 public class CarbonContext {
 
+    private static final Log log = LogFactory.getLog(CarbonContext.class);
     // The reason to why we decided to have a CarbonContext and a CarbonContextHolder is to address
     // the potential build issues due to cyclic dependencies. Therefore, any bundle that can access
     // the CarbonContext can also access the CarbonContext holder. But, there are some low-level
     // bundles that can only access the CarbonContext holder. The CarbonContext provides a much
     // cleaner and easy to use API around the CarbonContext holder.
 
+    private static List<String> allowedOSGiServices = new ArrayList<String>();
     private CarbonContextDataHolder carbonContextHolder = null;
     private static OSGiDataHolder dataHolder = OSGiDataHolder.getInstance();
+    private static final String OSGI_SERVICES_PROPERTIES_FILE = "carboncontext-osgi-services.properties";
 
+    static {
+        FileInputStream fileInputStream = null;
+        String osgiServicesFilename = getOSGiServicesConfigFilePath();
+        try {
+            Properties osgiServices = new Properties();
+            File configFile = new File(osgiServicesFilename);
+            if (configFile.exists()) { // this is an optional file
+                fileInputStream = new FileInputStream(configFile);
+                osgiServices.load(fileInputStream);
+                Set<String> propNames = osgiServices.stringPropertyNames();
+                for (String propName : propNames) {
+                    allowedOSGiServices.add(osgiServices.getProperty(propName));
+                }
+            }
+        } catch (IOException e) {
+            log.fatal("Cannot load " + osgiServicesFilename, e);
+        } finally {
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    log.warn("Could not close FileInputStream of file " + osgiServicesFilename, e);
+                }
+            }
+        }
+    }
     /**
      * Creates a CarbonContext using the given CarbonContext holder as its backing instance.
      *
@@ -242,6 +284,132 @@ public class CarbonContext {
             // be responsible of reporting any errors.
             return new String[0];
         }
+    }
+
+    /**
+     * Obtain the first OSGi service found for interface or class <code>clazz</code>
+     * @param clazz The type of the OSGi service
+     * @return The OSGi service
+     * @deprecated please use {@link #getOSGiService(Class, java.util.Hashtable)} instead
+     */
+    @Deprecated
+    public Object getOSGiService(Class clazz) {
+        return getOSGiService(clazz,null);
+    }
+
+    /**
+     * Obtain the OSGi services found for interface or class <code>clazz</code>
+     * @param clazz The type of the OSGi service
+     * @return The List of OSGi services
+     * @deprecated please use {@link #getOSGiServices(Class, java.util.Hashtable)} instead
+     */
+    @Deprecated
+    public List<Object> getOSGiServices(Class clazz) {
+        return getOSGiServices(clazz,null);
+    }
+
+    /**
+     * Obtain the first OSGi service found for interface or class <code>clazz</code>  and props
+     *
+     * @param props attribute list that filter the service
+     * @param clazz The type of the OSGi service
+     * @return The OSGi service
+     */
+    public Object getOSGiService(Class clazz, Hashtable<String, String> props) {
+        final Class osgiServiceClass = clazz;
+        final Hashtable<String, String> properties = props;
+        if (allowedOSGiServices.contains(clazz.getName())) {
+
+            return AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                @Override
+                public Object run() {
+                    ServiceTracker serviceTracker = null;
+                    try {
+                        BundleContext bundleContext = dataHolder.getBundleContext();
+                        Filter osgiFilter = createFilter(bundleContext, osgiServiceClass, properties);
+                        serviceTracker = new ServiceTracker(bundleContext, osgiFilter, null);
+                        serviceTracker.open();
+                        return serviceTracker.getServices()[0];
+                    } catch (InvalidSyntaxException e) {
+                        log.error("Error creating osgi filter from properties");
+                        e.printStackTrace();
+                    } finally {
+                        if (serviceTracker != null) {
+                            serviceTracker.close();
+                        }
+                    }
+                    return null;
+                }
+            });
+
+        }
+        return null;
+    }
+
+    /**
+     * Obtain the OSGi services found for interface or class <code>clazz</code> and props
+     *
+     * @param props attribute list that filter the service list
+     * @param clazz The type of the OSGi service
+     * @return The List of OSGi services
+     */
+    public List<Object> getOSGiServices(Class clazz, Hashtable<String, String> props) {
+        final Class osgiServiceClass = clazz;
+        final Hashtable<String, String> properties = props;
+        if (allowedOSGiServices.contains(clazz.getName())) {
+
+            return AccessController.doPrivileged(new PrivilegedAction<List<Object>>() {
+                @Override
+                public List<Object> run() {
+                    ServiceTracker serviceTracker = null;
+                    List<Object> services = new ArrayList<Object>();
+                    try {
+                        BundleContext bundleContext = dataHolder.getBundleContext();
+                        Filter osgiFilter = createFilter(bundleContext, osgiServiceClass, properties);
+                        serviceTracker = new ServiceTracker(bundleContext, osgiFilter, null);
+                        serviceTracker.open();
+                        Collections.addAll(services, serviceTracker.getServices());
+                    } catch (InvalidSyntaxException e) {
+                        log.error("Error creating osgi filter from properties");
+                        e.printStackTrace();
+                    } finally {
+                        if (serviceTracker != null) {
+                            serviceTracker.close();
+                        }
+                    }
+                    return services;
+                }
+            });
+        }
+        return new ArrayList<Object>();
+    }
+
+    private static String getOSGiServicesConfigFilePath() {
+        String etcDir = CarbonUtils.getEtcCarbonConfigDirPath();
+        return etcDir + File.separator + OSGI_SERVICES_PROPERTIES_FILE;
+    }
+
+    /**
+     * Create filter from the bundle context adding class name and properties
+     *
+     * @param bundleContext BundleContext
+     * @param clazz The type of the OSGi service
+     * @param props attribute list that filter the service list
+     * @return Filter
+     * @throws InvalidSyntaxException
+     */
+    protected Filter createFilter(BundleContext bundleContext, Class clazz, Hashtable<String, String> props)
+            throws InvalidSyntaxException {
+        StringBuilder buf = new StringBuilder();
+        buf.append("(objectClass=" + clazz.getName() + ")");
+        if (props != null && !props.isEmpty()) {
+            buf.insert(0, "(&");
+            for (Map.Entry< String, String > entry : props.entrySet()) {
+                buf.append("(" + entry.getKey() + "=" + entry.getValue() + ")");
+            }
+            buf.append(")");
+        }
+        return bundleContext.createFilter(buf.toString());
     }
 
     public String getApplicationName() {
