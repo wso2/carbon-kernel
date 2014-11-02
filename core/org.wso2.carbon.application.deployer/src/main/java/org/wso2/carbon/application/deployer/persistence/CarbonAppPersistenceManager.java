@@ -152,51 +152,55 @@ public class CarbonAppPersistenceManager {
                 }
             }
 
-            Resource pathMappingResource = configRegistry.
-                    get(AppDeployerConstants.REG_PATH_MAPPING + registryConfig.getAppName());
-            OMElement pathMappingElement = AXIOMUtil.stringToOM(new String((byte[])pathMappingResource.getContent()));
+            if (configRegistry.resourceExists(AppDeployerConstants.REG_PATH_MAPPING + registryConfig.getAppName())) {
+                Resource pathMappingResource = configRegistry.
+                        get(AppDeployerConstants.REG_PATH_MAPPING + registryConfig.getAppName());
+                OMElement pathMappingElement = AXIOMUtil.stringToOM(new String((byte[])pathMappingResource.getContent()));
 
-            // remove resources
-            List<RegistryConfig.Resourse> resources = registryConfig.getResources();
-            for (RegistryConfig.Resourse res : resources) {
-                String fileName = res.getFileName();
-                Registry reg  = getRegistryInstance(res.getRegistryType());
-                String resourcePath = AppDeployerUtils.computeResourcePath(res.getPath(), fileName);
-                AXIOMXPath axiomxPath = new AXIOMXPath("//resource[@path='" + resourcePath + "']");
-                OMElement resourceElement = (OMElement) axiomxPath.selectSingleNode(pathMappingElement);
-                String actualResourcePath;
-                if (resourceElement != null) {
-                    OMElement targetElement = resourceElement.getFirstChildWithName(
-                            new QName(AppDeployerConstants.REG_PATH_MAPPING_RESOURCE_TARGET));
-                    actualResourcePath = targetElement.getText();
-                } else {
-                    actualResourcePath = resourcePath;
-                }
-
-                if (reg != null && reg.resourceExists(actualResourcePath)) {
-                    reg.delete(actualResourcePath);
-                } else {
-                    String mediaType = res.getMediaType();
-                    if (mediaType == null) {
-                        mediaType = MediaTypesUtils.getMediaType(fileName);
+                // remove resources
+                List<RegistryConfig.Resourse> resources = registryConfig.getResources();
+                for (RegistryConfig.Resourse res : resources) {
+                    String fileName = res.getFileName();
+                    Registry reg = getRegistryInstance(res.getRegistryType());
+                    String resourcePath = AppDeployerUtils.computeResourcePath(res.getPath(), fileName);
+                    AXIOMXPath axiomxPath = new AXIOMXPath("//resource[@path='" + resourcePath + "']");
+                    OMElement resourceElement = (OMElement) axiomxPath.selectSingleNode(pathMappingElement);
+                    String actualResourcePath;
+                    if (resourceElement != null) {
+                        OMElement targetElement = resourceElement.getFirstChildWithName(
+                                new QName(AppDeployerConstants.REG_PATH_MAPPING_RESOURCE_TARGET));
+                        actualResourcePath = targetElement.getText();
+                    } else {
+                        actualResourcePath = resourcePath;
                     }
-                    if (AppDeployerConstants.REG_GAR_MEDIATYPE.equals(mediaType)) {
-                        String garName = fileName.substring(0, fileName.lastIndexOf("."));
-                        String garMappingResourcePath = AppDeployerConstants.REG_GAR_PATH_MAPPING + garName;
-                        Resource garMappingResource = configRegistry.get(garMappingResourcePath);
-                        OMElement garMappingElement = AXIOMUtil.
-                                stringToOM(new String((byte[]) garMappingResource.getContent()));
-                        axiomxPath = new AXIOMXPath("//gar[@path='" + resourcePath + "']");
-                        OMElement garElement = (OMElement) axiomxPath.selectSingleNode(garMappingElement);
-                        Iterator<OMElement> garTargetElements =  garElement.
-                                getChildrenWithLocalName(AppDeployerConstants.REG_GAR_PATH_MAPPING_RESOURCE_TARGET);
-                        while (garTargetElements.hasNext()) {
-                            String targetPath = garTargetElements.next().getText();
-                            if (reg.resourceExists(targetPath)) {
-                                reg.delete(targetPath);
+
+                    if (reg != null && reg.resourceExists(actualResourcePath)) {
+                        reg.delete(actualResourcePath);
+                    } else {
+                        String mediaType = res.getMediaType();
+                        if (mediaType == null) {
+                            mediaType = MediaTypesUtils.getMediaType(fileName);
+                        }
+                        if (AppDeployerConstants.REG_GAR_MEDIATYPE.equals(mediaType)) {
+                            String garName = fileName.substring(0, fileName.lastIndexOf("."));
+                            String garMappingResourcePath = AppDeployerConstants.REG_GAR_PATH_MAPPING + garName;
+                            if (configRegistry.resourceExists(garMappingResourcePath)) {
+                                Resource garMappingResource = configRegistry.get(garMappingResourcePath);
+                                OMElement garMappingElement = AXIOMUtil.
+                                        stringToOM(new String((byte[]) garMappingResource.getContent()));
+                                axiomxPath = new AXIOMXPath("//gar[@path='" + resourcePath + "']");
+                                OMElement garElement = (OMElement) axiomxPath.selectSingleNode(garMappingElement);
+                                Iterator<OMElement> garTargetElements = garElement.
+                                        getChildrenWithLocalName(AppDeployerConstants.REG_GAR_PATH_MAPPING_RESOURCE_TARGET);
+                                while (garTargetElements.hasNext()) {
+                                    String targetPath = garTargetElements.next().getText();
+                                    if (reg.resourceExists(targetPath)) {
+                                        reg.delete(targetPath);
+                                    }
+                                }
+                                configRegistry.delete(garMappingResourcePath);
                             }
                         }
-                        configRegistry.delete(garMappingResourcePath);
                     }
                 }
             }

@@ -352,6 +352,9 @@ public final class TenantAxisUtils {
                 // Register Capp deployer for this tenant
                 Utils.addCAppDeployer(tenantAxisConfig);
 
+                //deploy the services since all the deployers are initialized by now.
+                tenantAxisConfigurator.deployServices();
+
                 log.info("Loaded tenant " + tenantDomain + " in " +
                          (System.currentTimeMillis() - tenantLoadingStartTime) + " ms");
                 return tenantConfigCtx;
