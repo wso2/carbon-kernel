@@ -79,16 +79,7 @@ public class SystemValidator extends ConfigurationValidator {
         return validationResults;
     }
 
-    protected ValidationResult validateConfiguration(String parameterName) throws
-                                                                           MalformedObjectNameException,
-                                                                           AttributeNotFoundException,
-                                                                           InstanceNotFoundException,
-                                                                           MBeanException,
-                                                                           ReflectionException,
-                                                                           CertificateException,
-                                                                           NoSuchAlgorithmException,
-                                                                           KeyStoreException,
-                                                                           IOException {
+    protected ValidationResult validateConfiguration(String parameterName) throws Exception {
         ValidationResult result;
         if (CPU_PARAM.equals(parameterName)) {
             String recommendedCpu = getRecommendedConfigurations().get(parameterName);
@@ -369,30 +360,29 @@ public class SystemValidator extends ConfigurationValidator {
      * @throws InstanceNotFoundException
      * @throws AttributeNotFoundException
      */
-    private long getOpenFilesLimit() throws MalformedObjectNameException,
-                                            AttributeNotFoundException, InstanceNotFoundException,
-                                            MBeanException, ReflectionException {
+    private long getOpenFilesLimit() throws Exception {
         ObjectName osBean = new ObjectName(ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME);
         Long maxFDValue = null;
-        if(IBM_J9_VM.equals(System.getProperty("java.vm.name"))){
-            BufferedReader output;
+        if (IBM_J9_VM.equals(System.getProperty("java.vm.name"))) {
+            BufferedReader output = null;
             try {
-                Process p = Runtime.getRuntime().exec(new String[] { "bash", "-c", "ulimit -n" });
+                Process p = Runtime.getRuntime().exec(new String[]{"bash", "-c", "ulimit -n"});
                 InputStream in = p.getInputStream();
                 output = new BufferedReader(new InputStreamReader(in));
-                try{
-                    String maxFileDesCount;
-                    if ((maxFileDesCount = output.readLine()) != null) {
-                        maxFDValue = Long.parseLong(maxFileDesCount);
-                    }
-                } finally {
-                    if (output != null) {
+                String maxFileDesCount;
+                if ((maxFileDesCount = output.readLine()) != null) {
+                    maxFDValue = Long.parseLong(maxFileDesCount);
+                }
+            } catch (IOException exception) {
+                log.warn("Could not get the maximum file descriptor count ", exception);
+            } finally {
+                if (output != null) {
+                    try {
                         output.close();
+                    } catch (IOException e) {
+                        log.error("Error closing buffer reader ", e);
                     }
                 }
-
-            }catch (IOException exception){
-                log.warn("Could not get the maximum file descriptor count ",exception);
             }
         } else {
             maxFDValue = (Long) mBeanServer.getAttribute(osBean, "MaxFileDescriptorCount");
