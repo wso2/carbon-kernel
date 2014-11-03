@@ -1199,7 +1199,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			addToUserRolesCache(tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
 			                    roleList);
 		} catch (Exception e) {
-			//ignore
+			//if adding newly created user's roles to the user roles cache fails, do nothing. It will read 
+			//from the database upon updating user.
 		}
 	}
 
