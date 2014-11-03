@@ -75,7 +75,12 @@ public class GhostDeployerRegistry implements BundleListener {
             register(bundle);
         }
         for (DeployerConfig deployerConfig : deployerConfigs) {
-            Deployer deployer = getDeployer(deployerConfig.getClassStr());
+            Deployer deployer = null;
+            try {
+                deployer = CarbonUtils.getDeployer(deployerConfig.getClassStr());
+            } catch (Exception e) {
+                log.error("Error reading deployer from deployer condfigs",e);
+            }
             addDeployer(deployerConfig, deployer);
         }
         /**
@@ -147,22 +152,6 @@ public class GhostDeployerRegistry implements BundleListener {
         // Add the proper deployer into the Ghost deployer
         ghostDeployer.addDeployer(deployer, directory, extension);
 
-    }
-
-    private Deployer getDeployer(String className) {
-        Deployer deployer = null;
-        try {
-            Class deployerClass = Class.forName(className);
-            deployer = (Deployer) deployerClass.newInstance();
-
-        } catch (ClassNotFoundException e) {
-            log.error("Deployer class not found ", e);
-        } catch (InstantiationException e) {
-            log.error("Cannot create new deployer instance", e);
-        } catch (IllegalAccessException e) {
-            log.error("Error creating deployer", e);
-        }
-        return deployer;
     }
 
     /**
