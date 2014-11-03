@@ -79,6 +79,9 @@ public class GhostDeployerRegistry implements BundleListener {
             try {
                 deployer = CarbonUtils.getDeployer(deployerConfig.getClassStr());
             } catch (Exception e) {
+                //logging error and continue
+                //Exceptions in here, are due to issues with reading deployers
+                //they will handled by CarbonUtils hence continue.
                 log.error("Error reading deployer from deployer condfigs",e);
             }
             addDeployer(deployerConfig, deployer);
