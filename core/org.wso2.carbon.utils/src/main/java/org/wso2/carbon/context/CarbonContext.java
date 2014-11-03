@@ -305,7 +305,7 @@ public class CarbonContext {
      */
     @Deprecated
     public List<Object> getOSGiServices(Class clazz) {
-        return getOSGiServices(clazz,null);
+        return getOSGiServices(clazz, null);
     }
 
     /**
@@ -342,8 +342,10 @@ public class CarbonContext {
                 }
             });
 
+        } else {
+            throw new SecurityException("OSGi service " + clazz.getName() +
+                    " cannot be accessed via CarbonContext");
         }
-        return null;
     }
 
     /**
@@ -380,6 +382,9 @@ public class CarbonContext {
                     return services;
                 }
             });
+        } else {
+            new SecurityException("OSGi service " + clazz.getName() +
+                    " cannot be accessed via CarbonContext");
         }
         return new ArrayList<Object>();
     }
