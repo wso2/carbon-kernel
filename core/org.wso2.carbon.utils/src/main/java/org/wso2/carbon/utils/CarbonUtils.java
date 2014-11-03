@@ -1217,15 +1217,12 @@ public class CarbonUtils {
 
         } catch (ClassNotFoundException e) {
             String msg = "Deployer class not found ";
-            log.error(msg, e);
             throw new Exception(msg, e);
         } catch (InstantiationException e) {
             String msg = "Cannot create new deployer instance";
-            log.error(msg, e);
             throw new Exception(msg, e);
         } catch (IllegalAccessException e) {
             String msg = "Error creating deployer";
-            log.error(msg, e);
             throw new Exception(msg, e);
         }
         return deployer;
