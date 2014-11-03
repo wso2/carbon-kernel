@@ -362,7 +362,7 @@ public class SystemValidator extends ConfigurationValidator {
      */
     private long getOpenFilesLimit() throws Exception {
         ObjectName osBean = new ObjectName(ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME);
-        Long maxFDValue = null;
+        long maxFDValue = 0;
         if (IBM_J9_VM.equals(System.getProperty("java.vm.name"))) {
             BufferedReader output = null;
             try {
@@ -381,6 +381,7 @@ public class SystemValidator extends ConfigurationValidator {
                         output.close();
                     } catch (IOException e) {
                         log.error("Error closing buffer reader ", e);
+
                     }
                 }
             }
