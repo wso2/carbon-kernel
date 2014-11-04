@@ -85,7 +85,7 @@ public class CarbonContext {
                 }
             }
         } catch (IOException e) {
-            log.fatal("Cannot load " + osgiServicesFilename, e);
+            log.error("Cannot load " + osgiServicesFilename, e);
         } finally {
             if (fileInputStream != null) {
                 try {
@@ -331,8 +331,7 @@ public class CarbonContext {
                         serviceTracker.open();
                         return serviceTracker.getServices()[0];
                     } catch (InvalidSyntaxException e) {
-                        log.error("Error creating osgi filter from properties");
-                        e.printStackTrace();
+                        log.error("Error creating osgi filter from properties", e);
                     } finally {
                         if (serviceTracker != null) {
                             serviceTracker.close();
@@ -372,8 +371,7 @@ public class CarbonContext {
                         serviceTracker.open();
                         Collections.addAll(services, serviceTracker.getServices());
                     } catch (InvalidSyntaxException e) {
-                        log.error("Error creating osgi filter from properties");
-                        e.printStackTrace();
+                        log.error("Error creating osgi filter from properties", e);
                     } finally {
                         if (serviceTracker != null) {
                             serviceTracker.close();
