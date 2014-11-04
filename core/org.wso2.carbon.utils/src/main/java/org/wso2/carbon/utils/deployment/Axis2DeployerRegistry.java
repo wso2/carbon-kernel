@@ -57,16 +57,15 @@ public class Axis2DeployerRegistry implements BundleListener {
             register(bundle);
         }
         for (DeployerConfig deployerConfig : deployerConfigs) {
-            Deployer deployer = null;
             try {
-                deployer = CarbonUtils.getDeployer(deployerConfig.getClassStr());
+                Deployer deployer = CarbonUtils.getDeployer(deployerConfig.getClassStr());
+                addDeployer(deployerConfig, deployer);
             } catch (Exception e) {
                 //logging error and continue
                 //Exceptions in here, are due to issues with reading deployers
                 //they will handled by CarbonUtils hence continue.
-                log.error("Error reading deployer from deployer condfigs",e);
+                log.error("Error reading deployer from deployer condfigs", e);
             }
-            addDeployer(deployerConfig, deployer);
         }
     }
 
