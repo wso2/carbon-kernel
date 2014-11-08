@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
+import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.component.xml.Component;
 import org.wso2.carbon.utils.component.xml.ComponentConfigFactory;
 import org.wso2.carbon.utils.component.xml.ComponentConstants;
@@ -56,8 +57,15 @@ public class Axis2DeployerRegistry implements BundleListener {
             register(bundle);
         }
         for (DeployerConfig deployerConfig : deployerConfigs) {
-            Deployer deployer = getDeployer(deployerConfig.getClassStr());
-            addDeployer(deployerConfig, deployer);
+            try {
+                Deployer deployer = CarbonUtils.getDeployer(deployerConfig.getClassStr());
+                addDeployer(deployerConfig, deployer);
+            } catch (Exception e) {
+                //logging error and continue
+                //Exceptions in here, are due to issues with reading deployers
+                //they will handled by CarbonUtils hence continue.
+                log.error("Error reading deployer from deployer condfigs", e);
+            }
         }
     }
 
@@ -119,22 +127,6 @@ public class Axis2DeployerRegistry implements BundleListener {
         //Add the deployer to deployment engine
         deploymentEngine.addDeployer(deployer, directory, extension);
 
-    }
-
-    private Deployer getDeployer(String className) {
-        Deployer deployer = null;
-        try {
-            Class deployerClass = Class.forName(className);
-            deployer = (Deployer) deployerClass.newInstance();
-
-        } catch (ClassNotFoundException e) {
-            log.error("Deployer class not found ", e);
-        } catch (InstantiationException e) {
-            log.error("Cannot create new deployer instance", e);
-        } catch (IllegalAccessException e) {
-            log.error("Error creating deployer", e);
-        }
-        return deployer;
     }
 
     public void unRegister(Bundle bundle) {

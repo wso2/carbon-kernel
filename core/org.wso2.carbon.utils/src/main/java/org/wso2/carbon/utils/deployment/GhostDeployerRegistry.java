@@ -75,8 +75,15 @@ public class GhostDeployerRegistry implements BundleListener {
             register(bundle);
         }
         for (DeployerConfig deployerConfig : deployerConfigs) {
-            Deployer deployer = getDeployer(deployerConfig.getClassStr());
-            addDeployer(deployerConfig, deployer);
+            try {
+                Deployer deployer = CarbonUtils.getDeployer(deployerConfig.getClassStr());
+                addDeployer(deployerConfig, deployer);
+            } catch (Exception e) {
+                //logging error and continue
+                //Exceptions in here, are due to issues with reading deployers
+                //they will handled by CarbonUtils hence continue.
+                log.error("Error reading deployer from deployer condfigs", e);
+            }
         }
         /**
          * Axis2 DeploymentEngine has made the AAR deployer a special case by hardcoding it.
@@ -147,22 +154,6 @@ public class GhostDeployerRegistry implements BundleListener {
         // Add the proper deployer into the Ghost deployer
         ghostDeployer.addDeployer(deployer, directory, extension);
 
-    }
-
-    private Deployer getDeployer(String className) {
-        Deployer deployer = null;
-        try {
-            Class deployerClass = Class.forName(className);
-            deployer = (Deployer) deployerClass.newInstance();
-
-        } catch (ClassNotFoundException e) {
-            log.error("Deployer class not found ", e);
-        } catch (InstantiationException e) {
-            log.error("Cannot create new deployer instance", e);
-        } catch (IllegalAccessException e) {
-            log.error("Error creating deployer", e);
-        }
-        return deployer;
     }
 
     /**
