@@ -212,14 +212,14 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             }
         }
         List<DeployerConfig> deployerConfigs = readDeployerConfigs(axis2DeployerProviderList);
-        // Adding deployers from vhosts and deployers which come inside bundles
         if (GhostDeployerUtils.isGhostOn()) {
-            new GhostDeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles(),
-                    deployerConfigs);
-        } else {
-            new Axis2DeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles(),
-                    deployerConfigs);
+            GhostArtifactRegistry ghostRegistry = new GhostArtifactRegistry(axisConfig);
+            GhostDeployerUtils.setGhostArtifactRegistry(ghostRegistry, axisConfig);
         }
+
+        // Adding deployers from vhosts and deployers which come inside bundles
+        new Axis2DeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles(),
+                    deployerConfigs);
 
         //Deploying modules which come inside bundles.
         Axis2ModuleRegistry moduleRegistry = new Axis2ModuleRegistry(axisConfig);

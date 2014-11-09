@@ -22,8 +22,6 @@ import org.apache.axis2.engine.AxisConfiguration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
-import org.wso2.carbon.utils.deployment.GhostDeployer;
-import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 
 public class DeployerServiceProcessor extends ConfigurationServiceProcessor {
 
@@ -38,20 +36,9 @@ public class DeployerServiceProcessor extends ConfigurationServiceProcessor {
             String directory = (String) sr.getProperty(DeploymentConstants.DIRECTORY);
             String extension = (String) sr.getProperty(DeploymentConstants.EXTENSION);
 
-            // Get GhostDeployer
-            GhostDeployer ghostDeployer = GhostDeployerUtils.getGhostDeployer(axisConfig);
-
             if (action == ServiceEvent.REGISTERED || action == ServiceEvent.MODIFIED) {
-                if (ghostDeployer == null) {
                     deploymentEngine.addDeployer(deployer, directory, extension);
-                } else {
-                    deploymentEngine.addDeployer(ghostDeployer, directory, extension);
-                    ghostDeployer.addDeployer(deployer, directory, extension);
-                }
             } else if (action == ServiceEvent.UNREGISTERING) {
-                if (ghostDeployer != null) {
-                    ghostDeployer.removeDeployer(directory, extension);
-                }
                 deploymentEngine.removeDeployer(directory, extension);
             }
         } finally {
