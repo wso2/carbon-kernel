@@ -23,6 +23,7 @@ import org.apache.axis2.Constants;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.deployment.Deployer;
 import org.apache.axis2.deployment.DeploymentConstants;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.AxisServiceGroup;
@@ -1203,7 +1204,28 @@ public class CarbonUtils {
 		return proxyContextPath;
 	}
 
-	/**
+    /**
+     * @param className name of the class to build the deployer
+     * @return Deployer
+     */
+
+    public static Deployer getDeployer(String className) throws Exception {
+        Deployer deployer;
+        try {
+            Class deployerClass = Class.forName(className);
+            deployer = (Deployer) deployerClass.newInstance();
+
+        } catch (ClassNotFoundException e) {
+            throw new Exception("Deployer class not found ", e);
+        } catch (InstantiationException e) {
+            throw new Exception("Cannot create new deployer instance", e);
+        } catch (IllegalAccessException e) {
+            throw new Exception("Error creating deployer", e);
+        }
+        return deployer;
+    }
+
+    /**
 	 * Retrieves the proxy context path from the ServerConfiguration and process it before returning. (Duplicated Util Method)
 	 *
 	 * @param key Property key
