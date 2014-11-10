@@ -267,7 +267,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     userName = map.get(userNameAttribute);
                 }
             }
-            log.debug("Retrieving internals roles for user name :  " + userName + " and search filter " + filter);
+            log.debug("Retrieving internal roles for user name :  " + userName + " and search filter " + filter);
             return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
         }
 
@@ -2952,7 +2952,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	protected String replaceEscapeCharacters(String userName) {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("Replacing excape characters in " + userName);
+			log.debug("Replacing escape characters in " + userName);
 		}
 		String replaceEscapeCharactersAtUserLoginString = realmConfig
 				.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
@@ -2961,7 +2961,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			replaceEscapeCharactersAtUserLogin = Boolean
 					.parseBoolean(replaceEscapeCharactersAtUserLoginString);
 			if (log.isDebugEnabled()) {
-				log.debug("Replace escape characters at userlogin is condifured to: "
+				log.debug("Replace escape characters at userlogin is configured to: "
 						+ replaceEscapeCharactersAtUserLoginString);
 			}
 			if (replaceEscapeCharactersAtUserLogin) {
@@ -3537,7 +3537,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             } catch (NoSuchMethodException e) {
 		// if not found try again.
                 if (log.isDebugEnabled()) {
-                    log.debug("Cannont initialize " + className + " using the option 2");
+                    log.debug("Cannot initialize " + className + " using the option 2");
                 }
             }
 

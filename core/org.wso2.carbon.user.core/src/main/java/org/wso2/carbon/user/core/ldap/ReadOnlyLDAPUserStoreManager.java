@@ -115,7 +115,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 	                                                                                            throws UserStoreException {
 
 		if (log.isDebugEnabled()) {
-			log.debug("Initializing Started " + System.currentTimeMillis());
+			log.debug("Initialization Started " + System.currentTimeMillis());
 		}
 
 		this.realmConfig = realmConfig;
@@ -173,7 +173,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         initUserRolesCache();
 
 		if (log.isDebugEnabled()) {
-			log.debug("Initializing Ended " + System.currentTimeMillis());
+			log.debug("Initialization Ended " + System.currentTimeMillis());
 		}
 	}
 
@@ -928,7 +928,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		}
 		
 		if(debug) {
-			log.debug("User: " + dn + " is authnticated: " + isAuthed);
+			log.debug("User: " + dn + " is authenticated: " + isAuthed);
 		}
 		return isAuthed;
 	}
@@ -1901,8 +1901,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 			int count = 0;
 			while (answer.hasMore()) {
 				if (count > 0) {
-					log.error("More than element user exist with name");
-					throw new UserStoreException("More than element user exist with name");
+					log.error("More than one user exist with name");
+					throw new UserStoreException("More than one user exist with name");
 				}
 				SearchResult sr = (SearchResult) answer.next();
 				count++;
@@ -1961,8 +1961,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     if(answer.hasMore()){
                         while (answer.hasMore()) {
                             if (count > 0) {
-                                log.error("More than element user exist with name");
-                                throw new UserStoreException("More than element user exist with name");
+                                log.error("More than one user exist with name");
+                                throw new UserStoreException("More than one user exist with name");
                             }
                             SearchResult sr = (SearchResult) answer.next();
                             count++;
@@ -2174,7 +2174,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             searchCtls.setReturningAttributes(returnedAtts);
             
             if(debug) {
-                log.debug("Do check is user: "+ userName + " in role: " + roleName);
+                log.debug("Do check whether the user: "+ userName + " is in role: " + roleName);
                 log.debug("Search filter: " + searchFilter);
                 for(String retAttrib : returnedAtts) {
                     log.debug("Requesting attribute: " + retAttrib);
@@ -2261,7 +2261,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             searchCtls.setReturningAttributes(returnedAtts);
             
             if(debug) {
-                log.debug("Do check is user : "+ userName + " in role: " + roleName);
+                log.debug("Do check whether the user : "+ userName + " is in role: " + roleName);
                 log.debug("Search filter : " + searchFilter);
                 for(String retAttrib : returnedAtts) {
                     log.debug("Requesting attribute: " + retAttrib);
@@ -2301,7 +2301,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } else {
                 	
                 	if(debug) {
-                        log.debug("Do check is user: "+ userName + " in role: " + roleName);
+                        log.debug("Do check whether the user: "+ userName + " is in role: " + roleName);
                         log.debug("Search filter: " + searchFilter);
                         for(String retAttrib : returnedAtts) {
                             log.debug("Requesting attribute: " + retAttrib);

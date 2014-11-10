@@ -890,7 +890,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			throws UserStoreException {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("Execuring Query: " + sqlStmt);
+			log.debug("Executing Query: " + sqlStmt);
 			for (int i = 0; i < params.length; i++) {
                 Object param = params[i];
                 log.debug("Input value: " + param);
@@ -2041,7 +2041,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				if (count == 0) {
 					log.debug("No rows were updated");
 				}
-				log.debug("Executed querry is " + sqlStmt + " and number of updated rows :: "
+				log.debug("Executed query is " + sqlStmt + " and number of updated rows :: "
 						+ count);
 			}
 
@@ -2518,7 +2518,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                      String tenantDomain, String filter) throws UserStoreException {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("Looking for shared roles for user: " + userName + " for teanant: " + tenantDomain);
+			log.debug("Looking for shared roles for user: " + userName + " for tenant: " + tenantDomain);
 		}
 
 		if (isSharedGroupEnabled()) {
