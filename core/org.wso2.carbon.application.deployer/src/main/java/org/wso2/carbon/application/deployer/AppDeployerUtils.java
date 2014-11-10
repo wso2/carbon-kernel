@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,6 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
+
 package org.wso2.carbon.application.deployer;
 
 import org.apache.axiom.om.OMAttribute;
@@ -47,10 +48,12 @@ import javax.xml.namespace.QName;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -85,9 +88,9 @@ public final class AppDeployerUtils {
 			return;
 		}
 	
-        String javaTempDir = System.getProperty("axis2.work.dir");
-        APP_UNZIP_DIR = javaTempDir.endsWith(File.separator) ? javaTempDir + AppDeployerConstants.CARBON_APPS :
-                											   javaTempDir + File.separator + AppDeployerConstants.CARBON_APPS;
+        String javaTmpDir = System.getProperty("java.io.tmpdir");
+        APP_UNZIP_DIR = javaTmpDir.endsWith(File.separator) ? javaTmpDir + AppDeployerConstants.CARBON_APPS :
+                											   javaTmpDir + File.separator + AppDeployerConstants.CARBON_APPS;
         createDir(APP_UNZIP_DIR);
         isAppDirCreated = true;
 		
@@ -734,7 +737,24 @@ public final class AppDeployerUtils {
         File temp = new File(path);
         if (!temp.exists() && !temp.mkdirs()) {
             log.error("Error while creating directory : " + path);
+            return;
         }
+
+        File doNotDeleteNote = new File(temp, "DO-NOT-DELETE.txt");
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(doNotDeleteNote);
+            writer.println("Do not delete this folder if the Carbon server is running! Otherwise, " +
+                    "it might cause issues for artifacts that come from CApps.");
+        } catch (FileNotFoundException e) {
+            log.error("Error while writing a file to the CApp extraction folder: " + doNotDeleteNote, e);
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+
+
     }
 
     private static void copyInputStream(InputStream in, OutputStream out)
