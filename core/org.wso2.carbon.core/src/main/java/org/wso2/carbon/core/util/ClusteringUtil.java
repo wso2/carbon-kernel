@@ -106,9 +106,9 @@ public class ClusteringUtil {
                 ClusteringAgent clusteringAgent = configContext.
                         getAxisConfiguration().getClusteringAgent();
                 if (clusteringAgent != null) {
-                    for (String key : messageMap.keySet()) {
-                        clusteringAgent.sendMessage(messageMap.get(key), true);
-                        messageMap.remove(key);
+                    for (CarbonTomcatSessionMessage message : messageMap.values()) {
+                        clusteringAgent.sendMessage(message, true);
+                        messageMap.remove(message.getUniqueId());
                     }
                 }
             }
