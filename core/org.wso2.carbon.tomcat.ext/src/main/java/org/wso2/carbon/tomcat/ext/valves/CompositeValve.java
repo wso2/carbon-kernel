@@ -37,6 +37,11 @@ public class CompositeValve extends ValveBase {
     private static Log log = LogFactory.getLog(CompositeValve.class);
     public static final String ENABLE_SAAS = "carbon.enable.saas";
 
+    public CompositeValve() {
+        //enable async support
+        super(true);
+    }
+
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
