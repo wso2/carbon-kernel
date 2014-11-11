@@ -292,6 +292,16 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
         // for each service type, select the correct deployer
         if (AAR_TYPE.equals(artifactType)) {
             deployer = deploymentEngine.getDeployer("axis2services", "aar");
+
+            /* when ghost deployer is off, deployer is null since the ServiceDeployer is not
+            registered as a normal deployer. Therefore the axis2service deployer is obtained as
+            follows.
+
+            Fix me properly.
+            */
+            if (deployer == null) {
+                deployer = deploymentEngine.getServiceDeployer();
+            }
         } else if (DS_TYPE.equals(artifactType)) {
             // TODO : Move data services out of carbon core
             deployer = deploymentEngine.getDeployer(DefaultAppDeployer.DS_DIR, "dbs");
