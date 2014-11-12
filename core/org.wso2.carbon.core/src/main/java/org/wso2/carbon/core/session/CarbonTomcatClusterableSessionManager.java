@@ -353,10 +353,23 @@ public class CarbonTomcatClusterableSessionManager extends DeltaManager {
         synchronized (receivedMessageQueue) {
             receiverQueue = true;
         }
-        // Save this message so that it can be sent to the cluster nodes later, because at
-        // the this method gets called, the cluster is not initialized
-        //messageMap.put(mbr.getName(), msg);
-        messageMap.put(msg.getUniqueId(), msg);
+
+        /*
+        * When this method is called cluster is already set up, so we can get the clusteringAgent
+        * and send the messages to the cluster nodes directly.
+        * More info : https://wso2.org/jira/browse/CARBON-15068
+        */
+        ClusteringAgent clusteringAgent =
+                CarbonCoreDataHolder.getInstance().getMainServerConfigContext().
+                        getAxisConfiguration().getClusteringAgent();
+        if (clusteringAgent != null) {
+            try {
+                clusteringAgent.sendMessage(msg, true);
+            } catch (ClusteringFault clusteringFault) {
+                log.error("Error while sending message : " + msg +
+                          " to clustering agent : " + clusteringAgent.toString(), clusteringFault);
+            }
+        }
     }
 
 

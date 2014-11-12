@@ -16,17 +16,11 @@
 
 package org.wso2.carbon.core.util;
 
-import java.util.Map;
-
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.clustering.ClusteringAgent;
 import org.apache.axis2.clustering.ClusteringConstants;
-import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.engine.AxisConfiguration;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.core.session.CarbonTomcatClusterableSessionManager;
-import org.wso2.carbon.core.session.CarbonTomcatSessionMessage;
 
 /**
  *
@@ -44,74 +38,9 @@ public class ClusteringUtil {
                 clusteringAgent.init();
                 isClusteringAgentInitialized = true;
             }
-            //TODO Check for if session replication is enabled and then call sendQueuedMessages
-//            if (configContext.getProperty(SessionConstants.SESSION_REPLICATION_INITIALIZED) != null) {
-//                if ((Boolean) configContext.
-//                        getProperty(SessionConstants.SESSION_REPLICATION_INITIALIZED)) {
-//                    Utils.sendQueuedMessages(configContext);
-//                }
-//            }
-            sendQueuedMessages(configContext);
-            // Configuration Manager
-            /*if (clusteringAgent.getConfigurationManager() != null) {
-                Map msgReceiverMap = new HashMap();
-                msgReceiverMap.put(WSDL2Constants.MEP_URI_IN_OUT,
-                                   new RPCMessageReceiver());
-                msgReceiverMap.put(WSDL2Constants.MEP_URI_IN_ONLY,
-                                   new RPCInOnlyMessageReceiver());
-                msgReceiverMap.put(WSDL2Constants.MEP_URI_ROBUST_IN_ONLY,
-                                   new RPCInOnlyMessageReceiver());
-                AxisService nodeManagerService =
-                        AxisService.createService("org.wso2.carbon.clustering.NodeManager",
-                                                  axisConfig,
-                                                  msgReceiverMap,
-                                                  null,
-                                                  "http://org.apache.axis2/xsd",
-                                                  clusteringAgent.getClass().getClassLoader());
-                List transports = new ArrayList();
-                transports.add(ServerConstants.HTTPS_TRANSPORT);
-                nodeManagerService.setExposedTransports(transports);
-                nodeManagerService.setName(ClusteringConstants.NODE_MANAGER_SERVICE);
-                nodeManagerService.setScope(Constants.SCOPE_TRANSPORT_SESSION);
-                nodeManagerService.setElementFormDefault(false);
-                AxisServiceGroup adminSG =
-                        axisConfig.getServiceGroup(ServerConstants.ADMIN_SERVICE_GROUP);
-                if (adminSG != null) {
-                    try {
-                        adminSG.addService(nodeManagerService);
-                    } catch (Exception e) {
-                        throw AxisFault.makeFault(e);
-                    }
-                } else {
-                    axisConfig.addService(nodeManagerService);
-                }
-            }*/
 
             configContext.
                     setNonReplicableProperty(ClusteringConstants.CLUSTER_INITIALIZED, "true");
-        }
-    }
-    
-    private static void sendQueuedMessages(ConfigurationContext configContext)
-            throws ClusteringFault {
-        Map<String, CarbonTomcatClusterableSessionManager> sessionManagerMap =
-                (Map<String, CarbonTomcatClusterableSessionManager>) configContext.
-                        getProperty(CarbonConstants.TOMCAT_SESSION_MANAGER_MAP);
-        if (sessionManagerMap != null && !sessionManagerMap.isEmpty()) {
-
-            for (CarbonTomcatClusterableSessionManager sessionManager : sessionManagerMap.values()) {
-                Map<String, CarbonTomcatSessionMessage> messageMap = sessionManager.
-                        getQueuedSessionMsgMap();
-
-                ClusteringAgent clusteringAgent = configContext.
-                        getAxisConfiguration().getClusteringAgent();
-                if (clusteringAgent != null) {
-                    for (CarbonTomcatSessionMessage message : messageMap.values()) {
-                        clusteringAgent.sendMessage(message, true);
-                        messageMap.remove(message.getUniqueId());
-                    }
-                }
-            }
         }
     }
 }
