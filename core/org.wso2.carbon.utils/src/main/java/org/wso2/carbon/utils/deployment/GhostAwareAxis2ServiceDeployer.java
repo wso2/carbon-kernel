@@ -52,15 +52,15 @@ public class GhostAwareAxis2ServiceDeployer extends ServiceDeployer {
     public void deploy(DeploymentFileData deploymentFileData) throws DeploymentException {
         //how to know whether this service should be deployed as the actual service or as a ghost service
         String filePath = deploymentFileData.getAbsolutePath();
-        GhostArtifactRegistry ghostRegistry = GhostDeployerUtils.getGhostArtifactRegistry(axisConfig);
-        DeploymentFileDataWrapper existingDfd = ghostRegistry.getDeploymentFileData(filePath);
+        GhostArtifactRepository ghostArtifactRepository = GhostDeployerUtils.getGhostArtifactRepository(axisConfig);
+        DeploymentFileDataWrapper existingDfd = ghostArtifactRepository.getDeploymentFileData(filePath);
 
         boolean doGhostDeployment = true;
         if (existingDfd != null && existingDfd.isGhost()) {
             //if the service is already deployed, then treat this as an actual service deployment.
             // So, remove the current @DeploymentFileData from ghost service registry.
             doGhostDeployment = false;
-            ghostRegistry.removeDeploymentFileData(filePath);
+            ghostArtifactRepository.removeDeploymentFileData(filePath);
             if (log.isDebugEnabled()) {
                 log.debug("Doing actual service deployment: " + deploymentFileData.getAbsolutePath());
             }
@@ -76,7 +76,7 @@ public class GhostAwareAxis2ServiceDeployer extends ServiceDeployer {
                         axisConfig.getServices().values());
 
                 super.deploy(deploymentFileData);
-                ghostRegistry.addDeploymentFileData(deploymentFileData, false);
+                ghostArtifactRepository.addDeploymentFileData(deploymentFileData, false);
 
                 Set<AxisService> axisServicesAfter = new HashSet<AxisService>(
                         axisConfig.getServices().values());
@@ -91,7 +91,7 @@ public class GhostAwareAxis2ServiceDeployer extends ServiceDeployer {
             super.deploy(deploymentFileData);
             if(isGhostOn) {
                 //we need a reference to the actual file data object at @ServiceUnloader
-                ghostRegistry.addDeploymentFileData(deploymentFileData, false);
+                ghostArtifactRepository.addDeploymentFileData(deploymentFileData, false);
             }
         }
 

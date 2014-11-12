@@ -110,11 +110,11 @@ public class GhostDeployerUtils {
                 // if the service from axisConfig is not a ghost, return it
                 newService = axisConfigService;
             } else {
-                GhostArtifactRegistry ghostRegistry =
-                        GhostDeployerUtils.getGhostArtifactRegistry(axisConfig);
+                GhostArtifactRepository ghostArtifactRepository =
+                        GhostDeployerUtils.getGhostArtifactRepository(axisConfig);
 
                 //TODO use a canonical path?
-                DeploymentFileDataWrapper dfd = ghostRegistry.getDeploymentFileData(axisConfigService.
+                DeploymentFileDataWrapper dfd = ghostArtifactRepository.getDeploymentFileData(axisConfigService.
                         getFileName().getPath());
                 if (dfd != null) {
                     // remove the existing service
@@ -748,8 +748,8 @@ public class GhostDeployerUtils {
         if (log.isDebugEnabled()) {
             log.debug("deleted ghost file: " + filePath);
         }
-        GhostArtifactRegistry ghostRegistry = GhostDeployerUtils.getGhostArtifactRegistry(axisConfig);
-        ghostRegistry.removeDeploymentFileData(filePath);
+        GhostArtifactRepository ghostArtifactRepository = GhostDeployerUtils.getGhostArtifactRepository(axisConfig);
+        ghostArtifactRepository.removeDeploymentFileData(filePath);
 
     }
 
@@ -757,18 +757,18 @@ public class GhostDeployerUtils {
      * ghost registry stores @DeploymentFileData objects of services
      * that are in ghost state.
      *
-     * @param ghostArtifactRegistry Set the ghost artifact registry for this tenant
+     * @param ghostArtifactRepository Set the ghost artifact registry for this tenant
      * @param axisConfig The axis configuration of the tenant
      * @throws DeploymentException if error occurred while saving the ghost artifact registry
      */
-    public static void setGhostArtifactRegistry(
-            GhostArtifactRegistry ghostArtifactRegistry,
+    public static void setGhostArtifactRepository(
+            GhostArtifactRepository ghostArtifactRepository,
             AxisConfiguration axisConfig) throws DeploymentException {
 
         try {
             axisConfig.addParameter(
-                    CarbonConstants.GHOST_REGISTRY,
-                    ghostArtifactRegistry);
+                    CarbonConstants.GHOST_ARTIFACT_REPOSITORY,
+                    ghostArtifactRepository);
         } catch (AxisFault axisFault) {
             log.error(axisFault.getMessage(), axisFault);
             throw new DeploymentException(axisFault);
@@ -782,11 +782,11 @@ public class GhostDeployerUtils {
      *
      * @param axisConfig The axis configuration of the tenant
      */
-    public static GhostArtifactRegistry getGhostArtifactRegistry(AxisConfiguration axisConfig) {
+    public static GhostArtifactRepository getGhostArtifactRepository(AxisConfiguration axisConfig) {
 
-        Parameter param = axisConfig.getParameter(CarbonConstants.GHOST_REGISTRY);
+        Parameter param = axisConfig.getParameter(CarbonConstants.GHOST_ARTIFACT_REPOSITORY);
         if (param != null) {
-            return (GhostArtifactRegistry) param.getValue();
+            return (GhostArtifactRepository) param.getValue();
         }
         return null;
     }
@@ -818,7 +818,7 @@ public class GhostDeployerUtils {
             axisConfig.addServiceGroup(ghostServiceGroup);
 
             //We need a reference to the @DeploymentFileData since it's currently in ghost state
-            GhostDeployerUtils.getGhostArtifactRegistry(axisConfig)
+            GhostDeployerUtils.getGhostArtifactRepository(axisConfig)
                     .addDeploymentFileData(deploymentFileData, true);
         } catch (Exception e) {
             String msg = "Error while loading the Ghost Service : " +
