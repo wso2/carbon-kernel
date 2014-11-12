@@ -35,7 +35,7 @@ import java.util.Map;
  * to unload a webapp and load its ghost after a period of inactivity.
  *
  */
-public class GhostArtifactRegistry {
+public class GhostArtifactRepository {
 
     /**
      * Map of deployment file data wrappers
@@ -44,7 +44,7 @@ public class GhostArtifactRegistry {
      */
     private Map<String, DeploymentFileDataWrapper> deploymentFileDataList;
 
-    public GhostArtifactRegistry(AxisConfiguration axisConfiguration) {
+    public GhostArtifactRepository(AxisConfiguration axisConfiguration) {
         deploymentFileDataList = new HashMap<String, DeploymentFileDataWrapper>();
 
         /**
@@ -83,42 +83,5 @@ public class GhostArtifactRegistry {
     public DeploymentFileDataWrapper removeDeploymentFileData(String filePath) {
         return deploymentFileDataList.remove(filePath);
     }
-
-//
-//    public DeploymentFileData getGhostDeploymentFileData(String fileName) {
-//        // avoid the leading "/" in filename in windows environment
-//        File deploymentFile = new File(fileName);
-//        fileName = deploymentFile.getPath();
-//        return deploymentFileDataList.get(fileName);
-//    }
-//
-//    public void addGhostDeploymentFileData(DeploymentFileData deploymentFileData) {
-//        // avoid the leading "/" in filename in windows environment
-//        File deploymentFile = new File(deploymentFileData.getAbsolutePath());
-//        String fileName = deploymentFile.getPath();
-//        this.deploymentFileDataList.put(fileName, deploymentFileData);
-//    }
-//
-//    public DeploymentFileData removeGhostDeploymentFileData(String filePath) {
-//        return deploymentFileDataList.remove(filePath);
-//    }
-//
-//    public DeploymentFileData getActualDeploymentFileData(String fileName) {
-//        // avoid the leading "/" in filename in windows environment
-//        File deploymentFile = new File(fileName);
-//        fileName = deploymentFile.getPath();
-//        return actualDeploymentFileData.get(fileName);
-//    }
-//
-//    public void addActualDeploymentFileData(DeploymentFileData deploymentFileData) {
-//        // avoid the leading "/" in filename in windows environment
-//        File deploymentFile = new File(deploymentFileData.getAbsolutePath());
-//        String fileName = deploymentFile.getPath();
-//        actualDeploymentFileData.put(fileName, deploymentFileData);
-//    }
-//
-//    public DeploymentFileData removeActualDeploymentFileData(String filePath) {
-//        return actualDeploymentFileData.remove(filePath);
-//    }
 
 }

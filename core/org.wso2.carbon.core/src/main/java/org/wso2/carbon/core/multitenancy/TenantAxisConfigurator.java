@@ -493,8 +493,8 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
             }
             List<DeployerConfig> deployerConfigs = readDeployerConfigs(axis2DeployerProviderList);
             if (GhostDeployerUtils.isGhostOn()) {
-                GhostArtifactRegistry ghostRegistry = new GhostArtifactRegistry(axisConfig);
-                GhostDeployerUtils.setGhostArtifactRegistry(ghostRegistry, axisConfig);
+                GhostArtifactRepository ghostArtifactRepository = new GhostArtifactRepository(axisConfig);
+                GhostDeployerUtils.setGhostArtifactRepository(ghostArtifactRepository, axisConfig);
             }
 
             // Adding deployers from vhosts and deployers which come inside bundles

@@ -162,7 +162,7 @@ public final class CarbonConstants {
     public static final String HTTP_URLS = "httpUrls";
 
     // Ghost Deployment related constants
-    public static final String GHOST_REGISTRY = "ghostRegistry";
+    public static final String GHOST_ARTIFACT_REPOSITORY = "ghostArtifactRepository";
     public static final String GHOST_DEPLOYER = "ghostDeployer";
     public static final String GHOST_SERVICE_PARAM = "GhostService";
     public static final String GHOST_SERVICES_FOLDER = "ghostServices";
