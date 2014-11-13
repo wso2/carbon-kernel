@@ -3,11 +3,12 @@ package org.wso2.carbon.integration.clients;
 import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.feature.mgt.stub.RepositoryAdminServiceStub;
 import org.wso2.carbon.feature.mgt.stub.prov.data.RepositoryInfo;
-import org.wso2.carbon.integration.common.admin.client.utils.AuthenticateStubUtil;
-import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.integration.framework.utils.AuthenticateStubUtil;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -18,10 +19,12 @@ public class RepositoryAdminClient {
     private String serviceName = "RepositoryAdminService";
     private RepositoryAdminServiceStub repositoryAdminServiceStub;
 
-    public RepositoryAdminClient(String backendURL, String sessionCookie) throws AxisFault {
+    public RepositoryAdminClient(String backendURL, AutomationContext automationContext) throws AxisFault,
+            XPathExpressionException {
         String endPoint = backendURL + serviceName;
         repositoryAdminServiceStub = new RepositoryAdminServiceStub(endPoint);
-        AuthenticateStubUtil.authenticateStub(sessionCookie, repositoryAdminServiceStub);
+        AuthenticateStubUtil.authenticateStub(automationContext.getContextTenant().getContextUser().getUserName(),
+                automationContext.getContextTenant().getContextUser().getPassword(), repositoryAdminServiceStub);
     }
 
     public void addRepository(String repoURL, String nickName, boolean localRepo) throws Exception {

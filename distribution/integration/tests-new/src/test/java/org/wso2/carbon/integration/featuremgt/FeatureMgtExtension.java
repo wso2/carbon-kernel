@@ -23,11 +23,13 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.automation.engine.configurations.AutomationConfiguration;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.InstanceType;
+import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.engine.extensions.ExecutionListenerExtension;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
-import org.wso2.carbon.integration.common.extensions.utils.AutomationXpathConstants;
-import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
+import org.wso2.carbon.integration.Constants;
+import org.wso2.carbon.integration.clients.ServerAdminClient;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.util.ArrayList;
@@ -43,19 +45,18 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
     public static final String FEATURE_PARAM_KEY = "feature_";
     private List<Node> productGroupsList;
     private List<FeatureInfo> featureList;
-    private ServerConfigurationManager serverConfigurationManager;
+    ServerAdminClient serverAdminClient;
 
     public void initiate() throws Exception {
         productGroupsList = getAllProductNodes();
         getFeatureList(getParameters());
-        serverConfigurationManager = new ServerConfigurationManager(getAutomationContext());
     }
 
     // Populate all tenants and user on execution start of the test
     public void onExecutionStart() throws Exception {
         for (Node aProductGroupsList : productGroupsList) {
             String productGroupName = aProductGroupsList.getAttributes().
-                    getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
+                    getNamedItem(Constants.AutomationXpathConstants.NAME).getNodeValue();
             String instanceName = getProductGroupInstance(aProductGroupsList);
 
             FeatureManager featureManager = new FeatureManager(productGroupName, instanceName, featureList);
@@ -64,7 +65,9 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
             featureManager.getLicensingInformation();
             featureManager.installFeatures();
 
-            serverConfigurationManager.restartGracefully();
+            serverAdminClient = new ServerAdminClient(new AutomationContext(productGroupName, instanceName,
+                    TestUserMode.SUPER_TENANT_ADMIN));
+            serverAdminClient.restartGracefully();
 
             featureManager.checkInstalledFeatures(Boolean.TRUE);
         }
@@ -93,7 +96,7 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
     public void onExecutionFinish() throws Exception {
         for (Node aProductGroupsList : productGroupsList) {
             String productGroupName = aProductGroupsList.getAttributes().
-                    getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
+                    getNamedItem(Constants.AutomationXpathConstants.NAME).getNodeValue();
             String instanceName = getProductGroupInstance(aProductGroupsList);
             FeatureManager featureManager = new FeatureManager(productGroupName, instanceName, featureList);
             featureManager.removeFeatures();
@@ -104,7 +107,7 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
     private String getProductGroupInstance(Node productGroup) throws Exception {
         String instanceName = "";
         Boolean isClusteringEnabled = Boolean.parseBoolean(productGroup.getAttributes().
-                getNamedItem(AutomationXpathConstants.CLUSTERING_ENABLED).getNodeValue());
+                getNamedItem(Constants.AutomationXpathConstants.CLUSTERING_ENABLED).getNodeValue());
         if (!isClusteringEnabled) {
             instanceName = getInstanceList(productGroup, InstanceType.standalone.name()).get(0);
         } else {
@@ -125,8 +128,8 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
         int numberOfInstances = productGroup.getChildNodes().getLength();
         for (int i = 0; i < numberOfInstances; i++) {
             NamedNodeMap attributes = productGroup.getChildNodes().item(i).getAttributes();
-            String instanceName = attributes.getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
-            String instanceType = attributes.getNamedItem(AutomationXpathConstants.TYPE).getNodeValue();
+            String instanceName = attributes.getNamedItem(Constants.AutomationXpathConstants.NAME).getNodeValue();
+            String instanceType = attributes.getNamedItem(Constants.AutomationXpathConstants.TYPE).getNodeValue();
             if (instanceType.equals(type)) {
                 instanceList.add(instanceName);
             }
@@ -136,7 +139,7 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
 
     private List<Node> getAllProductNodes() throws XPathExpressionException {
         List<Node> nodeList = new ArrayList<Node>();
-        NodeList productGroups = AutomationConfiguration.getConfigurationNodeList(AutomationXpathConstants.PRODUCT_GROUP);
+        NodeList productGroups = AutomationConfiguration.getConfigurationNodeList(Constants.AutomationXpathConstants.PRODUCT_GROUP);
         for (int i = 0; i < productGroups.getLength(); i++) {
             nodeList.add(productGroups.item(i));
         }

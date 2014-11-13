@@ -20,8 +20,6 @@ package org.wso2.carbon.integration.featuremgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException;
-import org.wso2.carbon.automation.engine.configurations.AutomationConfiguration;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.feature.mgt.core.operations.OperationFactory;
@@ -32,13 +30,8 @@ import org.wso2.carbon.feature.mgt.stub.prov.data.ProvisioningActionResultInfo;
 import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
 import org.wso2.carbon.integration.clients.FeatureAdminClient;
 import org.wso2.carbon.integration.clients.RepositoryAdminClient;
-import org.wso2.carbon.integration.common.admin.client.AuthenticatorClient;
-import org.wso2.carbon.integration.common.admin.client.TenantManagementServiceClient;
-import org.wso2.carbon.integration.common.extensions.utils.ExtensionCommonConstants;
-import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
+import org.wso2.carbon.integration.framework.LoginLogoutUtil;
 
-import javax.xml.xpath.XPathExpressionException;
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,7 +45,7 @@ public class FeatureManager {
     String sessionCookie;
     String backendURL;
     List<String> tenantsList;
-    TenantManagementServiceClient tenantStub;
+    //    TenantManagementServiceClient tenantStub;
     String productGroupName;
     String instanceName;
     RepositoryAdminClient repositoryAdminClient;
@@ -61,7 +54,8 @@ public class FeatureManager {
     String P2_REPO_NAME = "localRepo";
     public static final String FEATURE_REPO_PATH_KEY = "p2-repo-path";
     FeatureInfo[] featureInfos;
-    LoginLogoutClient loginLogoutUtil;
+    LoginLogoutUtil loginLogoutUtil;
+    AutomationContext automationContext;
 
     public FeatureManager(String productGroupName, String instanceName, List<FeatureInfo> featureList) throws Exception {
         this.productGroupName = productGroupName;
@@ -69,14 +63,12 @@ public class FeatureManager {
 
         featureInfos = featureList.toArray(new FeatureInfo[featureList.size()]);
 
-        AutomationContext automationContext = new AutomationContext(productGroupName, instanceName,
+        automationContext = new AutomationContext(productGroupName, instanceName,
                 TestUserMode.SUPER_TENANT_ADMIN);
         backendURL = automationContext.getContextUrls().getBackEndUrl();
-        loginLogoutUtil = new LoginLogoutClient(automationContext);
-        sessionCookie = loginLogoutUtil.login();
 
-        repositoryAdminClient = new RepositoryAdminClient(backendURL, sessionCookie);
-        featureAdminClient = new FeatureAdminClient(backendURL, sessionCookie);
+        repositoryAdminClient = new RepositoryAdminClient(backendURL, automationContext);
+        featureAdminClient = new FeatureAdminClient(backendURL, automationContext);
     }
 
     public void addfeatureRepo() throws Exception {
@@ -102,19 +94,19 @@ public class FeatureManager {
 //        featureAdminClient.removeAllFeaturesWithProperty(featureInfos[0].getFeatureID());
     }
 
-    protected String login(String userName, String domain, String password, String backendUrl, String hostName) throws
+    /*protected String login(String userName, String domain, String password, String backendUrl, String hostName) throws
             RemoteException, LoginAuthenticationExceptionException, XPathExpressionException {
         AuthenticatorClient loginClient = new AuthenticatorClient(backendUrl);
-        if (!domain.equals(AutomationConfiguration.getConfigurationValue(ExtensionCommonConstants.SUPER_TENANT_DOMAIN_NAME))) {
+        if (!domain.equals(AutomationConfiguration.getConfigurationValue(Constants.SUPER_TENANT_DOMAIN_NAME))) {
             userName += "@" + domain;
         }
         return loginClient.login(userName, password, hostName);
-    }
+    }*/
 
     public void checkInstalledFeatures(boolean afterRestart) throws Exception {
-        if(afterRestart) {
+        if (afterRestart) {
             sessionCookie = loginLogoutUtil.login();
-            featureAdminClient = new FeatureAdminClient(backendURL, sessionCookie);
+            featureAdminClient = new FeatureAdminClient(backendURL, automationContext);
         }
         FeatureWrapper[] featuresWrappers = featureAdminClient.getInstalledFeatures();
 
@@ -124,7 +116,7 @@ public class FeatureManager {
         for (FeatureWrapper featureWrapper : featuresWrappers) {
             Feature feature = featureWrapper.getWrappedFeature();
             for (FeatureInfo featureInfo : featureInfos) {
-                if(featureInfo.getFeatureID().equals(feature.getFeatureID()) &&
+                if (featureInfo.getFeatureID().equals(feature.getFeatureID()) &&
                         featureInfo.getFeatureVersion().equals(feature.getFeatureVersion())) {
                     counter++;
                 }

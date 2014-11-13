@@ -75,6 +75,11 @@ public class CarbonStuckThreadDetectionValve extends ValveBase {
     private ConcurrentHashMap<Long, MonitoredThread>
                                         activeThreads = new ConcurrentHashMap<Long, MonitoredThread>();
 
+    public CarbonStuckThreadDetectionValve() {
+        //enable async support
+        super(true);
+    }
+
     /**
      * Specify the threshold (in seconds) used when checking for stuck threads.
      * If &lt;=0, the detection is disabled. The default is 600 seconds.

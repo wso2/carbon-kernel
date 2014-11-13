@@ -33,6 +33,12 @@ import java.io.IOException;
 
 
 public class CarbonTomcatSessionReplicationValve extends ValveBase {
+
+    public CarbonTomcatSessionReplicationValve() {
+        //enable async support
+        super(true);
+    }
+
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {

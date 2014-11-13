@@ -43,7 +43,7 @@ public class WSDataSourceMetaInfo {
 		this.name = metaInfo.getName();
 		this.description = metaInfo.getDescription();
 		this.jndiConfig = metaInfo.getJndiConfig();
-		this.system = metaInfo.isSystem();
+		this.system = !metaInfo.isPersistable();
 		this.definition = new WSDataSourceDefinition(metaInfo.getDefinition());
 	}
 	

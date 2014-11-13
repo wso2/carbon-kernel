@@ -6,15 +6,17 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.feature.mgt.core.operations.OperationFactory;
 import org.wso2.carbon.feature.mgt.stub.ProvisioningAdminServiceCallbackHandler;
 import org.wso2.carbon.feature.mgt.stub.ProvisioningAdminServiceStub;
 import org.wso2.carbon.feature.mgt.stub.prov.data.*;
 import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
 import org.wso2.carbon.feature.mgt.ui.util.Utils;
-import org.wso2.carbon.integration.common.admin.client.utils.AuthenticateStubUtil;
+import org.wso2.carbon.integration.framework.utils.AuthenticateStubUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.util.Arrays;
 
 public class FeatureAdminClient {
@@ -30,10 +32,12 @@ public class FeatureAdminClient {
 
     private ProfileHistory[] profileHistories = new ProfileHistory[]{};
 
-    public FeatureAdminClient(String backendURL, String sessionCookie) throws AxisFault {
+    public FeatureAdminClient(String backendURL, AutomationContext automationContext) throws AxisFault,
+            XPathExpressionException {
         String endPoint = backendURL + serviceName;
         provAdminStub = new ProvisioningAdminServiceStub(endPoint);
-        AuthenticateStubUtil.authenticateStub(sessionCookie, provAdminStub);
+        AuthenticateStubUtil.authenticateStub(automationContext.getContextTenant().getContextUser().getUserName(),
+                automationContext.getContextTenant().getContextUser().getPassword(), provAdminStub);
     }
 
     public ProvisioningActionResultInfo reviewInstallFeaturesAction(FeatureInfo[] features) throws Exception {
