@@ -21,7 +21,6 @@ package org.wso2.carbon.integration.featuremgt;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
-import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.feature.mgt.core.operations.OperationFactory;
 import org.wso2.carbon.feature.mgt.stub.prov.data.Feature;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
@@ -45,9 +44,6 @@ public class FeatureManager {
     String sessionCookie;
     String backendURL;
     List<String> tenantsList;
-    //    TenantManagementServiceClient tenantStub;
-    String productGroupName;
-    String instanceName;
     RepositoryAdminClient repositoryAdminClient;
     FeatureAdminClient featureAdminClient;
     String p2RepoPath;
@@ -57,14 +53,11 @@ public class FeatureManager {
     LoginLogoutUtil loginLogoutUtil;
     AutomationContext automationContext;
 
-    public FeatureManager(String productGroupName, String instanceName, List<FeatureInfo> featureList) throws Exception {
-        this.productGroupName = productGroupName;
-        this.instanceName = instanceName;
-
+    public FeatureManager(List<FeatureInfo> featureList, AutomationContext automationContext) throws Exception {
+        
+        this.automationContext = automationContext;
         featureInfos = featureList.toArray(new FeatureInfo[featureList.size()]);
 
-        automationContext = new AutomationContext(productGroupName, instanceName,
-                TestUserMode.SUPER_TENANT_ADMIN);
         backendURL = automationContext.getContextUrls().getBackEndUrl();
 
         repositoryAdminClient = new RepositoryAdminClient(backendURL, automationContext);

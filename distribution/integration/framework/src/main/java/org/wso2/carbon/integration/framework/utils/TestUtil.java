@@ -38,7 +38,7 @@ public class TestUtil {
      */
     public static void copySecurityVerificationService(String carbonHome) throws IOException {
         String secVerifierDir = System.getProperty("sec.verifier.dir");
-        if(secVerifierDir == null){
+        if(secVerifierDir == null || !(new File(secVerifierDir)).exists()){
             log.warn("Security verification test not enabled");
             return;
         }

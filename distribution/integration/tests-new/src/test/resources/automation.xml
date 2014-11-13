@@ -204,11 +204,11 @@
     <listenerExtensions>
         <platformExecutionManager>
             <extentionClasses>
-                <class>
-                    <name>org.wso2.carbon.integration.common.extensions.carbonserver.CarbonServerExtension</name>
+                <!--<class>-->
+                    <!--<name>org.wso2.carbon.integration.common.extensions.carbonserver.CarbonServerExtension</name>-->
                     <!--<parameter name="-DportOffset" value="1" />-->
                     <!--<parameter name="-Dprofile" value="worker" />-->
-                </class>
+                <!--</class>-->
 
                 <class>
                     <name>org.wso2.carbon.integration.featuremgt.FeatureMgtExtension</name>
