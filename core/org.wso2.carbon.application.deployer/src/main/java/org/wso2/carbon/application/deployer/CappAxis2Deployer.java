@@ -42,13 +42,6 @@ public class CappAxis2Deployer extends AbstractDeployer {
     private String cAppDir;
 
     public void init(ConfigurationContext configurationContext) {
-        // create the cApp hot directory
-        if (cAppDir != null && !"".equals(cAppDir)) {
-            File cAppDirFile = new File(cAppDir);
-            if (!cAppDirFile.exists() && !cAppDirFile.mkdir()) {
-                log.warn("Couldn't create directory : " + cAppDirFile.getAbsolutePath());
-            }
-        }
         if (log.isDebugEnabled()) {
             log.debug("Initializing Capp Axis2 Deployer..");
         }
@@ -130,7 +123,8 @@ public class CappAxis2Deployer extends AbstractDeployer {
     }
 
     public void cleanup() throws DeploymentException {
-        // do nothing        
+        //cleanup the capp list of a tenant during a tenant unload
+        ApplicationManager.getInstance().cleanupCarbonApps(axisConfig);
     }
 
 //    private void loadPersistedApps() {

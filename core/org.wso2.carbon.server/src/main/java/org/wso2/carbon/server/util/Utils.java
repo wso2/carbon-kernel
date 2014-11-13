@@ -276,7 +276,6 @@ public class Utils {
      * @return The bundle directory
      */
     public static File getBundleDirectory(String bundleDir) {
-        //TODO The name of this utils class is incorrect - Refactor - Sameera
         String carbonHome = System.getProperty("carbon.home");
 
         if (carbonHome == null) {

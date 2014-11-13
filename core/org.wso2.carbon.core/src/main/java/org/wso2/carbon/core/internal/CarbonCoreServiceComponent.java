@@ -84,7 +84,6 @@ public class CarbonCoreServiceComponent {
             carbonContext.setTenantDomain(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID);
             ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null) ;
-            ctxt.getBundleContext().registerService(Axis2ConfigurationContextObserver.class.getName(), new DeploymentAxis2ConfigurationContextObserver(), null);
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(ctxt.getBundleContext());
         } catch (Throwable e) {

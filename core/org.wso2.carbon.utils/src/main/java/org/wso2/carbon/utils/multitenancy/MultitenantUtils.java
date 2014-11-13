@@ -52,7 +52,10 @@ public class MultitenantUtils {
             username = username.substring(0, username.lastIndexOf('@')); // then pick user name, which is preceding last '@' sign
         } else if (isEmailUserName()) {
             if (username.indexOf("@") == username.lastIndexOf("@")) {
-                //do nothing - this is super tenant login
+                if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.
+                        equalsIgnoreCase(username.substring(username.lastIndexOf('@') + 1))) {
+                    username = username.substring(0, username.lastIndexOf('@'));
+                }
             } else {
                 username = username.substring(0, username.lastIndexOf('@'));
             }

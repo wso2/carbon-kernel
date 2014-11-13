@@ -85,6 +85,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	protected static final String TRUE_VALUE = "true";
 	protected static final String FALSE_VALUE = "false";
 
+        private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
+
 	/**
 	 * This method is used by the support system to read properties
 	 */
@@ -257,9 +259,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	 * @return
 	 * @throws UserStoreException
 	 */
-	protected String[] doGetInternalRoleListOfUser(String userName, String filter) throws UserStoreException {
-		return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
-	}
+        protected String[] doGetInternalRoleListOfUser(String userName, String filter) throws UserStoreException {
+            if(Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULIPLE_ATTRIBUTE_ENABLE))){
+                String userNameAttribute = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+                if(userNameAttribute != null && userNameAttribute.trim().length() > 0) {
+                    Map<String, String> map = getUserPropertyValues(userName, new String[]{userNameAttribute}, null);
+                    userName = map.get(userNameAttribute);
+                }
+            }
+            log.debug("Retrieving internal roles for user name :  " + userName + " and search filter " + filter);
+            return hybridRoleManager.getHybridRoleListOfUser(userName, filter);
+        }
 
 	/**
 	 * Only gets the external roles of the user.
@@ -1182,6 +1192,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			}
 		}
 		// #################### </Listeners> #####################################################
+		
+		try {
+			roleList = UserCoreUtil
+					.combine(doGetInternalRoleListOfUser(userName, "*"), Arrays.asList(roleList));
+			addToUserRolesCache(tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
+			                    roleList);
+		} catch (Exception e) {
+			//if adding newly created user's roles to the user roles cache fails, do nothing. It will read 
+			//from the database upon updating user.
+		}
 	}
 
 	/**
@@ -2932,7 +2952,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 	protected String replaceEscapeCharacters(String userName) {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("Replacing excape characters in " + userName);
+			log.debug("Replacing escape characters in " + userName);
 		}
 		String replaceEscapeCharactersAtUserLoginString = realmConfig
 				.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
@@ -2941,7 +2961,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			replaceEscapeCharactersAtUserLogin = Boolean
 					.parseBoolean(replaceEscapeCharactersAtUserLoginString);
 			if (log.isDebugEnabled()) {
-				log.debug("Replace escape characters at userlogin is condifured to: "
+				log.debug("Replace escape characters at userlogin is configured to: "
 						+ replaceEscapeCharactersAtUserLoginString);
 			}
 			if (replaceEscapeCharactersAtUserLogin) {
@@ -3517,7 +3537,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             } catch (NoSuchMethodException e) {
 		// if not found try again.
                 if (log.isDebugEnabled()) {
-                    log.debug("Cannont initialize " + className + " using the option 2");
+                    log.debug("Cannot initialize " + className + " using the option 2");
                 }
             }
 

@@ -122,10 +122,12 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             if (log.isDebugEnabled()) {
                 log.debug("Using Hazelcast based distributed cache");
             }
-            distributedCache = distributedMapProvider.getMap(getMapName(cacheName, cacheManager),
+            distributedCache = distributedMapProvider.getMap(
+                    Util.getDistributedMapNameOfCache(cacheName, ownerTenantDomain, cacheManager.getName()),
                     new MapEntryListenerImpl());
-            distributedTimestampMap = distributedMapProvider.getMap(getMapName(CachingConstants.TIMESTAMP_CACHE_PREFIX +
-                    cacheName, cacheManager), new TimestampMapEntryListenerImpl());
+            distributedTimestampMap = distributedMapProvider.getMap(
+                    Util.getDistributedMapNameOfCache(CachingConstants.TIMESTAMP_CACHE_PREFIX +
+                            cacheName, ownerTenantDomain, cacheManager.getName()), new TimestampMapEntryListenerImpl());
             initTimestampReplicator();
         }
         cacheStatistics = new CacheStatisticsImpl();
@@ -144,10 +146,12 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         if (isLocalCache(cacheName, distributedMapProvider)) {
             return;
         }
-        distributedCache = distributedMapProvider.getMap(getMapName(cacheName, cacheManager),
+        distributedCache = distributedMapProvider.getMap(
+                Util.getDistributedMapNameOfCache(cacheName, ownerTenantDomain, cacheManager.getName()),
                 new MapEntryListenerImpl());
-        distributedTimestampMap = distributedMapProvider.getMap(getMapName(CachingConstants.TIMESTAMP_CACHE_PREFIX
-                + cacheName, cacheManager),new TimestampMapEntryListenerImpl());
+        distributedTimestampMap = distributedMapProvider.getMap(
+                Util.getDistributedMapNameOfCache(CachingConstants.TIMESTAMP_CACHE_PREFIX + cacheName,
+                        ownerTenantDomain, cacheManager.getName()), new TimestampMapEntryListenerImpl());
 
         isLocalCache = false;
 
@@ -156,11 +160,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         for (Map.Entry<K, CacheEntry<K, V>> entry : localCache.entrySet()) {
             distributedCache.put(entry.getKey(), entry.getValue());
         }
-    }
-
-    private String getMapName(String cacheName, CacheManager cacheManager) {
-        return "$cache.$domain[" + ownerTenantDomain + "]" +
-                cacheManager.getName() + "#" + cacheName;
     }
 
     private void initTimestampReplicator(){

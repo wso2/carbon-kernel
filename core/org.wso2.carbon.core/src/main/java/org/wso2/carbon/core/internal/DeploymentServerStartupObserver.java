@@ -40,12 +40,18 @@ public class DeploymentServerStartupObserver implements ServerStartupObserver {
 
     @Override
     public void completingServerStartup() {
-        log.debug("Invoke registered deployers");
-        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-        ConfigurationContextService configurationContextService = (ConfigurationContextService) carbonContext.getOSGiService(ConfigurationContextService.class);
-        AxisConfigurator axisConfigurator = configurationContextService.getServerConfigContext().getAxisConfiguration().getConfigurator();
-        if (axisConfigurator instanceof CarbonAxisConfigurator) {
-            ((CarbonAxisConfigurator) axisConfigurator).deployServices();
+        //Any exceptions delegated from here will cause the server to not start.
+        //Artifact deployment is not critical. So, we will catch it, and log it.
+        try {
+            log.debug("Invoke registered deployers");
+            PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            ConfigurationContextService configurationContextService = (ConfigurationContextService) carbonContext.getOSGiService(ConfigurationContextService.class);
+            AxisConfigurator axisConfigurator = configurationContextService.getServerConfigContext().getAxisConfiguration().getConfigurator();
+            if (axisConfigurator instanceof CarbonAxisConfigurator) {
+                ((CarbonAxisConfigurator) axisConfigurator).deployServices();
+            }
+        } catch (Exception e) {
+            log.error("Runtime exception while deploying artifacts ", e);
         }
     }
 }

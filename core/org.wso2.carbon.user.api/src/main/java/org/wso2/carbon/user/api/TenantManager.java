@@ -115,19 +115,20 @@ public interface TenantManager {
     void deleteTenant(int tenantId) throws UserStoreException;
 
     /**
+     * Deletes a tenant from the system which use to delete the cache in each worker nodes
+     * using clustered message and delete the persistence storage in management node
+     *
+     * @param tenantId
+     * @param removeFromPersistentStorage
+     * @throws UserStoreException
+     */
+    public void deleteTenant(int tenantId, boolean removeFromPersistentStorage)throws UserStoreException;
+
+    /**
      * Checks whether the super tenant.
      * 
      * @return
      * @throws UserStoreException
      */
     String getSuperTenantDomain() throws UserStoreException;
-
-    /**
-     * Get all tenant domains of user if the cross domain membership is available
-     *
-     * @param username
-     * @return
-     * @throws UserStoreException
-     */
-    String[] getAllTenantDomainStrOfUser(String username) throws UserStoreException;
 }

@@ -260,7 +260,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			}
 			dirContext.bind(compoundName, null, basicAttributes);
 		} catch (NamingException e) {
-			String errorMessage = "Can not access the directory context or "
+			String errorMessage = "Cannot access the directory context or "
 					+ "user already exists in the system";
             log.debug(e.getMessage(), e);
 			throw new UserStoreException(errorMessage);

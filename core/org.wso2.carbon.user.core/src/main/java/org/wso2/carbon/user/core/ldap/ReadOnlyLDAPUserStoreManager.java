@@ -115,7 +115,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 	                                                                                            throws UserStoreException {
 
 		if (log.isDebugEnabled()) {
-			log.debug("Initializing Started " + System.currentTimeMillis());
+			log.debug("Initialization Started " + System.currentTimeMillis());
 		}
 
 		this.realmConfig = realmConfig;
@@ -173,7 +173,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         initUserRolesCache();
 
 		if (log.isDebugEnabled()) {
-			log.debug("Initializing Ended " + System.currentTimeMillis());
+			log.debug("Initialization Ended " + System.currentTimeMillis());
 		}
 	}
 
@@ -441,18 +441,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         Map<String, String> values = new HashMap<String, String>();
-		String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-		String userNameProperty =
-		                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 		// if user name contains domain name, remove domain name
 		String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
 		if (userNames.length > 1) {
 			userName = userNames[1];
 		}
 
-        searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
 		DirContext dirContext = this.connectionSource.getContext();
-		NamingEnumeration<?> answer = null;
+        	String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        	String searchFilter = userSearchFilter.replace("?", userName);
+
+        	NamingEnumeration<?> answer = null;
 		NamingEnumeration<?> attrs = null;
 		try {
 			if(userDN != null){
@@ -929,7 +928,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		}
 		
 		if(debug) {
-			log.debug("User: " + dn + " is authnticated: " + isAuthed);
+			log.debug("User: " + dn + " is authenticated: " + isAuthed);
 		}
 		return isAuthed;
 	}
@@ -1584,11 +1583,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 			                          realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
 			if (memberOfProperty != null && memberOfProperty.length() > 0) {
 				// TODO Handle active directory shared roles logics here
-				String searchFilter =
-				                      realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+
 				String userNameProperty =
 				                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-				searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
+                		String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+                		String searchFilter = userSearchFilter.replace("?", userName);
 
 				String binaryAttribute =
 				                         realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
@@ -1902,8 +1901,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 			int count = 0;
 			while (answer.hasMore()) {
 				if (count > 0) {
-					log.error("More than element user exist with name");
-					throw new UserStoreException("More than element user exist with name");
+					log.error("More than one user exist with name");
+					throw new UserStoreException("More than one user exist with name");
 				}
 				SearchResult sr = (SearchResult) answer.next();
 				count++;
@@ -1962,8 +1961,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     if(answer.hasMore()){
                         while (answer.hasMore()) {
                             if (count > 0) {
-                                log.error("More than element user exist with name");
-                                throw new UserStoreException("More than element user exist with name");
+                                log.error("More than one user exist with name");
+                                throw new UserStoreException("More than one user exist with name");
                             }
                             SearchResult sr = (SearchResult) answer.next();
                             count++;
@@ -2160,9 +2159,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         if (memberOfProperty != null && memberOfProperty.length() > 0) {
             List<String> list;
 
-            String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
             String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-            searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
+            String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+            String searchFilter = userSearchFilter.replace("?", userName);
             String binaryAttribute =
                                      realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
             String primaryGroupId = realmConfig.getUserStoreProperty(LDAPConstants.PRIMARY_GROUP_ID);
@@ -2175,7 +2174,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             searchCtls.setReturningAttributes(returnedAtts);
             
             if(debug) {
-                log.debug("Do check is user: "+ userName + " in role: " + roleName);
+                log.debug("Do check whether the user: "+ userName + " is in role: " + roleName);
                 log.debug("Search filter: " + searchFilter);
                 for(String retAttrib : returnedAtts) {
                     log.debug("Requesting attribute: " + retAttrib);
@@ -2262,7 +2261,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             searchCtls.setReturningAttributes(returnedAtts);
             
             if(debug) {
-                log.debug("Do check is user : "+ userName + " in role: " + roleName);
+                log.debug("Do check whether the user : "+ userName + " is in role: " + roleName);
                 log.debug("Search filter : " + searchFilter);
                 for(String retAttrib : returnedAtts) {
                     log.debug("Requesting attribute: " + retAttrib);
@@ -2302,7 +2301,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } else {
                 	
                 	if(debug) {
-                        log.debug("Do check is user: "+ userName + " in role: " + roleName);
+                        log.debug("Do check whether the user: "+ userName + " is in role: " + roleName);
                         log.debug("Search filter: " + searchFilter);
                         for(String retAttrib : returnedAtts) {
                             log.debug("Requesting attribute: " + retAttrib);

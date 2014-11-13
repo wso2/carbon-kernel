@@ -51,17 +51,22 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
 
     @Override
     public void removeMap(String mapName) {
+        DistMap map = maps.get(mapName);
+        if(map != null) {
+            hazelcastInstance.getMap(mapName).removeEntryListener(map.getListenerId());
+        }
         maps.remove(mapName);
         hazelcastInstance.getMap(mapName).flush();
     }
 
     private class DistMap<K, V> implements Map<K, V> {
         private IMap<K, V> map;
+        private String listenerId;
 
         public DistMap(String mapName, final MapEntryListener entryListener) {
             this.map = hazelcastInstance.getMap(mapName);
             if (entryListener != null) {
-                map.addEntryListener(new EntryListener<K, V>() {
+                listenerId = map.addEntryListener(new EntryListener<K, V>() {
                     @Override
                     public void entryAdded(EntryEvent<K, V> kvEntryEvent) {
                         if (!kvEntryEvent.getMember().equals(hazelcastInstance.getCluster().getLocalMember())) {
@@ -179,6 +184,10 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
                 return map.entrySet();
             }
             return new LinkedHashSet<Entry<K, V>>();
+        }
+
+        public String getListenerId() {
+            return listenerId;
         }
     }
 }

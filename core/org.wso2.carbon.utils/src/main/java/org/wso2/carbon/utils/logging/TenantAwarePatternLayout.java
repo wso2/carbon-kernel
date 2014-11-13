@@ -25,6 +25,8 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * A log4j pattern layout implementation capable of capturing tenant details
@@ -121,7 +123,11 @@ public class TenantAwarePatternLayout extends PatternLayout {
     private static class TenantAwarePatternParser extends PatternParser {
         InetAddress inetAddress;
         String address;
-        String serverName = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+        String serverName = AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+            }
+        });
 
         public TenantAwarePatternParser(String pattern) {
             super(pattern);
@@ -221,8 +227,11 @@ public class TenantAwarePatternLayout extends PatternLayout {
                 if (event instanceof TenantAwareLoggingEvent) {
                     return ((TenantAwareLoggingEvent) event).getTenantId();
                 } else {
-                    int tenantId = CarbonContext.getThreadLocalCarbonContext()
-                                                                  .getTenantId();
+                    int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+                        public Integer run() {
+                            return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+                        }
+                    });
                     if (tenantId !=
                             MultitenantConstants.INVALID_TENANT_ID) {
                         return Integer.toString(tenantId);
@@ -342,8 +351,11 @@ public class TenantAwarePatternLayout extends PatternLayout {
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-                int tenantId = CarbonContext.getThreadLocalCarbonContext()
-                                                              .getTenantId();
+                int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+                    public Integer run() {
+                        return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+                    }
+                });
                 if (tenantId !=
                         MultitenantConstants.INVALID_TENANT_ID
                         && tenantId != MultitenantConstants.SUPER_TENANT_ID) {
