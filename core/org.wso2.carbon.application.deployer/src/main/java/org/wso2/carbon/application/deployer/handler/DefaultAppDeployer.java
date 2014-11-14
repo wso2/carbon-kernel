@@ -180,7 +180,7 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
                 continue;
             } else if ((artifact.getType().startsWith("lib/") || BUNDLE_TYPE.
                     equals(artifact.getType()))
-                       && AppDeployerUtils.getTenantId(axisConfig) ==
+                       && AppDeployerUtils.getTenantId() ==
                           MultitenantConstants.SUPER_TENANT_ID) {
                 // First copy the file into dropoins
                 /**
@@ -263,7 +263,7 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
                 continue;
             } else if (artifact.getType() != null && (artifact.getType().startsWith("lib/") ||
                                                       BUNDLE_TYPE.equals(artifact.getType()))
-                       && AppDeployerUtils.getTenantId(axisConfig) ==
+                       && AppDeployerUtils.getTenantId() ==
                           MultitenantConstants.SUPER_TENANT_ID) {
                 /**
                  * Removing code that removes jar artifact from dropins. We call uninstallBundle from the extracted
