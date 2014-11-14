@@ -1,4 +1,4 @@
-package org.wso2.carbon.integration;/*
+/*
 *Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,6 +15,7 @@ package org.wso2.carbon.integration;/*
 *specific language governing permissions and limitations
 *under the License.
 */
+package org.wso2.carbon.integration;
 
 public final class Constants {
     public static final String SUPER_TENANT_DOMAIN_NAME = "carbon.super";

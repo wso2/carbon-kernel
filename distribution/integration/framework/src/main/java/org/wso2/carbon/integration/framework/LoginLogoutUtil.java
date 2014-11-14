@@ -121,6 +121,37 @@ public final class LoginLogoutUtil {
 
    }
 
+    public String login(String hostName, String username, String password, String serverUrl)
+            throws Exception  {
+
+        ClientConnectionUtil.waitForPort(Integer.parseInt(FrameworkSettings.HTTPS_PORT) + portOffset);
+
+        String authenticationServiceURL = serverUrl.concat("AuthenticationAdmin");
+        AuthenticationAdminStub authenticationAdminStub = new AuthenticationAdminStub(authenticationServiceURL);
+        ServiceClient client = authenticationAdminStub._getServiceClient();
+        Options options = client.getOptions();
+        options.setManageSession(true);
+
+        if (log.isDebugEnabled()) {
+            log.debug("UserName : " + username + " Password : " + password + " HostName : " + hostName);
+        }
+        boolean isLoggedIn = authenticationAdminStub.login(username, password, hostName);
+        assert isLoggedIn : "Login failed!";
+
+        log.debug("getting sessionCookie");
+        ServiceContext serviceContext = authenticationAdminStub._getServiceClient().getLastOperationContext().getServiceContext();
+
+        sessionCookie = (String) serviceContext.getProperty(HTTPConstants.COOKIE_STRING);
+        assert sessionCookie != null : "Logged in session cookie is null";
+
+        if (log.isDebugEnabled()) {
+            log.debug("sessionCookie : " + sessionCookie);
+        }
+        log.info("Successfully logged in : " + sessionCookie);
+
+        return sessionCookie;
+    }
+
     public boolean loginWithBasicAuth() {
 
         ClientConnectionUtil.waitForPort(Integer.parseInt(FrameworkSettings.HTTPS_PORT) + portOffset);

@@ -1,5 +1,5 @@
 /*
-*Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *WSO2 Inc. licenses this file to you under the Apache License,
 *Version 2.0 (the "License"); you may not use this file except
@@ -60,8 +60,13 @@ public class FeatureManager {
 
         backendURL = automationContext.getContextUrls().getBackEndUrl();
 
+        loginLogoutUtil = new LoginLogoutUtil();
+        String sessionCookie = loginLogoutUtil.login(automationContext.getDefaultInstance().getHosts().get("default"),
+                automationContext.getContextTenant().getContextUser().getUserName(),
+                automationContext.getContextTenant().getContextUser().getPassword(), backendURL);
+
         repositoryAdminClient = new RepositoryAdminClient(backendURL, automationContext);
-        featureAdminClient = new FeatureAdminClient(backendURL, automationContext);
+        featureAdminClient = new FeatureAdminClient(backendURL, automationContext, sessionCookie);
     }
 
     public void addfeatureRepo() throws Exception {
@@ -87,19 +92,12 @@ public class FeatureManager {
 //        featureAdminClient.removeAllFeaturesWithProperty(featureInfos[0].getFeatureID());
     }
 
-    /*protected String login(String userName, String domain, String password, String backendUrl, String hostName) throws
-            RemoteException, LoginAuthenticationExceptionException, XPathExpressionException {
-        AuthenticatorClient loginClient = new AuthenticatorClient(backendUrl);
-        if (!domain.equals(AutomationConfiguration.getConfigurationValue(Constants.SUPER_TENANT_DOMAIN_NAME))) {
-            userName += "@" + domain;
-        }
-        return loginClient.login(userName, password, hostName);
-    }*/
-
     public void checkInstalledFeatures(boolean afterRestart) throws Exception {
         if (afterRestart) {
-            sessionCookie = loginLogoutUtil.login();
-            featureAdminClient = new FeatureAdminClient(backendURL, automationContext);
+            sessionCookie = loginLogoutUtil.login(automationContext.getDefaultInstance().getHosts().get("default"),
+                    automationContext.getContextTenant().getContextUser().getUserName(),
+                    automationContext.getContextTenant().getContextUser().getPassword(), backendURL);
+            featureAdminClient = new FeatureAdminClient(backendURL, automationContext, sessionCookie);
         }
         FeatureWrapper[] featuresWrappers = featureAdminClient.getInstalledFeatures();
 
