@@ -163,7 +163,7 @@ public final class ApplicationManager implements ApplicationManagerService {
         }
 
         CarbonAppPersistenceManager capm = getPersistenceManager(axisConfig);
-        String tenantId = AppDeployerUtils.getTenantIdString(axisConfig);
+        String tenantId = AppDeployerUtils.getTenantIdString();
         String archPathToProcess = AppDeployerUtils.formatPath(archPath);
         String fileName = archPathToProcess.substring(archPathToProcess.lastIndexOf('/') + 1);
         //check whether this app already exists..
@@ -275,7 +275,7 @@ public final class ApplicationManager implements ApplicationManagerService {
             this.addCarbonApp(tenantId, currentApp);
             log.info("Successfully Deployed Carbon Application : " + currentApp.getAppNameWithVersion() +
                      AppDeployerUtils.getTenantIdLogString(AppDeployerUtils.
-                             getTenantId(axisConfig)));
+                             getTenantId()));
         } catch (DeploymentException e) {
             log.error("Error occurred while deploying Carbon Application", e);
             revertDeployedArtifacts(currentApp, axisConfig);
@@ -429,16 +429,16 @@ public final class ApplicationManager implements ApplicationManagerService {
                 handler.undeployArtifacts(carbonApp, axisConfig);
             }
             // Remove the app from tenant cApp list
-            removeCarbonApp(AppDeployerUtils.getTenantIdString(axisConfig), carbonApp);
+            removeCarbonApp(AppDeployerUtils.getTenantIdString(), carbonApp);
 
             // Remove the app from registry
 
             CarbonAppPersistenceManager capm = getPersistenceManager(axisConfig);
             capm.deleteApplication(carbonApp.getAppNameWithVersion());
-            // removing the extracted CApp form repository/carbonapps/work
+            // removing the extracted CApp form tmp/carbonapps/
             FileManipulator.deleteDir(carbonApp.getExtractedPath());
             log.info("Successfully Undeployed Carbon Application : " + carbonApp.getAppNameWithVersion()
-                            + AppDeployerUtils.getTenantIdLogString(AppDeployerUtils.getTenantId(axisConfig)));
+                            + AppDeployerUtils.getTenantIdLogString(AppDeployerUtils.getTenantId()));
         } catch (Exception e) {
             log.error("Error occured while trying unDeply  : " + carbonApp.getAppNameWithVersion());
         }
@@ -619,7 +619,7 @@ public final class ApplicationManager implements ApplicationManagerService {
      * @return - CarbonAppPersistenceManager for the current tenant
      */
     public CarbonAppPersistenceManager getPersistenceManager(AxisConfiguration axisConfig) {
-        String tenantId = AppDeployerUtils.getTenantIdString(axisConfig);
+        String tenantId = AppDeployerUtils.getTenantIdString();
         CarbonAppPersistenceManager capm = tenantPMMap.get(tenantId);
         try {
             if (capm == null) {
@@ -766,7 +766,7 @@ public final class ApplicationManager implements ApplicationManagerService {
      * @return - true if exits
      */
     private boolean appExists(String newAppNameWithVersion, AxisConfiguration axisConfig) {
-        String tenantId = AppDeployerUtils.getTenantIdString(axisConfig);
+        String tenantId = AppDeployerUtils.getTenantIdString();
         CarbonApplication appToRemove = null;
         for (CarbonApplication carbonApp : getCarbonApps(tenantId)) {
             if (newAppNameWithVersion.equals(carbonApp.getAppNameWithVersion())) {
@@ -790,7 +790,7 @@ public final class ApplicationManager implements ApplicationManagerService {
     }
 
     public void cleanupCarbonApps(AxisConfiguration axisConfig) {
-        String tenantId = AppDeployerUtils.getTenantIdString(axisConfig);
+        String tenantId = AppDeployerUtils.getTenantIdString();
         tenantcAppMap.remove(tenantId);
         tenantfaultycAppMap.remove(tenantId);
         tenantPMMap.remove(tenantId);
