@@ -93,7 +93,7 @@
 			        <bundleDef>au.com.bytecode.opencsv.wso2:opencsv:1.8.wso2v1</bundleDef>
 				<bundleDef>org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2</bundleDef>
                                 <bundleDef>com.h2database.wso2:h2-database-engine:1.2.140.wso2v3</bundleDef>
-                                <bundleDef>org.apache.axis2:axis2-transport-jms:${version.axis2.transport}</bundleDef>
+                                <!--bundleDef>org.apache.axis2:axis2-transport-jms:${version.axis2.transport}</bundleDef-->
                                 <bundleDef>org.apache.axis2.wso2:axis2-json:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>org.codehaus.jettison.wso2:jettison:${orbit.version.jettison}</bundleDef>
                                 <bundleDef>net.sf.ehcache.wso2:ehcache:1.5.0.wso2v3</bundleDef>

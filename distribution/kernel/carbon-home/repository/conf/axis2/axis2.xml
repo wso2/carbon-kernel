@@ -382,8 +382,8 @@
     <!-- Out Transports -->
     <!-- ================================================= -->
 
-    <transportSender name="tcp"
-                     class="org.apache.axis2.transport.tcp.TCPTransportSender"/>
+    <!--transportSender name="tcp"
+                     class="org.apache.axis2.transport.tcp.TCPTransportSender"/-->
     <transportReceiver name="local"
                        class="org.wso2.carbon.core.transports.local.CarbonLocalTransportReceiver"/>
     <transportSender name="local"

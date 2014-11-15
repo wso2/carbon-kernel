@@ -20,7 +20,7 @@
 	<carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
         <axis2.osgi.version>1.6.1.wso2v11-SNAPSHOT</axis2.osgi.version>
         <axis2.client.osgi.version>1.6.1.wso2v11-SNAPSHOT</axis2.client.osgi.version>
-        <orbit.version.axiom>1.2.11.wso2v5-SNAPSHOT</orbit.version.axiom>
+        <orbit.version.axiom>1.2.11.wso2v5</orbit.version.axiom>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
 
     </properties>
