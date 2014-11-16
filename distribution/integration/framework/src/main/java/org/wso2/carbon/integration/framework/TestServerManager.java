@@ -121,7 +121,8 @@ public abstract class TestServerManager {
      */
     protected void stopServer() throws Exception {
         serverUtils.shutdown(portOffset);
-        CodeCoverageUtils.generateReports();
+        //disabling coverage reports
+        //CodeCoverageUtils.generateReports();
     }
     
     /**
@@ -133,7 +134,8 @@ public abstract class TestServerManager {
      */
     protected void stopServer(String carbonManagementContext) throws Exception {
         serverUtils.shutdown(portOffset, carbonManagementContext);
-        CodeCoverageUtils.generateReports();
+        //disabling coverage reports
+        //CodeCoverageUtils.generateReports();
     }
 
     /**

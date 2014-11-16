@@ -1,5 +1,5 @@
 /*
-*Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *WSO2 Inc. licenses this file to you under the Apache License,
 *Version 2.0 (the "License"); you may not use this file except
@@ -19,17 +19,13 @@ package org.wso2.carbon.integration.featuremgt;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.wso2.carbon.automation.engine.configurations.AutomationConfiguration;
-import org.wso2.carbon.automation.engine.context.InstanceType;
 import org.wso2.carbon.automation.engine.extensions.ExecutionListenerExtension;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
-import org.wso2.carbon.integration.common.extensions.utils.AutomationXpathConstants;
-import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
+import org.wso2.carbon.integration.clients.ServerAdminClient;
+import org.wso2.carbon.integration.framework.ClientConnectionUtil;
+import org.wso2.carbon.integration.tests.CarbonTestServerManager;
 
-import javax.xml.xpath.XPathExpressionException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,31 +39,40 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
     public static final String FEATURE_PARAM_KEY = "feature_";
     private List<Node> productGroupsList;
     private List<FeatureInfo> featureList;
-    private ServerConfigurationManager serverConfigurationManager;
+    ServerAdminClient serverAdminClient;
 
     public void initiate() throws Exception {
-        productGroupsList = getAllProductNodes();
+//        productGroupsList = getAllProductNodes();
         getFeatureList(getParameters());
-        serverConfigurationManager = new ServerConfigurationManager(getAutomationContext());
     }
 
     // Populate all tenants and user on execution start of the test
     public void onExecutionStart() throws Exception {
-        for (Node aProductGroupsList : productGroupsList) {
-            String productGroupName = aProductGroupsList.getAttributes().
-                    getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
-            String instanceName = getProductGroupInstance(aProductGroupsList);
+//        for (Node aProductGroupsList : productGroupsList) {
+//            String productGroupName = aProductGroupsList.getAttributes().
+//                    getNamedItem(Constants.AutomationXpathConstants.NAME).getNodeValue();
+//            String instanceName = getProductGroupInstance(aProductGroupsList);
 
-            FeatureManager featureManager = new FeatureManager(productGroupName, instanceName, featureList);
-            featureManager.addfeatureRepo();
-            featureManager.reviewInstallFeatures();
-            featureManager.getLicensingInformation();
-            featureManager.installFeatures();
+        //start up a carbon instance
+        CarbonTestServerManager carbonTestServerManager = new CarbonTestServerManager();
+        carbonTestServerManager.startServer();
 
-            serverConfigurationManager.restartGracefully();
+        //wait till mgt port opens
+        ClientConnectionUtil.waitForPort(Integer.parseInt(
+                getAutomationContext().getDefaultInstance().getPorts().get("https")));
+        Thread.sleep(4000);
 
-            featureManager.checkInstalledFeatures(Boolean.TRUE);
-        }
+        FeatureManager featureManager = new FeatureManager(featureList, getAutomationContext());
+        featureManager.addfeatureRepo();
+        featureManager.reviewInstallFeatures();
+        featureManager.getLicensingInformation();
+        featureManager.installFeatures();
+
+        serverAdminClient = new ServerAdminClient(getAutomationContext());
+        serverAdminClient.restartGracefully();
+
+        featureManager.checkInstalledFeatures(Boolean.TRUE);
+//        }
     }
 
     private void getFeatureList(Map<String, String> parameters) {
@@ -91,20 +96,17 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
 
     // Remove the populated users on execution finish of the test
     public void onExecutionFinish() throws Exception {
-        for (Node aProductGroupsList : productGroupsList) {
-            String productGroupName = aProductGroupsList.getAttributes().
-                    getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
-            String instanceName = getProductGroupInstance(aProductGroupsList);
-            FeatureManager featureManager = new FeatureManager(productGroupName, instanceName, featureList);
-            featureManager.removeFeatures();
-        }
+//        for (Node aProductGroupsList : productGroupsList) {
+        FeatureManager featureManager = new FeatureManager(featureList, getAutomationContext());
+        featureManager.removeFeatures();
+//        }
     }
 
     //get the instance which can call admin services for provided product group
-    private String getProductGroupInstance(Node productGroup) throws Exception {
+    /*private String getProductGroupInstance(Node productGroup) throws Exception {
         String instanceName = "";
         Boolean isClusteringEnabled = Boolean.parseBoolean(productGroup.getAttributes().
-                getNamedItem(AutomationXpathConstants.CLUSTERING_ENABLED).getNodeValue());
+                getNamedItem(Constants.AutomationXpathConstants.CLUSTERING_ENABLED).getNodeValue());
         if (!isClusteringEnabled) {
             instanceName = getInstanceList(productGroup, InstanceType.standalone.name()).get(0);
         } else {
@@ -125,8 +127,8 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
         int numberOfInstances = productGroup.getChildNodes().getLength();
         for (int i = 0; i < numberOfInstances; i++) {
             NamedNodeMap attributes = productGroup.getChildNodes().item(i).getAttributes();
-            String instanceName = attributes.getNamedItem(AutomationXpathConstants.NAME).getNodeValue();
-            String instanceType = attributes.getNamedItem(AutomationXpathConstants.TYPE).getNodeValue();
+            String instanceName = attributes.getNamedItem(Constants.AutomationXpathConstants.NAME).getNodeValue();
+            String instanceType = attributes.getNamedItem(Constants.AutomationXpathConstants.TYPE).getNodeValue();
             if (instanceType.equals(type)) {
                 instanceList.add(instanceName);
             }
@@ -136,10 +138,10 @@ public class FeatureMgtExtension extends ExecutionListenerExtension {
 
     private List<Node> getAllProductNodes() throws XPathExpressionException {
         List<Node> nodeList = new ArrayList<Node>();
-        NodeList productGroups = AutomationConfiguration.getConfigurationNodeList(AutomationXpathConstants.PRODUCT_GROUP);
+        NodeList productGroups = AutomationConfiguration.getConfigurationNodeList(Constants.AutomationXpathConstants.PRODUCT_GROUP);
         for (int i = 0; i < productGroups.getLength(); i++) {
             nodeList.add(productGroups.item(i));
         }
         return nodeList;
-    }
+    }*/
 }
