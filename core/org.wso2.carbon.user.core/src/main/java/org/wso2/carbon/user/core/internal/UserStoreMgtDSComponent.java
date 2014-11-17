@@ -102,7 +102,7 @@ public class UserStoreMgtDSComponent {
 
 	protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		if (log.isDebugEnabled()) {
-			log.info("Unsetting the ServerConfigurationService");
+			log.debug("Unsetting the ServerConfigurationService");
 		}
 		UserStoreMgtDSComponent.serverConfigurationService = null;
 	}
