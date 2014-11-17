@@ -514,7 +514,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 				// get the claimMapping related to this claimURI
 				String attributeName = getClaimAtrribute(claimURI, userName, null);
                 //remove user DN from cache if changing username attribute
-                if (attributeName != null && attributeName.equals(realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE))) {
+                if (realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE).equals
+                        (attributeName)) {
                     userCache.remove(userName);
                 }
                 // if mapped attribute is CN, then skip treating as a modified
