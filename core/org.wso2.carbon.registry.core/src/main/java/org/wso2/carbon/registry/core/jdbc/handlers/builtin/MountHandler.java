@@ -291,6 +291,8 @@ public class MountHandler extends Handler {
                 endNestedOperation();
             }
             requestContext.setProcessingComplete(true);
+        } catch (RegistryException e) {
+	    throw e;
         } catch (Exception e) {
             throw new RegistryException("Unable to put resource", e);
         } finally {
@@ -505,6 +507,8 @@ public class MountHandler extends Handler {
                 } finally {
                     endNestedOperation();
                 }
+            } catch (RegistryException e) {
+            	throw e;
             } catch (Exception e) {
                 String msg = "Could not delete the remote resource.";
                 log.error(msg);
@@ -542,7 +546,9 @@ public class MountHandler extends Handler {
 			} finally {
 				endNestedOperation();
 			}
-		} catch (Exception e) {
+		} catch (RegistryException e) {
+        		throw e;
+        	} catch (Exception e) {
 			String msg = "Could not remove comment from the remote resource.";
 			log.error(msg);
 			setInExecution(false);
@@ -579,7 +585,9 @@ public class MountHandler extends Handler {
 			} finally {
 				endNestedOperation();
 			}
-		} catch (Exception e) {
+		} catch (RegistryException e) {
+        		throw e;
+        	} catch (Exception e) {
 			String msg = "Could not remove tag from the remote resource.";
 			log.error(msg);
 			setInExecution(false);
@@ -639,6 +647,8 @@ public class MountHandler extends Handler {
                 } finally {
                     endNestedOperation();
                 }
+            } catch (RegistryException e) {
+            	throw e;
             } catch (Exception e) {
                 String msg = "Could not rename the remote resource.";
                 log.error(msg);
@@ -1091,6 +1101,8 @@ public class MountHandler extends Handler {
                 endNestedOperation();
             }
             requestContext.setProcessingComplete(true);
+        } catch (RegistryException e) {
+            throw e;
         } catch (Exception e) {
             String msg = "Could not apply tag to the resource in " + this.conURL;
             if (log.isWarnEnabled()) {
@@ -1128,6 +1140,8 @@ public class MountHandler extends Handler {
             } finally {
                 endNestedOperation();
             }
+        } catch (RegistryException e) {
+            throw e;
         } catch (Exception e) {
             String msg = "Could not get resource paths with tag in " + this.conURL;
             if (log.isWarnEnabled()) {
@@ -1183,6 +1197,8 @@ public class MountHandler extends Handler {
             }
             // We are not interested in setting processing as completed since we want to enforce a
             // federated query across multiple mounts.
+        } catch (RegistryException ex) {
+            throw ex;
         } catch (Exception e) {
             String msg = "Could not execute query in remote mount at " + this.conURL;
             if (log.isWarnEnabled()) {
@@ -1547,6 +1563,8 @@ public class MountHandler extends Handler {
                 endNestedOperation();
             }
             requestContext.setProcessingComplete(true);
+        } catch (RegistryException e) {
+            throw e;
         } catch (Exception e) {
             throw new RegistryException("Unable to dump content", e);
         } finally {
@@ -1585,6 +1603,8 @@ public class MountHandler extends Handler {
                 endNestedOperation();
             }
             requestContext.setProcessingComplete(true);
+        } catch (RegistryException e) {
+            throw e;
         } catch (Exception e) {
             throw new RegistryException("Unable to restore content", e);
         } finally {
