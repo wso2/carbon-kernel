@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
+import org.wso2.carbon.CarbonException;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.component.xml.Component;
 import org.wso2.carbon.utils.component.xml.ComponentConfigFactory;
@@ -60,7 +61,7 @@ public class Axis2DeployerRegistry implements BundleListener {
             try {
                 Deployer deployer = CarbonUtils.getDeployer(deployerConfig.getClassStr());
                 addDeployer(deployerConfig, deployer);
-            } catch (Exception e) {
+            } catch (CarbonException e) {
                 //logging error and continue
                 //Exceptions in here, are due to issues with reading deployers
                 //they will handled by CarbonUtils hence continue.

@@ -1183,18 +1183,18 @@ public class CarbonUtils {
      * @return Deployer
      * @throws Exception
      */
-    public static Deployer getDeployer(String className) throws Exception {
+    public static Deployer getDeployer(String className) throws CarbonException {
         Deployer deployer;
         try {
             Class deployerClass = Class.forName(className);
             deployer = (Deployer) deployerClass.newInstance();
 
         } catch (ClassNotFoundException e) {
-            throw new Exception("Deployer class not found ", e);
+            throw new CarbonException("Deployer class not found ", e);
         } catch (InstantiationException e) {
-            throw new Exception("Cannot create new deployer instance", e);
+            throw new CarbonException("Cannot create new deployer instance", e);
         } catch (IllegalAccessException e) {
-            throw new Exception("Error creating deployer", e);
+            throw new CarbonException("Error creating deployer", e);
         }
         return deployer;
     }
