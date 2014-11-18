@@ -262,7 +262,7 @@
         <version.apache.felix.gogo.runtime>0.8.0.v201108120515</version.apache.felix.gogo.runtime>
         <version.apache.felix.gogo.command>0.8.0.v201108120515</version.apache.felix.gogo.command>
 
-        <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
 
         <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4, 3.1.0)</neethi.osgi.version.range>
