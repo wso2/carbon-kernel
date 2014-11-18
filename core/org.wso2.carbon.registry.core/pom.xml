@@ -417,7 +417,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.ws.commons.schema.wso2</groupId>
+            <groupId>org.apache.ws.commons.schema</groupId>
             <artifactId>XmlSchema</artifactId>
         </dependency>
         <dependency>
