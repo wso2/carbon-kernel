@@ -390,7 +390,7 @@ public class PrivilegedCarbonContext extends CarbonContext {
             serviceTracker.open();
             Collections.addAll(services, serviceTracker.getServices());
         }catch (InvalidSyntaxException e) {
-            log.error("Invalid syntax for filter passed for service : "+clazz.getName(),e);
+            log.error("Invalid syntax for filter passed for service : " + clazz.getName(), e);
         } finally {
             if(serviceTracker!=null)  {
                 serviceTracker.close();
