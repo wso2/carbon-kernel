@@ -296,11 +296,12 @@ public class CarbonContext {
      */
     @Deprecated
     public Object getOSGiService(Class clazz) {
-        return getOSGiService(clazz,null);
+        return getOSGiService(clazz, null);
     }
 
     /**
      * Obtain the OSGi services found for interface or class <code>clazz</code>
+     *
      * @param clazz The type of the OSGi service
      * @return The List of OSGi services
      * @deprecated please use {@link #getOSGiServices(Class, java.util.Hashtable)} instead
@@ -409,7 +410,7 @@ public class CarbonContext {
         buf.append("(objectClass=" + clazz.getName() + ")");
         if (props != null && !props.isEmpty()) {
             buf.insert(0, "(&");
-            for (Map.Entry< String, String > entry : props.entrySet()) {
+            for (Map.Entry<String, String> entry : props.entrySet()) {
                 buf.append("(" + entry.getKey() + "=" + entry.getValue() + ")");
             }
             buf.append(")");
