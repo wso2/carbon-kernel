@@ -17,7 +17,7 @@
 
         <carbon.platform.version>4.3.0-SNAPSHOT</carbon.platform.version>
         <carbon.feature.version>4.3.0-SNAPSHOT</carbon.feature.version>
-	<carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
         <axis2.osgi.version>1.6.1.wso2v11-SNAPSHOT</axis2.osgi.version>
         <axis2.client.osgi.version>1.6.1.wso2v11-SNAPSHOT</axis2.client.osgi.version>
         <orbit.version.axiom>1.2.11.wso2v5</orbit.version.axiom>
