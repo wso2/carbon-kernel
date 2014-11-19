@@ -29,7 +29,6 @@ import org.wso2.carbon.feature.mgt.core.ResolutionResult;
 import org.wso2.carbon.feature.mgt.core.internal.ServiceHolder;
 import org.wso2.carbon.feature.mgt.core.operations.ProfileChangeOperation;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -86,27 +85,58 @@ public final class ProvisioningUtils {
         performProvisioningAction(resolutionResult, false);
     }
 
-    public static ILicense[] getLicensingInformation(IProvisioningPlan provisioningPlan) throws ProvisioningException, URISyntaxException {
+    @Deprecated
+    public static ILicense[] getLicensingInformation(IProvisioningPlan provisioningPlan) throws
+            ProvisioningException, URISyntaxException {
         ArrayList<ILicense> licenseArrayList = new ArrayList<ILicense>();
         IInstallableUnit[] installableUnits = provisioningPlan.getAdditions().query(QueryUtil.createIUAnyQuery(),
-                new NullProgressMonitor()).toArray(IInstallableUnit.class);          
-        	 boolean found;
-             for (IInstallableUnit iu : installableUnits) {
-                 found = false;
-                 ILicense license = IUPropertyUtils.getLicense(iu);
-                 if(license != null){
-                	 for (ILicense addedLicense : licenseArrayList) {
-                         if (addedLicense.equals(license)) {
-                             found = true;
-                             break;
-                         }
-                     }
-                     if (!found) {             	 
-                         licenseArrayList.add(license);
-                     } 
-                 }
-             }
-             return licenseArrayList.toArray(new ILicense[licenseArrayList.size()]);
+                new NullProgressMonitor()).toArray(IInstallableUnit.class);
+        boolean found;
+        for (IInstallableUnit iu : installableUnits) {
+            found = false;
+            ILicense license = IUPropertyUtils.getLicense(iu);
+            if (license != null) {
+                for (ILicense addedLicense : licenseArrayList) {
+                    if (addedLicense.equals(license)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    licenseArrayList.add(license);
+                }
+            }
+        }
+
+        return licenseArrayList.toArray(new ILicense[licenseArrayList.size()]);
+    }
+
+    public static Map getLicensingInformation(IInstallableUnit[] installableUnits) throws ProvisioningException,
+            URISyntaxException {
+        Map<ILicense, ArrayList<IInstallableUnit>> licenseFeatureMap = new HashMap<ILicense,
+                ArrayList<IInstallableUnit>>();
+        ArrayList<IInstallableUnit> iInstallableUnits = null;
+        ILicense iLicense = null;
+        for (IInstallableUnit iu : installableUnits) {
+            iLicense = IUPropertyUtils.getLicense(iu);
+            if (iLicense != null) {
+                if (licenseFeatureMap.containsKey(iLicense)) {
+                    iInstallableUnits = licenseFeatureMap.get(iLicense);
+                } else {
+                    iInstallableUnits = new ArrayList<IInstallableUnit>();
+                }
+            } else {
+                if (licenseFeatureMap.containsKey(null)) {
+                    //Here iLicense = null
+                    iInstallableUnits = licenseFeatureMap.get(iLicense);
+                } else {
+                    iInstallableUnits = new ArrayList<IInstallableUnit>();
+                }
+            }
+            iInstallableUnits.add(iu);
+            licenseFeatureMap.put(iLicense, iInstallableUnits);
+        }
+        return licenseFeatureMap;
     }
 
     public static IInstallableUnit[] getAllInstalledIUs() {

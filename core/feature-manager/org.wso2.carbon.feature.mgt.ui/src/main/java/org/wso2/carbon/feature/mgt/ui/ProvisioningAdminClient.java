@@ -105,10 +105,10 @@ public class ProvisioningAdminClient {
         return featureInfo;
     }
 
-    public LicenseInfo[] getLicensingInformation() throws Exception {
-        LicenseInfo[] licenseInfo = null;
+    public License[] getLicensingInformation() throws Exception {
+        License[] license = null;
         try {
-            licenseInfo = provAdminStub.getLicensingInformation();
+            license = provAdminStub.getFeatureLicenseInfo();
         } catch (AxisFault e) {
             if (e.getFaultCode() != null) {
                 handleException(bundle.getString(e.getFaultCode().getLocalPart()), e);
@@ -116,7 +116,7 @@ public class ProvisioningAdminClient {
                 handleException(bundle.getString("failed.get.license.info"), e);
             }
         }
-        return licenseInfo;
+        return license;
     }
 
     public void performInstallation(String actionType) throws Exception {

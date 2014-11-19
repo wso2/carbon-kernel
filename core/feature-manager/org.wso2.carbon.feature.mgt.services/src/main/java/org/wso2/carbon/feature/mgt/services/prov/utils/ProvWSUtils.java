@@ -364,12 +364,49 @@ public class ProvWSUtils {
 
         LicenseInfo[] licenses = new LicenseInfo[p2Licenses.length];
         for (int index = 0; index < licenses.length; index++) {
-            	LicenseInfo license = new LicenseInfo();
-                license.setBody((p2Licenses[index].getBody() == null) ? "" : p2Licenses[index].getBody());
-                license.setURL((p2Licenses[index].getLocation() == null) ? "" : p2Licenses[index].getLocation().toString());
+            	LicenseInfo license = wrapP2LicenseAsLicense(p2Licenses[index]);
                 licenses[index] = license;
         }
         return licenses;
+    }
+
+    public static LicenseInfo wrapP2LicenseAsLicense(ILicense p2License) {
+        if (p2License == null) {
+            return new LicenseInfo();
+        }
+        LicenseInfo licenseInfo = new LicenseInfo();
+        licenseInfo.setBody((p2License.getBody() == null) ? "" : p2License.getBody());
+        licenseInfo.setURL((p2License.getLocation() == null) ? "" : p2License.getLocation().toString());
+        return licenseInfo;
+    }
+
+    public static License[] wrapP2LicensesAsLicenses (Map<ILicense, ArrayList<IInstallableUnit>> licenseFeatureMap) {
+        if (licenseFeatureMap == null) {
+            return new License[0];
+        }
+        ArrayList<License> licenses = new ArrayList<License>();
+        ArrayList<IInstallableUnit> iInstallableUnits = null;
+        ILicense[] orderedKeys = licenseFeatureMap.keySet().toArray(new ILicense[licenseFeatureMap.keySet().size()]);
+        Arrays.sort(orderedKeys, new Comparator<ILicense>() {
+            @Override
+            public int compare(ILicense o1, ILicense o2) {
+                return o1 == null || o2 == null ? -1 : 1;
+            }
+        });
+
+        for(ILicense iLicense : orderedKeys) {
+            License license = new License();
+            if (iLicense == null) {
+                license.setLicenseInfo(null);
+            } else {
+                license.setLicenseInfo(wrapP2LicenseAsLicense(iLicense));
+            }
+            iInstallableUnits = licenseFeatureMap.get(iLicense);
+            license.setFeatureInfo(wrapIUsAsFeatures(iInstallableUnits.toArray(new IInstallableUnit[iInstallableUnits
+                    .size()])));
+            licenses.add(license);
+        }
+        return licenses.toArray(new License[licenses.size()]);
     }
 
     public static CopyrightInfo wrapICopyrightAsCopyrightInfo(ICopyright iCopyright) {
