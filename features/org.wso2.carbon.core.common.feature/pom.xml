@@ -110,7 +110,7 @@
                                 <bundleDef>org.apache.neethi.wso2:neethi:2.0.4.wso2v4</bundleDef>
                                 <bundleDef>org.apache.woden.wso2:woden:1.0.0.M8-wso2v1</bundleDef>
                                 <bundleDef>wsdl4j.wso2:wsdl4j:1.6.2.wso2v4</bundleDef>
-                                <bundleDef>org.apache.ws.commons.schema:XmlSchema:1.4.7.wso2v3-SNAPSHOT</bundleDef>
+                                <bundleDef>org.apache.ws.commons.schema.wso2:XmlSchema:${version.XmlSchema}</bundleDef>
                                 <bundleDef>commons-codec.wso2:commons-codec:1.4.0.wso2v1</bundleDef>
                                 <bundleDef>annogen.wso2:annogen:0.1.0.wso2v1</bundleDef>
                                 <bundleDef>backport-util-concurrent.wso2:backport-util-concurrent:3.1.0.wso2v1</bundleDef>

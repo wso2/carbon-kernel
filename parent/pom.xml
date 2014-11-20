@@ -956,7 +956,7 @@
                 <version>${orbit.version.wsdl4j}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.ws.commons.schema</groupId>
+                <groupId>org.apache.ws.commons.schema.wso2</groupId>
                 <artifactId>XmlSchema</artifactId>
                 <version>${version.XmlSchema}</version>
             </dependency>
