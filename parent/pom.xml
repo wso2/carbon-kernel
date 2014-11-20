@@ -365,11 +365,11 @@
         <imp.pkg.version.xmlsec>[1.4.2,2)</imp.pkg.version.xmlsec>
 
         <!-- Wss4j -->
-	<wss4j.version>1.5.11-wso2v7-SNAPSHOT</wss4j.version>
-        <orbit.version.wss4j>1.5.11.wso2v7-SNAPSHOT</orbit.version.wss4j>
-        <exp.pkg.version.wss4j>1.5.11.wso2v7-SNAPSHOT</exp.pkg.version.wss4j>
-        <imp.pkg.version.wss4j>[1.5.11.wso2v7-SNAPSHOT,2)</imp.pkg.version.wss4j>
-        <wss4j.osgi.version>1.5.11.wso2v7-SNAPSHOT</wss4j.osgi.version>
+	<wss4j.version>1.5.11-wso2v7</wss4j.version>
+        <orbit.version.wss4j>1.5.11.wso2v7</orbit.version.wss4j>
+        <exp.pkg.version.wss4j>1.5.11.wso2v7</exp.pkg.version.wss4j>
+        <imp.pkg.version.wss4j>[1.5.11.wso2v7,2)</imp.pkg.version.wss4j>
+        <wss4j.osgi.version>1.5.11.wso2v7</wss4j.osgi.version>
 
         <!-- Rampart -->
         <rampart.version>1.6.1-wso2v9</rampart.version>

@@ -50,7 +50,7 @@
 				    <pathelement location="${settings.localRepository}/wsdl4j/wso2/wsdl4j/${orbit.version.wsdl4j}/wsdl4j-${orbit.version.wsdl4j}.jar"/>
 				    <pathelement location="${settings.localRepository}/commons-logging/commons-logging/${version.commons.logging}/commons-logging-${version.commons.logging}.jar"/>
 				    <pathelement location="${settings.localRepository}/org/apache/neethi/wso2/neethi/${orbit.version.neethi}/neethi-${orbit.version.neethi}.jar"/>
-				    <pathelement location="${settings.localRepository}/org/apache/ws/commons/schema/XmlSchema/${orbit.version.xmlschema}/XmlSchema-${orbit.version.xmlschema}.jar"/>
+				    <pathelement location="${settings.localRepository}/org/apache/ws/commons/schema/wso2/XmlSchema/${orbit.version.xmlschema}/XmlSchema-${orbit.version.xmlschema}.jar"/>
 
                                 </path>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
