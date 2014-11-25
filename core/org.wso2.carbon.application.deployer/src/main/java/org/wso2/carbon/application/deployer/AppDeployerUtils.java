@@ -97,8 +97,23 @@ public final class AppDeployerUtils {
 		if(isAppDirCreated){
 			return;
 		}
-	
+
         createDir(getAppUnzipDir());
+
+        File doNotDeleteNote = new File(getAppUnzipDir(), "DO-NOT-DELETE.txt");
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(doNotDeleteNote);
+            writer.println("Do not delete this folder if the Carbon server is running! Otherwise, " +
+                           "it might cause issues for artifacts that come from CApps.");
+        } catch (FileNotFoundException e) {
+            log.error("Error while writing a file to the CApp extraction folder: " + doNotDeleteNote, e);
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+
         isAppDirCreated = true;
 		
 	}
@@ -761,21 +776,6 @@ public final class AppDeployerUtils {
             log.error("Error while creating directory : " + path);
             return;
         }
-
-        File doNotDeleteNote = new File(temp, "DO-NOT-DELETE.txt");
-        PrintWriter writer = null;
-        try {
-            writer = new PrintWriter(doNotDeleteNote);
-            writer.println("Do not delete this folder if the Carbon server is running! Otherwise, " +
-                    "it might cause issues for artifacts that come from CApps.");
-        } catch (FileNotFoundException e) {
-            log.error("Error while writing a file to the CApp extraction folder: " + doNotDeleteNote, e);
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-        }
-
 
     }
 
