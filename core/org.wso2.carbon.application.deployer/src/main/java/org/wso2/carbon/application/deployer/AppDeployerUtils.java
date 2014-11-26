@@ -80,18 +80,40 @@ public final class AppDeployerUtils {
 		
 		
 	}
-	
-	private static void createAppDirectory(){
+
+    static {
+        String javaTmpDir = System.getProperty("java.io.tmpdir");
+        APP_UNZIP_DIR = javaTmpDir.endsWith(File.separator) ? javaTmpDir + AppDeployerConstants.CARBON_APPS :
+                        javaTmpDir + File.separator + AppDeployerConstants.CARBON_APPS;
+    }
+
+    public static String getAppUnzipDir() {
+        return APP_UNZIP_DIR;
+    }
+
+    private static void createAppDirectory(){
 		//cApps should be temporarily uploaded to worker directory,
     	//then house keeping task will delete after timeout
 		if(isAppDirCreated){
 			return;
 		}
-	
-        String javaTmpDir = System.getProperty("java.io.tmpdir");
-        APP_UNZIP_DIR = javaTmpDir.endsWith(File.separator) ? javaTmpDir + AppDeployerConstants.CARBON_APPS :
-                											   javaTmpDir + File.separator + AppDeployerConstants.CARBON_APPS;
-        createDir(APP_UNZIP_DIR);
+
+        createDir(getAppUnzipDir());
+
+        File doNotDeleteNote = new File(getAppUnzipDir(), "DO-NOT-DELETE.txt");
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(doNotDeleteNote);
+            writer.println("Do not delete this folder if the Carbon server is running! Otherwise, " +
+                           "it might cause issues for artifacts that come from CApps.");
+        } catch (FileNotFoundException e) {
+            log.error("Error while writing a file to the CApp extraction folder: " + doNotDeleteNote, e);
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+        }
+
         isAppDirCreated = true;
 		
 	}
@@ -448,10 +470,12 @@ public final class AppDeployerUtils {
     public static String extractCarbonApp(String appCarPath) throws CarbonException {
         createAppDirectory();
 
+        //append tenant id to the capp extraction path
+        String tenantId = AppDeployerUtils.getTenantIdString();
         String appCarPathFormatted = formatPath(appCarPath);
         String fileName = appCarPathFormatted.substring(appCarPathFormatted.lastIndexOf('/') + 1);
-        String dest = APP_UNZIP_DIR + File.separator + System.currentTimeMillis() +
-                fileName + File.separator;
+        String dest = getAppUnzipDir() + File.separator + tenantId + File.separator +
+                      System.currentTimeMillis() + fileName + File.separator;
         createDir(dest);
 
         try {
@@ -464,8 +488,9 @@ public final class AppDeployerUtils {
 
     public static String createAppExtractionPath(String parentAppName) {
     	createAppDirectory();
-        String parentPath = APP_UNZIP_DIR + File.separator + System.currentTimeMillis() +
-                parentAppName + File.separator;
+        String tenantId = AppDeployerUtils.getTenantIdString();
+        String parentPath = getAppUnzipDir() + File.separator + tenantId + File.separator +
+                            System.currentTimeMillis() + parentAppName + File.separator;
         createDir(parentPath);
         return parentPath;
     }
@@ -647,12 +672,24 @@ public final class AppDeployerUtils {
         return reqFeatureMap;
     }
 
+    @Deprecated
     public static String getTenantIdString(AxisConfiguration axisConfig) {
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
         return String.valueOf(carbonContext.getTenantId());
     }
 
+    public static String getTenantIdString() {
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        return String.valueOf(carbonContext.getTenantId());
+    }
+
+    @Deprecated
     public static int getTenantId(AxisConfiguration axisConfig) {
+        PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+        return carbonContext.getTenantId();
+    }
+
+    public static int getTenantId() {
         PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
         return carbonContext.getTenantId();
     }
@@ -692,7 +729,7 @@ public final class AppDeployerUtils {
             }
             // if the entry is a file, write the file
             copyInputStream(zipFile.getInputStream(entry),
-                    new BufferedOutputStream(new FileOutputStream(destPath + entry.getName())));
+                            new BufferedOutputStream(new FileOutputStream(destPath + entry.getName())));
         }
         zipFile.close();
     }
@@ -739,21 +776,6 @@ public final class AppDeployerUtils {
             log.error("Error while creating directory : " + path);
             return;
         }
-
-        File doNotDeleteNote = new File(temp, "DO-NOT-DELETE.txt");
-        PrintWriter writer = null;
-        try {
-            writer = new PrintWriter(doNotDeleteNote);
-            writer.println("Do not delete this folder if the Carbon server is running! Otherwise, " +
-                    "it might cause issues for artifacts that come from CApps.");
-        } catch (FileNotFoundException e) {
-            log.error("Error while writing a file to the CApp extraction folder: " + doNotDeleteNote, e);
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
-        }
-
 
     }
 

@@ -128,9 +128,10 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         String localMemberHost = "";
         if (localMemberHostParam != null) {
             localMemberHost = ((String) localMemberHostParam.getValue()).trim();
-            log.warn("localMemberHost is configured to use the loopback address. " +
-                    "Hazelcast Clustering needs ip addresses for localMemberHost and well-known members.");
-
+            if ("127.0.0.1".equals(localMemberHost) || "localhost".equals(localMemberHost)) {
+                log.warn("localMemberHost is configured to use the loopback address. " +
+                        "Hazelcast Clustering needs ip addresses for localMemberHost and well-known members.");
+            }
         } else {
             try {
                 localMemberHost = Utils.getIpAddress();
