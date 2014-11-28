@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
@@ -37,11 +38,16 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
  * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
  * policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
+ *
+ * @scr.reference name="server.configuration.service"
+ *                interface="org.wso2.carbon.base.api.ServerConfigurationService" cardinality="1..1"
+ *                policy="dynamic"  bind="setServerConfigurationService"
+ *                unbind="unsetServerConfigurationService"
  */
 public class UserStoreMgtDSComponent {
     private static Log log = LogFactory.getLog(UserStoreMgtDSComponent.class);
     private static RealmService realmService;
-
+	private static ServerConfigurationService serverConfigurationService = null;
 
     protected void activate(ComponentContext ctxt) {
         try {
@@ -89,5 +95,20 @@ public class UserStoreMgtDSComponent {
     protected void unsetRealmService(RealmService realmService) {
         realmService = null;
     }
+
+	protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		UserStoreMgtDSComponent.serverConfigurationService = serverConfigurationService;
+	}
+
+	protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		if (log.isDebugEnabled()) {
+			log.debug("Unsetting the ServerConfigurationService");
+		}
+		UserStoreMgtDSComponent.serverConfigurationService = null;
+	}
+
+	public static ServerConfigurationService getServerConfigurationService(){
+		return UserStoreMgtDSComponent.serverConfigurationService;
+	}
 
 }
