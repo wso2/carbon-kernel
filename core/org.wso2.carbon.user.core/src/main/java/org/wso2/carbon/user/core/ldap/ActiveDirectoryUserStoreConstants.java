@@ -29,15 +29,26 @@ public class ActiveDirectoryUserStoreConstants {
     public static final ArrayList<Property> OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
 
     static {
-        setMandatoryProperty(UserStoreConfigConstants.connectionName,"Connection Name","CN=,DC=",UserStoreConfigConstants.connectionNameDescription);
-        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldaps://",UserStoreConfigConstants.connectionURLDescription);
-        setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"Connection Password","",UserStoreConfigConstants.connectionPasswordDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Base","CN=Users,DC=WSO2,DC=Com",UserStoreConfigConstants.userSearchBaseDescription);
-        setMandatoryProperty(UserStoreConfigConstants.disabled,"Diabled","false",UserStoreConfigConstants.disabledDescription);
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class", "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute", "cn", UserStoreConfigConstants.userNameAttributeDescription);
-        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter","(&amp;(objectClass=user)(cn=?))",UserStoreConfigConstants.usernameSearchFilterDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userEntryObjectClass,"User Entry Object Class","user",UserStoreConfigConstants.userEntryObjectClassDescription);
+        setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "CN=," +
+                "DC=",UserStoreConfigConstants.connectionNameDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionURL, "Connection URL",
+                "ldaps://",UserStoreConfigConstants.connectionURLDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionPassword, "Connection Password",
+                "", UserStoreConfigConstants.connectionPasswordDescription,true);
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
+                "CN=Users,DC=WSO2,DC=Com", UserStoreConfigConstants.userSearchBaseDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.disabled, "Diabled", "false",
+                UserStoreConfigConstants.disabledDescription,false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User Object Class",
+                "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute",
+                "cn", UserStoreConfigConstants.userNameAttributeDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
+                "(&amp;(objectClass=user)(cn=?))", UserStoreConfigConstants
+                        .usernameSearchFilterDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.userEntryObjectClass,
+                "User Entry Object Class", "user", UserStoreConfigConstants
+                        .userEntryObjectClassDescription, false);
         setProperty(UserStoreConfigConstants.groupEntryObjectClass,"Group Entry Object Class","group",UserStoreConfigConstants.groupEntryObjectClassDescription);
 
         setProperty(UserStoreConfigConstants.maxUserNameListLength,"Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
@@ -81,11 +92,17 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty("userAccountControl","User Account Control","512","Flags that control the behavior of the user account");
         setProperty("Referral","Referral","follow","Guides the requests to a domain controller in the correct domain");
         setProperty("BackLinksEnabled","Enable Back Links","true"," Whether to allow attributes to be result from references to the object from other objects");
+
+        setProperty("UniqueID", "","","");
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
-            String description) {
-        Property property = new Property(name, value, displayName + "#" + description, null);
+            String description, boolean encrypt) {
+        String propertyDescription = displayName + "#" + description;
+        if(encrypt){
+            propertyDescription += "#encrypt";
+        }
+        Property property = new Property(name, value, propertyDescription, null);
         ACTIVE_DIRECTORY_UM_PROPERTIES.add(property);
 
     }

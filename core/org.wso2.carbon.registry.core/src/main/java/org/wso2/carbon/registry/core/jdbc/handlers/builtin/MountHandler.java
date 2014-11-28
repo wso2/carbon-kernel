@@ -292,7 +292,8 @@ public class MountHandler extends Handler {
             }
             requestContext.setProcessingComplete(true);
         } catch (Exception e) {
-            throw new RegistryException("Unable to put resource", e);
+            String msg = "Unable to put resource " + e.getMessage();
+            throw new RegistryException(msg, e);
         } finally {
             setInExecution(false);
         }
@@ -506,8 +507,7 @@ public class MountHandler extends Handler {
                     endNestedOperation();
                 }
             } catch (Exception e) {
-                String msg = "Could not delete the remote resource.";
-                log.error(msg);
+                String msg = "Could not delete the remote resource. " + e.getMessage();
                 setInExecution(false);
                 throw new RegistryException(msg, e);
             }

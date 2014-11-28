@@ -315,6 +315,6 @@
         </dependency-->
     </dependencies>
     <properties>
-        <test.framework.version>4.3.1-SNAPSHOT</test.framework.version>
+        <test.framework.version>4.3.1</test.framework.version>
     </properties>
 </project>
