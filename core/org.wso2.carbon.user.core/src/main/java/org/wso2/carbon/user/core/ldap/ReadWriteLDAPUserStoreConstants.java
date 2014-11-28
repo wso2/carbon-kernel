@@ -28,16 +28,29 @@ public class ReadWriteLDAPUserStoreConstants{
     public static final ArrayList<Property> RWLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTINAL_RWLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     static {
-        setMandatoryProperty(UserStoreConfigConstants.connectionName,"Connection Name","uid=,ou=",UserStoreConfigConstants.connectionNameDescription);
-        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldap://",UserStoreConfigConstants.connectionURLDescription);
-        setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"Connection Password","",UserStoreConfigConstants.connectionPasswordDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Based","ou=Users,dc=wso2,dc=org",UserStoreConfigConstants.userSearchBaseDescription);
-        setMandatoryProperty(UserStoreConfigConstants.disabled,"Disabled","false",UserStoreConfigConstants.disabledDescription);
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class", "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute", "uid", UserStoreConfigConstants.userNameAttributeDescription);
-        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter","(&amp;(objectClass=person)(uid=?))",UserStoreConfigConstants.usernameSearchFilterDescription);
-        setMandatoryProperty(UserStoreConfigConstants.userEntryObjectClass,"User Entry Object Class","wso2Person",UserStoreConfigConstants.userEntryObjectClassDescription);
-        setMandatoryProperty(UserStoreConfigConstants.groupEntryObjectClass,"Group Entry Object Class", "groupOfNames", UserStoreConfigConstants.groupEntryObjectClassDescription);
+        setMandatoryProperty(UserStoreConfigConstants.connectionName,"Connection Name","uid=," +
+                "ou=",UserStoreConfigConstants.connectionNameDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionURL,"Connection URL","ldap://",
+                UserStoreConfigConstants.connectionURLDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.connectionPassword,"Connection Password",
+                "",UserStoreConfigConstants.connectionPasswordDescription, true);
+        setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Based",
+                "ou=Users,dc=wso2,dc=org",UserStoreConfigConstants.userSearchBaseDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.disabled,"Disabled","false",
+                UserStoreConfigConstants.disabledDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class",
+                "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute",
+                "uid", UserStoreConfigConstants.userNameAttributeDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter,"User Search Filter",
+                "(&amp;(objectClass=person)(uid=?))",UserStoreConfigConstants
+                        .usernameSearchFilterDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.userEntryObjectClass,
+                "User Entry Object Class","wso2Person",UserStoreConfigConstants
+                        .userEntryObjectClassDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.groupEntryObjectClass,
+                "Group Entry Object Class","groupOfNames", UserStoreConfigConstants
+                        .groupEntryObjectClassDescription, false);
 
         setProperty(UserStoreConfigConstants.maxUserNameListLength,"Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
         setProperty(UserStoreConfigConstants.maxRoleNameListLength,"Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
@@ -73,11 +86,16 @@ public class ReadWriteLDAPUserStoreConstants{
         setProperty(UserStoreConfigConstants.writeGroups,"Enable Write Groups","true",UserStoreConfigConstants.writeGroupsDescription);
         setProperty(UserStoreConfigConstants.emptyRolesAllowed,"Allow Empty Roles","true",UserStoreConfigConstants.emptyRolesAllowedDescription);
         setProperty(UserStoreConfigConstants.memberOfAttribute,"Member Of Attribute","",UserStoreConfigConstants.memberOfAttribute);
+        setProperty("UniqueID", "","","");
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
-            String description) {
-        Property property = new Property(name, value, displayName + "#" + description, null);
+            String description, boolean encrypt) {
+        String propertyDescription = displayName + "#" + description;
+        if(encrypt){
+            propertyDescription += "#encrypt";
+        }
+        Property property = new Property(name, value, propertyDescription, null);
         RWLDAP_USERSTORE_PROPERTIES.add(property);
 
     }
