@@ -18,6 +18,13 @@
         <version>1</version>
     </parent>
 
+    <scm>
+        <url>https://github.com/wso2/carbon4-kernel.git</url>
+        <developerConnection>scm:git:https://github.com/wso2/carbon4-kernel.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2/carbon4-kernel.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <!--Moved the modules out of default profile  and disabled all the profiles-->
 
     <build>
