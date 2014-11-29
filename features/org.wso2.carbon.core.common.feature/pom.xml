@@ -81,21 +81,17 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.authenticator.stub</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.queuing</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
-                                <!--bundleDef>org.wso2.carbon:org.wso2.carbon.caching.core</bundleDef-->
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.api</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core.bootup.validator</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.common</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.core</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.rdbms</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.user.api</bundleDef>
-                                <bundleDef>net.sf.jsr107cache.wso2:jsr107cache:1.1.0.wso2v3</bundleDef>
-                                <bundleDef>org.jgroups.wso2:jgroups:3.0.6.wso2v1</bundleDef>
 			        <bundleDef>au.com.bytecode.opencsv.wso2:opencsv:1.8.wso2v1</bundleDef>
 				<bundleDef>org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2</bundleDef>
                                 <bundleDef>com.h2database.wso2:h2-database-engine:1.2.140.wso2v3</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2-json:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>org.codehaus.jettison.wso2:jettison:${orbit.version.jettison}</bundleDef>
-                                <bundleDef>net.sf.ehcache.wso2:ehcache:1.5.0.wso2v3</bundleDef>
                                 <bundleDef>commons-pool.wso2:commons-pool:1.5.6.wso2v1</bundleDef>
                                 <bundleDef>commons-dbcp.wso2:commons-dbcp:1.4.0.wso2v1</bundleDef>
                                 <bundleDef>opensaml.wso2:opensaml2:2.4.1.wso2v1</bundleDef>
