@@ -344,11 +344,6 @@
         <imp.pkg.version.spring>[3.1.0.wso2v2, 3.2.0)</imp.pkg.version.spring>
         <version.spring>3.1.0.RELEASE</version.spring>
 
-        <!--JGroups-->
-        <orbit.version.jgroups>3.0.6.wso2v1</orbit.version.jgroups>
-        <exp.pkg.version.jgroups>3.0.6.wso2v1</exp.pkg.version.jgroups>
-        <imp.pkg.version.jgroups>[3.0.6.wso2v1, 3.1.0)</imp.pkg.version.jgroups>
-
         <!-- Apache Axis2 -->
         <version.axis2>1.6.1-wso2v11</version.axis2>
         <orbit.version.axis2>1.6.1.wso2v11</orbit.version.axis2>
@@ -439,7 +434,6 @@
 
         <version.opensaml2>2.4.1.wso2v1</version.opensaml2>
         <version.compass>2.0.1.wso2v2</version.compass>
-        <version.jsr107cache>1.1.0-wso2v2</version.jsr107cache>
 
         <version.xercesImpl>2.8.1.wso2v2</version.xercesImpl>
         <version.xalan>2.7.1.wso2v1</version.xalan>
@@ -831,21 +825,6 @@
                 <groupId>org.compass-project.wso2</groupId>
                 <artifactId>compass</artifactId>
                 <version>${version.compass}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.jsr107cache</groupId>
-                <artifactId>jsr107cache</artifactId>
-                <version>${version.jsr107cache}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.jsr107cache.wso2</groupId>
-                <artifactId>jsr107cache</artifactId>
-                <version>${version.jsr107cache}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jgroups.wso2</groupId>
-                <artifactId>jgroups</artifactId>
-                <version>${orbit.version.jgroups}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.axis2.wso2</groupId>
