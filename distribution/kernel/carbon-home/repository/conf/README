@@ -59,12 +59,6 @@ Usage of the sub-directories of relevant configurations are as follows.
          carbon.xml is set to Memory.
 
 6. etc <directory>
-	-cache.xml
-	 This file contains configuration related to the caching implementation in Carbon. The default
-    	 cache manager used by Carbon is Infinispan. And, it can operate in several modes, such as local,
-    	 distributed, or replicated. The cache manager is run in the local mode by default, and it is
-    	 recommended to use the distributed mode or cluster and cloud deployments.
-
 	-config-validation.xml
 	 This file contains recommended configuration settings to run WSO2 Carbon. System settings will be
 	 validated against these values by the bootup-validator carbon component at server startup.
@@ -92,6 +86,12 @@ Usage of the sub-directories of relevant configurations are as follows.
 	-mime.mappings
 	 This file is used to define the human readable media type for a mime type.
 
+	-osgi-debug.options
+    	 This file contains the debug options for WSO2 Carbon osgi runtime.
+
+	-logging-bridge.properties
+	 This is a logging configuration file used to bridge different logging API's calls which gets routed to log4j. Log4j is used as the logging backend in carbon.   
+
 7. carbon.xml
    The Carbon server configuration file.
 
@@ -106,10 +106,7 @@ Usage of the sub-directories of relevant configurations are as follows.
 10. log4j.properties
     The log4j configuration file used by WSO2 Carbon.
 
-11. osgi-debug.options
-    This file contains the debug options for WSO2 Carbon osgi runtime.
-
-12. README.txt
+11. README.txt
     This file.
 
 
