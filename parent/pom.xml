@@ -1075,11 +1075,6 @@
                 <version>${version.tcpmon}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ciphertool</groupId>
-                <artifactId>org.wso2.ciphertool</artifactId>
-                <version>${securevault.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.igniterealtime.smack.wso2</groupId>
                 <artifactId>smackx</artifactId>
                 <version>${orbit.version.smack}</version>
