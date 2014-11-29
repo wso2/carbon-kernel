@@ -50,7 +50,7 @@
             <plugin>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-aar-maven-plugin</artifactId>
-                <version>1.6.1-wso2v11-SNAPSHOT</version>
+                <version>1.6.1-wso2v11</version>
                 <extensions>true</extensions>
                 <configuration>
                     <fileSet>

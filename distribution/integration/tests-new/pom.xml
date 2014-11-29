@@ -298,6 +298,10 @@
             <artifactId>org.wso2.carbon.feature.mgt.ui</artifactId>
             <version>4.3.0-SNAPSHOT</version>
         </dependency>
+	<dependency>
+	    <groupId>org.apache.woden.wso2</groupId>
+	    <artifactId>woden</artifactId>
+	</dependency>
         <!--
                <dependency>
                     <groupId>org.wso2.carbon</groupId>
@@ -311,6 +315,6 @@
         </dependency-->
     </dependencies>
     <properties>
-        <test.framework.version>4.3.1-SNAPSHOT</test.framework.version>
+        <test.framework.version>4.3.1</test.framework.version>
     </properties>
 </project>

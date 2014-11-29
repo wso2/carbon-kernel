@@ -22,11 +22,13 @@ import org.apache.axiom.om.OMAttribute;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.axiom.om.util.Base64;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.CarbonException;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
@@ -38,11 +40,11 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
+import javax.crypto.Cipher;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.security.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -55,8 +57,10 @@ public class UserStoreConfigXMLProcessor {
     private String filePath = null;
     private static BundleContext bundleContext;
 
+    private static Cipher keyStoreCipher = null;
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
+        initializeKeyStore();
     }
 
     public static void setBundleContext(BundleContext bundleContext) {
@@ -68,9 +72,7 @@ public class UserStoreConfigXMLProcessor {
         OMElement realmElement;
         try {
             realmElement = getRealmElement();
-            RealmConfiguration realmConfig = buildUserStoreConfiguration(realmElement);
-
-            return realmConfig;
+            return buildUserStoreConfiguration(realmElement);
         } catch (Exception e) {
             String message = "Error while building user store manager from file";
             log.error(message, e);
@@ -164,6 +166,7 @@ public class UserStoreConfigXMLProcessor {
         Map<String, String> map = new HashMap<String, String>();
         Iterator<?> ite = omElement.getChildrenWithName(new QName(
                 UserCoreConstants.RealmConfig.LOCAL_NAME_PROPERTY));
+        boolean tokenProtected = false;
         while (ite.hasNext()) {
             OMElement propElem = (OMElement) ite.next();
             String propName = propElem.getAttributeValue(new QName(
@@ -177,9 +180,17 @@ public class UserStoreConfigXMLProcessor {
                 }
                 if (secretResolver.isTokenProtected("UserStoreManager.Property." + propName + domainName)) {
                     propValue = secretResolver.resolve("UserStoreManager.Property." + propName + domainName);
+                    tokenProtected = true;
                 }
             }
-            map.put(propName.trim(), propValue.trim());
+            if(!tokenProtected && propValue != null){
+                propValue = resolveEncryption(propElem);
+            }
+            tokenProtected = false;
+            if(propName != null &&  propValue!= null ){
+                map.put(propName.trim(), propValue.trim());
+            }
+
         }
         return map;
     }
@@ -279,5 +290,94 @@ public class UserStoreConfigXMLProcessor {
         secretResolver = SecretResolverFactory.create(rootElement, true);
     }
 
+    /**
+     * decrypts encrypted text value if the property element has the attribute encrypt="true"
+     *
+     * @param propElem Property OMElement
+     * @return         decrypted text value
+     */
+    private String resolveEncryption(OMElement propElem) {
+        String propValue = propElem.getText();
+        if (propValue != null) {
+            String secretPropName = propElem.getAttributeValue(new QName("encrypted"));
+            if (secretPropName != null && secretPropName.equalsIgnoreCase("true")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Eligible to be decrypted=" + propElem.getAttributeValue(new QName(
+                            UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME)));
+                }
+                try {
+                    propValue = new String(keyStoreCipher.doFinal(Base64.
+                            decode(propValue.trim())));
+                } catch (GeneralSecurityException e) {
+                    String errMsg = "encryption of Property=" + propElem.getAttributeValue(
+                            new QName(UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME))
+                            + " failed";
+                    log.error(errMsg, e);
+                }
+            }
+        }
+        return propValue;
+    }
 
+    /**
+     * Initializes and assign the keyStoreCipher only for the first time.
+     */
+    private void initializeKeyStore() {
+        ServerConfigurationService serverConfigurationService =
+                UserStoreMgtDSComponent.getServerConfigurationService();
+
+        if (serverConfigurationService == null) {
+            String message = "Key store initialization for decrypting secondary store failed due to" +
+                    " serverConfigurationService is null while attempting to decrypt secondary store";
+            log.error(message);
+            return;
+        }
+
+        if (keyStoreCipher == null) {
+
+            String password = serverConfigurationService.getFirstProperty(
+                    "Security.KeyStore.Password");
+            String keyPass = serverConfigurationService.getFirstProperty(
+                    "Security.KeyStore.KeyPassword");
+            String keyAlias = serverConfigurationService.getFirstProperty(
+                    "Security.KeyStore.KeyAlias");
+            InputStream in = null;
+            try {
+                KeyStore store = KeyStore.getInstance(
+                        serverConfigurationService.getFirstProperty(
+                                "Security.KeyStore.Type"));
+                String file = new File(serverConfigurationService.getFirstProperty(
+                        "Security.KeyStore.Location")).getAbsolutePath();
+                in = new FileInputStream(file);
+                store.load(in, password.toCharArray());
+                PrivateKey privateKey = (PrivateKey) store.getKey(keyAlias, keyPass.toCharArray());
+                keyStoreCipher = Cipher.getInstance("RSA", "BC");
+                keyStoreCipher.init(Cipher.DECRYPT_MODE, privateKey);
+            } catch (FileNotFoundException e) {
+                String errorMsg = "Keystore File Not Found in configured location";
+                log.error(errorMsg, e);
+            } catch (IOException e) {
+                String errorMsg = "Keystore File IO operation failed";
+                log.error(errorMsg, e);
+            } catch (InvalidKeyException e) {
+                String errorMsg = "Invalid key is used to access keystore";
+                log.error(errorMsg, e);
+            } catch (KeyStoreException e) {
+                String errorMsg = "Faulty keystore";
+                log.error(errorMsg, e);
+            } catch (GeneralSecurityException e) {
+                String errorMsg = "Some parameters assigned to access the " +
+                        "keystore is invalid";
+                log.error(errorMsg, e);
+            } finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        log.error("Error occurred while closing Registry key store file", e);
+                    }
+                }
+            }
+        }
+    }
 }
