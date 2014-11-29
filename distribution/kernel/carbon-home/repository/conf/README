@@ -59,12 +59,6 @@ Usage of the sub-directories of relevant configurations are as follows.
          carbon.xml is set to Memory.
 
 6. etc <directory>
-	-cache.xml
-	 This file contains configuration related to the caching implementation in Carbon. The default
-    	 cache manager used by Carbon is Infinispan. And, it can operate in several modes, such as local,
-    	 distributed, or replicated. The cache manager is run in the local mode by default, and it is
-    	 recommended to use the distributed mode or cluster and cloud deployments.
-
 	-config-validation.xml
 	 This file contains recommended configuration settings to run WSO2 Carbon. System settings will be
 	 validated against these values by the bootup-validator carbon component at server startup.
@@ -73,10 +67,6 @@ Usage of the sub-directories of relevant configurations are as follows.
 
 	-coordination-client-config.xml
 	 This file is used to configure Coordination Service client.
-
-	-jgroups-s3_ping-aws.xml
-	 This is the JGroups configuration file that's to be used in a Amazon EC2 deployment. The JGroups
-         Group Communication library is used by the Infinispan Cache Manager.
 
 	-jmx.xml
 	 This file is used for configuring the JMX server. You can disable the JMX RMI server from starting
