@@ -211,3 +211,5 @@ this directory.
 
 10. wso2carbon-version.txt
     - A simple text file used for storing the Carbon kernel version
+
+11. carbondump.sh & carbondump.bat - Carbondump is a tool for collecting all the necessary data from a running Carbon instance at the time of an error. The carbondump generates a zip archive with the collected data, which can be used to analyze your system and determine the problem which caused the error.
