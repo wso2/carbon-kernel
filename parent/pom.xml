@@ -2,6 +2,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>1</version>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
@@ -15,95 +21,17 @@
         <maven>3.0.0</maven>
     </prerequisites>
 
-    <repositories>
-		<!-- WSO2 released artifact repository -->
-		<repository>
-			<id>wso2.releases</id>
-			<name>WSO2 Releases Repository</name>
-			<url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</repository>
-
-		<!-- WSO2 Snapshot artifact repository -->
-		<repository>
-			<id>wso2.snapshots</id>
-			<name>WSO2 Snapshot Repository</name>
-			<url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
-
-		<repository>
-			<id>wso2-nexus</id>
-			<name>WSO2 internal Repository</name>
-			<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</repository>
-	</repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>wso2.releases</id>
-            <name>WSO2 internal Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>wso2.snapshots</id>
-            <name>Apache Snapshot Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <pluginRepositories>
-       <pluginRepository>
-            <id>wso2.releases</id>
-            <name>WSO2 internal Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </pluginRepository>
-        
-        <pluginRepository>
-            <id>wso2.snapshots</id>
-            <name>Apache Snapshot Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository> 
-        
          <pluginRepository>
-			<id>wso2-nexus</id>
-			<name>WSO2 internal Repository</name>
-			<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</pluginRepository>
-
+		<id>wso2-nexus</id>
+		<name>WSO2 internal Repository</name>
+		<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+		<releases>
+			<enabled>true</enabled>
+			<updatePolicy>daily</updatePolicy>
+			<checksumPolicy>ignore</checksumPolicy>
+		</releases>
+	</pluginRepository>
     </pluginRepositories>
 
     <build>
