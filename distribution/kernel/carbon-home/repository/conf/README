@@ -68,10 +68,6 @@ Usage of the sub-directories of relevant configurations are as follows.
 	-coordination-client-config.xml
 	 This file is used to configure Coordination Service client.
 
-	-jgroups-s3_ping-aws.xml
-	 This is the JGroups configuration file that's to be used in a Amazon EC2 deployment. The JGroups
-         Group Communication library is used by the Infinispan Cache Manager.
-
 	-jmx.xml
 	 This file is used for configuring the JMX server. You can disable the JMX RMI server from starting
          by setting the value of the StartRMIServer to false.
