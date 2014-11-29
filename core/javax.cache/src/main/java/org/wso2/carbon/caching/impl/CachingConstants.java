@@ -30,6 +30,8 @@ public final class CachingConstants {
     public static final double CACHE_EVICTION_FACTOR = 0.25;
     public static final long MAX_CACHE_IDLE_TIME_MILLIS = 15 * 60 * 1000; // 15mins
 
+    public static final long DEFAULT_CACHE_EXPIRY_MINS = 15;
+
     // Cache name prefix of local cache
     public static final String LOCAL_CACHE_PREFIX = "$__local__$.";
 

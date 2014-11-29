@@ -69,8 +69,6 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private static final long MAX_CLEANUP_TIME = 60000;
     private int timeStampReplicatorCount;
     private static final int CACHE_LOADER_THREADS = 2;
-    private static final long DEFAULT_CACHE_EXPIRY_MINS = 15;
-    private static final long DEFAULT_CACHE_EXPIRY_MILLIS = DEFAULT_CACHE_EXPIRY_MINS * 60 * 1000;
     private static final float CACHE_OVERCAPACITY_FACTOR = 0.75f;
     private static final float CACHE_EVICTION_FACTOR = 0.25f;
 
@@ -640,9 +638,8 @@ public class CacheImpl<K, V> implements Cache<K, V> {
     private CacheConfiguration<K, V> getDefaultCacheConfiguration() {
         return new CacheConfigurationImpl(true, true, true, true, IsolationLevel.NONE, Mode.NONE,
                 new CacheConfiguration.Duration[]{new CacheConfiguration.Duration(TimeUnit.MINUTES,
-                        DEFAULT_CACHE_EXPIRY_MINS),
-                        new CacheConfiguration.Duration(TimeUnit.MINUTES,
-                                DEFAULT_CACHE_EXPIRY_MINS)});
+                        Util.getDefaultCacheTimeout()),
+                        new CacheConfiguration.Duration(TimeUnit.MINUTES, Util.getDefaultCacheTimeout())});
     }
 
     @Override
@@ -899,14 +896,14 @@ public class CacheImpl<K, V> implements Cache<K, V> {
                 cacheConfiguration.getExpiry(CacheConfiguration.ExpiryType.MODIFIED);
         long modifiedExpiryDuration =
                 modifiedExpiry == null ?
-                        DEFAULT_CACHE_EXPIRY_MILLIS :
+                        Util.getDefaultCacheTimeout() * 60 * 1000 :
                         modifiedExpiry.getTimeUnit().toMillis(modifiedExpiry.getDurationAmount());
 
         CacheConfiguration.Duration accessedExpiry =
                 cacheConfiguration.getExpiry(CacheConfiguration.ExpiryType.ACCESSED);
         long accessedExpiryDuration =
                 accessedExpiry == null ?
-                        DEFAULT_CACHE_EXPIRY_MILLIS :
+                        Util.getDefaultCacheTimeout() * 60 * 1000 :
                         accessedExpiry.getTimeUnit().toMillis(accessedExpiry.getDurationAmount());
 
         Collection<CacheEntry<K, V>> cacheEntries = getAll();

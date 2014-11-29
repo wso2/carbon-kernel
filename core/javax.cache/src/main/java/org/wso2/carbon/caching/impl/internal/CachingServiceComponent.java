@@ -21,6 +21,7 @@ package org.wso2.carbon.caching.impl.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.caching.impl.DataHolder;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
 
@@ -28,6 +29,8 @@ import org.wso2.carbon.caching.impl.DistributedMapProvider;
  * @scr.component name="org.wso2.carbon.caching.impl.internal.CachingServiceComponent" immediate="true"
  * @scr.reference name="distributedMapProvider" interface="org.wso2.carbon.caching.impl.DistributedMapProvider"
  * cardinality="0..1" policy="dynamic"  bind="setDistributedMapProvider" unbind="unsetDistributedMapProvider"
+ * @scr.reference name="server.configuration.service" interface="org.wso2.carbon.base.api.ServerConfigurationService"
+ * cardinality="1..1" policy="dynamic"  bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
  */
 public class CachingServiceComponent {
     private static final Log log = LogFactory.getLog(CachingServiceComponent.class);
@@ -48,5 +51,13 @@ public class CachingServiceComponent {
 
     protected void unsetDistributedMapProvider(DistributedMapProvider mapProvider) {
         dataHolder.setDistributedMapProvider(null);
+    }
+
+    protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        dataHolder.setServerConfigurationService(serverConfigurationService);
+    }
+
+    protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        dataHolder.setServerConfigurationService(null);
     }
 }
