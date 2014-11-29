@@ -47,7 +47,7 @@ public final class ProvisioningUtils {
      * @param profileModificationAction should contains the appropriate provActionType and features to be
      *                                  installed and feature to be uninstalled
      * @return an instance of ResolutionResult and it contains proposed ProvisioningPlan and the status.
-     *         Depending on this status, client can decide whether to proceed with the provisioning action.
+     * Depending on this status, client can decide whether to proceed with the provisioning action.
      * @throws ProvisioningException if an exception occurs while reviewing the action
      */
     public static ResolutionResult reviewProvisioningAction(ProfileChangeOperation profileModificationAction)
@@ -64,7 +64,7 @@ public final class ProvisioningUtils {
      * @throws ProvisioningException if an exception occurs while performing the action
      */
     public static void performProvisioningAction(ResolutionResult
-            resolutionResult, boolean applyConfiguration) throws ProvisioningException {
+                                                         resolutionResult, boolean applyConfiguration) throws ProvisioningException {
         int severity = resolutionResult.getSummaryStatus().getSeverity();
         if (severity != IStatus.ERROR) {
             IStatus status = performProvisioningAction(resolutionResult.getProvisioningPlan(),
@@ -111,30 +111,26 @@ public final class ProvisioningUtils {
         return licenseArrayList.toArray(new ILicense[licenseArrayList.size()]);
     }
 
-    public static Map getLicensingInformation(IInstallableUnit[] installableUnits) throws ProvisioningException,
-            URISyntaxException {
-        Map<ILicense, ArrayList<IInstallableUnit>> licenseFeatureMap = new HashMap<ILicense,
-                ArrayList<IInstallableUnit>>();
-        ArrayList<IInstallableUnit> iInstallableUnits = null;
-        ILicense iLicense = null;
+    /**
+     * @return a Map contains the License and the features associated to it. If there features that do not have
+     * license then it Map will have null key which those features.
+     */
+    public static Map<ILicense, List<IInstallableUnit>> getLicensingInformation(IInstallableUnit[] installableUnits)
+            throws ProvisioningException, URISyntaxException {
+
+        Map<ILicense, List<IInstallableUnit>> licenseFeatureMap = new HashMap<ILicense, List<IInstallableUnit>>();
+        List<IInstallableUnit> iInstallableUnits;
+        ILicense iLicense;
         for (IInstallableUnit iu : installableUnits) {
             iLicense = IUPropertyUtils.getLicense(iu);
-            if (iLicense != null) {
-                if (licenseFeatureMap.containsKey(iLicense)) {
-                    iInstallableUnits = licenseFeatureMap.get(iLicense);
-                } else {
-                    iInstallableUnits = new ArrayList<IInstallableUnit>();
-                }
+            if (licenseFeatureMap.containsKey(iLicense)) {
+                iInstallableUnits = licenseFeatureMap.get(iLicense);
+                iInstallableUnits.add(iu);
             } else {
-                if (licenseFeatureMap.containsKey(null)) {
-                    //Here iLicense = null
-                    iInstallableUnits = licenseFeatureMap.get(iLicense);
-                } else {
-                    iInstallableUnits = new ArrayList<IInstallableUnit>();
-                }
+                iInstallableUnits = new ArrayList<IInstallableUnit>();
+                iInstallableUnits.add(iu);
+                licenseFeatureMap.put(iLicense, iInstallableUnits);
             }
-            iInstallableUnits.add(iu);
-            licenseFeatureMap.put(iLicense, iInstallableUnits);
         }
         return licenseFeatureMap;
     }
@@ -143,12 +139,12 @@ public final class ProvisioningUtils {
 
 
         IInstallableUnit[] groupPropertyTrueIUs = getProfile().query(QueryUtil.createIUPropertyQuery(
-                MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString()),
+                        MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString()),
                 new NullProgressMonitor()).toArray(IInstallableUnit.class);
 
 
-        IInstallableUnit[] groupPropertyFalseIUs =getProfile().query(QueryUtil.createIUPropertyQuery(
-                MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.FALSE.toString()),
+        IInstallableUnit[] groupPropertyFalseIUs = getProfile().query(QueryUtil.createIUPropertyQuery(
+                        MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.FALSE.toString()),
                 new NullProgressMonitor()).toArray(IInstallableUnit.class);
 
         IInstallableUnit[] allInstalledIUs =
@@ -205,7 +201,7 @@ public final class ProvisioningUtils {
     }
 
     private static IStatus performProvisioningAction(IProvisioningPlan
-            provisioningPlan, boolean applyConfiguration) throws ProvisioningException {
+                                                             provisioningPlan, boolean applyConfiguration) throws ProvisioningException {
         ProvisioningContext context = ServiceHolder.getProvisioningContext();
         IEngine engine = ServiceHolder.getP2Engine();
         context.setMetadataRepositories(ServiceHolder.getMetadataRepositoryManager().getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL));
@@ -216,16 +212,16 @@ public final class ProvisioningUtils {
     }
 
     @Deprecated
-    public static Collection<IInstallableUnit> getAllInstallableUnits(IQueryable queryable, boolean showLatest){
+    public static Collection<IInstallableUnit> getAllInstallableUnits(IQueryable queryable, boolean showLatest) {
         IQuery<IInstallableUnit> query;
-        if(showLatest){
-            query = QueryUtil.createMatchQuery("latest(x | x.properties[$0] == $1)", 
-                    new String[] {MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP,Boolean.TRUE.toString()});
-        }else{
+        if (showLatest) {
+            query = QueryUtil.createMatchQuery("latest(x | x.properties[$0] == $1)",
+                    new String[]{MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString()});
+        } else {
             query = QueryUtil.createMatchQuery("properties[$0] == $1",
-                    new String[] {MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP,Boolean.TRUE.toString()});
+                    new String[]{MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString()});
         }
-        return queryable.query(query,new NullProgressMonitor()).toUnmodifiableSet();
+        return queryable.query(query, new NullProgressMonitor()).toUnmodifiableSet();
     }
 
     /**
@@ -233,41 +229,41 @@ public final class ProvisioningUtils {
      * @param showLatest to query only the latest version of IU
      * @return Category type IUs collection
      */
-    public static Collection<IInstallableUnit> getCategoryTypeInstallableUnits(IQueryable queryable, boolean showLatest){
-        IQuery<IInstallableUnit> query = null;        
-        if(showLatest){
-        	query = QueryUtil.createQuery("latest(x | (x.properties[$0] == $1 && x.properties[$2] != $1))",
-                                          new String[] {MetadataFactory.InstallableUnitDescription.PROP_TYPE_CATEGORY,Boolean.TRUE.toString(), 
-                                                        MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP});
-        }else{
-        	 query = QueryUtil.createMatchQuery("properties[$0] == $1 && properties[$2] != $1",
-        	                                    new String[] {MetadataFactory.InstallableUnitDescription.PROP_TYPE_CATEGORY,Boolean.TRUE.toString(),
-        	                                                  MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP});
+    public static Collection<IInstallableUnit> getCategoryTypeInstallableUnits(IQueryable queryable, boolean showLatest) {
+        IQuery<IInstallableUnit> query = null;
+        if (showLatest) {
+            query = QueryUtil.createQuery("latest(x | (x.properties[$0] == $1 && x.properties[$2] != $1))",
+                    new String[]{MetadataFactory.InstallableUnitDescription.PROP_TYPE_CATEGORY, Boolean.TRUE.toString(),
+                            MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP});
+        } else {
+            query = QueryUtil.createMatchQuery("properties[$0] == $1 && properties[$2] != $1",
+                    new String[]{MetadataFactory.InstallableUnitDescription.PROP_TYPE_CATEGORY, Boolean.TRUE.toString(),
+                            MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP});
         }
-        return queryable.query(query,new NullProgressMonitor()).toUnmodifiableSet();
+        return queryable.query(query, new NullProgressMonitor()).toUnmodifiableSet();
     }
-    
+
     /**
      * @param queryable
      * @param showLatest to query only the latest version of IU
      * @return Group type IUs collection
      */
-    public static Collection<IInstallableUnit> getGroupTypeInstallableUnits(IQueryable queryable, boolean showLatest){
-        IQuery<IInstallableUnit> query = null;     
-        if(showLatest){
-        	query = QueryUtil.createQuery("latest(x | x.properties[$0] == $1)",
-                                               new String[] {MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP,Boolean.TRUE.toString()});
-        }else{
-        	query = QueryUtil.createMatchQuery("properties[$0] == $1",
-                                               new String[] {MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP,Boolean.TRUE.toString()});
-        }      
-        return queryable.query(query,new NullProgressMonitor()).toUnmodifiableSet();
+    public static Collection<IInstallableUnit> getGroupTypeInstallableUnits(IQueryable queryable, boolean showLatest) {
+        IQuery<IInstallableUnit> query = null;
+        if (showLatest) {
+            query = QueryUtil.createQuery("latest(x | x.properties[$0] == $1)",
+                    new String[]{MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString()});
+        } else {
+            query = QueryUtil.createMatchQuery("properties[$0] == $1",
+                    new String[]{MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString()});
+        }
+        return queryable.query(query, new NullProgressMonitor()).toUnmodifiableSet();
     }
 
-    public static Collection<IInstallableUnit> getAllInstalledRootFeatures(IQueryable queryable){
+    public static Collection<IInstallableUnit> getAllInstalledRootFeatures(IQueryable queryable) {
         IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery("properties[$0] == $1",
-                    new String[] {MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP,Boolean.TRUE.toString()});
-        return queryable.query(query,new NullProgressMonitor()).toUnmodifiableSet();
+                new String[]{MetadataFactory.InstallableUnitDescription.PROP_TYPE_GROUP, Boolean.TRUE.toString()});
+        return queryable.query(query, new NullProgressMonitor()).toUnmodifiableSet();
 
     }
 }

@@ -21,7 +21,7 @@
 <%@ page import="org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo" %>
 <%@ page import="org.wso2.carbon.ui.CarbonUIUtil" %>
 <%@ page import="org.wso2.carbon.utils.ServerConstants" %>
-<%@ page import="org.wso2.carbon.feature.mgt.stub.prov.data.License" %>
+<%@ page import="org.wso2.carbon.feature.mgt.stub.prov.data.LicenseFeatureHolder" %>
 <%@ taglib uri="http://wso2.org/projects/carbon/taglibs/carbontags.jar" prefix="carbon" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%
@@ -32,14 +32,14 @@
     String cookie = (String) session.getAttribute(ServerConstants.ADMIN_SERVICE_COOKIE);
     ProvisioningAdminClient provAdminClient;
 
-    License[] licenses;
+    LicenseFeatureHolder[] licenseFeatureHolders;
     Boolean allLicensesAvailable = false;
     try {
         provAdminClient = new ProvisioningAdminClient(cookie, backendServerURL, configContext, request.getLocale());
-        licenses = provAdminClient.getLicensingInformation();
-        if(licenses != null) {
-            if (licenses[0] != null) {
-                if (licenses[0].getLicenseInfo() != null) {
+        licenseFeatureHolders = provAdminClient.getLicensingInformation();
+        if(licenseFeatureHolders != null) {
+            if (licenseFeatureHolders[0] != null) {
+                if (licenseFeatureHolders[0].getLicenseInfo() != null) {
                     allLicensesAvailable = true;
                 }
             }
@@ -66,9 +66,9 @@
                        style="margin-left: 0px;">
                     <tbody>
                     <%
-                        if(licenses != null) {
+                        if (licenseFeatureHolders != null) {
                             if (allLicensesAvailable) {
-                                for (License license : licenses) {
+                                for (LicenseFeatureHolder licenseFeatureHolder : licenseFeatureHolders) {
                     %>
                     <tr>
                         <td>
@@ -76,25 +76,25 @@
                         </td>
                     </tr>
                     <%
-                        for (FeatureInfo featureInfo : license.getFeatureInfo()) {
+                                    for (FeatureInfo featureInfo : licenseFeatureHolder.getFeatureInfo()) {
                     %>
                     <tr><td>
                         <img src="images/spacer.png" style="height:1px;width:<%=16%>px;"  />
                         <i><%=featureInfo.getFeatureName()%></i>
                     </td></tr>
                     <%
-                        }
+                                    }
                     %>
                     <tr>
                         <td>
                             <textarea name="license-agreement" cols="80" rows="20" width="100%" readonly="true"
                                       class="myformat">
-                                <%=license.getLicenseInfo().getBody()%>
+                                <%=licenseFeatureHolder.getLicenseInfo().getBody()%>
                             </textarea>
                         </td>
                     </tr>
                     <%
-                        }
+                                }
                     %>
                     <tr>
                         <td>
@@ -113,8 +113,8 @@
                         </td>
                     </tr>
                     <%
-                    } else {
-                        if (licenses[0] != null) {
+                            } else {
+                                if (licenseFeatureHolders[0] != null) {
                     %>
                     <tr>
                         <td>
@@ -134,7 +134,7 @@
                                 </thead>
                                 <tbody>
                                 <%
-                                    for (FeatureInfo featureInfo : licenses[0].getFeatureInfo()) {
+                                    for (FeatureInfo featureInfo : licenseFeatureHolders[0].getFeatureInfo()) {
                                 %>
                                 <tr>
                                     <td><%=featureInfo.getFeatureName()%></td>
@@ -149,9 +149,9 @@
                         </td>
                     </tr>
                     <%
+                                }
                             }
-                        }
-                    } else {
+                        } else {
                     %>
                     <tr>
                         <td><font color="#707277"><i><fmt:message key="no.license"/></i></font>

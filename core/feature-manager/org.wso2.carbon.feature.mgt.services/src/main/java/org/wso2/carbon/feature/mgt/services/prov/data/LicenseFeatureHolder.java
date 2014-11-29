@@ -16,7 +16,7 @@
 
 package org.wso2.carbon.feature.mgt.services.prov.data;
 
-public class License {
+public class LicenseFeatureHolder {
     private LicenseInfo licenseInfo;
     private FeatureInfo[] featureInfo;
 

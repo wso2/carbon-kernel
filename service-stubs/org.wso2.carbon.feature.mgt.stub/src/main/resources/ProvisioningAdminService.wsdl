@@ -117,7 +117,7 @@
             <xs:element name="getFeatureLicenseInfoResponse">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax287:License"></xs:element>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="return" nillable="true" type="ax287:LicenseFeatureHolder"></xs:element>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
@@ -185,7 +185,7 @@
                     <xs:element minOccurs="0" name="timestamp" type="xs:long"></xs:element>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="License">
+            <xs:complexType name="LicenseFeatureHolder">
                 <xs:sequence>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="featureInfo" nillable="true" type="ax286:FeatureInfo"></xs:element>
                     <xs:element minOccurs="0" name="licenseInfo" nillable="true" type="ax286:LicenseInfo"></xs:element>
@@ -589,13 +589,13 @@
     </wsdl:binding>
     <wsdl:service name="ProvisioningAdminService">
         <wsdl:port name="ProvisioningAdminServiceHttpsSoap11Endpoint" binding="tns:ProvisioningAdminServiceSoap11Binding">
-            <soap:address location="https://172.17.42.1:9443/services/ProvisioningAdminService.ProvisioningAdminServiceHttpsSoap11Endpoint/"></soap:address>
+            <soap:address location="https://192.168.56.1:9443/services/ProvisioningAdminService.ProvisioningAdminServiceHttpsSoap11Endpoint/"></soap:address>
         </wsdl:port>
         <wsdl:port name="ProvisioningAdminServiceHttpsSoap12Endpoint" binding="tns:ProvisioningAdminServiceSoap12Binding">
-            <soap12:address location="https://172.17.42.1:9443/services/ProvisioningAdminService.ProvisioningAdminServiceHttpsSoap12Endpoint/"></soap12:address>
+            <soap12:address location="https://192.168.56.1:9443/services/ProvisioningAdminService.ProvisioningAdminServiceHttpsSoap12Endpoint/"></soap12:address>
         </wsdl:port>
         <wsdl:port name="ProvisioningAdminServiceHttpsEndpoint" binding="tns:ProvisioningAdminServiceHttpBinding">
-            <http:address location="https://172.17.42.1:9443/services/ProvisioningAdminService.ProvisioningAdminServiceHttpsEndpoint/"></http:address>
+            <http:address location="https://192.168.56.1:9443/services/ProvisioningAdminService.ProvisioningAdminServiceHttpsEndpoint/"></http:address>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

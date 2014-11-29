@@ -276,22 +276,22 @@ public class ProvisioningAdminService {
      * @return FeatureLicense which will have all the license terms or list of features which does not have license
      * @throws AxisFault if an exception occurs while querying licensing
      */
-    public License[] getFeatureLicenseInfo() throws AxisFault {
-        License[] license = null;
+    public LicenseFeatureHolder[] getFeatureLicenseInfo() throws AxisFault {
+        LicenseFeatureHolder[] licenseFeatureHolder = null;
 
         try {
             ResolutionResult resolutionResult = ProvWSUtils.getResolutionResult(
                     OperationFactory.INSTALL_ACTION, MessageContext.getCurrentMessageContext());
             if (resolutionResult == null) {
-                return new License[0];
+                return new LicenseFeatureHolder[0];
             }
-            Map<ILicense, ArrayList<IInstallableUnit>> licenseFeatureMap = ProvisioningUtils.getLicensingInformation
+            Map<ILicense, List<IInstallableUnit>> licenseFeatureMap = ProvisioningUtils.getLicensingInformation
                     (resolutionResult.getReviewedInstallableUnits());
-            license = ProvWSUtils.wrapP2LicensesAsLicenses(licenseFeatureMap);
+            licenseFeatureHolder = ProvWSUtils.wrapP2LicensesAsLicenses(licenseFeatureMap);
         } catch (Exception e) {
             handleException("Error occurred while querying license information", "failed.get.license.info", e);
         }
-        return license;
+        return licenseFeatureHolder;
     }
 
     /**
