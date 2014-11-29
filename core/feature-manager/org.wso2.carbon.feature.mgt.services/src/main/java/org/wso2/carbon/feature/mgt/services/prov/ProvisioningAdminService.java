@@ -38,6 +38,7 @@ import org.wso2.carbon.feature.mgt.services.prov.utils.ProvWSUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * WS API for Profile management. i.e to perform install/uninstall/revert action
@@ -248,6 +249,7 @@ public class ProvisioningAdminService {
      *
      * @return all the license terms
      * @throws AxisFault if an exception occurs while querying licensing
+     * @deprecated
      */
     public LicenseInfo[] getLicensingInformation() throws AxisFault {
         LicenseInfo[] licenseInfo = null;
@@ -264,6 +266,32 @@ public class ProvisioningAdminService {
                     "failed.get.license.info", e);
         }
         return licenseInfo;
+    }
+
+    /**
+     * Returns all the license terms for the features to be installed. If some of the features does not have a license
+     * then return the list of features that does not have license. License terms are calculated from the reviewed
+     * installable units stored in the ServeletSession.
+     *
+     * @return FeatureLicense which will have all the license terms or list of features which does not have license
+     * @throws AxisFault if an exception occurs while querying licensing
+     */
+    public LicenseFeatureHolder[] getFeatureLicenseInfo() throws AxisFault {
+        LicenseFeatureHolder[] licenseFeatureHolder = null;
+
+        try {
+            ResolutionResult resolutionResult = ProvWSUtils.getResolutionResult(
+                    OperationFactory.INSTALL_ACTION, MessageContext.getCurrentMessageContext());
+            if (resolutionResult == null) {
+                return new LicenseFeatureHolder[0];
+            }
+            Map<ILicense, List<IInstallableUnit>> licenseFeatureMap = ProvisioningUtils.getLicensingInformation
+                    (resolutionResult.getReviewedInstallableUnits());
+            licenseFeatureHolder = ProvWSUtils.wrapP2LicensesAsLicenses(licenseFeatureMap);
+        } catch (Exception e) {
+            handleException("Error occurred while querying license information", "failed.get.license.info", e);
+        }
+        return licenseFeatureHolder;
     }
 
     /**

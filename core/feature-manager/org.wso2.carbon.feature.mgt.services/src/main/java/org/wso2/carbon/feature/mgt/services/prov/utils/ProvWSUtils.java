@@ -364,12 +364,57 @@ public class ProvWSUtils {
 
         LicenseInfo[] licenses = new LicenseInfo[p2Licenses.length];
         for (int index = 0; index < licenses.length; index++) {
-            	LicenseInfo license = new LicenseInfo();
-                license.setBody((p2Licenses[index].getBody() == null) ? "" : p2Licenses[index].getBody());
-                license.setURL((p2Licenses[index].getLocation() == null) ? "" : p2Licenses[index].getLocation().toString());
-                licenses[index] = license;
+            LicenseInfo license = wrapP2LicenseAsLicense(p2Licenses[index]);
+            licenses[index] = license;
         }
         return licenses;
+    }
+
+    public static LicenseInfo wrapP2LicenseAsLicense(ILicense p2License) {
+        if (p2License == null) {
+            return new LicenseInfo();
+        }
+        LicenseInfo licenseInfo = new LicenseInfo();
+        licenseInfo.setBody((p2License.getBody() == null) ? "" : p2License.getBody());
+        licenseInfo.setURL((p2License.getLocation() == null) ? "" : p2License.getLocation().toString());
+        return licenseInfo;
+    }
+
+    /**
+     * Returns a licenseFeatureHolder which contains the license and the corresponding features. If there is/are
+     * feature/s without license then the LicenseInfo will be null and it will be the first element in the
+     * licenseFeatureHolder array
+     *
+     * @return LicenseFeatureHolder which will have all the license and its corresponding features.
+     */
+    public static LicenseFeatureHolder[] wrapP2LicensesAsLicenses(Map<ILicense,
+            List<IInstallableUnit>> licenseFeatureMap) {
+        if (licenseFeatureMap == null) {
+            return new LicenseFeatureHolder[0];
+        }
+        List<LicenseFeatureHolder> licenseFeatureHolders = new ArrayList<LicenseFeatureHolder>();
+        List<IInstallableUnit> iInstallableUnits = null;
+        ILicense[] orderedKeys = licenseFeatureMap.keySet().toArray(new ILicense[licenseFeatureMap.keySet().size()]);
+        Arrays.sort(orderedKeys, new Comparator<ILicense>() {
+            @Override
+            public int compare(ILicense o1, ILicense o2) {
+                return o1 == null || o2 == null ? -1 : 1;
+            }
+        });
+
+        for (ILicense iLicense : orderedKeys) {
+            LicenseFeatureHolder licenseFeatureHolder = new LicenseFeatureHolder();
+            if (iLicense == null) {
+                licenseFeatureHolder.setLicenseInfo(null);
+            } else {
+                licenseFeatureHolder.setLicenseInfo(wrapP2LicenseAsLicense(iLicense));
+            }
+            iInstallableUnits = licenseFeatureMap.get(iLicense);
+            licenseFeatureHolder.setFeatureInfo(wrapIUsAsFeatures(iInstallableUnits.toArray(new
+                    IInstallableUnit[iInstallableUnits.size()])));
+            licenseFeatureHolders.add(licenseFeatureHolder);
+        }
+        return licenseFeatureHolders.toArray(new LicenseFeatureHolder[licenseFeatureHolders.size()]);
     }
 
     public static CopyrightInfo wrapICopyrightAsCopyrightInfo(ICopyright iCopyright) {
