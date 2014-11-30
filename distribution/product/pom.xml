@@ -95,6 +95,11 @@
         </profile>
     </profiles>
 
+    <properties>
+        <carbon.product.version>4.3.0-SNAPSHOT</carbon.product.version>
+    </properties>
+
+
     <organization>
         <name>WSO2 Inc</name>
         <url>http://wso2.com</url>

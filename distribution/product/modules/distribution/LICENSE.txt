@@ -40,7 +40,6 @@ commons-lang-2.6.0.wso2v1.jar                                                   
 commons-lang_2.6.0.wso2v1.jar                                                   bundle         apache2   940       
 commons-pool_1.5.6.wso2v1.jar                                                   bundle         apache2   1009      
 compass_2.0.1.wso2v2.jar                                                        bundle         apache2   897       
-ehcache_1.5.0.wso2v3.jar                                                        bundle         apache2   852       
 geronimo-jaxws_2.2_spec-1.0.jar                                                 bundle         apache2   395       
 geronimo-jms_1.1_spec-1.1.0.wso2v1.jar                                          bundle         apache2   661       
 geronimo-jta_1.1_spec-1.1.jar                                                   jar            apache2   1066      
