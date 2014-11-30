@@ -124,7 +124,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon platform version comes here-->
-        <carbon.platform.version>4.3.0-SNAPSHOT</carbon.platform.version>
+        <carbon.platform.version>4.3.0</carbon.platform.version>
         <carbon.platform.package.export.version>4.3.0</carbon.platform.package.export.version>
         <carbon.platform.package.import.version.range>[4.3.0, 4.4.0)
         </carbon.platform.package.import.version.range>
