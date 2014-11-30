@@ -154,24 +154,7 @@ this directory.
 
 6. java2wsdl.sh & java2wsdl.bat - Tool for generating WSDL from Java code
 
-7. ciphertool.sh & ciphertool.bat - Tool for encrypting and decrypting simple texts such as passwords.
-    The arguments that are inputs to this tool with their meanings are shown bellow.
-
-	keystore        - If keys are in a store , it's location
-	storepass       - Password for access keyStore
-	keypass         - To get private key
-	alias           - Alias to identify key owner
-	storetype       - Type of keyStore , Default is JKS
-	keyfile         - If key is in a file
-	opmode          - encrypt or decrypt , Default is encrypt
-	algorithm       - encrypt or decrypt algorithm , Default is RSA
-	source          - Either cipher or plain text as an in-lined form
-	outencode       - Currently base64 and use for encode result
-	inencode        - Currently base64 and use to decode input
-	trusted         - Is KeyStore a trusted store? If presents this, consider as a trusted store
-	passphrase      - if a simple symmetric encryption using a pass phrase shall be used
-
-8. build.xml - Build configuration for the ant command. 
+7. build.xml - Build configuration for the ant command.
       Default task - Running the ant command in this directory, will copy the libraries that are require to run remote registry clients in to the repo                     sitory/lib directory.
       createWorker task - removes the front end components from the server runtime.
       localize task - Generates language bundles in the $CARBON_HOME/repository/components/dropins to be picked at a locale change.
@@ -207,9 +190,9 @@ this directory.
       	If you want to change the default locations of the resources directory and dropins directory, run the following command.
 		ant localize -Dresources.directory=<your path to the resource directory> -Ddropins.directory=<path to the directory where you want to store generated language bundles>
 
-9. yajsw - contains the wrapper.conf file to run a Carbon server as a windows service using YAJSW (Yet Another Java Service Wrapper)
+8. yajsw - contains the wrapper.conf file to run a Carbon server as a windows service using YAJSW (Yet Another Java Service Wrapper)
 
-10. wso2carbon-version.txt
+9. wso2carbon-version.txt
     - A simple text file used for storing the Carbon kernel version
 
-11. carbondump.sh & carbondump.bat - Carbondump is a tool for collecting all the necessary data from a running Carbon instance at the time of an error. The carbondump generates a zip archive with the collected data, which can be used to analyze your system and determine the problem which caused the error.
+10. carbondump.sh & carbondump.bat - Carbondump is a tool for collecting all the necessary data from a running Carbon instance at the time of an error. The carbondump generates a zip archive with the collected data, which can be used to analyze your system and determine the problem which caused the error.

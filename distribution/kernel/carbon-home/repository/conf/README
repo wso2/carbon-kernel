@@ -26,16 +26,6 @@ Usage of the sub-directories of relevant configurations are as follows.
 	-authenticators.xml
        	 The configuration file for Carbon authenticators.
 
-	-cipher-text.properties
-	 File based secret repository. 
-
-	-cipher-tool.properties
-	 This properties file contains all the aliases to be used in carbon components.
-	 If any property need to be secured, you need to add the alias name and the value.
-
-	-secret-conf.xml
-	 The Secret Manager Configuration that is used by secret vault component.
-
 5. tomcat <directory>
 	-carbon <directory>
 		|-WEB-INF
