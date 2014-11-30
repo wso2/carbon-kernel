@@ -166,7 +166,6 @@ org.wso2.carbon.ui_4.3.0.SNAPSHOT.jar                                           
 org.wso2.carbon.user.api_4.3.0.SNAPSHOT.jar                                     bundle         apache2   3595      
 org.wso2.carbon.user.core_4.3.0.SNAPSHOT.jar                                    bundle         apache2   3594      
 org.wso2.carbon.utils_4.3.0.SNAPSHOT.jar                                        bundle         apache2   3593      
-org.wso2.ciphertool-1.0.0-wso2v2.jar                                            bundle         apache2   666       
 org.wso2.securevault_1.0.0.wso2v2.jar                                           bundle         apache2   768       
 pdepublishing-ant.jar                                                           jar            epl1      524       
 pdepublishing.jar                                                               jar            epl1      525       
