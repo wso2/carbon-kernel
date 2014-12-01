@@ -15,21 +15,19 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.3.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.tomcat.ext</artifactId>
     <packaging>bundle</packaging>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.3.0</version>
     <name>WSO2 Carbon - Carbon specific tomcat extensions</name>
     <description>This bundle contains custom tomcat extensions such as tomcat valves,etc</description>
 
@@ -53,7 +51,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat.wso2</groupId>
@@ -74,27 +72,27 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.tomcat</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
