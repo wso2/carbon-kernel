@@ -18,8 +18,8 @@
 
 	<modules>
 		<module>kernel</module>
-		<module>integration</module>
 		<module>product</module>
+		<module>integration</module>
 	</modules>
 
 </project>
