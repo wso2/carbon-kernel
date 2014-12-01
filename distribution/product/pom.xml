@@ -96,7 +96,7 @@
     </profiles>
 
     <properties>
-        <carbon.product.version>4.3.0-SNAPSHOT</carbon.product.version>
+        <carbon.product.version>4.3.0</carbon.product.version>
     </properties>
 
 
