@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-service-stubs</artifactId>
-        <version>4.3.0</version>
+        <version>4.4.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -57,7 +57,7 @@
 
                                 </path>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/ServerRolesManager.wsdl -u -uw -o target/generated-code                      -p org.wso2.carbon.roles.mgt.stub                      -ns2p http://mgt.roles.carbon.wso2.org=org.wso2.carbon.roles.mgt.stub,http://mgt.roles.carbon.wso2.org/xsd=org.wso2.carbon.roles.mgt.stub.types" />
+                                    <arg line="-uri src/main/resources/ServerRolesManager.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.roles.mgt.stub                      -ns2p http://mgt.roles.carbon.wso2.org=org.wso2.carbon.roles.mgt.stub,http://mgt.roles.carbon.wso2.org/xsd=org.wso2.carbon.roles.mgt.stub.types" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                             </tasks>
