@@ -177,6 +177,7 @@
                     </execution>
                 </executions>
             </plugin>
+<!--
 
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -191,6 +192,7 @@
                     </execution>
                 </executions>
             </plugin>
+-->
 
         </plugins>
     </build>
