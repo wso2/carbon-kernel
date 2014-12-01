@@ -836,8 +836,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 				// get the claimMapping related to this claimURI
 				String attributeName = getClaimAtrribute(claimURI, userName, null);
 				//remove user DN from cache if changing username attribute
-				if (realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE).equals
-				        (attributeName)) {
+				if (realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE).equals(attributeName)) {
 				    userCache.remove(userName);
 				}
 				// if uid attribute value contains domain name, remove domain name
