@@ -197,10 +197,10 @@
                             <publishArtifactRepository>true</publishArtifactRepository>
                             <featureArtifacts>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.core.feature:4.3.0-SNAPSHOT
+                                    org.wso2.carbon:org.wso2.carbon.core.feature:4.3.0
                                 </featureArtifactDef>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.core.runtime.feature:4.3.0-SNAPSHOT
+                                    org.wso2.carbon:org.wso2.carbon.core.runtime.feature:4.3.0
                                 </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>
@@ -251,7 +251,7 @@
                             <features>
                                 <feature>
                                     <id>org.wso2.carbon.core.feature.group</id>
-				    <version>4.3.0-SNAPSHOT</version>
+				    <version>4.3.0</version>
                                 </feature>
                             </features>
                         </configuration>
