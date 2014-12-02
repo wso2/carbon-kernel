@@ -1274,4 +1274,14 @@ public class CarbonUtils {
 		}
 		return proxyContextPath;
 	}
+    /**
+     * This method will return current working CApp directory
+     * use-case: A visual indicator in admin console for identifying artifacts deployed through CApps,
+     * thus no api changes involves on stubs if CApp directory got changed
+     * @return cAppDir
+     */
+    public static String getCAppDirectory() {
+        return CarbonUtils.getCarbonHome() + File.separator + "temp" + File.separator +
+               "carbonapps";
+    }
 }
