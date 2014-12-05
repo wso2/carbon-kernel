@@ -130,6 +130,9 @@ this directory.
 
                 -DworkerNode
                                 Set this system property when starting as a worker node.
+		
+                -Dprofile=<profileName>
+				Starts the server as the specified profile. e.g. worker profile.
 
                 -Dtenant.idle.time=<timeInMinutes>
                                 If a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.
