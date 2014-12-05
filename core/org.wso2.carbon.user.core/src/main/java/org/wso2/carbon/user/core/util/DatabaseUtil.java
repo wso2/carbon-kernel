@@ -555,6 +555,10 @@ public class DatabaseUtil {
 
     public static Connection getDBConnection(DataSource dataSource) throws SQLException {
 		Connection dbConnection = dataSource.getConnection();
+                dbConnection.setAutoCommit(false);
+                if(dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED){
+                    dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+                }
 		return dbConnection;
 	}
 
