@@ -49,18 +49,16 @@ public class DatabaseUtil {
     private static final int DEFAULT_MAX_WAIT = 1000 * 60;
     private static final int DEFAULT_MIN_IDLE = 5;
     private static final int DEFAULT_MAX_IDLE = 6;
-    
+
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
-     * @param realmConfig The realm configuration. This includes necessary configuration parameters needed to
-     *                      create a database pool.
      *
      * NOTE : If we use this there will be a single connection for all tenants. But there might be a requirement
      * where different tenants want to connect to multiple data sources. In that case we need to create
      * a dataSource for each tenant.
      * @return A database pool.
      */
-    public static synchronized DataSource getRealmDataSource(RealmConfiguration realmConfig){
+    public static synchronized DataSource getRealmDataSource(RealmConfiguration realmConfig) {
 
         if (dataSource == null) {
             return createRealmDataSource(realmConfig);
@@ -72,175 +70,175 @@ public class DatabaseUtil {
     /**
      * Close all database connections in the pool.
      */
-	public static synchronized void closeDatabasePoolConnection() {
-		if (dataSource != null && dataSource instanceof org.apache.tomcat.jdbc.pool.DataSource) {
-			((org.apache.tomcat.jdbc.pool.DataSource) dataSource).close();
-			dataSource = null;
-		}
-	}
-	
-	private static DataSource lookupDataSource(String dataSourceName) {
-		try {
-			return (DataSource) InitialContext.doLookup(dataSourceName);
-		} catch (Exception e) {
-			throw new RuntimeException("Error in looking up data source: " + e.getMessage(), e);
-		}
-	}
+    public static synchronized void closeDatabasePoolConnection() {
+        if (dataSource != null && dataSource instanceof org.apache.tomcat.jdbc.pool.DataSource) {
+            ((org.apache.tomcat.jdbc.pool.DataSource) dataSource).close();
+            dataSource = null;
+        }
+    }
+
+    private static DataSource lookupDataSource(String dataSourceName) {
+        try {
+            return (DataSource) InitialContext.doLookup(dataSourceName);
+        } catch (Exception e) {
+            throw new RuntimeException("Error in looking up data source: " + e.getMessage(), e);
+        }
+    }
 
     public static DataSource createUserStoreDataSource(RealmConfiguration realmConfig) {
         String dataSourceName = realmConfig.getUserStoreProperty(JDBCRealmConstants.DATASOURCE);
-    	if (dataSourceName != null) {
-    		return lookupDataSource(dataSourceName);
-    	}
-		RDBMSConfiguration dsConfig = new RDBMSConfiguration();
-		dsConfig.setDriverClassName(realmConfig.getUserStoreProperty(JDBCRealmConstants.DRIVER_NAME));
-		if (dsConfig.getDriverClassName() == null) {
-			return null;
-		}
-		dsConfig.setUrl(realmConfig.getUserStoreProperty(JDBCRealmConstants.URL));
-		dsConfig.setUsername(realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME));
-		dsConfig.setPassword(realmConfig.getUserStoreProperty(JDBCRealmConstants.PASSWORD));
+        if (dataSourceName != null) {
+            return lookupDataSource(dataSourceName);
+        }
+        RDBMSConfiguration dsConfig = new RDBMSConfiguration();
+        dsConfig.setDriverClassName(realmConfig.getUserStoreProperty(JDBCRealmConstants.DRIVER_NAME));
+        if (dsConfig.getDriverClassName() == null) {
+            return null;
+        }
+        dsConfig.setUrl(realmConfig.getUserStoreProperty(JDBCRealmConstants.URL));
+        dsConfig.setUsername(realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME));
+        dsConfig.setPassword(realmConfig.getUserStoreProperty(JDBCRealmConstants.PASSWORD));
 
-		if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE) != null
-				&& !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE).equals("")) {
-			dsConfig.setMaxActive(Integer.parseInt(realmConfig.getUserStoreProperty(
-					JDBCRealmConstants.MAX_ACTIVE)));
-		} else {
-			dsConfig.setMaxActive(DEFAULT_MAX_ACTIVE);
-		}
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE) != null
+                && !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE).equals("")) {
+            dsConfig.setMaxActive(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.MAX_ACTIVE)));
+        } else {
+            dsConfig.setMaxActive(DEFAULT_MAX_ACTIVE);
+        }
 
-		if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE) != null
-				&& !realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE).equals("")) {
-			dsConfig.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
-					JDBCRealmConstants.MIN_IDLE)));
-		} else {
-			dsConfig.setMinIdle(DEFAULT_MIN_IDLE);
-		}
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE) != null
+                && !realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE).equals("")) {
+            dsConfig.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.MIN_IDLE)));
+        } else {
+            dsConfig.setMinIdle(DEFAULT_MIN_IDLE);
+        }
 
-		if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE) != null
-				&& !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE).equals("")) {
-			dsConfig.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
-					JDBCRealmConstants.MAX_IDLE)));
-		} else {
-			dsConfig.setMinIdle(DEFAULT_MAX_IDLE);
-		}
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE) != null
+                && !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE).equals("")) {
+            dsConfig.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.MAX_IDLE)));
+        } else {
+            dsConfig.setMinIdle(DEFAULT_MAX_IDLE);
+        }
 
-		if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT) != null
-				&& !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT).equals("")) {
-			dsConfig.setMaxWait(Integer.parseInt(realmConfig.getUserStoreProperty(
-					JDBCRealmConstants.MAX_WAIT)));
-		} else {
-			dsConfig.setMaxWait(DEFAULT_MAX_WAIT);
-		}
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT) != null
+                && !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT).equals("")) {
+            dsConfig.setMaxWait(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.MAX_WAIT)));
+        } else {
+            dsConfig.setMaxWait(DEFAULT_MAX_WAIT);
+        }
 
-		if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null
-				&& !realmConfig.getUserStoreProperty(
-						JDBCRealmConstants.TEST_WHILE_IDLE).equals("")) {
-			dsConfig.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getUserStoreProperty(
-					JDBCRealmConstants.TEST_WHILE_IDLE)));
-		}
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null
+                && !realmConfig.getUserStoreProperty(
+                JDBCRealmConstants.TEST_WHILE_IDLE).equals("")) {
+            dsConfig.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.TEST_WHILE_IDLE)));
+        }
 
-		if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null
-				&& !realmConfig.getUserStoreProperty(
-						JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).equals("")) {
-			dsConfig.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
-					realmConfig.getUserStoreProperty(
-							JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
-		}
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null
+                && !realmConfig.getUserStoreProperty(
+                JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).equals("")) {
+            dsConfig.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
+                    realmConfig.getUserStoreProperty(
+                            JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
+        }
 
-		if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null
-				&& !realmConfig.getUserStoreProperty(
-						JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).equals("")) {
-			dsConfig.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getUserStoreProperty(
-					JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
-		}
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null
+                && !realmConfig.getUserStoreProperty(
+                JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).equals("")) {
+            dsConfig.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
+        }
 
-		if (realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
-			dsConfig.setValidationQuery(realmConfig.getUserStoreProperty(
-					JDBCRealmConstants.VALIDATION_QUERY));
-		}
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
+            dsConfig.setValidationQuery(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.VALIDATION_QUERY));
+        }
         try {
-			return new RDBMSDataSource(dsConfig).getDataSource();
-		} catch (DataSourceException e) {
-			throw new RuntimeException("Error in creating data source: " + e.getMessage(), e);
-		}
+            return new RDBMSDataSource(dsConfig).getDataSource();
+        } catch (DataSourceException e) {
+            throw new RuntimeException("Error in creating data source: " + e.getMessage(), e);
+        }
     }
-    
+
     private static DataSource createRealmDataSource(RealmConfiguration realmConfig) {
         String dataSourceName = realmConfig.getRealmProperty(JDBCRealmConstants.DATASOURCE);
-    	if (dataSourceName != null) {
-    		return lookupDataSource(dataSourceName);
-    	}
-		RDBMSConfiguration dsConfig = new RDBMSConfiguration();
-		dsConfig.setDriverClassName(realmConfig.getRealmProperty(JDBCRealmConstants.DRIVER_NAME));
-		dsConfig.setUrl(realmConfig.getRealmProperty(JDBCRealmConstants.URL));
-		dsConfig.setUsername(realmConfig.getRealmProperty(JDBCRealmConstants.USER_NAME));
-		dsConfig.setPassword(realmConfig.getRealmProperty(JDBCRealmConstants.PASSWORD));
+        if (dataSourceName != null) {
+            return lookupDataSource(dataSourceName);
+        }
+        RDBMSConfiguration dsConfig = new RDBMSConfiguration();
+        dsConfig.setDriverClassName(realmConfig.getRealmProperty(JDBCRealmConstants.DRIVER_NAME));
+        dsConfig.setUrl(realmConfig.getRealmProperty(JDBCRealmConstants.URL));
+        dsConfig.setUsername(realmConfig.getRealmProperty(JDBCRealmConstants.USER_NAME));
+        dsConfig.setPassword(realmConfig.getRealmProperty(JDBCRealmConstants.PASSWORD));
 
-		if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_ACTIVE) != null
-				&& !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_ACTIVE).equals("")) {
-			dsConfig.setMaxActive(Integer.parseInt(realmConfig.getRealmProperty(
-					JDBCRealmConstants.MAX_ACTIVE)));
-		} else {
-			dsConfig.setMaxActive(DEFAULT_MAX_ACTIVE);
-		}
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_ACTIVE) != null
+                && !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_ACTIVE).equals("")) {
+            dsConfig.setMaxActive(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.MAX_ACTIVE)));
+        } else {
+            dsConfig.setMaxActive(DEFAULT_MAX_ACTIVE);
+        }
 
-		if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_IDLE) != null
-				&& !realmConfig.getRealmProperty(JDBCRealmConstants.MIN_IDLE).equals("")) {
-			dsConfig.setMinIdle(Integer.parseInt(realmConfig.getRealmProperty(
-					JDBCRealmConstants.MIN_IDLE)));
-		} else {
-			dsConfig.setMinIdle(DEFAULT_MIN_IDLE);
-		}
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_IDLE) != null
+                && !realmConfig.getRealmProperty(JDBCRealmConstants.MIN_IDLE).equals("")) {
+            dsConfig.setMinIdle(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.MIN_IDLE)));
+        } else {
+            dsConfig.setMinIdle(DEFAULT_MIN_IDLE);
+        }
 
-		if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE) != null
-				&& !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE).equals("")) {
-			dsConfig.setMinIdle(Integer.parseInt(realmConfig.getRealmProperty(
-					JDBCRealmConstants.MAX_IDLE)));
-		} else {
-			dsConfig.setMinIdle(DEFAULT_MAX_IDLE);
-		}
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE) != null
+                && !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE).equals("")) {
+            dsConfig.setMinIdle(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.MAX_IDLE)));
+        } else {
+            dsConfig.setMinIdle(DEFAULT_MAX_IDLE);
+        }
 
-		if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT) != null
-				&& !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT).equals("")) {
-			dsConfig.setMaxWait(Integer.parseInt(realmConfig.getRealmProperty(
-					JDBCRealmConstants.MAX_WAIT)));
-		} else {
-			dsConfig.setMaxWait(DEFAULT_MAX_WAIT);
-		}
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT) != null
+                && !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT).equals("")) {
+            dsConfig.setMaxWait(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.MAX_WAIT)));
+        } else {
+            dsConfig.setMaxWait(DEFAULT_MAX_WAIT);
+        }
 
-		if (realmConfig.getRealmProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null
-				&& !realmConfig.getRealmProperty(
-						JDBCRealmConstants.TEST_WHILE_IDLE).equals("")) {
-			dsConfig.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getRealmProperty(
-					JDBCRealmConstants.TEST_WHILE_IDLE)));
-		}
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null
+                && !realmConfig.getRealmProperty(
+                JDBCRealmConstants.TEST_WHILE_IDLE).equals("")) {
+            dsConfig.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.TEST_WHILE_IDLE)));
+        }
 
-		if (realmConfig.getRealmProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null
-				&& !realmConfig.getRealmProperty(
-						JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).equals("")) {
-			dsConfig.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
-					realmConfig.getRealmProperty(
-							JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
-		}
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null
+                && !realmConfig.getRealmProperty(
+                JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).equals("")) {
+            dsConfig.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
+                    realmConfig.getRealmProperty(
+                            JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
+        }
 
-		if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null
-				&& !realmConfig.getRealmProperty(
-						JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).equals("")) {
-			dsConfig.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getRealmProperty(
-					JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
-		}
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null
+                && !realmConfig.getRealmProperty(
+                JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).equals("")) {
+            dsConfig.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
+        }
 
-		if (realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
-			dsConfig.setValidationQuery(realmConfig.getRealmProperty(
-					JDBCRealmConstants.VALIDATION_QUERY));
-		}
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
+            dsConfig.setValidationQuery(realmConfig.getRealmProperty(
+                    JDBCRealmConstants.VALIDATION_QUERY));
+        }
         try {
-			dataSource = new RDBMSDataSource(dsConfig).getDataSource();
-			return dataSource;
-		} catch (DataSourceException e) {
-			throw new RuntimeException("Error in creating data source: " + e.getMessage(), e);
-		}
+            dataSource = new RDBMSDataSource(dsConfig).getDataSource();
+            return dataSource;
+        } catch (DataSourceException e) {
+            throw new RuntimeException("Error in creating data source: " + e.getMessage(), e);
+        }
     }
 
     public static String[] getStringValuesFromDatabase(Connection dbConnection, String sqlStmt, Object... params)
@@ -258,9 +256,9 @@ public class DatabaseUtil {
                         prepStmt.setString(i + 1, null);
                         //throw new UserStoreException("Null data provided.");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String)param);
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer)param);
+                        prepStmt.setInt(i + 1, (Integer) param);
                     }
                 }
             }
@@ -297,9 +295,9 @@ public class DatabaseUtil {
                     if (param == null) {
                         throw new UserStoreException("Null data provided.");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String)param);
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer)param);
+                        prepStmt.setInt(i + 1, (Integer) param);
                     }
                 }
             }
@@ -325,9 +323,9 @@ public class DatabaseUtil {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
     }
-    
+
     public static int getIntegerValueFromDatabase(Connection dbConnection, String sqlStmt,
-            Object... params) throws UserStoreException {
+                                                  Object... params) throws UserStoreException {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         int value = -1;
@@ -358,115 +356,9 @@ public class DatabaseUtil {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
     }
-    
-	public static void udpateUserRoleMappingInBatchModeForInternalRoles(Connection dbConnection,
-			String sqlStmt, String primaryDomain, Object... params) throws UserStoreException {
-		PreparedStatement prepStmt = null;
-		boolean localConnection = false;
-		try {
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			int batchParamIndex = -1;
-			if (params != null && params.length > 0) {
-				for (int i = 0; i < params.length; i++) {
-					Object param = params[i];
-					if (param == null) {
-						throw new UserStoreException("Null data provided.");
-					} else if (param instanceof String[]) {
-						batchParamIndex = i;
-					} else if (param instanceof String) {				
-						prepStmt.setString(i + 1,(String) param);
-					} else if (param instanceof Integer) {
-						prepStmt.setInt(i + 1, (Integer) param);
-					}
-				}
-			}
-			if (batchParamIndex != -1) {
-				String[] values = (String[]) params[batchParamIndex];
-				for (String value : values) {
-					String strParam = (String) value;
-                    //add domain if not set
-					strParam = UserCoreUtil.addDomainToName(strParam, primaryDomain);
-					//get domain from name
-                    String domainParam = UserCoreUtil.extractDomainFromName(strParam);
-                    if (domainParam != null) {
-                        domainParam = domainParam.toUpperCase();
-                    }
-                    //set domain to sql
-                    prepStmt.setString(params.length + 1, domainParam);
-                    //remove domain before persisting
-                    String nameWithoutDomain = UserCoreUtil.removeDomainFromName(strParam);
-                    //set name in sql
-                    prepStmt.setString(batchParamIndex + 1, nameWithoutDomain);
-                    prepStmt.addBatch();
-				}
-			}
 
-			int[] count = prepStmt.executeBatch();
-			if (log.isDebugEnabled()) {
-				log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is"
-						+ Arrays.toString(count));
-			}
-			if (localConnection) {
-				dbConnection.commit();
-			}
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
-			if (localConnection) {
-				DatabaseUtil.closeAllConnections(dbConnection);
-			}
-			DatabaseUtil.closeAllConnections(null, prepStmt);
-		}
-	}
-
-	public static void udpateUserRoleMappingWithExactParams(Connection dbConnection, String sqlStmt,
-	                                                    String[] roles, String userName,
-	                                                    Integer[] tenantIds, int currentTenantId)
-	                                                                                         throws UserStoreException {
-		PreparedStatement ps = null;
-		boolean localConnection = false;
-		try {
-			ps = dbConnection.prepareStatement(sqlStmt);
-			byte count = 0;
-			byte index = 0;
-						
-			for (String role : roles) {
-				count = 0;
-				ps.setString(++count, role);
-				ps.setInt(++count, tenantIds[index]);
-				ps.setString(++count, userName);
-				ps.setInt(++count, currentTenantId);
-				ps.setInt(++count, currentTenantId);
-				ps.setInt(++count, tenantIds[index]);
-
-				ps.addBatch();
-				++index;
-			}
-
-			int[] cnt = ps.executeBatch();
-			if (log.isDebugEnabled()) {
-				log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is" +
-				          Arrays.toString(cnt));
-			}
-			if (localConnection) {
-				dbConnection.commit();
-			}
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
-			if (localConnection) {
-				DatabaseUtil.closeAllConnections(dbConnection);
-			}
-			DatabaseUtil.closeAllConnections(null, ps);
-		}
-	}
-
-    public static void udpateUserRoleMappingInBatchMode(Connection dbConnection, String sqlStmt,
-            Object... params) throws UserStoreException {
+    public static void udpateUserRoleMappingInBatchModeForInternalRoles(Connection dbConnection,
+                                                                        String sqlStmt, String primaryDomain, Object... params) throws UserStoreException {
         PreparedStatement prepStmt = null;
         boolean localConnection = false;
         try {
@@ -480,14 +372,120 @@ public class DatabaseUtil {
                     } else if (param instanceof String[]) {
                         batchParamIndex = i;
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String)param);
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer)param);
+                        prepStmt.setInt(i + 1, (Integer) param);
                     }
                 }
             }
             if (batchParamIndex != -1) {
-                String[] values = (String[])params[batchParamIndex];
+                String[] values = (String[]) params[batchParamIndex];
+                for (String value : values) {
+                    String strParam = (String) value;
+                    //add domain if not set
+                    strParam = UserCoreUtil.addDomainToName(strParam, primaryDomain);
+                    //get domain from name
+                    String domainParam = UserCoreUtil.extractDomainFromName(strParam);
+                    if (domainParam != null) {
+                        domainParam = domainParam.toUpperCase();
+                    }
+                    //set domain to sql
+                    prepStmt.setString(params.length + 1, domainParam);
+                    //remove domain before persisting
+                    String nameWithoutDomain = UserCoreUtil.removeDomainFromName(strParam);
+                    //set name in sql
+                    prepStmt.setString(batchParamIndex + 1, nameWithoutDomain);
+                    prepStmt.addBatch();
+                }
+            }
+
+            int[] count = prepStmt.executeBatch();
+            if (log.isDebugEnabled()) {
+                log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is"
+                        + Arrays.toString(count));
+            }
+            if (localConnection) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            log.error("Using sql : " + sqlStmt);
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+            DatabaseUtil.closeAllConnections(null, prepStmt);
+        }
+    }
+
+    public static void udpateUserRoleMappingWithExactParams(Connection dbConnection, String sqlStmt,
+                                                            String[] roles, String userName,
+                                                            Integer[] tenantIds, int currentTenantId)
+            throws UserStoreException {
+        PreparedStatement ps = null;
+        boolean localConnection = false;
+        try {
+            ps = dbConnection.prepareStatement(sqlStmt);
+            byte count = 0;
+            byte index = 0;
+
+            for (String role : roles) {
+                count = 0;
+                ps.setString(++count, role);
+                ps.setInt(++count, tenantIds[index]);
+                ps.setString(++count, userName);
+                ps.setInt(++count, currentTenantId);
+                ps.setInt(++count, currentTenantId);
+                ps.setInt(++count, tenantIds[index]);
+
+                ps.addBatch();
+                ++index;
+            }
+
+            int[] cnt = ps.executeBatch();
+            if (log.isDebugEnabled()) {
+                log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is" +
+                        Arrays.toString(cnt));
+            }
+            if (localConnection) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            log.error("Using sql : " + sqlStmt);
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+            DatabaseUtil.closeAllConnections(null, ps);
+        }
+    }
+
+    public static void udpateUserRoleMappingInBatchMode(Connection dbConnection, String sqlStmt,
+                                                        Object... params) throws UserStoreException {
+        PreparedStatement prepStmt = null;
+        boolean localConnection = false;
+        try {
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            int batchParamIndex = -1;
+            if (params != null && params.length > 0) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param == null) {
+                        throw new UserStoreException("Null data provided.");
+                    } else if (param instanceof String[]) {
+                        batchParamIndex = i;
+                    } else if (param instanceof String) {
+                        prepStmt.setString(i + 1, (String) param);
+                    } else if (param instanceof Integer) {
+                        prepStmt.setInt(i + 1, (Integer) param);
+                    }
+                }
+            }
+            if (batchParamIndex != -1) {
+                String[] values = (String[]) params[batchParamIndex];
                 for (String value : values) {
                     prepStmt.setString(batchParamIndex + 1, value);
                     prepStmt.addBatch();
@@ -513,11 +511,11 @@ public class DatabaseUtil {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
     }
-    
+
     public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
         PreparedStatement prepStmt = null;
-        try {            
+        try {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
@@ -527,15 +525,15 @@ public class DatabaseUtil {
                         prepStmt.setString(i + 1, null);
                         //throw new UserStoreException("Null data provided.");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String)param);
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer)param);
+                        prepStmt.setInt(i + 1, (Integer) param);
                     } else if (param instanceof Short) {
-                        prepStmt.setShort(i + 1, (Short)param);
+                        prepStmt.setShort(i + 1, (Short) param);
                     } else if (param instanceof Date) {
-                        Date date = (Date)param;
+                        Date date = (Date) param;
                         Timestamp time = new Timestamp(date.getTime());
-                        prepStmt.setTimestamp(i+1, time);
+                        prepStmt.setTimestamp(i + 1, time);
                     }
                 }
             }
@@ -554,15 +552,15 @@ public class DatabaseUtil {
     }
 
     public static Connection getDBConnection(DataSource dataSource) throws SQLException {
-		Connection dbConnection = dataSource.getConnection();
-                dbConnection.setAutoCommit(false);
-                if(dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED){
-                    dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-                }
-		return dbConnection;
-	}
+        Connection dbConnection = dataSource.getConnection();
+        dbConnection.setAutoCommit(false);
+        if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        }
+        return dbConnection;
+    }
 
-    public static void closeConnection(Connection dbConnection) {     
+    public static void closeConnection(Connection dbConnection) {
 
         if (dbConnection != null) {
             try {
@@ -613,7 +611,7 @@ public class DatabaseUtil {
         closeConnection(dbConnection);
     }
 
-    public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts){
+    public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
 
         closeResultSet(rs);
         closeStatements(prepStmts);
