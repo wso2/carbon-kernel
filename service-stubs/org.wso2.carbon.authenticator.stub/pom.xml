@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-service-stubs</artifactId>
-        <version>4.3.0</version>
+        <version>4.4.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -54,7 +54,7 @@
 
                                 </path>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/AuthenticationAdmin.wsdl -u -uw -o target/generated-code                                     -ns2p http://common.core.carbon.wso2.org/xsd=org.wso2.carbon.authenticator.stub.authentication,http://authentication.services.core.carbon.wso2.org=org.wso2.carbon.authenticator.stub,http://authentication.services.core.carbon.wso2.org/xsd=org.wso2.carbon.authenticator.stub" />
+                                    <arg line="-uri src/main/resources/AuthenticationAdmin.wsdl -u -uw -o target/generated-code -ns2p http://common.core.carbon.wso2.org/xsd=org.wso2.carbon.authenticator.stub.authentication,http://authentication.services.core.carbon.wso2.org=org.wso2.carbon.authenticator.stub,http://authentication.services.core.carbon.wso2.org/xsd=org.wso2.carbon.authenticator.stub" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                             </tasks>

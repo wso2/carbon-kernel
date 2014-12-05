@@ -10,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.3.0</version>
+    <version>4.4.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -130,7 +130,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon platform version comes here-->
-        <carbon.platform.version>4.3.0</carbon.platform.version>
+        <carbon.platform.version>4.4.0-SNAPSHOT</carbon.platform.version>
         <carbon.platform.package.export.version>4.3.0</carbon.platform.package.export.version>
         <carbon.platform.package.import.version.range>[4.3.0, 4.4.0)
         </carbon.platform.package.import.version.range>
@@ -1159,10 +1159,4 @@
 
         </dependencies>
     </dependencyManagement>
-
-
-
-  <scm>
-    <tag>4.3.0-RC2</tag>
-  </scm>
 </project>
