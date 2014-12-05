@@ -46,9 +46,6 @@
                 <include name="commons-httpclient*.jar"/>
                 <include name="commons-codec*.jar"/>
                 <include name="commons-fileupload*.jar"/>
-                <include name="rampart-policy*.jar"/>
-                <include name="rampart-core*.jar"/>
-                <include name="wss4j*.jar"/>
                 <include name="httpcore*.jar"/>
                 <include name="org.wso2.carbon.core*.jar"/>
                 <include name="org.wso2.carbon.utils*.jar"/>
