@@ -295,18 +295,6 @@
         <exp.pkg.version.xmlsec>1.4.2-patched</exp.pkg.version.xmlsec>
         <imp.pkg.version.xmlsec>[1.4.2,2)</imp.pkg.version.xmlsec>
 
-        <!-- Wss4j -->
-	<wss4j.version>1.5.11-wso2v7</wss4j.version>
-        <orbit.version.wss4j>1.5.11.wso2v7</orbit.version.wss4j>
-        <exp.pkg.version.wss4j>1.5.11.wso2v7</exp.pkg.version.wss4j>
-        <imp.pkg.version.wss4j>[1.5.11.wso2v7,2)</imp.pkg.version.wss4j>
-        <wss4j.osgi.version>1.5.11.wso2v7</wss4j.osgi.version>
-
-        <!-- Rampart -->
-        <rampart.version>1.6.1-wso2v9</rampart.version>
-        <rampart.mar.version>1.6.1-wso2v9</rampart.mar.version>
-        <rampart.osgi.version>1.6.1.wso2v9</rampart.osgi.version>
-
         <!-- Antlr Version -->
         <antlr.wso2.version>3.2.0.wso2v1</antlr.wso2.version>
 
@@ -741,11 +729,6 @@
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>javax.servlet</artifactId>
                 <version>${version.equinox.javax.servlet}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.security.wso2</groupId>
-                <artifactId>wss4j</artifactId>
-                <version>${orbit.version.wss4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle.wso2</groupId>
