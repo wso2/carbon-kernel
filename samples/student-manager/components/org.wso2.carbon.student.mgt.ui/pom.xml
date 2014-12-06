@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>student-manager-components</artifactId>
-        <version>4.4.0-SNAPSHOT</version>
+        <version>4.3.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -60,7 +60,7 @@
                                 </path>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
                                     <classpath refid="wsdl2java.classpath" />
-                                    <arg line="-uri src/main/resources/studentManager.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.student.mgt.ui -ns2p http://org.apache.axis2/xsd=org.wso2.carbon.student.mgt.ui.types.axis2,http://mgt.student.carbon.wso2.org=org.wso2.carbon.student.mgt.ui, http://data.mgt.student.carbon.wso2.org/xsd=org.wso2.carbon.student.mgt.ui.types.data" />
+                                    <arg line="-uri src/main/resources/studentManager.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.student.mgt.ui -ns2p http://org.apache.axis2/xsd=org.wso2.carbon.student.mgt.ui.types.axis2,http://mgt.student.carbon.wso2.org=org.wso2.carbon.student.mgt.ui,                                                                         http://data.mgt.student.carbon.wso2.org/xsd=org.wso2.carbon.student.mgt.ui.types.data" />
                                 </java>
                             </tasks>
                         </configuration>
