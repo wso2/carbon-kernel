@@ -502,7 +502,16 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             sentMsgsBuffer.add(clusteringMessage); // Buffer the message for replay
         }
         if (clusteringMessageTopic != null) {
-            clusteringMessageTopic.publish(clusteringMessage);
+            try {
+                clusteringMessageTopic.publish(clusteringMessage);
+            } catch (HazelcastInstanceNotActiveException e) {
+                String serverStatus = ServerStatus.getCurrentStatus();
+                if (!(ServerStatus.STATUS_SHUTTING_DOWN.equals(serverStatus) ||
+                      ServerStatus.STATUS_RESTARTING.equals(serverStatus))) {
+                    log.error("Could not send cluster message", e);
+                }
+                // Ignoring this exception if the server is shutting down.
+            }
         }
         return new ArrayList<ClusteringCommand>();  // TODO: How to get the response? Send to another topic, and use a correlation ID to correlate
     }
