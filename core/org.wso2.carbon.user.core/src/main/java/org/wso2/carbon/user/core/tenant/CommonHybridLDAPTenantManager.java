@@ -182,40 +182,43 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             createOrganizationalSubContext(dnOfOrganizationalContext, LDAPConstants.GROUP_CONTEXT_NAME, initialDirContext);
         }
 
-        //create admin entry
-        String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
-                UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
-        //eg: ou=users,o=cse.org,dc=wso2,dc=com
-        String dnOfUserContext;
-        if (tenantMgtConfig.getTenantStoreProperties().get(
-                UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE) != null) {
-            dnOfUserContext = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE)
-                    + "," + dnOfOrganizationalContext;
-        } else {
-            //if property value is not set use default value
-            dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME
-                    + "," + dnOfOrganizationalContext;
-        }
-        String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
-
-        //create admin group if write ldap group is enabled
-        if (("true").equals(realmConfig.getUserStoreProperty(
-                UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
-            //construct dn of group context: eg:ou=groups,o=cse.org,dc=wso2,dc=com
-            String dnOfGroupContext;
+        if (("false").equals(realmConfig.getAddAdmin())) {
+            //create admin entry
+            String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
+                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
+            //eg: ou=users,o=cse.org,dc=wso2,dc=com
+            String dnOfUserContext;
             if (tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE) != null) {
-                dnOfGroupContext = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().get(
-                        UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE) + "," +
-                        dnOfOrganizationalContext;
+                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE) != null) {
+                dnOfUserContext = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().get(
+                        UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE)
+                        + "," + dnOfOrganizationalContext;
             } else {
                 //if property value is not set use default value
-                dnOfGroupContext = orgSubContextAttribute + "=" + LDAPConstants.GROUP_CONTEXT_NAME + "," +
-                        dnOfOrganizationalContext;
+                dnOfUserContext = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME
+                        + "," + dnOfOrganizationalContext;
             }
-            createAdminGroup(dnOfGroupContext, dnOfUserEntry, initialDirContext);
+            String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
+
+            //create admin group if write ldap group is enabled
+            if (("true").equals(realmConfig.getUserStoreProperty(
+                    UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
+                //construct dn of group context: eg:ou=groups,o=cse.org,dc=wso2,dc=com
+                String dnOfGroupContext;
+                if (tenantMgtConfig.getTenantStoreProperties().get(
+                        UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE) != null) {
+                    dnOfGroupContext = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().get(
+                            UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE) + "," +
+                            dnOfOrganizationalContext;
+                } else {
+                    //if property value is not set use default value
+                    dnOfGroupContext = orgSubContextAttribute + "=" + LDAPConstants.GROUP_CONTEXT_NAME + "," +
+                            dnOfOrganizationalContext;
+                }
+                createAdminGroup(dnOfGroupContext, dnOfUserEntry, initialDirContext);
+            }
         }
+
     }
 
     /**
@@ -344,6 +347,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         }
     }
 
+    @Deprecated
     protected String createAdminEntry(String dnOfUserContext, Tenant tenant,
                                       DirContext initialDirContext)
             throws UserStoreException {
@@ -423,6 +427,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         return userDN;
     }
 
+    @Deprecated
     protected void createAdminGroup(String dnOfGroupContext, String adminUserDN,
                                     DirContext initialDirContext)
             throws UserStoreException {
