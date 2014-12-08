@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-service-stubs</artifactId>
-        <version>4.4.0-SNAPSHOT</version>
+        <version>4.3.0</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -58,11 +58,11 @@
 
                                 </path>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/RepositoryAdminService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.feature.mgt.stub -ns2p http://org.apache.axis2/xsd=org.wso2.carbon.feature.mgt.stub.axis2.xsd,http://prov.services.mgt.feature.carbon.wso2.org=org.wso2.carbon.feature.mgt.stub.prov,http://data.prov.services.mgt.feature.carbon.wso2.org/xsd=org.wso2.carbon.feature.mgt.stub.prov.data,http://exceptions.prov.services.mgt.feature.carbon.wso2.org/xsd=org.wso2.carbon.feature.mgt.stub.prov.exceptions" />
+                                    <arg line="-uri src/main/resources/RepositoryAdminService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.feature.mgt.stub                                     -ns2p http://org.apache.axis2/xsd=org.wso2.carbon.feature.mgt.stub.axis2.xsd,http://prov.services.mgt.feature.carbon.wso2.org=org.wso2.carbon.feature.mgt.stub.prov,http://data.prov.services.mgt.feature.carbon.wso2.org/xsd=org.wso2.carbon.feature.mgt.stub.prov.data,http://exceptions.prov.services.mgt.feature.carbon.wso2.org/xsd=org.wso2.carbon.feature.mgt.stub.prov.exceptions" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                                 <java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
-                                    <arg line="-uri src/main/resources/ProvisioningAdminService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.feature.mgt.stub -ns2p http://org.apache.axis2/xsd=org.wso2.carbon.feature.mgt.stub.axis2.xsd,http://prov.services.mgt.feature.carbon.wso2.org=org.wso2.carbon.feature.mgt.stub.prov,http://data.prov.services.mgt.feature.carbon.wso2.org/xsd=org.wso2.carbon.feature.mgt.stub.prov.data,http://exceptions.prov.services.mgt.feature.carbon.wso2.org/xsd=org.wso2.carbon.feature.mgt.stub.prov.exceptions" />
+                                    <arg line="-uri src/main/resources/ProvisioningAdminService.wsdl -u -uw -o target/generated-code -p org.wso2.carbon.feature.mgt.stub                                     -ns2p http://org.apache.axis2/xsd=org.wso2.carbon.feature.mgt.stub.axis2.xsd,http://prov.services.mgt.feature.carbon.wso2.org=org.wso2.carbon.feature.mgt.stub.prov,http://data.prov.services.mgt.feature.carbon.wso2.org/xsd=org.wso2.carbon.feature.mgt.stub.prov.data,http://exceptions.prov.services.mgt.feature.carbon.wso2.org/xsd=org.wso2.carbon.feature.mgt.stub.prov.exceptions" />
                                     <classpath refid="wsdl2java.classpath" />
                                 </java>
                             </tasks>
