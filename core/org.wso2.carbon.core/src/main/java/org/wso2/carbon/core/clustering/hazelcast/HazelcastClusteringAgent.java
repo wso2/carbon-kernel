@@ -266,19 +266,21 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     /**
      * Load hazelcastSerializers section from the clustering configuration in axis2.xml and
      * set custom Hazelcast data serializers.
-     *
+     * <p/>
      * The following element has to be placed in the clustering section of the axis2.xml file.
-     *
+     * <p/>
      * For example;
-     *
+     * <p/>
      * &lt;parameter name="hazelcastSerializers"&gt;
-     *     &lt;serializer typeClass="java.util.TreeSet">org.wso2.carbon.hazelcast.serializer.TreeSetSerializer&lt;/serializer&gt;
-     *     &lt;serializer typeClass="java.util.Map">org.wso2.carbon.hazelcast.serializer.MapSerializer&lt;/serializer&gt;
+     *  &lt;serializer typeClass="java.util.TreeSet">org.wso2.carbon.hazelcast.serializer.TreeSetSerializer&lt;/serializer&gt;
+     *  &lt;serializer typeClass="java.util.Map">org.wso2.carbon.hazelcast.serializer.MapSerializer&lt;/serializer&gt;
      * &lt;/parameter&gt;
      */
     private void loadCustomHazelcastSerializers() {
         Parameter hazelcastSerializers = getParameter("hazelcastSerializers");
-        if(hazelcastSerializers == null) return;
+        if (hazelcastSerializers == null) {
+            return;
+        }
 
         OMElement paramEle = hazelcastSerializers.getParameterElement();
         for (Iterator iter = paramEle.getChildrenWithLocalName("serializer"); iter.hasNext(); ) {
@@ -293,10 +295,11 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                     Object serializerObj = serializerClass.newInstance();
                     if (serializerObj instanceof StreamSerializer) {
                         serializerConfig.setImplementation((StreamSerializer) serializerObj);
-                    } else if(serializerObj instanceof ByteArraySerializer){
+                    } else if (serializerObj instanceof ByteArraySerializer) {
                         serializerConfig.setImplementation((ByteArraySerializer) serializerObj);
                     } else {
-                        throw new IllegalArgumentException("Unknown Hazelcast serializer type: " + serializerObj.getClass());
+                        throw new IllegalArgumentException("Unknown Hazelcast serializer type: " +
+                                serializerObj.getClass());
                     }
                     serializerConfig.setTypeClass(Class.forName(typeClass));
                     primaryHazelcastConfig.getSerializationConfig().addSerializerConfig(serializerConfig);
