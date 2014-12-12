@@ -137,7 +137,6 @@
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
                 <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
-                <include>org.wso2.ciphertool:org.wso2.ciphertool:jar</include>
                 <include>commons-lang.wso2:commons-lang:jar</include>
  		        <include>ant-contrib:ant-contrib:jar</include>
             </includes>

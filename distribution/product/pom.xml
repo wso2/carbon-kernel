@@ -15,14 +15,12 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.4.0-SNAPSHOT</version>
 	<relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -52,7 +50,7 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.ui</artifactId>
-                <version>${carbon.product.version}</version>
+                <version>${project.parent.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
@@ -65,7 +63,8 @@
     <scm>
         <connection>scm:svn:http://svn.wso2.org/repos/wso2/carbon/kernel/trunk/distribution/product/</connection>
         <developerConnection>scm:svn:https://svn.wso2.org/repos/wso2/carbon/kernel/trunk/distribution/product/</developerConnection>
-    </scm>
+      <tag>HEAD</tag>
+  </scm>
 
     <profiles>
         <profile>
@@ -95,6 +94,11 @@
         </profile>
     </profiles>
 
+    <properties>
+        <carbon.product.version>4.3.0</carbon.product.version>
+    </properties>
+
+
     <organization>
         <name>WSO2 Inc</name>
         <url>http://wso2.com</url>
@@ -104,9 +108,5 @@
         <system>JIRA</system>
         <url>https://wso2.org/jira/browse/CARBON</url>
     </issueManagement>
-
-    <properties>
-        <carbon.product.version>${carbon.platform.version}</carbon.product.version>
-    </properties>
 
 </project>

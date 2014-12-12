@@ -203,15 +203,16 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
         Container[] virtualHosts = this.getEngine().findChildren();
         for (Container vHost : virtualHosts) {
             Host childHost = (Host) vHost;
+            String appBase = childHost.getAppBase().replace("/", File.separator);
 
-            if (childHost.getAppBase().endsWith(File.separator)) {
+            if (appBase.endsWith(File.separator)) {
                 //append a file separator to make webAppFilePath equal to appBase
-                if (isEqualTo(baseDir + File.separator, childHost.getAppBase())) {
+                if (isEqualTo(baseDir + File.separator, appBase)) {
                     virtualHost = childHost;
                     break;
                 }
             } else {
-                if (isEqualTo(baseDir + File.separator, childHost.getAppBase() + File.separator)) {
+                if (isEqualTo(baseDir + File.separator, appBase + File.separator)) {
                     virtualHost = childHost;
                     break;
                 }

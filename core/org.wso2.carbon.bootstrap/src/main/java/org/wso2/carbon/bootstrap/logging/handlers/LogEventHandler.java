@@ -23,23 +23,18 @@ import org.wso2.carbon.bootstrap.logging.LoggingUtils;
 
 import java.lang.SecurityException;
 import java.lang.String;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 // TODO - move this class to platform level (org.wso2.carbon.logging.service bundle)
 public class LogEventHandler extends Handler{
-    private static String BRIDGE_NAME = "LOGEVENT";
+    private static final String BRIDGE_NAME = "LOGEVENT";
 
     private static LoggingBridge loggingBridge;
-    private static Queue<LogRecord> logQueue = new LinkedList<LogRecord>(); // TODO replace this with circular buffer implementation
-
     @Override
     public void publish(LogRecord record) {
         LogRecord formatted = LoggingUtils.formatMessage(getFormatter(), record);
-        LoggingUtils.pushLogRecord(BRIDGE_NAME, LogEventHandler.loggingBridge, formatted, logQueue);
-
+        LoggingUtils.pushLogRecord(BRIDGE_NAME, LogEventHandler.loggingBridge, formatted);
     }
 
     @Override

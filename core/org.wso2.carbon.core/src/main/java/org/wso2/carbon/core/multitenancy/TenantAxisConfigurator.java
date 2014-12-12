@@ -492,15 +492,14 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
                 }
             }
             List<DeployerConfig> deployerConfigs = readDeployerConfigs(axis2DeployerProviderList);
-            // Adding deployers from vhosts and deployers which come inside bundles
-            // Add Ghost deployer registry only if ghost is on
             if (GhostDeployerUtils.isGhostOn()) {
-                new GhostDeployerRegistry(axisConfig).register(deployerBundles,
-                        deployerConfigs);
-            } else {
-                new Axis2DeployerRegistry(axisConfig).register(deployerBundles,
-                        deployerConfigs);
+                GhostArtifactRepository ghostArtifactRepository = new GhostArtifactRepository(axisConfig);
+                GhostDeployerUtils.setGhostArtifactRepository(ghostArtifactRepository, axisConfig);
             }
+
+            // Adding deployers from vhosts and deployers which come inside bundles
+            new Axis2DeployerRegistry(axisConfig).register(deployerBundles,
+                    deployerConfigs);
         }
         return axisConfig;
     }
@@ -587,7 +586,7 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
 
     @Override
     public void loadServices() {
-        //We don't deploy any artifacts at this time, DeploymentAxis2ConfigurationContextObserver will take care about
+        //We don't deploy any artifacts at this time, TenantAxisUtils will take care of
         //deployment in later stage of server startup (Refer CARBON-14977 ).
 
     }

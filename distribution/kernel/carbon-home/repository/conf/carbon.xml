@@ -219,8 +219,15 @@
     -->
     <GhostDeployment>
         <Enabled>false</Enabled>
-        <PartialUpdate>false</PartialUpdate>
     </GhostDeployment>
+
+    <!--
+     Caching related configurations
+    -->
+    <Cache>
+        <!-- Default cache timeout in minutes -->
+        <DefaultCacheTimeout>15</DefaultCacheTimeout>
+    </Cache>
 
     <!--
     Axis2 related configurations

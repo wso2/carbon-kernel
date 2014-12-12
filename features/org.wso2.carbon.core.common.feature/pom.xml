@@ -15,21 +15,19 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.4.0-SNAPSHOT</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.core.common.feature</artifactId>
     <packaging>pom</packaging>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Carbon Common Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the carbon core common features</description>
@@ -81,22 +79,17 @@
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.authenticator.stub</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.queuing</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
-                                <!--bundleDef>org.wso2.carbon:org.wso2.carbon.caching.core</bundleDef-->
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.api</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core.bootup.validator</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.common</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.core</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.rdbms</bundleDef>
 				<bundleDef>org.wso2.carbon:org.wso2.carbon.user.api</bundleDef>
-                                <bundleDef>net.sf.jsr107cache.wso2:jsr107cache:1.1.0.wso2v3</bundleDef>
-                                <bundleDef>org.jgroups.wso2:jgroups:3.0.6.wso2v1</bundleDef>
 			        <bundleDef>au.com.bytecode.opencsv.wso2:opencsv:1.8.wso2v1</bundleDef>
 				<bundleDef>org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2</bundleDef>
                                 <bundleDef>com.h2database.wso2:h2-database-engine:1.2.140.wso2v3</bundleDef>
-                                <bundleDef>org.apache.axis2:axis2-transport-jms:${version.axis2.transport}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2-json:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>org.codehaus.jettison.wso2:jettison:${orbit.version.jettison}</bundleDef>
-                                <bundleDef>net.sf.ehcache.wso2:ehcache:1.5.0.wso2v3</bundleDef>
                                 <bundleDef>commons-pool.wso2:commons-pool:1.5.6.wso2v1</bundleDef>
                                 <bundleDef>commons-dbcp.wso2:commons-dbcp:1.4.0.wso2v1</bundleDef>
                                 <bundleDef>opensaml.wso2:opensaml2:2.4.1.wso2v1</bundleDef>
@@ -110,7 +103,7 @@
                                 <bundleDef>org.apache.neethi.wso2:neethi:2.0.4.wso2v4</bundleDef>
                                 <bundleDef>org.apache.woden.wso2:woden:1.0.0.M8-wso2v1</bundleDef>
                                 <bundleDef>wsdl4j.wso2:wsdl4j:1.6.2.wso2v4</bundleDef>
-                                <bundleDef>org.apache.ws.commons.schema.wso2:XmlSchema:1.4.7.wso2v2</bundleDef>
+                                <bundleDef>org.apache.ws.commons.schema.wso2:XmlSchema:${version.XmlSchema}</bundleDef>
                                 <bundleDef>commons-codec.wso2:commons-codec:1.4.0.wso2v1</bundleDef>
                                 <bundleDef>annogen.wso2:annogen:0.1.0.wso2v1</bundleDef>
                                 <bundleDef>backport-util-concurrent.wso2:backport-util-concurrent:3.1.0.wso2v1</bundleDef>

@@ -23,6 +23,7 @@ import org.apache.axis2.Constants;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.MessageContext;
+import org.apache.axis2.deployment.Deployer;
 import org.apache.axis2.deployment.DeploymentConstants;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.AxisServiceGroup;
@@ -61,6 +62,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -73,7 +76,8 @@ import java.util.*;
 public class CarbonUtils {
 
     private static final String REPOSITORY = "repository";
-    
+    private static final String TRANSPORT_MANAGER =
+            "org.wso2.carbon.tomcat.ext.transport.ServletTransportManager";
 	private static final String TRUE = "true";
 	private static Log log = LogFactory.getLog(CarbonUtils.class);
     private static boolean isServerConfigInitialized;
@@ -169,17 +173,44 @@ public class CarbonUtils {
      *                               has been called before the ListenerManager has started
      */
     public static int getTransportProxyPort(AxisConfiguration axisConfig, String transport) {
-        String transportPort;
-        if(axisConfig == null) return -1; // Server not yet started
-        TransportInDescription transportIn = axisConfig.getTransportIn(transport);
-        if(transportIn == null) return -1; // Transport not yet started
-        Parameter proxyPortParam = axisConfig.getTransportIn(transport).getParameter("proxyPort");
-        if (proxyPortParam != null) {
-            transportPort = (String) proxyPortParam.getValue();
-            return Integer.parseInt(transportPort);
+        int proxyPort = 0;  //read proxyPort from ServletTransportManager
+        try {
+            proxyPort = readProxyPort(transport);
+        } catch (CarbonException e) {
+            //logging error and continue
+            //Exceptions in here, are due to issues with reading proxyPort
+            log.error("Error reading proxyPort value ", e);
         }
+        if (proxyPort != 0) {
+            return proxyPort;
+        }
+
         return -1;
     }
+
+    private static int readProxyPort(String transport) throws CarbonException {
+        int proxyPort;
+        Class[] paramTypes = new Class[1];
+        paramTypes[0] = String.class;
+        try {
+            Class<?> transportManagerClass = Class.forName(TRANSPORT_MANAGER);
+            Object transportManager = transportManagerClass.newInstance();
+            Method method = transportManagerClass.getMethod("getProxyPort", paramTypes);
+            proxyPort = (Integer) method.invoke(transportManager, transport);
+        } catch (ClassNotFoundException e) {
+            throw new CarbonException("No class found with name : " + TRANSPORT_MANAGER, e);
+        } catch (InstantiationException e) {
+            throw new CarbonException("Error creating instance for : " + TRANSPORT_MANAGER, e);
+        } catch (IllegalAccessException e) {
+            throw new CarbonException("Error creating instance for : " + TRANSPORT_MANAGER, e);
+        } catch (NoSuchMethodException e) {
+            throw new CarbonException("No method found with name : getProxyPort(String param)", e);
+        } catch (InvocationTargetException e) {
+            throw new CarbonException("Error invoking method : getProxyPort() , with param: " + transport, e);
+        }
+        return proxyPort;
+    }
+
 
     public static String getAxis2Xml() {
         String axis2XML = ServerConfiguration.getInstance().
@@ -1176,8 +1207,29 @@ public class CarbonUtils {
         return ghostMetaFileDir.getPath();
     }
 
+    /**
+     *
+     * @param className name of the class to build the deployer
+     * @return Deployer
+     * @throws Exception
+     */
+    public static Deployer getDeployer(String className) throws CarbonException {
+        Deployer deployer;
+        try {
+            Class deployerClass = Class.forName(className);
+            deployer = (Deployer) deployerClass.newInstance();
 
-	/**
+        } catch (ClassNotFoundException e) {
+            throw new CarbonException("Deployer class not found ", e);
+        } catch (InstantiationException e) {
+            throw new CarbonException("Cannot create new deployer instance", e);
+        } catch (IllegalAccessException e) {
+            throw new CarbonException("Error creating deployer", e);
+        }
+        return deployer;
+    }
+
+    /**
 	 * Returns the proxy context path value specified in the carbon.xml.(Duplicated Util Method)
 	 *
 	 * @param isWorkerNode If isWorkerNode is true then this method returns the proxy context path of the

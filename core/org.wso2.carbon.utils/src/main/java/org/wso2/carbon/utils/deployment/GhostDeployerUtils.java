@@ -1,17 +1,19 @@
 /*
- * Copyright 2005-2011 WSO2, Inc. (http://wso2.com)
+ * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
  * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.wso2.carbon.utils.deployment;
@@ -52,6 +54,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A collection of utility methods which are used by the Ghost Deployer
@@ -100,18 +103,19 @@ public class GhostDeployerUtils {
             if (axisConfigService == null) {
                 return null;
             }
+
             Parameter actualGhostParam = axisConfigService
                     .getParameter(CarbonConstants.GHOST_SERVICE_PARAM);
             if (actualGhostParam == null || "false".equals(actualGhostParam.getValue())) {
                 // if the service from axisConfig is not a ghost, return it
                 newService = axisConfigService;
             } else {
-                GhostDeployer ghostDeployer = getGhostDeployer(axisConfig);
-                if (ghostDeployer == null) {
-                    return null;
-                }
-                DeploymentFileData dfd = ghostDeployer.getFileData(axisConfigService
-                        .getFileName().getPath());
+                GhostArtifactRepository ghostArtifactRepository =
+                        GhostDeployerUtils.getGhostArtifactRepository(axisConfig);
+
+                //TODO use a canonical path?
+                DeploymentFileDataWrapper dfd = ghostArtifactRepository.getDeploymentFileData(axisConfigService.
+                        getFileName().getPath());
                 if (dfd != null) {
                     // remove the existing service
                     log.info("Removing Ghost Service and loading actual service : " + serviceName);
@@ -136,7 +140,7 @@ public class GhostDeployerUtils {
                         axisConfig.removeService(serviceName);
                     }
                     // deploy the new service
-                    dfd.deploy();
+                    dfd.getDeploymentFileData().deploy();
                     newService = axisConfig.getService(serviceName);
 
                     // Remove all services in the new group from the ghost list
@@ -179,21 +183,6 @@ public class GhostDeployerUtils {
     }
 
     /**
-     * Get GhostDeployer which is stored as a parameter in the AxisConfiguration
-     *
-     * @param axisConfig - AxisConfiguration instance
-     * @return - GhostDeployer instance if found
-     */
-    public static GhostDeployer getGhostDeployer(AxisConfiguration axisConfig) {
-        GhostDeployer ghostDeployer = null;
-        Parameter param = axisConfig.getParameter(CarbonConstants.GHOST_DEPLOYER);
-        if (param != null) {
-            return (GhostDeployer) param.getValue();
-        }
-        return ghostDeployer;
-    }
-
-    /**
      * Read the "Enabled" property under "GhostDeployment" config from the carbon.xml and return the boolean value
      *
      * @return - true if the property is set to true. otherwise false
@@ -201,10 +190,7 @@ public class GhostDeployerUtils {
     public static boolean isGhostOn() {
         ServerConfiguration serverConfig = ServerConfiguration.getInstance();
         String ghostOn = serverConfig.getFirstProperty(ENABLED);
-        if (ghostOn != null && Boolean.parseBoolean(ghostOn)) {
-            return true;
-        }
-        return false;
+        return ghostOn != null && Boolean.parseBoolean(ghostOn);
     }
 
     /**
@@ -212,13 +198,11 @@ public class GhostDeployerUtils {
      *
      * @return - true if the property is set to true. otherwise false
      */
+    @Deprecated
     public static boolean isPartialUpdateEnabled() {
         ServerConfiguration serverConfig = ServerConfiguration.getInstance();
         String partialUpdateOn = serverConfig.getFirstProperty(PARTIAL_UPDATE_MODE);
-        if (partialUpdateOn != null && Boolean.parseBoolean(partialUpdateOn)) {
-            return true;
-        }
-        return false;
+        return partialUpdateOn != null && Boolean.parseBoolean(partialUpdateOn);
     }
 
     /**
@@ -435,6 +419,7 @@ public class GhostDeployerUtils {
                         }
                     }
                     if (axisConfig.getService(ghostService.getName()) == null) {
+                        log.info("Deploying Ghost Axis2 Service: " + ghostService.getName());
                         ghostGroup.addService(ghostService);
                     }
                 }
@@ -448,16 +433,42 @@ public class GhostDeployerUtils {
         return ghostGroup;
     }
 
+
     /**
      * Creates the ghost file for the current service group. Basically this ghost file contains
      * basic metadata about the service group. Service name, operations, service type, MEP and
      * all endpoints are stored for each service found under the given service group.
      *
-     * @param serviceGroup - Service group to be serialized
+     * @param services - Services to be serialized
+     * @param deploymentFileData - Absolute path to the service artifact
      * @param axisConfig - AxisConfiguration instance
-     * @param dfd - Absolute path to the service artifact
      */
-    public static void serializeServiceGroup(AxisServiceGroup serviceGroup,
+    public static void serializeServiceGroup(
+            Set<AxisService> services,
+            DeploymentFileData deploymentFileData,
+            AxisConfiguration axisConfig) {
+
+        for (AxisService service : services) {  //iterate over the services deployed by this DFD.
+            try {
+                GhostDeployerUtils.updateLastUsedTime(service);
+                // ghost metafile generation should only done in manager nodes.
+                if (!CarbonUtils.isWorkerNode()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Generating ghost file for service " + service.getName());
+                    }
+                    GhostDeployerUtils.serializeServiceGroup((AxisServiceGroup)
+                            service.getParent(), axisConfig, deploymentFileData);
+                }
+            } catch (Exception ex) {
+                log.error("Error while generating ghost meta file : " +
+                        service.getName(), ex);
+            }
+
+        }
+
+    }
+
+    private static void serializeServiceGroup(AxisServiceGroup serviceGroup,
                                              AxisConfiguration axisConfig, DeploymentFileData dfd) {
         String servicePath = dfd.getAbsolutePath();
         OMFactory omFactory = OMAbstractFactory.getOMFactory();
@@ -528,11 +539,11 @@ public class GhostDeployerUtils {
             //Add file seperator at the end of absolute path, to avoid getting an underscore in the beginning of
             // ghost file name.
             String axisConfigRepoPath = axisConfigRepoPathUrlToFile.getAbsolutePath().concat(File.separator);
-            String axisConfigRepoPathToUnix = GhostDeployer.separatorsToUnix(axisConfigRepoPath);
+            String axisConfigRepoPathToUnix = separatorsToUnix(axisConfigRepoPath);
             String ghostFileName = calculateGhostFileName(servicePath, axisConfigRepoPathToUnix);
 
             if (ghostFileName == null) {
-                log.error("Ghost file name is null. Actual service path : " + servicePath);
+                log.error("Could not derive ghost file name for the service: " + servicePath);
                 return;
             }
             File serviceFile = new File(ghostPath + File.separator + ghostFileName);
@@ -540,7 +551,8 @@ public class GhostDeployerUtils {
             serviceGroupEle.serialize(fos);
             fos.flush();
         } catch (Exception e) {
-            log.error("Error while serializing OMElement for Ghost Service", e);
+            log.error("Error while serializing OMElement for Ghost Service Group: "
+                    + serviceGroup.getServiceGroupName(), e);
         } finally {
             if (fos != null) {
                 try {
@@ -562,11 +574,26 @@ public class GhostDeployerUtils {
      */
     public static String calculateGhostFileName(String fileName, String repoPath) {
         String ghostFileName = null;
+        String javaTmpDir = System.getProperty("java.io.tmpdir");
+        String cappUnzipPath  = javaTmpDir.endsWith(File.separator) ?
+                javaTmpDir + "carbonapps" :
+                javaTmpDir + File.separator + "carbonapps";
+
         //since in Windows env, filename & repopath get two formats.
-        fileName = GhostDeployer.separatorsToUnix(fileName);
+        fileName = separatorsToUnix(fileName);
+        cappUnzipPath = separatorsToUnix(cappUnzipPath);
         if (fileName != null && fileName.startsWith(repoPath)) {
             // first drop the repo path
             ghostFileName = fileName.substring(repoPath.length());
+        } else if (fileName != null && fileName.startsWith(cappUnzipPath)) {
+            ghostFileName = fileName.substring(cappUnzipPath.length());
+
+            // now the ghostFileName looks like following string. We need remove the temp car file name as well.
+            //  /14144224998641144capp_1.0.0.car/datasource-test_1.0.0/datasource-test-1.0.0.aar
+            ghostFileName = ghostFileName.substring(ghostFileName.indexOf(".car/") + 5);
+        }
+
+        if (ghostFileName != null) {
             // then remove the extension
             if (ghostFileName.lastIndexOf('.') != -1) {
                 ghostFileName = ghostFileName.substring(0, ghostFileName.lastIndexOf('.'));
@@ -597,7 +624,7 @@ public class GhostDeployerUtils {
         // ghost file name.
         String axisConfigRepoPath = axisConfigRepoPathUrlToFile.getAbsolutePath().concat(File.separator);
         //since in Windows env, filename & repopath get two formats
-        String axisConfigRepoPathToUnix = GhostDeployer.separatorsToUnix(axisConfigRepoPath);
+        String axisConfigRepoPathToUnix = separatorsToUnix(axisConfigRepoPath);
         String ghostFileName = calculateGhostFileName(fileName, axisConfigRepoPathToUnix);
 
         if (ghostMetafilesDirPath != null && ghostFileName != null) {
@@ -655,6 +682,9 @@ public class GhostDeployerUtils {
         boolean doDeploy = true;
         if (ghostMetafilesDir.exists()) {
             ghostMetaArtifacts = ghostMetafilesDir.listFiles();
+            if (ghostMetaArtifacts == null) {
+                return;
+            }
         } else {
             return;
         }
@@ -703,4 +733,102 @@ public class GhostDeployerUtils {
             }
         }
     }
+
+    public static void removeGhostFile(String filePath, AxisConfiguration axisConfig) {
+
+        if (filePath == null) {
+            return;
+        }
+
+        // Remove the corresponding ghost file
+        File ghostFile = GhostDeployerUtils.getGhostFile(filePath, axisConfig);
+        if (ghostFile != null && ghostFile.exists() && !ghostFile.delete()) {
+            log.error("Error while deleting ghost file : " + ghostFile.getAbsolutePath());
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("deleted ghost file: " + filePath);
+        }
+        GhostArtifactRepository ghostArtifactRepository = GhostDeployerUtils.getGhostArtifactRepository(axisConfig);
+        ghostArtifactRepository.removeDeploymentFileData(filePath);
+
+    }
+
+    /**
+     * ghost registry stores @DeploymentFileData objects of services
+     * that are in ghost state.
+     *
+     * @param ghostArtifactRepository Set the ghost artifact registry for this tenant
+     * @param axisConfig The axis configuration of the tenant
+     * @throws DeploymentException if error occurred while saving the ghost artifact registry
+     */
+    public static void setGhostArtifactRepository(
+            GhostArtifactRepository ghostArtifactRepository,
+            AxisConfiguration axisConfig) throws DeploymentException {
+
+        try {
+            axisConfig.addParameter(
+                    CarbonConstants.GHOST_ARTIFACT_REPOSITORY,
+                    ghostArtifactRepository);
+        } catch (AxisFault axisFault) {
+            log.error(axisFault.getMessage(), axisFault);
+            throw new DeploymentException(axisFault);
+        }
+
+    }
+
+    /**
+     * get the ghost registry that store @DeploymentFileData objects of services
+     * that are in ghost state.
+     *
+     * @param axisConfig The axis configuration of the tenant
+     */
+    public static GhostArtifactRepository getGhostArtifactRepository(AxisConfiguration axisConfig) {
+
+        Parameter param = axisConfig.getParameter(CarbonConstants.GHOST_ARTIFACT_REPOSITORY);
+        if (param != null) {
+            return (GhostArtifactRepository) param.getValue();
+        }
+        return null;
+    }
+
+    public static String  separatorsToUnix(String path) {
+        if (path == null || !path.contains("\\")) {
+            return path;
+        }
+        return path.replace("\\", "/");
+
+    }
+
+    /**
+     * Load ghost services corresponding to a given axis2 service group
+     *
+     * @param ghostFile The ghost file that contains meta information to deploy a ghost service
+     * @param deploymentFileData The deployment file data of the artifact we are about to deploy
+     * @param axisConfig The axis configuration of the tenant
+     * @throws DeploymentException
+     */
+    public static void deployGhostServiceGroup(
+            File ghostFile,
+            DeploymentFileData deploymentFileData,
+            AxisConfiguration axisConfig) throws DeploymentException {
+
+        try {
+            AxisServiceGroup ghostServiceGroup = GhostDeployerUtils.createGhostServiceGroup(
+                    axisConfig, ghostFile, deploymentFileData.getFile().toURI().toURL());
+            axisConfig.addServiceGroup(ghostServiceGroup);
+
+            //We need a reference to the @DeploymentFileData since it's currently in ghost state
+            GhostDeployerUtils.getGhostArtifactRepository(axisConfig)
+                    .addDeploymentFileData(deploymentFileData, true);
+        } catch (Exception e) {
+            String msg = "Error while loading the Ghost Service : " +
+                    ghostFile.getAbsolutePath();
+            log.error(msg, e);
+            throw new DeploymentException(msg, e);
+        }
+
+
+
+    }
+
 }

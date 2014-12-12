@@ -120,16 +120,14 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             //eg: ou=users
             String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
                     UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
-            String userContextRDN;
-            if (tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE) != null) {
-                userContextRDN = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().get(
-                        UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE);
-            } else {
+            String userContextRDNValue = tenantMgtConfig.getTenantStoreProperties().get(
+                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE);
+            if (userContextRDNValue == null) {
                 //if property is not set use default value
-                userContextRDN = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME;
+                userContextRDNValue = LDAPConstants.USER_CONTEXT_NAME;
             }
-            //eg: ou=users,o=cse.org, dc=cloud, dc=com
+            String userContextRDN = orgSubContextAttribute + "=" + userContextRDNValue;
+                    //eg: ou=users,o=cse.org, dc=cloud, dc=com
             String userSearchBase = userContextRDN + "," + organizationRDN + "," +
                     partitionDN;
             //replace the tenant specific user search base.
@@ -138,15 +136,13 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             //if read ldap group is enabled, set the tenant specific group search base
             if (("true").equals(bootStrapConfig.getUserStoreProperty(LDAPConstants.READ_LDAP_GROUPS))) {
                 //eg: ou=groups
-                String groupContextRDN;
-                if (tenantMgtConfig.getTenantStoreProperties().get(
-                        UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE) != null) {
-                    groupContextRDN = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().get(
-                            UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
-                } else {
+                String groupContextRDNValue = tenantMgtConfig.getTenantStoreProperties().get(
+                        UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
+                if (groupContextRDNValue == null) {
                     //if property is not set use default value
-                    groupContextRDN = orgSubContextAttribute + "=" + LDAPConstants.GROUP_CONTEXT_NAME;
+                    groupContextRDNValue = LDAPConstants.GROUP_CONTEXT_NAME;
                 }
+                String groupContextRDN = orgSubContextAttribute + "=" + groupContextRDNValue;
                 //eg: ou=users,o=cse.org, dc=cloud, dc=com
                 String groupSearchBase = groupContextRDN + "," + organizationRDN + "," + partitionDN;
 

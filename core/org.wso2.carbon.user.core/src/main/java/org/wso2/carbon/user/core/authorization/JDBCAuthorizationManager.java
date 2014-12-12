@@ -316,7 +316,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 		                                                            PermissionTreeUtil.toComponenets(resourceId));
 		
 		if(debug) {
-			log.debug("Explicityly allowed roles for the ResourceID: " + resourceId + " Action: " + action);
+			log.debug("Explicitly allowed roles for the ResourceID: " + resourceId + " Action: " + action);
 			String[] roles = sr.getAllowedEntities().toArray(new String[sr.getAllowedEntities().size()]);
 			for(String role : roles) {
 				log.debug("role: " + role);
@@ -908,7 +908,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             prepStmt.setInt(3, tenantId);
             int count = prepStmt.executeUpdate();
             if (log.isDebugEnabled()) {
-                log.debug("Executed querry is " + DBConstants.ADD_PERMISSION_SQL
+                log.debug("Executed query is " + DBConstants.ADD_PERMISSION_SQL
                         + " and number of updated rows :: " + count);
             }
         } catch (SQLException e) {

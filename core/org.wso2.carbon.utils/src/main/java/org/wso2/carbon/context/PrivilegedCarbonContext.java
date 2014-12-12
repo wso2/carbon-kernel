@@ -20,6 +20,8 @@ package org.wso2.carbon.context;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.context.internal.CarbonContextDataHolder;
 import org.wso2.carbon.context.internal.OSGiDataHolder;
@@ -31,9 +33,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * This CarbonContext provides users the ability to carry out privileged actions such as
@@ -330,32 +330,71 @@ public class PrivilegedCarbonContext extends CarbonContext {
      * Obtain the first OSGi service found for interface or class <code>clazz</code>
      * @param clazz The type of the OSGi service
      * @return The OSGi service
+     * @deprecated please use {@link #getOSGiService(Class, java.util.Hashtable)}instead
      */
+    @Deprecated
     public Object getOSGiService(Class clazz) {
-        BundleContext bundleContext = dataHolder.getBundleContext();
-        ServiceTracker serviceTracker = new ServiceTracker(bundleContext, clazz, null);
-        try {
-            serviceTracker.open();
-            return serviceTracker.getServices()[0];
-        } finally {
-            serviceTracker.close();
-        }
+        return getOSGiService(clazz, null);
     }
 
     /**
      * Obtain the OSGi services found for interface or class <code>clazz</code>
      * @param clazz The type of the OSGi service
      * @return The List of OSGi services
+     * @deprecated please use {@link #getOSGiServices(Class, java.util.Hashtable)} instead
      */
+    @Deprecated
     public List<Object> getOSGiServices(Class clazz) {
-        BundleContext bundleContext = dataHolder.getBundleContext();
-        ServiceTracker serviceTracker = new ServiceTracker(bundleContext, clazz, null);
+        return getOSGiServices(clazz, null);
+    }
+
+    /**
+     * Obtain the first OSGi service found for interface or class <code>clazz</code>  and props
+     *
+     * @param props attribute list that filter the service
+     * @param clazz The type of the OSGi service
+     * @return The OSGi service
+     */
+    public Object getOSGiService(Class clazz, Hashtable<String, String> props) {
+        ServiceTracker serviceTracker = null;
+        try {
+            BundleContext bundleContext = dataHolder.getBundleContext();
+            Filter osgiFilter = createFilter(bundleContext, clazz, props);
+            serviceTracker = new ServiceTracker(bundleContext, osgiFilter, null);
+            serviceTracker.open();
+            return serviceTracker.getServices()[0];
+        } catch (InvalidSyntaxException e) {
+            log.error("Invalid syntax for filter passed for service : " + clazz.getName(), e);
+        } finally {
+            if (serviceTracker != null) {
+                serviceTracker.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Obtain the OSGi services found for interface or class <code>clazz</code> and props
+     *
+     * @param props attribute list that filter the service list
+     * @param clazz The type of the OSGi service
+     * @return The List of OSGi services
+     */
+    public List<Object> getOSGiServices(Class clazz, Hashtable<String, String> props) {
+        ServiceTracker serviceTracker = null;
         List<Object> services = new ArrayList<Object>();
         try {
+            BundleContext bundleContext = dataHolder.getBundleContext();
+            Filter osgiFilter = createFilter(bundleContext, clazz, props);
+            serviceTracker = new ServiceTracker(bundleContext, osgiFilter, null);
             serviceTracker.open();
             Collections.addAll(services, serviceTracker.getServices());
+        } catch (InvalidSyntaxException e) {
+            log.error("Invalid syntax for filter passed for service : " + clazz.getName(), e);
         } finally {
-            serviceTracker.close();
+            if (serviceTracker != null) {
+                serviceTracker.close();
+            }
         }
         return services;
     }
