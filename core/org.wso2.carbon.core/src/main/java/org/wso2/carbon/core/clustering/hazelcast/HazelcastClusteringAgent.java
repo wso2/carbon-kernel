@@ -17,13 +17,13 @@
 */
 package org.wso2.carbon.core.clustering.hazelcast;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.GroupConfig;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.*;
 import com.hazelcast.core.*;
 import com.hazelcast.core.Member;
+import com.hazelcast.nio.serialization.ByteArraySerializer;
+import com.hazelcast.nio.serialization.StreamSerializer;
+import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMElement;
 import org.apache.axis2.clustering.*;
 import org.apache.axis2.clustering.control.ControlCommand;
 import org.apache.axis2.clustering.management.DefaultGroupManagementAgent;
@@ -49,6 +49,7 @@ import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 
+import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -150,6 +151,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             mapConfig.setInMemoryFormat(InMemoryFormat.OFFHEAP);
         }
         primaryHazelcastConfig.addMapConfig(mapConfig);
+        loadCustomHazelcastSerializers();
 
         if (clusterManagementMode) {
             for (Map.Entry<String, Map<String, GroupManagementAgent>> entry : groupManagementAgents.entrySet()) {
@@ -253,6 +255,54 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         coordinatorElectorThread.start();
 
         log.info("Cluster initialization completed");
+    }
+
+    /**
+     * Load hazelcastSerializers section from the clustering configuration in axis2.xml and
+     * set custom Hazelcast data serializers.
+     *
+     * The following element has to be placed in the clustering section of the axis2.xml file.
+     *
+     * For example;
+     *
+     * &lt;parameter name="hazelcastSerializers"&gt;
+     *     &lt;serializer typeClass="java.util.TreeSet">org.wso2.carbon.hazelcast.serializer.TreeSetSerializer&lt;/serializer&gt;
+     *     &lt;serializer typeClass="java.util.Map">org.wso2.carbon.hazelcast.serializer.MapSerializer&lt;/serializer&gt;
+     * &lt;/parameter&gt;
+     */
+    private void loadCustomHazelcastSerializers() {
+        Parameter hazelcastSerializers = getParameter("hazelcastSerializers");
+        if(hazelcastSerializers == null) return;
+
+        OMElement paramEle = hazelcastSerializers.getParameterElement();
+        for (Iterator iter = paramEle.getChildrenWithLocalName("serializer"); iter.hasNext(); ) {
+            OMElement serializerEle = (OMElement) iter.next();
+            OMAttribute typeClassAttrib = serializerEle.getAttribute(new QName("typeClass"));
+            if (typeClassAttrib != null) {
+                String typeClass = typeClassAttrib.getAttributeValue();
+                String serializer = serializerEle.getText();
+                try {
+                    Class serializerClass = Class.forName(serializer);
+                    SerializerConfig serializerConfig = new SerializerConfig();
+                    Object serializerObj = serializerClass.newInstance();
+                    if (serializerObj instanceof StreamSerializer) {
+                        serializerConfig.setImplementation((StreamSerializer) serializerObj);
+                    } else if(serializerObj instanceof ByteArraySerializer){
+                        serializerConfig.setImplementation((ByteArraySerializer) serializerObj);
+                    } else {
+                        throw new IllegalArgumentException("Unknown Hazelcast serializer type: " + serializerObj.getClass());
+                    }
+                    serializerConfig.setTypeClass(Class.forName(typeClass));
+                    primaryHazelcastConfig.getSerializationConfig().addSerializerConfig(serializerConfig);
+                } catch (ClassNotFoundException e) {
+                    log.error("Cannot find Hazelcast serializer class " + serializer, e);
+                } catch (InstantiationException e) {
+                    log.error("Cannot instantiate Hazelcast serializer class " + serializer, e);
+                } catch (IllegalAccessException e) {
+                    log.error("Illegal access while trying to instantiate Hazelcast serializer class " + serializer, e);
+                }
+            }
+        }
     }
 
     private void setHazelcastProperties() {
