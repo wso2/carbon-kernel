@@ -160,7 +160,7 @@ public class UserStoreConfigXMLProcessor {
                 domainName = "." + val.getText();
             }
         } catch (Exception e) {
-            log.debug("Error While getting DomainName from Configurations ");
+            log.error("Error While getting DomainName from Configurations", e);
         }
 
         Map<String, String> map = new HashMap<String, String>();
