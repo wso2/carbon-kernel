@@ -73,8 +73,16 @@ public class UserCoreConstants {
     public static final String TENANT_DOMAIN_COMBINER = "@";
     
     public static final String SHARED_ROLE_TENANT_COMBINER = "~";
-
     public static final int USER_ROLE_CACHE_DEFAULT_TIME_OUT = 5;
+
+    public static final String CIPHER_TRANSFORMATION_RSA = "RSA";
+    public static final String CIPHER_PROVIDER_BC = "BC";
+
+    public static final String DOT_SYMBOL = ".";
+    public static final String XML_EXTENSION = "xml";
+    public static final String UNDERSCORE_SYMBOL = "_";
+
+
 
     public static final class RealmConfig {
         public static final String LOCAL_NAME_USER_MANAGER = "UserManager";
@@ -176,6 +184,13 @@ public class UserCoreConstants {
 
         public static final String SHARED_GROUPS_ENABLED = "SharedGroupEnabled";
         public static final String DOMAIN_NAME_XPATH = "//UserStoreManager/Property[@name='DomainName']";
+        public static final String USER_MANAGER_PROPERTY_XPATH = "UserManager.Configuration.Property";
+        public static final String USER_STORE_MANAGER_PROPERTY_XPATH = "UserStoreManager.Property";
+
+        public static final String ATTRIBUTE_ENCRYPTED = "encrypted";
+        public static final String ATTRIBUTE_TRUE = "true";
+
+
     }
 
 
