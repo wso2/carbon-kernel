@@ -282,7 +282,14 @@ public class UserStoreConfigXMLProcessor {
         } catch (CarbonException e) {
             throw new UserStoreException(e.getMessage(), e);
         } finally {
-            inStream.close();
+            if(inStream != null){
+                try{
+                    inStream.close();
+                }catch (IOException ex){
+                    String errMsg = "File close operation failed " + filePath;
+                    log.error(errMsg, ex);
+                }
+            }
         }
     }
 
