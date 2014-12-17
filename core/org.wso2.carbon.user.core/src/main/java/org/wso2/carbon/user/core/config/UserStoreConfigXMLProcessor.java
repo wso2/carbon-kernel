@@ -330,6 +330,8 @@ public class UserStoreConfigXMLProcessor {
                     propValue = new String(keyStoreCipher.doFinal(Base64.
                             decode(propValue.trim())));
                 } catch (GeneralSecurityException e) {
+                    //This exception occurs when some thing is wrong with the super-tenant's key-store.
+                    // This will be caught during the server start-up.
                     String errMsg = "encryption of Property=" + propElem.getAttributeValue(
                             new QName(UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME))
                             + " failed";
