@@ -26,7 +26,7 @@ import org.wso2.carbon.automation.engine.context.beans.ContextUrls;
 public abstract class CarbonIntegrationBaseTest {
 
     protected ContextUrls contextUrls = new ContextUrls();
-    protected AutomationContext context;
+    protected AutomationContext automationContext;
     protected String sessionCookie;
     protected TestUserMode userMode;
 
@@ -36,8 +36,8 @@ public abstract class CarbonIntegrationBaseTest {
     }
 
     protected void init(TestUserMode userMode) throws Exception {
-        context = new AutomationContext("CARBON", userMode);
-        contextUrls = context.getContextUrls();
+        automationContext = new AutomationContext("CARBON", userMode);
+        contextUrls = automationContext.getContextUrls();
 
     }
 

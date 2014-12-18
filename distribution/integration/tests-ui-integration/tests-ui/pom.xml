@@ -7,9 +7,11 @@
         <groupId>org.wso2.carbon</groupId>
         <version>4.3.0-SNAPSHOT</version>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>org.wso2.carbon.integration.tests.integration.tests.ui.integration.tests.ui</artifactId>
+    <packaging>jar</packaging>
 
 
 </project>
