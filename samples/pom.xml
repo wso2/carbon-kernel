@@ -19,8 +19,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <carbon.platform.version>4.3.0</carbon.platform.version>
-        <carbon.feature.version>4.3.0</carbon.feature.version>
+        <carbon.platform.version>4.4.0-SNAPSHOT</carbon.platform.version>
+        <carbon.feature.version>4.4.0-SNAPSHOT</carbon.feature.version>
         <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
         <axis2.osgi.version>1.6.1.wso2v11</axis2.osgi.version>
         <axis2.client.osgi.version>1.6.1.wso2v11</axis2.client.osgi.version>
