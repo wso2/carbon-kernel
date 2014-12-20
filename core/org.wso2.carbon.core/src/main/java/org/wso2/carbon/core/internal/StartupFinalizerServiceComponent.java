@@ -32,6 +32,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.init.JMXServerManager;
+import org.wso2.carbon.core.multitenancy.eager.TenantEagerLoader;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.core.util.ClusteringUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -77,6 +78,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
     private Timer pendingServicesObservationTimer = new Timer();
     private CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
     private ServiceRegistration listerManagerServiceRegistration;
+    private TenantEagerLoader tenantEagerLoader = new TenantEagerLoader();
    
     protected void activate(ComponentContext ctxt) {
         try {
@@ -163,6 +165,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         listenerManager.startSystem(configCtx);
 
         try {
+            tenantEagerLoader.initializeEagerLoadingTenants();
             TenantAxisUtils.initializeTenantTransports(configCtx);
         } catch (AxisFault e) {
             log.error("Cannot initialize tenant transports", e);
