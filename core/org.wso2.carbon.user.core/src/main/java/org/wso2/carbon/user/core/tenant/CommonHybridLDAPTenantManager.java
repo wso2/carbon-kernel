@@ -185,7 +185,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         //eg: ou=users,o=cse.org,dc=wso2,dc=com
         String dnOfUserContextName = tenantMgtConfig.getTenantStoreProperties().get(
                 UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE);
-        if ( dnOfUserContextName == null) {
+        if (dnOfUserContextName == null) {
             dnOfUserContextName = LDAPConstants.USER_CONTEXT_NAME;
         }
         String dnOfUserContext = orgSubContextAttribute + "=" + dnOfUserContextName + "," +dnOfOrganizationalContext;
