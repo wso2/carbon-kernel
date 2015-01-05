@@ -386,7 +386,6 @@ public class SystemValidator extends ConfigurationValidator {
                         output.close();
                     } catch (IOException e) {
                         log.error("Error closing buffer reader ", e);
-
                     }
                 }
             }
