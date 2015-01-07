@@ -173,8 +173,11 @@ public class ProvWSUtils {
                                 featureStack.add(requiredFeature);
                                 requiredFeaturesList.add(requiredFeature);
                             }
-                            //break the loop if we are processing a nested.category because we only need the
-                            //first element from the search for a nested category
+                            // Break the loop if we are processing a nested.category because we only need the element
+                            // from the search for a nested category. This is due to having multiple features in
+                            // requiredInstallableUnits, when they are defined without any "match" at importFeatureDef.
+                            // This check can be removed once all the features for a nested.category is properly
+                            // configured using "perfect" match. See : CARBON-15127
                             if (popedIU.getId().contains("nested.category.feature")) {
                                 break;
                             }
