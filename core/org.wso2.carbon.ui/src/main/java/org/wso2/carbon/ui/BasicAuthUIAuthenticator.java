@@ -161,7 +161,7 @@ public class BasicAuthUIAuthenticator extends AbstractCarbonUIAuthenticator {
         try {
             getAuthenticationAdminCient(((HttpServletRequest) object)).logout();
         } catch (AxisFault axisFault) {
-            String msg = "Failed to authenticated ";
+            String msg = "Failed to authenticate ";
             log.error(msg, axisFault);
             throw new Exception(msg, axisFault);
         }
