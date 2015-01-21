@@ -29,6 +29,8 @@ public class LoggingBridgeRegister {
     public static void addAppender(String name, LoggingBridge bridge) {
         if (name != null && bridge != null) {
             loggingBridgeMap.put(name, bridge);
+            // flush logs belonging to this appender that were queued
+            LoggingUtils.flushLogs(name, bridge);
         }
     }
 

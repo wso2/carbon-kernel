@@ -17,42 +17,61 @@
 */
 package org.wso2.carbon.bootstrap.logging;
 
-
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 public class LoggingUtils {
 
+    // This map holds the queue instances that stores log events for different logging
+    // bridges when they are not yet registered with the LoggingBridgeRegister.
+    private static final Map<String, Queue<LogRecord>> loggingBridgeQueues =
+            new ConcurrentHashMap<String, Queue<LogRecord>>();
+
     public static void pushLogRecord(String bridgeName,
                                      LoggingBridge loggingBridge,
-                                     LogRecord record,
-                                     Queue<LogRecord> logQueue ) {
-        if (loggingBridge == null) { // get loggingBridge  from LoggingBridgeRegister
+                                     LogRecord record) {
+        if (loggingBridge == null) {// get loggingBridge from LoggingBridgeRegister
             LoggingBridge bridge = LoggingBridgeRegister.getLoggingBridge(bridgeName);
             if (bridge != null) {
                 loggingBridge = bridge;
             }
         }
-
-        if (loggingBridge == null) {  // not yet registered a LoggingBridge under BRIDGE_NAME
+        if (loggingBridge == null) {// LoggingBridge is not yet registered hence queuing the log records
+            Queue<LogRecord> logQueue = loggingBridgeQueues.get(bridgeName);
+            if (logQueue == null) {
+                synchronized (loggingBridgeQueues) {
+                    logQueue = loggingBridgeQueues.get(bridgeName);
+                    if (logQueue == null) {
+                        logQueue = new LinkedList<LogRecord>();
+                        loggingBridgeQueues.put(bridgeName, logQueue);
+                    }
+                }
+            }
             logQueue.add(record);
         } else {
-            // check old log records
-            if (logQueue.isEmpty()) {
-                loggingBridge.push(record);
-            } else {
-                // first write old log records
-                for (LogRecord rec : logQueue) {
-                    loggingBridge.push(rec);
-                }
-                loggingBridge.push(record);
-            }
+            loggingBridge.push(record);
         }
     }
 
-    public static LogRecord formatMessage(Formatter formatter, LogRecord record){
+    public static LogRecord formatMessage(Formatter formatter, LogRecord record) {
         record.setMessage(formatter.formatMessage(record));
+        record.setSourceClassName(record.getSourceClassName());
         return record;
+    }
+
+    public static void flushLogs(String bridgeName, LoggingBridge loggingBridge) {
+        Queue<LogRecord> logQueue = loggingBridgeQueues.get(bridgeName);
+        if (logQueue != null && !logQueue.isEmpty()) {
+            // first write old log records
+            for (LogRecord rec : logQueue) {
+                loggingBridge.push(rec);
+            }
+            // clear old log records from queue
+            logQueue.clear();
+        }
     }
 }

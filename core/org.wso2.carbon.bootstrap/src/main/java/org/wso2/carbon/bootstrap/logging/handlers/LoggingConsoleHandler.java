@@ -21,27 +21,22 @@ package org.wso2.carbon.bootstrap.logging.handlers;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
 import org.wso2.carbon.bootstrap.logging.LoggingUtils;
 
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.LogRecord;
 
 
-public class LoggingConsoleHandler extends ConsoleHandler{
+public class LoggingConsoleHandler extends ConsoleHandler {
 
-    private static String BRIDGE_NAME = "CARBON_CONSOLE";
+    private static final String BRIDGE_NAME = "CARBON_CONSOLE";
 
     private static LoggingBridge loggingBridge;
-    private static Queue<LogRecord> logQueue = new LinkedList<LogRecord>(); // TODO replace this with circular buffer implementation
 
     public LoggingConsoleHandler() {
     }
 
     @Override
     public void publish(LogRecord record) {
-        synchronized (logQueue){
-            LogRecord formatted = LoggingUtils.formatMessage(getFormatter(), record);
-            LoggingUtils.pushLogRecord(BRIDGE_NAME, LoggingConsoleHandler.loggingBridge, formatted, logQueue);
-        }
+        LogRecord formatted = LoggingUtils.formatMessage(getFormatter(), record);
+        LoggingUtils.pushLogRecord(BRIDGE_NAME, LoggingConsoleHandler.loggingBridge, formatted);
     }
 }

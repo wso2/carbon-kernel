@@ -688,6 +688,17 @@
         </parameter>
 
         <!--
+        Uncomment the following section to load custom Hazelcast data serializers.
+        -->
+        <!--
+        <parameter name="hazelcastSerializers">
+            <serializer typeClass="java.util.TreeSet">org.wso2.carbon.hazelcast.serializer.TreeSetSerializer
+            </serializer>
+            <serializer typeClass="java.util.Map">org.wso2.carbon.hazelcast.serializer.MapSerializer</serializer>
+        </parameter>
+        -->
+
+        <!--
            The list of static or well-known members. These entries will only be valid if the
            "membershipScheme" above is set to "wka"
         -->
