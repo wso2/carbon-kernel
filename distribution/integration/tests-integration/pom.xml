@@ -255,6 +255,11 @@
             <artifactId>woden-api</artifactId>
             <version>1.0M9</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>SecVerifier</artifactId>
+            <type>aar</type>
+        </dependency>
     </dependencies>
 
     
