@@ -65,8 +65,8 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
-    private static final String QUERY_FILTER_STRING_ANY = "*";
-    private static final String SQL_FILTER_STRING_ANY = "%";
+	private static final String QUERY_FILTER_STRING_ANY = "*";
+	private static final String SQL_FILTER_STRING_ANY = "%";
 
 	protected DataSource jdbcds = null;
 	protected Random random = new Random();
@@ -2354,7 +2354,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 		if (profileName == null) {
 			profileName = UserCoreConstants.DEFAULT_PROFILE;
 		}
-
+        if(value == null){
+            throw new IllegalArgumentException("Filter value cannot be null");
+        }
         if (value.contains(QUERY_FILTER_STRING_ANY)) {
             // This is to support LDAP like queries, so this will provide support for only leading or trailing '*'
             // filters. if the query has multiple '*' s the filter will ignore all.
