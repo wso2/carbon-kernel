@@ -31,6 +31,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -108,7 +109,19 @@ public class ProvisioningAdminClient {
     public LicenseFeatureHolder[] getLicensingInformation() throws Exception {
         LicenseFeatureHolder[] licenseFeatureHolders = null;
         try {
-            licenseFeatureHolders = provAdminStub.getFeatureLicenseInfo();
+	        licenseFeatureHolders = provAdminStub.getFeatureLicenseInfo();
+	        Arrays.sort(licenseFeatureHolders, new Comparator<LicenseFeatureHolder>() {
+		        @Override
+		        public int compare(LicenseFeatureHolder o1, LicenseFeatureHolder o2) {
+			        if (o1.getLicenseInfo() == null && o2.getLicenseInfo() == null) {
+				        return 0;
+			        } else if (o2.getLicenseInfo() == null) {
+				        return 1;
+			        } else {
+				        return -1;
+			        }
+		        }
+	        });
         } catch (AxisFault e) {
             if (e.getFaultCode() != null) {
                 handleException(bundle.getString(e.getFaultCode().getLocalPart()), e);

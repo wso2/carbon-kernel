@@ -16,17 +16,12 @@ Name                                                                            
 [TODO]
 
 
-
 The license types used by the above libraries and their information is given below:
 
-cpl1           Common Public License 1.0
-               http://www.eclipse.org/legal/cpl-v10.html
+epl1+lgpl2     EPL1 + LGPL2
+               http://www.eclipse.org/legal/epl-v10.html + http://www.gnu.org/licenses/licenses.html
 epl1           Eclipse Public License
                http://www.eclipse.org/legal/epl-v10.html
-jsmon          ThoughtWorks Javasysmon License
-               https://github.com/jezhumble/javasysmon/blob/master/LICENSE
-lgpl2          Lesser GPL v2.1
-               http://www.opensource.org/licenses/lgpl-2.1.php
 apache2        Apache License Version 2.0
                http://www.apache.org/licenses/LICENSE-2.0.html
 bsd            Berkeley License
@@ -35,5 +30,3 @@ cddl1          Common Development and Distribution License
                http://www.opensource.org/licenses/cddl1.php
 bouncy         Bouncy Castle License
                http://www.bouncycastle.org/licence.html
-public         Public Domain
-               http://creativecommons.org/licenses/publicdomain/

@@ -17,22 +17,18 @@
 */
 package org.wso2.carbon.bootstrap.logging.handlers;
 
-
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
 import org.wso2.carbon.bootstrap.logging.LoggingUtils;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.logging.FileHandler;
 import java.util.logging.LogRecord;
 
 public class LoggingFileHandler extends FileHandler{
 
-    private static String BRIDGE_NAME = "CARBON_LOGFILE";
+    private static final String BRIDGE_NAME = "CARBON_LOGFILE";
 
     private static LoggingBridge loggingBridge;
-    private static Queue<LogRecord> logQueue = new LinkedList<LogRecord>(); // TODO replace this with circular buffer implementation
 
     public LoggingFileHandler() throws IOException, SecurityException {
     }
@@ -56,7 +52,7 @@ public class LoggingFileHandler extends FileHandler{
     @Override
     public synchronized void publish(LogRecord record) {
         LogRecord formatted = LoggingUtils.formatMessage(getFormatter(), record);
-        LoggingUtils.pushLogRecord(BRIDGE_NAME, LoggingFileHandler.loggingBridge, formatted, logQueue);
+        LoggingUtils.pushLogRecord(BRIDGE_NAME, LoggingFileHandler.loggingBridge, formatted);
     }
 
 }

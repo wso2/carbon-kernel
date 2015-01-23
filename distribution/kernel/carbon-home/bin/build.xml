@@ -51,6 +51,9 @@
                 <include name="org.wso2.carbon.utils*.jar"/>
                 <include name="jibx*.jar"/>
                 <include name="axis2-jibx*.jar"/>
+                <include name="rampart-policy*.jar"/>
+                <include name="rampart-core*.jar"/>
+                <include name="wss4j*.jar"/>
                 <include name="bcel*.jar"/>
                 <include name="hibernate*.jar"/>
                 <include name="derby*.jar"/>

@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.wso2.carbon</groupId>
     <artifactId>samples</artifactId>
-    <version>${carbon.platform.version}</version>
+    <version>4.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Samples</name>
     <description>Carbon kernel sample</description>
@@ -21,8 +19,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <carbon.platform.version>4.3.0-SNAPSHOT</carbon.platform.version>
-        <carbon.feature.version>4.3.0-SNAPSHOT</carbon.feature.version>
+        <carbon.platform.version>4.4.0-SNAPSHOT</carbon.platform.version>
+        <carbon.feature.version>4.4.0-SNAPSHOT</carbon.feature.version>
         <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
         <axis2.osgi.version>1.6.1.wso2v11</axis2.osgi.version>
         <axis2.client.osgi.version>1.6.1.wso2v11</axis2.client.osgi.version>
@@ -37,6 +35,20 @@
 
 
     <build>
+	<pluginManagement>
+		<plugins>
+			<plugin>
+            			<groupId>org.apache.felix</groupId>
+                   		<artifactId>maven-bundle-plugin</artifactId>
+                    		<version>2.3.5</version>
+                    		<extensions>true</extensions>
+                    		<configuration>
+                        		<obrRepository>NONE</obrRepository>
+                    		</configuration>
+                	</plugin>
+		</plugins>
+	</pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -47,7 +59,14 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+	    <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <preparationGoals>clean install</preparationGoals>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 </project>
