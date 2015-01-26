@@ -23,7 +23,6 @@ import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 
 import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -61,6 +60,4 @@ public class CarbonTestServerManager extends TestServerManager {
         super.stopServer();
     }
 
-    protected void copyArtifacts(String carbonHome) throws IOException {
-    }
 }

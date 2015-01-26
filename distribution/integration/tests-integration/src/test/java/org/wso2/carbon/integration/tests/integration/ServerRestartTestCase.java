@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
@@ -57,7 +58,7 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
         CarbonTestServerManager serverManager = startServerForRestartTest(startUpParameterMap);
 
         try {
-            int httpsPort = Integer.parseInt(automationContext.getDefaultInstance().getPorts().get("https"))
+            int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT)
                     + portOffset;
             ClientConnectionUtil.waitForPort(httpsPort, automationContext.getDefaultInstance().
                     getHosts().get("default"));

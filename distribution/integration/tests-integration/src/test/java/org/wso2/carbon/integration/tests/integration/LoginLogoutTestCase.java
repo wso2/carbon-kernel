@@ -24,7 +24,6 @@ import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.description.WSDL2Constants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.TestUserMode;

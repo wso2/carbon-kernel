@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
@@ -61,7 +62,7 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
 
         EndpointReference epr =
                 new EndpointReference("http://" + automationContext.getInstance().getHosts().get("default") + ":" +
-                        automationContext.getDefaultInstance().getPorts().get("http")
+                        FrameworkConstants.SERVER_DEFAULT_HTTP_PORT
                         + "/services/SecurityVerifierService");
         opts.setTo(epr);
 

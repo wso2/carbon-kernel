@@ -20,6 +20,7 @@ package org.wso2.carbon.integration.tests.integration;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.common.utils.LoginLogoutUtil;
@@ -44,7 +45,7 @@ public class ServerAdminTestCase extends CarbonIntegrationBaseTest {
     public void testRetrieveServerInfo() throws Exception {
         ServerAdminClient serverAdmin = new ServerAdminClient
                 ("https://" + automationContext.getDefaultInstance().getHosts().get("default") +
-                        ":" + automationContext.getDefaultInstance().getPorts().get("https") +
+                        ":" + FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT +
                         "/services/ServerAdmin/",
                         automationContext.getContextTenant().getContextUser().getUserName(),
                         automationContext.getContextTenant().getContextUser().getPassword());

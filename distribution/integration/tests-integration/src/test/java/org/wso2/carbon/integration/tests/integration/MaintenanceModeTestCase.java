@@ -20,6 +20,7 @@ package org.wso2.carbon.integration.tests.integration;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
@@ -73,11 +74,13 @@ public class MaintenanceModeTestCase extends CarbonIntegrationBaseTest {
         serverAdmin.startMaintenance();
 
         assertFalse(ClientConnectionUtil.isPortOpen(Integer.parseInt
-                (automationContext.getDefaultInstance().getPorts().get("https"))),
-                "Port 9443 should be closed in maintenance mode, but is open");
+                (FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT)),
+                "Port " + FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT +
+                        " should be closed in maintenance mode, but is open");
         assertFalse(ClientConnectionUtil.isPortOpen(Integer.parseInt
-                (automationContext.getDefaultInstance().getPorts().get("http"))),
-                "Port 9763 should be closed in maintenance mode, but is open");
+                (FrameworkConstants.SERVER_DEFAULT_HTTP_PORT)),
+                "Port " + FrameworkConstants.SERVER_DEFAULT_HTTP_PORT +
+                        " should be closed in maintenance mode, but is open");
     }
 
     @Test(groups = {"carbon.core"}, dependsOnMethods = {"startMaintenance"},

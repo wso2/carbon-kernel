@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
@@ -55,7 +56,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
         startServerForShutdownTest(startUpParameterMap);
 
-        int httpsPort = Integer.parseInt(automationContext.getDefaultInstance().getPorts().get("https")) + portOffset;
+        int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
         ClientConnectionUtil.waitForPort(httpsPort, automationContext.getInstance().getHosts().get("default"));
 
         ServerAdminClient serverAdmin = new ServerAdminClient("https://" +
@@ -71,7 +72,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
                 "Port " + httpsPort + " shouldn't be open when the server is gracefully shutting down");
 
-        int httpPort = Integer.parseInt(automationContext.getDefaultInstance().getPorts().get("http")) + portOffset;
+        int httpPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset;
 
         assertFalse(ClientConnectionUtil.isPortOpen(httpPort),
                 "Port " + httpPort + " shouldn't be open when the server is gracefully shutting down");
@@ -87,7 +88,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
         startServerForShutdownTest(startUpParameterMap);
 
-        int httpsPort = Integer.parseInt(automationContext.getDefaultInstance().getPorts().get("https")) + portOffset;
+        int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
         ClientConnectionUtil.waitForPort(httpsPort, automationContext.getInstance().getHosts().get("default"));
         ServerAdminClient serverAdmin = new ServerAdminClient("https://"
                 + automationContext.getInstance().getHosts().get("default") + ":" +
@@ -99,7 +100,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         Thread.sleep(5000);
         assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
                 "Port " + httpsPort + " shouldn't be open when the server is shutting down");
-        int httpPort = Integer.parseInt(automationContext.getDefaultInstance().getPorts().get("http")) + portOffset;
+        int httpPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset;
         assertFalse(ClientConnectionUtil.isPortOpen(httpPort),
                 "Port " + httpPort + " shouldn't be open when the server is shutting down");
     }
