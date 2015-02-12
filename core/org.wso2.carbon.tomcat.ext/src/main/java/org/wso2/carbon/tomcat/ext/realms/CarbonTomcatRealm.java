@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -47,31 +48,78 @@ import java.util.Set;
  * tenant.
  * <p/>
  * A classic demonstration of Adaptor Pattern.
+ *
+ * <p>
+ * To enable SaaS for a webapp, add the following to the META-INF/context.xml file
+ *
+ * {@code
+ * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
+ * isSaaSEnabled="true" saasRules="*"  /> }
+ *
+ * 1. All tenants can access this app
+ * {@code
+ * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
+ * isSaaSEnabled="true" saasRules="*"  /> }
+ *
+ * 2. All tenants except foo.com & bar.com can access this app
+ * {@code
+ * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
+ * isSaaSEnabled="true" saasRules="*;!foo.com;!bar.com"  /> }
+ *
+ * 3. Only foo.com & bar.com (all users) can access this app
+ * {@code
+ * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
+ * isSaaSEnabled="true" saasRules="foo.com;bar.com"  /> }
+ *
+ * 4. Only users bob & admin in tenant foo.com & all users in tenant bar.com can access this app
+ * {@code
+ * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
+ * isSaaSEnabled="true" saasRules="foo.com:users=bob,admin;bar.com"  /> }
+ *
+ * 5. Only user admin in tenant foo.com can access this app and bob from tenant foo.com can't access the app.
+ *    All users in bar.com can access the app except bob.
+ * {@code
+ * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
+ * isSaaSEnabled="true" saasRules="foo.com:users=!bob,admin;bar.com:users=*,!bob"  /> }
+ *
+ * * 6. Only users alice,bob in tenant foo.com can access this app. Also users who belongs to role devops in
+ *    tenant foo.com also can access the app and users who belongs to role developers in tenant foo.com can't
+ *    access the app. All users belong all roles in bar.com can access the app except users belongs to devops.
+ * {@code
+ * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
+ * isSaaSEnabled="true" saasRules="foo.com:roles=!developers,devops:users=alice,bob;bar.com:roles=*,!devops"  /> }
+ *
+ * Note: Denial rules will take precedence.
+ * </p>
  */
 public class CarbonTomcatRealm extends RealmBase {
 
     private static Log log = LogFactory.getLog(CarbonTomcatRealm.class);
 
     /**
-     * ThreadLocal variables to keep SaaS rule data of a webapp which is currently used.
+     * variable to keep SaaS rule data of a webapp which is currently used.
      */
-    private static ThreadLocal<HashMap> tenantSaaSRulesMap = new ThreadLocal<HashMap>();
+    private Map<String, TenantSaaSRules> tenantSaaSRulesMap = null;
 
-    private static ThreadLocal<Boolean> isSaaSEnabled = new ThreadLocal<Boolean>();
+    private boolean isSaaSEnabled = false;
 
-    public boolean isSaaSEnabled() {
-        return isSaaSEnabled.get();
+    public boolean getSaaSEnabled() {
+        return isSaaSEnabled;
     }
 
     public void setSaaSEnabled(boolean saaSEnabled) {
-        isSaaSEnabled.set(saaSEnabled);
+        isSaaSEnabled = saaSEnabled;
     }
 
     public CarbonTomcatRealm() throws Exception {
     }
 
-    public void setSaaSRules(HashMap<String, TenantSaaSRules> tenantSaaSRulesMap) {
-        CarbonTomcatRealm.tenantSaaSRulesMap.set(tenantSaaSRulesMap);
+    public Map getSaaSRules() {
+        return tenantSaaSRulesMap;
+    }
+
+    public void setSaaSRules(String saaSRules) {
+        tenantSaaSRulesMap = getProcessedSaaSRules(saaSRules);
     }
 
     protected String getName() {
@@ -91,8 +139,7 @@ public class CarbonTomcatRealm extends RealmBase {
     }
 
     public Principal authenticate(String userName, String credential) {
-        String tenantDomain = null;
-        tenantDomain = MultitenantUtils.getTenantDomain(userName);
+        String tenantDomain = MultitenantUtils.getTenantDomain(userName);
         String tenantLessUserName;
         if (userName.lastIndexOf('@') > -1) {
             tenantLessUserName = userName.substring(0, userName.lastIndexOf('@'));
@@ -143,6 +190,49 @@ public class CarbonTomcatRealm extends RealmBase {
     }
 
     /**
+     *
+     * @param saaSRules saas rules string
+     * @return processed saas rules as a map. key contains the list of tenants allowed to access the webapp
+     */
+    private Map<String, TenantSaaSRules> getProcessedSaaSRules(String saaSRules) {
+        // replaceAll("\\s","") is to remove all whitespaces
+        String[] enableSaaSParams = saaSRules.replaceAll("\\s", "").split(";");
+        //Store SaaS rules for tenants
+        Map<String, TenantSaaSRules> tenantSaaSRulesMap = new HashMap<String, TenantSaaSRules>();
+
+        for (String saaSParam : enableSaaSParams) {
+            String[] saaSSubParams = saaSParam.split(":");
+            String tenant = saaSSubParams[0];
+            TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
+            ArrayList<String> users = null;
+            ArrayList<String> roles = null;
+            if (saaSSubParams.length > 1) {
+                tenantSaaSRules.setTenant(tenant);
+                //This will include users or roles
+                for (int i = 1; i < saaSSubParams.length; i++) {
+                    String[] saaSTypes = saaSSubParams[i].split("=");
+                    if ("users".equals(saaSTypes[0]) && saaSTypes.length == 2) {
+                        users = new ArrayList<String>();
+                        users.addAll(Arrays.asList(saaSTypes[1].split(",")));
+                    } else if ("roles".equals(saaSTypes[0]) && saaSTypes.length == 2) {
+                        roles = new ArrayList<String>();
+                        roles.addAll(Arrays.asList(saaSTypes[1].split(",")));
+                    }
+                }
+            }
+            if (users != null) {
+                tenantSaaSRules.setUsers(users);
+            }
+            if (roles != null) {
+                tenantSaaSRules.setRoles(roles);
+            }
+            tenantSaaSRulesMap.put(tenant, tenantSaaSRules);
+        }
+
+        return tenantSaaSRulesMap;
+    }
+
+    /**
      * Check if saas mode enabled and access granted for the given tenant
      * Denial Rules are given precedency.
      *
@@ -152,10 +242,10 @@ public class CarbonTomcatRealm extends RealmBase {
      * @return false if saas mode denied.
      */
     private boolean checkSaasAccess(String tenantDomain, String userName, String[] userRoles) {
-        if(!isSaaSEnabled()){
+        if(!isSaaSEnabled){
             return false;
         }
-        HashMap<String, TenantSaaSRules> tenantSaaSRulesMap = CarbonTomcatRealm.tenantSaaSRulesMap.get();
+
         Set saaSTenants = tenantSaaSRulesMap.keySet();
         List<String> userRolesList = Arrays.asList(userRoles);
         boolean isUserAccepted = false;
@@ -174,7 +264,7 @@ public class CarbonTomcatRealm extends RealmBase {
             ArrayList<String> roles = tenantSaaSRules.getRoles();
             if (users != null && users.contains("!".concat(userName))) {
                 return false;
-            } else if (roles != null && userRolesList != null) {
+            } else if (roles != null) {
                 boolean contains = false;
                 for (String userRole : userRolesList) {
                     if (roles.contains("!".concat(userRole))) {
