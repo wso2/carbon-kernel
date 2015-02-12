@@ -140,14 +140,10 @@ public class CarbonTomcatRealm extends RealmBase {
 
     public Principal authenticate(String userName, String credential) {
         String tenantDomain = MultitenantUtils.getTenantDomain(userName);
-        String tenantLessUserName;
-        if (userName.lastIndexOf('@') > -1) {
-            tenantLessUserName = userName.substring(0, userName.lastIndexOf('@'));
-        } else if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
-            tenantLessUserName = userName;
+        String tenantLessUserName = getTenantLessUserName(userName);
+
+        if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomain)) {
             userName = userName + "@" + MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-        } else {
-            tenantLessUserName = userName;
         }
 
         try {
@@ -187,6 +183,17 @@ public class CarbonTomcatRealm extends RealmBase {
             // not logging because already logged.
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    private static String getTenantLessUserName(String userName) {
+        String tenantLessUserName;
+        if (userName.lastIndexOf('@') > -1) {
+            tenantLessUserName = userName.substring(0, userName.lastIndexOf('@'));
+        } else {
+            tenantLessUserName = userName;
+        }
+
+        return tenantLessUserName;
     }
 
     /**
@@ -301,11 +308,33 @@ public class CarbonTomcatRealm extends RealmBase {
         private String tenantDomain = null;
 
         public GenericCarbonPrincipal(String name) {
-            super(name, null);
+            super(name, null, getCarbonRoles(name));
             tenantDomain = null;
             if (name.contains("@")) {
                 tenantDomain = name.substring(name.indexOf('@') + 1);
             }
+        }
+
+        private static List<String> getCarbonRoles(String userName) {
+            try {
+
+                String tenantDomain = null;
+                if (userName.contains("@")) {
+                    tenantDomain = userName.substring(userName.indexOf('@') + 1);
+                }
+
+                UserRealmService userRealmService = CarbonRealmServiceHolder.getRealmService();
+                int tenantId = userRealmService.getTenantManager().getTenantId(tenantDomain);
+                String tenantLessUserName = getTenantLessUserName(userName);
+                String[] roles = userRealmService.getTenantUserRealm(tenantId).
+                        getUserStoreManager().getRoleListOfUser(tenantLessUserName);
+
+                return Arrays.asList(roles);
+            } catch (UserStoreException e) {
+                log.error("Error occurred while retrieving the roles of the user - " + userName, e);
+                return null;
+            }
+
         }
 
         // Carbon realm does not give the password out
