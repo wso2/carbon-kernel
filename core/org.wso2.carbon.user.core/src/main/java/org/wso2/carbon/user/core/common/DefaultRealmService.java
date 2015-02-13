@@ -173,8 +173,8 @@ public class DefaultRealmService implements RealmService {
             }
 
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new org.wso2.carbon.user.api.UserStoreException(e.getMessage(), e);
+			throw new org.wso2.carbon.user.api.UserStoreException("Error occurred while getting user realm for tenant id" +
+                                                                  " :"+tenantId, e);
 		}
 		return userRealm;
 	}
@@ -259,13 +259,11 @@ public class DefaultRealmService implements RealmService {
 			StAXOMBuilder builder = new StAXOMBuilder(CarbonUtils.replaceSystemVariablesInXml(inStream));
 			return builder.getDocumentElement();
 		} catch (FileNotFoundException e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage(), e);
+			throw new UserStoreException(e);
 		} catch (XMLStreamException e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage(), e);
+			throw new UserStoreException(e);
 		} catch (CarbonException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            throw new UserStoreException(e);
         }
     }
 
@@ -374,8 +372,7 @@ public class DefaultRealmService implements RealmService {
 	}
 
 	private void errorEncountered(Exception e) throws UserStoreException {
-		String msg = "Exception while creating multi tenant builder " + e.getMessage();
-		log.error(msg, e);
+		String msg = "Exception while creating multi tenant builder ";
 		throw new UserStoreException(msg, e);
 	}
 }

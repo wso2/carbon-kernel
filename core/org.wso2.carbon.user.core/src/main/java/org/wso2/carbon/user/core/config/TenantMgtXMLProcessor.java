@@ -68,11 +68,9 @@ public class TenantMgtXMLProcessor {
             return buildTenantMgtConfiguration(tenantMgtConfigElement, tenantManagerClass);
         } catch (XMLStreamException e) {
             String error_Message = "Error in reading tenant-mgt.xml";
-            log.error(error_Message);
             throw new UserStoreException(error_Message);
         } catch (IOException e) {
             String error_Message = "Error in reading tenant-mgt.xml file.";
-            log.error(error_Message);
             throw new UserStoreException(error_Message);
         }
     }

@@ -86,7 +86,6 @@ public class LDAPRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
 
         } catch (Exception e) {
             String errorMessage = "Tenant specific realm config could not be created.";
-            log.error(errorMessage, e);
             throw new UserStoreException(errorMessage, e);
         }
 
