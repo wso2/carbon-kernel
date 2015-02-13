@@ -161,9 +161,9 @@ public class LDAPConnectionContext {
 
                 try {
                     context = new InitialDirContext(environment);
-                } catch (Exception e1) {
-                    log.error("Error obtaining connection for the second time" + e.getMessage(), e);
-                    throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
+                } catch (NamingException e1) {
+                    log.error("Error obtaining connection for the second time" + e1.getMessage(), e1);
+                    throw new UserStoreException("Error obtaining connection. " + e1.getMessage());
                 }
 
             }
@@ -189,8 +189,8 @@ public class LDAPConnectionContext {
                     } catch (NamingException e1) {
                         if(integer == (dcMap.lastKey())){
                             log.error("Error obtaining connection for all " + integer + " Domain Controllers."
-                                      + e.getMessage(), e);
-                            throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);        
+                                      + e1.getMessage(), e1);
+                            throw new UserStoreException("Error obtaining connection. " + e1.getMessage());
                         }
                     }
                 }

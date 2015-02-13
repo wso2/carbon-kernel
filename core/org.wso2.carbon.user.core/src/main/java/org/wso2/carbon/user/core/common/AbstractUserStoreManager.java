@@ -409,8 +409,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException("Error while trying to check Tenant status for Tenant : "
-                    + tenantId, e);
+            String errorMessage = "Error while trying to check Tenant status for Tenant : "+ tenantId;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
 
 		// We are here due to two reason. Either there is no secondary UserStoreManager or no
@@ -659,8 +662,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             Arrays.sort(fullUserList);
             return fullUserList;
         } catch (org.wso2.carbon.user.api.UserStoreException exception) {
-            log.error("Error while searching the user stores", exception);
-            throw new UserStoreException(exception);
+            String errorMessage = "Error while searching the user stores";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, exception);
+            }
+            throw new UserStoreException(errorMessage, exception);
         }
     }
     /**

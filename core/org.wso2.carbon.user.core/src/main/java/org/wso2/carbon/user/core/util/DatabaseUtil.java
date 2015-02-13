@@ -244,7 +244,7 @@ public class DatabaseUtil {
     }
 
     public static String[] getStringValuesFromDatabase(Connection dbConnection, String sqlStmt, Object... params)
-            throws UserStoreException {
+            throws SQLException {
         String[] values = new String[0];
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -274,10 +274,7 @@ public class DatabaseUtil {
                 values = lst.toArray(new String[lst.size()]);
             }
             return values;
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
+
         } finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
@@ -285,7 +282,7 @@ public class DatabaseUtil {
 
     /*This retrieves two parameters, combines them and send back*/
     public static String[] getStringValuesFromDatabaseForInternalRoles(Connection dbConnection, String sqlStmt, Object... params)
-            throws UserStoreException {
+            throws UserStoreException, SQLException {
         String[] values = new String[0];
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -317,17 +314,13 @@ public class DatabaseUtil {
                 values = lst.toArray(new String[lst.size()]);
             }
             return values;
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
-        } finally {
+        }finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
     }
     
     public static int getIntegerValueFromDatabase(Connection dbConnection, String sqlStmt,
-            Object... params) throws UserStoreException {
+            Object... params) throws UserStoreException, SQLException {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         int value = -1;
@@ -350,17 +343,13 @@ public class DatabaseUtil {
                 value = rs.getInt(1);
             }
             return value;
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
         } finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
     }
     
 	public static void udpateUserRoleMappingInBatchModeForInternalRoles(Connection dbConnection,
-			String sqlStmt, String primaryDomain, Object... params) throws UserStoreException {
+			String sqlStmt, String primaryDomain, Object... params) throws UserStoreException, SQLException {
 		PreparedStatement prepStmt = null;
 		boolean localConnection = false;
 		try {
@@ -409,10 +398,6 @@ public class DatabaseUtil {
 			if (localConnection) {
 				dbConnection.commit();
 			}
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
 		} finally {
 			if (localConnection) {
 				DatabaseUtil.closeAllConnections(dbConnection);
@@ -421,11 +406,11 @@ public class DatabaseUtil {
 		}
 	}
 
-	public static void udpateUserRoleMappingWithExactParams(Connection dbConnection, String sqlStmt,
-	                                                    String[] roles, String userName,
-	                                                    Integer[] tenantIds, int currentTenantId)
-	                                                                                         throws UserStoreException {
-		PreparedStatement ps = null;
+    public static void udpateUserRoleMappingWithExactParams(Connection dbConnection, String sqlStmt,
+                                                            String[] roles, String userName,
+                                                            Integer[] tenantIds, int currentTenantId)
+            throws UserStoreException, SQLException {
+        PreparedStatement ps = null;
 		boolean localConnection = false;
 		try {
 			ps = dbConnection.prepareStatement(sqlStmt);
@@ -453,10 +438,6 @@ public class DatabaseUtil {
 			if (localConnection) {
 				dbConnection.commit();
 			}
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
 		} finally {
 			if (localConnection) {
 				DatabaseUtil.closeAllConnections(dbConnection);
@@ -466,7 +447,7 @@ public class DatabaseUtil {
 	}
 
     public static void udpateUserRoleMappingInBatchMode(Connection dbConnection, String sqlStmt,
-            Object... params) throws UserStoreException {
+            Object... params) throws UserStoreException, SQLException {
         PreparedStatement prepStmt = null;
         boolean localConnection = false;
         try {
@@ -502,10 +483,6 @@ public class DatabaseUtil {
             if (localConnection) {
                 dbConnection.commit();
             }
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
         } finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);
@@ -515,7 +492,7 @@ public class DatabaseUtil {
     }
     
     public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
-            throws UserStoreException {
+            throws SQLException {
         PreparedStatement prepStmt = null;
         try {            
             prepStmt = dbConnection.prepareStatement(sqlStmt);
@@ -544,10 +521,6 @@ public class DatabaseUtil {
                 log.debug("Executed Query is " + sqlStmt + " and number of updated rows :: "
                         + count);
             }*/
-        } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
         } finally {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }

@@ -2572,11 +2572,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 				}
 			}
 		} catch (UserStoreException e) {
-			log.debug("LDAPError", e);
-			throw new UserStoreException("Error in getting group name attribute values of groups");
+            String errorMessage = "Error in getting group name attribute values of groups";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} catch (NamingException e) {
-			log.debug("LDAPError", e);
-			throw new UserStoreException("Error in getting group name attribute values of groups");
+            String errorMessage = "Error in getting group name attribute values of groups";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		}
 		return groupNameAttributeValues;
 	}

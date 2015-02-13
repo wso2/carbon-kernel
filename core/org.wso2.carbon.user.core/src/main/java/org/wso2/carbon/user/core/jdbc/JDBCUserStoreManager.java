@@ -19,11 +19,7 @@ package org.wso2.carbon.user.core.jdbc;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -354,10 +350,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			try {
 				rs = prepStmt.executeQuery();
 			} catch (SQLException e) {
-				// may be due time out, therefore ignore this
-				log.error(e);
-				return users;
-			}
+                if(e instanceof SQLTimeoutException){
+                    log.error("may be due time out, therefore ignore this",e);
+                    return users;
+                }
+                throw new UserStoreException(
+                        "Error while fetching users according to filter :" + filter + " & max Item limit :" +
+                        maxItemLimit, e);
+            }
 
 			while (rs.next()) {
 
@@ -380,8 +380,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			Arrays.sort(users);
 
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error while retrieving users according to filter :" + filter + " & max Item limit :"
+                                  + maxItemLimit;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -456,9 +460,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			try {
 				rs = prepStmt.executeQuery();
 			} catch (SQLException e) {
-				log.error("Error while retrieving roles from JDBC user store", e);
-				// may be due time out, therefore ignore this exception
-			}
+                if(e instanceof SQLTimeoutException){
+                    log.error("due time out, therefore ignore this exception", e);
+                }
+                throw new UserStoreException(
+                        "Error while fetching roles from JDBC user store according to filter :" + filter +
+                        " & max item limit :" + maxItemLimit, e);
+            }
 
 			//Expected columns UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE
 			if (rs != null) {
@@ -481,8 +489,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error while retrieving roles from JDBC user store according to filter :" + filter +
+                                  " & max item limit :" + maxItemLimit;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -568,9 +580,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			try {
 				rs = prepStmt.executeQuery();
 			} catch (SQLException e) {
-				log.error("Error while retrieving roles from JDBC user store", e);
-				// may be due time out, therefore ignore this exception
-			}
+                if(e instanceof SQLTimeoutException){
+                    // may be due time out, therefore ignore this exception
+                    log.error("Error while retrieving roles from JDBC user store due time out", e);
+                }
+                throw new UserStoreException(
+                        "Error while fetching roles from JDBC user store for tenant domain :" + tenantDomain +
+                        " & filter :" + filter + "& max item limit :" + maxItemLimit, e);
+            }
 
 			// Expected columns UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE
 			if (rs != null) {
@@ -590,8 +607,12 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				roles = lst.toArray(new String[lst.size()]);
 			}
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error while retrieving roles from JDBC user store for tenant domain :" + tenantDomain +
+                                  " & filter :" + filter + "& max item limit :" + maxItemLimit;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -748,7 +769,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				id = DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt, username);
 			}
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting user id from username :"+username;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -773,7 +798,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			dbConnection = getDBConnection();
 			userNames = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt, tenantId);
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting username from tenant ID :"+tenantId;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -828,7 +857,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			dbConnection = getDBConnection();
 			id = DatabaseUtil.getIntegerValueFromDatabase(dbConnection, sqlStmt, username);
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting tenant ID from username :"+username;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -873,8 +906,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
 			return map;
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage =
+                    "Error Occurred while getting property values for user :" + userName + " & profile name :" +
+                    profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
 	}
@@ -890,7 +929,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			throws UserStoreException {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("Executing Query: " + sqlStmt);
+			log.debug("Execuring Query: " + sqlStmt);
 			for (int i = 0; i < params.length; i++) {
                 Object param = params[i];
                 log.debug("Input value: " + param);
@@ -905,8 +944,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			dbConnection = getDBConnection();
 			values = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt, params);
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred Using sql :"+sqlStmt;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage,e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -945,8 +987,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred while getting role for user :"+userName+" & tenant ID :"+tenantId;
+			if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -993,8 +1038,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			return isExisting;
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred Using sql :"+sqlStmt;
+			if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			if (doClose) {
 				DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
@@ -1102,8 +1150,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				}
 			}
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlstmt);
-			throw new UserStoreException("Authentication Failure");
+			String msg = "Error occurred while retrieving user authentication info.";
+			if(log.isDebugEnabled()){
+                log.debug(msg, e);
+            }
+			throw new UserStoreException("Authentication Failure for user :"+userName);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -1249,10 +1300,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			try {
 				dbConnection.rollback();
 			} catch (SQLException e1) {
-				throw new UserStoreException("Error rollbacking add user operation", e1);
+                String errorMessage = "Error rollbacking add user operation";
+                if(log.isDebugEnabled()){
+                    log.debug(errorMessage,e1);
+                }
+				throw new UserStoreException(errorMessage, e1);
 			}
-            log.error("Error while persisting user : " + userName );
-			throw new UserStoreException("Error while persisting user : " + userName , e);
+            String errorMessage = "Error while persisting user : " + userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage ,e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -1269,10 +1327,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
 
 		Connection dbConnection = null;
-
+        String sqlStmt = null;
+        String sqlStmt2 = null;
 		try {
 			dbConnection = getDBConnection();
-			String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_ROLE);
+			sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_ROLE);
 			if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
 				this.updateStringValuesToDatabase(dbConnection, sqlStmt, roleName, tenantId);
 			} else {
@@ -1281,7 +1340,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			if (userList != null) {
 				// add role to user
 				String type = DatabaseCreator.getDatabaseType(dbConnection);
-				String sqlStmt2 = realmConfig
+			    sqlStmt2 = realmConfig
 						.getUserStoreProperty(JDBCRealmConstants.ADD_USER_TO_ROLE + "-" + type);
 				if (sqlStmt2 == null) {
 					sqlStmt2 = realmConfig
@@ -1302,7 +1361,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while adding user list to role :"+roleName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} catch (Exception e) {
 			throw new UserStoreException(e.getMessage(), e);
 		} finally {
@@ -1338,8 +1401,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred while updating role name :"+roleName+" to new role name :"+newRoleName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -1459,8 +1525,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			//this.userRealm.getAuthorizationManager().clearRoleAuthorization(roleName);
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt1);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred while deleting role name :"+roleName;
+			if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -1504,8 +1573,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt1 + " :: " + sqlStmt2);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred  while deleting user :"+userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -1592,9 +1664,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while updating user list of role :"+roleName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} catch (Exception e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -1761,9 +1841,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while updating role list of user :"+userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} catch (Exception e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -1793,7 +1881,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while updating claim values of user :"+userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} catch (org.wso2.carbon.user.api.UserStoreException e) {
 			throw new UserStoreException(e);
 		} finally {
@@ -1835,7 +1927,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while updating claim values of user :"+userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} catch (org.wso2.carbon.user.api.UserStoreException e) {
 			throw new UserStoreException(e);
 		} finally {
@@ -1864,7 +1960,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			this.deleteProperty(dbConnection, userName, property, profileName);
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while deleting claim values of user :"+userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} catch (org.wso2.carbon.user.api.UserStoreException e) {
 			throw new UserStoreException(e);
 		} finally {
@@ -1889,7 +1989,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while deleting claim values of user :"+userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} catch (org.wso2.carbon.user.api.UserStoreException e) {
 			throw new UserStoreException(e);
 		} finally {
@@ -1992,8 +2096,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				}
 			}
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlstmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred while getting Password Expiration Time for user :"+userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -2049,8 +2156,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				dbConnection.commit();
 			}
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred Using sql :"+sqlStmt;
+			if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			if (localConnection) {
 				DatabaseUtil.closeAllConnections(dbConnection);
@@ -2095,7 +2205,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 		} catch (UserStoreException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error while getting database type from db connection";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		}
 	}
 
@@ -2181,8 +2295,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			return value;
 		} catch (SQLException e) {
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage =
+                    "Error Occurred while getting property for user :" + userName + " & property :" + propertyName +
+                    " profile name :" + profileName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(null, rs, prepStmt);
 		}
@@ -2196,12 +2315,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 	 * @throws UserStoreException
 	 */
 	protected String preparePassword(String password, String saltValue) throws UserStoreException {
+        String digsestFunction = null;
 		try {
 			String digestInput = password;
 			if (saltValue != null) {
 				digestInput = password + saltValue;
 			}
-			String digsestFunction = realmConfig.getUserStoreProperties().get(
+			digsestFunction = realmConfig.getUserStoreProperties().get(
 					JDBCRealmConstants.DIGEST_FUNCTION);
 			if (digsestFunction != null) {
 
@@ -2216,9 +2336,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			return password;
 		} catch (NoSuchAlgorithmException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		}
-	}
+            String errorMessage = "Error while getting Message Digest from digest function "+ digsestFunction;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+
+        }
+    }
 
 	/**
 	 * 
@@ -2260,9 +2385,17 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Add remember me fails for username :"+userName+" & token :"+token;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} catch (Exception e) {
-			throw new UserStoreException(e.getMessage(), e);
+			String msg = "Error occurred while saving remember me token.";
+            if(log.isDebugEnabled()){
+                log.debug(msg, e);
+            }
+			throw new UserStoreException(msg, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -2295,8 +2428,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				createdTime = rs.getTimestamp(2);
 			}
 		} catch (SQLException e) {
-			log.error("Using sql : " + HybridJDBCConstants.GET_REMEMBERME_VALUE_SQL);
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred while getting remember me value for user"+userName+" & token :"+token;
+		    if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -2388,8 +2524,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error while retrieving Users from property :" + property + " & value :" + value +
+                                  " & profile name :" + profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
 
@@ -2444,10 +2585,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 	protected void doAddSharedRole(String roleName, String[] userList) throws UserStoreException {
 
 		Connection dbConnection = null;
-
+        String sqlStmt = null;
 		try {
 			dbConnection = getDBConnection();
-			String sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_SHARED_ROLE);
+			sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_SHARED_ROLE);
 			if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
 				this.updateStringValuesToDatabase(dbConnection, sqlStmt, true, roleName, tenantId);
 			} else {
@@ -2464,8 +2605,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error Occurred Using sql :"+sqlStmt;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} catch (Exception e) {
+			String msg = "Error occurred while adding shared role :"+roleName;
+			log.error(msg, e);
 			throw new UserStoreException(e.getMessage(), e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
@@ -2518,7 +2665,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                      String tenantDomain, String filter) throws UserStoreException {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("Looking for shared roles for user: " + userName + " for tenant: " + tenantDomain);
+			log.debug("Looking for shared roles for user: " + userName + " for teanant: " + tenantDomain);
 		}
 
 		if (isSharedGroupEnabled()) {
