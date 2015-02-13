@@ -438,7 +438,7 @@
         <maven.scr.plugin.version>1.7.4</maven.scr.plugin.version>
         <maven.bundle.plugin.version>2.3.5</maven.bundle.plugin.version>
         <maven.source.plugin.version>2.1.2</maven.source.plugin.version>
-        <maven.assembly.plugin.version>2.2-beta-2</maven.assembly.plugin.version>
+        <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
         <maven.build.helper.plugin.version>1.7</maven.build.helper.plugin.version>
         <maven.build.number.plugin.version>0.9.4</maven.build.number.plugin.version>
         <maven.jar.plugin.version>2.4</maven.jar.plugin.version>
