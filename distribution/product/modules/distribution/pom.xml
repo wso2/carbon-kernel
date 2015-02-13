@@ -108,7 +108,7 @@
                                             dir="${tempdir}/wso2carbon-${carbon.kernel.version}/repository/components">
                                     </fileset>
                                 </copy>
-                                <delete file="target/wso2carbon-${carbon.kernel.version}.zip"/>
+                                <!--<delete file="target/wso2carbon-${carbon.kernel.version}.zip"/>-->
                                 <delete dir="${tempdir}"/>
                             </tasks>
                         </configuration>
@@ -147,6 +147,7 @@
                             <goal>attached</goal>
                         </goals>
                         <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <filters>
                                 <filter>${basedir}/src/assembly/filter.properties</filter>
                             </filters>
@@ -162,6 +163,7 @@
                             <goal>attached</goal>
                         </goals>
                         <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <filters>
                                 <filter>${basedir}/src/assembly/filter.properties</filter>
                             </filters>
