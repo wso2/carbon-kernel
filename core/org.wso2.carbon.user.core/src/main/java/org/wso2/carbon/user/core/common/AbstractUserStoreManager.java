@@ -812,7 +812,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		if (attributeName == null || attributeName.isEmpty()) {
 			attributeName = claimManager.getAttributeName(claimURI);
 		}
-		return attributeName != null ? attributeName : claimURI;
+
+		if (attributeName == null) {
+			if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimURI)) {
+				attributeName = claimURI;
+			} else {
+				throw new UserStoreException("Invalid claim URI value");
+			}
+		}
+
+		return attributeName;
 	}
 
 	/**
@@ -925,6 +934,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		}
 		// #################### </Listeners> #####################################################
 
+		if (!doCheckExistingUser(userName)) {
+			throw new UserStoreException("User does not exist. Username : " + userName);
+		}
+
 		doSetUserClaimValue(userName, claimURI, claimValue, profileName);
 
 		// #################### <Listeners> #####################################################
@@ -963,6 +976,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			}
 		}
 		// #################### </Listeners> #####################################################
+
+		if (!doCheckExistingUser(userName)) {
+			throw new UserStoreException("User does not exist. Username : " + userName);
+		}
 
 		doSetUserClaimValues(userName, claims, profileName);
 
@@ -1003,6 +1020,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		}
 		// #################### </Listeners> #####################################################
 
+		if (!doCheckExistingUser(userName)) {
+			throw new UserStoreException("User does not exist. Username : " + userName);
+		}
+
 		doDeleteUserClaimValue(userName, claimURI, profileName);
 
 		// #################### <Listeners> #####################################################
@@ -1040,6 +1061,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			}
 		}
 		// #################### </Listeners> #####################################################
+
+		if (!doCheckExistingUser(userName)) {
+			throw new UserStoreException("User does not exist. Username : " + userName);
+		}
 
 		doDeleteUserClaimValues(userName, claims, profileName);
 

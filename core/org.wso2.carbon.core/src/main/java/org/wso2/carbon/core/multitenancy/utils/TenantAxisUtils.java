@@ -304,7 +304,6 @@ public final class TenantAxisUtils {
                 doPreConfigContextCreation(tenantId);
                 tenantConfigCtx =
                         ConfigurationContextFactory.createConfigurationContext(tenantAxisConfigurator);
-                tenantConfigContexts.put(tenantDomain, tenantConfigCtx);
 
                 AxisConfiguration tenantAxisConfig = tenantConfigCtx.getAxisConfiguration();
 
@@ -355,8 +354,14 @@ public final class TenantAxisUtils {
                 //deploy the services since all the deployers are initialized by now.
                 tenantAxisConfigurator.deployServices();
 
+                //tenant config context must only be made after the tenant is fully loaded, and all its artifacts
+                //are deployed.
+                // -- THIS SHOULD BE THE LAST OPERATION OF THIS METHOD --
+                tenantConfigContexts.put(tenantDomain, tenantConfigCtx);
+
                 log.info("Loaded tenant " + tenantDomain + " in " +
                          (System.currentTimeMillis() - tenantLoadingStartTime) + " ms");
+
                 return tenantConfigCtx;
             } catch (Exception e) {
                 String msg = "Error occurred while running deployment for tenant ";

@@ -1686,7 +1686,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 	 * @param rolesList
 	 * @return
 	 */
-	private RoleBreakdown getSharedRoleBreakdown(String[] rolesList) {
+	private RoleBreakdown getSharedRoleBreakdown(String[] rolesList) throws UserStoreException {
 		List<String> roles = new ArrayList<String>();
 		List<Integer> tenantIds = new ArrayList<Integer>();
 
@@ -2202,8 +2202,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             } else {
                 updateStringValuesToDatabase(dbConnection, sqlStmt, userName, propertyName, value, profileName);
             }
-		} catch (UserStoreException e) {
-			throw e;
 		} catch (Exception e) {
             String errorMessage = "Error while getting database type from db connection";
             if(log.isDebugEnabled()){
@@ -2344,6 +2342,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         }
     }
+
 
 	/**
 	 * 
