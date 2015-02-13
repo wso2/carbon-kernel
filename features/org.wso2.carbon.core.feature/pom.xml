@@ -21,14 +21,14 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
-        <version>4.3.0</version>
+        <version>4.3.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.core.feature</artifactId>
     <packaging>pom</packaging>
-    <version>4.3.0</version>
+    <version>4.3.1-SNAPSHOT</version>
     <name>WSO2 Carbon - Carbon Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the carbon core features</description>
