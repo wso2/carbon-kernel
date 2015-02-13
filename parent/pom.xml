@@ -1478,8 +1478,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <scm>
-        <tag>4.3.0-RC4</tag>
-    </scm>
 </project>
