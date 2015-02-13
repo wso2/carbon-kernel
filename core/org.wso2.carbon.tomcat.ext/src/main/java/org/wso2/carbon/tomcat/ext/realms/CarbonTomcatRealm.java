@@ -103,22 +103,22 @@ public class CarbonTomcatRealm extends RealmBase {
 
     private boolean isSaaSEnabled = false;
 
-    public boolean getSaaSEnabled() {
+    public boolean getEnableSaaS() {
         return isSaaSEnabled;
     }
 
-    public void setSaaSEnabled(boolean saaSEnabled) {
-        isSaaSEnabled = saaSEnabled;
+    public void setEnableSaaS(boolean enableSaaS) {
+        isSaaSEnabled = enableSaaS;
     }
 
     public CarbonTomcatRealm() throws Exception {
     }
 
-    public Map getSaaSRules() {
+    public Map getSaasRules() {
         return tenantSaaSRulesMap;
     }
 
-    public void setSaaSRules(String saaSRules) {
+    public void setSaasRules(String saaSRules) {
         tenantSaaSRulesMap = getProcessedSaaSRules(saaSRules);
     }
 

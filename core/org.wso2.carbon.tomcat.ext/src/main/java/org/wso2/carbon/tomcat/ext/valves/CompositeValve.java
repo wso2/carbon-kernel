@@ -1,5 +1,6 @@
 package org.wso2.carbon.tomcat.ext.valves;
 
+import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
@@ -11,6 +12,7 @@ import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.registry.core.ghostregistry.GhostRegistry;
 import org.wso2.carbon.tomcat.ext.internal.CarbonRealmServiceHolder;
 import org.wso2.carbon.tomcat.ext.internal.Utils;
+import org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm;
 import org.wso2.carbon.tomcat.ext.utils.URLMappingHolder;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserRealmService;
@@ -42,13 +44,19 @@ public class CompositeValve extends ValveBase {
 
             String enableSaaSParam =
                     request.getContext().findParameter(ENABLE_SAAS);
-            if (enableSaaSParam != null) {
-                // deprecation notice since Carbon 4.4. Users should configure SaaS mode by adding the CarbonTomcatRealm to the
-                // META-INF/context.xml. See javadocs at @org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm.
-                // Remove this check in a future release.
-                String contextName = request.getContext().getName();
-                log.warn("To enable SaaS mode for the webapp, " + contextName +
-                         ", configure the CarbonTomcatRealm in META-INF/context.xml.");
+            Realm realm = request.getContext().getRealm();
+
+            // deprecation notice since Carbon 4.4. Users should configure SaaS mode by adding the CarbonTomcatRealm to the
+            // META-INF/context.xml. See javadocs at @org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm.
+            // Remove this check in a future release.
+            if (realm instanceof CarbonTomcatRealm) {
+                //user has set saas context-param but not configured the new way of configuring saas via context.xml
+                if (enableSaaSParam != null && ((CarbonTomcatRealm) realm).getSaasRules() == null)  {
+                    String contextName = request.getContext().getName();
+                    log.warn("To enable SaaS mode for the webapp, " + contextName +
+                             ", configure the CarbonTomcatRealm in META-INF/context.xml.");
+                }
+
             }
 
             TomcatValveContainer.invokeValves(request, response, this);
