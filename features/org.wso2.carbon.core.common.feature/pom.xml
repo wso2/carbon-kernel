@@ -15,13 +15,14 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
         <version>4.3.0</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -37,7 +38,6 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
-                <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -54,76 +54,117 @@
                                     <propertyDef>org.eclipse.equinox.p2.type.group:false</propertyDef>
                                 </properties>
                             </adviceFile>
-                            <bundles>    // TODO remove all hardcoded versions and use property comes from parent directory
-			        <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.servlet</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.helper</bundleDef>
-                                <bundleDef>org.apache.tomcat.wso2:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}</bundleDef>
-                                <bundleDef>org.apache.tomcat.wso2:tomcat-el-api:${orbit.version.tomcat.el.api}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.utils</bundleDef>
-                                <bundleDef>org.wso2.carbon:javax.cache.wso2</bundleDef>
-			       	<bundleDef>org.apache.tomcat.wso2:tomcat-servlet-api:${orbit.version.tomcat.servlet.api}</bundleDef>
+                            <bundles>
+                                <bundleDef>
+                                    org.eclipse.equinox:org.eclipse.equinox.http.servlet:${version.equinox.http.servlet}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.eclipse.equinox:org.eclipse.equinox.http.helper:${version.equinox.http.helper}
+                                </bundleDef>
+                                <bundleDef>org.apache.tomcat.wso2:tomcat-jsp-api:${orbit.version.tomcat.jsp.api}
+                                </bundleDef>
+                                <bundleDef>org.apache.tomcat.wso2:tomcat-el-api:${orbit.version.tomcat.el.api}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.apache.tomcat.wso2:tomcat-servlet-api:${orbit.version.tomcat.servlet.api}
+                                </bundleDef>
+                                <bundleDef>antlr.wso2:antlr:${antlr.wso2.version}</bundleDef>
                                 <bundleDef>org.apache.tomcat.wso2:tomcat:${orbit.version.tomcat}</bundleDef>
-                                <bundleDef>org.apache.tomcat.ha.wso2:tomcat-catalina-ha:${orbit.version.tomcat.ha}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.ext</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.logging</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.securevault</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core.common</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.server.admin.common</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.application.deployer</bundleDef>
-                                <bundleDef>antlr.wso2:antlr:3.2.0.wso2v1</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.core</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.core</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.authenticator.proxy</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.authenticator.stub</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.queuing</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.api</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core.bootup.validator</bundleDef>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.common</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.core</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.rdbms</bundleDef>
-				<bundleDef>org.wso2.carbon:org.wso2.carbon.user.api</bundleDef>
-			        <bundleDef>au.com.bytecode.opencsv.wso2:opencsv:1.8.wso2v1</bundleDef>
-				<bundleDef>org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2</bundleDef>
-                                <bundleDef>com.h2database.wso2:h2-database-engine:1.2.140.wso2v3</bundleDef>
+                                <bundleDef>org.apache.tomcat.ha.wso2:tomcat-catalina-ha:${orbit.version.tomcat.ha}
+                                </bundleDef>
+                                <bundleDef>au.com.bytecode.opencsv.wso2:opencsv:${version.opencsv}</bundleDef>
+                                <bundleDef>org.wso2.securevault:org.wso2.securevault:${securevault.version}</bundleDef>
+                                <bundleDef>com.h2database.wso2:h2-database-engine:${orbit.version.h2.engine}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2-json:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>org.codehaus.jettison.wso2:jettison:${orbit.version.jettison}</bundleDef>
-                                <bundleDef>commons-pool.wso2:commons-pool:1.5.6.wso2v1</bundleDef>
-                                <bundleDef>commons-dbcp.wso2:commons-dbcp:1.4.0.wso2v1</bundleDef>
-                                <bundleDef>opensaml.wso2:opensaml2:2.4.1.wso2v1</bundleDef>
-                                <bundleDef>org.apache.abdera.wso2:abdera:1.0.0.wso2v3</bundleDef>
+                                <bundleDef>commons-pool.wso2:commons-pool:${orbit.version.commons.pool}</bundleDef>
+                                <bundleDef>commons-dbcp.wso2:commons-dbcp:${orbit.version.commons.dbcp}</bundleDef>
+                                <bundleDef>opensaml.wso2:opensaml2:${version.opensaml2}</bundleDef>
+                                <bundleDef>org.apache.abdera.wso2:abdera:${orbit.version.abdera}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
                                 <bundleDef>com.hazelcast.wso2:hazelcast:${orbit.version.hazelcast}</bundleDef>
                                 <bundleDef>org.apache.tiles.wso2:tiles-jsp:${orbit.version.tiles}</bundleDef>
-                                <bundleDef>org.apache.ant.wso2:ant:1.7.0.wso2v1</bundleDef>
-                                <bundleDef>org.apache.xmlbeans.wso2:xmlbeans:2.3.0.wso2v1</bundleDef>
+                                <bundleDef>org.apache.ant.wso2:ant:${version.ant}</bundleDef>
+                                <bundleDef>org.apache.xmlbeans.wso2:xmlbeans:${version.xmlbeans}</bundleDef>
                                 <bundleDef>org.apache.ws.commons.axiom.wso2:axiom:${orbit.version.axiom}</bundleDef>
-                                <bundleDef>org.apache.neethi.wso2:neethi:2.0.4.wso2v4</bundleDef>
-                                <bundleDef>org.apache.woden.wso2:woden:1.0.0.M8-wso2v1</bundleDef>
-                                <bundleDef>wsdl4j.wso2:wsdl4j:1.6.2.wso2v4</bundleDef>
+                                <bundleDef>org.apache.neethi.wso2:neethi:${neethi.osgi.version}</bundleDef>
+                                <bundleDef>org.apache.woden.wso2:woden:${version.woden}</bundleDef>
+                                <bundleDef>wsdl4j.wso2:wsdl4j:${orbit.version.wsdl4j}</bundleDef>
                                 <bundleDef>org.apache.ws.commons.schema.wso2:XmlSchema:${version.XmlSchema}</bundleDef>
-                                <bundleDef>commons-codec.wso2:commons-codec:1.4.0.wso2v1</bundleDef>
-                                <bundleDef>annogen.wso2:annogen:0.1.0.wso2v1</bundleDef>
-                                <bundleDef>backport-util-concurrent.wso2:backport-util-concurrent:3.1.0.wso2v1</bundleDef>
-                                <bundleDef>commons-fileupload.wso2:commons-fileupload:1.2.2.wso2v1</bundleDef>
-                                <bundleDef>commons-httpclient.wso2:commons-httpclient:3.1.0.wso2v2</bundleDef>
-                                <bundleDef>commons-io.wso2:commons-io:2.0.0.wso2v2</bundleDef>
-                                <bundleDef>commons-collections.wso2:commons-collections:3.2.0.wso2v1</bundleDef>
+                                <bundleDef>commons-codec.wso2:commons-codec:${version.commons.codec}</bundleDef>
+                                <bundleDef>annogen.wso2:annogen:${version.annogen}</bundleDef>
+                                <bundleDef>
+                                    backport-util-concurrent.wso2:backport-util-concurrent:${version.backport.util.concurrent}
+                                </bundleDef>
+                                <bundleDef>commons-fileupload.wso2:commons-fileupload:${version.commons.fileupload}
+                                </bundleDef>
+                                <bundleDef>
+                                    commons-httpclient.wso2:commons-httpclient:${orbit.version.commons.httpclient}
+                                </bundleDef>
+                                <bundleDef>commons-io.wso2:commons-io:${orbit.version.commons.io}</bundleDef>
+                                <bundleDef>
+                                    commons-collections.wso2:commons-collections:${orbit.version.commons.collection}
+                                </bundleDef>
                                 <bundleDef>org.apache.httpcomponents.wso2:httpcore:${orbit.version.httpcore}</bundleDef>
-                                <bundleDef>org.compass-project.wso2:compass:2.0.1.wso2v2</bundleDef>
-                                <bundleDef>org.wso2.commons.wso2:authenticator:0.7.0.wso2v1</bundleDef>
-                                <bundleDef>commons-lang.wso2:commons-lang:2.6.0.wso2v1</bundleDef>
-                                <bundleDef>org.apache.geronimo.specs.wso2:geronimo-saaj_1.3_spec:1.0.0.wso2v3</bundleDef>
-                                <bundleDef>org.apache.poi.wso2:poi:3.9.0.wso2v1</bundleDef>
-                                <bundleDef>org.apache.poi.wso2:poi-scratchpad:3.9.0.wso2v1</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.addressing</bundleDef>
-                                <bundleDef>com.sun.xml.bind.wso2:jaxb:2.2.5.wso2v1</bundleDef>
-		                <bundleDef>com.jezhumble.wso2:javasysmon:0.3.3.wso2v1</bundleDef>
+                                <bundleDef>org.compass-project.wso2:compass:${version.compass}</bundleDef>
+                                <bundleDef>org.wso2.commons.wso2:authenticator:${version.authenticator}</bundleDef>
+                                <bundleDef>commons-lang.wso2:commons-lang:${orbit.version.commons.lang}</bundleDef>
+                                <bundleDef>
+                                    org.apache.geronimo.specs.wso2:geronimo-saaj_1.3_spec:${version.geronimo.saaj.spec}
+                                </bundleDef>
+                                <bundleDef>org.apache.poi.wso2:poi:${orbit.version.poi}</bundleDef>
+                                <bundleDef>org.apache.poi.wso2:poi-scratchpad:${orbit.version.poi.scratchpad}
+                                </bundleDef>
+                                <bundleDef>com.sun.xml.bind.wso2:jaxb:${version.jaxb}</bundleDef>
+                                <bundleDef>com.jezhumble.wso2:javasysmon:${javasysmon.version}</bundleDef>
                                 <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${jdbc-pool.version}</bundleDef>
                                 <bundleDef>org.eclipse.jdt.core.compiler:ecj:${version.eclipse.ecj}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.framework.exporter</bundleDef>
+
+                                <!--Kernel bundles-->
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.utils:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:javax.cache.wso2:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.tomcat.ext:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.logging:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.securevault:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core.common:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>
+                                    org.wso2.carbon:org.wso2.carbon.server.admin.common:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.carbon:org.wso2.carbon.application.deployer:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.core:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.core:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.carbon:org.wso2.carbon.authenticator.proxy:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.authenticator.stub:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.queuing:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.base:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.api:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.carbon:org.wso2.carbon.core.bootup.validator:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.common:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.core:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.ndatasource.rdbms:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.user.api:${carbon.kernel.version}</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.framework.exporter:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.addressing:${carbon.kernel.version}
+                                </bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
@@ -131,6 +172,4 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-    </properties>
 </project>

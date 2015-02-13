@@ -13,12 +13,14 @@
  ~ software distributed under the License is distributed on an
  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
  ~ KIND, either express or implied.  See the License for the
- ~ specific language governing permissions and limitations ~ under the License.  --> <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"> 
+ ~ specific language governing permissions and limitations ~ under the License.  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-service-stubs</artifactId>
         <version>4.3.0</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -29,11 +31,10 @@
 
     <build>
         <plugins>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.1</version>
                 <executions>
                     <execution>
                         <id>source-code-generation</id>
@@ -82,7 +83,7 @@
                     </execution>
                 </executions>
             </plugin>
-	    <plugin>
+            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
@@ -93,7 +94,7 @@
                         </Bundle-SymbolicName>
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Export-Package>
-                            org.wso2.carbon.authenticator.stub.*;version="${carbon.platform.package.export.version}"
+                            org.wso2.carbon.authenticator.stub.*;version="${carbon.kernel.exp.pkg.version}"
                         </Export-Package>
                         <Import-Package>
                             !org.wso2.carbon.core.authenticator.stub.*,
@@ -105,20 +106,5 @@
 
         </plugins>
     </build>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.axis2.wso2</groupId>
-            <artifactId>axis2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>wsdl4j.wso2</groupId>
-            <artifactId>wsdl4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-    </dependencies>
 
 </project>

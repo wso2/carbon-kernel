@@ -8,7 +8,8 @@
 	OR CONDITIONS OF ANY KIND, either express or implied. ~ See the License for
 	the specific language governing permissions and ~ limitations under the License. -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
@@ -33,22 +34,18 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.api</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.queuing</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.base</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.osgi</groupId>
@@ -75,22 +72,18 @@
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
-            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>commons-fileupload.wso2</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>${orbit.version.commons.fileupload}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.ant.wso2</groupId>
             <artifactId>ant</artifactId>
-            <version>${orbit.version.ant}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>javax.servlet</artifactId>
-            <version>${version.equinox.javax.servlet}</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>
@@ -99,12 +92,10 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.api</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.1.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -118,7 +109,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -142,7 +132,7 @@
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             javax.xml.stream.*; version="1.0.1",
-			                org.bouncycastle.*; version="${imp.pkg.version.bcp}",
+                            org.bouncycastle.*; version="${imp.pkg.version.bcp}",
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
@@ -151,11 +141,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <orbit.version.commons.fileupload>1.2.0.wso2v1</orbit.version.commons.fileupload>
-        <orbit.version.ant>1.7.0.wso2v1</orbit.version.ant>
-
-    </properties>
-
 </project>

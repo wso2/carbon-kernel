@@ -15,13 +15,14 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
         <version>4.3.0</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -36,17 +37,14 @@
         <dependency>
             <groupId>org.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
-            <!--version>3.7.0.v20110613</version-->
         </dependency>
         <dependency>
             <groupId>org.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
-            <!--version>3.3.0.v20110513</version-->
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.launcher.gtk.linux.x86</artifactId>
-            <!--version>1.1.100.v20110505</version-->
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
@@ -59,7 +57,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.osgi.security</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
@@ -89,7 +86,6 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.console</artifactId>
@@ -106,106 +102,85 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.gogo.runtime</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>
-            <version>1.1.100.v20110519</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.console</artifactId>
-            <version>1.0.300.v20110502-1955</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.core</artifactId>
-            <version>2.1.0.v20110502-1955</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.director</artifactId>
-            <version>2.1.0.v20110504-1715</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.director.app</artifactId>
-            <version>1.0.300.v20110505</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.directorywatcher</artifactId>
-            <version>1.0.300.v20110502-1955</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.engine</artifactId>
-            <version>${version.equinox.p2.engine}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.extensionlocation</artifactId>
-            <version>1.2.100.v20110510</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>
-            <version>1.0.200.v20110510</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>
-            <version>1.0.200.v20110502-1955</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.metadata</artifactId>
-            <version>2.1.0.v20110510</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
-            <version>1.2.0.v20110511-1359</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.reconciler.dropins</artifactId>
-            <version>1.1.100.v20110510</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>
-            <version>2.0.100.v20110512-1320</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.repository</artifactId>
-            <version>2.1.0.v20110601</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>
-            <version>2.1.0.v20110511-wso2v1</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
-            <version>1.0.300.v20110502-1955</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.updatechecker</artifactId>
-            <version>1.1.200.v20110502-1955</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.updatesite</artifactId>
-            <version>1.0.300.v20110510</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
-            <version>1.0.0.v20110511</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
@@ -226,7 +201,6 @@
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.publisher</artifactId>
-            <version>1.2.0.v20110511</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.core</groupId>
@@ -247,42 +221,34 @@
         <dependency>
             <groupId>org.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf</artifactId>
-            <version>3.1.300.v20110531-2218</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.filetransfer</artifactId>
-            <version>5.0.0.v20110531-2218</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.identity</artifactId>
-            <version>3.1.100.v20110531-2218</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
-            <version>3.2.0.v20110531-2218</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.sat4j.core</artifactId>
-            <version>2.3.0.v20110329</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse</groupId>
             <artifactId>org.sat4j.pb</artifactId>
-            <version>2.3.0.v20110329</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.osgi</groupId>
             <artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
-            <version>1.0.100.v20110902-0807</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.ecf.provider.filetransfer</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.0.200.v20120319-0616</version>
         </dependency>
     </dependencies>
 
@@ -291,7 +257,6 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
-                <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -325,31 +290,25 @@
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.security</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
                                 </bundleDef>
-
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.console</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.command</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime</bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.shell</bundleDef>
-
                                 <bundleDef>org.eclipse.core:org.eclipse.core.contenttype</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.expressions</bundleDef>
                                 <bundleDef>org.eclipse.core:org.eclipse.core.jobs</bundleDef>
-
                                 <bundleDef>org.eclipse.core:org.eclipse.core.runtime</bundleDef>
-
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>
                                 <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.core</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
-
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.artifact.repository</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.console</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.core</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.director</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.engine</bundleDef>
-
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.garbagecollector</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.jarprocessor</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.metadata</bundleDef>
@@ -361,7 +320,6 @@
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.director.app</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.directorywatcher</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.extensionlocation</bundleDef>
-
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.repository.tools</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.repository</bundleDef>
                                 <bundleDef>org.eclipse.equinox:org.eclipse.equinox.p2.updatesite</bundleDef>
