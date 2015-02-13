@@ -156,13 +156,10 @@ public class LDAPConnectionContext {
                 context = new InitialDirContext(environment);
 
             } catch (NamingException e) {
-                log.error("Error obtaining connection. " + e.getMessage(), e);
-                log.error("Trying again to get connection.");
-
+                log.error("Error obtaining connection.Trying again to get connection... ", e);
                 try {
                     context = new InitialDirContext(environment);
                 } catch (Exception e1) {
-                    log.error("Error obtaining connection for the second time" + e.getMessage(), e);
                     throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
                 }
 
@@ -177,8 +174,8 @@ public class LDAPConnectionContext {
                 context = new InitialDirContext(environment);
                 
             } catch (NamingException e) {
-                log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
-                log.info("Trying to connect with other Domain Controllers");
+                log.error("Error obtaining connection to first Domain Controller.Trying to connect with other Domain" +
+                          " Controllers...", e);
 
                 for (Integer integer : dcMap.keySet()) {
                     try {
@@ -188,9 +185,7 @@ public class LDAPConnectionContext {
                         break;
                     } catch (NamingException e1) {
                         if(integer == (dcMap.lastKey())){
-                            log.error("Error obtaining connection for all " + integer + " Domain Controllers."
-                                      + e.getMessage(), e);
-                            throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
+                            throw new UserStoreException("Error obtaining connection for all " + integer + " Domain Controllers.", e);
                         }
                     }
                 }
@@ -265,8 +260,7 @@ public class LDAPConnectionContext {
                 srvRecord.setHostIP((String) hostRecord.get());
             }
         } catch (NamingException e) {
-            log.error("Error obtaining information from DNS Server" + e.getMessage(), e);
-            throw new UserStoreException("Error obtaining information from DNS Server " + e.getMessage(), e);
+            throw new UserStoreException("Error obtaining information from DNS Server ", e);
         }
     }
 
@@ -313,8 +307,8 @@ public class LDAPConnectionContext {
                 throw e;
 
             } catch (NamingException e) {
-                log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
-                log.info("Trying to connect with other Domain Controllers");
+                log.error("Error obtaining connection to first Domain Controller. Trying to connect with other Domain " +
+                          "Controllers...", e);
 
                 for (Integer integer : dcMap.keySet()) {
                     try {
@@ -327,9 +321,8 @@ public class LDAPConnectionContext {
                     }
                     catch (NamingException e1) {
                         if (integer == (dcMap.lastKey())) {
-                            log.error("Error obtaining connection for all " + integer + " Domain Controllers."
-                                      + e1.getMessage(), e1);
-                            throw new UserStoreException("Error obtaining connection. " + e1.getMessage(), e1);
+                            throw new UserStoreException("Error obtaining connection for all " + integer + " Domain " +
+                                                         "Controllers.", e1);
                         }
                     }
                 }
