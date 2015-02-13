@@ -2611,8 +2611,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException(errorMessage, e);
 		} catch (Exception e) {
 			String msg = "Error occurred while adding shared role :"+roleName;
-			log.error(msg, e);
-			throw new UserStoreException(e.getMessage(), e);
+            if(log.isDebugEnabled()){
+                log.debug(msg, e);
+            }
+			throw new UserStoreException(msg, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
