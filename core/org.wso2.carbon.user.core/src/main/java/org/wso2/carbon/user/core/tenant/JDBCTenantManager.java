@@ -584,11 +584,11 @@ public class JDBCTenantManager implements TenantManager {
 
             DatabaseUtil.rollBack(dbConnection);
 
-			String msg = "Error in deactivating the tenant with " + "tenant id: "
+			String msg = "Error in deactivating the tenant with tenant id: "+tenantId;
             if(log.isDebugEnabled()){
                 log.debug(msg, e);
             }
-			throw new UserStoreException(e);
+			throw new UserStoreException(msg, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection,prepStmt);
 		}
@@ -619,7 +619,7 @@ public class JDBCTenantManager implements TenantManager {
             if(log.isDebugEnabled()){
                 log.debug(msg, e);
             }
-			throw new UserStoreException(e);
+			throw new UserStoreException(msg, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection,prepStmt);
 		}
@@ -637,7 +637,11 @@ public class JDBCTenantManager implements TenantManager {
         try {
             deleteTenant(tenantId, true);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException(e);
+            String errorMessage = "Error occurred while deleting tenant :"+tenantId;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 
