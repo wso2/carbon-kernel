@@ -760,10 +760,12 @@ public final class UserCoreUtil {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
                 dbConnection.commit();
             }
-        } catch (UserStoreException e) {
-            throw new UserStoreException(e.getMessage());
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage = "Error occurred while persisting domain :"+domain+" for tenant id :"+tenantId;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -785,10 +787,12 @@ public final class UserCoreUtil {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
                 dbConnection.commit();
             }
-        } catch (UserStoreException e) {
-            throw new UserStoreException(e.getMessage());
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage = "Error occurred while deleting persisted domain :"+domain+" for tenant id :"+tenantId;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -820,10 +824,14 @@ public final class UserCoreUtil {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, newDomain, previousDomain, tenantId);
                 dbConnection.commit();
             }
-        } catch (UserStoreException e) {
-            throw new UserStoreException(e.getMessage());
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "Error occurred while updating persisted domain :" + previousDomain + " to domain :" + newDomain +
+                    " for tenant id :" + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -879,7 +887,11 @@ public final class UserCoreUtil {
 			}
 			return isExisting;
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while checking existence of domain :"+domain+" for tenant id :"+tenantId;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
@@ -905,8 +917,13 @@ public final class UserCoreUtil {
             }
             return isExisting;
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage =
+                    "Error occurred while checking existence of domain id :" + domainId + " for tenant :" + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
     }
