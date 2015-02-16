@@ -635,7 +635,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } catch (NamingException e) {
             String message = "Can not access the directory service";
             if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
+                log.debug(message, e);
             }
             throw new UserStoreException(message, e);
         } finally {
@@ -722,7 +722,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } catch (NamingException e) {
             String message = "Can not access the directory service";
             if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
+                log.debug(message, e);
             }
             throw new UserStoreException(message, e);
         } finally {
@@ -829,7 +829,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		} catch (NamingException e) {
             String message = "Results could not be retrieved from the directory context";
             if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
+                log.debug(message, e);
             }
 			throw new UserStoreException(message, e);
 		} finally {
@@ -979,7 +979,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-			throw new UserStoreException(message, e);
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			JNDIUtil.closeNamingEnumeration(returnedResultList);
 		}
@@ -1091,7 +1091,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
-            throw new UserStoreException(message, e);
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
         }
