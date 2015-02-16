@@ -93,7 +93,7 @@
                             <metadataRepository>file:${basedir}/target/p2-repo</metadataRepository>
                             <artifactRepository>file:${basedir}/target/p2-repo</artifactRepository>
                             <destination>
-                                ${basedir}/target/wso2carbon-core-${project.version}/repository/components
+                                ${basedir}/target/wso2carbon-core-${carbon.kernel.version}/repository/components
                             </destination>
                             <deleteOldProfileFiles>true</deleteOldProfileFiles>
                             <features>

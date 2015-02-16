@@ -483,11 +483,6 @@
                 <version>${version.equinox.simpleconfigurator}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.osgi.security</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.util</artifactId>
                 <version>${version.equinox.util}</version>
@@ -1423,6 +1418,11 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.server.admin.ui</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.osgi.security</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>

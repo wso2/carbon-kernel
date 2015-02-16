@@ -115,7 +115,7 @@
                         <property>
                             <name>carbon.zip</name>
                             <value>
-                                ${basedir}/../../kernel/target/wso2carbon-core-${project.version}.zip
+                                ${basedir}/../../kernel/target/wso2carbon-core-${carbon.kernel.version}.zip
                             </value>
                         </property>
                         <property>

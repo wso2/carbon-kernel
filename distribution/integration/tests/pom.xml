@@ -118,7 +118,7 @@
                     <skip>false</skip>
                     <systemPropertyVariables>
                         <sec.verifier.dir>${basedir}/target/security-verifier/</sec.verifier.dir>
-                        <carbon.zip>${basedir}/../../kernel/target/wso2carbon-core-${project.version}.zip</carbon.zip>
+                        <carbon.zip>${basedir}/../../kernel/target/wso2carbon-core-${carbon.kernel.version}.zip</carbon.zip>
                         <emma.home>${basedir}/target/emma</emma.home>
                     </systemPropertyVariables>
                     <workingDirectory>${basedir}/target</workingDirectory>
