@@ -600,43 +600,58 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     public final String[] getUserList(String claim, String claimValue, String profileName)
             throws UserStoreException {
-        try {
-            String property;
-            //extracting the domain from claimValue. Not introducing a new method due to carbon patch process..
-            String extractedDomain = null;
-            int index;
-            index = claimValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-            if (index > 0){
-                String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
-                extractedDomain = names[0].trim();
-            }
-            claimValue = UserCoreUtil.removeDomainFromName(claimValue);
-            //if domain is present, then we search within that domain only
-            if (extractedDomain != null && !extractedDomain.isEmpty()) {
+
+        String property = null;
+        //extracting the domain from claimValue. Not introducing a new method due to carbon patch process..
+        String extractedDomain = null;
+        int index;
+        index = claimValue.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+        if (index > 0) {
+            String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
+            extractedDomain = names[0].trim();
+        }
+        claimValue = UserCoreUtil.removeDomainFromName(claimValue);
+        //if domain is present, then we search within that domain only
+        if (extractedDomain != null && !extractedDomain.isEmpty()) {
+            try {
                 property = claimManager.getAttributeName(extractedDomain, claim);
-                if (property == null) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Could not find matching property for\n" +
-                                "claim :" + claim +
-                                "domain :" + extractedDomain);
-                    }
-                    return new String[0];
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Error occurred while retrieving attribute name " +
+                        "for domain : " + extractedDomain + " and claim " + claim);
+            }
+            if (property == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Could not find matching property for\n" +
+                            "claim :" + claim +
+                            "domain :" + extractedDomain);
                 }
+                return new String[0];
+            }
+            if (getSecondaryUserStoreManager(extractedDomain) instanceof AbstractUserStoreManager) {
                 // get the user list and return with domain appended
                 AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager)
                         getSecondaryUserStoreManager(extractedDomain);
-                String[] userArray = userStoreManager.getUserListFromProperties(property, claimValue, profileName);
+                String[] userArray = userStoreManager.getUserListFromProperties(
+                        property, claimValue, profileName);
                 return UserCoreUtil.addDomainToNames(userArray, extractedDomain);
             }
-            //if no domain is given then search all the user stores
-            List<String> usersFromAllStoresList = new LinkedList<String>();
+        }
+        //if no domain is given then search all the user stores
+        List<String> usersFromAllStoresList = new LinkedList<String>();
+        if (this instanceof AbstractUserStoreManager) {
             AbstractUserStoreManager currentUserStoreManager = this;
             if (log.isDebugEnabled()) {
-                log.debug("No domain name found in claim value. Searching through all user stores for possible matches");
+                log.debug("No domain name found in claim value. " +
+                        "Searching through all user stores for possible matches");
             }
             do {
                 String currentDomain = currentUserStoreManager.getMyDomainName();
-                property = claimManager.getAttributeName(currentDomain, claim);
+                try {
+                    property = claimManager.getAttributeName(currentDomain, claim);
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException("Error occurred while retrieving attribute name " +
+                            "for domain : " + currentDomain + " and claim " + claim);
+                }
                 if (property == null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Could not find matching property for\n" +
@@ -645,24 +660,24 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     }
                     continue; // continue look in other stores
                 }
-                String[] userArray2 = currentUserStoreManager.getUserListFromProperties(property, claimValue, profileName);
+                String[] userArray2 = currentUserStoreManager.getUserListFromProperties(
+                        property, claimValue, profileName);
                 if (log.isDebugEnabled()) {
                     log.debug("searching the property :" + property + "in user store" + currentDomain +
                             "for given claim value : " + claimValue);
                 }
                 String[] userWithDomainArray = UserCoreUtil.addDomainToNames(userArray2, currentDomain);
                 usersFromAllStoresList.addAll(Arrays.asList(userWithDomainArray));
-            } while ((currentUserStoreManager = (AbstractUserStoreManager) currentUserStoreManager.
-                    getSecondaryUserStoreManager()) != null);
-            //done with all user store processing. Return the user array if not empty
-            String[] fullUserList = usersFromAllStoresList.toArray(new String[0]);
-            Arrays.sort(fullUserList);
-            return fullUserList;
-        } catch (org.wso2.carbon.user.api.UserStoreException exception) {
-            log.error("Error while searching the user stores", exception);
-            throw new UserStoreException(exception);
+            }
+            while ((currentUserStoreManager.getSecondaryUserStoreManager() instanceof AbstractUserStoreManager)
+                    && ((currentUserStoreManager = (AbstractUserStoreManager) currentUserStoreManager.getSecondaryUserStoreManager()) != null));
         }
+        //done with all user store processing. Return the user array if not empty
+        String[] fullUserList = usersFromAllStoresList.toArray(new String[0]);
+        Arrays.sort(fullUserList);
+        return fullUserList;
     }
+
     /**
 	 * {@inheritDoc}
 	 */
@@ -811,7 +826,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimURI)) {
 				attributeName = claimURI;
 			} else {
-				throw new UserStoreException("Invalid claim URI value");
+                throw new UserStoreException("Mapped attribute cannot be found for claim : " + claimURI + " in user " +
+                        "store : " + getMyDomainName());
 			}
 		}
 
