@@ -372,8 +372,7 @@ public class DefaultRealmService implements RealmService {
 	}
 
 	private void errorEncountered(Exception e) throws UserStoreException {
-		String msg = "Exception while creating multi tenant builder ";
-		throw new UserStoreException(msg, e);
+		throw new UserStoreException("Exception while creating multi tenant builder", e);
 	}
 }
 

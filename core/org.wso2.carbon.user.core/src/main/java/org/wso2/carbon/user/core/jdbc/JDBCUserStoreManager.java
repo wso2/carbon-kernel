@@ -351,7 +351,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				rs = prepStmt.executeQuery();
 			} catch (SQLException e) {
                 if(e instanceof SQLTimeoutException){
-                    log.error("may be due time out, therefore ignore this",e);
+                    log.error("The cause might be a time out. Hence ignored",e);
                     return users;
                 }
                 throw new UserStoreException(
@@ -461,7 +461,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 				rs = prepStmt.executeQuery();
 			} catch (SQLException e) {
                 if(e instanceof SQLTimeoutException){
-                    log.error("due time out, therefore ignore this exception", e);
+                    log.error("The cause might be a time out. Hence ignored", e);
                 }
                 throw new UserStoreException(
                         "Error while fetching roles from JDBC user store according to filter :" + filter +
@@ -582,7 +582,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			} catch (SQLException e) {
                 if(e instanceof SQLTimeoutException){
                     // may be due time out, therefore ignore this exception
-                    log.error("Error while retrieving roles from JDBC user store due time out", e);
+                    log.error("The cause might be a time out. Hence ignored", e);
                 }
                 throw new UserStoreException(
                         "Error while fetching roles from JDBC user store for tenant domain :" + tenantDomain +
@@ -929,7 +929,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			throws UserStoreException {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("Execuring Query: " + sqlStmt);
+			log.debug("Executing Query: " + sqlStmt);
 			for (int i = 0; i < params.length; i++) {
                 Object param = params[i];
                 log.debug("Input value: " + param);
@@ -2666,7 +2666,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                                      String tenantDomain, String filter) throws UserStoreException {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("Looking for shared roles for user: " + userName + " for teanant: " + tenantDomain);
+			log.debug("Looking for shared roles for user: " + userName + " for tenant: " + tenantDomain);
 		}
 
 		if (isSharedGroupEnabled()) {
