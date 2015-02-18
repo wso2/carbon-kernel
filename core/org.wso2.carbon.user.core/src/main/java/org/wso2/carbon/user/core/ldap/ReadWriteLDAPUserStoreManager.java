@@ -1424,103 +1424,139 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 	}
 
 	/**
-	 * Update the set of users belong to a LDAP role.
-	 * 
-	 * @param roleName
-	 * @param deletedUsers
-	 * @param newUsers
-	 */
-	@SuppressWarnings("deprecation")
-	@Override
-	public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
-                                                                         throws UserStoreException {
+     * Update the set of users belong to a LDAP role.
+     *
+     * @param roleName
+     * @param deletedUsers
+     * @param newUsers
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
+                                                                             throws UserStoreException {
 
-		String errorMessage = null;
-		NamingEnumeration<SearchResult> groupSearchResults = null;
+        String errorMessage = null;
+        NamingEnumeration<SearchResult> groupSearchResults = null;
 
-		LDAPRoleContext ctx = (LDAPRoleContext) createRoleContext(roleName);
-		roleName = ctx.getRoleName();
+        LDAPRoleContext ctx = (LDAPRoleContext) createRoleContext(roleName);
+        roleName = ctx.getRoleName();
 
-		String searchFilter = ctx.getSearchFilter();
+        String searchFilter = ctx.getSearchFilter();
 
-		if (isExistingLDAPRole(ctx)) {
+        if (isExistingLDAPRole(ctx)) {
 
-			DirContext mainDirContext = this.connectionSource.getContext();
+            DirContext mainDirContext = this.connectionSource.getContext();
 
-			try {
-				searchFilter = searchFilter.replace("?", roleName);
-				String membershipAttributeName =
-				                                 realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-				String[] returningAttributes = new String[] { membershipAttributeName };
+            try {
+                searchFilter = searchFilter.replace("?", roleName);
+                String membershipAttributeName =
+                                                 realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                String[] returningAttributes = new String[] { membershipAttributeName };
 
                 String searchBase = ctx.getSearchBase();
-				groupSearchResults =
-				                     searchInGroupBase(searchFilter, returningAttributes,
-				                                       SearchControls.SUBTREE_SCOPE,
-				                                       mainDirContext, searchBase);
-				SearchResult resultedGroup = null;
-				String groupName = null;
-				while (groupSearchResults.hasMoreElements()) {
-					resultedGroup = groupSearchResults.next();
-					groupName = resultedGroup.getName();
-				}
-				// check whether update operations are going to violate non
-				// empty role
-				// restriction specified in user-mgt.xml by
-				// checking whether all users are trying to be deleted
-				// before updating LDAP.
-				Attribute returnedMemberAttribute =
-				                                    resultedGroup.getAttributes()
-				                                                 .get(membershipAttributeName);
-				if (!emptyRolesAllowed &&
-				    newUsers.length - deletedUsers.length + returnedMemberAttribute.size() == 0) {
-					errorMessage =
-					               "There should be at least one member in the role. "
-					                       + "Hence can not delete all the members.";
-					throw new UserStoreException(errorMessage);
+                groupSearchResults =
+                                     searchInGroupBase(searchFilter, returningAttributes,
+                                                       SearchControls.SUBTREE_SCOPE,
+                                                       mainDirContext, searchBase);
+                SearchResult resultedGroup = null;
+                String groupName = null;
+                while (groupSearchResults.hasMoreElements()) {
+                    resultedGroup = groupSearchResults.next();
+                    groupName = resultedGroup.getName();
+                }
+                // check whether update operations are going to violate non
+                // empty role
+                // restriction specified in user-mgt.xml by
+                // checking whether all users are trying to be deleted
+                // before updating LDAP.
+                Attribute returnedMemberAttribute =
+                                                    resultedGroup.getAttributes()
+                                                                 .get(membershipAttributeName);
+                if (!emptyRolesAllowed &&
+                    newUsers.length - deletedUsers.length + returnedMemberAttribute.size() == 0) {
+                    errorMessage =
+                                   "There should be at least one member in the role. "
+                                           + "Hence can not delete all the members.";
+                    throw new UserStoreException(errorMessage);
 
-				} else {
-					if (newUsers!=null && newUsers.length != 0) {
-						for (String newUser : newUsers) {
-							String userNameDN = getNameInSpaceForUserName(newUser);
-							if (!isUserInRole(userNameDN, resultedGroup)) {
-								modifyUserInRole(userNameDN, groupName, DirContext.ADD_ATTRIBUTE,
-								                 searchBase);
-							} else {
-								errorMessage =
-								               "User: " + newUser + " already belongs to role: " +
-								                       roleName;
-								throw new UserStoreException(errorMessage);
-							}
-						}
-					}
+                } else {
 
-					if (deletedUsers != null && deletedUsers.length != 0) {
-						for (String deletedUser : deletedUsers) {
+                    List<String> newUserList = new ArrayList<String>();
+                    List<String> deleteUserList = new ArrayList<String>();
+
+                    if (newUsers != null && newUsers.length != 0) {
+                        String invalidUserList = "";
+                        String existingUserList = "";
+
+                        for (String newUser : newUsers) {
+                            if(newUser==null || newUser.trim().length() == 0){
+                                continue;
+                            }
+                            String userNameDN = getNameInSpaceForUserName(newUser);
+                            if (userNameDN == null) {
+                                invalidUserList += newUser + " "  ;
+                            } else if (isUserInRole(userNameDN, resultedGroup)) {
+                                existingUserList += userNameDN + ",";
+                            } else {
+                                newUserList.add(userNameDN);
+                            }
+                        }
+                        if (!invalidUserList.equals("") || !existingUserList.equals("")) {
+                            errorMessage = (invalidUserList.equals("") ? "" : "'" + invalidUserList + "' not in " +
+                                    "the user store. ") + (existingUserList.equals("") ? "" : "'" + existingUserList + "' " +
+                                    " already belong to the role :" + roleName) ;
+                            throw new UserStoreException(errorMessage);
+                        }
+
+                    }
+
+                    if (deletedUsers != null && deletedUsers.length != 0) {
+                        String invalidUserList = "";
+                        for (String deletedUser : deletedUsers) {
                             if(deletedUser == null || deletedUser.trim().length() == 0){
                                 continue;
                             }
-							String userNameDN = getNameInSpaceForUserName(deletedUser);
-							modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE,
-							                 searchBase);
-							// needs to clear authz cache for deleted users
-							userRealm.getAuthorizationManager().clearUserAuthorization(deletedUser);
-						}
-					}
-				}			
-			} catch (NamingException e) {
+                            String userNameDN = getNameInSpaceForUserName(deletedUser);
+                            if (userNameDN == null) {
+                                invalidUserList += deletedUser + ",";
+                            } else {
+                                deleteUserList.add(userNameDN);
+                            }
+                        }
+                        if (!invalidUserList.equals("")) {
+                            errorMessage = (invalidUserList.equals("") ? "" : "'" + invalidUserList + "' not in " +
+                                    "the user store. ") ;
+                            throw new UserStoreException(errorMessage);
+                        }
 
-				errorMessage = "Error occurred while modifying the user list of role: " + roleName;
-				throw new UserStoreException(errorMessage);
-			} finally {
-				JNDIUtil.closeNamingEnumeration(groupSearchResults);
-				JNDIUtil.closeContext(mainDirContext);
-			}
-		} else {
-			errorMessage = "The role: " + roleName + " does not exist.";
-			throw new UserStoreException(errorMessage);
-		}
-	}
+                    }
+
+                    for (String userNameDN : newUserList) {
+                        modifyUserInRole(userNameDN, groupName, DirContext.ADD_ATTRIBUTE, searchBase);
+                    }
+
+                    for(String userNameDN : deleteUserList){
+                        modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE,
+                                searchBase);
+                        // needs to clear authz cache for deleted users
+                        userRealm.getAuthorizationManager().clearUserAuthorization(userNameDN);
+                    }
+
+
+                }
+            } catch (NamingException e) {
+
+                errorMessage = "Error occurred while modifying the user list of role: " + roleName;
+                throw new UserStoreException(errorMessage);
+            } finally {
+                JNDIUtil.closeNamingEnumeration(groupSearchResults);
+                JNDIUtil.closeContext(mainDirContext);
+            }
+        } else {
+            errorMessage = "The role: " + roleName + " does not exist.";
+            throw new UserStoreException(errorMessage);
+    		}
+    	}
 
 	/**
 	 * Either delete or add user from/to group.
