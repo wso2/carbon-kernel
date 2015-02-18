@@ -36,8 +36,6 @@ public class ReadWriteLDAPUserStoreConstants{
                 "",UserStoreConfigConstants.connectionPasswordDescription, true);
         setMandatoryProperty(UserStoreConfigConstants.userSearchBase,"User Search Based",
                 "ou=Users,dc=wso2,dc=org",UserStoreConfigConstants.userSearchBaseDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.disabled,"Disabled","false",
-                UserStoreConfigConstants.disabledDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.usernameListFilter,"User Object Class",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userNameAttribute,"Username Attribute",
@@ -56,6 +54,7 @@ public class ReadWriteLDAPUserStoreConstants{
         setProperty(UserStoreConfigConstants.maxRoleNameListLength,"Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled,"Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
         setProperty(UserStoreConfigConstants.SCIMEnabled,"SCIM Enabled", "false", UserStoreConfigConstants.SCIMEnabledDescription);
+        setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
         
         Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups,"true","Enable Read Groups#"+UserStoreConfigConstants.readLDAPGroupsDescription,null);
         //Mandatory only if readGroups is enabled
