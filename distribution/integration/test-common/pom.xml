@@ -22,12 +22,11 @@
         <module>ui-pages</module>
     </modules>
 
-    <dependencies>
+  <dependencies>
         <dependency>
             <groupId>org.wso2.carbon.automation</groupId>
             <artifactId>org.wso2.carbon.automation.engine</artifactId>
-            <version>4.3.1</version>
         </dependency>
-    </dependencies>
+  </dependencies>
 
 </project>

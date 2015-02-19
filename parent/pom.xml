@@ -1171,18 +1171,18 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>SecVerifier</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
                 <type>aar</type>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.tomcat</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>wso2carbon-core</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
                 <type>zip</type>
                 <exclusions>
                     <exclusion>
@@ -1194,17 +1194,17 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.server</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.utils</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.base</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>emma</groupId>
@@ -1213,33 +1213,18 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.server.admin</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.server.admin.ui</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents.wso2</groupId>
-                <artifactId>httpcore</artifactId>
-                <version>${orbit.version.httpcore}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.core.commons.stub</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -1265,7 +1250,7 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.platform.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.woden</groupId>
