@@ -1221,7 +1221,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 		try {
 			roleList = UserCoreUtil
 					.combine(doGetInternalRoleListOfUser(userName, "*"), Arrays.asList(roleList));
-            		// Remove duplicated roles.
+            		// If the newly created user has internal roles assigned from the UI wizard those internal roles
+            		// will be duplicated in the roles list. Duplcated roles are eliminated here.
             		roleList = new HashSet<String>(Arrays.asList(roleList)).toArray(new String[0]);
 			addToUserRolesCache(tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
 			                    roleList);
