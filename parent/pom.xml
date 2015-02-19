@@ -71,6 +71,7 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
+
         </plugins>
         <pluginManagement>
             <plugins>
@@ -122,6 +123,9 @@
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
+
+
+
             </plugins>
         </pluginManagement>
     </build>
@@ -407,7 +411,13 @@
         <securevault.version>1.0.0-wso2v2</securevault.version>
 
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
-	
+
+        <!-- Test integration -->
+        <automation.framework.version>4.3.1</automation.framework.version>
+        <slf4j.version>1.5.10</slf4j.version>
+        <woden.api.version>1.0M9</woden.api.version>
+        <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
+
     </properties>
 
     <dependencyManagement>
@@ -1155,6 +1165,97 @@
                   <groupId>org.codehaus.woodstox</groupId>
                   <artifactId>stax2-api</artifactId>
                   <version>${version.stax2.api}</version>
+            </dependency>
+
+            <!-- Test integration dependencies -->
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>SecVerifier</artifactId>
+                <version>${carbon.platform.version}</version>
+                <type>aar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.tomcat</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>wso2carbon-core</artifactId>
+                <version>${carbon.platform.version}</version>
+                <type>zip</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.server</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.utils</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.base</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>emma</groupId>
+                <artifactId>emma</artifactId>
+                <version>${emma.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.server.admin</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.server.admin.ui</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.platform.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.engine</artifactId>
+                <version>${automation.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.extensions</artifactId>
+                <version>${automation.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
+                <version>${automation.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils</artifactId>
+                <version>${carbon.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.woden</groupId>
+                <artifactId>woden-api</artifactId>
+                <version>${woden.api.version}</version>
             </dependency>
 
         </dependencies>
