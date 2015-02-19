@@ -662,8 +662,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             Arrays.sort(fullUserList);
             return fullUserList;
         } catch (org.wso2.carbon.user.api.UserStoreException exception) {
-            String errorMessage = "Error while searching the user stores";
-            if(log.isDebugEnabled()){
+            String errorMessage =
+                    "Error while searching the user stores for claim : " + claim + " & value : " + claimValue +
+                    " & profile name : " + profileName;
+            if (log.isDebugEnabled()) {
                 log.debug(errorMessage, exception);
             }
             throw new UserStoreException(errorMessage, exception);
