@@ -260,11 +260,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			}
 			dirContext.bind(compoundName, null, basicAttributes);
 		} catch (NamingException e) {
-			String errorMessage = "Cannot access the directory context or "
-					+ "user already exists in the system";
-            log.debug(e.getMessage(), e);
-			throw new UserStoreException(errorMessage);
-		} finally {
+            String errorMessage =
+                    "Cannot access the directory context or " + "user : " + userName + " already exists in the system";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeContext(dirContext);
 		}
 
@@ -275,9 +277,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 log.debug("Roles are added for user  : " + userName + " successfully.");
             }
         } catch (UserStoreException e){
-            String errorMessage = "User is added. But error while updating role list of user";
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException(errorMessage);           
+            String errorMessage = "User : " + userName + " is added. But error while updating role list of user";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
 	}
 
@@ -321,11 +325,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		try {
 			return (DirContext) mainDirContext.lookup(searchBase);
 		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			String errorMessage = "Can not access the directory context or"
-					+ "user already exists in the system";
-			throw new UserStoreException(errorMessage);
-		} finally {
+            String errorMessage = "Can not access the directory context or user already exists in the system";
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeContext(mainDirContext);
 		}
 	}
@@ -399,7 +401,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		BasicAttribute claim;
 		boolean debug = log.isDebugEnabled();
 
-		log.debug("Processing user claims");	
+        if(debug) {
+            log.debug("Processing user claims");
+        }
 		/*
 		 * we keep boolean values to know whether compulsory attributes 'sn' and 'cn' are set during
 		 * setting claims.
@@ -496,7 +500,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			while (userResults.hasMore()) {
 				userResult = userResults.next();
 				userDN = userResult.getName();
-				log.debug("User DN: " + userDN);
+                if(log.isDebugEnabled()) {
+                    log.debug("User DN: " + userDN);
+                }
 			}
 
 			// LDAP roles of user to delete the mapping
@@ -558,9 +564,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			}
 	        userCache.remove(userName);
 		} catch (NamingException e) {
-			String errorMessage = "Error occurred while deleting the user. ";
-			throw new UserStoreException(errorMessage, e);
-		} finally {
+            String errorMessage = "Error occurred while deleting the user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeNamingEnumeration(groupResults);
 			JNDIUtil.closeNamingEnumeration(userResults);
 
@@ -621,7 +630,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			}
 
         } catch (NamingException e) {
-            throw new UserStoreException("Can not access the directory service", e);
+            String message = "Can not access the directory service";
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
+            throw new UserStoreException(message, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(passwords);
             JNDIUtil.closeNamingEnumeration(namingEnumeration);
@@ -704,7 +717,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
 
         } catch (NamingException e) {
-            throw new UserStoreException("Can not access the directory service", e);
+            String message = "Can not access the directory service";
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
+            throw new UserStoreException(message, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(passwords);
             JNDIUtil.closeNamingEnumeration(namingEnumeration);
@@ -807,9 +824,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			returnedUserEntry = returnedResultList.next().getName();
 
 		} catch (NamingException e) {
-			throw new UserStoreException("Results could not be retrieved from the directory "
-					+ "context", e);
-		} finally {
+            String message = "Results could not be retrieved from the directory context";
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
+            throw new UserStoreException(message, e);
+        } finally {
 			JNDIUtil.closeNamingEnumeration(returnedResultList);
 		}
 
@@ -879,24 +899,39 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		} catch (InvalidAttributeValueException e) {
 			String errorMessage = "One or more attribute values provided are incompatible. "
 					+ "Please check and try again.";
-			throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} catch (InvalidAttributeIdentifierException e) {
 			String errorMessage = "One or more attributes you are trying to add/update are not "
 					+ "supported by underlying LDAP.";
-			throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 
 		} catch (NoSuchAttributeException e) {
 			String errorMessage = "One or more attributes you are trying to add/update are not "
 					+ "supported by underlying LDAP.";
-			throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} catch (NamingException e) {
 			String errorMessage = "Profile information could not be updated in ApacheDS "
 					+ "LDAP user store";
-			throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		} catch (org.wso2.carbon.user.api.UserStoreException e) {
-			String errorMessage = "Error in obtaining claim mapping.";
-			throw new UserStoreException(errorMessage, e);
-		} finally {
+            String errorMessage = "Error in obtaining claim mapping.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeContext(subDirContext);
 			JNDIUtil.closeContext(dirContext);
 		}
@@ -937,9 +972,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			returnedUserEntry = returnedResultList.next().getName();
 
 		} catch (NamingException e) {
-			throw new UserStoreException("Results could not be retrieved from the directory "
-					+ "context", e);
-		} finally {
+            String errorMessage = "Results could not be retrieved from the directory context";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeNamingEnumeration(returnedResultList);
 		}
 
@@ -977,25 +1015,40 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 					updatedAttributes);
 
 		} catch (InvalidAttributeValueException e) {
-			String errorMessage = "One or more attribute values provided are incompatible. "
-					+ "Please check and try again.";
-			throw new UserStoreException(errorMessage, e);
-		} catch (InvalidAttributeIdentifierException e) {
-			String errorMessage = "One or more attributes you are trying to add/update are not "
-					+ "supported by underlying LDAP.";
-			throw new UserStoreException(errorMessage, e);
-		} catch (NoSuchAttributeException e) {
-			String errorMessage = "One or more attributes you are trying to add/update are not "
-					+ "supported by underlying LDAP.";
-			throw new UserStoreException(errorMessage, e);
-		} catch (NamingException e) {
-			String errorMessage = "Profile information could not be updated in ApacheDS "
-					+ "LDAP user store";
-			throw new UserStoreException(errorMessage, e);
-		} catch (org.wso2.carbon.user.api.UserStoreException e) {
-			String errorMessage = "Error in obtaining claim mapping.";
-			throw new UserStoreException(errorMessage, e);
-		} finally {
+            String errorMessage = "One or more attribute values provided are incompatible for user : " + userName
+                                  + "Please check and try again.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (InvalidAttributeIdentifierException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                                  + "supported by underlying LDAP for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (NoSuchAttributeException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                                  + "supported by underlying LDAP for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (NamingException e) {
+            String errorMessage = "Profile information could not be updated in ApacheDS "
+                                  + "LDAP user store";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error in obtaining claim mapping.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeContext(subDirContext);
 			JNDIUtil.closeContext(dirContext);
 		}
@@ -1031,8 +1084,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
-            throw new UserStoreException("Results could not be retrieved from the directory "
-                    + "context", e);
+            String errorMessage = "Results could not be retrieved from the directory context";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
         }
@@ -1056,21 +1112,36 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } catch (InvalidAttributeValueException e) {
             String errorMessage = "One or more attribute values provided are incompatible. "
                     + "Please check and try again.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } catch (InvalidAttributeIdentifierException e) {
             String errorMessage = "One or more attributes you are trying to add/update are not "
                     + "supported by underlying LDAP.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } catch (NoSuchAttributeException e) {
             String errorMessage = "One or more attributes you are trying to add/update are not "
                     + "supported by underlying LDAP.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } catch (NamingException e) {
             String errorMessage = "Profile information could not be updated in ApacheDS "
                     + "LDAP user store";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String errorMessage = "Error in obtaining claim mapping.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeContext(subDirContext);
@@ -1105,8 +1176,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
-            throw new UserStoreException("Results could not be retrieved from the directory "
-                    + "context", e);
+            String errorMessage = "Results could not be retrieved from the directory context";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
         }
@@ -1130,21 +1204,36 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } catch (InvalidAttributeValueException e) {
             String errorMessage = "One or more attribute values provided are incompatible. "
                     + "Please check and try again.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } catch (InvalidAttributeIdentifierException e) {
             String errorMessage = "One or more attributes you are trying to add/update are not "
                     + "supported by underlying LDAP.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } catch (NoSuchAttributeException e) {
             String errorMessage = "One or more attributes you are trying to add/update are not "
                     + "supported by underlying LDAP.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } catch (NamingException e) {
             String errorMessage = "Profile information could not be updated in ApacheDS "
                     + "LDAP user store";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
             String errorMessage = "Error in obtaining claim mapping.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeContext(subDirContext);
@@ -1186,6 +1275,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         if ((userList == null || userList.length == 0) && !emptyRolesAllowed) {
             String errorMessage = "Can not create empty role. There should be at least "
                     + "one user for the role.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
             throw new UserStoreException(errorMessage);
         } else if (userList == null && emptyRolesAllowed || userList != null && userList.length > 0
                 && !emptyRolesAllowed || emptyRolesAllowed) {
@@ -1256,9 +1348,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             } catch (NamingException e) {
                 String errorMsg = "Role: " + roleName + " could not be added.";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg, e);
+                }
                 throw new UserStoreException(errorMsg, e);
             } catch (Exception e) {
                 String errorMsg = "Role: " + roleName + " could not be added.";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMsg, e);
+                }
                 throw new UserStoreException(errorMsg, e);
             } finally {
                 JNDIUtil.closeNamingEnumeration(results);
@@ -1326,7 +1424,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 						errorMessage =
 						               userName + " is the only user in the role: " + deletedRole +
 						                       ". Hence can not delete user from role.";
-						throw new UserStoreException(errorMessage);
+                        if (log.isDebugEnabled()) {
+                            log.debug(errorMessage);
+                        }
+                        throw new UserStoreException(errorMessage);
 					}
 
 					JNDIUtil.closeNamingEnumeration(groupResults);
@@ -1366,7 +1467,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
 					} else {
 						errorMessage = "The role: " + deletedRole + " does not exist.";
-						throw new UserStoreException(errorMessage);
+                        if (log.isDebugEnabled()) {
+                            log.debug(errorMessage);
+                        }
+                        throw new UserStoreException(errorMessage);
 					}
 				}
 			}
@@ -1403,22 +1507,31 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 							errorMessage =
 							               "User: " + userName + " already belongs to role: " +
 							                       groupDN;
-							throw new UserStoreException(errorMessage);
+                            if (log.isDebugEnabled()) {
+                                log.debug(errorMessage);
+                            }
+                            throw new UserStoreException(errorMessage);
 						}
 
 						JNDIUtil.closeNamingEnumeration(groupResults);
 
 					} else {
 						errorMessage = "The role: " + newRole + " does not exist.";
-						throw new UserStoreException(errorMessage);
+                        if (log.isDebugEnabled()) {
+                            log.debug(errorMessage);
+                        }
+                        throw new UserStoreException(errorMessage);
 					}
 				}
 			}
 
 		} catch (NamingException e) {
 			errorMessage = "Error occurred while modifying the role list of user: " + userName;
-			throw new UserStoreException(errorMessage);
-		} finally {
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeContext(mainDirContext);
 		}
 	}
@@ -1477,7 +1590,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 					errorMessage =
 					               "There should be at least one member in the role. "
 					                       + "Hence can not delete all the members.";
-					throw new UserStoreException(errorMessage);
+                    if (log.isDebugEnabled()) {
+                        log.debug(errorMessage);
+                    }
+                    throw new UserStoreException(errorMessage);
 
 				} else {
 					if (newUsers!=null && newUsers.length != 0) {
@@ -1490,7 +1606,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 								errorMessage =
 								               "User: " + newUser + " already belongs to role: " +
 								                       roleName;
-								throw new UserStoreException(errorMessage);
+                                if (log.isDebugEnabled()) {
+                                    log.debug(errorMessage);
+                                }
+                                throw new UserStoreException(errorMessage);
 							}
 						}
 					}
@@ -1511,14 +1630,20 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			} catch (NamingException e) {
 
 				errorMessage = "Error occurred while modifying the user list of role: " + roleName;
-				throw new UserStoreException(errorMessage);
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage);
 			} finally {
 				JNDIUtil.closeNamingEnumeration(groupSearchResults);
 				JNDIUtil.closeContext(mainDirContext);
 			}
 		} else {
 			errorMessage = "The role: " + roleName + " does not exist.";
-			throw new UserStoreException(errorMessage);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
 		}
 	}
 
@@ -1557,9 +1682,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		} catch (NamingException e) {
 			String errorMessage = "Error occurred while modifying user entry: " + userNameDN
 					+ " in LDAP role: " + groupRDN;
-			log.error("LDAP Error", e);
-			throw new UserStoreException(errorMessage);
-		} finally {
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeContext(groupContext);
 			JNDIUtil.closeContext(mainDirContext);
 		}
@@ -1602,7 +1730,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		} catch (NamingException e) {
 			String errorMessage = "Error occurred while looping through attributes set of group: "
 					+ groupEntry.getNameInNamespace();
-			throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		}
 		return isUserInRole;
 	}
@@ -1641,7 +1772,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		} catch (NamingException e) {
 			String errorMessage = "Error occurred while looping through attributes set of group: "
 					+ groupEntry.getNameInNamespace();
-			throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		}
 		return isOnlyUserInRole;
 	}
@@ -1686,6 +1820,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     roleNameWithDomain, newRoleNameWithDomain);
         } catch (NamingException e) {
             String errorMessage = "Error occurred while modifying the name of role: " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(groupSearchResults);
@@ -1743,6 +1880,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
         } catch (NamingException e) {
             String errorMessage = "Error occurred while deleting the role: " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(groupSearchResults);
@@ -1798,7 +1938,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			userSearchResults = rootContext.search(userBase, searchFilter, userSearchControl);
 		} catch (NamingException e) {
 			String errorMessage = "Error occurred while searching in user base.";
-			throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		}
 
 		return userSearchResults;
@@ -1827,7 +1970,10 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 			groupSearchResults = rootContext.search(searchBase, searchFilter, userSearchControl);
 		} catch (NamingException e) {
 			String errorMessage = "Error occurred while searching in group base.";
-			throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
 		}
 
 		return groupSearchResults;
@@ -1854,19 +2000,25 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 		if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null) {
 			writeGroupsEnabled =
 			                     Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
-			log.debug("Write LDAP groups enabled: " + writeGroupsEnabled);
+            if (log.isDebugEnabled()) {
+                log.debug("Write LDAP groups enabled: " + writeGroupsEnabled);
+            }
 		} 
 
 		if (!writeGroupsEnabled) {
 			if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
 				readGroupsEnabled =
 				                    Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
-				log.debug("Read LDAP groups enabled: " + readGroupsEnabled);
+                if (log.isDebugEnabled()) {
+                    log.debug("Read LDAP groups enabled: " + readGroupsEnabled);
+                }
 			}
 		} else {
 			// Write overwrites Read 
 			readGroupsEnabled = true;
-			log.debug("Read LDAP groups enabled: true");
+            if (log.isDebugEnabled()) {
+                log.debug("Read LDAP groups enabled: true");
+            }
 		}
 
 		emptyRolesAllowed =

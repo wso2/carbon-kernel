@@ -111,9 +111,17 @@ public class HybridRoleManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} catch (Exception e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while adding Hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from db connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
@@ -164,9 +172,12 @@ public class HybridRoleManager {
 			}
 			return isExisting;
 		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while getting role id from role name : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
 	}
@@ -251,11 +262,12 @@ public class HybridRoleManager {
 			}
 			return filteredRoles.toArray(new String[filteredRoles.size()]);
 		} catch (SQLException e) {
-			if (log.isDebugEnabled()) {
-				log.debug("Using sql : " + sqlStmt);
-			}
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while getting hybrid roles from filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
 	}
@@ -282,9 +294,12 @@ public class HybridRoleManager {
 					roleName, tenantId, tenantId);
 			return names;
 		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while getting user list from Hybrid Role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
 	}
@@ -342,10 +357,18 @@ public class HybridRoleManager {
 
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} catch (Exception e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while updating user list of role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
 	}
@@ -405,8 +428,12 @@ public class HybridRoleManager {
 				return roles;
 			}
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while getting Hybrid role list of user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
 	}
@@ -457,10 +484,18 @@ public class HybridRoleManager {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} catch (Exception e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while updating Hybrid role list of user : " + user;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from db connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
 		// Authorization cache of user should also be updated if deleted roles are involved
@@ -492,9 +527,12 @@ public class HybridRoleManager {
 					roleName, tenantId);
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while deleting Hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
 		// also need to clear role authorization
@@ -534,11 +572,12 @@ public class HybridRoleManager {
 			this.userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(roleName,
 					newRoleName);
 		} catch (SQLException e) {
-			if (log.isDebugEnabled()) {
-				log.debug("Using sql : " + sqlStmt);
-			}
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while updating role name :" + roleName + "to : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection);
 		}
 	}
@@ -628,8 +667,12 @@ public class HybridRoleManager {
 			preparedStatement.execute();
 			dbConnection.commit();
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while deleting user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, preparedStatement);
 		}
 	}

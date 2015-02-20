@@ -136,7 +136,10 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             userSearchResults = initialDirContext.search(partitionDN, searchFilter, userSearchControl);
             return userSearchResults.hasMore();
         } catch (NamingException e) {
-            String errorMessage = "Error occurred while searching in root partition.";
+            String errorMessage = "Error occurred while searching in root partition for organization : " + orgName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
     }
@@ -256,7 +259,9 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         } catch (NamingException e) {
             String errorMsg = "Error occurred while adding the organizational unit " +
                               "sub context.";
-            logger.error(errorMsg, e);
+            if(logger.isDebugEnabled()){
+                logger.debug(errorMsg, e);
+            }
             throw new UserStoreException(errorMsg, e);
         } finally {
             closeContext(organizationalContext);
@@ -325,7 +330,9 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         } catch (NamingException e) {
             String errorMsg = "Error occurred while adding the organizational unit " +
                               "sub context.";
-            logger.error(errorMsg, e);
+            if(logger.isDebugEnabled()){
+                logger.debug(errorMsg, e);
+            }
             throw new UserStoreException(errorMsg, e);
         } finally {
             closeContext(organizationalContext);
@@ -403,7 +410,9 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             //return (userRDN + dnOfUserContext);
         } catch (NamingException e) {
             String errorMsg = "Error occurred while creating Admin entry";
-            logger.error(errorMsg, e);
+            if(logger.isDebugEnabled()){
+                logger.debug(errorMsg, e);
+            }
             throw new UserStoreException(errorMsg, e);
         } finally {
             closeContext(organizationalUsersContext);
@@ -445,7 +454,9 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
 
         } catch (NamingException e) {
             String errorMessage = "Error occurred while creating the admin group.";
-            logger.error(errorMessage);
+            if(logger.isDebugEnabled()){
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } finally {
             closeContext(groupContext);
@@ -492,6 +503,9 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
 
 		} catch (Exception e) {
 			String errorMsg = "Shared tenant: " + domainName + "could not be added.";
+            if(logger.isDebugEnabled()){
+                logger.debug(errorMsg, e);
+            }
 			throw new UserStoreException(errorMsg, e);
 		} finally {
 			JNDIUtil.closeContext(groupContext);

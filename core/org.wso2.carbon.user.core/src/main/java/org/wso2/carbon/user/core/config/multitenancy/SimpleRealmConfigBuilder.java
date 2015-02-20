@@ -50,8 +50,10 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             realmConfig.setSecondaryRealmConfig(persistedConfig.getSecondaryRealmConfig());
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration" +
-                                  "when creating tenant's realm.";
-            log.error(errorMessage, e);
+                                  "when creating tenant's realm for tenant id : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
         return realmConfig;
@@ -79,9 +81,13 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
             
 			return realmConfig;
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage(), e);
-		}
+            String errorMessage =
+                    "Error occurred while getting realm config for tenant to persist for tenant id : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
 	}
 
 	private void removePropertiesFromTenantRealmConfig(RealmConfiguration tenantRealmConfiguration) {
