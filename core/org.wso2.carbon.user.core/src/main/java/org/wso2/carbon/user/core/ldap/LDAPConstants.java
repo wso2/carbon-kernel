@@ -92,6 +92,6 @@ public class LDAPConstants {
 	public static final String SHARED_TENANT_NAME_ATTRIBUTE = "SharedTenantNameAttribute";
 	public static final String SHARED_TENANT_OBJECT_CLASS = "SharedTenantObjectClass";
 
+    public static final String CONNECTION_POOLING_ENABLED = "ConnectionPoolingEnabled";
 
-    
 }

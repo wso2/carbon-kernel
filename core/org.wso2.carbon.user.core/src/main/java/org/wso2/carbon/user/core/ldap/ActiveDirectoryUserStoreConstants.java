@@ -91,7 +91,8 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty("userAccountControl","User Account Control","512","Flags that control the behavior of the user account");
         setProperty("Referral","Referral","follow","Guides the requests to a domain controller in the correct domain");
         setProperty("BackLinksEnabled","Enable Back Links","true"," Whether to allow attributes to be result from references to the object from other objects");
-
+        setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
+                    UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "","","");
     }
 
