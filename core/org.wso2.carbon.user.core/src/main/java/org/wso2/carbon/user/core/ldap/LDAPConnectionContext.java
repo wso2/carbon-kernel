@@ -292,6 +292,7 @@ public class LDAPConnectionContext {
         //replace connection name and password with the passed credentials to this method
         tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
         tempEnv.put(Context.SECURITY_CREDENTIALS, password);
+        tempEnv.remove("com.sun.jndi.ldap.connect.pool");
         
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
