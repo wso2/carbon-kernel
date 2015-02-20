@@ -160,7 +160,11 @@ public class LDAPConnectionContext {
                 try {
                     context = new InitialDirContext(environment);
                 } catch (Exception e1) {
-                    throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
+                    String errorMessage = "Error obtaining connection.";
+                    if (log.isDebugEnabled()) {
+                        log.debug(errorMessage, e1);
+                    }
+                    throw new UserStoreException(errorMessage, e);
                 }
 
             }
@@ -172,7 +176,7 @@ public class LDAPConnectionContext {
                 //compose the connection URL
                 environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(firstRecord));
                 context = new InitialDirContext(environment);
-                
+
             } catch (NamingException e) {
                 log.error("Error obtaining connection to first Domain Controller.Trying to connect with other Domain" +
                           " Controllers...", e);
@@ -185,7 +189,12 @@ public class LDAPConnectionContext {
                         break;
                     } catch (NamingException e1) {
                         if(integer == (dcMap.lastKey())){
-                            throw new UserStoreException("Error obtaining connection for all " + integer + " Domain Controllers.", e);
+                            String errorMessage =
+                                    "Error obtaining connection for all " + integer + " Domain Controllers.";
+                            if (log.isDebugEnabled()) {
+                                log.debug(errorMessage, e1);
+                            }
+                            throw new UserStoreException(errorMessage, e1);
                         }
                     }
                 }
@@ -260,7 +269,11 @@ public class LDAPConnectionContext {
                 srvRecord.setHostIP((String) hostRecord.get());
             }
         } catch (NamingException e) {
-            throw new UserStoreException("Error obtaining information from DNS Server ", e);
+            String errorMessage = "Error obtaining information from DNS Server";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 
@@ -275,7 +288,7 @@ public class LDAPConnectionContext {
     }
 
     public LdapContext getContextWithCredentials(String userDN, String password)
-            throws UserStoreException, NamingException, AuthenticationException {
+            throws UserStoreException, NamingException {
         LdapContext context = null;
 
         //create a temp env for this particular authentication session by copying the original env
@@ -293,8 +306,7 @@ public class LDAPConnectionContext {
             //replace environment properties with these credentials
             context = new InitialLdapContext(tempEnv, null);
 
-
-        } else if (dcMap != null && dcMap.size() != 0) {
+        } else if (dcMap.isEmpty()) {
             try {
                 //first try the first entry in dcMap, if it fails, try iteratively
                 Integer firstKey = dcMap.firstKey();
@@ -304,6 +316,10 @@ public class LDAPConnectionContext {
                 context = new InitialLdapContext(tempEnv, null);
 
             } catch (AuthenticationException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error occurred while authenticating for user DN : " + userDN +
+                              " with first domain controller");
+                }
                 throw e;
 
             } catch (NamingException e) {
@@ -317,12 +333,20 @@ public class LDAPConnectionContext {
                         context = new InitialLdapContext(environment, null);
                         break;
                     } catch (AuthenticationException e2) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Error occurred while authenticating for user DN : " + userDN +
+                                      " with other domain controllers");
+                        }
                         throw e2;
-                    }
-                    catch (NamingException e1) {
-                        if (integer == (dcMap.lastKey())) {
-                            throw new UserStoreException("Error obtaining connection for all " + integer + " Domain " +
-                                                         "Controllers.", e1);
+                    } catch (NamingException e1) {
+                        log.info("Trying to connect with other Domain Controllers");
+                        if (integer.equals(dcMap.lastKey())) {
+                            String errorMessage = "Error obtaining connection for all " + integer + " Domain " +
+                                                  "Controllers.";
+                            if (log.isDebugEnabled()) {
+                                log.debug(errorMessage, e);
+                            }
+                            throw new UserStoreException(errorMessage, e1);
                         }
                     }
                 }

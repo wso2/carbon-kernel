@@ -78,9 +78,8 @@ public class RealmConfigXMLProcessor {
 			}
 			return realmConfig;
 		} catch (Exception e) {
-			String message = "Error while reading realm configuration from file";
-			throw new UserStoreException(message, e);
-		}
+            throw new UserStoreException("Error while reading realm configuration from file", e);
+        }
 
 	}
 	public RealmConfiguration buildTenantRealmConfiguration(InputStream inStream)

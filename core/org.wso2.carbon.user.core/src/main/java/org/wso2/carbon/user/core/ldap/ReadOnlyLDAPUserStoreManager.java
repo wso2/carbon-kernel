@@ -40,6 +40,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.sql.DataSource;
 
+import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -154,11 +155,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 			if (this.isReadOnly()) {
 				log.info("LDAP connection created successfully in read-only mode");
 			}
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException("Cannot create connection to LDAP server. Error message " +
-			                             e.getMessage());
-		}
+        } catch (UserStoreException e) {
+            throw new UserStoreException("Cannot create connection to LDAP server.", e);
+        }
 		this.userRealm = realm;
         this.persistDomain();
         doInitialSetup();
@@ -392,8 +391,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
 				}
 			} catch (NamingException e) {
-				log.debug(e.getMessage(), e);
-				throw new UserStoreException(e.getMessage());
+				String errorMessage = "Cannot bind user : " + userName;
+                if(log.isDebugEnabled()){
+                    log.debug(errorMessage, e);
+                }
+				throw new UserStoreException(errorMessage, e);
 			}
 		}
 
@@ -477,8 +479,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 try {
                     answer = dirContext.search(userDN, searchFilter, searchCtls);
                 } catch (NamingException e) {
-                    log.debug(e.getMessage(), e);
-                    throw new UserStoreException(e.getMessage());
+                    String errorMessage = "Error occurred while searching directory context for user DN : " + userDN +
+                                          " & search filter : " + searchFilter;
+                    if (log.isDebugEnabled()) {
+                        log.debug(errorMessage, e);
+                    }
+                    throw new UserStoreException(errorMessage, e);
                 }
             } else {
                 answer = this.searchForUser(searchFilter, propertyNames, dirContext);
@@ -523,9 +529,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 			}
 
 		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
+            String errorMessage = "Error occurred while getting user property values for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			// close the naming enumeration and free up resources
 			JNDIUtil.closeNamingEnumeration(attrs);
 			JNDIUtil.closeNamingEnumeration(answer);
@@ -801,10 +810,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 			}
 			
 		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
-			JNDIUtil.closeNamingEnumeration(answer);
+            String errorMessage = "Error occurred while listing users for filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
 			JNDIUtil.closeContext(dirContext);
 		}
 		return userNames;
@@ -978,10 +990,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 				}
 			}
 		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage());
-		}
-		return answer;
+            throw new UserStoreException("Error occurred while searching through directory context", e);
+        }
+        return answer;
 	}
 
 
@@ -1099,9 +1110,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 				}
 			}
 		} catch (NamingException e) {
-            log.debug(e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
+            String errorMessage = "Error occurred while getting LDAP role names";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeNamingEnumeration(answer);
 			JNDIUtil.closeContext(dirContext);
 		}
@@ -1503,10 +1517,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
 
                 } catch (NamingException e) {
+                    String errorMessage = "Error in reading user information in the user store for the user : " + user;
                     if (log.isDebugEnabled()) {
-                        log.debug("Error in reading user information in the user store for the user " +
-                                user + e.getMessage(), e);
+                        log.debug(errorMessage, e);
                     }
+                    throw new UserStoreException(errorMessage, e);
                 }
 
             }
@@ -1514,12 +1529,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
+            log.error("Error occurred may be due to referrals in AD", e);
         } catch (NamingException e) {
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException("Error in reading user information in the user store.");
+            String errorMessage = "Error in reading user information in the user store";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
@@ -1820,8 +1836,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (debug) {
                 log.debug("Name in space for " + userName + " is " + name);
             }
-        } catch (Exception e) {
-            log.debug(e.getMessage(), e);
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while searching directory context for search base : " + searchBase +
+                                  " & search filter : " + searchFilter;
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
@@ -1920,13 +1938,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
 		} catch (PartialResultException e) {
 			// can be due to referrals in AD. so just ignore error
-			if (log.isDebugEnabled()) {
-				log.debug("LDAP", e);
-			}
-		} catch (NamingException e) {
-			log.debug(e.getMessage(),e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
+            log.error("Error occurred may be due to referrals in AD", e);
+        } catch (NamingException e) {
+            String errorMessage = "Error in reading user information in the user store";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			JNDIUtil.closeNamingEnumeration(answer);
 			JNDIUtil.closeContext(dirContext);
 		}
@@ -2124,9 +2143,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 			}
 
 		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
+            String errorMessage =
+                    "Error occurred while getting user list from property : " + property + " & value : " + value +
+                    " & profile name : " + profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			// close the naming enumeration and free up resources
 			JNDIUtil.closeNamingEnumeration(attrs);
 			JNDIUtil.closeNamingEnumeration(answer);
@@ -2331,8 +2355,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 					}
                 }
             } catch (NamingException e) {
-                if(log.isDebugEnabled()){
-                    log.debug(e.getMessage(), e);
+                if (log.isDebugEnabled()) {
+                    log.debug("Error occurred while searching directory context for search base : " + searchBases +
+                              " & search filter : " + searchFilter, e);
                 }
             } finally {
                 JNDIUtil.closeNamingEnumeration(answer);

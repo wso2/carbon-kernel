@@ -136,8 +136,8 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             userSearchResults = initialDirContext.search(partitionDN, searchFilter, userSearchControl);
             return userSearchResults.hasMore();
         } catch (NamingException e) {
-            String errorMessage = "Error occurred while searching in root partition.";
-            if(logger.isDebugEnabled()){
+            String errorMessage = "Error occurred while searching in root partition for organization : " + orgName;
+            if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);

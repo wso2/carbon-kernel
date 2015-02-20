@@ -67,11 +67,17 @@ public class TenantMgtXMLProcessor {
             OMElement tenantMgtConfigElement = getTenantMgtConfigElement();
             return buildTenantMgtConfiguration(tenantMgtConfigElement, tenantManagerClass);
         } catch (XMLStreamException e) {
-            String error_Message = "Error in reading tenant-mgt.xml";
-            throw new UserStoreException(error_Message);
+            String errorMessage = "XML processing Error in reading tenant-mgt.xml";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (IOException e) {
-            String error_Message = "Error in reading tenant-mgt.xml file.";
-            throw new UserStoreException(error_Message);
+            String errorMessage = "IO Error in reading tenant-mgt.xml file.";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 

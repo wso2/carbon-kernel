@@ -173,10 +173,10 @@ public class DefaultRealmService implements RealmService {
             }
 
 		} catch (Exception e) {
-			throw new org.wso2.carbon.user.api.UserStoreException("Error occurred while getting user realm for tenant id" +
-                                                                  " :"+tenantId, e);
-		}
-		return userRealm;
+            throw new org.wso2.carbon.user.api.UserStoreException(
+                    "Error occurred while getting user realm for tenant id : " + tenantId, e);
+        }
+        return userRealm;
 	}
 
 	@Override
