@@ -61,17 +61,17 @@ import java.util.Set;
  * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
  * isSaaSEnabled="true" saasRules="*"  /> }
  *
- * 2. All tenants except foo.com & bar.com can access this app
+ * 2. All tenants except foo.com and  bar.com can access this app
  * {@code
  * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
  * isSaaSEnabled="true" saasRules="*;!foo.com;!bar.com"  /> }
  *
- * 3. Only foo.com & bar.com (all users) can access this app
+ * 3. Only foo.com and bar.com (all users) can access this app
  * {@code
  * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
  * isSaaSEnabled="true" saasRules="foo.com;bar.com"  /> }
  *
- * 4. Only users bob & admin in tenant foo.com & all users in tenant bar.com can access this app
+ * 4. Only users bob and admin in tenant foo.com and all users in tenant bar.com can access this app
  * {@code
  * <Realm className="org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm"
  * isSaaSEnabled="true" saasRules="foo.com:users=bob,admin;bar.com"  /> }
