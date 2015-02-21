@@ -37,11 +37,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.ndatasource.core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.tomcat.wso2</groupId>
             <artifactId>jdbc-pool</artifactId>
             <version>${jdbc-pool.version}</version>
