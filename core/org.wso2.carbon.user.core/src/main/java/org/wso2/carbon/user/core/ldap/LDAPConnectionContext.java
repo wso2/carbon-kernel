@@ -143,6 +143,8 @@ public class LDAPConnectionContext {
 
         if(isLDAPConnectionPoolingEnabled) {
             environment.put("com.sun.jndi.ldap.connect.pool", "true");
+        } else {
+            environment.put("com.sun.jndi.ldap.connect.pool", "false");
         }
 
         // set referral status if provided in configuration.
