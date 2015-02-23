@@ -404,8 +404,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
 
                 if (!tenantActive) {
-                    throw new UserStoreException("Tenant has been deactivated. TenantID : "
-                            + tenantId);
+	                log.warn("Tenant has been deactivated. TenantID : " + tenantId);
+	                return false;
                 }
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
