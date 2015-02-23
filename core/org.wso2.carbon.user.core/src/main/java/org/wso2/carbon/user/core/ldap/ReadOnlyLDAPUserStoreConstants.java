@@ -81,7 +81,8 @@ public class ReadOnlyLDAPUserStoreConstants {
 //      LDAP Specific Properties
         setProperty(UserStoreConfigConstants.passwordHashMethod,"Password Hashing Algorithm","PLAIN_TEXT",UserStoreConfigConstants.passwordHashMethodDescription);
         setProperty("ReplaceEscapeCharactersAtUserLogin","Enable Escape Characters at User Login","true","Whether replace escape character when user login");
-
+        setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
+                    UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "","","");
 
     }
