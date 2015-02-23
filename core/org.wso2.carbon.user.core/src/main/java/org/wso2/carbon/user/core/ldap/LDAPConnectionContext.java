@@ -141,11 +141,7 @@ public class LDAPConnectionContext {
             isLDAPConnectionPoolingEnabled = Boolean.parseBoolean(value);
         }
 
-        if(isLDAPConnectionPoolingEnabled) {
-            environment.put("com.sun.jndi.ldap.connect.pool", "true");
-        } else {
-            environment.put("com.sun.jndi.ldap.connect.pool", "false");
-        }
+        environment.put("com.sun.jndi.ldap.connect.pool", isLDAPConnectionPoolingEnabled ? "true" : "false");
 
         // set referral status if provided in configuration.
         if (realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL) != null) {
