@@ -239,15 +239,11 @@
         <!-- Apache Geronimo -->
         <version.geronimo.saaj.spec>1.0.0.wso2v3</version.geronimo.saaj.spec>
         <version.geronimo.jms.spec>1.1.0.wso2v1</version.geronimo.jms.spec>
-        <version.geronimo.stax.spec>1.0.1.wso2v1</version.geronimo.stax.spec>
+        <version.geronimo.stax.spec>1.2</version.geronimo.stax.spec>
         <version.geronimo.jta.spec>1.1</version.geronimo.jta.spec>
         <version.geronimo.jaxws.spec>1.0</version.geronimo.jaxws.spec>
-        <version.woodstox.core.asl>4.2.0</version.woodstox.core.asl>
-        <version.stax2.api>3.1.1</version.stax2.api>
-
-
-
-
+        <version.woodstox.core.asl>4.4.1</version.woodstox.core.asl>
+        <version.stax2.api>3.1.4</version.stax2.api>
 
         <!-- Apache Ant -->
         <version.ant>1.7.0.wso2v1</version.ant>
@@ -851,8 +847,8 @@
                 <version>${version.XmlSchema}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.geronimo.specs.wso2</groupId>
-                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-stax-api_1.2_spec</artifactId>
                 <version>${version.geronimo.stax.spec}</version>
             </dependency>
             <dependency>

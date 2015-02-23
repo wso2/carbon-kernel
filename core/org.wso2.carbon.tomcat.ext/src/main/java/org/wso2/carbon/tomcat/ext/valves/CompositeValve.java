@@ -13,16 +13,12 @@ import org.wso2.carbon.registry.core.ghostregistry.GhostRegistry;
 import org.wso2.carbon.tomcat.ext.internal.CarbonRealmServiceHolder;
 import org.wso2.carbon.tomcat.ext.internal.Utils;
 import org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm;
-import org.wso2.carbon.tomcat.ext.saas.TenantSaaSRules;
 import org.wso2.carbon.tomcat.ext.utils.URLMappingHolder;
 import org.wso2.carbon.user.api.TenantManager;
 import org.wso2.carbon.user.api.UserRealmService;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 
 /**
  * tomcat does not allow us to engage a valve programmatically once it is started. Hence we register this
@@ -35,7 +31,7 @@ import java.util.HashMap;
 @SuppressWarnings("unused")
 public class CompositeValve extends ValveBase {
     private static Log log = LogFactory.getLog(CompositeValve.class);
-    public static final String ENABLE_SAAS = "carbon.enable.saas";
+    private static final String ENABLE_SAAS = "carbon.enable.saas"; //deprecated.
 
     public CompositeValve() {
         //enable async support
@@ -46,101 +42,21 @@ public class CompositeValve extends ValveBase {
     public void invoke(Request request, Response response) throws IOException, ServletException {
         try {
 
-            /**
-             * To enable SaaS for webapp, add the following to the web.xml file
-             *
-             * 1. All tenants can access this app
-             * <context-param>
-             * <param-name>carbon.saas.tenants</param-name>
-             * <param-value>*</param-value>
-             * </context-param>
-             *
-             * 2. All tenants except foo.com & bar.com can access this app
-             *
-             * <context-param>
-             * <param-name>carbon.saas.tenants</param-name>
-             * <param-value>*;!foo.com;!bar.com</param-value>
-             * </context-param>
-             *
-             * 3. Only foo.com & bar.com (all users) can access this app
-             *
-             * <context-param>
-             * <param-name>carbon.saas.tenants</param-name>
-             * <param-value>foo.com;bar.com</param-value>
-             * </context-param>
-             *
-             * 4. Only users azeez & admin in tenant foo.com & all users in tenant bar.com can access this app
-             *
-             * <context-param>
-             * <param-name>carbon.saas.tenants</param-name>
-             * <param-value>foo.com:users=azeez,admin;bar.com</param-value>
-             * </context-param>
-             *
-             * 5. Only user admin in tenant foo.com can access this app and bob from tenant foo.com can't access the app.
-             *    All users in bar.com can access the app except bob.
-             *
-             * <context-param>
-             * <param-name>carbon.saas.tenants</param-name>
-             * <param-value>foo.com:users=!azeez,admin;bar.com:users=*,!bob</param-value>
-             * </context-param>
-             *
-             * * 6. Only users azeez,bob in tenant foo.com can access this app. Also users who belongs to role devops in
-             *    tenant foo.com also can access the app and users who belongs to role developers in tenant foo.com can't
-             *    access the app. All users belong all roles in bar.com can access the app except users belongs to devops.
-             *
-             * <context-param>
-             * <param-name>carbon.saas.tenants</param-name>
-             * <param-value>foo.com:roles=!developers,devops:users=azeez,bob;bar.com:roles=*,!devops</param-value>
-             * </context-param>
-             *
-             * Note: Denial rules will take precedence.
-             */
             String enableSaaSParam =
                     request.getContext().findParameter(ENABLE_SAAS);
             Realm realm = request.getContext().getRealm();
-            if (enableSaaSParam != null) {
-                // Set the SaaS enabled ThreadLocal variable
-                if (realm instanceof CarbonTomcatRealm) {
-                    // replaceAll("\\s","") is to remove all whitespaces
-                    String[] enableSaaSParams = enableSaaSParam.replaceAll("\\s", "").split(";");
-                    //Store SaaS rules for tenants
-                    HashMap<String, TenantSaaSRules> tenantSaaSRulesMap = new HashMap<String, TenantSaaSRules>();
 
-                    for (String saaSParam : enableSaaSParams) {
-                        String[] saaSSubParams = saaSParam.split(":");
-                        String tenant = saaSSubParams[0];
-                        TenantSaaSRules tenantSaaSRules = new TenantSaaSRules();
-                        ArrayList<String> users = null;
-                        ArrayList<String> roles = null;
-                        if (saaSSubParams.length > 1) {
-                            tenantSaaSRules.setTenant(tenant);
-                            //This will include users or roles
-                            for (int i = 1; i < saaSSubParams.length; i++) {
-                                String[] saaSTypes = saaSSubParams[i].split("=");
-                                if ("users".equals(saaSTypes[0]) && saaSTypes.length == 2) {
-                                    users = new ArrayList<String>();
-                                    users.addAll(Arrays.asList(saaSTypes[1].split(",")));
-                                } else if ("roles".equals(saaSTypes[0]) && saaSTypes.length == 2) {
-                                    roles = new ArrayList<String>();
-                                    roles.addAll(Arrays.asList(saaSTypes[1].split(",")));
-                                }
-                            }
-                        }
-                        if (users != null) {
-                            tenantSaaSRules.setUsers(users);
-                        }
-                        if (roles != null) {
-                            tenantSaaSRules.setRoles(roles);
-                        }
-                        tenantSaaSRulesMap.put(tenant, tenantSaaSRules);
-                    }
-                    ((CarbonTomcatRealm) realm).setSaaSRules(tenantSaaSRulesMap);
-                    ((CarbonTomcatRealm) realm).setSaaSEnabled(Boolean.TRUE);
+            // deprecation notice since Carbon 4.4. Users should configure SaaS mode by adding the CarbonTomcatRealm to the
+            // META-INF/context.xml. See javadocs at @org.wso2.carbon.tomcat.ext.realms.CarbonTomcatRealm.
+            // Remove this check in a future release.
+            if (realm instanceof CarbonTomcatRealm) {
+                //user has set saas context-param but not configured the new way of configuring saas via context.xml
+                if (enableSaaSParam != null && ((CarbonTomcatRealm) realm).getSaasRules() == null)  {
+                    String contextName = request.getContext().getName();
+                    log.warn("To enable SaaS mode for the webapp, " + contextName +
+                             ", configure the CarbonTomcatRealm in META-INF/context.xml.");
                 }
-            } else {
-                if (realm instanceof CarbonTomcatRealm) {
-                    ((CarbonTomcatRealm) realm).setSaaSEnabled(Boolean.FALSE);
-                }
+
             }
 
             TomcatValveContainer.invokeValves(request, response, this);
