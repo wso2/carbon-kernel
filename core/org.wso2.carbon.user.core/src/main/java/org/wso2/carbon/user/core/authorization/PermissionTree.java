@@ -109,6 +109,8 @@ public class PermissionTree {
             if (updateCache) {
                 invalidateCache(root);
             }
+        } catch (Exception e) {
+            throw new UserStoreException(e.getMessage(),e);
         } finally {
             write.unlock();
         }
@@ -128,6 +130,8 @@ public class PermissionTree {
             if (updateCache) {
                 invalidateCache(root);
             }
+        } catch (Exception e) {
+            throw new UserStoreException(e.getMessage(),e);
         } finally {
             write.unlock();
         }
@@ -149,6 +153,8 @@ public class PermissionTree {
             if (updateCache) {
                 invalidateCache(root);
             }
+        } catch (Exception e) {
+            throw new UserStoreException(e.getMessage(),e);
         } finally {
             write.unlock();
         }
@@ -169,6 +175,8 @@ public class PermissionTree {
             if (updateCache) {
                 invalidateCache(root);
             }
+        } catch (Exception e) {
+            throw new UserStoreException(e.getMessage(),e);
         } finally {
             write.unlock();
         }
