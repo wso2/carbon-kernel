@@ -110,7 +110,8 @@ public class PermissionTree {
                 invalidateCache(root);
             }
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(),e);
+            throw new UserStoreException("Error while authorizing user: " + userName +
+                    "in permission tree for resource id: " + resourceId + "for action: " + action, e);
         } finally {
             write.unlock();
         }
@@ -131,7 +132,8 @@ public class PermissionTree {
                 invalidateCache(root);
             }
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(),e);
+            throw new UserStoreException("Error while denying user: " + userName +
+                    "in permission tree for resource id: " + resourceId + "for action: " + action, e);
         } finally {
             write.unlock();
         }
@@ -154,7 +156,8 @@ public class PermissionTree {
                 invalidateCache(root);
             }
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(),e);
+            throw new UserStoreException("Error while authorizing role: " + roleName +
+                    "in permission tree for resource id: " + resourceId + "for action: " + action, e);
         } finally {
             write.unlock();
         }
@@ -176,7 +179,8 @@ public class PermissionTree {
                 invalidateCache(root);
             }
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(),e);
+            throw new UserStoreException("Error while denying role: " + roleName +
+                    "in permission tree for resource id: " + resourceId + "for action: " + action, e);
         } finally {
             write.unlock();
         }

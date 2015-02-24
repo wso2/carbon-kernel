@@ -807,7 +807,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     dbConnection.rollback();
                 }
             } catch (SQLException e1) {
-                throw new UserStoreException("Error in connection rollback " + e1.getMessage(), e1);
+                throw new UserStoreException("Error in connection rollback ", e1);
             }
             log.error("Error! " + e.getMessage(), e);
             throw new UserStoreException("Error! " + e.getMessage(), e);
@@ -851,7 +851,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     dbConnection.rollback();
                 }
             } catch (SQLException e1) {
-                throw new UserStoreException("Error in connection rollback " + e1.getMessage(), e1);
+                throw new UserStoreException("Error in connection rollback ", e1);
             }
             log.error("Error! " + e.getMessage(), e);
             throw new UserStoreException("Error! " + e.getMessage(), e);

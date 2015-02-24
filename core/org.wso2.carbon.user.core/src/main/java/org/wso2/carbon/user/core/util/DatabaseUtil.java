@@ -99,56 +99,55 @@ public class DatabaseUtil {
         poolProperties.setUsername(realmConfig.getUserStoreProperty(JDBCRealmConstants.USER_NAME));
         poolProperties.setPassword(realmConfig.getUserStoreProperty(JDBCRealmConstants.PASSWORD));
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE) != null
-                && !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE).equals("")) {
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE) != null &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_ACTIVE).trim().equals("")) {
             poolProperties.setMaxActive(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_ACTIVE)));
         } else {
             poolProperties.setMaxActive(DEFAULT_MAX_ACTIVE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE) != null
-                && !realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE).equals("")) {
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE) != null &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_IDLE).trim().equals("")) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MIN_IDLE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE) != null
-                && !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE).equals("")) {
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE) != null &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_IDLE).trim().equals("")) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MAX_IDLE);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT) != null
-                && !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT).equals("")) {
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT) != null &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.MAX_WAIT).trim().equals("")) {
             poolProperties.setMaxWait(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MAX_WAIT)));
         } else {
             poolProperties.setMaxWait(DEFAULT_MAX_WAIT);
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null
-                && !realmConfig.getUserStoreProperty(
-                JDBCRealmConstants.TEST_WHILE_IDLE).equals("")) {
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null &&
+                !realmConfig.getUserStoreProperty(JDBCRealmConstants.TEST_WHILE_IDLE).trim().equals("")) {
             poolProperties.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.TEST_WHILE_IDLE)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null
-                && !realmConfig.getUserStoreProperty(
-                JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).equals("")) {
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null &&
+                !realmConfig.getUserStoreProperty(
+                JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
                     realmConfig.getUserStoreProperty(
                             JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
         }
 
-        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null
-                && !realmConfig.getUserStoreProperty(
-                JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).equals("")) {
+        if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null &&
+                !realmConfig.getUserStoreProperty(
+                JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
@@ -171,56 +170,55 @@ public class DatabaseUtil {
         poolProperties.setUsername(realmConfig.getRealmProperty(JDBCRealmConstants.USER_NAME));
         poolProperties.setPassword(realmConfig.getRealmProperty(JDBCRealmConstants.PASSWORD));
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_ACTIVE) != null
-                && !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_ACTIVE).equals("")) {
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_ACTIVE) != null &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_ACTIVE).trim().equals("")) {
             poolProperties.setMaxActive(Integer.parseInt(realmConfig.getRealmProperty(
                     JDBCRealmConstants.MAX_ACTIVE)));
         } else {
             poolProperties.setMaxActive(DEFAULT_MAX_ACTIVE);
         }
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_IDLE) != null
-                && !realmConfig.getRealmProperty(JDBCRealmConstants.MIN_IDLE).equals("")) {
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_IDLE) != null &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.MIN_IDLE).trim().equals("")) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getRealmProperty(
                     JDBCRealmConstants.MIN_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MIN_IDLE);
         }
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE) != null
-                && !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE).equals("")) {
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE) != null &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_IDLE).trim().equals("")) {
             poolProperties.setMinIdle(Integer.parseInt(realmConfig.getRealmProperty(
                     JDBCRealmConstants.MAX_IDLE)));
         } else {
             poolProperties.setMinIdle(DEFAULT_MAX_IDLE);
         }
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT) != null
-                && !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT).equals("")) {
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT) != null &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.MAX_WAIT).trim().equals("")) {
             poolProperties.setMaxWait(Integer.parseInt(realmConfig.getRealmProperty(
                     JDBCRealmConstants.MAX_WAIT)));
         } else {
             poolProperties.setMaxWait(DEFAULT_MAX_WAIT);
         }
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null
-                && !realmConfig.getRealmProperty(
-                JDBCRealmConstants.TEST_WHILE_IDLE).equals("")) {
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.TEST_WHILE_IDLE) != null &&
+                !realmConfig.getRealmProperty(JDBCRealmConstants.TEST_WHILE_IDLE).trim().equals("")) {
             poolProperties.setTestWhileIdle(Boolean.parseBoolean(realmConfig.getRealmProperty(
                     JDBCRealmConstants.TEST_WHILE_IDLE)));
         }
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null
-                && !realmConfig.getRealmProperty(
-                JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).equals("")) {
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null &&
+                !realmConfig.getRealmProperty(
+                JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
                     realmConfig.getRealmProperty(
                             JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
         }
 
-        if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null
-                && !realmConfig.getRealmProperty(
-                JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).equals("")) {
+        if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null &&
+                !realmConfig.getRealmProperty(
+                JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getRealmProperty(
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
