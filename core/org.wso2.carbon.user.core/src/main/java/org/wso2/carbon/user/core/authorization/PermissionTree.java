@@ -1020,9 +1020,12 @@ public class PermissionTree {
             }
             
         } catch (SQLException e) {
-            throw new UserStoreException(
-                    "Error loading authorizations. Please check the database. Error message is "
-                            + e.getMessage(), e);
+            String errorMessage = "Error loading authorizations. Please check the database. Error message is "
+                                  + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt1, prepStmt2);
         }
