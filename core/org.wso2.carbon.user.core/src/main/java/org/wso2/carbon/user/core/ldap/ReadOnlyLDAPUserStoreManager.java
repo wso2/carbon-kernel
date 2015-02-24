@@ -1837,9 +1837,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug("Name in space for " + userName + " is " + name);
             }
         } catch (NamingException e) {
-            String errorMessage = "Error occurred while searching directory context for search base : " + searchBase +
-                                  " & search filter : " + searchFilter;
-            throw new UserStoreException(errorMessage, e);
+            if (log.isDebugEnabled()) {
+                log.debug("User : " + userName + "does not exist in the directory context");
+            }
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);

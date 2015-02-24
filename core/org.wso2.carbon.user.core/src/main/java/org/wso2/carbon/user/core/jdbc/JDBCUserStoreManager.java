@@ -35,6 +35,7 @@ import java.util.Random;
 
 import javax.sql.DataSource;
 
+import com.sun.tools.internal.xjc.reader.xmlschema.bindinfo.BIConversion;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,7 +68,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 	private static Log log = LogFactory.getLog(JDBCUserStoreManager.class);
 	
 	// Loading JDBC data store on demand.
-    private DataSource getJDBCDataSource() throws UserStoreException {
+    private DataSource getJDBCDataSource() {
         if (jdbcds == null) {
             jdbcds = loadUserStoreSpacificDataSoruce();
         }
@@ -1004,14 +1005,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 	}
 
 
-	/**
-	 * 
-	 * @return
-	 * @throws SQLException
-	 * @throws UserStoreException 
-	 */
-	protected Connection getDBConnection() throws SQLException, UserStoreException {
-		Connection dbConnection = getJDBCDataSource().getConnection();
+    protected Connection getDBConnection() throws SQLException {
+        Connection dbConnection = getJDBCDataSource().getConnection();
 		dbConnection.setAutoCommit(false);
         if(dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED){
             dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
@@ -1202,9 +1197,19 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
 		Connection dbConnection = null;
 		String password = (String) credential;
-		try {
-			dbConnection = getDBConnection();
-			String sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER);
+
+        try {
+            dbConnection = getDBConnection();
+        } catch (SQLException e) {
+            String errorMessage = "Error Occurred while getting DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
+
+        try {
+            String sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER);
 
 			String saltValue = null;
 
@@ -1300,7 +1305,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 			}
 
 			dbConnection.commit();
-		} catch (Throwable e) {
+		} catch (SQLException e) {
 			try {
 				dbConnection.rollback();
             } catch (SQLException e1) {
@@ -1312,6 +1317,18 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             String errorMessage = "Error while persisting user : " + userName;
             if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error occurred while getting claim attributes for user : " + userName;
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if(log.isDebugEnabled()){
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
@@ -2357,14 +2374,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         }
     }
 
-	/**
-	 * 
-	 * @return
-	 * @throws UserStoreException
-	 */
-	private DataSource loadUserStoreSpacificDataSoruce() throws UserStoreException {
-		return DatabaseUtil.createUserStoreDataSource(realmConfig);
-	}
+    private DataSource loadUserStoreSpacificDataSoruce() {
+        return DatabaseUtil.createUserStoreDataSource(realmConfig);
+    }
 
 	/**
 	 * 
