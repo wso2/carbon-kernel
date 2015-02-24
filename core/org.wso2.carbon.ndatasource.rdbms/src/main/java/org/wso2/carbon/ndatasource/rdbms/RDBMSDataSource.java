@@ -15,22 +15,30 @@
  */
 package org.wso2.carbon.ndatasource.rdbms;
 
+import java.lang.management.ManagementFactory;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.management.*;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.wso2.carbon.ndatasource.common.DataSourceException;
+import org.wso2.carbon.ndatasource.core.utils.DataSourceUtils;
 import org.wso2.carbon.ndatasource.rdbms.utils.RDBMSDataSourceUtils;
 
 /**
  * RDBMS data source implementation.
  */
 public class RDBMSDataSource {
+
+       private static Log log = LogFactory.getLog(RDBMSDataSource.class);
 
 	private DataSource dataSource;
 	
@@ -56,8 +64,42 @@ public class RDBMSDataSource {
 		if (this.dataSource == null) {
 			this.dataSource = new DataSource(poolProperties);
 		}
+                if (poolProperties.isJmxEnabled()) {
+                        this.registerMBean();
+                }
 		return this.dataSource;
 	}
+
+       private void registerMBean() {
+                MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+                String mBean = "";
+                try {
+                        if (DataSourceUtils.getCurrentDataSourceId() == null) {
+                                if (log.isDebugEnabled()) {
+                                        log.debug("The current dataSource id is not set");
+                                }
+                                return;
+                        }
+                        String [] dataSourceId = DataSourceUtils.getCurrentDataSourceId().split(":");
+                        mBean = dataSourceId[1] + "," + dataSourceId[0];
+                        ObjectName objectName = new ObjectName(mBean + ":type=DataSource");
+                        mBeanServer.registerMBean(this.dataSource.createPool().getJmxPool(),objectName);
+                } catch (InstanceAlreadyExistsException e) {
+                        //ignore as the mbean for the same datasource name is already exist
+                } catch (MalformedObjectNameException e) {
+                       log.error("Error while registering the MBean for dataSource '"
+                               + mBean + " " + e.getMessage(), e);
+                } catch (NotCompliantMBeanException e) {
+                       log.error("Error while registering the MBean for dataSource '"
+                               + mBean + " " + e.getMessage(), e);
+                } catch (SQLException e) {
+                       log.error("Error while registering the MBean for dataSource '"
+                               + mBean + " " + e.getMessage(), e);
+                } catch (MBeanRegistrationException e) {
+                       log.error("Error while registering the MBean for dataSource '"
+                               + mBean + " " + e.getMessage(), e);
+                }
+       }
 	
 	public Reference getDataSourceFactoryReference() throws DataSourceException {
 		if (dataSourceFactoryReference == null) {
