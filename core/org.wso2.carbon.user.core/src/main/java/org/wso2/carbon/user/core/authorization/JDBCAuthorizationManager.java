@@ -511,8 +511,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             permissionTree.clearResourceAuthorizations(resourceId);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage =
+                    "Error occurred while clearing resource authorization for resource id : " + resourceId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -548,8 +552,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             permissionTree.clearRoleAuthorization(roleName, resourceId, action);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage =
+                    "Error occurred while clearing role authorization for role : " + roleName + " & resource id : " +
+                    resourceId + " & action : " + action;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -585,8 +594,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             permissionTree.clearUserAuthorization(userName, resourceId, action);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage =
+                    "Error occurred while clearing user authorization for user : " + userName + " & resource id : " +
+                    resourceId + " & action : " + action;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -623,8 +637,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     action, tenantId, tenantId, tenantId, domain);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage =
+                    "Error occurred while clearing role action on all resources for role : " + roleName +
+                    " & action : " + action;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -658,8 +677,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     tenantId, tenantId, domain);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage = "Error occurred while clearing role authorization for role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -687,8 +709,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     DBConstants.ON_DELETE_USER_DELETE_PERMISSION_SQL, userName, tenantId);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage = "Error occurred while clearing user authorization for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -730,8 +755,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             DatabaseUtil.updateDatabase(dbConnection, sqlStmt, newRoleName, roleName,tenantId, tenantId, domain);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage =
+                    "Error occurred on permission resetting while updating role : " + roleName + " to role : " +
+                    newRoleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -802,8 +832,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage = "Error occurred while adding authorization for role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -839,8 +872,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage = "Error occurred while adding authorization for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -866,8 +902,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
             return resourceIds;
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage = "Error occurred while getting ui permission id list";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -891,8 +930,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
             return value;
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage =
+                    "Error occurred while getting permission id for resource id : " + resourceId + " & action : " +
+                    action;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
@@ -912,8 +956,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                         + " and number of updated rows :: " + count);
             }
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage =
+                    "Error occurred while adding permission id for resource id : " + resourceId + " & action : " +
+                    action;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
