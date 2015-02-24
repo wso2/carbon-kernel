@@ -58,9 +58,12 @@ public class ClaimDAO {
 			this.addClaimMapping(dbConnection, claim);
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while adding claim mapping";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeConnection(dbConnection);
 		}
 	}
@@ -73,9 +76,12 @@ public class ClaimDAO {
 			this.updateClaimMapping(dbConnection, claim);
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while updating claim mapping";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeConnection(dbConnection);
 		}
 	}
@@ -89,9 +95,12 @@ public class ClaimDAO {
 					.getDialectURI());
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while deleting claim mapping";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeConnection(dbConnection);
 		}
 	}
@@ -124,9 +133,12 @@ public class ClaimDAO {
 
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while deleting Dialect for URI : " + dialectUri;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
 		}
 	}
@@ -141,9 +153,12 @@ public class ClaimDAO {
 			}
 			dbConnection.commit();
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while adding claim mapping";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeConnection(dbConnection);
 		}
 
@@ -164,9 +179,12 @@ public class ClaimDAO {
 				count = rs.getInt(1);
 			}
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while getting Dialect count";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
 		return count;
@@ -259,10 +277,13 @@ public class ClaimDAO {
 				}
 			} 
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
-			DatabaseUtil.closeAllConnections(null, prepStmt);
+            String errorMessage = "Error occurred while adding claim mapping";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(null, prepStmt);
 		}
 
 	}
@@ -348,9 +369,12 @@ public class ClaimDAO {
 			}
 
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while loading claim mappings";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
 		return claimList;
@@ -399,9 +423,14 @@ public class ClaimDAO {
 			prepStmt.close();
 
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage =
+                    "Error occurred while deleting claim mapping for claim URI : " + claimUri + " & dialect URI :" +
+                    dialectUri;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(null, prepStmt);
 		}
 	}
@@ -444,9 +473,12 @@ public class ClaimDAO {
 			prepStmt.close();
 			dialectId = getDialect(dbConnection, uri);
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while adding dialect";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(null, prepStmt);
 		}
 		return dialectId;
