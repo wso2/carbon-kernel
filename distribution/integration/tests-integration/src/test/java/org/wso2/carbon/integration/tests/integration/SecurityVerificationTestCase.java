@@ -48,6 +48,7 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void initTests() throws Exception {
+
         super.init(TestUserMode.SUPER_TENANT_ADMIN);
     }
 
@@ -97,6 +98,6 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         File dstFile = new File(depFile.getAbsolutePath() + File.separator + "SecVerifier.aar");
         log.info("Copying " + srcFile.getAbsolutePath() + " => " + dstFile.getAbsolutePath());
         FileManipulator.copyFile(srcFile, dstFile);
-        Thread.sleep(10000);
+        Thread.sleep(20000);
     }
 }
