@@ -25,7 +25,7 @@
       <!-- Copying p2 profile and osgi bundles-->
         <fileSet>
             <directory>../p2-profile-generation/carbon-p2-profile/target/carbon-p2-profile</directory>
-            <outputDirectory>wso2carbon-core-${project.version}/repository/components</outputDirectory>
+            <outputDirectory>wso2carbon-core-${carbon.kernel.version}/repository/components</outputDirectory>
             <excludes>
                 <exclude>**/eclipse.ini</exclude>
                 <exclude>**/*.lock</exclude>
