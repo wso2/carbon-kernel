@@ -29,11 +29,6 @@ import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import static org.testng.Assert.assertTrue;
 
@@ -106,7 +101,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                              "artifacts" + File.separator + "CARBON" + File.separator + "carbontools" +
                              File.separator + "resources");
             File targetFile = new File(carbonHome + File.separator + "resources");
-            copyFolder(sourceFile, targetFile);
+            super.copyFolder(sourceFile, targetFile);
             String cmdArray[];
             if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
                 cmdArray = new String[]{"cmd.exe", "/c", "start", "ant", "localize"};
@@ -122,7 +117,8 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                 if (folder.exists() && folder.isDirectory()) {
                     File[] listOfFiles = folder.listFiles();
                     for (File file : listOfFiles) {//Check rep lib as well
-                        if (file.getName().contains("org.wso2.carbon.identity.oauth.ui.languageBundle_4.0.7.jar")) {
+                        if (file.getName().
+                                contains("org.wso2.carbon.identity.oauth.ui.languageBundle_4.0.7.jar")) {
                             log.info("LanguageBundle jar created successfully");
                             isJarCreated = true;
                             break;
@@ -141,32 +137,4 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
         assertTrue(isJarCreated, "Jar not created successfully");
     }
 
-    public void copyFolder(File src, File dest)
-            throws IOException, IOException {
-        if (src.isDirectory()) {
-            if (!dest.exists()) {
-                dest.mkdir();
-                log.info("Directory copied from " + src + "  to " + dest);
-            }
-            String files[] = src.list();
-            for (String file : files) {
-                File srcFile = new File(src, file);
-                File destFile = new File(dest, file);
-                copyFolder(srcFile, destFile);
-            }
-
-        } else {
-            //if file, then copy it
-            InputStream in = new FileInputStream(src);
-            OutputStream out = new FileOutputStream(dest);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-            }
-            in.close();
-            out.close();
-            log.info("File copied from " + src + " to " + dest);
-        }
-    }
 }

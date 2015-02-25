@@ -19,16 +19,25 @@
 package org.wso2.carbon.integration.common.utils;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.beans.ContextUrls;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public abstract class CarbonIntegrationBaseTest {
 
     protected ContextUrls contextUrls = new ContextUrls();
     protected AutomationContext automationContext;
-    protected String sessionCookie;
     protected TestUserMode userMode;
+    private static final Log log = LogFactory.getLog(CarbonIntegrationBaseTest.class);
 
     protected void init() throws Exception {
         userMode = TestUserMode.SUPER_TENANT_ADMIN;
@@ -42,4 +51,32 @@ public abstract class CarbonIntegrationBaseTest {
     }
 
 
+    public void copyFolder(File src, File dest)
+            throws IOException {
+        if (src.isDirectory()) {
+            if (!dest.exists()) {
+                dest.mkdir();
+                log.info("Directory copied from " + src + "  to " + dest);
+            }
+            String files[] = src.list();
+            for (String file : files) {
+                File srcFile = new File(src, file);
+                File destFile = new File(dest, file);
+                copyFolder(srcFile, destFile);
+            }
+
+        } else {
+            //if file, then copy it
+            InputStream in = new FileInputStream(src);
+            OutputStream out = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = in.read(buffer)) > 0) {
+                out.write(buffer, 0, length);
+            }
+            in.close();
+            out.close();
+            log.info("File copied from " + src + " to " + dest);
+        }
+    }
 }

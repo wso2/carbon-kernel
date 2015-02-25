@@ -24,14 +24,18 @@ import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
+import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.utils.ServerConstants;
+import sun.management.VMManagement;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertTrue;
@@ -47,7 +51,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     private AutomationContext context;
     private final int portOffset = 1;
     private String processId;
-    Process processStop ;
+    Process processStop;
 
     @BeforeClass(alwaysRun = true)
     public void init() throws Exception {
@@ -84,50 +88,25 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     @Test(groups = {"wso2.as"}, description = "Server start test", dependsOnMethods = {"testStartCommand"})
     public void testDumpCommandOnLinux() throws Exception {
         String[] cmdArray;
-        Process processDump;
-        boolean isFoundDumpFolder = false;
-        if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
-            throw new SkipException("Feature --start is not available for windows");
-            // Since we are skipping --start feature it won
-
-        } else {
-            cmdArray = new String[]
-                    {"sh", "carbondump.sh", "-carbonHome", carbonHome, "-pid", processId};
-            processDump = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArray);
-        }
+        Process processDump = null;
         try {
-            File folder = new File(carbonHome);
-            long startTime = System.currentTimeMillis();
-            long timeout = 10000;
-            while ((System.currentTimeMillis() - startTime) < timeout) {
-                if (folder.exists() && folder.isDirectory()) {
-                    File[] listOfFiles = folder.listFiles();
-                    for (File file : listOfFiles) {
-                        if (file.getName().contains("carbondump") && file.getName().contains("zip")) {
-                            double bytes = file.length();
-                            double kilobytes = (bytes / 1024);
-                            if (kilobytes > 0) {
-                                log.info("carbon bump file name " + file.getName());
-                                isFoundDumpFolder = true;
-                            } else {
-
-                            }
-                        }
-                    }
-                    if (isFoundDumpFolder) {
-                        break;
-                    }
-                }
+            if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+                throw new SkipException("Feature --start is not available for windows");
+                // Since we are skipping --start feature it won
+            } else {
+                cmdArray = new String[]
+                        {"sh", "carbondump.sh", "-carbonHome", carbonHome, "-pid", processId};
+                processDump = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArray);
             }
+            assertTrue(isFoundDumpFile(carbonHome), "Couldn't find the dump file");
         } finally {
-            if (processDump != null) {
-                processDump.destroy();
-            }
+            processDump.destroy();
         }
-        assertTrue(isFoundDumpFolder, "Unsuccessful login");
+
     }
 
-    @Test(groups = {"wso2.as"}, description = "Server restart test", dependsOnMethods = {"testDumpCommandOnLinux"})
+    @Test(groups = {"wso2.as"}, description = "Server restart test",
+            dependsOnMethods = {"testDumpCommandOnLinux"})
     public void testRestartCommand() throws Exception {
         String[] cmdArrayToReStart;
         if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
@@ -146,7 +125,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         assertTrue(isServerUp, "Unsuccessful login");
     }
 
-    @Test(groups = {"wso2.as"}, description = "Server stop test", dependsOnMethods = {"testRestartCommand"})
+    @Test(groups = {"wso2.as"}, description = "Server stop test",
+            dependsOnMethods = {"testRestartCommand"})
     public void testStopCommand() throws Exception {
         String[] cmdArray;
         boolean startupStatus = false;
@@ -168,15 +148,29 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
 
     @Test(groups = {"wso2.as"}, description = "Server stop test")
     public void testDumpCommandOnWindows() throws Exception {
-        if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
-            String [] cmdArray = new String[]
-                    {"cmd.exe", "/c", "carbondump.bat", "-carbonHome"
-                            ,carbonHome, "-pid", processId};
-            Process processDump = CarbonCommandToolsUtil.runScript(
-                    System.getProperty(ServerConstants.CARBON_HOME) + File.separator + "bin", cmdArray);
-            CarbonCommandToolsUtil.serverShutdown(1,context);
-        }else{
-            throw new SkipException(" This test method is only for windows");
+        Process processDump = null;
+        String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
+        try {
+            if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+                RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+                Field jvmField = runtimeMXBean.getClass().getDeclaredField("jvm");
+                jvmField.setAccessible(true);
+                VMManagement vmManagement = (VMManagement) jvmField.get(runtimeMXBean);
+                Method getProcessIdMethod = vmManagement.getClass().getDeclaredMethod("getProcessId");
+                getProcessIdMethod.setAccessible(true);
+                Integer processId = (Integer) getProcessIdMethod.invoke(vmManagement);
+                String[] cmdArray = new String[]
+                        {"cmd.exe", "/c", "carbondump.bat", "-carbonHome"
+                                , carbonHome, "-pid", Integer.toString(processId)};
+                processDump = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArray);
+                assertTrue(isFoundDumpFile(carbonHome), "Couldn't find the dump file");
+            } else {
+                throw new SkipException(" This test method is only for windows");
+            }
+        } finally {
+            if (processDump != null) {
+                processDump.destroy();
+            }
         }
     }
 
@@ -192,5 +186,34 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             }
         });
     }
+
+    private boolean isFoundDumpFile(String carbonHome) {
+        boolean isFoundDumpFolder = false;
+        File folder = new File(carbonHome);
+        long startTime = System.currentTimeMillis();
+        long timeout = 10000;
+        while ((System.currentTimeMillis() - startTime) < timeout) {
+            if (folder.exists() && folder.isDirectory()) {
+                File[] listOfFiles = folder.listFiles();
+                for (File file : listOfFiles) {
+                    if (file.getName().contains("carbondump") && file.getName().contains("zip")) {
+                        double bytes = file.length();
+                        double kilobytes = (bytes / 1024);
+                        if (kilobytes > 0) {
+                            log.info("carbon bump file name " + file.getName());
+                            isFoundDumpFolder = true;
+                        } else {
+
+                        }
+                    }
+                }
+                if (isFoundDumpFolder) {
+                    break;
+                }
+            }
+        }
+        return isFoundDumpFolder;
+    }
+
 
 }

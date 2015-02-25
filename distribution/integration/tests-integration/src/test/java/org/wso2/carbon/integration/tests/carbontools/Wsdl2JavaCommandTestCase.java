@@ -64,7 +64,8 @@ public class Wsdl2JavaCommandTestCase extends CarbonIntegrationBaseTest {
 //                https://wso2.org/jira/browse/CARBON-15151
 //                cmdArrayToWsdl2Java =
 //                        new String[]{"cmd.exe", "/c", "wsdl2java.bat", "-uri", serviceUrl};
-//                commandDirectory = System.getProperty(ServerConstants.CARBON_HOME) + File.separator + "bin";
+//                commandDirectory = System.getProperty(ServerConstants.CARBON_HOME) +
+//                                   File.separator + "bin";
             } else {
                 cmdArrayToWsdl2Java =
                         new String[]{"sh", "wsdl2java.sh", "-uri", serviceUrl};

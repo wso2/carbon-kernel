@@ -31,11 +31,6 @@ import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.utils.ServerConstants;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.rmi.RemoteException;
 
 /**
@@ -56,41 +51,12 @@ public class Java2WsdlCommandTestCase extends CarbonIntegrationBaseTest {
                          File.separator + "testjava2wsdl");
         File targetFile = new File(
                 System.getProperty(ServerConstants.CARBON_HOME) + File.separator + "bin/testjava2wsdl");
-        copyFolder(sourceFile, targetFile);
+        super.copyFolder(sourceFile, targetFile);
     }
 
     @AfterClass(alwaysRun = true)
     public void cleanResources() throws RemoteException {
         process.destroy();
-    }
-
-    public void copyFolder(File src, File dest)
-            throws IOException, IOException {
-        if (src.isDirectory()) {
-            if (!dest.exists()) {
-                dest.mkdir();
-                log.info("Directory copied from " + src + "  to " + dest);
-            }
-            String files[] = src.list();
-            for (String file : files) {
-                File srcFile = new File(src, file);
-                File destFile = new File(dest, file);
-                copyFolder(srcFile, destFile);
-            }
-
-        } else {
-            //if file, then copy it
-            InputStream in = new FileInputStream(src);
-            OutputStream out = new FileOutputStream(dest);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-            }
-            in.close();
-            out.close();
-            log.info("File copied from " + src + " to " + dest);
-        }
     }
 
     @Test(groups = "wso2.as", description = "Java to wsdl test")
@@ -114,5 +80,8 @@ public class Java2WsdlCommandTestCase extends CarbonIntegrationBaseTest {
         Assert.assertTrue(fileCreated, "Java file not created successfully");
 
     }
+
+
+
 
 }

@@ -85,22 +85,20 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
         String[] cmdArrayToRecreateDB;
         if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
             cmdArrayToRecreateDB = new String[]{"-Dsetup"};
-
-            process = CarbonCommandToolsUtil.startServerUsingCarbonHome(carbonHome,1,context,cmdArrayToRecreateDB);
-//            process = CarbonCommandToolsUtil.runScript(
-//                    carbonHome + File.separator + "bin", cmdArrayToRecreateDB);
+            process = CarbonCommandToolsUtil.
+                    startServerUsingCarbonHome(carbonHome,1,context,cmdArrayToRecreateDB);
         } else {
             cmdArrayToRecreateDB =
                     new String[]{"-Dsetup"};
-            process = CarbonCommandToolsUtil.startServerUsingCarbonHome(carbonHome,1,context,cmdArrayToRecreateDB);
-//            process = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArrayToRecreateDB);
+            process = CarbonCommandToolsUtil.
+                    startServerUsingCarbonHome(carbonHome,1,context,cmdArrayToRecreateDB);
         }
         boolean startupStatus = CarbonCommandToolsUtil.isServerStartedUp(context, portOffset);
         log.info("Server startup status : " + startupStatus);
 
-        boolean fileCreated = CarbonCommandToolsUtil.waitForFileCreation(carbonHome + File.separator +
-                                                                         "repository" + File.separator + "database" + File.separator +
-                                                                         "DsetupCommandTEST_DB.h2.db");
+        boolean fileCreated = CarbonCommandToolsUtil.
+                waitForFileCreation(carbonHome + File.separator + "repository" + File.separator +
+                                    "database" + File.separator + "DsetupCommandTEST_DB.h2.db");
 
         Assert.assertTrue(fileCreated, "Java file not created successfully");
         String loginStatusString = authenticatorClient.login();
