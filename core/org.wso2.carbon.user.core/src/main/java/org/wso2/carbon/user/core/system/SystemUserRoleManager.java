@@ -150,8 +150,8 @@ public class SystemUserRoleManager {
                     roleName, tenantId, tenantId);
             return UserCoreUtil.addDomainToNames(users, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
-            String errorMessage = "Error occurred while getting User list for System Role :"+roleName;
-            if(log.isDebugEnabled()){
+            String errorMessage = "Error occurred while getting User list for System Role :" + roleName;
+            if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
@@ -213,8 +213,10 @@ public class SystemUserRoleManager {
                     userName, tenantId, tenantId);
             return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
-            String errorMessage = "Error occurred while getting role list for user :"+userName;
-            log.error(errorMessage, e);
+            String errorMessage = "Error occurred while getting role list for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
@@ -515,7 +517,7 @@ public class SystemUserRoleManager {
             return password;
         } catch (NoSuchAlgorithmException e) {
             String errorMessage = "Error Occurred while preparing password";
-            if(log.isDebugEnabled()){
+            if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
@@ -563,7 +565,11 @@ public class SystemUserRoleManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
-            throw new UserStoreException("Error occurred while updating String values to database", e);
+            String errorMessage = "Error occurred while updating String values to database";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);
