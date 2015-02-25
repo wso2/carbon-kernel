@@ -20,13 +20,13 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>feature-manager</artifactId>
-        <version>4.3.1-SNAPSHOT</version>
+        <version>4.4.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.feature.mgt.services</artifactId>
-    <version>4.3.1-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Feature Manager Web Services</name>
     <description>This bundle provides the component mgt Web Services</description>
