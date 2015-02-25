@@ -3,9 +3,10 @@
 <suite name="carbon-server-features-test-suite">
     <parameter name="useDefaultListeners" value="false"/>
 
-    <test name="" preserve-order="true" parallel="false">
-
+    <test name="jaggery-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.carbon.integration.tests.carbontools"/>
+        </packages>
     </test>
-
 
 </suite>

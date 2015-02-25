@@ -73,6 +73,17 @@
             <driverClassName>org.h2.Driver</driverClassName>
         </datasource>
     </datasources>
+
+    <!-- Database urls for change password testing by carbon tool chpasswd.sh-->
+    <databases>
+        <database name="H2DB">
+            <url>/repository/database/WSO2CARBON_DB</url>
+        </database>
+        <database name="MySQL">
+            <url>jdbc:mysql://localhost:3306/userstore?autoReconnect=true</url>
+        </database>
+    </databases>
+
     <security>
         <!--
                     KeyStore which will be used for encrypting/decrypting passwords
@@ -173,6 +184,18 @@
                 <ports>
                     <port type="http">9763</port>
                     <port type="https">9443</port>
+                </ports>
+                <properties>
+
+                </properties>
+            </instance>
+            <instance name="carbon002" type="standalone" nonBlockingTransportEnabled="false">
+                <hosts>
+                    <host type="default">localhost</host>
+                </hosts>
+                <ports>
+                    <port type="http">9764</port>
+                    <port type="https">9444</port>
                 </ports>
                 <properties>
 

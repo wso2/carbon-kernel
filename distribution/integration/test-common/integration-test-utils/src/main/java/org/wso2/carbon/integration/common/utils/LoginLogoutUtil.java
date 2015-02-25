@@ -27,9 +27,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.authenticator.stub.AuthenticationAdminStub;
 import org.wso2.carbon.authenticator.stub.LogoutAuthenticationExceptionException;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.core.commons.stub.loggeduserinfo.LoggedUserInfoAdminStub;
 import org.wso2.carbon.utils.CarbonUtils;
 
+import javax.xml.xpath.XPathExpressionException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
 
@@ -39,8 +42,14 @@ import java.rmi.RemoteException;
 public final class LoginLogoutUtil {
     private static final Log log = LogFactory.getLog(LoginLogoutUtil.class);
     private String sessionCookie;
+    private AutomationContext automationContext;
 
     public LoginLogoutUtil() {
+    }
+
+    public LoginLogoutUtil(AutomationContext context) throws MalformedURLException,
+                                                             XPathExpressionException, AxisFault {
+        this.automationContext = context;
     }
 
 
@@ -74,6 +83,13 @@ public final class LoginLogoutUtil {
         log.info("Successfully logged in : " + sessionCookie);
 
         return sessionCookie;
+    }
+
+    public String login() throws Exception {
+        String userName;
+        userName = automationContext.getSuperTenant().getTenantAdmin().getUserName();
+        return login(userName, automationContext.getSuperTenant().getTenantAdmin().getPassword().toCharArray()
+                , automationContext.getContextUrls().getBackEndUrl());
     }
 
 
