@@ -949,7 +949,11 @@ public final class UserCoreUtil {
 			}
 			return isExisting;
 		} catch (SQLException e) {
-			throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while checking role : " + roleName + " is a system role or not";
+            if(log.isDebugEnabled()){
+                log.debug(errorMessage, e);
+            }
+			throw new UserStoreException(errorMessage, e);
 		} finally {
 			DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
 		}
