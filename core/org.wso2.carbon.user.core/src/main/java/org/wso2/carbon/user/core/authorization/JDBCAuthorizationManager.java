@@ -802,7 +802,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
             dbConnection.commit();
         } catch (Exception e) {
-            //dbConnection should be rolled back when an exception is thrown.
+            /*
+            The db.commit() throws SQLException
+            authorizeRoleInTree method and denyRoleInTree method throws UserStoreException.
+            dbConnection should be rolled back when an exception is thrown
+            */
             try {
                 if (dbConnection != null) {
                     dbConnection.rollback();
@@ -847,7 +851,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
             dbConnection.commit();
         } catch (Exception e) {
-            //dbConnection should be rolled back when an exception is thrown.
+            /*
+            The db.commit() throws SQLException
+            authorizeRoleInTree method and denyRoleInTree method throws UserStoreException.
+            dbConnection should be rolled back when an exception is thrown
+            */
             try {
                 if (dbConnection != null) {
                     dbConnection.rollback();
