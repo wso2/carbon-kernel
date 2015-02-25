@@ -15,13 +15,14 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
         <version>4.4.0-SNAPSHOT</version>
-	<relativePath>../../parent/pom.xml</relativePath>
+        <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +30,7 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Product Parent</name>
     <url>http://wso2.org</url>
-    <description>WSO2 Carbon </description>
+    <description>WSO2 Carbon</description>
 
     <licenses>
         <license>
@@ -42,32 +43,12 @@
         <module>modules/styles</module>
         <module>modules/features/org.wso2.carbon.styles.feature</module>
         <module>modules/p2-profile-gen</module>
-	<module>modules/distribution</module>
+        <module>modules/distribution</module>
     </modules>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.ui</artifactId>
-                <version>${project.parent.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.http.servlet</artifactId>
-                <version>2.2.2</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <scm>
-        <connection>scm:svn:http://svn.wso2.org/repos/wso2/carbon/kernel/trunk/distribution/product/</connection>
-        <developerConnection>scm:svn:https://svn.wso2.org/repos/wso2/carbon/kernel/trunk/distribution/product/</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
 
     <profiles>
         <profile>
+            <id>sign-pack</id>
             <activation>
                 <property>
                     <name>sign</name>
@@ -78,7 +59,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.0-alpha-3</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -93,12 +73,6 @@
             </build>
         </profile>
     </profiles>
-
-    <properties>
-        <carbon.product.version>4.4.0-SNAPSHOT</carbon.product.version>
-    </properties>
-
-
     <organization>
         <name>WSO2 Inc</name>
         <url>http://wso2.com</url>
