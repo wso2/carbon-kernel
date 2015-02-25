@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.wso2.carbon</groupId>
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-parent</artifactId>
+        <version>4.4.0-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+
     <artifactId>samples</artifactId>
     <version>4.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -10,63 +17,7 @@
     <description>Carbon kernel sample</description>
     <url>http://wso2.org</url>
 
-    <parent>
-        <groupId>org.wso2</groupId>
-        <artifactId>wso2</artifactId>
-        <version>1</version>
-    </parent>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <carbon.platform.version>4.4.0-SNAPSHOT</carbon.platform.version>
-        <carbon.feature.version>4.4.0-SNAPSHOT</carbon.feature.version>
-        <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
-        <axis2.osgi.version>1.6.1.wso2v11</axis2.osgi.version>
-        <axis2.client.osgi.version>1.6.1.wso2v11</axis2.client.osgi.version>
-        <orbit.version.axiom>1.2.11.wso2v5</orbit.version.axiom>
-        <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
-
-    </properties>
-
     <modules>
         <module>student-manager</module>
     </modules>
-
-
-    <build>
-	<pluginManagement>
-		<plugins>
-			<plugin>
-            			<groupId>org.apache.felix</groupId>
-                   		<artifactId>maven-bundle-plugin</artifactId>
-                    		<version>2.3.5</version>
-                    		<extensions>true</extensions>
-                    		<configuration>
-                        		<obrRepository>NONE</obrRepository>
-                    		</configuration>
-                	</plugin>
-		</plugins>
-	</pluginManagement>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-	    <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <configuration>
-                    <preparationGoals>clean install</preparationGoals>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

@@ -15,13 +15,14 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>integration</artifactId>
         <version>4.4.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -35,9 +36,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.1.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.ws.commons.axiom.wso2</groupId>
             <artifactId>axiom</artifactId>
@@ -54,7 +53,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>wso2carbon-core</artifactId>
-	    <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
                 <exclusion>
@@ -84,10 +82,10 @@
             <artifactId>org.wso2.carbon.server.admin.ui</artifactId>
         </dependency>
         <dependency>
-	    <groupId>org.apache.httpcomponents.wso2</groupId>
+            <groupId>org.apache.httpcomponents.wso2</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.commons.stub</artifactId>
         </dependency>

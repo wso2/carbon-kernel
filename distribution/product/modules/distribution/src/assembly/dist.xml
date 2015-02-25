@@ -16,6 +16,7 @@
  ~ under the License.
  -->
 <assembly>
+    <id>carbon</id>
     <formats>
         <format>zip</format>
     </formats>
@@ -24,8 +25,8 @@
     <fileSets>
       <!-- Copying p2 profile and osgi bundles-->
         <fileSet>
-             <directory>../p2-profile-gen/target/wso2carbon-core-${carbon.product.version}/repository/components</directory>
-            <outputDirectory>wso2carbon-${pom.version}/repository/components</outputDirectory>
+             <directory>../p2-profile-gen/target/wso2carbon-core-${carbon.kernel.version}/repository/components</directory>
+            <outputDirectory>wso2carbon-${carbon.kernel.version}/repository/components</outputDirectory>
             <excludes>
                 <exclude>**/eclipse.ini</exclude>
                 <exclude>**/*.lock</exclude>
