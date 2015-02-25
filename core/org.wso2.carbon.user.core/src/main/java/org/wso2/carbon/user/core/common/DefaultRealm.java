@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -331,9 +332,30 @@ public class DefaultRealm implements UserRealm {
 			} catch (NoSuchMethodException e) {
 				// if not found try again.
 				if (log.isDebugEnabled()) {
-					log.debug("Cannont initialize " + className + " using the option 1");
-				}
-			}
+                    log.debug("Cannot initialize " + className + " using the option 1");
+                }
+            } catch (IllegalAccessException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 1";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            } catch (InstantiationException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 1";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            } catch (InvocationTargetException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 1";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            }
 
 			if (log.isDebugEnabled()) {
 				log.debug("End initializing class with the first option");
@@ -346,9 +368,30 @@ public class DefaultRealm implements UserRealm {
 			} catch (NoSuchMethodException e) {
 				// if not found try again.
 				if (log.isDebugEnabled()) {
-					log.debug("Cannont initialize " + className + " using the option 2");
-				}
-			}
+                    log.debug("Cannot initialize " + className + " using the option 2");
+                }
+            } catch (IllegalAccessException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 2";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            } catch (InstantiationException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 2";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            } catch (InvocationTargetException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 2";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            }
 
 			if (log.isDebugEnabled()) {
 				log.debug("End initializing class with the second option");
@@ -358,19 +401,45 @@ public class DefaultRealm implements UserRealm {
 				constructor = clazz.getConstructor(initClassOpt3);
 				newObject = constructor.newInstance(initObjOpt3);
 				return newObject;
-			} catch (NoSuchMethodException e) {
-				// cannot initialize in any of the methods. Throw exception.
-				String message = "Cannot initialize " + className + ". Error " + e.getMessage();
-				log.error(message);
-				throw new UserStoreException(message);
-			}
+            } catch (NoSuchMethodException e) {
+                // cannot initialize in any of the methods. Throw exception.
+                String message = "Cannot initialize " + className;
+                if (log.isDebugEnabled()) {
+                    log.debug(message, e);
+                }
+                throw new UserStoreException(message, e);
+            } catch (IllegalAccessException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 3";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            } catch (InstantiationException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 3";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            } catch (InvocationTargetException e) {
+                String errorMessage =
+                        "Error occurred while getting new instance using the option 3";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
+            }
 
-		} catch (Throwable e) {
-			log.error("Cannot create " + className, e);
-			throw new UserStoreException(e.getMessage() + "Type " + e.getClass(), e);
-		}
+        } catch (ClassNotFoundException e) {
+            String errorMessage = "Error initializing class : " + className;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
 
-	}
+    }
 
 	private RealmConfiguration loadDefaultRealmConfigs() throws UserStoreException {
 		RealmConfigXMLProcessor processor = new RealmConfigXMLProcessor();
