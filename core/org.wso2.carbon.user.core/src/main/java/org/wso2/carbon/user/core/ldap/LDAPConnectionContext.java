@@ -41,6 +41,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 public class LDAPConnectionContext {
@@ -132,8 +133,15 @@ public class LDAPConnectionContext {
             environment.put(Context.PROVIDER_URL, connectionURL);
         }
 
-        // Enable connection pooling
-        environment.put("com.sun.jndi.ldap.connect.pool", "true");
+        // Enable connection pooling if property is set in user-mgt.xml
+        boolean isLDAPConnectionPoolingEnabled = false;
+        String value = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_POOLING_ENABLED);
+
+        if (value != null && !value.trim().isEmpty()){
+            isLDAPConnectionPoolingEnabled = Boolean.parseBoolean(value);
+        }
+
+        environment.put("com.sun.jndi.ldap.connect.pool", isLDAPConnectionPoolingEnabled ? "true" : "false");
 
         // set referral status if provided in configuration.
         if (realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL) != null) {
@@ -292,7 +300,7 @@ public class LDAPConnectionContext {
         //replace connection name and password with the passed credentials to this method
         tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
         tempEnv.put(Context.SECURITY_CREDENTIALS, password);
-        
+
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
 

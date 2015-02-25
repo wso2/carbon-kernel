@@ -41,6 +41,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -1480,32 +1481,63 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 					throw new UserStoreException(errorMessage);
 
 				} else {
-					if (newUsers!=null && newUsers.length != 0) {
+					List<String> newUserList = new ArrayList<String>();
+					List<String> deleteUserList = new ArrayList<String>();
+
+					if (newUsers != null && newUsers.length != 0) {
+						String invalidUserList = "";
+						String existingUserList = "";
+
 						for (String newUser : newUsers) {
-							String userNameDN = getNameInSpaceForUserName(newUser);
-							if (!isUserInRole(userNameDN, resultedGroup)) {
-								modifyUserInRole(userNameDN, groupName, DirContext.ADD_ATTRIBUTE,
-								                 searchBase);
-							} else {
-								errorMessage =
-								               "User: " + newUser + " already belongs to role: " +
-								                       roleName;
-								throw new UserStoreException(errorMessage);
+							if (StringUtils.isEmpty(newUser)) {
+								continue;
 							}
+							String userNameDN = getNameInSpaceForUserName(newUser);
+							if (userNameDN == null) {
+								invalidUserList += newUser + " ";
+							} else if (isUserInRole(userNameDN, resultedGroup)) {
+								existingUserList += userNameDN + ",";
+							} else {
+								newUserList.add(userNameDN);
+							}
+						}
+						if (!StringUtils.isEmpty(invalidUserList) || !StringUtils.isEmpty(existingUserList)) {
+							errorMessage = (StringUtils.isEmpty(invalidUserList) ? "" : "'" + invalidUserList
+							                                                            + "' not in the user store. ")
+							               + (StringUtils.isEmpty(existingUserList) ? "" : "'" + existingUserList
+							                                                               + "' already belong to the role : " + roleName);
+							throw new UserStoreException(errorMessage);
 						}
 					}
 
 					if (deletedUsers != null && deletedUsers.length != 0) {
+						String invalidUserList = "";
 						for (String deletedUser : deletedUsers) {
-                            if(deletedUser == null || deletedUser.trim().length() == 0){
-                                continue;
-                            }
+							if (StringUtils.isEmpty(deletedUser)) {
+								continue;
+							}
 							String userNameDN = getNameInSpaceForUserName(deletedUser);
-							modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE,
-							                 searchBase);
-							// needs to clear authz cache for deleted users
-							userRealm.getAuthorizationManager().clearUserAuthorization(deletedUser);
+							if (userNameDN == null) {
+								invalidUserList += deletedUser + ",";
+							} else {
+								deleteUserList.add(userNameDN);
+							}
 						}
+						if (!StringUtils.isEmpty(invalidUserList)) {
+							errorMessage = "'" + invalidUserList + "' not in the user store.";
+							throw new UserStoreException(errorMessage);
+						}
+
+					}
+
+					for (String userNameDN : newUserList) {
+						modifyUserInRole(userNameDN, groupName, DirContext.ADD_ATTRIBUTE, searchBase);
+					}
+
+					for (String userNameDN : deleteUserList) {
+						modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE, searchBase);
+						// needs to clear authz cache for deleted users
+						userRealm.getAuthorizationManager().clearUserAuthorization(userNameDN);
 					}
 				}			
 			} catch (NamingException e) {

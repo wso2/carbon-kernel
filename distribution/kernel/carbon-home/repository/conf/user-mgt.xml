@@ -67,6 +67,7 @@
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="SCIMEnabled">false</Property>
+	    <Property name="ConnectionPoolingEnabled">false</Property>
         </UserStoreManager-->
 
 	<!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC. In case if application needs to manage 		     passwords externally set property <Property name="PasswordsExternallyManaged">true</Property>. In case if user core cache domain is needed to 			identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>. Furthermore properties, IsEmailUserName and 	     			DomainCalculation are readonly properties. 
@@ -128,6 +129,7 @@
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="SCIMEnabled">false</Property>
+	    <Property name="ConnectionPoolingEnabled">false</Property>
         </UserStoreManager-->
 	
 	<!-- Active directory configuration is as follows.
@@ -181,6 +183,7 @@
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="SCIMEnabled">false</Property>
+	    <Property name="ConnectionPoolingEnabled">false</Property>
         </UserStoreManager-->
 	
 	<!-- If product is using an external LDAP as the user store in read/write mode, use following user manager 
@@ -225,6 +228,7 @@
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="SCIMEnabled">false</Property>
+	    <Property name="ConnectionPoolingEnabled">false</Property>
         </UserStoreManager-->
 
 	<!-- Following user manager is used by Identity Server (IS) as its default user manager. 
@@ -277,6 +281,7 @@
 	    <Property name="SCIMEnabled">true</Property>
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="MaxUserNameListLength">100</Property>
+	    <Property name="ConnectionPoolingEnabled">false</Property>
         </ISUserStoreManager-->
 
 	<!--	Following configuration is for the CassandraUserStoreManager. The CassandraUserStoreManager is capable of using a Cassandra

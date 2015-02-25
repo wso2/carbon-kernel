@@ -96,6 +96,8 @@ public class UserStoreConfigConstants {
     public static final String memberOfAttributeDescription = "Attribute used to define groups of a LDAP User";
     public static final String userDNPattern = "UserDNPattern";
     public static final String userDNPatternDescription = "The patten for user's DN. It can be defined to improve the LDAP search";
-
+    public static final String connectionPoolingEnabled = "ConnectionPoolingEnabled";
+    public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
+                                                                     "pooling.";
 
 }

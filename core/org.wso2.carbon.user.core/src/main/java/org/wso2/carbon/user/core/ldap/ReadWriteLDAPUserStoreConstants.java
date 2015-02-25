@@ -85,6 +85,8 @@ public class ReadWriteLDAPUserStoreConstants{
         setProperty(UserStoreConfigConstants.writeGroups,"Enable Write Groups","true",UserStoreConfigConstants.writeGroupsDescription);
         setProperty(UserStoreConfigConstants.emptyRolesAllowed,"Allow Empty Roles","true",UserStoreConfigConstants.emptyRolesAllowedDescription);
         setProperty(UserStoreConfigConstants.memberOfAttribute,"Member Of Attribute","",UserStoreConfigConstants.memberOfAttribute);
+        setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
+                    UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "","","");
     }
 
