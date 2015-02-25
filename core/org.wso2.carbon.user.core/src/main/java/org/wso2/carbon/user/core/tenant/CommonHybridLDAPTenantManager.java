@@ -259,7 +259,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         } catch (NamingException e) {
             String errorMsg = "Error occurred while adding the organizational unit " +
                               "sub context.";
-            if(logger.isDebugEnabled()){
+            if (logger.isDebugEnabled()) {
                 logger.debug(errorMsg, e);
             }
             throw new UserStoreException(errorMsg, e);
@@ -330,7 +330,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         } catch (NamingException e) {
             String errorMsg = "Error occurred while adding the organizational unit " +
                               "sub context.";
-            if(logger.isDebugEnabled()){
+            if (logger.isDebugEnabled()) {
                 logger.debug(errorMsg, e);
             }
             throw new UserStoreException(errorMsg, e);
@@ -410,7 +410,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             //return (userRDN + dnOfUserContext);
         } catch (NamingException e) {
             String errorMsg = "Error occurred while creating Admin entry";
-            if(logger.isDebugEnabled()){
+            if (logger.isDebugEnabled()) {
                 logger.debug(errorMsg, e);
             }
             throw new UserStoreException(errorMsg, e);
@@ -454,7 +454,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
 
         } catch (NamingException e) {
             String errorMessage = "Error occurred while creating the admin group.";
-            if(logger.isDebugEnabled()){
+            if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
@@ -502,12 +502,12 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
 			groupContext.bind(compoundGroupName, null, groupAttributes);
 
 		} catch (Exception e) {
-			String errorMsg = "Shared tenant: " + domainName + "could not be added.";
-            if(logger.isDebugEnabled()){
+            String errorMsg = "Shared tenant: " + domainName + " could not be added.";
+            if (logger.isDebugEnabled()) {
                 logger.debug(errorMsg, e);
             }
-			throw new UserStoreException(errorMsg, e);
-		} finally {
+            throw new UserStoreException(errorMsg, e);
+        } finally {
 			JNDIUtil.closeContext(groupContext);
 		}
 

@@ -144,8 +144,8 @@ public class FileSystemTenantManager extends CommonHybridLDAPTenantManager {
             tenantCacheManager.addToCache(new TenantIdKey(tenantId), new TenantCacheEntry<Tenant>(tenant));
 
         } catch (CarbonException e) {
-            String errorMessage = "Error occurred while replacing System variables in "+userMgtXml;
-            if(log.isDebugEnabled()){
+            String errorMessage = "Error occurred while replacing System variables in " + userMgtXml;
+            if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
