@@ -109,7 +109,7 @@ public class PermissionTree {
             if (updateCache) {
                 invalidateCache(root);
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             throw new UserStoreException("Error while authorizing user: " + userName +
                     "in permission tree for resource id: " + resourceId + "for action: " + action, e);
         } finally {
@@ -131,7 +131,7 @@ public class PermissionTree {
             if (updateCache) {
                 invalidateCache(root);
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             throw new UserStoreException("Error while denying user: " + userName +
                     "in permission tree for resource id: " + resourceId + "for action: " + action, e);
         } finally {
@@ -155,7 +155,7 @@ public class PermissionTree {
             if (updateCache) {
                 invalidateCache(root);
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             throw new UserStoreException("Error while authorizing role: " + roleName +
                     "in permission tree for resource id: " + resourceId + "for action: " + action, e);
         } finally {
@@ -178,7 +178,7 @@ public class PermissionTree {
             if (updateCache) {
                 invalidateCache(root);
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             throw new UserStoreException("Error while denying role: " + roleName +
                     "in permission tree for resource id: " + resourceId + "for action: " + action, e);
         } finally {
