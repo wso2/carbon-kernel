@@ -39,6 +39,8 @@ import static org.testng.Assert.assertTrue;
 
 /**
  * This class is to test change H2DB user password using chpasswd.sh/chpasswd.bat
+ * This test cases has been disabled since it needs automation framework 4.3.2
+ * After releasing 4.3.2 can enable it.
  */
 
 public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {

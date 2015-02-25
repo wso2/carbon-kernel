@@ -31,7 +31,6 @@ import org.wso2.carbon.automation.extensions.servers.utils.InputStreamHandler;
 import org.wso2.carbon.automation.extensions.servers.utils.ServerLogReader;
 import org.wso2.carbon.server.admin.ui.ServerAdminClient;
 
-import javax.xml.xpath.XPathExpressionException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +79,7 @@ public class CarbonCommandToolsUtil {
                         break;
                     }
                 }
-                if(isFoundTheMessage){
+                if (isFoundTheMessage) {
                     break;
                 }
             }
@@ -127,28 +126,29 @@ public class CarbonCommandToolsUtil {
 
     /**
      * This method to find multiple strings in same line in log
+     *
      * @param stringArrayToFind - String array to find all the elements
      * @return boolean - true if found all the strings , false if not
      * @throws InterruptedException
      */
     public static boolean findMultipleStringsInLog(String[] stringArrayToFind)
-            throws  InterruptedException {
+            throws InterruptedException {
         boolean expectedStringFound = false;
 
         long startTime = System.currentTimeMillis();
         while ((System.currentTimeMillis() - startTime) < TIMEOUT) {
-                String message = inputStreamHandler.getOutput();
-                for (String stringToFind : stringArrayToFind) {
-                    if (message.contains(stringToFind)) {
-                        expectedStringFound = true;
-                    } else {
-                        expectedStringFound = false;
-                        break;
-                    }
-                }
-                if (expectedStringFound) {
+            String message = inputStreamHandler.getOutput();
+            for (String stringToFind : stringArrayToFind) {
+                if (message.contains(stringToFind)) {
+                    expectedStringFound = true;
+                } else {
+                    expectedStringFound = false;
                     break;
                 }
+            }
+            if (expectedStringFound) {
+                break;
+            }
 
             if (expectedStringFound) {
                 break;
@@ -166,9 +166,7 @@ public class CarbonCommandToolsUtil {
      *
      * @param automationContext - AutomationContext
      * @return true: If server is up else false
-     * @throws java.io.IOException                           - Error while waiting for login
-     * @throws org.wso2.carbon.authenticator.stub.LoginAuthenticationExceptionException - Authentication error when try to login
-     * @throws javax.xml.xpath.XPathExpressionException              - Error while getting data from automation.xml
+     * @throws Exception  - Error while waiting for login
      */
     public static boolean isServerStartedUp(AutomationContext automationContext, int portOffset)
             throws Exception {
@@ -188,27 +186,22 @@ public class CarbonCommandToolsUtil {
      * This method is to check whether server is down or not
      *
      * @param automationContext - AutomationContext
-     * @return true: If server is down else false
+     * @param portOffset        - port offset
+     * @return boolean - if server is down true : else false
      */
-    public static synchronized boolean isServerDown(AutomationContext automationContext,
-                                                    int portOffset)
-            throws XPathExpressionException {
-        boolean isServerShutDown = false;
-        try {
-            long startTime = System.currentTimeMillis();
-            // Looping the waitForPort method for a time to check the server is down or not
-            while ((System.currentTimeMillis() - startTime) < TIMEOUT) {
-                ClientConnectionUtil.waitForPort(
-                        Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset,
-                        10, false, automationContext.getInstance().getHosts().get("default"));
-            }
-        } catch (RuntimeException ex) {
-            if(ex.getMessage().toLowerCase().contains("port 9444 is not open")) {
-                log.info("Server has shutdown successfully");//Getting this when sever shutdown
-                isServerShutDown = true;
+    public static boolean isServerDown(AutomationContext automationContext, int portOffset)
+            throws InterruptedException {
+        boolean isPortOpen = true;
+        long startTime = System.currentTimeMillis();
+        // Looping the isPortOpen method, waiting for a while  to check the server is down or not
+        while (isPortOpen && (System.currentTimeMillis() - startTime) < TIMEOUT) {
+            isPortOpen = ClientConnectionUtil.isPortOpen(
+                    Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset);
+            if(isPortOpen){
+                Thread.sleep(1000); // waiting 1 sec to check isPortOpen again
             }
         }
-        return isServerShutDown;
+        return !isPortOpen;
     }
 
     /**
@@ -274,12 +267,12 @@ public class CarbonCommandToolsUtil {
             String backendURL = url.replaceAll("(:\\d+)", ":" + httpsPort);
 
             ServerAdminClient serverAdminServiceClient = new ServerAdminClient(backendURL,
-                              automationContext.getContextTenant().getTenantAdmin().getUserName(),
-                              automationContext.getContextTenant().getTenantAdmin().getPassword());
+                                                                               automationContext.getContextTenant().getTenantAdmin().getUserName(),
+                                                                               automationContext.getContextTenant().getTenantAdmin().getPassword());
 
             serverAdminServiceClient.shutdown();
             while (System.currentTimeMillis() < time && !logOutSuccess) {
-                logOutSuccess = isServerDown(automationContext,portOffset);
+                logOutSuccess = isServerDown(automationContext, portOffset);
                 // wait until server shutdown is completed
             }
             log.info("Server stopped successfully...");
@@ -288,13 +281,11 @@ public class CarbonCommandToolsUtil {
     }
 
 
-
-
     public static Process startServerUsingCarbonHome(String carbonHome, int portOffset,
                                                      AutomationContext automationContext,
                                                      String[] parameters) throws Exception {
 
-        Process tempProcess ;
+        Process tempProcess;
         String scriptName = "wso2server";
         File commandDir = new File(carbonHome);
         String[] cmdArray;
@@ -342,20 +333,20 @@ public class CarbonCommandToolsUtil {
     }
 
 
-    public static void serverShutdown(String backendURL,String userName,String passWord,
-                                      AutomationContext context,int portOffset) throws Exception {
+    public static void serverShutdown(String backendURL, String userName, String passWord,
+                                      AutomationContext context, int portOffset) throws Exception {
 
-            log.info("Shutting down server..");
-                boolean logOutSuccess = false;
-                ServerAdminClient serverAdminServiceClient =
-                        new ServerAdminClient(backendURL,userName,passWord);
-                serverAdminServiceClient.shutdown();
-                long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
-                while (System.currentTimeMillis() < time && !logOutSuccess) {
-                    logOutSuccess = isServerDown(context,portOffset);
-                    // wait until server shutdown is completed
-                }
-                log.info("Server stopped successfully...");
+        log.info("Shutting down server..");
+        boolean logOutSuccess = false;
+        ServerAdminClient serverAdminServiceClient =
+                new ServerAdminClient(backendURL, userName, passWord);
+        serverAdminServiceClient.shutdown();
+        long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
+        while (System.currentTimeMillis() < time && !logOutSuccess) {
+            logOutSuccess = isServerDown(context, portOffset);
+            // wait until server shutdown is completed
+        }
+        log.info("Server stopped successfully...");
 
     }
 
