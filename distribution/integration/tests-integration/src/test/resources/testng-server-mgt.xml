@@ -1,0 +1,27 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="carbon-server-startup">
+    <parameter name="useDefaultListeners" value="false"/>
+    <listeners>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestExecutionListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestManagerListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestReportListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestSuiteListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
+    </listeners>
+
+    <test name="carbon-integration-tests-server-mgt" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.carbon.integration.tests.integration.SecurityVerificationTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.AccessNonExistentServiceTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.LoginLogoutTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.MaintenanceModeTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.MultipleCarbonInstancesTestCase"/>
+
+            <class name="org.wso2.carbon.integration.tests.integration.ServerAdminTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.ServerRestartTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.ServerShutdownTestCase"/>
+        </classes>
+    </test>
+
+</suite>
