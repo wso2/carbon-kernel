@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
@@ -39,7 +40,7 @@
                         <property>
                             <name>carbon.zip</name>
                             <value>
-                                ${basedir}/../../product/modules/distribution/target/wso2carbon-${project.version}.zip
+                                ${basedir}/../../product/modules/distribution/target/wso2carbon-${carbon.kernel.version}.zip
                             </value>
                         </property>
                         <property>
@@ -67,63 +68,9 @@
                     <workingDirectory>${basedir}/target</workingDirectory>
                 </configuration>
             </plugin>
-            <!--<plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-
-                    <execution>
-                        <id>copy-emma-dependencies</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/emma</outputDirectory>
-                            <includeTypes>jar</includeTypes>
-                            <includeArtifactIds>emma
-                            </includeArtifactIds>
-                        </configuration>
-                    </execution>-->
-                    <!--execution>
-                        <id>copy-secVerifier</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/security-verifier</outputDirectory>
-                            <includeTypes>aar</includeTypes>
-                            <includeArtifactIds>SecVerifier</includeArtifactIds>
-                            <stripVersion>true</stripVersion>
-                        </configuration>
-                    </execution-->
-
-                    <!--execution>
-                        <id>unpack-mar-jks</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.wso2.carbon</groupId>
-                                    <artifactId>wso2carbon</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>zip</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${basedir}/target/tobeCopied/</outputDirectory>
-                                    <includes>**/*.jks,**/*.mar,**/axis2_client.xml</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution-->
-                    <!--</executions>
-            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
                 <executions>
                     <execution>
                         <goals>
@@ -134,94 +81,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
                 <executions>
-                    <!--execution>
-                        <id>copy-resources-jks</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/test/resources/keystores/products
-                            </outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>
-                                        ${basedir}/target/tobeCopied/wso2carbon-${project.version}/repository/resources/security/
-                                    </directory>
-                                    <includes>
-                                        <include>**/*.jks</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-stratos-jks</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/test/resources/keystores/stratos
-                            </outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>
-                                        ${basedir}/target/tobeCopied/wso2as-${project.version}/repository/resources/security/
-                                    </directory>
-                                    <includes>
-                                        <include>**/*.jks</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution-->
-<!--
-                    <execution>
-                        <id>copy-axis2files</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/test/resources/axis2config
-                            </outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>
-                                        ${basedir}/target/tobeCopied/wso2as-${project.version}/repository/conf/axis2/
-                                    </directory>
-                                    <includes>
-                                        <include>**/*.xml</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
--->
-                    <!--execution>
-                        <id>copy-resources-mar</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/src/test/resources/client/modules
-                            </outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>
-                                        ${basedir}/target/tobeCopied/wso2as-${project.version}/repository/deployment/client/modules
-                                    </directory>
-                                    <includes>
-                                        <include>**/*.mar</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution-->
                 </executions>
             </plugin>
         </plugins>
@@ -241,39 +101,30 @@
         <dependency>
             <groupId>org.wso2.carbon.automation</groupId>
             <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
-            <version>${test.framework.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.automation</groupId>
             <artifactId>org.wso2.carbon.automation.engine</artifactId>
-            <version>${test.framework.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.integration.framework</artifactId>
-            <version>4.4.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.feature.mgt.stub</artifactId>
-            <version>4.4.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.feature.mgt.core</artifactId>
-            <version>4.4.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.feature.mgt.ui</artifactId>
-            <version>4.4.0-SNAPSHOT</version>
         </dependency>
-	<dependency>
-	    <groupId>org.apache.woden.wso2</groupId>
-	    <artifactId>woden</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>org.apache.woden.wso2</groupId>
+            <artifactId>woden</artifactId>
+        </dependency>
     </dependencies>
-    <properties>
-        <test.framework.version>4.3.1</test.framework.version>
-    </properties>
 </project>

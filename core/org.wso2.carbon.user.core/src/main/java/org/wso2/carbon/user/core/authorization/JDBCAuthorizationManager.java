@@ -801,7 +801,19 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            /*
+            The db.commit() throws SQLException
+            authorizeRoleInTree method and denyRoleInTree method throws UserStoreException.
+            dbConnection should be rolled back when an exception is thrown
+            */
+            try {
+                if (dbConnection != null) {
+                    dbConnection.rollback();
+                }
+            } catch (SQLException e1) {
+                throw new UserStoreException("Error in connection rollback ", e1);
+            }
             log.error("Error! " + e.getMessage(), e);
             throw new UserStoreException("Error! " + e.getMessage(), e);
         } finally {
@@ -838,7 +850,19 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            /*
+            The db.commit() throws SQLException
+            authorizeRoleInTree method and denyRoleInTree method throws UserStoreException.
+            dbConnection should be rolled back when an exception is thrown
+            */
+            try {
+                if (dbConnection != null) {
+                    dbConnection.rollback();
+                }
+            } catch (SQLException e1) {
+                throw new UserStoreException("Error in connection rollback ", e1);
+            }
             log.error("Error! " + e.getMessage(), e);
             throw new UserStoreException("Error! " + e.getMessage(), e);
         } finally {
