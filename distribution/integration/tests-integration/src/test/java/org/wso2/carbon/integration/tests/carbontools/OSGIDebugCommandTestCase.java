@@ -26,11 +26,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -56,7 +58,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
 
     @Test(groups = {"wso2.as"}, description = "OSGI debug command test")
     public void testOSGIDebugCommand()
-            throws Exception {
+            throws CarbonToolsIntegrationTestException, IOException {
         String[] cmdArray;
         String expectedString = "OSGi debugging has been enabled with options:";
         boolean isFoundTheMessage = false;
@@ -107,7 +109,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     @AfterClass(alwaysRun = true)
-    public void serverShutDown() throws Exception {
+    public void serverShutDown() throws CarbonToolsIntegrationTestException {
         CarbonCommandToolsUtil.serverShutdown(1, context);
         process.destroy();
     }

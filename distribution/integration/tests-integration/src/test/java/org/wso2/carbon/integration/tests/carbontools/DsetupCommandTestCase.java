@@ -24,13 +24,15 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
-import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
+import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
+import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.common.utils.LoginLogoutUtil;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -55,7 +57,8 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     private Process process;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void init()
+            throws CarbonToolsIntegrationTestException, IOException, XPathExpressionException {
 
          context =
                 new AutomationContext("CARBON", "carbon002",
@@ -86,12 +89,12 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
         if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
             cmdArrayToRecreateDB = new String[]{"-Dsetup"};
             process = CarbonCommandToolsUtil.
-                    startServerUsingCarbonHome(carbonHome,1,context,cmdArrayToRecreateDB);
+                    startServerUsingCarbonHome(carbonHome, 1, context, cmdArrayToRecreateDB);
         } else {
             cmdArrayToRecreateDB =
                     new String[]{"-Dsetup"};
             process = CarbonCommandToolsUtil.
-                    startServerUsingCarbonHome(carbonHome,1,context,cmdArrayToRecreateDB);
+                    startServerUsingCarbonHome(carbonHome, 1, context, cmdArrayToRecreateDB);
         }
         boolean startupStatus = CarbonCommandToolsUtil.isServerStartedUp(context, portOffset);
         log.info("Server startup status : " + startupStatus);
@@ -114,7 +117,7 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     public void copyFile(File src, File dest)
-            throws IOException, IOException {
+            throws IOException {
 
             //if file, then copy it
             InputStream in = new FileInputStream(src);

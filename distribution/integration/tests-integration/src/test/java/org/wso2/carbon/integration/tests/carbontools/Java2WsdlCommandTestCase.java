@@ -26,6 +26,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.utils.ServerConstants;
@@ -60,7 +61,7 @@ public class Java2WsdlCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     @Test(groups = "wso2.as", description = "Java to wsdl test")
-    public void testJava2Wsdl() throws Exception {
+    public void testJava2Wsdl() throws CarbonToolsIntegrationTestException {
         String[] cmdArrayToWsdl2Java;
         String commandDirectory;
         if (CarbonCommandToolsUtil.isCurrentOSWindows()) {

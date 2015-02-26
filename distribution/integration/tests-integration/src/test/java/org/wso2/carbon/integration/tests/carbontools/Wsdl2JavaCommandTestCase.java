@@ -26,10 +26,12 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.utils.ServerConstants;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 
 /**
@@ -51,7 +53,8 @@ public class Wsdl2JavaCommandTestCase extends CarbonIntegrationBaseTest {
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.STANDALONE})
     @Test(groups = "wso2.as", description = "generate client code HelloWorld service")
-    public void testGenerateClass() throws Exception {
+    public void testGenerateClass()
+            throws CarbonToolsIntegrationTestException, XPathExpressionException {
         boolean fileCreated = false;
         Process process = null;
         String commandDirectory;

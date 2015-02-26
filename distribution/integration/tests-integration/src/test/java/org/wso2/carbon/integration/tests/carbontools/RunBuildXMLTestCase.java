@@ -25,10 +25,12 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.testng.Assert.assertTrue;
 
@@ -51,7 +53,8 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
     }
 
     @Test(groups = {"wso2.as"}, description = "Server restart test")
-    public void testBuildXMLGenerateRemoteRegistryClients() throws Exception {
+    public void testBuildXMLGenerateRemoteRegistryClients()
+            throws CarbonToolsIntegrationTestException {
         boolean isJarCreated = false;
         Process process = null;
         try {
@@ -92,7 +95,8 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
     }
 
     @Test(groups = {"wso2.as"}, description = "Server restart test")
-    public void testBuildXMLGenerateLanguageBundle() throws Exception {
+    public void testBuildXMLGenerateLanguageBundle()
+            throws CarbonToolsIntegrationTestException, IOException {
         boolean isJarCreated = false;
         Process process = null;
         try {

@@ -29,6 +29,7 @@ import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerMa
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
 import org.wso2.carbon.automation.extensions.servers.utils.InputStreamHandler;
 import org.wso2.carbon.automation.extensions.servers.utils.ServerLogReader;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.server.admin.ui.ServerAdminClient;
 
 import java.io.BufferedReader;
@@ -57,10 +58,11 @@ public class CarbonCommandToolsUtil {
      * @param cmdArray       - Command array to be executed.
      * @param expectedString - Expected string in  the log.
      * @return boolean - true : Found the expected string , false : not found the expected string.
-     * @throws java.io.IOException - Error while getting the command directory
+     * @throws CarbonToolsIntegrationTestException - Error while getting the command directory
      */
     public static boolean isScriptRunSuccessfully(String directory, String[] cmdArray,
-                                                  String expectedString) throws IOException {
+                                                  String expectedString)
+            throws CarbonToolsIntegrationTestException {
         boolean isFoundTheMessage = false;
         BufferedReader br = null;
         Process process = null;
@@ -87,11 +89,16 @@ public class CarbonCommandToolsUtil {
         } catch (IOException ex) {
             log.error("Error when reading the InputStream when running shell script  " +
                       ex.getMessage(), ex);
-            throw new IOException("Error when reading the InputStream when running shell script "
-                                  + ex.getMessage(), ex);
+            throw new CarbonToolsIntegrationTestException("Error when reading the InputStream when " +
+                                                          "running shell script ", ex);
         } finally {
             if (br != null) {
-                br.close();
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    log.error("Error when closing BufferedReader  ", e);
+                    throw new CarbonToolsIntegrationTestException("Error when closing BufferedReader ", e);
+                }
             }
             if (process != null) {
                 process.destroy();
@@ -105,10 +112,10 @@ public class CarbonCommandToolsUtil {
      * @param directory - Directory which has the file to be executed .
      * @param cmdArray  - Command array to be executed
      * @return Process - executed process
-     * @throws java.io.IOException - Error while getting the execution directory
+     * @throws CarbonToolsIntegrationTestException - Error while getting the execution directory
      */
     public static Process runScript(String directory, String[] cmdArray)
-            throws IOException {
+            throws CarbonToolsIntegrationTestException {
 
         Process process;
         try {
@@ -116,10 +123,9 @@ public class CarbonCommandToolsUtil {
             process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
             return process;
         } catch (IOException ex) {
-            log.error("Error when reading the InputStream when running shell script " +
-                      ex.getMessage(), ex);
-            throw new IOException("Error when reading the InputStream when running shell script "
-                                  + ex.getMessage(), ex);
+            log.error("Error when reading the InputStream when running shell script " + ex.getMessage());
+            throw new CarbonToolsIntegrationTestException("Error when reading the InputStream when " +
+                                                          "running shell script ", ex);
         }
     }
 
@@ -166,20 +172,25 @@ public class CarbonCommandToolsUtil {
      *
      * @param automationContext - AutomationContext
      * @return true: If server is up else false
-     * @throws Exception  - Error while waiting for login
+     * @throws CarbonToolsIntegrationTestException - Error while waiting for login
      */
     public static boolean isServerStartedUp(AutomationContext automationContext, int portOffset)
-            throws Exception {
+            throws CarbonToolsIntegrationTestException {
+        try {
+            //Waiting util a port is open, If couldn't open within given time this will throw an Exception
+            ClientConnectionUtil.waitForPort(
+                    Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset,
+                    DEFAULT_START_STOP_WAIT_MS, false, automationContext.getInstance().getHosts().get("default"));
 
-        //Waiting util a port is open, If couldn't open within given time this will throw an Exception
-        ClientConnectionUtil.waitForPort(
-                Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset,
-                DEFAULT_START_STOP_WAIT_MS, false, automationContext.getInstance().getHosts().get("default"));
+            //Waiting util login to the the server this will throw LoginAuthenticationExceptionException if fails
+            ClientConnectionUtil.waitForLogin(automationContext);
+            log.info("Server started successfully.");
+            return true;
+        } catch (Exception e) {
+            log.error("Error while waiting for login " + e.getMessage());
+            throw new CarbonToolsIntegrationTestException("Error while waiting for login ", e);
+        }
 
-        //Waiting util login to the the server this will throw LoginAuthenticationExceptionException if fails
-        ClientConnectionUtil.waitForLogin(automationContext);
-        log.info("Server started successfully.");
-        return true;
     }
 
     /**
@@ -197,7 +208,7 @@ public class CarbonCommandToolsUtil {
         while (isPortOpen && (System.currentTimeMillis() - startTime) < TIMEOUT) {
             isPortOpen = ClientConnectionUtil.isPortOpen(
                     Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset);
-            if(isPortOpen){
+            if (isPortOpen) {
                 Thread.sleep(1000); // waiting 1 sec to check isPortOpen again
             }
         }
@@ -241,41 +252,55 @@ public class CarbonCommandToolsUtil {
      *
      * @param context - AutomationContext
      * @return - carbon home
-     * @throws java.io.IOException - Error while setup carbon home from carbon zip file
+     * @throws CarbonToolsIntegrationTestException - Error while setup carbon home from carbon zip file
      */
     public static String getCarbonHome(AutomationContext context)
-            throws IOException {
-        if (carbonHome != null) {
+            throws CarbonToolsIntegrationTestException {
+        try {
+            if (carbonHome != null) {
+                return carbonHome;
+            }
+            String carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
+            CarbonServerManager carbonServerManager = new CarbonServerManager(context);
+            carbonHome = carbonServerManager.setUpCarbonHome(carbonZip);
             return carbonHome;
+        }catch (Exception ex) {
+            log.error("Error while shutting down the server using default credentials" + ex.getMessage());
+            throw new CarbonToolsIntegrationTestException("Error while shutting down the server using " +
+                                                          "default credentials ", ex);
         }
-        String carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
-        CarbonServerManager carbonServerManager = new CarbonServerManager(context);
-        carbonHome = carbonServerManager.setUpCarbonHome(carbonZip);
-        return carbonHome;
     }
 
     public static void serverShutdown(int portOffset,
-                                      AutomationContext automationContext) throws Exception {
+                                      AutomationContext automationContext)
+            throws CarbonToolsIntegrationTestException {
         long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
         log.info("Shutting down server..");
         boolean logOutSuccess = false;
-        if (ClientConnectionUtil.isPortOpen(
-                Integer.parseInt(ExtensionConstants.SERVER_DEFAULT_HTTPS_PORT))) {
+        try {
+            if (ClientConnectionUtil.isPortOpen(
+                    Integer.parseInt(ExtensionConstants.SERVER_DEFAULT_HTTPS_PORT))) {
 
-            int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
-            String url = automationContext.getContextUrls().getBackEndUrl();
-            String backendURL = url.replaceAll("(:\\d+)", ":" + httpsPort);
+                int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
+                String url = automationContext.getContextUrls().getBackEndUrl();
+                String backendURL = url.replaceAll("(:\\d+)", ":" + httpsPort);
 
-            ServerAdminClient serverAdminServiceClient = new ServerAdminClient(backendURL,
-                                                                               automationContext.getContextTenant().getTenantAdmin().getUserName(),
-                                                                               automationContext.getContextTenant().getTenantAdmin().getPassword());
+                ServerAdminClient serverAdminServiceClient =
+                        new ServerAdminClient(backendURL,automationContext.getContextTenant().
+                                getTenantAdmin().getUserName(), automationContext.getContextTenant().
+                                getTenantAdmin().getPassword());
 
-            serverAdminServiceClient.shutdown();
-            while (System.currentTimeMillis() < time && !logOutSuccess) {
-                logOutSuccess = isServerDown(automationContext, portOffset);
-                // wait until server shutdown is completed
+                serverAdminServiceClient.shutdown();
+                while (System.currentTimeMillis() < time && !logOutSuccess) {
+                    logOutSuccess = isServerDown(automationContext, portOffset);
+                    // wait until server shutdown is completed
+                }
+                log.info("Server stopped successfully...");
             }
-            log.info("Server stopped successfully...");
+        } catch (Exception ex) {
+            log.error("Error while shutting down the server using default credentials" + ex.getMessage());
+            throw new CarbonToolsIntegrationTestException("Error while shutting down the server using " +
+                                                          "default credentials ", ex);
         }
 
     }
@@ -284,41 +309,46 @@ public class CarbonCommandToolsUtil {
     public static Process startServerUsingCarbonHome(String carbonHome, int portOffset,
                                                      AutomationContext automationContext,
                                                      String[] parameters) throws Exception {
-
         Process tempProcess;
         String scriptName = "wso2server";
-        File commandDir = new File(carbonHome);
-        String[] cmdArray;
-        log.info("Starting server............. ");
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            commandDir = new File(carbonHome + File.separator + "bin");
-            cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "-DportOffset=" + portOffset};
-            cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
-            tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
-        } else {
-            cmdArray = new String[]{"sh", "bin/" + scriptName + ".sh", "-DportOffset=" + portOffset};
-            cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
-            tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
+        try {
+            File commandDir = new File(carbonHome);
+            String[] cmdArray;
+            log.info("Starting server............. ");
+            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                commandDir = new File(carbonHome + File.separator + "bin");
+                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "-DportOffset=" + portOffset};
+                cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
+                tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
+            } else {
+                cmdArray = new String[]{"sh", "bin/" + scriptName + ".sh", "-DportOffset=" + portOffset};
+                cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
+                tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
+            }
+            int defaultHttpPort = Integer.parseInt(automationContext.getInstance().getPorts().get("http"));
+            InputStreamHandler errorStreamHandler =
+                    new InputStreamHandler("errorStream", tempProcess.getErrorStream());
+            inputStreamHandler = new ServerLogReader("inputStream", tempProcess.getInputStream());
+            // start the stream readers
+            inputStreamHandler.start();
+            errorStreamHandler.start();
+            ClientConnectionUtil.waitForPort(defaultHttpPort,
+                                             DEFAULT_START_STOP_WAIT_MS, false,
+                                             automationContext.getInstance().getHosts().get("default"));
+            //wait until Mgt console url printed.
+            long time = System.currentTimeMillis() + TIMEOUT;
+            while (!inputStreamHandler.getOutput().contains(SERVER_STARTUP_MESSAGE) &&
+                   System.currentTimeMillis() < time) {
+                // wait until server startup is completed
+            }
+            ClientConnectionUtil.waitForLogin(automationContext);
+            log.info("Server started successfully.");
+            return tempProcess;
+        } catch (Exception ex) {
+            log.error("Error while starting the server using carbon home" + ex.getMessage());
+            throw new CarbonToolsIntegrationTestException("Error while starting the server using carbon home", ex);
         }
-        int defaultHttpPort = Integer.parseInt(automationContext.getInstance().getPorts().get("http"));
-        InputStreamHandler errorStreamHandler =
-                new InputStreamHandler("errorStream", tempProcess.getErrorStream());
-        inputStreamHandler = new ServerLogReader("inputStream", tempProcess.getInputStream());
-        // start the stream readers
-        inputStreamHandler.start();
-        errorStreamHandler.start();
-        ClientConnectionUtil.waitForPort(defaultHttpPort,
-                                         DEFAULT_START_STOP_WAIT_MS, false,
-                                         automationContext.getInstance().getHosts().get("default"));
-        //wait until Mgt console url printed.
-        long time = System.currentTimeMillis() + TIMEOUT;
-        while (!inputStreamHandler.getOutput().contains(SERVER_STARTUP_MESSAGE) &&
-               System.currentTimeMillis() < time) {
-            // wait until server startup is completed
-        }
-        ClientConnectionUtil.waitForLogin(automationContext);
-        log.info("Server started successfully.");
-        return tempProcess;
+
     }
 
     private static String[] mergePropertiesToCommandArray(String[] parameters, String[] cmdArray) {
@@ -334,20 +364,24 @@ public class CarbonCommandToolsUtil {
 
 
     public static void serverShutdown(String backendURL, String userName, String passWord,
-                                      AutomationContext context, int portOffset) throws Exception {
+                                      AutomationContext context, int portOffset) throws CarbonToolsIntegrationTestException {
 
-        log.info("Shutting down server..");
-        boolean logOutSuccess = false;
-        ServerAdminClient serverAdminServiceClient =
-                new ServerAdminClient(backendURL, userName, passWord);
-        serverAdminServiceClient.shutdown();
-        long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
-        while (System.currentTimeMillis() < time && !logOutSuccess) {
-            logOutSuccess = isServerDown(context, portOffset);
-            // wait until server shutdown is completed
+        try {
+            log.info("Shutting down server..");
+            boolean logOutSuccess = false;
+            ServerAdminClient serverAdminServiceClient =
+                    new ServerAdminClient(backendURL, userName, passWord);
+            serverAdminServiceClient.shutdown();
+            long time = System.currentTimeMillis() + DEFAULT_START_STOP_WAIT_MS;
+            while (System.currentTimeMillis() < time && !logOutSuccess) {
+                logOutSuccess = isServerDown(context, portOffset);
+                // wait until server shutdown is completed
+            }
+            log.info("Server stopped successfully...");
+        } catch (Exception ex) {
+            log.error("Error while shutting down the server using default credentials" + ex.getMessage());
+            throw new CarbonToolsIntegrationTestException("Error while shutting down the server using default credentials", ex);
         }
-        log.info("Server stopped successfully...");
-
     }
 
 

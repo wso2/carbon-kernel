@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.MultipleServersManager;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 
@@ -75,7 +76,8 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
     }
 
     @Test(groups = "wso2.all", description = "Identifying and storing active OSGI components")
-    public void testOSGIActiveComponents() throws Exception {
+    public void testOSGIActiveComponents()
+            throws CarbonToolsIntegrationTestException, IOException {
         telnet.connect(InetAddress.getLocalHost().getHostAddress(), telnetPort);
         telnet.setSoTimeout(10000);
         ArrayList<String> arr = retrieveActiveComponentsList("ls");

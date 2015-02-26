@@ -26,15 +26,18 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.utils.ServerConstants;
 import sun.management.VMManagement;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -54,7 +57,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     Process processStop;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void init() throws CarbonToolsIntegrationTestException, XPathExpressionException {
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
         context = new AutomationContext("CARBON", "carbon002",
                                         ContextXpathConstants.SUPER_TENANT,
@@ -63,7 +66,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"wso2.as"}, description = "Server start test")
-    public void testStartCommand() throws Exception {
+    public void testStartCommand() throws CarbonToolsIntegrationTestException,
+                                          NoSuchFieldException, IllegalAccessException {
         String[] cmdArrayToStart;
         Process process;
 
@@ -86,7 +90,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"wso2.as"}, description = "Server start test", dependsOnMethods = {"testStartCommand"})
-    public void testDumpCommandOnLinux() throws Exception {
+    public void testDumpCommandOnLinux() throws CarbonToolsIntegrationTestException {
         String[] cmdArray;
         Process processDump = null;
         try {
@@ -107,7 +111,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
 
     @Test(groups = {"wso2.as"}, description = "Server restart test",
             dependsOnMethods = {"testDumpCommandOnLinux"})
-    public void testRestartCommand() throws Exception {
+    public void testRestartCommand()
+            throws CarbonToolsIntegrationTestException, InterruptedException {
         String[] cmdArrayToReStart;
         if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
             throw new SkipException("Feature --restart is not available for windows");
@@ -127,7 +132,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
 
     @Test(groups = {"wso2.as"}, description = "Server stop test",
             dependsOnMethods = {"testRestartCommand"})
-    public void testStopCommand() throws Exception {
+    public void testStopCommand() throws CarbonToolsIntegrationTestException, InterruptedException {
         String[] cmdArray;
         boolean startupStatus = false;
         try {
@@ -147,7 +152,9 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"wso2.as"}, description = "Server stop test")
-    public void testDumpCommandOnWindows() throws Exception {
+    public void testDumpCommandOnWindows()
+            throws CarbonToolsIntegrationTestException, NoSuchFieldException,
+                   IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         Process processDump = null;
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         try {
@@ -175,7 +182,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @AfterClass(alwaysRun = true)
-    public void serverShutDown() throws Exception {
+    public void serverShutDown() throws CarbonToolsIntegrationTestException {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 try {

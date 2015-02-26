@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.integration.tests.carbontools;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterClass;
@@ -32,7 +33,9 @@ import org.wso2.carbon.integration.common.utils.CarbonIntegrationConstants;
 import org.wso2.carbon.integration.common.utils.LoginLogoutUtil;
 import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertTrue;
@@ -56,7 +59,7 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
     private static String H2DB_URL;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void init() throws XPathExpressionException, MalformedURLException, AxisFault {
         context = new AutomationContext("CARBON", "carbon002",
                                         ContextXpathConstants.SUPER_TENANT,
                                         ContextXpathConstants.SUPER_ADMIN);
