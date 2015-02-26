@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.MultipleServersManager;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
@@ -80,7 +81,8 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
 
         String[] cmdArray;
         String commandDirectory;
-        if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+        if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
             cmdArray = new String[]
                     {"cmd.exe", "/c", "chpasswd.bat", "--db-url", "jdbc:h2:" + CARBON_HOME +
                                                                   H2DB_URL, "--db-driver", "org.h2.Driver", "--db-username", "wso2carbon",

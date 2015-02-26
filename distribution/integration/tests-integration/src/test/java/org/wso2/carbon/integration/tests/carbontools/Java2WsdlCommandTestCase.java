@@ -25,6 +25,7 @@ import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
 import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
@@ -64,7 +65,8 @@ public class Java2WsdlCommandTestCase extends CarbonIntegrationBaseTest {
     public void testJava2Wsdl() throws CarbonToolsIntegrationTestException {
         String[] cmdArrayToWsdl2Java;
         String commandDirectory;
-        if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+        if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
             throw new SkipException("Issue with wsdl2java.bat");
 //            https://wso2.org/jira/browse/CARBON-15150
 //            cmdArrayToWsdl2Java =

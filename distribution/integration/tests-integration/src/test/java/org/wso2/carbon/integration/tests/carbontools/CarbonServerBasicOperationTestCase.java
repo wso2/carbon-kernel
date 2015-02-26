@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
@@ -71,7 +72,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         String[] cmdArrayToStart;
         Process process;
 
-        if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+        if (CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                contains(OperatingSystems.WINDOWS.name().toLowerCase())) {
             throw new SkipException("Feature --start is not available for windows");
         } else {
             cmdArrayToStart = new String[]
@@ -94,7 +96,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         String[] cmdArray;
         Process processDump = null;
         try {
-            if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+            if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                    contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
                 throw new SkipException("Feature --start is not available for windows");
                 // Since we are skipping --start feature it won
             } else {
@@ -114,7 +117,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     public void testRestartCommand()
             throws CarbonToolsIntegrationTestException, InterruptedException {
         String[] cmdArrayToReStart;
-        if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+        if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
             throw new SkipException("Feature --restart is not available for windows");
         } else {
             cmdArrayToReStart = new String[]
@@ -136,7 +140,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         String[] cmdArray;
         boolean startupStatus = false;
         try {
-            if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+            if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                    contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
                 throw new SkipException("Feature --stop is not available for windows");
             } else {
                 cmdArray = new String[]{"sh", "wso2server.sh", "--stop", "-DportOffset=" + portOffset};
@@ -158,7 +163,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         Process processDump = null;
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         try {
-            if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+            if (CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                    contains(OperatingSystems.WINDOWS.name().toLowerCase())) {
                 RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
                 Field jvmField = runtimeMXBean.getClass().getDeclaredField("jvm");
                 jvmField.setAccessible(true);

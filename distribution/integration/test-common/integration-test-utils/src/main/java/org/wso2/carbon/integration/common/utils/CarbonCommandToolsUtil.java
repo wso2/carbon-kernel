@@ -235,16 +235,12 @@ public class CarbonCommandToolsUtil {
     }
 
     /**
-     * This method is to check running os is windows or not
+     * This method is to return operating system
      *
      * @return if current os is windows return true : else false
      */
-    public static boolean isCurrentOSWindows() {
-        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            return true;
-        }
-        return false;
-
+    public static String getCurrentOperatingSystem() {
+        return System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_OS_NAME).toLowerCase();
     }
 
     /**

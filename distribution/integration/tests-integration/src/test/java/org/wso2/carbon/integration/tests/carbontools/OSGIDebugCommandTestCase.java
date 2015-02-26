@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
@@ -67,7 +68,8 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
         int timeout = 30000;
 
         BufferedReader br = null;
-        if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+        if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
             cmdArray = new String[]
                     {"cmd.exe", "/c", "wso2server.bat", "-DosgiDebugOptions", "-DportOffset=1"};
             commandDirectory = CarbonCommandToolsUtil.getCarbonHome(context) + File.separator + "bin";

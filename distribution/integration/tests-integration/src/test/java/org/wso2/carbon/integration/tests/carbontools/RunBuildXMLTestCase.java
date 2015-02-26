@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
 import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
@@ -62,7 +63,8 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
             File folder = new File(carbonHome + File.separator + "repository" + File.separator + "lib");
             File[] listOfFilesBeforeRunAntCommand = folder.listFiles();
             String[] cmdArray;
-            if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+            if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                    contains(OperatingSystems.WINDOWS.name().toLowerCase()))) {
                 cmdArray = new String[]{"cmd.exe", "/c", "start", "ant" };
             } else {
                 cmdArray = new String[]{"ant"};
@@ -107,7 +109,8 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
             File targetFile = new File(carbonHome + File.separator + "resources");
             super.copyFolder(sourceFile, targetFile);
             String cmdArray[];
-            if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+            if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                    contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
                 cmdArray = new String[]{"cmd.exe", "/c", "start", "ant", "localize"};
             } else {
                 cmdArray = new String[]{"ant", "localize"};

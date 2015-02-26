@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
 import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
@@ -86,7 +87,8 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     public void testCleanResource() throws Exception {
 
         String[] cmdArrayToRecreateDB;
-        if (CarbonCommandToolsUtil.isCurrentOSWindows()) {
+        if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
+                contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
             cmdArrayToRecreateDB = new String[]{"-Dsetup"};
             process = CarbonCommandToolsUtil.
                     startServerUsingCarbonHome(carbonHome, 1, context, cmdArrayToRecreateDB);
