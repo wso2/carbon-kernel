@@ -89,7 +89,7 @@ public final class RegistryUtils {
 
     private static final Log log = LogFactory.getLog(RegistryUtils.class);
     private static final String ENCODING = System.getProperty("carbon.registry.character.encoding");
-    public static final String MY_SQL_PRODUCT_NAME = "MySQL";
+    private static final String MY_SQL_PRODUCT_NAME = "MySQL";
 
     private RegistryUtils() {
     }
