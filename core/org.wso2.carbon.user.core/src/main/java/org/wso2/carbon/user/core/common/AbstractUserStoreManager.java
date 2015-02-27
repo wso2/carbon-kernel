@@ -811,7 +811,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 			if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimURI)) {
 				attributeName = claimURI;
 			} else {
-				throw new UserStoreException("Invalid claim URI value");
+				throw new UserStoreException("Invalid claim URI value - '" + claimURI + "'");
 			}
 		}
 
