@@ -28,30 +28,36 @@ import java.util.Map;
  * A node in the Tree structure used to maintain hierarchical security permissions. The growth
  * of the tree is on the order of explicit permission statements, and not on the number of
  * resources whose permissions are maintained.
- *
  */
 public class TreeNode {
 
-    public static enum Permission { GET, ADD, DELETE, EDIT, LOGIN, MAN_CONFIG, MAN_LC_CONFIG, MAN_SEC, UP_SERV,
-        MAN_SERV, MAN_MEDIA, MON_SYS, DEL_ID, AUTHORIZE, INV_SER, UI_EXECUTE, SUBSCRIBE, PUBLISH, CONSUME, CHANGE_PERMISSION, BROWSE,
-        SQS_SEND_MESSAGE, SQS_RECEIVE_MESSAGE, SQS_DELETE_MESSAGE, SQS_CHANGE_MESSAGE_VISIBILITY, SQS_GET_QUEUE_ATTRIBUTES
-    }
-
-    /** The name of the node - For the Registry, this would be the name of a Collection/Resource */
+    /**
+     * The name of the node - For the Registry, this would be the name of a Collection/Resource
+     */
     private String name;
-    /** The children of this node - maintained on a Map by the names */
+    /**
+     * The children of this node - maintained on a Map by the names
+     */
     private Map<String, TreeNode> children = new HashMap<String, TreeNode>();
-    /** Explicit allow permission for specific users */
+    /**
+     * Explicit allow permission for specific users
+     */
     private Map<String, BitSet> userAllowPermissions = new HashMap<String, BitSet>();
-    /** Explicit deny permission for specific users */
-    private Map<String, BitSet> userDenyPermissions  = new HashMap<String, BitSet>();
-    /** Explicit allow permission for specific roles */
+    /**
+     * Explicit deny permission for specific users
+     */
+    private Map<String, BitSet> userDenyPermissions = new HashMap<String, BitSet>();
+    /**
+     * Explicit allow permission for specific roles
+     */
     private Map<String, BitSet> roleAllowPermissions = new HashMap<String, BitSet>();
-    /** Explicit deny permission for specific roles */
-    private Map<String, BitSet> roleDenyPermissions  = new HashMap<String, BitSet>();
-
+    /**
+     * Explicit deny permission for specific roles
+     */
+    private Map<String, BitSet> roleDenyPermissions = new HashMap<String, BitSet>();
     /**
      * Constructor
+     *
      * @param name the name of the TreeNode
      */
     TreeNode(String name) {
@@ -60,6 +66,7 @@ public class TreeNode {
 
     /**
      * Get the child by the given name
+     *
      * @param name name of the child node
      * @return the child with the given name, or null
      */
@@ -69,7 +76,8 @@ public class TreeNode {
 
     /**
      * Is the 'user' authorized for the given permission on this node?
-     * @param user the name of the user
+     *
+     * @param user       the name of the user
      * @param permission the permission
      * @return Boolean.TRUE if authorized, Boolean.FALSE if not
      */
@@ -89,7 +97,8 @@ public class TreeNode {
 
     /**
      * Is the 'role' authorized for the given permission on this node?
-     * @param role the name of the role
+     *
+     * @param role       the name of the role
      * @param permission the permission
      * @return Boolean.TRUE if authorized, Boolean.FALSE if not
      */
@@ -109,7 +118,8 @@ public class TreeNode {
 
     /**
      * Grant explicit authorization to the 'user' on this node for permission
-     * @param user the user who is granted authorization
+     *
+     * @param user       the user who is granted authorization
      * @param permission the permission granted
      */
     public void authorizeUser(String user, Permission permission) {
@@ -130,7 +140,8 @@ public class TreeNode {
 
     /**
      * Grant explicit authorization to the 'role' on this node for permission
-     * @param role the role that is granted authorization
+     *
+     * @param role       the role that is granted authorization
      * @param permission the permission granted
      */
     public void authorizeRole(String role, Permission permission) {
@@ -151,7 +162,8 @@ public class TreeNode {
 
     /**
      * Deny explicit authorization to the 'user' on this node for permission
-     * @param user the user that is denied authorization
+     *
+     * @param user       the user that is denied authorization
      * @param permission the permission denied
      */
     public void denyUser(String user, Permission permission) {
@@ -172,7 +184,8 @@ public class TreeNode {
 
     /**
      * Deny explicit authorization to the 'role' on this node for permission
-     * @param role the role that is denied authorization
+     *
+     * @param role       the role that is denied authorization
      * @param permission the permission denied
      */
     public void denyRole(String role, Permission permission) {
@@ -193,6 +206,7 @@ public class TreeNode {
 
     /**
      * Create the tree structure for the given paths array of nodes
+     *
      * @param paths an array of hierarchical nodes to be created, in-order
      * @return the reference to the lowest decendent created
      */
@@ -214,6 +228,7 @@ public class TreeNode {
 
     /**
      * The name of the node
+     *
      * @return node name
      */
     public String getName() {
@@ -222,6 +237,7 @@ public class TreeNode {
 
     /**
      * The children of the node as a Map keyed by the name
+     *
      * @return the children as a Map
      */
     public Map<String, TreeNode> getChildren() {
@@ -257,7 +273,7 @@ public class TreeNode {
 
         Map<String, TreeNode> children = this.getChildren();
         if (null != children) {
-            for (Map.Entry<String, TreeNode> entry : children.entrySet()){
+            for (Map.Entry<String, TreeNode> entry : children.entrySet()) {
                 TreeNode node = entry.getValue();
                 if (null != node) {
                     node.clearNodes();
@@ -268,7 +284,7 @@ public class TreeNode {
         }
     }
 
-    public int hashCode () {
+    public int hashCode() {
         int hash = 7;
         hash = 31 * hash + (null == this.name ? 0 : this.name.hashCode());
         hash = 31 * hash + (null == this.children ? 0 : this.children.hashCode());
@@ -278,6 +294,12 @@ public class TreeNode {
         hash = 31 * hash + (null == this.roleDenyPermissions ? 0 : this.roleDenyPermissions.hashCode());
         hash = 31 * hash + (null == this.roleDenyPermissions ? 0 : this.roleDenyPermissions.hashCode());
         return hash;
+    }
+
+    public static enum Permission {
+        GET, ADD, DELETE, EDIT, LOGIN, MAN_CONFIG, MAN_LC_CONFIG, MAN_SEC, UP_SERV,
+        MAN_SERV, MAN_MEDIA, MON_SYS, DEL_ID, AUTHORIZE, INV_SER, UI_EXECUTE, SUBSCRIBE, PUBLISH, CONSUME, CHANGE_PERMISSION, BROWSE,
+        SQS_SEND_MESSAGE, SQS_RECEIVE_MESSAGE, SQS_DELETE_MESSAGE, SQS_CHANGE_MESSAGE_VISIBILITY, SQS_GET_QUEUE_ATTRIBUTES
     }
 
 }

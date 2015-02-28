@@ -35,6 +35,7 @@ public interface AuthorizationManagerListener {
 
     /**
      * Get the execution order identifier for this listener.
+     *
      * @return The execution order identifier integer value.
      */
     int getExecutionOrderId();
@@ -42,215 +43,162 @@ public interface AuthorizationManagerListener {
     /**
      * Checks for user authorization.
      *
-     * @param userName
-     *            The user name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the user
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param userName             The user name
+     * @param resourceId           Resource identification string
+     * @param action               The action granted to the user
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean isUserAuthorized(String userName, String resourceId, String action,
-                              AuthorizationManager authorizationManager) throws UserStoreException;
+                             AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Checks for role authorization.
      *
-     * @param roleName
-     *            The role name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the user
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param roleName             The role name
+     * @param resourceId           Resource identification string
+     * @param action               The action granted to the user
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean isRoleAuthorized(String roleName, String resourceId, String action,
-                              AuthorizationManager authorizationManager) throws UserStoreException;
+                             AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Grants authorizations to a user to perform an action on a resource.
      *
-     * @param userName
-     *            The user name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the user
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param userName             The user name
+     * @param resourceId           Resource identification string
+     * @param action               The action granted to the user
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean authorizeUser(String userName, String resourceId, String action,
-                              AuthorizationManager authorizationManager) throws UserStoreException;
+                          AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Grants authorizes to a role to perform an action on a resource.
      *
-     * @param roleName
-     *            The role name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the role
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param roleName             The role name
+     * @param resourceId           Resource identification string
+     * @param action               The action granted to the role
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean authorizeRole(String roleName, String resourceId, String action,
-                              AuthorizationManager authorizationManager) throws UserStoreException;
+                          AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Deny authorizations to a user to perform an action on a resource.
      *
-     * @param userName
-     *            The user name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the user
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param userName             The user name
+     * @param resourceId           Resource identification string
+     * @param action               The action granted to the user
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean denyUser(String userName, String resourceId, String action,
-                         AuthorizationManager authorizationManager) throws UserStoreException;
+                     AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Deny authorizations to a role to perform an action on a resource.
      *
-     * @param roleName
-     *            The role name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the role
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param roleName             The role name
+     * @param resourceId           Resource identification string
+     * @param action               The action granted to the role
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean denyRole(String roleName, String resourceId, String action,
-                         AuthorizationManager authorizationManager) throws UserStoreException;
+                     AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Deletes an already granted authorization of a user.
      *
-     * @param userName
-     *            The user name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param userName             The user name
+     * @param resourceId           Resource identification string
+     * @param action               The action granted
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean clearUserAuthorization(String userName, String resourceId, String action,
-                                       AuthorizationManager authorizationManager) throws UserStoreException;
+                                   AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
-     *
-     * @param userName the user name
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param userName             the user name
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean clearUserAuthorization(String userName,
-                                       AuthorizationManager authorizationManager) throws UserStoreException;
+                                   AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Deletes an already granted authorization of a role.
      *
-     * @param roleName
-     *            The role name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param roleName             The role name
+     * @param resourceId           Resource identification string
+     * @param action               The action granted
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean clearRoleAuthorization(String roleName, String resourceId, String action,
-                                       AuthorizationManager authorizationManager) throws UserStoreException;
+                                   AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Deletes the role's right to perform the action on all resources.
      *
-     * @param roleName
-     *            The role name
-     * @param action
-     *            The action granted
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param roleName             The role name
+     * @param action               The action granted
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean clearRoleActionOnAllResources(String roleName, String action,
-                                              AuthorizationManager authorizationManager)
+                                          AuthorizationManager authorizationManager)
             throws UserStoreException;
 
     /**
      * Used when deleting roles.
      *
-     * @param roleName
-     *            The role name
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param roleName             The role name
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean clearRoleAuthorization(String roleName,
-                                       AuthorizationManager authorizationManager) throws UserStoreException;
+                                   AuthorizationManager authorizationManager) throws UserStoreException;
 
     /**
      * Deletes all granted authorization on a resource.
      *
-     * @param resourceId
-     *            Resource identification string
-     * @param authorizationManager
-     *            The underlying AuthorizationManager
+     * @param resourceId           Resource identification string
+     * @param authorizationManager The underlying AuthorizationManager
      * @return Whether execution of this method of the underlying
-     *         UserStoreManager must happen.
-     * @throws UserStoreException
-     *            Thrown by the underlying UserStoreManager
+     * UserStoreManager must happen.
+     * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     boolean clearResourceAuthorizations(String resourceId,
-                                            AuthorizationManager authorizationManager)
+                                        AuthorizationManager authorizationManager)
             throws UserStoreException;
 
     /**
@@ -261,6 +209,6 @@ public interface AuthorizationManagerListener {
      * @throws UserStoreException
      */
     boolean resetPermissionOnUpdateRole(String roleName, String newRoleName,
-                                               AuthorizationManager authorizationManager)
+                                        AuthorizationManager authorizationManager)
             throws UserStoreException;
 }

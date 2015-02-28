@@ -25,5 +25,5 @@ import java.io.Serializable;
  * claim has a uri, display name, value and many other properties. This class
  * models the properties of a claim.
  */
-public class Claim extends org.wso2.carbon.user.api.Claim implements Serializable{
+public class Claim extends org.wso2.carbon.user.api.Claim implements Serializable {
 }

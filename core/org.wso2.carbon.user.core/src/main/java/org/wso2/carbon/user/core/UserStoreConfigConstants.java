@@ -28,9 +28,9 @@ public class UserStoreConfigConstants {
     public static final String dataSource = "dataSource";
     public static final String dataSourceDescription = "Connection name to user store";
     //Common Properties
-    public static final String maxRoleNameListLength = "MaxRoleNameListLength" ;
+    public static final String maxRoleNameListLength = "MaxRoleNameListLength";
     public static final String maxRoleNameListLengthDescription = "Maximum number of roles retrieved at once";
-    public static final String maxUserNameListLength =  "MaxUserNameListLength";
+    public static final String maxUserNameListLength = "MaxUserNameListLength";
     public static final String maxUserNameListLengthDescription = "Maximum number of users retrieved at once";
     public static final String userRolesCacheEnabled = "UserRolesCacheEnabled";
     public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the role list of a user";
@@ -40,34 +40,34 @@ public class UserStoreConfigConstants {
 
     //Mandatory to LDAP user stores
     public static final String connectionURL = "ConnectionURL";
-    public static final String connectionURLDescription =  "Connection URL for the user store";
+    public static final String connectionURLDescription = "Connection URL for the user store";
     public static final String connectionName = "ConnectionName";
     public static final String connectionNameDescription = "This should be the DN (Distinguish Name) of the admin user in LDAP";
     public static final String connectionPassword = "ConnectionPassword";
     public static final String connectionPasswordDescription = "Password of the admin user";
-    public static final String userSearchBase =  "UserSearchBase";
+    public static final String userSearchBase = "UserSearchBase";
     public static final String userSearchBaseDescription = "DN of the context under which user entries are stored in LDAP";
-    public static final String disabled  = "Disabled";
+    public static final String disabled = "Disabled";
     public static final String disabledDescription = "Whether user store is disabled";
 
 
     //Write Group Privilege Properties
     public static final String writeGroups = "WriteGroups";
     public static final String writeGroupsDescription = "Indicate whether write groups enabled";
-    public static final String userEntryObjectClass = "UserEntryObjectClass" ;
+    public static final String userEntryObjectClass = "UserEntryObjectClass";
     public static final String userEntryObjectClassDescription = "Object Class used to construct user entries";
-    public static final String passwordJavaScriptRegEx =  "PasswordJavaScriptRegEx";
-    public static final String passwordJavaScriptRegExDescription =  "Policy that defines the password format";
-    public static final String usernameJavaScriptRegEx =  "UserNameJavaScriptRegEx";
-    public static final String usernameJavaScriptRegExDescription =  "The regular expression used by the front-end components for username validation";
-    public static final String usernameJavaRegEx =  "UserNameJavaRegEx";
-    public static final String usernameJavaRegExDescription =  "A regular expression to validate user names";
-    public static final String roleNameJavaScriptRegEx =  "RoleNameJavaScriptRegEx";
-    public static final String roleNameJavaScriptRegExDescription =  "The regular expression used by the front-end components for role name validation";
-    public static final String roleNameJavaRegEx  =  "RoleNameJavaRegEx";
-    public static final String roleNameJavaRegExDescription =  "A regular expression to validate role names";
-    public static final String groupEntryObjectClass =  "GroupEntryObjectClass";
-    public static final String groupEntryObjectClassDescription =  "Object Class used to construct group entries";
+    public static final String passwordJavaScriptRegEx = "PasswordJavaScriptRegEx";
+    public static final String passwordJavaScriptRegExDescription = "Policy that defines the password format";
+    public static final String usernameJavaScriptRegEx = "UserNameJavaScriptRegEx";
+    public static final String usernameJavaScriptRegExDescription = "The regular expression used by the front-end components for username validation";
+    public static final String usernameJavaRegEx = "UserNameJavaRegEx";
+    public static final String usernameJavaRegExDescription = "A regular expression to validate user names";
+    public static final String roleNameJavaScriptRegEx = "RoleNameJavaScriptRegEx";
+    public static final String roleNameJavaScriptRegExDescription = "The regular expression used by the front-end components for role name validation";
+    public static final String roleNameJavaRegEx = "RoleNameJavaRegEx";
+    public static final String roleNameJavaRegExDescription = "A regular expression to validate role names";
+    public static final String groupEntryObjectClass = "GroupEntryObjectClass";
+    public static final String groupEntryObjectClassDescription = "Object Class used to construct group entries";
     public static final String emptyRolesAllowed = "EmptyRolesAllowed";
     public static final String emptyRolesAllowedDescription = "Specifies whether the underlying user store allows empty roles to be added";
 
@@ -98,6 +98,6 @@ public class UserStoreConfigConstants {
     public static final String userDNPatternDescription = "The patten for user's DN. It can be defined to improve the LDAP search";
     public static final String connectionPoolingEnabled = "ConnectionPoolingEnabled";
     public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
-                                                                     "pooling.";
+            "pooling.";
 
 }

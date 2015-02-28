@@ -20,11 +20,12 @@ package org.wso2.carbon.user.core.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
-import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,30 +36,27 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-
 public class DatabaseUtil {
 
-    private static Log log = LogFactory.getLog(DatabaseUtil.class);
-
-    private static DataSource dataSource = null;
     private static final int DEFAULT_MAX_ACTIVE = 40;
     private static final int DEFAULT_MAX_WAIT = 1000 * 60;
     private static final int DEFAULT_MIN_IDLE = 5;
     private static final int DEFAULT_MAX_IDLE = 6;
-    
+    private static Log log = LogFactory.getLog(DatabaseUtil.class);
+    private static DataSource dataSource = null;
+
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
-     * @param realmConfig The realm configuration. This includes necessary configuration parameters needed to
-     *                      create a database pool.
      *
-     * NOTE : If we use this there will be a single connection for all tenants. But there might be a requirement
-     * where different tenants want to connect to multiple data sources. In that case we need to create
-     * a dataSource for each tenant.
+     * @param realmConfig The realm configuration. This includes necessary configuration parameters needed to
+     *                    create a database pool.
+     *                    <p/>
+     *                    NOTE : If we use this there will be a single connection for all tenants. But there might be a requirement
+     *                    where different tenants want to connect to multiple data sources. In that case we need to create
+     *                    a dataSource for each tenant.
      * @return A database pool.
      */
-    public static synchronized DataSource getRealmDataSource(RealmConfiguration realmConfig){
+    public static synchronized DataSource getRealmDataSource(RealmConfiguration realmConfig) {
 
         if (dataSource == null) {
             return createRealmDataSource(realmConfig);
@@ -70,20 +68,20 @@ public class DatabaseUtil {
     /**
      * Close all database connections in the pool.
      */
-	public static synchronized void closeDatabasePoolConnection() {
-		if (dataSource != null && dataSource instanceof org.apache.tomcat.jdbc.pool.DataSource) {
-			((org.apache.tomcat.jdbc.pool.DataSource) dataSource).close();
-			dataSource = null;
-		}
-	}
-	
-	private static DataSource lookupDataSource(String dataSourceName) {
-		try {
-			return (DataSource) InitialContext.doLookup(dataSourceName);
-		} catch (Exception e) {
-			throw new RuntimeException("Error in looking up data source: " + e.getMessage(), e);
-		}
-	}
+    public static synchronized void closeDatabasePoolConnection() {
+        if (dataSource != null && dataSource instanceof org.apache.tomcat.jdbc.pool.DataSource) {
+            ((org.apache.tomcat.jdbc.pool.DataSource) dataSource).close();
+            dataSource = null;
+        }
+    }
+
+    private static DataSource lookupDataSource(String dataSourceName) {
+        try {
+            return (DataSource) InitialContext.doLookup(dataSourceName);
+        } catch (Exception e) {
+            throw new RuntimeException("Error in looking up data source: " + e.getMessage(), e);
+        }
+    }
 
     public static DataSource createUserStoreDataSource(RealmConfiguration realmConfig) {
         String dataSourceName = realmConfig.getUserStoreProperty(JDBCRealmConstants.DATASOURCE);
@@ -139,7 +137,7 @@ public class DatabaseUtil {
 
         if (realmConfig.getUserStoreProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null &&
                 !realmConfig.getUserStoreProperty(
-                JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
+                        JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
                     realmConfig.getUserStoreProperty(
                             JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
@@ -147,7 +145,7 @@ public class DatabaseUtil {
 
         if (realmConfig.getUserStoreProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null &&
                 !realmConfig.getUserStoreProperty(
-                JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
+                        JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
@@ -158,7 +156,7 @@ public class DatabaseUtil {
         }
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
-    
+
     private static DataSource createRealmDataSource(RealmConfiguration realmConfig) {
         String dataSourceName = realmConfig.getRealmProperty(JDBCRealmConstants.DATASOURCE);
         if (dataSourceName != null) {
@@ -210,7 +208,7 @@ public class DatabaseUtil {
 
         if (realmConfig.getRealmProperty(JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS) != null &&
                 !realmConfig.getRealmProperty(
-                JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
+                        JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS).trim().equals("")) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer.parseInt(
                     realmConfig.getRealmProperty(
                             JDBCRealmConstants.TIME_BETWEEN_EVICTION_RUNS_MILLIS)));
@@ -218,7 +216,7 @@ public class DatabaseUtil {
 
         if (realmConfig.getRealmProperty(JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS) != null &&
                 !realmConfig.getRealmProperty(
-                JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
+                        JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS).trim().equals("")) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(realmConfig.getRealmProperty(
                     JDBCRealmConstants.MIN_EVIC_TABLE_IDLE_TIME_MILLIS)));
         }
@@ -247,9 +245,9 @@ public class DatabaseUtil {
                         prepStmt.setString(i + 1, null);
                         //throw new UserStoreException("Null data provided.");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String)param);
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer)param);
+                        prepStmt.setInt(i + 1, (Integer) param);
                     }
                 }
             }
@@ -286,9 +284,9 @@ public class DatabaseUtil {
                     if (param == null) {
                         throw new UserStoreException("Null data provided.");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String)param);
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer)param);
+                        prepStmt.setInt(i + 1, (Integer) param);
                     }
                 }
             }
@@ -314,9 +312,9 @@ public class DatabaseUtil {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
     }
-    
+
     public static int getIntegerValueFromDatabase(Connection dbConnection, String sqlStmt,
-            Object... params) throws UserStoreException {
+                                                  Object... params) throws UserStoreException {
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
         int value = -1;
@@ -347,115 +345,9 @@ public class DatabaseUtil {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
     }
-    
-	public static void udpateUserRoleMappingInBatchModeForInternalRoles(Connection dbConnection,
-			String sqlStmt, String primaryDomain, Object... params) throws UserStoreException {
-		PreparedStatement prepStmt = null;
-		boolean localConnection = false;
-		try {
-			prepStmt = dbConnection.prepareStatement(sqlStmt);
-			int batchParamIndex = -1;
-			if (params != null && params.length > 0) {
-				for (int i = 0; i < params.length; i++) {
-					Object param = params[i];
-					if (param == null) {
-						throw new UserStoreException("Null data provided.");
-					} else if (param instanceof String[]) {
-						batchParamIndex = i;
-					} else if (param instanceof String) {				
-						prepStmt.setString(i + 1,(String) param);
-					} else if (param instanceof Integer) {
-						prepStmt.setInt(i + 1, (Integer) param);
-					}
-				}
-			}
-			if (batchParamIndex != -1) {
-				String[] values = (String[]) params[batchParamIndex];
-				for (String value : values) {
-					String strParam = (String) value;
-                    //add domain if not set
-					strParam = UserCoreUtil.addDomainToName(strParam, primaryDomain);
-					//get domain from name
-                    String domainParam = UserCoreUtil.extractDomainFromName(strParam);
-                    if (domainParam != null) {
-                        domainParam = domainParam.toUpperCase();
-                    }
-                    //set domain to sql
-                    prepStmt.setString(params.length + 1, domainParam);
-                    //remove domain before persisting
-                    String nameWithoutDomain = UserCoreUtil.removeDomainFromName(strParam);
-                    //set name in sql
-                    prepStmt.setString(batchParamIndex + 1, nameWithoutDomain);
-                    prepStmt.addBatch();
-				}
-			}
 
-			int[] count = prepStmt.executeBatch();
-			if (log.isDebugEnabled()) {
-				log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is"
-						+ Arrays.toString(count));
-			}
-			if (localConnection) {
-				dbConnection.commit();
-			}
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
-			if (localConnection) {
-				DatabaseUtil.closeAllConnections(dbConnection);
-			}
-			DatabaseUtil.closeAllConnections(null, prepStmt);
-		}
-	}
-
-	public static void udpateUserRoleMappingWithExactParams(Connection dbConnection, String sqlStmt,
-	                                                    String[] roles, String userName,
-	                                                    Integer[] tenantIds, int currentTenantId)
-	                                                                                         throws UserStoreException {
-		PreparedStatement ps = null;
-		boolean localConnection = false;
-		try {
-			ps = dbConnection.prepareStatement(sqlStmt);
-			byte count = 0;
-			byte index = 0;
-						
-			for (String role : roles) {
-				count = 0;
-				ps.setString(++count, role);
-				ps.setInt(++count, tenantIds[index]);
-				ps.setString(++count, userName);
-				ps.setInt(++count, currentTenantId);
-				ps.setInt(++count, currentTenantId);
-				ps.setInt(++count, tenantIds[index]);
-
-				ps.addBatch();
-				++index;
-			}
-
-			int[] cnt = ps.executeBatch();
-			if (log.isDebugEnabled()) {
-				log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is" +
-				          Arrays.toString(cnt));
-			}
-			if (localConnection) {
-				dbConnection.commit();
-			}
-		} catch (SQLException e) {
-			log.error(e.getMessage(), e);
-			log.error("Using sql : " + sqlStmt);
-			throw new UserStoreException(e.getMessage(), e);
-		} finally {
-			if (localConnection) {
-				DatabaseUtil.closeAllConnections(dbConnection);
-			}
-			DatabaseUtil.closeAllConnections(null, ps);
-		}
-	}
-
-    public static void udpateUserRoleMappingInBatchMode(Connection dbConnection, String sqlStmt,
-            Object... params) throws UserStoreException {
+    public static void udpateUserRoleMappingInBatchModeForInternalRoles(Connection dbConnection,
+                                                                        String sqlStmt, String primaryDomain, Object... params) throws UserStoreException {
         PreparedStatement prepStmt = null;
         boolean localConnection = false;
         try {
@@ -469,14 +361,120 @@ public class DatabaseUtil {
                     } else if (param instanceof String[]) {
                         batchParamIndex = i;
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String)param);
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer)param);
+                        prepStmt.setInt(i + 1, (Integer) param);
                     }
                 }
             }
             if (batchParamIndex != -1) {
-                String[] values = (String[])params[batchParamIndex];
+                String[] values = (String[]) params[batchParamIndex];
+                for (String value : values) {
+                    String strParam = (String) value;
+                    //add domain if not set
+                    strParam = UserCoreUtil.addDomainToName(strParam, primaryDomain);
+                    //get domain from name
+                    String domainParam = UserCoreUtil.extractDomainFromName(strParam);
+                    if (domainParam != null) {
+                        domainParam = domainParam.toUpperCase();
+                    }
+                    //set domain to sql
+                    prepStmt.setString(params.length + 1, domainParam);
+                    //remove domain before persisting
+                    String nameWithoutDomain = UserCoreUtil.removeDomainFromName(strParam);
+                    //set name in sql
+                    prepStmt.setString(batchParamIndex + 1, nameWithoutDomain);
+                    prepStmt.addBatch();
+                }
+            }
+
+            int[] count = prepStmt.executeBatch();
+            if (log.isDebugEnabled()) {
+                log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is"
+                        + Arrays.toString(count));
+            }
+            if (localConnection) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            log.error("Using sql : " + sqlStmt);
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+            DatabaseUtil.closeAllConnections(null, prepStmt);
+        }
+    }
+
+    public static void udpateUserRoleMappingWithExactParams(Connection dbConnection, String sqlStmt,
+                                                            String[] roles, String userName,
+                                                            Integer[] tenantIds, int currentTenantId)
+            throws UserStoreException {
+        PreparedStatement ps = null;
+        boolean localConnection = false;
+        try {
+            ps = dbConnection.prepareStatement(sqlStmt);
+            byte count = 0;
+            byte index = 0;
+
+            for (String role : roles) {
+                count = 0;
+                ps.setString(++count, role);
+                ps.setInt(++count, tenantIds[index]);
+                ps.setString(++count, userName);
+                ps.setInt(++count, currentTenantId);
+                ps.setInt(++count, currentTenantId);
+                ps.setInt(++count, tenantIds[index]);
+
+                ps.addBatch();
+                ++index;
+            }
+
+            int[] cnt = ps.executeBatch();
+            if (log.isDebugEnabled()) {
+                log.debug("Executed a batch update. Query is : " + sqlStmt + ": and result is" +
+                        Arrays.toString(cnt));
+            }
+            if (localConnection) {
+                dbConnection.commit();
+            }
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+            log.error("Using sql : " + sqlStmt);
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            if (localConnection) {
+                DatabaseUtil.closeAllConnections(dbConnection);
+            }
+            DatabaseUtil.closeAllConnections(null, ps);
+        }
+    }
+
+    public static void udpateUserRoleMappingInBatchMode(Connection dbConnection, String sqlStmt,
+                                                        Object... params) throws UserStoreException {
+        PreparedStatement prepStmt = null;
+        boolean localConnection = false;
+        try {
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            int batchParamIndex = -1;
+            if (params != null && params.length > 0) {
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param == null) {
+                        throw new UserStoreException("Null data provided.");
+                    } else if (param instanceof String[]) {
+                        batchParamIndex = i;
+                    } else if (param instanceof String) {
+                        prepStmt.setString(i + 1, (String) param);
+                    } else if (param instanceof Integer) {
+                        prepStmt.setInt(i + 1, (Integer) param);
+                    }
+                }
+            }
+            if (batchParamIndex != -1) {
+                String[] values = (String[]) params[batchParamIndex];
                 for (String value : values) {
                     prepStmt.setString(batchParamIndex + 1, value);
                     prepStmt.addBatch();
@@ -502,11 +500,11 @@ public class DatabaseUtil {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
     }
-    
+
     public static void updateDatabase(Connection dbConnection, String sqlStmt, Object... params)
             throws UserStoreException {
         PreparedStatement prepStmt = null;
-        try {            
+        try {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
@@ -516,15 +514,15 @@ public class DatabaseUtil {
                         prepStmt.setString(i + 1, null);
                         //throw new UserStoreException("Null data provided.");
                     } else if (param instanceof String) {
-                        prepStmt.setString(i + 1, (String)param);
+                        prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
-                        prepStmt.setInt(i + 1, (Integer)param);
+                        prepStmt.setInt(i + 1, (Integer) param);
                     } else if (param instanceof Short) {
-                        prepStmt.setShort(i + 1, (Short)param);
+                        prepStmt.setShort(i + 1, (Short) param);
                     } else if (param instanceof Date) {
-                        Date date = (Date)param;
+                        Date date = (Date) param;
                         Timestamp time = new Timestamp(date.getTime());
-                        prepStmt.setTimestamp(i+1, time);
+                        prepStmt.setTimestamp(i + 1, time);
                     }
                 }
             }
@@ -543,11 +541,11 @@ public class DatabaseUtil {
     }
 
     public static Connection getDBConnection(DataSource dataSource) throws SQLException {
-		Connection dbConnection = dataSource.getConnection();
-		return dbConnection;
-	}
+        Connection dbConnection = dataSource.getConnection();
+        return dbConnection;
+    }
 
-    public static void closeConnection(Connection dbConnection) {     
+    public static void closeConnection(Connection dbConnection) {
 
         if (dbConnection != null) {
             try {
@@ -598,7 +596,7 @@ public class DatabaseUtil {
         closeConnection(dbConnection);
     }
 
-    public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts){
+    public static void closeAllConnections(Connection dbConnection, ResultSet rs, PreparedStatement... prepStmts) {
 
         closeResultSet(rs);
         closeStatements(prepStmts);

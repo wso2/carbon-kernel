@@ -32,7 +32,7 @@ public class LDAPConstants {
     public static final String ROLE_DN_PATTERN = "RoleDNPattern";
     //Property that defines the status of the referral to be used:
     public static final String PROPERTY_REFERRAL = "Referral";
-    
+
     public static final String LDAP_ATTRIBUTES_BINARY = "java.naming.ldap.attributes.binary";
     public static final String PRIMARY_GROUP_ID = "PrimaryGroupId";
 
@@ -42,42 +42,40 @@ public class LDAPConstants {
     public static final String USER_ENTRY_OBJECT_CLASS = "UserEntryObjectClass";
     // roles
     public static final String GROUP_NAME_LIST_FILTER = "GroupNameListFilter";
+    public static final String SHARED_GROUP_NAME_LIST_FILTER = GROUP_NAME_LIST_FILTER; // "SharedGroupNameListFilter";
     public static final String ROLE_NAME_FILTER = "GroupNameSearchFilter";
+    public static final String SHARED_GROUP_NAME_SEARCH_FILTER = ROLE_NAME_FILTER; // "SharedGroupNameSearchFilter";
     public static final String GROUP_NAME_ATTRIBUTE = "GroupNameAttribute";
+    public static final String SHARED_GROUP_NAME_ATTRIBUTE = GROUP_NAME_ATTRIBUTE; // "SharedGroupNameAttribute";
     @Deprecated
     public static final String READ_LDAP_GROUPS = "ReadLDAPGroups";
     @Deprecated
     public static final String WRITE_EXTERNAL_ROLES = "WriteLDAPGroups";
     public static final String MEMBEROF_ATTRIBUTE = "MemberOfAttribute";
     public static final String MEMBERSHIP_ATTRIBUTE = "MembershipAttribute";
-    public static final String EMPTY_ROLES_ALLOWED= "EmptyRolesAllowed";
-    public static final String BACK_LINKS_ENABLED= "BackLinksEnabled";
-
+    public static final String EMPTY_ROLES_ALLOWED = "EmptyRolesAllowed";
+    public static final String BACK_LINKS_ENABLED = "BackLinksEnabled";
     //ldap glossary
     public static final String OBJECT_CLASS_NAME = "objectClass";
     public static final String GROUP_ENTRY_OBJECT_CLASS = "GroupEntryObjectClass";
+    // ldap glossary for shared group concept
+    public static final String SHARED_GROUP_ENTRY_OBJECT_CLASS = GROUP_ENTRY_OBJECT_CLASS; // "SharedGroupEntryObjectClass";
     public static final String ADMIN_ENTRY_NAME = "admin";
-	// ldap glossary for shared group concept
-	public static final String SHARED_GROUP_ENTRY_OBJECT_CLASS = GROUP_ENTRY_OBJECT_CLASS; // "SharedGroupEntryObjectClass";
-	public static final String SHARED_GROUP_NAME_ATTRIBUTE = GROUP_NAME_ATTRIBUTE; // "SharedGroupNameAttribute";
-	public static final String SHARED_GROUP_SEARCH_BASE = "SharedGroupSearchBase";
-	public static final String SHARED_GROUP_NAME_LIST_FILTER = GROUP_NAME_LIST_FILTER; // "SharedGroupNameListFilter";
-	public static final String SHARED_GROUP_NAME_SEARCH_FILTER = ROLE_NAME_FILTER; // "SharedGroupNameSearchFilter";
-	
+    public static final String SHARED_GROUP_SEARCH_BASE = "SharedGroupSearchBase";
     //used in tenant management
     public static final String USER_CONTEXT_NAME = "users";
     public static final String GROUP_CONTEXT_NAME = "groups";
 
     //password
     public static final String PASSWORD_HASH_METHOD = "PasswordHashMethod";
-    
+
     // Active Directory specific constants
     public static final String ACTIVE_DIRECTORY_LDS_ROLE = "isADLDSRole";
     public static final String ACTIVE_DIRECTORY_USER_ACCOUNT_CONTROL = "userAccountControl";
     public static final String ACTIVE_DIRECTORY_MSDS_USER_ACCOUNT_DISSABLED = "msDS-UserAccountDisabled";
     public static final String ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE = "unicodePwd";
     public static final String ACTIVE_DIRECTORY_DISABLED_NORMAL_ACCOUNT = Integer.toString(514);
-    
+
     //KDC specific constants
     public static final String SERVER_PRINCIPAL_ATTRIBUTE_VALUE = "Service";
 
@@ -88,9 +86,9 @@ public class LDAPConstants {
 
     public static final String DNS_URL = "URLOfDNS";
     public static final String DNS_DOMAIN_NAME = "DNSDomainName";
-	public static final String SHARED_TENANT_NAME_LIST_FILTER = "SharedTenantNameListFilter";
-	public static final String SHARED_TENANT_NAME_ATTRIBUTE = "SharedTenantNameAttribute";
-	public static final String SHARED_TENANT_OBJECT_CLASS = "SharedTenantObjectClass";
+    public static final String SHARED_TENANT_NAME_LIST_FILTER = "SharedTenantNameListFilter";
+    public static final String SHARED_TENANT_NAME_ATTRIBUTE = "SharedTenantNameAttribute";
+    public static final String SHARED_TENANT_OBJECT_CLASS = "SharedTenantObjectClass";
 
     public static final String CONNECTION_POOLING_ENABLED = "ConnectionPoolingEnabled";
 

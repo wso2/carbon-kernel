@@ -18,34 +18,34 @@ package org.wso2.carbon.user.core.dto;
 
 public class RoleDTO {
 
-	private String roleName;
+    private String roleName;
 
-	private String domainName;
+    private String domainName;
 
-	private String tenantDomain;
+    private String tenantDomain;
 
-	public String getRoleName() {
-		return roleName;
-	}
+    public String getRoleName() {
+        return roleName;
+    }
 
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
 
-	public String getDomainName() {
-		return domainName;
-	}
+    public String getDomainName() {
+        return domainName;
+    }
 
-	public void setDomainName(String domainName) {
-		this.domainName = domainName;
-	}
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
 
-	public String getTenantDomain() {
-		return tenantDomain;
-	}
+    public String getTenantDomain() {
+        return tenantDomain;
+    }
 
-	public void setTenantDomain(String tenantDomain) {
-		this.tenantDomain = tenantDomain;
-	}
+    public void setTenantDomain(String tenantDomain) {
+        this.tenantDomain = tenantDomain;
+    }
 
 }

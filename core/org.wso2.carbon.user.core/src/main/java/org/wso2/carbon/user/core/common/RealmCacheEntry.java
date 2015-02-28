@@ -15,9 +15,9 @@
  */
 package org.wso2.carbon.user.core.common;
 
-import java.io.Serializable;
-
 import org.wso2.carbon.user.api.UserRealm;
+
+import java.io.Serializable;
 
 public class RealmCacheEntry implements Serializable {
 

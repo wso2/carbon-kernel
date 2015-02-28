@@ -19,7 +19,7 @@ package org.wso2.carbon.user.core.profile.builder;
 
 public class ProfileBuilderException extends Exception {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -4010036633375842491L;
 
