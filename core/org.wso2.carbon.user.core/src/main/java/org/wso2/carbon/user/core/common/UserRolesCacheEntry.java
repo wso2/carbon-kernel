@@ -33,5 +33,5 @@ public class UserRolesCacheEntry implements Serializable {
     public String[] getUserRolesList() {
         return Arrays.copyOf(userRolesList, userRolesList.length);
     }
-    
+
 }

@@ -21,16 +21,15 @@ import java.io.Serializable;
 // TODO create base cache key class
 public class PermissionTreeCacheKey implements Serializable {
 
-    private int cacheKeyId;
-
-    private String serverId;
-
     private static final long serialVersionUID = 1281400603190208429L;
+    private int cacheKeyId;
+    private String serverId;
 
     public PermissionTreeCacheKey(String serverId, int cacheKeyId) {
         this.cacheKeyId = cacheKeyId;
         this.serverId = serverId;
     }
+
     public int getCacheKeyId() {
         return cacheKeyId;
     }
@@ -41,14 +40,14 @@ public class PermissionTreeCacheKey implements Serializable {
 
     @Override
     public boolean equals(Object otherObject) {
-        
+
         if (!(otherObject instanceof PermissionTreeCacheKey)) {
             return false;
         }
-        PermissionTreeCacheKey secondKey = (PermissionTreeCacheKey)otherObject;
-        if(this.serverId != null){
-            return  this.cacheKeyId == secondKey.getCacheKeyId() &&
-                    this.serverId.equals(secondKey.getServerId());             
+        PermissionTreeCacheKey secondKey = (PermissionTreeCacheKey) otherObject;
+        if (this.serverId != null) {
+            return this.cacheKeyId == secondKey.getCacheKeyId() &&
+                    this.serverId.equals(secondKey.getServerId());
         } else {
             return this.getCacheKeyId() == secondKey.getCacheKeyId();
         }
@@ -57,8 +56,8 @@ public class PermissionTreeCacheKey implements Serializable {
     @Override
     public int hashCode() {
 
-        if(serverId != null){
-            return this.cacheKeyId + this.serverId.hashCode() * 7 ;            
+        if (serverId != null) {
+            return this.cacheKeyId + this.serverId.hashCode() * 7;
         } else {
             return this.cacheKeyId;
         }

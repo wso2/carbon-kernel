@@ -25,16 +25,16 @@ import org.wso2.carbon.user.core.tenant.Tenant;
 /**
  * An implementation of this class should take care of building the realm
  * configuration.
- * 
  */
 public interface MultiTenantRealmConfigBuilder {
 
     RealmConfiguration getRealmConfigForTenantToCreateRealm(RealmConfiguration bootStrapConfig,
-            RealmConfiguration persistedConfig, int tenantId) throws UserStoreException;
+                                                            RealmConfiguration persistedConfig, int tenantId) throws UserStoreException;
 
     /**
      * Clone the user-mgt.xml and edit necessary parameters to make it tenant-specific.
-     * @param bootStrapConfig - representation of user-mgt.xml
+     *
+     * @param bootStrapConfig        - representation of user-mgt.xml
      * @param tenantMgtConfiguration - representation of tenant-mgt.xml
      * @param tenantInfo
      * @param tenantId

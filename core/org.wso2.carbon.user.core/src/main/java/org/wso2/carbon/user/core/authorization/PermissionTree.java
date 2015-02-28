@@ -17,6 +17,19 @@
 package org.wso2.carbon.user.core.authorization;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.registry.api.GhostResource;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
+
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,43 +41,25 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import javax.sql.DataSource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.registry.api.GhostResource;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.util.DatabaseUtil;
-import org.wso2.carbon.user.core.util.UserCoreUtil;
-
 public class PermissionTree {
 
+    private static final String PERMISSION_CACHE_MANAGER = "PERMISSION_CACHE_MANAGER";
+    private static final String PERMISSION_CACHE = "PERMISSION_CACHE";
     private static Log log = LogFactory.getLog(PermissionTree.class);
+    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private final Lock read = readWriteLock.readLock();
+    private final Lock write = readWriteLock.writeLock();
     protected TreeNode root;
     protected int tenantId;
     protected String cacheIdentifier;
     protected volatile int hashValueOfRootNode;
     protected DataSource dataSource;
-    
-    private static final String PERMISSION_CACHE_MANAGER = "PERMISSION_CACHE_MANAGER";
-    private static final String PERMISSION_CACHE = "PERMISSION_CACHE";
-    
 
-    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final Lock read = readWriteLock.readLock();
-    private final Lock write = readWriteLock.writeLock();
-    
     /**
      * On the server startup, all permissions are populated from the DB and the
      * permission tree is built in memory..
-     * 
-     * @throws UserStoreException
-     *             - SQL exceptions
+     *
+     * @throws UserStoreException - SQL exceptions
      */
 
     public PermissionTree(String cacheIdentifier, int tenantId, DataSource dataSource) {
@@ -82,17 +77,17 @@ public class PermissionTree {
         root = new TreeNode("/");
     }
 
-	/**
-	 * Getting existing cache if the cache available, else returns a newly created cache.
-	 * This logic handles by javax.cache implementation
-	 */
-	private Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> getPermissionTreeCache() {
-		Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> cache = null;
-		CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(PERMISSION_CACHE_MANAGER);
-		cache = cacheManager.getCache(PERMISSION_CACHE);
-		return cache;
-	}
-	
+    /**
+     * Getting existing cache if the cache available, else returns a newly created cache.
+     * This logic handles by javax.cache implementation
+     */
+    private Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> getPermissionTreeCache() {
+        Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> cache = null;
+        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(PERMISSION_CACHE_MANAGER);
+        cache = cacheManager.getCache(PERMISSION_CACHE);
+        return cache;
+    }
+
     void authorizeUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
         write.lock();
         try {
@@ -139,7 +134,7 @@ public class PermissionTree {
         }
     }
 
-    void authorizeRoleInTree(String roleName, String resourceId, String action, boolean updateCache ) throws UserStoreException {
+    void authorizeRoleInTree(String roleName, String resourceId, String action, boolean updateCache) throws UserStoreException {
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -189,22 +184,17 @@ public class PermissionTree {
     /**
      * Find permission for given 'role' starting from the TreeNode 'node' and
      * using the path segments given in the List as pathParts
-     * 
-     * @param role
-     *            the role for which the permissions are searched
-     * @param permission
-     *            the permission checked
-     * @param sr
-     *            the SearchResult that merges the permissions as the tree is
-     *            traversed
-     * @param node
-     *            the current node
-     * @param pathParts
-     *            the list of path segments to traverse
+     *
+     * @param role       the role for which the permissions are searched
+     * @param permission the permission checked
+     * @param sr         the SearchResult that merges the permissions as the tree is
+     *                   traversed
+     * @param node       the current node
+     * @param pathParts  the list of path segments to traverse
      * @return the final SearchResult that merges the permissions
      */
     SearchResult getRolePermission(String role, TreeNode.Permission permission, SearchResult sr,
-            TreeNode node, List<String> pathParts) {
+                                   TreeNode node, List<String> pathParts) {
         read.lock();
         try {
             if (node == null) {
@@ -248,22 +238,17 @@ public class PermissionTree {
     /**
      * Find permission for given 'user' starting from the TreeNode 'node' and
      * using the path segments given in the List as pathParts
-     * 
-     * @param user
-     *            the user for which the permissions are searched
-     * @param permission
-     *            the permission checked
-     * @param sr
-     *            the SearchResult that merges the permissions as the tree is
-     *            traversed
-     * @param node
-     *            the current node
-     * @param pathParts
-     *            the list of path segments to traverse
+     *
+     * @param user       the user for which the permissions are searched
+     * @param permission the permission checked
+     * @param sr         the SearchResult that merges the permissions as the tree is
+     *                   traversed
+     * @param node       the current node
+     * @param pathParts  the list of path segments to traverse
      * @return the final SearchResult that merges the permissions
      */
     SearchResult getUserPermission(String user, TreeNode.Permission permission, SearchResult sr,
-            TreeNode node, List<String> pathParts) {
+                                   TreeNode node, List<String> pathParts) {
         read.lock();
         try {
             if (node == null) {
@@ -306,20 +291,16 @@ public class PermissionTree {
     /**
      * Find the allowed Users for a given resource by traversing the whole
      * pemission tree.
-     * 
-     * @param sr
-     *            - search result to contain allowed users
-     * @param node
-     *            - current node
-     * @param permission
-     *            - permission
-     * @param pathParts
-     *            - list of path segments to traverse
+     *
+     * @param sr         - search result to contain allowed users
+     * @param node       - current node
+     * @param permission - permission
+     * @param pathParts  - list of path segments to traverse
      * @return - search result with allowed users
      */
 
     SearchResult getAllowedUsersForResource(SearchResult sr, TreeNode node,
-            TreeNode.Permission permission, List<String> pathParts) {
+                                            TreeNode.Permission permission, List<String> pathParts) {
         read.lock();
         try {
             if (node == null) {
@@ -378,20 +359,16 @@ public class PermissionTree {
     /**
      * Find the allowed Roles for a given resource by traversing the whole
      * pemission tree.
-     * 
-     * @param sr
-     *            - search result to contain allowed roles
-     * @param node
-     *            - current node
-     * @param permission
-     *            - permission
-     * @param pathParts
-     *            - list of path segments to traverse
+     *
+     * @param sr         - search result to contain allowed roles
+     * @param node       - current node
+     * @param permission - permission
+     * @param pathParts  - list of path segments to traverse
      * @return - search result with allowed roles
      */
 
     SearchResult getAllowedRolesForResource(SearchResult sr, TreeNode node,
-            TreeNode.Permission permission, List<String> pathParts) {
+                                            TreeNode.Permission permission, List<String> pathParts) {
         read.lock();
         try {
             if (node == null) {
@@ -451,19 +428,15 @@ public class PermissionTree {
     /**
      * Find the denied Roles for a given resource by traversing the whole
      * pemission tree.
-     * 
-     * @param sr
-     *            - search result to contain denied roles
-     * @param node
-     *            - current node
-     * @param permission
-     *            - permission
-     * @param pathParts
-     *            - list of path segments to traverse
+     *
+     * @param sr         - search result to contain denied roles
+     * @param node       - current node
+     * @param permission - permission
+     * @param pathParts  - list of path segments to traverse
      * @return - search result with denied roles
      */
     SearchResult getDeniedRolesForResource(SearchResult sr, TreeNode node,
-            TreeNode.Permission permission, List<String> pathParts) {
+                                           TreeNode.Permission permission, List<String> pathParts) {
 
         read.lock();
         try {
@@ -523,19 +496,15 @@ public class PermissionTree {
     /**
      * Find the denied users for a given resource by traversing the whole
      * pemission tree.
-     * 
-     * @param sr
-     *            - search result to contain denied users
-     * @param node
-     *            - current node
-     * @param permission
-     *            - permission
-     * @param pathParts
-     *            - list of path segments to traverse
+     *
+     * @param sr         - search result to contain denied users
+     * @param node       - current node
+     * @param permission - permission
+     * @param pathParts  - list of path segments to traverse
      * @return - search result with denied users
      */
     SearchResult getDeniedUsersForResource(SearchResult sr, TreeNode node,
-            TreeNode.Permission permission, List<String> pathParts) {
+                                           TreeNode.Permission permission, List<String> pathParts) {
         read.lock();
         try {
             if (sr == null) {
@@ -606,7 +575,7 @@ public class PermissionTree {
         clearRoleAuthorization(roleName, root);
         invalidateCache(root);
     }
-    
+
     void clearRoleAuthorization(String roleName, String resourceId, String action) throws UserStoreException {
         SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
         write.lock();
@@ -631,12 +600,12 @@ public class PermissionTree {
             write.unlock();
         }
     }
-    
+
     void clearUserAuthorization(String userName) throws UserStoreException {
         clearUserAuthorization(userName, root);
         invalidateCache(root);
     }
-    
+
     void clearUserAuthorization(String userName, String resourceId, String action) throws UserStoreException {
         write.lock();
         try {
@@ -661,13 +630,13 @@ public class PermissionTree {
             write.unlock();
         }
     }
-    
+
     /**
      * This method is only used for UI permissions
-     * 
-     * @param roles roles that needs to get resources
+     *
+     * @param roles     roles that needs to get resources
      * @param resources resource list
-     * @param path list of path segments to traverse
+     * @param path      list of path segments to traverse
      * @throws UserStoreException throws
      */
 
@@ -692,24 +661,24 @@ public class PermissionTree {
         }
 
         TreeNode permissionNode = node.getChild(CarbonConstants.UI_PERMISSION_NAME);
-        
+
         if (permissionNode == null) {
             throw new UserStoreException("Invalid Permission root path provided");
         }
-        
+
         if (path.endsWith("/")) {
-            path = path.substring(0, path.length()-1);
+            path = path.substring(0, path.length() - 1);
         }
-        
-        getUIResourcesForRoles(roles, 
-                               resources, 
-                               "", /* The old code has this. So use the same thing*/ 
-                               PermissionTreeUtil.actionToPermission(CarbonConstants.UI_PERMISSION_ACTION), 
-                               permissionNode);
+
+        getUIResourcesForRoles(roles,
+                resources,
+                "", /* The old code has this. So use the same thing*/
+                PermissionTreeUtil.actionToPermission(CarbonConstants.UI_PERMISSION_ACTION),
+                permissionNode);
     }
 
     void getUIResourcesForRoles(String[] roles, List<String> resources, String path,
-            TreeNode.Permission permission, TreeNode node) {
+                                TreeNode.Permission permission, TreeNode node) {
         read.lock();
         try {
             String currentPath = path + "/" + node.getName();
@@ -733,7 +702,7 @@ public class PermissionTree {
             read.unlock();
         }
     }
-    
+
 
     void clearResourceAuthorizations(String resourceId) throws UserStoreException {
         write.lock();
@@ -750,13 +719,13 @@ public class PermissionTree {
             write.unlock();
         }
     }
-    
+
 //////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * Clear all role authorization based on action starting from the given node
-     * 
-     * @param node
-     *            the start node to begin the search
+     *
+     * @param node the start node to begin the search
      * @param
      * @return the result as a SearchResultpathParts a List of
      * @see SearchResult
@@ -783,7 +752,7 @@ public class PermissionTree {
                     clearRoleAuthorization(roleName, treeNode, permission);
                 }
             }
-       //     invalidateCache(root);
+            //     invalidateCache(root);
         } finally {
             write.unlock();
         }
@@ -791,9 +760,8 @@ public class PermissionTree {
 
     /**
      * Clear all role authorization based on action starting from the given node
-     * 
-     * @param node
-     *            the start node to begin the search
+     *
+     * @param node the start node to begin the search
      * @param
      * @return the result as a SearchResultpathParts a List of
      * @see SearchResult
@@ -820,7 +788,7 @@ public class PermissionTree {
                     clearRoleAuthorization(roleName, treeNode);
                 }
             }
-           // invalidateCache(root);
+            // invalidateCache(root);
         } finally {
             write.unlock();
         }
@@ -849,7 +817,7 @@ public class PermissionTree {
                     updateRoleNameInCache(roleName, newRoleName, treeNode);
                 }
             }
-      //      invalidateCache(root);
+            //      invalidateCache(root);
         } finally {
             write.unlock();
         }
@@ -885,72 +853,69 @@ public class PermissionTree {
     }
 
 
-
-   
     /**
      * Clears all permission information in current node.
      */
     void clear() {
         Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> permissionCache = this.getPermissionTreeCache();
-        if(permissionCache != null) {
-	        write.lock();
-	        try {
-	            this.root.clearNodes();
-	            this.hashValueOfRootNode = -1;
-	            PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
-	            // TODO Is this clear all?
-	            permissionCache.remove(cacheKey);
-	        } finally {
-	            write.unlock();
-	        }
+        if (permissionCache != null) {
+            write.lock();
+            try {
+                this.root.clearNodes();
+                this.hashValueOfRootNode = -1;
+                PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
+                // TODO Is this clear all?
+                permissionCache.remove(cacheKey);
+            } finally {
+                write.unlock();
+            }
         }
 
     }
 
     /**
      * update permission tree from cache
-     * 
-     * @throws org.wso2.carbon.user.core.UserStoreException
-     *             throws if fail to update permission tree from DB
+     *
+     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
      */
-	void updatePermissionTree() throws UserStoreException {
+    void updatePermissionTree() throws UserStoreException {
         Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> permissionCache = this.getPermissionTreeCache();
-        if(permissionCache != null) {
-			PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
-			GhostResource<TreeNode> cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
-			if (permissionCache.containsKey(cacheKey) && cacheEntry != null) {
-				if (cacheEntry.getResource() == null) {
-					synchronized (this) {
-						cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
-						if (cacheEntry.getResource() == null) {
-							updatePermissionTreeFromDB();
-							cacheEntry.setResource(root);
-							if (log.isDebugEnabled()) {
-								log.debug("Set resource to true");
-							}
-						}
-					}
-				}
-			} else {
-				synchronized (this) {
-					updatePermissionTreeFromDB();
-					cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
-					cacheEntry = new GhostResource<TreeNode>(root);
-					permissionCache.put(cacheKey, cacheEntry);
-					if (log.isDebugEnabled()) {
-						log.debug("Loaded from database");
-					}
-				}
-			}
+        if (permissionCache != null) {
+            PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
+            GhostResource<TreeNode> cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
+            if (permissionCache.containsKey(cacheKey) && cacheEntry != null) {
+                if (cacheEntry.getResource() == null) {
+                    synchronized (this) {
+                        cacheEntry = (GhostResource<TreeNode>) permissionCache.get(cacheKey);
+                        if (cacheEntry.getResource() == null) {
+                            updatePermissionTreeFromDB();
+                            cacheEntry.setResource(root);
+                            if (log.isDebugEnabled()) {
+                                log.debug("Set resource to true");
+                            }
+                        }
+                    }
+                }
+            } else {
+                synchronized (this) {
+                    updatePermissionTreeFromDB();
+                    cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
+                    cacheEntry = new GhostResource<TreeNode>(root);
+                    permissionCache.put(cacheKey, cacheEntry);
+                    if (log.isDebugEnabled()) {
+                        log.debug("Loaded from database");
+                    }
+                }
+            }
         }
-	}
-	
-	private void invalidateCache(TreeNode root) throws UserStoreException {
+    }
+
+    private void invalidateCache(TreeNode root) throws UserStoreException {
         Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> permissionCache = this.getPermissionTreeCache();
-        if(permissionCache != null) {
-			PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
-			permissionCache.remove(cacheKey);
-			//sending cluster message
+        if (permissionCache != null) {
+            PermissionTreeCacheKey cacheKey = new PermissionTreeCacheKey(cacheIdentifier, tenantId);
+            permissionCache.remove(cacheKey);
+            //sending cluster message
 //			CacheInvalidator invalidator = UMListenerServiceComponent.getCacheInvalidator();
 //			try {
 //			    if (log.isDebugEnabled()) {
@@ -969,14 +934,13 @@ public class PermissionTree {
 //	        }
         }
 
-	}
+    }
 //////////////////////////////////////// private methods follows //////////////////////////////////////////////////
-   
+
     /**
      * populate permission tree from database
-     * 
-     * @throws org.wso2.carbon.user.core.UserStoreException
-     *             throws if fail to update permission tree from DB
+     *
+     * @throws org.wso2.carbon.user.core.UserStoreException throws if fail to update permission tree from DB
      */
     void updatePermissionTreeFromDB() throws UserStoreException {
         PermissionTree tree = new PermissionTree();
@@ -995,10 +959,10 @@ public class PermissionTree {
 
             while (rs.next()) {
                 short allow = rs.getShort(3);
-                
-            	String roleName = rs.getString(1);
-            	String domain = rs.getString(5);
-            	String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
+
+                String roleName = rs.getString(1);
+                String domain = rs.getString(5);
+                String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
                 roleWithDomain = roleWithDomain.toLowerCase();
 
                 if (allow == UserCoreConstants.ALLOW) {
@@ -1023,14 +987,14 @@ public class PermissionTree {
                 }
 
             }
-            
+
             write.lock();
             try {
                 this.root = tree.root;
             } finally {
                 write.unlock();
             }
-            
+
         } catch (SQLException e) {
             throw new UserStoreException(
                     "Error loading authorizations. Please check the database. Error message is "
@@ -1043,11 +1007,9 @@ public class PermissionTree {
     /**
      * Find a node on the tree, starting from the given nodes, and using the
      * list of path segments
-     * 
-     * @param node
-     *            the start node to begin the search
-     * @param pathParts
-     *            a List of path segments - i.e. collection/resource names
+     *
+     * @param node      the start node to begin the search
+     * @param pathParts a List of path segments - i.e. collection/resource names
      * @return the result as a SearchResult
      * @see SearchResult
      */
@@ -1071,7 +1033,7 @@ public class PermissionTree {
             return new SearchResult(node, pathParts);
         }
     }
-    
+
     private Connection getDBConnection() throws SQLException {
         Connection dbConnection = dataSource.getConnection();
         dbConnection.setAutoCommit(false);

@@ -27,7 +27,6 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.dao.ProfileConfigDAO;
 import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.ServerConstants;
 
 import javax.sql.DataSource;
 import javax.xml.namespace.QName;
@@ -46,15 +45,9 @@ import java.util.Map;
 
 public class ProfileConfigurationBuilder {
 
-    private static Log log = LogFactory.getLog(ProfileConfigurationBuilder.class);
-
-    private static final String PROFILE_CONFIG = "profile-config.xml";
-    
     public static final String LOCAL_NAME_USER_PROFILES = "UserProfiles";
-
     public static final String ATTR_PROFILE_NAME = "profileName";
     public static final String ATTR_PROFILE_CONFIG_NAME = "configName";
-
     public static final String LOCAL_NAME_PROFILE_CONFIG = "ProfileConfiguration";
     public static final String LOCAL_NAME_CLAIM = "Claim";
     public static final String LOCAL_NAME_CLAIM_URI = "ClaimURI";
@@ -63,11 +56,11 @@ public class ProfileConfigurationBuilder {
     public static final String LOCAL_NAME_PROFILE = "Profile";
     public static final String LOCAL_NAME_CLAIM_BEHAVIOR = "ClaimBehavior";
     public static final String ATTR_DIALECT_URI = "dialectURI";
-    
-
+    private static final String PROFILE_CONFIG = "profile-config.xml";
+    private static Log log = LogFactory.getLog(ProfileConfigurationBuilder.class);
     private static BundleContext bundleContext;
-    private InputStream inStream = null;
     int tenantId;
+    private InputStream inStream = null;
 
     public ProfileConfigurationBuilder(int tenantId) {
         this.tenantId = tenantId;
@@ -90,7 +83,6 @@ public class ProfileConfigurationBuilder {
     }
 
     /**
-     * 
      * @return
      * @throws ProfileBuilderException
      */
@@ -158,7 +150,7 @@ public class ProfileConfigurationBuilder {
             profileConfigs.put(profileConfigName, profileConfiguration);
 
         }
-        
+
         try {
             if (inStream != null) {
                 inStream.close();
@@ -167,13 +159,12 @@ public class ProfileConfigurationBuilder {
             log.error(e.getMessage(), e);
             throw new ProfileBuilderException(e.getMessage(), e);
         }
-        
-        
+
+
         return profileConfigs;
     }
 
     /**
-     * 
      * @return
      * @throws XMLStreamException
      * @throws IOException
@@ -204,12 +195,12 @@ public class ProfileConfigurationBuilder {
 
         builder = new StAXOMBuilder(inStream);
         OMElement documentElement = builder.getDocumentElement();
-              
+
         return documentElement;
     }
 
     private URL getProfileUrl(boolean loadFromThisClassPath)
-        throws FileNotFoundException {
+            throws FileNotFoundException {
         URL resourceUrl;
 
         if (!loadFromThisClassPath) {
