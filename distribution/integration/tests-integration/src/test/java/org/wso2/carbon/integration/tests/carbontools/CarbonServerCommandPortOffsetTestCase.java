@@ -90,12 +90,10 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
             loginLogoutUtil.login();
 
             boolean isFoundHttpPort = CarbonCommandToolsUtil.
-                    findMultipleStringsInLog(
-                                             new String[]{"HTTP port", "9764"});
+                    findMultipleStringsInLog(new String[]{"HTTP port", "9764"});
 
             boolean isFoundHttpsPort = CarbonCommandToolsUtil.
-                    findMultipleStringsInLog(
-                                             new String[]{"HTTPS port", "9444"});
+                    findMultipleStringsInLog(new String[]{"HTTPS port", "9444"});
 
             if (isFoundHttpPort && isFoundHttpsPort) {
                 isPortsOccupied = true;

@@ -37,7 +37,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -87,35 +86,42 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
         assertNotEquals(activeList.size(), 0, "Active components not detected in server startup.");
     }
 
-    private ArrayList<String> retrieveActiveComponentsList(String command) throws IOException {
+    private ArrayList<String> retrieveActiveComponentsList(String command)
+            throws CarbonToolsIntegrationTestException {
         writeInputCommand(command);
-        try {
-            readResponseToFindActiveComponents();
-        } catch (SocketTimeoutException e) {
-            log.error("Socket timeout Exception " + e);
-        }
+        readResponseToFindActiveComponents();
         return arrList;
     }
 
-    private void writeInputCommand(String value) throws UnsupportedEncodingException {
-        out = new PrintStream(telnet.getOutputStream(), true, "UTF-8");
-        out.println(value);
-        out.flush();
+    private void writeInputCommand(String value) throws CarbonToolsIntegrationTestException {
+        try {
+            out = new PrintStream(telnet.getOutputStream(), true, "UTF-8");
+            out.println(value);
+            out.flush();
+        } catch (UnsupportedEncodingException ex) {
+            log.error("Unsupported encoding UTF-8", ex);
+            throw new CarbonToolsIntegrationTestException("Unsupported encoding UTF-8 ", ex);
+        }
         log.info(value);
     }
 
-    private void readResponseToFindActiveComponents() throws IOException {
+    private void readResponseToFindActiveComponents() throws CarbonToolsIntegrationTestException {
         InputStream in = telnet.getInputStream();
-        BufferedReader inBuff = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-        String inputLine;
-        while ((inputLine = inBuff.readLine()) != null) {
-            if (inputLine.contains("Active")) {  // filtering active components
-                arrList.add(inputLine);
-                log.info(inputLine);
-                break;
+        try {
+            BufferedReader inBuff = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            String inputLine;
+            while ((inputLine = inBuff.readLine()) != null) {
+                if (inputLine.contains("Active")) {  // filtering active components
+                    arrList.add(inputLine);
+                    log.info(inputLine);
+                    break;
+                }
             }
+            inBuff.close();
+        } catch (IOException ex) {
+            log.error("Error while reading input stream ", ex);
+            throw new CarbonToolsIntegrationTestException("Error while reading input stream ", ex);
         }
-        inBuff.close();
         out.close();
     }
 

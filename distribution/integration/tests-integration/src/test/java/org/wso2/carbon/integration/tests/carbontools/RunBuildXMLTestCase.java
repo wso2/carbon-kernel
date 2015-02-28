@@ -31,7 +31,6 @@ import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.testng.Assert.assertTrue;
 
@@ -98,7 +97,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
 
     @Test(groups = {"wso2.as"}, description = "Server restart test")
     public void testBuildXMLGenerateLanguageBundle()
-            throws CarbonToolsIntegrationTestException, IOException {
+            throws CarbonToolsIntegrationTestException {
         boolean isJarCreated = false;
         Process process = null;
         try {

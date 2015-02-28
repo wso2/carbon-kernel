@@ -67,7 +67,8 @@ public class ChangeUserPasswordMySQLDBTestCase extends CarbonIntegrationBaseTest
                                         ContextXpathConstants.SUPER_ADMIN);
         loginLogoutUtil = new LoginLogoutUtil(context);
 
-        MYSQL_DB_URL = context.getConfigurationValue(String.format(CarbonIntegrationConstants.DB_URL, "MySQL"));
+        MYSQL_DB_URL = context.getConfigurationValue(String.format(
+                CarbonIntegrationConstants.CONTEXT_XPATH_DB_CONNECTION_URL, "MySQL"));
     }
 
 

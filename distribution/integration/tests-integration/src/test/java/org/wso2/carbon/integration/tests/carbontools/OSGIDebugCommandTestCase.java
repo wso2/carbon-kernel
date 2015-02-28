@@ -39,6 +39,7 @@ import java.io.InputStreamReader;
 
 /**
  * This class is to test -DosgiDebugOptions
+ * This test cases is not testing it's all features since: https://wso2.org/jira/browse/CARBON-15170
  */
 
 public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
@@ -64,7 +65,6 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
         String expectedString = "OSGi debugging has been enabled with options:";
         boolean isFoundTheMessage = false;
         InputStream is = null;
-        InputStreamReader isr = null;
         int timeout = 30000;
 
         BufferedReader br = null;
@@ -84,8 +84,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
             long startTime = System.currentTimeMillis();
             while ((System.currentTimeMillis() - startTime) < timeout) {
                 is = process.getInputStream();
-                isr = new InputStreamReader(is);
-                br = new BufferedReader(isr);
+                br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                 if (br != null) {
                     line = br.readLine();
                     if (line.contains(expectedString)) {
@@ -98,9 +97,6 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
         } finally {
             if (is != null) {
                 is.close();
-            }
-            if (isr != null) {
-                isr.close();
             }
             if (br != null) {
                 br.close();

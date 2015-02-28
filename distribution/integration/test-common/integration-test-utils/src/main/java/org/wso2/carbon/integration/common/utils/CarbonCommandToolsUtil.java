@@ -87,8 +87,7 @@ public class CarbonCommandToolsUtil {
             }
             return isFoundTheMessage;
         } catch (IOException ex) {
-            log.error("Error when reading the InputStream when running shell script  " +
-                      ex.getMessage(), ex);
+            log.error("Error when reading the InputStream when running shell script ", ex);
             throw new CarbonToolsIntegrationTestException("Error when reading the InputStream when " +
                                                           "running shell script ", ex);
         } finally {
@@ -97,7 +96,6 @@ public class CarbonCommandToolsUtil {
                     br.close();
                 } catch (IOException e) {
                     log.error("Error when closing BufferedReader  ", e);
-                    throw new CarbonToolsIntegrationTestException("Error when closing BufferedReader ", e);
                 }
             }
             if (process != null) {
@@ -123,7 +121,7 @@ public class CarbonCommandToolsUtil {
             process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
             return process;
         } catch (IOException ex) {
-            log.error("Error when reading the InputStream when running shell script " + ex.getMessage());
+            log.error("Error when reading the InputStream when running shell script ", ex);
             throw new CarbonToolsIntegrationTestException("Error when reading the InputStream when " +
                                                           "running shell script ", ex);
         }
@@ -187,7 +185,7 @@ public class CarbonCommandToolsUtil {
             log.info("Server started successfully.");
             return true;
         } catch (Exception e) {
-            log.error("Error while waiting for login " + e.getMessage());
+            log.error("Error while waiting for login ", e);
             throw new CarbonToolsIntegrationTestException("Error while waiting for login ", e);
         }
 
@@ -260,13 +258,20 @@ public class CarbonCommandToolsUtil {
             CarbonServerManager carbonServerManager = new CarbonServerManager(context);
             carbonHome = carbonServerManager.setUpCarbonHome(carbonZip);
             return carbonHome;
-        }catch (Exception ex) {
-            log.error("Error while shutting down the server using default credentials" + ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Error while shutting down the server using default credentials", ex);
             throw new CarbonToolsIntegrationTestException("Error while shutting down the server using " +
                                                           "default credentials ", ex);
         }
     }
 
+    /**
+     * This method is to shutdown carbon server
+     *
+     * @param portOffset        - port offset
+     * @param automationContext - AutomationContext
+     * @throws CarbonToolsIntegrationTestException - Error occurred while shutdown the server
+     */
     public static void serverShutdown(int portOffset,
                                       AutomationContext automationContext)
             throws CarbonToolsIntegrationTestException {
@@ -282,7 +287,7 @@ public class CarbonCommandToolsUtil {
                 String backendURL = url.replaceAll("(:\\d+)", ":" + httpsPort);
 
                 ServerAdminClient serverAdminServiceClient =
-                        new ServerAdminClient(backendURL,automationContext.getContextTenant().
+                        new ServerAdminClient(backendURL, automationContext.getContextTenant().
                                 getTenantAdmin().getUserName(), automationContext.getContextTenant().
                                 getTenantAdmin().getPassword());
 
@@ -294,7 +299,7 @@ public class CarbonCommandToolsUtil {
                 log.info("Server stopped successfully...");
             }
         } catch (Exception ex) {
-            log.error("Error while shutting down the server using default credentials" + ex.getMessage());
+            log.error("Error while shutting down the server using default credentials", ex);
             throw new CarbonToolsIntegrationTestException("Error while shutting down the server using " +
                                                           "default credentials ", ex);
         }
@@ -302,9 +307,19 @@ public class CarbonCommandToolsUtil {
     }
 
 
-    public static Process startServerUsingCarbonHome(String carbonHome, int portOffset,
-                                                     AutomationContext automationContext,
-                                                     String[] parameters) throws Exception {
+    /**
+     * This method is to start a carbon server with a port offset and startup arguments
+     *
+     * @param carbonHome        - carbon home
+     * @param portOffset        - port offset
+     * @param automationContext - AutomationContext
+     * @param parameters        - startup arguments
+     * @return Process - process of the started carbon
+     * @throws Exception -
+     */
+    public static Process startServerUsingCarbonHome(
+            String carbonHome, int portOffset, AutomationContext automationContext,
+            String[] parameters) throws CarbonToolsIntegrationTestException {
         Process tempProcess;
         String scriptName = "wso2server";
         try {
@@ -341,26 +356,38 @@ public class CarbonCommandToolsUtil {
             log.info("Server started successfully.");
             return tempProcess;
         } catch (Exception ex) {
-            log.error("Error while starting the server using carbon home" + ex.getMessage());
+            log.error("Error while starting the server using carbon home", ex);
             throw new CarbonToolsIntegrationTestException("Error while starting the server using carbon home", ex);
         }
 
     }
 
+    /**
+     * This method is to merge two arrays together
+     *
+     * @param parameters - Server startup arguments
+     * @param cmdArray   - Server startup command
+     * @return - merged array
+     */
     private static String[] mergePropertiesToCommandArray(String[] parameters, String[] cmdArray) {
-        if (parameters != null) {
-            cmdArray = mergerArrays(cmdArray, parameters);
+        if (parameters != null && cmdArray != null) {
+            cmdArray = ArrayUtils.addAll(cmdArray, parameters);
         }
         return cmdArray;
     }
 
-    private static String[] mergerArrays(String[] array1, String[] array2) {
-        return ArrayUtils.addAll(array1, array2);
-    }
-
-
+    /**
+     * This method is to shutdown carbon server using admin credentials
+     * @param backendURL - server backend url
+     * @param userName - admin username
+     * @param passWord - admin password
+     * @param context - AutomationContext
+     * @param portOffset - port offset
+     * @throws CarbonToolsIntegrationTestException - Error while server shutting down
+     */
     public static void serverShutdown(String backendURL, String userName, String passWord,
-                                      AutomationContext context, int portOffset) throws CarbonToolsIntegrationTestException {
+                                      AutomationContext context, int portOffset)
+            throws CarbonToolsIntegrationTestException {
 
         try {
             log.info("Shutting down server..");
@@ -375,8 +402,9 @@ public class CarbonCommandToolsUtil {
             }
             log.info("Server stopped successfully...");
         } catch (Exception ex) {
-            log.error("Error while shutting down the server using default credentials" + ex.getMessage());
-            throw new CarbonToolsIntegrationTestException("Error while shutting down the server using default credentials", ex);
+            log.error("Error while shutting down the server using default credentials", ex);
+            throw new CarbonToolsIntegrationTestException("Error while shutting down the " +
+                                                          "server using default credentials", ex);
         }
     }
 

@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.integration.tests.carbontools;
 
+import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.Assert;
@@ -35,11 +36,7 @@ import org.wso2.carbon.integration.common.utils.LoginLogoutUtil;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.MalformedURLException;
 
 import static org.testng.Assert.assertTrue;
 
@@ -59,9 +56,10 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void init()
-            throws CarbonToolsIntegrationTestException, IOException, XPathExpressionException {
+            throws CarbonToolsIntegrationTestException, XPathExpressionException,
+                   MalformedURLException, AxisFault {
 
-         context =
+        context =
                 new AutomationContext("CARBON", "carbon002",
                                       ContextXpathConstants.SUPER_TENANT,
                                       ContextXpathConstants.ADMIN);
@@ -78,9 +76,7 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
                 new File(carbonHome + File.separator + "repository" +
                          File.separator + "conf" + File.separator + "datasources" + File.separator +
                          "master-datasources.xml");
-        copyFile(sourceFile,targetFile);
-
-
+        super.copyFolder(sourceFile, targetFile);
     }
 
     @Test(groups = "wso2.greg", description = "Add resource")
@@ -88,7 +84,7 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
 
         String[] cmdArrayToRecreateDB;
         if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
-                contains(OperatingSystems.WINDOWS.name().toLowerCase())) ) {
+                contains(OperatingSystems.WINDOWS.name().toLowerCase()))) {
             cmdArrayToRecreateDB = new String[]{"-Dsetup"};
             process = CarbonCommandToolsUtil.
                     startServerUsingCarbonHome(carbonHome, 1, context, cmdArrayToRecreateDB);
@@ -109,29 +105,11 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
         String loginStatusString = authenticatorClient.login();
         assertTrue(loginStatusString.contains("JSESSIONID"), "Unsuccessful login");
 
-
     }
 
 
     @AfterClass(alwaysRun = true)
     public void cleanResources() throws Exception {
-        CarbonCommandToolsUtil.serverShutdown( 1, context);
+        CarbonCommandToolsUtil.serverShutdown(1, context);
     }
-
-    public void copyFile(File src, File dest)
-            throws IOException {
-
-            //if file, then copy it
-            InputStream in = new FileInputStream(src);
-            OutputStream out = new FileOutputStream(dest);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-            }
-            in.close();
-            out.close();
-            log.info("File copied from " + src + " to " + dest);
-        }
-
 }

@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.beans.ContextUrls;
+import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,7 +53,7 @@ public abstract class CarbonIntegrationBaseTest {
 
 
     public void copyFolder(File src, File dest)
-            throws IOException {
+            throws CarbonToolsIntegrationTestException {
         if (src.isDirectory()) {
             if (!dest.exists()) {
                 dest.mkdir();
@@ -67,15 +68,20 @@ public abstract class CarbonIntegrationBaseTest {
 
         } else {
             //if file, then copy it
-            InputStream in = new FileInputStream(src);
-            OutputStream out = new FileOutputStream(dest);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
+            try {
+                InputStream in = new FileInputStream(src);
+                OutputStream out = new FileOutputStream(dest);
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+                in.close();
+                out.close();
+            }catch (IOException ex){
+                log.error("Error while copying folder " + ex.getMessage());
+                throw new CarbonToolsIntegrationTestException("Error while copying folder ", ex);
             }
-            in.close();
-            out.close();
             log.info("File copied from " + src + " to " + dest);
         }
     }
