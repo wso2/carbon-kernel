@@ -19,13 +19,13 @@ package org.wso2.carbon.user.core.config;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.user.api.TenantMgtConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -46,10 +46,8 @@ import java.util.Map;
 public class TenantMgtXMLProcessor {
 
     private static final String TENANT_MGT_XML = "tenant-mgt.xml";
-
-    private BundleContext bundleContext;
-
     private static Log log = LogFactory.getLog(TenantMgtXMLProcessor.class);
+    private BundleContext bundleContext;
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
@@ -57,6 +55,7 @@ public class TenantMgtXMLProcessor {
 
     /**
      * Build an object of TenantMgtConfiguration reading the tenant-mgt.xml file
+     *
      * @return
      * @throws UserStoreException
      */
@@ -79,6 +78,7 @@ public class TenantMgtXMLProcessor {
 
     /**
      * Build the tenant configuration given the document element in tenant-mgt.xml
+     *
      * @param tenantMgtConfigElement
      * @return
      * @throws UserStoreException
@@ -89,25 +89,25 @@ public class TenantMgtXMLProcessor {
         TenantMgtConfiguration tenantMgtConfiguration = new TenantMgtConfiguration();
 
         Iterator<OMElement> iterator = tenantMgtConfigElement.getChildrenWithName(
-        		new QName(UserCoreConstants.TenantMgtConfig.LOCAL_NAME_TENANT_MANAGER));
-        
-		for (; iterator.hasNext();) {
-			OMElement tenantManager = iterator.next();
-			
-			if (tenantManagerClass !=null && tenantManagerClass.equals(tenantManager.getAttributeValue(new QName(
-					UserCoreConstants.TenantMgtConfig.ATTRIBUTE_NAME_CLASS)))) {
+                new QName(UserCoreConstants.TenantMgtConfig.LOCAL_NAME_TENANT_MANAGER));
 
-		        tenantMgtProperties = readChildPropertyElements(tenantManager);
+        for (; iterator.hasNext(); ) {
+            OMElement tenantManager = iterator.next();
 
-		        tenantMgtConfiguration.setTenantManagerClass(tenantManagerClass);
-		        tenantMgtConfiguration.setTenantStoreProperties(tenantMgtProperties);
+            if (tenantManagerClass != null && tenantManagerClass.equals(tenantManager.getAttributeValue(new QName(
+                    UserCoreConstants.TenantMgtConfig.ATTRIBUTE_NAME_CLASS)))) {
 
-		        return tenantMgtConfiguration;
-			}
-		}	
+                tenantMgtProperties = readChildPropertyElements(tenantManager);
+
+                tenantMgtConfiguration.setTenantManagerClass(tenantManagerClass);
+                tenantMgtConfiguration.setTenantStoreProperties(tenantMgtProperties);
+
+                return tenantMgtConfiguration;
+            }
+        }
         String errorMessage = "Error in locating TenantManager compatible with PrimaryUserStore."
-        							+ " Required a TenantManager using "+ tenantManagerClass + " in tenant-mgt.xml." ;
-		throw new UserStoreException(errorMessage);
+                + " Required a TenantManager using " + tenantManagerClass + " in tenant-mgt.xml.";
+        throw new UserStoreException(errorMessage);
     }
 
     private Map<String, String> readChildPropertyElements(OMElement parentElement) {
@@ -140,16 +140,16 @@ public class TenantMgtXMLProcessor {
                     inStream = url.openStream();
                 } else {
                     warningMessage = "Bundle context could not find resource "
-                                     + TENANT_MGT_XML
-                                     + " or user does not have sufficient permission to access the resource.";
+                            + TENANT_MGT_XML
+                            + " or user does not have sufficient permission to access the resource.";
                 }
             } else {
                 if ((url = this.getClass().getClassLoader().getResource(TENANT_MGT_XML)) != null) {
                     inStream = url.openStream();
                 } else {
                     warningMessage = "Could not find resource "
-                                     + TENANT_MGT_XML
-                                     + " or user does not have sufficient permission to access the resource.";
+                            + TENANT_MGT_XML
+                            + " or user does not have sufficient permission to access the resource.";
                 }
             }
         }

@@ -43,8 +43,16 @@ import org.wso2.securevault.SecretResolverFactory;
 import javax.crypto.Cipher;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.io.*;
-import java.security.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -53,11 +61,11 @@ import java.util.regex.Pattern;
 public class UserStoreConfigXMLProcessor {
 
     private static final Log log = LogFactory.getLog(UserStoreConfigXMLProcessor.class);
+    private static BundleContext bundleContext;
+    private static Cipher keyStoreCipher = null;
     private SecretResolver secretResolver;
     private String filePath = null;
-    private static BundleContext bundleContext;
 
-    private static Cipher keyStoreCipher = null;
     public UserStoreConfigXMLProcessor(String path) {
         this.filePath = path;
         initializeKeyStore();
@@ -67,6 +75,44 @@ public class UserStoreConfigXMLProcessor {
         UserStoreConfigXMLProcessor.bundleContext = bundleContext;
     }
 
+    public static OMElement serialize(RealmConfiguration realmConfig) {
+        OMFactory factory = OMAbstractFactory.getOMFactory();
+
+        // add the user store manager properties
+        OMElement userStoreManagerElement = factory.createOMElement(new QName(
+                UserCoreConstants.RealmConfig.LOCAL_NAME_USER_STORE_MANAGER));
+        addPropertyElements(factory, userStoreManagerElement, realmConfig.getUserStoreClass(), realmConfig.getUserStoreProperties());
+
+        return userStoreManagerElement;
+    }
+
+    /**
+     * Add all the user store property elements
+     *
+     * @param factory
+     * @param parent
+     * @param className
+     * @param properties
+     */
+    private static void addPropertyElements(OMFactory factory, OMElement parent, String className,
+                                            Map<String, String> properties) {
+        if (className != null) {
+            parent.addAttribute(UserCoreConstants.RealmConfig.ATTR_NAME_CLASS, className, null);
+        }
+        Iterator<Map.Entry<String, String>> ite = properties.entrySet().iterator();
+        while (ite.hasNext()) {
+            Map.Entry<String, String> entry = ite.next();
+            String name = entry.getKey();
+            String value = entry.getValue();
+            OMElement propElem = factory.createOMElement(new QName(
+                    UserCoreConstants.RealmConfig.LOCAL_NAME_PROPERTY));
+            OMAttribute propAttr = factory.createOMAttribute(
+                    UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME, null, name);
+            propElem.addAttribute(propAttr);
+            propElem.setText(value);
+            parent.addChild(propElem);
+        }
+    }
 
     public RealmConfiguration buildUserStoreConfigurationFromFile() throws UserStoreException {
         OMElement realmElement;
@@ -105,7 +151,7 @@ public class UserStoreConfigXMLProcessor {
 //            throw new UserStoreException("Invalid domain name provided");
 //        }
 
-        if(!xmlProcessorUtils.isMandatoryFieldsProvided(userStoreProperties, UserStoreManagerRegistry.getUserStoreProperties(userStoreClass).getMandatoryProperties())){
+        if (!xmlProcessorUtils.isMandatoryFieldsProvided(userStoreProperties, UserStoreManagerRegistry.getUserStoreProperties(userStoreClass).getMandatoryProperties())) {
             throw new UserStoreException("A required mandatory field is missing.");
         }
 
@@ -126,7 +172,7 @@ public class UserStoreConfigXMLProcessor {
         realmConfig.setUserStoreClass(userStoreClass);
         realmConfig.setAuthorizationManagerClass(primaryRealm.getAuthorizationManagerClass());
         realmConfig.setEveryOneRoleName(UserCoreUtil.addDomainToName(primaryRealm.getEveryOneRoleName(),
-                                                                                    UserCoreConstants.INTERNAL_DOMAIN));
+                UserCoreConstants.INTERNAL_DOMAIN));
         realmConfig.setUserStoreProperties(userStoreProperties);
         realmConfig.setPasswordsExternallyManaged(passwordsExternallyManaged);
         realmConfig.setAuthzProperties(primaryRealm.getAuthzProperties());
@@ -183,11 +229,11 @@ public class UserStoreConfigXMLProcessor {
                     tokenProtected = true;
                 }
             }
-            if(!tokenProtected && propValue != null){
+            if (!tokenProtected && propValue != null) {
                 propValue = resolveEncryption(propElem);
             }
             tokenProtected = false;
-            if(propName != null &&  propValue!= null ){
+            if (propName != null && propValue != null) {
                 map.put(propName.trim(), propValue.trim());
             }
 
@@ -218,54 +264,13 @@ public class UserStoreConfigXMLProcessor {
         return map;
     }
 
-    public static OMElement serialize(RealmConfiguration realmConfig) {
-        OMFactory factory = OMAbstractFactory.getOMFactory();
-
-        // add the user store manager properties
-        OMElement userStoreManagerElement = factory.createOMElement(new QName(
-                UserCoreConstants.RealmConfig.LOCAL_NAME_USER_STORE_MANAGER));
-        addPropertyElements(factory, userStoreManagerElement, realmConfig.getUserStoreClass(), realmConfig.getUserStoreProperties());
-
-        return userStoreManagerElement;
-    }
-
-    /**
-     * Add all the user store property elements
-     *
-     * @param factory
-     * @param parent
-     * @param className
-     * @param properties
-     */
-    private static void addPropertyElements(OMFactory factory, OMElement parent, String className,
-                                            Map<String, String> properties) {
-        if (className != null) {
-            parent.addAttribute(UserCoreConstants.RealmConfig.ATTR_NAME_CLASS, className, null);
-        }
-        Iterator<Map.Entry<String, String>> ite = properties.entrySet().iterator();
-        while (ite.hasNext()) {
-            Map.Entry<String, String> entry = ite.next();
-            String name = entry.getKey();
-            String value = entry.getValue();
-            OMElement propElem = factory.createOMElement(new QName(
-                    UserCoreConstants.RealmConfig.LOCAL_NAME_PROPERTY));
-            OMAttribute propAttr = factory.createOMAttribute(
-                    UserCoreConstants.RealmConfig.ATTR_NAME_PROP_NAME, null, name);
-            propElem.addAttribute(propAttr);
-            propElem.setText(value);
-            parent.addChild(propElem);
-        }
-    }
-
     /**
      * Read in realm element from config file
      *
      * @return
      * @throws javax.xml.stream.XMLStreamException
-     *
      * @throws java.io.IOException
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     private OMElement getRealmElement() throws XMLStreamException, IOException, UserStoreException {
         StAXOMBuilder builder = null;
@@ -294,7 +299,7 @@ public class UserStoreConfigXMLProcessor {
      * decrypts encrypted text value if the property element has the attribute encrypt="true"
      *
      * @param propElem Property OMElement
-     * @return         decrypted text value
+     * @return decrypted text value
      */
     private String resolveEncryption(OMElement propElem) {
         String propValue = propElem.getText();

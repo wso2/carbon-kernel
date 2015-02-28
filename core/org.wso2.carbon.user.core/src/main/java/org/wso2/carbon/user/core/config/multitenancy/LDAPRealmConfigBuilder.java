@@ -40,7 +40,7 @@ public class LDAPRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
     private static Log log = LogFactory.getLog(LDAPRealmConfigBuilder.class);
 
     public RealmConfiguration getRealmConfigForTenantToCreateRealm(RealmConfiguration
-            bootStrapConfig, RealmConfiguration persistedConfig, int tenantId)
+                                                                           bootStrapConfig, RealmConfiguration persistedConfig, int tenantId)
             throws UserStoreException {
         return persistedConfig;
     }
@@ -49,6 +49,7 @@ public class LDAPRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
      * This will clone the bootstrap realm config and creates a tenant specific realm.
      * Here the user search base of the particular tenant is changes to the tenant specific user
      * store.
+     *
      * @param bootStrapConfig
      * @param tenantInfo
      * @param tenantId
@@ -56,7 +57,7 @@ public class LDAPRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
      * @throws UserStoreException
      */
     public RealmConfiguration getRealmConfigForTenantToPersist(RealmConfiguration
-            bootStrapConfig, TenantMgtConfiguration tenantMgtConfiguration, Tenant tenantInfo,
+                                                                       bootStrapConfig, TenantMgtConfiguration tenantMgtConfiguration, Tenant tenantInfo,
                                                                int tenantId)
             throws UserStoreException {
         RealmConfiguration ldapRealmConfig = null;
@@ -69,13 +70,13 @@ public class LDAPRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
 
             Map<String, String> authz = ldapRealmConfig.getAuthzProperties();
             authz.put(UserCoreConstants.RealmConfig.PROPERTY_ADMINROLE_AUTHORIZATION,
-                      CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);
+                    CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);
 
             Map<String, String> userStoreProperties = ldapRealmConfig.getUserStoreProperties();
 
             //If the domain is wso2.com, partition dn is composed as dc=wso2,dc=com as follows:
             String partitionDN = "dc=" + tenantInfo.getDomain().split("\\.")[0] + ",dc=" +
-                                 tenantInfo.getDomain().split("\\.")[1];
+                    tenantInfo.getDomain().split("\\.")[1];
             /*according to carbon/components/apacheds-server, users are stored under "ou=Users"
             context. So that is hard coded as the default in userSearchBase.*/
             String userSearchBase = "ou=Users," + partitionDN;
