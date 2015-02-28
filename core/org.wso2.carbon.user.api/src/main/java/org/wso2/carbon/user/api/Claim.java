@@ -22,7 +22,6 @@ package org.wso2.carbon.user.api;
  * is the expression of a right with respect to a particular value. Hence a
  * claim has a uri, display name, value and many other properties. This class
  * models the properties of a claim.
- *
  */
 public class Claim {
 
@@ -32,14 +31,14 @@ public class Claim {
      */
     private String claimUri;
 
-   /**
-    * This is to indicate the claim is read-only.
-    */
+    /**
+     * This is to indicate the claim is read-only.
+     */
     private boolean readOnly;
 
-   /**
-    * This is to indicate that this is a checked attribute with a boolean value.
-    */
+    /**
+     * This is to indicate that this is a checked attribute with a boolean value.
+     */
     private boolean checkedAttribute;
 
     /**
@@ -82,11 +81,11 @@ public class Claim {
     private String value;
 
     /**
-     * This is the display order in the Carbon UI framework 
+     * This is the display order in the Carbon UI framework
      */
     private int displayOrder;
 
-    
+
     public String getClaimUri() {
         return claimUri;
     }
