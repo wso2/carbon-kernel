@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon</groupId>
@@ -27,22 +28,22 @@
 
     <build>
         <extensions>
-      	    <extension>
-        	<groupId>org.apache.maven.wagon</groupId>
-        	<artifactId>wagon-ssh</artifactId>
-        	<version>2.1</version>
-      	    </extension>
-    	</extensions>
-	<plugins>
-	    <plugin>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.1</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-		    <preparationGoals>clean install</preparationGoals>
-		    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <preparationGoals>clean install</preparationGoals>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
-	</plugins>
+        </plugins>
     </build>
     <profiles>
         <profile>
@@ -51,7 +52,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-		<module>parent</module>
+                <module>parent</module>
                 <module>service-stubs</module>
                 <module>core</module>
                 <module>features</module>
@@ -59,7 +60,7 @@
                 <module>distribution</module>
             </modules>
         </profile>
-         <profile>
+        <profile>
             <id>maven-release</id>
             <modules>
                 <module>service-stubs</module>

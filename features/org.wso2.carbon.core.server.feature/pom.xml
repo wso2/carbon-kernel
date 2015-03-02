@@ -15,13 +15,14 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
         <version>4.4.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -37,7 +38,6 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
-                <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>4-p2-feature-generation</id>
@@ -55,16 +55,25 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core.services</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.server.admin</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.server</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.feature.mgt.services</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.cluster.mgt.core</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt</bundleDef>
-				                <bundleDef>org.wso2.carbon:org.wso2.carbon.user.core</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core.services:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.server.admin:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.registry.server:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.carbon:org.wso2.carbon.feature.mgt.services:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.cluster.mgt.core:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.roles.mgt:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.user.core:${carbon.kernel.version}
+                                </bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.p2.touchpoint:${carbon.kernel.version}
+                                </bundleDef>
                                 <bundleDef>org.bouncycastle.wso2:bcprov-jdk15on:${bouncycastle.version}</bundleDef>
                                 <bundleDef>org.apache.poi.wso2:poi-ooxml:${orbit.version.poi.ooxml}</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.p2.touchpoint:${carbon.platform.version}</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
