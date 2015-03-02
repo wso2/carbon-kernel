@@ -22,7 +22,7 @@ import org.wso2.carbon.user.core.common.DefaultRealm;
 /**
  * The object representing the realm configuration.
  */
-public class RealmConfiguration extends org.wso2.carbon.user.api.RealmConfiguration{
+public class RealmConfiguration extends org.wso2.carbon.user.api.RealmConfiguration {
 
     public String getRealmClassName() {
         String realmClass = super.getRealmClassName();
@@ -31,5 +31,5 @@ public class RealmConfiguration extends org.wso2.carbon.user.api.RealmConfigurat
         }
         return realmClass;
     }
-    
+
 }

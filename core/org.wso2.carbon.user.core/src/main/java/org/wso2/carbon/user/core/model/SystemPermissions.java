@@ -21,16 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SystemPermissions {
-    
+
     private static List<String> permissions = new ArrayList<String>();
-    
-    public static void addSystemPermission(String value){
-	permissions.add(value);
+
+    public static void addSystemPermission(String value) {
+        permissions.add(value);
     }
-    
-    public static List<String> getSystemPermission(){
-	return permissions;
+
+    public static List<String> getSystemPermission() {
+        return permissions;
     }
-    
+
 
 }

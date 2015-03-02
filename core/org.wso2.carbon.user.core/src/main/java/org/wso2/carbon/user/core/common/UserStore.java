@@ -4,68 +4,68 @@ import org.wso2.carbon.user.core.UserStoreManager;
 
 public class UserStore {
 
-	private UserStoreManager userStoreManager;
+    private UserStoreManager userStoreManager;
 
-	private String domainAwareName;
+    private String domainAwareName;
 
-	private String domainFreeName;
-	
-	private String domainName;
-	
-	private boolean recurssive;
-	
-	private boolean hybridRole;
+    private String domainFreeName;
+
+    private String domainName;
+
+    private boolean recurssive;
+
+    private boolean hybridRole;
 
     private boolean systemStore;
-			
 
-	public boolean isHybridRole() {
-		return hybridRole;
-	}
 
-	public void setHybridRole(boolean hybridRole) {
-		this.hybridRole = hybridRole;
-	}
+    public boolean isHybridRole() {
+        return hybridRole;
+    }
 
-	public boolean isRecurssive() {
-		return recurssive;
-	}
+    public void setHybridRole(boolean hybridRole) {
+        this.hybridRole = hybridRole;
+    }
 
-	public void setRecurssive(boolean recurssive) {
-		this.recurssive = recurssive;
-	}
+    public boolean isRecurssive() {
+        return recurssive;
+    }
 
-	public UserStoreManager getUserStoreManager() {
-		return userStoreManager;
-	}
+    public void setRecurssive(boolean recurssive) {
+        this.recurssive = recurssive;
+    }
 
-	public void setUserStoreManager(UserStoreManager userStoreManager) {
-		this.userStoreManager = userStoreManager;
-	}
+    public UserStoreManager getUserStoreManager() {
+        return userStoreManager;
+    }
 
-	public String getDomainAwareName() {
-		return domainAwareName;
-	}
+    public void setUserStoreManager(UserStoreManager userStoreManager) {
+        this.userStoreManager = userStoreManager;
+    }
 
-	public void setDomainAwareName(String domainAwareName) {
-		this.domainAwareName = domainAwareName;
-	}
+    public String getDomainAwareName() {
+        return domainAwareName;
+    }
 
-	public String getDomainFreeName() {
-		return domainFreeName;
-	}
+    public void setDomainAwareName(String domainAwareName) {
+        this.domainAwareName = domainAwareName;
+    }
 
-	public void setDomainFreeName(String domainFreeName) {
-		this.domainFreeName = domainFreeName;
-	}
+    public String getDomainFreeName() {
+        return domainFreeName;
+    }
 
-	public String getDomainName() {
-		return domainName;
-	}
+    public void setDomainFreeName(String domainFreeName) {
+        this.domainFreeName = domainFreeName;
+    }
 
-	public void setDomainName(String domainName) {
-		this.domainName = domainName;
-	}
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
 
     public boolean isSystemStore() {
         return systemStore;

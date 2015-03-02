@@ -15,7 +15,8 @@
  ~ specific language governing permissions and limitations
  ~ under the License.
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
@@ -33,7 +34,6 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>maven-buildnumber-plugin</artifactId>
@@ -59,7 +59,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.0-alpha-4</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
@@ -73,7 +72,7 @@
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
                                     <artifactId>wso2carbon-core</artifactId>
-                                    <version>${carbon.product.version}</version>
+                                    <version>${carbon.kernel.version}</version>
                                     <type>zip</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>target</outputDirectory>
@@ -87,7 +86,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.1</version>
                 <executions>
                     <execution>
                         <id>3-extract-docs-from-components</id>
@@ -96,21 +94,23 @@
                             <goal>run</goal>
                         </goals>
                         <configuration>
-                            <tasks>                             	
-                                <property name="tempdir" value="target/docs-temp" />
-                                <mkdir dir="${tempdir}" />
+                            <tasks>
+                                <property name="tempdir" value="target/docs-temp"/>
+                                <mkdir dir="${tempdir}"/>
                                 <unzip dest="${tempdir}">
                                     <fileset dir="target">
-                                        <include name="wso2carbon-${carbon.product.version}.zip" />
+                                        <include name="wso2carbon-${carbon.kernel.version}.zip"/>
                                     </fileset>
                                 </unzip>
-                                <copy todir="target/wso2carbon-core-${carbon.product.version}/repository/components" overwrite="true">
-                                    <fileset dir="${tempdir}/wso2carbon-${carbon.product.version}/repository/components">
+                                <copy todir="target/wso2carbon-core-${carbon.kernel.version}/repository/components"
+                                      overwrite="true">
+                                    <fileset
+                                            dir="${tempdir}/wso2carbon-${carbon.kernel.version}/repository/components">
                                     </fileset>
                                 </copy>
-                                <delete file="target/wso2carbon-${carbon.product.version}.zip" />                                                               
-                                <delete dir="${tempdir}" />
-                           </tasks>
+                                <!--<delete file="target/wso2carbon-${carbon.kernel.version}.zip"/>-->
+                                <delete dir="${tempdir}"/>
+                            </tasks>
                         </configuration>
                     </execution>
                     <execution>
@@ -118,14 +118,14 @@
                         <phase>install</phase>
                         <configuration>
                             <tasks>
-                                <delete dir="target/archive-tmp" />
-                                <delete dir="target/dependency-maven-plugin-markers" />
-                                <delete dir="target/maven-archiver" />
-                                <delete dir="target/wso2carbon-core-${carbon.product.version}" />
-                                <delete file="target/wso2carbon-${carbon.product.version}.jar" />
-                                <delete dir="target/sources" />
-                                <delete dir="target/site" />
-                                <delete dir="src/site" />
+                                <delete dir="target/archive-tmp"/>
+                                <delete dir="target/dependency-maven-plugin-markers"/>
+                                <delete dir="target/maven-archiver"/>
+                                <delete dir="target/wso2carbon-core-${carbon.kernel.version}"/>
+                                <delete file="target/wso2carbon-${carbon.kernel.version}.jar"/>
+                                <delete dir="target/sources"/>
+                                <delete dir="target/site"/>
+                                <delete dir="src/site"/>
                             </tasks>
                         </configuration>
                         <goals>
@@ -141,12 +141,13 @@
                 <executions>
                     <execution>
                         <id>1-pre-dist</id>
-                        <phase>test</phase> 
+                        <phase>test</phase>
                         <!--we are creating a temporary carbon distribution for document extracting purposes during the test phase-->
                         <goals>
                             <goal>attached</goal>
                         </goals>
                         <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <filters>
                                 <filter>${basedir}/src/assembly/filter.properties</filter>
                             </filters>
@@ -155,7 +156,6 @@
                             </descriptors>
                         </configuration>
                     </execution>
-
                     <execution>
                         <id>2-dist</id>
                         <phase>package</phase>
@@ -163,6 +163,7 @@
                             <goal>attached</goal>
                         </goals>
                         <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
                             <filters>
                                 <filter>${basedir}/src/assembly/filter.properties</filter>
                             </filters>
@@ -173,23 +174,6 @@
                     </execution>
                 </executions>
             </plugin>
-<!--
-
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-		<version>2.4.1</version>
-                <executions>
-                    <execution>
-                        <id>auto-clean</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
--->
-
         </plugins>
     </build>
 </project>

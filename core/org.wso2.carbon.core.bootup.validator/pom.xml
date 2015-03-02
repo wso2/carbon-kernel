@@ -8,79 +8,75 @@
 	WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. ~ See the 
 	License for the specific language governing permissions and ~ limitations 
 	under the License. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<parent>
+    <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
         <version>4.4.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
-    	</parent>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.wso2.carbon</groupId>
-	<artifactId>org.wso2.carbon.core.bootup.validator</artifactId>
-	<packaging>bundle</packaging>
-	<name>WSO2 Carbon - Bootup Validator</name>
-	<description>${package} provides the back-end functionalities</description>
-	<url>http://wso2.org</url>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.core.bootup.validator</artifactId>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon - Bootup Validator</name>
+    <description>This bundle provides the back-end functionalities for carbon server boot up validation tasks</description>
+    <url>http://wso2.org</url>
 
-	<dependencies>
-
-		<dependency>
-			<groupId>org.eclipse.osgi</groupId>
-			<artifactId>org.eclipse.osgi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.logging</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.wso2.carbon</groupId>
-			<artifactId>org.wso2.carbon.utils</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
-		<dependency>
-			<groupId>com.jezhumble.wso2</groupId>
-			<artifactId>javasysmon</artifactId>
-			<version>0.3.3</version>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.jezhumble.wso2</groupId>
+            <artifactId>javasysmon</artifactId>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Bundle-Name>${project.artifactId}</Bundle-Name>
-						<Private-Package>org.wso2.carbon.core.bootup.*</Private-Package>
-						<Import-Package>
-							org.osgi.framework,
-							com.jezhumble.javasysmon,
-							org.wso2.carbon.utils,
-							*;resolution:=optional
-						</Import-Package>
-						<Bundle-Activator>org.wso2.carbon.core.bootup.validator.internal.BootupValidationActivator</Bundle-Activator>
-						<DynamicImport-Package>*</DynamicImport-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>org.wso2.carbon.core.bootup.*</Private-Package>
+                        <Import-Package>
+                            org.osgi.framework,
+                            com.jezhumble.javasysmon,
+                            org.wso2.carbon.utils,
+                            *;resolution:=optional
+                        </Import-Package>
+                        <Bundle-Activator>org.wso2.carbon.core.bootup.validator.internal.BootupValidationActivator
+                        </Bundle-Activator>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

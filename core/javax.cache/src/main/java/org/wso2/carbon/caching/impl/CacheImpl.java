@@ -374,6 +374,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
         for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
             if (cacheEntryListener instanceof CacheEntryCreatedListener) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Notification event trigger for cache entry create : " + cacheEntryListener.getClass());
+                }
                 ((CacheEntryCreatedListener) cacheEntryListener).entryCreated(event);
             }
         }
@@ -383,6 +386,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
         for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
             if (cacheEntryListener instanceof CacheEntryUpdatedListener) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Notification event trigger for cache entry update : " + cacheEntryListener.getClass());
+                }
                 ((CacheEntryUpdatedListener) cacheEntryListener).entryUpdated(event);
             }
         }
@@ -392,6 +398,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
         for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
             if (cacheEntryListener instanceof CacheEntryReadListener) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Notification event trigger for cache entry read : " + cacheEntryListener.getClass());
+                }
                 ((CacheEntryReadListener) cacheEntryListener).entryRead(event);
             }
         }
@@ -401,6 +410,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
         for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
             if (cacheEntryListener instanceof CacheEntryRemovedListener) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Notification event trigger for cache entry remove : " + cacheEntryListener.getClass());
+                }
                 ((CacheEntryRemovedListener) cacheEntryListener).entryRemoved(event);
             }
         }
@@ -410,6 +422,9 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         CacheEntryEvent event = createCacheEntryEvent(key, value);
         for (CacheEntryListener cacheEntryListener : cacheEntryListeners) {
             if (cacheEntryListener instanceof CacheEntryExpiredListener) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Notification event trigger for cache entry expired : " + cacheEntryListener.getClass());
+                }
                 ((CacheEntryExpiredListener) cacheEntryListener).entryExpired(event);
             }
         }
@@ -1060,8 +1075,15 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryAdded(X key) {
-            if (!localCache.containsKey(key)) return;
+
+            //Trigger registered listeners when a distributed cache entry is getting added.
             CacheEntry<K, V> value = distributedCache.get(key);
+            if(value !=null ) {
+                notifyCacheEntryCreated(value.getKey(), value.getValue());
+            }
+
+            if (!localCache.containsKey(key)) return;
+
             if (value != null) {
                 if (distributedTimestampMap.containsKey(key)) {
                     Long distributedLastAccessed = distributedTimestampMap.get(key);
@@ -1075,13 +1097,28 @@ public class CacheImpl<K, V> implements Cache<K, V> {
 
         @Override
         public <X> void entryRemoved(X key) {
+
+            //Trigger registered listeners when a distributed cache entry is getting removed.
+            CacheEntry<K, V> value = distributedCache.get(key);
+            if(value !=null ) {
+                notifyCacheEntryRemoved(value.getKey(), value.getValue());
+            }
+
+
             localCache.remove((K)key);
         }
 
         @Override
         public <X> void entryUpdated(X key) {
-            if (!localCache.containsKey(key)) return;
+
+            //Trigger registered listeners when a distributed cache entry is getting updated.
             CacheEntry<K, V> value = distributedCache.get(key);
+            if(value !=null ) {
+                notifyCacheEntryUpdated(value.getKey(), value.getValue());
+            }
+
+            if (!localCache.containsKey(key)) return;
+
             if (value != null) {
                 if (distributedTimestampMap.containsKey(key)) {
                     Long distributedLastAccessed = distributedTimestampMap.get(key);

@@ -17,30 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-
-import javax.naming.Name;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeIdentifierException;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.NoSuchAttributeException;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.sql.DataSource;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -62,6 +39,29 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import javax.naming.Name;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.NoSuchAttributeException;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Random;
+
 /**
  * This class is capable of get connected to an external or internal LDAP based user store in
  * read/write mode. Create, Update, Delete users and groups are supported.
@@ -69,84 +69,79 @@ import org.wso2.carbon.user.core.util.UserCoreUtil;
 @SuppressWarnings({})
 public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager {
 
-	private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
-	public static final String PASSWORD_HASH_METHOD = UserStoreConfigConstants.passwordHashMethod;
-	public static final String PASSWORD_HASH_METHOD_SHA = "SHA";
-	public static final String PASSWORD_HASH_METHOD_MD5 = "MD5";
-	public static final String ATTR_NAME_CN = "cn";
-	public static final String ATTR_NAME_SN = "sn";
+    public static final String PASSWORD_HASH_METHOD = UserStoreConfigConstants.passwordHashMethod;
+    public static final String PASSWORD_HASH_METHOD_SHA = "SHA";
+    public static final String PASSWORD_HASH_METHOD_MD5 = "MD5";
+    public static final String ATTR_NAME_CN = "cn";
+    public static final String ATTR_NAME_SN = "sn";
+    protected static final String KRB5_PRINCIPAL_NAME_ATTRIBUTE = "krb5PrincipalName";
+    protected static final String KRB5_KEY_VERSION_NUMBER_ATTRIBUTE = "krb5KeyVersionNumber";
+    protected static final String EMPTY_ATTRIBUTE_STRING = "";
+    /* To track whether this is the first time startup of the server. */
+    protected static boolean isFirstStartup = true;
+    private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
+    private static Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
+    protected Random random = new Random();
 
-	protected static final String KRB5_PRINCIPAL_NAME_ATTRIBUTE = "krb5PrincipalName";
-	protected static final String KRB5_KEY_VERSION_NUMBER_ATTRIBUTE = "krb5KeyVersionNumber";
+    protected boolean kdcEnabled = false;
 
-	/* To track whether this is the first time startup of the server. */
-	protected static boolean isFirstStartup = true;
-
-	private static Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
-
-	protected static final String EMPTY_ATTRIBUTE_STRING = "";
-
-	protected Random random = new Random();
-
-	protected boolean kdcEnabled = false;
-
-    public ReadWriteLDAPUserStoreManager(){
+    public ReadWriteLDAPUserStoreManager() {
 
     }
 
-	public ReadWriteLDAPUserStoreManager(RealmConfiguration realmConfig,
-			Map<String, Object> properties, ClaimManager claimManager,
-			ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
-			throws UserStoreException {
+    public ReadWriteLDAPUserStoreManager(RealmConfiguration realmConfig,
+                                         Map<String, Object> properties, ClaimManager claimManager,
+                                         ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
+            throws UserStoreException {
 
-		super(realmConfig, properties, claimManager, profileManager, realm, tenantId, true);
+        super(realmConfig, properties, claimManager, profileManager, realm, tenantId, true);
 
-		if (log.isDebugEnabled()) {
-			log.debug("Read-Write UserStoreManager initialization started "
-					+ System.currentTimeMillis());
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Read-Write UserStoreManager initialization started "
+                    + System.currentTimeMillis());
+        }
 
-		this.realmConfig = realmConfig;
-		this.claimManager = claimManager;
-		this.userRealm = realm;
-		this.tenantId = tenantId;
-		this.kdcEnabled = UserCoreUtil.isKdcEnabled(realmConfig);
+        this.realmConfig = realmConfig;
+        this.claimManager = claimManager;
+        this.userRealm = realm;
+        this.tenantId = tenantId;
+        this.kdcEnabled = UserCoreUtil.isKdcEnabled(realmConfig);
 
-		checkRequiredUserStoreConfigurations();
+        checkRequiredUserStoreConfigurations();
 
-		dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
-		if (dataSource == null) {
-			// avoid returning null
-			dataSource = DatabaseUtil.getRealmDataSource(realmConfig);
-		}
-		if (dataSource == null) {
-			throw new UserStoreException("Data Source is null");
-		}
-		properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
+        dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
+        if (dataSource == null) {
+            // avoid returning null
+            dataSource = DatabaseUtil.getRealmDataSource(realmConfig);
+        }
+        if (dataSource == null) {
+            throw new UserStoreException("Data Source is null");
+        }
+        properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
 
-		ReadWriteLDAPUserStoreManager.isFirstStartup = (Boolean) properties
-				.get(UserCoreConstants.FIRST_STARTUP_CHECK);
+        ReadWriteLDAPUserStoreManager.isFirstStartup = (Boolean) properties
+                .get(UserCoreConstants.FIRST_STARTUP_CHECK);
 
-		// hybrid role manager used if only users needs to be read-written.
-		hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
+        // hybrid role manager used if only users needs to be read-written.
+        hybridRoleManager = new HybridRoleManager(dataSource, tenantId, realmConfig, userRealm);
 
-		// obtain the ldap connection source that was created in
-		// DefaultRealmService.
-		this.connectionSource = (LDAPConnectionContext) properties
-				.get(UserCoreConstants.LDAP_CONNECTION_SOURCE);
+        // obtain the ldap connection source that was created in
+        // DefaultRealmService.
+        this.connectionSource = (LDAPConnectionContext) properties
+                .get(UserCoreConstants.LDAP_CONNECTION_SOURCE);
 
-		if (connectionSource == null) {
-			connectionSource = new LDAPConnectionContext(realmConfig);
-		}
+        if (connectionSource == null) {
+            connectionSource = new LDAPConnectionContext(realmConfig);
+        }
 
-		try {
-			connectionSource.getContext();
-			log.info("LDAP connection created successfully in read-write mode");
-		} catch (Exception e) {
-			throw new UserStoreException("Cannot create connection to LDAP server. Error message "
-					+ e.getMessage());
-		}
-		this.userRealm = realm;
+        try {
+            connectionSource.getContext();
+            log.info("LDAP connection created successfully in read-write mode");
+        } catch (Exception e) {
+            throw new UserStoreException("Cannot create connection to LDAP server. Error message "
+                    + e.getMessage());
+        }
+        this.userRealm = realm;
         //persist domain
         this.persistDomain();
         doInitialSetup();
@@ -154,423 +149,422 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             addInitialAdminData(Boolean.parseBoolean(realmConfig.getAddAdmin()),
                     !isInitSetupDone());
         }
-		/*
+        /*
 		 * Initialize user roles cache as implemented in AbstractUserStoreManager
 		 */
-		initUserRolesCache();
+        initUserRolesCache();
 
-		if (log.isDebugEnabled()) {
-			log.debug("Read-Write UserStoreManager initialization ended "
-					+ System.currentTimeMillis());
-		}
-	}
-
-	/**
-	 * This constructor is not used. So not applying the changes done to above constructor.
-	 * 
-	 * @param realmConfig
-	 * @param claimManager
-	 * @param profileManager
-	 * @throws UserStoreException
-	 */
-	public ReadWriteLDAPUserStoreManager(RealmConfiguration realmConfig, ClaimManager claimManager,
-			ProfileConfigurationManager profileManager) throws UserStoreException {
-		super(realmConfig, claimManager, profileManager);
-		// checkRequiredUserStoreConfiguration();
-	}
-
-	@Override
-	public boolean isReadOnly() {
-		return false;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	protected String getRealmName() {
-
-		// First check whether realm name is defined in the configuration
-		String defaultRealmName = this.realmConfig
-				.getUserStoreProperty(UserCoreConstants.RealmConfig.DEFAULT_REALM_NAME);
-
-		if (defaultRealmName != null) {
-			return defaultRealmName;
-		}
-
-		// If not build the realm name from the search base.
-		// Here the realm name will be a concatenation of dc components in the
-		// search base.
-		String searchBase = this.realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-
-		String[] domainComponents = searchBase.split("dc=");
-
-		StringBuilder builder = new StringBuilder();
-
-		for (String dc : domainComponents) {
-			if (!dc.contains("=")) {
-				String trimmedDc = dc.trim();
-				if (trimmedDc.endsWith(",")) {
-					builder.append(trimmedDc.replace(',', '.'));
-				} else {
-					builder.append(trimmedDc);
-				}
-			}
-		}
-
-		return builder.toString().toUpperCase(Locale.ENGLISH);
-	}
-
-	@Override
-	public void doAddUser(String userName, Object credential, String[] roleList,
-			Map<String, String> claims, String profileName) throws UserStoreException {
-		this.doAddUser(userName, credential, roleList, claims, profileName, false);
-	}
-
-	@Override
-	public void doAddUser(String userName, Object credential, String[] roleList,
-			Map<String, String> claims, String profileName, boolean requirePasswordChange)
-			throws UserStoreException {
-
-		/* validity checks */
-		doAddUserValidityChecks(userName, credential); // TODO bring abstract
-
-		/* getting search base directory context */
-		DirContext dirContext = getSearchBaseDirectoryContext();
-
-		/* getting add user basic attributes */
-		BasicAttributes basicAttributes = getAddUserBasicAttributes(userName);
-
-		BasicAttribute userPassword = new BasicAttribute("userPassword");
-		userPassword.add(UserCoreUtil.getPasswordToStore((String) credential,
-				this.realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD), kdcEnabled));
-		basicAttributes.put(userPassword);
-
-		/* setting claims */
-		setUserClaims(claims, basicAttributes, userName);
-
-		try {
-
-			NameParser ldapParser = dirContext.getNameParser("");
-			Name compoundName = ldapParser.parse(realmConfig
-					.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + userName);
-
-			if(log.isDebugEnabled()){
-				log.debug("Binding user: " + compoundName);
-			}
-			dirContext.bind(compoundName, null, basicAttributes);
-		} catch (NamingException e) {
-			String errorMessage = "Cannot access the directory context or "
-					+ "user already exists in the system";
-            log.debug(e.getMessage(), e);
-			throw new UserStoreException(errorMessage);
-		} finally {
-			JNDIUtil.closeContext(dirContext);
-		}
-
-        try{
-            /* update the user roles */
-            doUpdateRoleListOfUser(userName, null, roleList);
-            if(log.isDebugEnabled()){
-                log.debug("Roles are added for user  : " + userName + " successfully.");
-            }
-        } catch (UserStoreException e){
-            String errorMessage = "User is added. But error while updating role list of user";
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException(errorMessage);           
+        if (log.isDebugEnabled()) {
+            log.debug("Read-Write UserStoreManager initialization ended "
+                    + System.currentTimeMillis());
         }
-	}
+    }
 
-	/**
-	 * Does required checks before adding the user
-	 * 
-	 * @param userName
-	 * @param credential
-	 * @throws UserStoreException
-	 */
-	protected void doAddUserValidityChecks(String userName, Object credential)
-			throws UserStoreException {
+    /**
+     * This constructor is not used. So not applying the changes done to above constructor.
+     *
+     * @param realmConfig
+     * @param claimManager
+     * @param profileManager
+     * @throws UserStoreException
+     */
+    public ReadWriteLDAPUserStoreManager(RealmConfiguration realmConfig, ClaimManager claimManager,
+                                         ProfileConfigurationManager profileManager) throws UserStoreException {
+        super(realmConfig, claimManager, profileManager);
+        // checkRequiredUserStoreConfiguration();
+    }
 
-		if (!checkUserNameValid(userName)) {
-			throw new UserStoreException(
-					"User name not valid. User name must be a non null string with following format, "
-							+ realmConfig
-									.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX));
-		}
-		if (!checkUserPasswordValid(credential)) {
-			throw new UserStoreException(
-					"Credential not valid. Credential must be a non null string with following format, "
-							+ realmConfig
-									.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-		}
-		if (isExistingUser(userName)) {
-			throw new UserStoreException("User " + userName + " already exist in the LDAP");
-		}
-	}
+    @Override
+    public boolean isReadOnly() {
+        return false;
+    }
 
-	/**
-	 * Returns the directory context for the user search base
-	 * 
-	 * @return
-	 * @throws NamingException
-	 * @throws UserStoreException
-	 */
-	protected DirContext getSearchBaseDirectoryContext() throws UserStoreException {
-		DirContext mainDirContext = this.connectionSource.getContext();
-		String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		try {
-			return (DirContext) mainDirContext.lookup(searchBase);
-		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			String errorMessage = "Can not access the directory context or"
-					+ "user already exists in the system";
-			throw new UserStoreException(errorMessage);
-		} finally {
-			JNDIUtil.closeContext(mainDirContext);
-		}
-	}
+    /**
+     * @return
+     */
+    protected String getRealmName() {
 
-	/**
-	 * Returns a BasicAttributes object with basic required attributes
-	 * 
-	 * @param userName
-	 * @return
-	 */
-	protected BasicAttributes getAddUserBasicAttributes(String userName) {
-		BasicAttributes basicAttributes = new BasicAttributes(true);
-		String userEntryObjectClassProperty = realmConfig
-				.getUserStoreProperty(LDAPConstants.USER_ENTRY_OBJECT_CLASS);
-		BasicAttribute objectClass = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
-		String[] objectClassHierarchy = userEntryObjectClassProperty.split("/");
-        	for(String userObjectClass:objectClassHierarchy){
-            		if(userObjectClass != null && !userObjectClass.trim().equals("")){
-                	objectClass.add(userObjectClass.trim());
-        	    }
-	        }
-		// If KDC is enabled we have to set KDC specific object classes also
-		if (kdcEnabled) {
-			// Add Kerberos specific object classes
-			objectClass.add("krb5principal");
-			objectClass.add("krb5kdcentry");
-			objectClass.add("subschema");
-		}
-		basicAttributes.put(objectClass);
-		BasicAttribute userNameAttribute = new BasicAttribute(
-				realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
-		userNameAttribute.add(userName);
-		basicAttributes.put(userNameAttribute);
+        // First check whether realm name is defined in the configuration
+        String defaultRealmName = this.realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.DEFAULT_REALM_NAME);
 
-		if (kdcEnabled) {
-			CarbonContext cc = CarbonContext.getThreadLocalCarbonContext();
-			if(cc != null) {
-				String tenantDomainName = cc.getTenantDomain();
-				if(!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomainName)) {
-					userName = userName + UserCoreConstants.PRINCIPAL_USERNAME_SEPARATOR +
-                               tenantDomainName;
+        if (defaultRealmName != null) {
+            return defaultRealmName;
+        }
+
+        // If not build the realm name from the search base.
+        // Here the realm name will be a concatenation of dc components in the
+        // search base.
+        String searchBase = this.realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+
+        String[] domainComponents = searchBase.split("dc=");
+
+        StringBuilder builder = new StringBuilder();
+
+        for (String dc : domainComponents) {
+            if (!dc.contains("=")) {
+                String trimmedDc = dc.trim();
+                if (trimmedDc.endsWith(",")) {
+                    builder.append(trimmedDc.replace(',', '.'));
                 } else {
-                    userName = userName + UserCoreConstants.PRINCIPAL_USERNAME_SEPARATOR +
-                               MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+                    builder.append(trimmedDc);
                 }
             }
-			
-			String principal = userName + "@" + this.getRealmName();
+        }
 
-			BasicAttribute principalAttribute = new BasicAttribute(KRB5_PRINCIPAL_NAME_ATTRIBUTE);
-			principalAttribute.add(principal);
-			basicAttributes.put(principalAttribute);
+        return builder.toString().toUpperCase(Locale.ENGLISH);
+    }
 
-			BasicAttribute versionNumberAttribute = new BasicAttribute(
-					KRB5_KEY_VERSION_NUMBER_ATTRIBUTE);
-			versionNumberAttribute.add("0");
-			basicAttributes.put(versionNumberAttribute);
-		}
-		return basicAttributes;
-	}
+    @Override
+    public void doAddUser(String userName, Object credential, String[] roleList,
+                          Map<String, String> claims, String profileName) throws UserStoreException {
+        this.doAddUser(userName, credential, roleList, claims, profileName, false);
+    }
 
-	/**
-	 * Sets the set of claims provided at adding users
-	 * 
-	 * @param claims
-	 * @param basicAttributes
-	 * @throws UserStoreException
-	 */
-	protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes,
-			String userName) throws UserStoreException {
-		BasicAttribute claim;
-		boolean debug = log.isDebugEnabled();
+    @Override
+    public void doAddUser(String userName, Object credential, String[] roleList,
+                          Map<String, String> claims, String profileName, boolean requirePasswordChange)
+            throws UserStoreException {
 
-		log.debug("Processing user claims");	
+		/* validity checks */
+        doAddUserValidityChecks(userName, credential); // TODO bring abstract
+
+		/* getting search base directory context */
+        DirContext dirContext = getSearchBaseDirectoryContext();
+
+		/* getting add user basic attributes */
+        BasicAttributes basicAttributes = getAddUserBasicAttributes(userName);
+
+        BasicAttribute userPassword = new BasicAttribute("userPassword");
+        userPassword.add(UserCoreUtil.getPasswordToStore((String) credential,
+                this.realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD), kdcEnabled));
+        basicAttributes.put(userPassword);
+
+		/* setting claims */
+        setUserClaims(claims, basicAttributes, userName);
+
+        try {
+
+            NameParser ldapParser = dirContext.getNameParser("");
+            Name compoundName = ldapParser.parse(realmConfig
+                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + userName);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Binding user: " + compoundName);
+            }
+            dirContext.bind(compoundName, null, basicAttributes);
+        } catch (NamingException e) {
+            String errorMessage = "Cannot access the directory context or "
+                    + "user already exists in the system";
+            log.debug(e.getMessage(), e);
+            throw new UserStoreException(errorMessage);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
+        }
+
+        try {
+            /* update the user roles */
+            doUpdateRoleListOfUser(userName, null, roleList);
+            if (log.isDebugEnabled()) {
+                log.debug("Roles are added for user  : " + userName + " successfully.");
+            }
+        } catch (UserStoreException e) {
+            String errorMessage = "User is added. But error while updating role list of user";
+            log.debug(e.getMessage(), e);
+            throw new UserStoreException(errorMessage);
+        }
+    }
+
+    /**
+     * Does required checks before adding the user
+     *
+     * @param userName
+     * @param credential
+     * @throws UserStoreException
+     */
+    protected void doAddUserValidityChecks(String userName, Object credential)
+            throws UserStoreException {
+
+        if (!checkUserNameValid(userName)) {
+            throw new UserStoreException(
+                    "User name not valid. User name must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX));
+        }
+        if (!checkUserPasswordValid(credential)) {
+            throw new UserStoreException(
+                    "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+        }
+        if (isExistingUser(userName)) {
+            throw new UserStoreException("User " + userName + " already exist in the LDAP");
+        }
+    }
+
+    /**
+     * Returns the directory context for the user search base
+     *
+     * @return
+     * @throws NamingException
+     * @throws UserStoreException
+     */
+    protected DirContext getSearchBaseDirectoryContext() throws UserStoreException {
+        DirContext mainDirContext = this.connectionSource.getContext();
+        String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        try {
+            return (DirContext) mainDirContext.lookup(searchBase);
+        } catch (NamingException e) {
+            log.debug(e.getMessage(), e);
+            String errorMessage = "Can not access the directory context or"
+                    + "user already exists in the system";
+            throw new UserStoreException(errorMessage);
+        } finally {
+            JNDIUtil.closeContext(mainDirContext);
+        }
+    }
+
+    /**
+     * Returns a BasicAttributes object with basic required attributes
+     *
+     * @param userName
+     * @return
+     */
+    protected BasicAttributes getAddUserBasicAttributes(String userName) {
+        BasicAttributes basicAttributes = new BasicAttributes(true);
+        String userEntryObjectClassProperty = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_ENTRY_OBJECT_CLASS);
+        BasicAttribute objectClass = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
+        String[] objectClassHierarchy = userEntryObjectClassProperty.split("/");
+        for (String userObjectClass : objectClassHierarchy) {
+            if (userObjectClass != null && !userObjectClass.trim().equals("")) {
+                objectClass.add(userObjectClass.trim());
+            }
+        }
+        // If KDC is enabled we have to set KDC specific object classes also
+        if (kdcEnabled) {
+            // Add Kerberos specific object classes
+            objectClass.add("krb5principal");
+            objectClass.add("krb5kdcentry");
+            objectClass.add("subschema");
+        }
+        basicAttributes.put(objectClass);
+        BasicAttribute userNameAttribute = new BasicAttribute(
+                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE));
+        userNameAttribute.add(userName);
+        basicAttributes.put(userNameAttribute);
+
+        if (kdcEnabled) {
+            CarbonContext cc = CarbonContext.getThreadLocalCarbonContext();
+            if (cc != null) {
+                String tenantDomainName = cc.getTenantDomain();
+                if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equals(tenantDomainName)) {
+                    userName = userName + UserCoreConstants.PRINCIPAL_USERNAME_SEPARATOR +
+                            tenantDomainName;
+                } else {
+                    userName = userName + UserCoreConstants.PRINCIPAL_USERNAME_SEPARATOR +
+                            MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+                }
+            }
+
+            String principal = userName + "@" + this.getRealmName();
+
+            BasicAttribute principalAttribute = new BasicAttribute(KRB5_PRINCIPAL_NAME_ATTRIBUTE);
+            principalAttribute.add(principal);
+            basicAttributes.put(principalAttribute);
+
+            BasicAttribute versionNumberAttribute = new BasicAttribute(
+                    KRB5_KEY_VERSION_NUMBER_ATTRIBUTE);
+            versionNumberAttribute.add("0");
+            basicAttributes.put(versionNumberAttribute);
+        }
+        return basicAttributes;
+    }
+
+    /**
+     * Sets the set of claims provided at adding users
+     *
+     * @param claims
+     * @param basicAttributes
+     * @throws UserStoreException
+     */
+    protected void setUserClaims(Map<String, String> claims, BasicAttributes basicAttributes,
+                                 String userName) throws UserStoreException {
+        BasicAttribute claim;
+        boolean debug = log.isDebugEnabled();
+
+        log.debug("Processing user claims");
 		/*
 		 * we keep boolean values to know whether compulsory attributes 'sn' and 'cn' are set during
 		 * setting claims.
 		 */
-		boolean isSNExists = false;
-		boolean isCNExists = false;
+        boolean isSNExists = false;
+        boolean isCNExists = false;
 
-		if (claims != null) {
-			for (Map.Entry<String, String> entry : claims.entrySet()) {
+        if (claims != null) {
+            for (Map.Entry<String, String> entry : claims.entrySet()) {
 				/*
 				 * LDAP does not allow for empty values. If an attribute has a value it’s stored
 				 * with the entry, otherwise it is not. Hence needs to check for empty values before
 				 * storing the attribute.
 				 */
-				if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
-					continue;
-				}
-				// needs to get attribute name from claim mapping
-				String claimURI = entry.getKey();
-				
-				if(debug){
-					log.debug("Claim URI: " + claimURI);
-				}
-				
-				String attributeName = null;
-				try {
-					attributeName = getClaimAtrribute(claimURI, userName, null);
-				} catch (org.wso2.carbon.user.api.UserStoreException e) {
-					String errorMessage = "Error in obtaining claim mapping.";
-					throw new UserStoreException(errorMessage, e);
-				}
+                if (EMPTY_ATTRIBUTE_STRING.equals(entry.getValue())) {
+                    continue;
+                }
+                // needs to get attribute name from claim mapping
+                String claimURI = entry.getKey();
 
-				if (ATTR_NAME_CN.equals(attributeName)) {
-					isCNExists = true;
-				} else if (ATTR_NAME_SN.equals(attributeName)) {
-					isSNExists = true;
-				}
-				
-				if(debug) {
-					log.debug("Mapped attribute: " + attributeName);
-					log.debug("Attribute value: " + claims.get(entry.getKey()));
-				}
-				claim = new BasicAttribute(attributeName);
-				claim.add(claims.get(entry.getKey()));
-				basicAttributes.put(claim);
-			}
-		}
+                if (debug) {
+                    log.debug("Claim URI: " + claimURI);
+                }
 
-		// If required attributes cn, sn are not set during claim mapping,
-		// set them as user names
+                String attributeName = null;
+                try {
+                    attributeName = getClaimAtrribute(claimURI, userName, null);
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    String errorMessage = "Error in obtaining claim mapping.";
+                    throw new UserStoreException(errorMessage, e);
+                }
 
-		if (!isCNExists) {
-			BasicAttribute cn = new BasicAttribute("cn");
-			cn.add(userName);
-			basicAttributes.put(cn);
-		}
+                if (ATTR_NAME_CN.equals(attributeName)) {
+                    isCNExists = true;
+                } else if (ATTR_NAME_SN.equals(attributeName)) {
+                    isSNExists = true;
+                }
 
-		if (!isSNExists) {
-			BasicAttribute sn = new BasicAttribute("sn");
-			sn.add(userName);
-			basicAttributes.put(sn);
-		}
-	}
+                if (debug) {
+                    log.debug("Mapped attribute: " + attributeName);
+                    log.debug("Attribute value: " + claims.get(entry.getKey()));
+                }
+                claim = new BasicAttribute(attributeName);
+                claim.add(claims.get(entry.getKey()));
+                basicAttributes.put(claim);
+            }
+        }
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public void doDeleteUser(String userName) throws UserStoreException {
+        // If required attributes cn, sn are not set during claim mapping,
+        // set them as user names
 
-		boolean debug = log.isDebugEnabled();
-		
-		if(debug) {
-			log.debug("Deleting user: " + userName);
-		}
-		// delete user from LDAP group if read-write enabled.
-		String userNameAttribute = realmConfig
-				.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-		String searchFilter = realmConfig
-				.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-		searchFilter = searchFilter.replace("?", userName);
-		String[] returningUserAttributes = new String[] { userNameAttribute };
+        if (!isCNExists) {
+            BasicAttribute cn = new BasicAttribute("cn");
+            cn.add(userName);
+            basicAttributes.put(cn);
+        }
 
-		DirContext mainDirContext = this.connectionSource.getContext();
+        if (!isSNExists) {
+            BasicAttribute sn = new BasicAttribute("sn");
+            sn.add(userName);
+            basicAttributes.put(sn);
+        }
+    }
 
-		NamingEnumeration<SearchResult> userResults = searchInUserBase(searchFilter,
-				returningUserAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext);
-		NamingEnumeration<SearchResult> groupResults = null;
+    @SuppressWarnings("deprecation")
+    @Override
+    public void doDeleteUser(String userName) throws UserStoreException {
 
-		DirContext subDirContext = null;
-		try {
-			SearchResult userResult = null;
-			String userDN = null;
-			// here we assume only one user
-			// TODO: what to do if there are more than one user
-			while (userResults.hasMore()) {
-				userResult = userResults.next();
-				userDN = userResult.getName();
-				log.debug("User DN: " + userDN);
-			}
+        boolean debug = log.isDebugEnabled();
 
-			// LDAP roles of user to delete the mapping
+        if (debug) {
+            log.debug("Deleting user: " + userName);
+        }
+        // delete user from LDAP group if read-write enabled.
+        String userNameAttribute = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        String searchFilter = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        searchFilter = searchFilter.replace("?", userName);
+        String[] returningUserAttributes = new String[]{userNameAttribute};
 
-			List<String> roles = new ArrayList<String>();
-			String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
-			roles.addAll(Arrays.asList(externalRoles));
-            if(isSharedGroupEnabled()){
+        DirContext mainDirContext = this.connectionSource.getContext();
+
+        NamingEnumeration<SearchResult> userResults = searchInUserBase(searchFilter,
+                returningUserAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext);
+        NamingEnumeration<SearchResult> groupResults = null;
+
+        DirContext subDirContext = null;
+        try {
+            SearchResult userResult = null;
+            String userDN = null;
+            // here we assume only one user
+            // TODO: what to do if there are more than one user
+            while (userResults.hasMore()) {
+                userResult = userResults.next();
+                userDN = userResult.getName();
+                log.debug("User DN: " + userDN);
+            }
+
+            // LDAP roles of user to delete the mapping
+
+            List<String> roles = new ArrayList<String>();
+            String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
+            roles.addAll(Arrays.asList(externalRoles));
+            if (isSharedGroupEnabled()) {
                 String[] sharedRoles = doGetSharedRoleListOfUser(null, userName, "*");
                 if (sharedRoles != null) {
                     roles.addAll(Arrays.asList(sharedRoles));
                 }
             }
-			String[] rolesOfUser = roles.toArray(new String[roles.size()]);
+            String[] rolesOfUser = roles.toArray(new String[roles.size()]);
 
-			if (rolesOfUser.length != 0) {
-				
-				String[] returningGroupAttributes = new String[] { realmConfig
-						.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE) };
-				for (String role : rolesOfUser) {
-					
-					RoleContext context = createRoleContext(role);
-					String searchBase = ((LDAPRoleContext)context).getSearchBase();
-					searchFilter = ((LDAPRoleContext)context).getSearchFilter();
+            if (rolesOfUser.length != 0) {
+
+                String[] returningGroupAttributes = new String[]{realmConfig
+                        .getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE)};
+                for (String role : rolesOfUser) {
+
+                    RoleContext context = createRoleContext(role);
+                    String searchBase = ((LDAPRoleContext) context).getSearchBase();
+                    searchFilter = ((LDAPRoleContext) context).getSearchFilter();
                     role = context.getRoleName();
 
-					if (role.indexOf("/") > -1) {
-						role = (role.split("/"))[1];
-					}
-					String grpSearchFilter = searchFilter.replace("?", role);
-					groupResults =
-					               searchInGroupBase(grpSearchFilter, returningGroupAttributes,
-					                                 SearchControls.SUBTREE_SCOPE, mainDirContext,
-					                                 searchBase);
-					SearchResult groupResult = null;
-					while (groupResults.hasMore()) {
-						groupResult = groupResults.next();
-					}
-					if (isOnlyUserInRole(userDN, groupResult) && !emptyRolesAllowed) {
-						String errorMessage = "User: " + userName + " is the only user " + "in "
-								+ role + "." + "There should be at " + "least one user"
-								+ " in the role. Hence can" + " not delete the user.";
-						throw new UserStoreException(errorMessage);
-					}
-				}
-				// delete role list
-				doUpdateRoleListOfUser(userName, rolesOfUser, new String[] {});
-			}
+                    if (role.indexOf("/") > -1) {
+                        role = (role.split("/"))[1];
+                    }
+                    String grpSearchFilter = searchFilter.replace("?", role);
+                    groupResults =
+                            searchInGroupBase(grpSearchFilter, returningGroupAttributes,
+                                    SearchControls.SUBTREE_SCOPE, mainDirContext,
+                                    searchBase);
+                    SearchResult groupResult = null;
+                    while (groupResults.hasMore()) {
+                        groupResult = groupResults.next();
+                    }
+                    if (isOnlyUserInRole(userDN, groupResult) && !emptyRolesAllowed) {
+                        String errorMessage = "User: " + userName + " is the only user " + "in "
+                                + role + "." + "There should be at " + "least one user"
+                                + " in the role. Hence can" + " not delete the user.";
+                        throw new UserStoreException(errorMessage);
+                    }
+                }
+                // delete role list
+                doUpdateRoleListOfUser(userName, rolesOfUser, new String[]{});
+            }
 
-			// delete user entry if it exist 
-			if (userResult != null &&
-			    userResult.getAttributes().get(userNameAttribute).get().toString().toLowerCase()
-			              .equals(userName.toLowerCase())) {
-				if (log.isDebugEnabled()) {
-					log.debug("Deleting " + userDN + " with search base " + userSearchBase);
-				}
-				subDirContext = (DirContext) mainDirContext.lookup(userSearchBase);
-				subDirContext.destroySubcontext(userDN);
-			}
-	        userCache.remove(userName);
-		} catch (NamingException e) {
-			String errorMessage = "Error occurred while deleting the user. ";
-			throw new UserStoreException(errorMessage, e);
-		} finally {
-			JNDIUtil.closeNamingEnumeration(groupResults);
-			JNDIUtil.closeNamingEnumeration(userResults);
+            // delete user entry if it exist
+            if (userResult != null &&
+                    userResult.getAttributes().get(userNameAttribute).get().toString().toLowerCase()
+                            .equals(userName.toLowerCase())) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Deleting " + userDN + " with search base " + userSearchBase);
+                }
+                subDirContext = (DirContext) mainDirContext.lookup(userSearchBase);
+                subDirContext.destroySubcontext(userDN);
+            }
+            userCache.remove(userName);
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while deleting the user. ";
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(groupResults);
+            JNDIUtil.closeNamingEnumeration(userResults);
 
-			JNDIUtil.closeContext(subDirContext);
-			JNDIUtil.closeContext(mainDirContext);
-		}
-	}
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(mainDirContext);
+        }
+    }
 
-	@SuppressWarnings("rawtypes")
-	@Override
+    @SuppressWarnings("rawtypes")
+    @Override
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
@@ -580,13 +574,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
         // first search the existing user entry.
-		String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-		searchFilter = searchFilter.replace("?", userName);
+        String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        searchFilter = searchFilter.replace("?", userName);
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        searchControls.setReturningAttributes(new String[] { "userPassword" });
+        searchControls.setReturningAttributes(new String[]{"userPassword"});
 
         NamingEnumeration<SearchResult> namingEnumeration = null;
         NamingEnumeration passwords = null;
@@ -597,8 +591,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // TODO: what to do if there are more than one user
             SearchResult searchResult = null;
             String passwordHashMethod = realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
-            if(passwordHashMethod == null)  {
-                passwordHashMethod =  realmConfig.getUserStoreProperty("passwordHashMethod");
+            if (passwordHashMethod == null) {
+                passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
             }
             while (namingEnumeration.hasMore()) {
                 searchResult = namingEnumeration.next();
@@ -606,19 +600,19 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 String dnName = searchResult.getName();
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
 
-				Attribute passwordAttribute = new BasicAttribute("userPassword");
-				passwordAttribute.add(UserCoreUtil.getPasswordToStore((String) newCredential,
-				                                                      passwordHashMethod, kdcEnabled));
-				BasicAttributes basicAttributes = new BasicAttributes(true);
-				basicAttributes.put(passwordAttribute);
-				subDirContext.modifyAttributes(dnName, DirContext.REPLACE_ATTRIBUTE, basicAttributes);
+                Attribute passwordAttribute = new BasicAttribute("userPassword");
+                passwordAttribute.add(UserCoreUtil.getPasswordToStore((String) newCredential,
+                        passwordHashMethod, kdcEnabled));
+                BasicAttributes basicAttributes = new BasicAttributes(true);
+                basicAttributes.put(passwordAttribute);
+                subDirContext.modifyAttributes(dnName, DirContext.REPLACE_ATTRIBUTE, basicAttributes);
             }
             // we check whether both carbon admin entry and ldap connection
             // entry are the same
-			if (searchResult.getNameInNamespace()
-			                .equals(realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME))) {
-				this.connectionSource.updateCredential((String) newCredential);
-			}
+            if (searchResult.getNameInNamespace()
+                    .equals(realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME))) {
+                this.connectionSource.updateCredential((String) newCredential);
+            }
 
         } catch (NamingException e) {
             throw new UserStoreException("Can not access the directory service", e);
@@ -632,7 +626,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
 
-	@Override
+    @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
         /* validity checks */
@@ -648,7 +642,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        searchControls.setReturningAttributes(new String[] { "userPassword" });
+        searchControls.setReturningAttributes(new String[]{"userPassword"});
 
         NamingEnumeration<SearchResult> namingEnumeration = null;
         NamingEnumeration passwords = null;
@@ -660,14 +654,14 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // there can be only only on user
 
             SearchResult searchResult = null;
-            while(namingEnumeration.hasMore()) {
+            while (namingEnumeration.hasMore()) {
                 searchResult = namingEnumeration.next();
                 String passwordHashMethod = realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
-                if(passwordHashMethod == null)  {
-                    passwordHashMethod =  realmConfig.getUserStoreProperty("passwordHashMethod");
+                if (passwordHashMethod == null) {
+                    passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
                 }
-                if(!UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT.
-                        equalsIgnoreCase(passwordHashMethod)){
+                if (!UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT.
+                        equalsIgnoreCase(passwordHashMethod)) {
                     Attributes attributes = searchResult.getAttributes();
                     Attribute userPassword = attributes.get("userPassword");
                     // When admin changes other user passwords he do not have to
@@ -713,294 +707,293 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(dirContext);
         }
     }
-	/**
-	 * 
-	 * @param userName
-	 * @param newCredential
-	 * @throws UserStoreException
-	 */
-	protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
-			throws UserStoreException {
-		if (!isExistingUser(userName)) {
-			throw new UserStoreException("User " + userName + " does not exisit in the user store");
-		}
 
-		if (!checkUserPasswordValid(newCredential)) {
-			throw new UserStoreException(
-					"Credential not valid. Credential must be a non null string with following format, "
-							+ realmConfig
-									.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-		}
-	}
+    /**
+     * @param userName
+     * @param newCredential
+     * @throws UserStoreException
+     */
+    protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
+            throws UserStoreException {
+        if (!isExistingUser(userName)) {
+            throw new UserStoreException("User " + userName + " does not exisit in the user store");
+        }
 
-	@Override
-	public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
-		Map<String, String> existingProperties = this.realmConfig.getUserStoreProperties();
-		String tenantSufix = getTenantSuffix(tenant.getDomain());
-		String propertyName = null;
-		Map<String, String> newProperties = new HashMap<String, String>();
-		for (Map.Entry<String, String> iter : existingProperties.entrySet()) {
-			propertyName = iter.getKey();
-			if (propertyName.equals(LDAPConstants.USER_SEARCH_BASE)) {
-				newProperties.put(propertyName, tenantSufix);
-			} else {
-				newProperties.put(propertyName, iter.getValue());
-			}
-		}
-		return newProperties;
-	}
+        if (!checkUserPasswordValid(newCredential)) {
+            throw new UserStoreException(
+                    "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+        }
+    }
 
-	/**
-	 * 
-	 * @param domain
-	 * @return
-	 */
-	private String getTenantSuffix(String domain) {
-		// here we use a simple algorithum by splitting the domain with .
-		String[] domainParts = domain.split("\\.");
-		StringBuffer suffixName = new StringBuffer();
-		for (String domainPart : domainParts) {
-			suffixName.append(",dc=").append(domainPart);
-		}
-		return suffixName.toString().replaceFirst(",", "");
-	}
+    @Override
+    public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
+        Map<String, String> existingProperties = this.realmConfig.getUserStoreProperties();
+        String tenantSufix = getTenantSuffix(tenant.getDomain());
+        String propertyName = null;
+        Map<String, String> newProperties = new HashMap<String, String>();
+        for (Map.Entry<String, String> iter : existingProperties.entrySet()) {
+            propertyName = iter.getKey();
+            if (propertyName.equals(LDAPConstants.USER_SEARCH_BASE)) {
+                newProperties.put(propertyName, tenantSufix);
+            } else {
+                newProperties.put(propertyName, iter.getValue());
+            }
+        }
+        return newProperties;
+    }
 
-	/**
-	 * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
-	 * of updating user's profile information in LDAP user store.
-	 * 
-	 * @param userName
-	 * @param claims
-	 * @param profileName
-	 * @throws UserStoreException
-	 */
-	@Override
-	public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
-			throws UserStoreException {
+    /**
+     * @param domain
+     * @return
+     */
+    private String getTenantSuffix(String domain) {
+        // here we use a simple algorithum by splitting the domain with .
+        String[] domainParts = domain.split("\\.");
+        StringBuffer suffixName = new StringBuffer();
+        for (String domainPart : domainParts) {
+            suffixName.append(",dc=").append(domainPart);
+        }
+        return suffixName.toString().replaceFirst(",", "");
+    }
 
-		// get the LDAP Directory context
-		DirContext dirContext = this.connectionSource.getContext();
-		DirContext subDirContext = null;
-		// search the relevant user entry by user name
-		String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		String userSearchFilter = realmConfig
-				.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-		// if user name contains domain name, remove domain name
-		String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
-		if (userNames.length > 1) {
-			userName = userNames[1];
-		}
-		userSearchFilter = userSearchFilter.replace("?", userName);
+    /**
+     * This method overwrites the method in LDAPUserStoreManager. This implements the functionality
+     * of updating user's profile information in LDAP user store.
+     *
+     * @param userName
+     * @param claims
+     * @param profileName
+     * @throws UserStoreException
+     */
+    @Override
+    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+            throws UserStoreException {
 
-		SearchControls searchControls = new SearchControls();
-		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchControls.setReturningAttributes(null);
+        // get the LDAP Directory context
+        DirContext dirContext = this.connectionSource.getContext();
+        DirContext subDirContext = null;
+        // search the relevant user entry by user name
+        String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        String userSearchFilter = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        // if user name contains domain name, remove domain name
+        String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
+        if (userNames.length > 1) {
+            userName = userNames[1];
+        }
+        userSearchFilter = userSearchFilter.replace("?", userName);
 
-		NamingEnumeration<SearchResult> returnedResultList = null;
-		String returnedUserEntry = null;
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(null);
 
-		try {
-			returnedResultList = dirContext
-					.search(userSearchBase, userSearchFilter, searchControls);
-			// assume only one user is returned from the search
-			// TODO:what if more than one user is returned
-			returnedUserEntry = returnedResultList.next().getName();
+        NamingEnumeration<SearchResult> returnedResultList = null;
+        String returnedUserEntry = null;
 
-		} catch (NamingException e) {
-			throw new UserStoreException("Results could not be retrieved from the directory "
-					+ "context", e);
-		} finally {
-			JNDIUtil.closeNamingEnumeration(returnedResultList);
-		}
+        try {
+            returnedResultList = dirContext
+                    .search(userSearchBase, userSearchFilter, searchControls);
+            // assume only one user is returned from the search
+            // TODO:what if more than one user is returned
+            returnedUserEntry = returnedResultList.next().getName();
 
-		if (profileName == null) {
+        } catch (NamingException e) {
+            throw new UserStoreException("Results could not be retrieved from the directory "
+                    + "context", e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(returnedResultList);
+        }
 
-			profileName = UserCoreConstants.DEFAULT_PROFILE;
-		}
+        if (profileName == null) {
 
-		if (claims.get(UserCoreConstants.PROFILE_CONFIGURATION) == null) {
+            profileName = UserCoreConstants.DEFAULT_PROFILE;
+        }
 
-			claims.put(UserCoreConstants.PROFILE_CONFIGURATION,
-					UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
-		}
-		try {
-			Attributes updatedAttributes = new BasicAttributes(true);
+        if (claims.get(UserCoreConstants.PROFILE_CONFIGURATION) == null) {
 
-			for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
-				String claimURI = claimEntry.getKey();
-				// if there is no attribute for profile configuration in LDAP,
-				// skip updating it.
-				if (claimURI.equals(UserCoreConstants.PROFILE_CONFIGURATION)) {
-					continue;
-				}
-				// get the claimMapping related to this claimURI
-				String attributeName = getClaimAtrribute(claimURI, userName, null);
+            claims.put(UserCoreConstants.PROFILE_CONFIGURATION,
+                    UserCoreConstants.DEFAULT_PROFILE_CONFIGURATION);
+        }
+        try {
+            Attributes updatedAttributes = new BasicAttributes(true);
+
+            for (Map.Entry<String, String> claimEntry : claims.entrySet()) {
+                String claimURI = claimEntry.getKey();
+                // if there is no attribute for profile configuration in LDAP,
+                // skip updating it.
+                if (claimURI.equals(UserCoreConstants.PROFILE_CONFIGURATION)) {
+                    continue;
+                }
+                // get the claimMapping related to this claimURI
+                String attributeName = getClaimAtrribute(claimURI, userName, null);
                 //remove user DN from cache if changing username attribute
                 if (realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE).equals
                         (attributeName)) {
                     userCache.remove(userName);
                 }
                 // if uid attribute value contains domain name, remove domain
-				// name
-				if (attributeName.equals("uid")) {
-					// if user name contains domain name, remove domain name
-					String uidName = claimEntry.getValue();
-					String[] uidNames = uidName.split(CarbonConstants.DOMAIN_SEPARATOR);
-					if (uidNames.length > 1) {
-						uidName = uidNames[1];
-						claimEntry.setValue(uidName);
-					}
-				}
-				Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
+                // name
+                if (attributeName.equals("uid")) {
+                    // if user name contains domain name, remove domain name
+                    String uidName = claimEntry.getValue();
+                    String[] uidNames = uidName.split(CarbonConstants.DOMAIN_SEPARATOR);
+                    if (uidNames.length > 1) {
+                        uidName = uidNames[1];
+                        claimEntry.setValue(uidName);
+                    }
+                }
+                Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
 				/* if updated attribute value is null, remove its values. */
-				if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
-					currentUpdatedAttribute.clear();
-				} else {
-					if (claimEntry.getValue() != null && claimEntry.getValue().contains(",")) {
-						String[] values = claimEntry.getValue().split(",");
-						for (String newValue : values) {
-							if (newValue != null && newValue.trim().length() > 0) {
-								currentUpdatedAttribute.add(newValue.trim());
-							}
-						}
-					} else {
-						currentUpdatedAttribute.add(claimEntry.getValue());
-					}
-				}
-				updatedAttributes.put(currentUpdatedAttribute);
-			}
-			// update the attributes in the relevant entry of the directory
-			// store
+                if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
+                    currentUpdatedAttribute.clear();
+                } else {
+                    if (claimEntry.getValue() != null && claimEntry.getValue().contains(",")) {
+                        String[] values = claimEntry.getValue().split(",");
+                        for (String newValue : values) {
+                            if (newValue != null && newValue.trim().length() > 0) {
+                                currentUpdatedAttribute.add(newValue.trim());
+                            }
+                        }
+                    } else {
+                        currentUpdatedAttribute.add(claimEntry.getValue());
+                    }
+                }
+                updatedAttributes.put(currentUpdatedAttribute);
+            }
+            // update the attributes in the relevant entry of the directory
+            // store
 
-			subDirContext = (DirContext) dirContext.lookup(userSearchBase);
-			subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
-					updatedAttributes);
+            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
+                    updatedAttributes);
 
-		} catch (InvalidAttributeValueException e) {
-			String errorMessage = "One or more attribute values provided are incompatible. "
-					+ "Please check and try again.";
-			throw new UserStoreException(errorMessage, e);
-		} catch (InvalidAttributeIdentifierException e) {
-			String errorMessage = "One or more attributes you are trying to add/update are not "
-					+ "supported by underlying LDAP.";
-			throw new UserStoreException(errorMessage, e);
+        } catch (InvalidAttributeValueException e) {
+            String errorMessage = "One or more attribute values provided are incompatible. "
+                    + "Please check and try again.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (InvalidAttributeIdentifierException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP.";
+            throw new UserStoreException(errorMessage, e);
 
-		} catch (NoSuchAttributeException e) {
-			String errorMessage = "One or more attributes you are trying to add/update are not "
-					+ "supported by underlying LDAP.";
-			throw new UserStoreException(errorMessage, e);
-		} catch (NamingException e) {
-			String errorMessage = "Profile information could not be updated in ApacheDS "
-					+ "LDAP user store";
-			throw new UserStoreException(errorMessage, e);
-		} catch (org.wso2.carbon.user.api.UserStoreException e) {
-			String errorMessage = "Error in obtaining claim mapping.";
-			throw new UserStoreException(errorMessage, e);
-		} finally {
-			JNDIUtil.closeContext(subDirContext);
-			JNDIUtil.closeContext(dirContext);
-		}
+        } catch (NoSuchAttributeException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (NamingException e) {
+            String errorMessage = "Profile information could not be updated in ApacheDS "
+                    + "LDAP user store";
+            throw new UserStoreException(errorMessage, e);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error in obtaining claim mapping.";
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+        }
 
-	}
+    }
 
-	@Override
-	public void doSetUserClaimValue(String userName, String claimURI, String value,
-			String profileName) throws UserStoreException {
+    @Override
+    public void doSetUserClaimValue(String userName, String claimURI, String value,
+                                    String profileName) throws UserStoreException {
 
-		// get the LDAP Directory context
-		DirContext dirContext = this.connectionSource.getContext();
-		DirContext subDirContext = null;
-		// search the relevant user entry by user name
-		String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		String userSearchFilter = realmConfig
-				.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-		// if user name contains domain name, remove domain name
-		String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
-		if (userNames.length > 1) {
-			userName = userNames[1];
-		}
-		userSearchFilter = userSearchFilter.replace("?", userName);
+        // get the LDAP Directory context
+        DirContext dirContext = this.connectionSource.getContext();
+        DirContext subDirContext = null;
+        // search the relevant user entry by user name
+        String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        String userSearchFilter = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        // if user name contains domain name, remove domain name
+        String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
+        if (userNames.length > 1) {
+            userName = userNames[1];
+        }
+        userSearchFilter = userSearchFilter.replace("?", userName);
 
-		SearchControls searchControls = new SearchControls();
-		searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchControls.setReturningAttributes(null);
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchControls.setReturningAttributes(null);
 
-		NamingEnumeration<SearchResult> returnedResultList = null;
-		String returnedUserEntry = null;
+        NamingEnumeration<SearchResult> returnedResultList = null;
+        String returnedUserEntry = null;
 
-		try {
+        try {
 
-			returnedResultList = dirContext
-					.search(userSearchBase, userSearchFilter, searchControls);
-			// assume only one user is returned from the search
-			// TODO:what if more than one user is returned
-			returnedUserEntry = returnedResultList.next().getName();
+            returnedResultList = dirContext
+                    .search(userSearchBase, userSearchFilter, searchControls);
+            // assume only one user is returned from the search
+            // TODO:what if more than one user is returned
+            returnedUserEntry = returnedResultList.next().getName();
 
-		} catch (NamingException e) {
-			throw new UserStoreException("Results could not be retrieved from the directory "
-					+ "context", e);
-		} finally {
-			JNDIUtil.closeNamingEnumeration(returnedResultList);
-		}
+        } catch (NamingException e) {
+            throw new UserStoreException("Results could not be retrieved from the directory "
+                    + "context", e);
+        } finally {
+            JNDIUtil.closeNamingEnumeration(returnedResultList);
+        }
 
-		try {
-			Attributes updatedAttributes = new BasicAttributes(true);
-			// if there is no attribute for profile configuration in LDAP, skip
-			// updating it.
-			// get the claimMapping related to this claimURI
-			String attributeName = null;
-			attributeName = getClaimAtrribute(claimURI, userName, null);
+        try {
+            Attributes updatedAttributes = new BasicAttributes(true);
+            // if there is no attribute for profile configuration in LDAP, skip
+            // updating it.
+            // get the claimMapping related to this claimURI
+            String attributeName = null;
+            attributeName = getClaimAtrribute(claimURI, userName, null);
 
-			Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
+            Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
 			/* if updated attribute value is null, remove its values. */
-			if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
-				currentUpdatedAttribute.clear();
-			} else {
-				if (value.contains(",")) {
-					String[] values = value.split(",");
-					for (String newValue : values) {
-						if (newValue != null && newValue.trim().length() > 0) {
-							currentUpdatedAttribute.add(newValue.trim());
-						}
-					}
-				} else {
-					currentUpdatedAttribute.add(value);
-				}
-			}
-			updatedAttributes.put(currentUpdatedAttribute);
+            if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
+                currentUpdatedAttribute.clear();
+            } else {
+                if (value.contains(",")) {
+                    String[] values = value.split(",");
+                    for (String newValue : values) {
+                        if (newValue != null && newValue.trim().length() > 0) {
+                            currentUpdatedAttribute.add(newValue.trim());
+                        }
+                    }
+                } else {
+                    currentUpdatedAttribute.add(value);
+                }
+            }
+            updatedAttributes.put(currentUpdatedAttribute);
 
-			// update the attributes in the relevant entry of the directory
-			// store
+            // update the attributes in the relevant entry of the directory
+            // store
 
-			subDirContext = (DirContext) dirContext.lookup(userSearchBase);
-			subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
-					updatedAttributes);
+            subDirContext = (DirContext) dirContext.lookup(userSearchBase);
+            subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
+                    updatedAttributes);
 
-		} catch (InvalidAttributeValueException e) {
-			String errorMessage = "One or more attribute values provided are incompatible. "
-					+ "Please check and try again.";
-			throw new UserStoreException(errorMessage, e);
-		} catch (InvalidAttributeIdentifierException e) {
-			String errorMessage = "One or more attributes you are trying to add/update are not "
-					+ "supported by underlying LDAP.";
-			throw new UserStoreException(errorMessage, e);
-		} catch (NoSuchAttributeException e) {
-			String errorMessage = "One or more attributes you are trying to add/update are not "
-					+ "supported by underlying LDAP.";
-			throw new UserStoreException(errorMessage, e);
-		} catch (NamingException e) {
-			String errorMessage = "Profile information could not be updated in ApacheDS "
-					+ "LDAP user store";
-			throw new UserStoreException(errorMessage, e);
-		} catch (org.wso2.carbon.user.api.UserStoreException e) {
-			String errorMessage = "Error in obtaining claim mapping.";
-			throw new UserStoreException(errorMessage, e);
-		} finally {
-			JNDIUtil.closeContext(subDirContext);
-			JNDIUtil.closeContext(dirContext);
-		}
+        } catch (InvalidAttributeValueException e) {
+            String errorMessage = "One or more attribute values provided are incompatible. "
+                    + "Please check and try again.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (InvalidAttributeIdentifierException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (NoSuchAttributeException e) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP.";
+            throw new UserStoreException(errorMessage, e);
+        } catch (NamingException e) {
+            String errorMessage = "Profile information could not be updated in ApacheDS "
+                    + "LDAP user store";
+            throw new UserStoreException(errorMessage, e);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error in obtaining claim mapping.";
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(subDirContext);
+            JNDIUtil.closeContext(dirContext);
+        }
 
-	}
+    }
 
 
     @Override
@@ -1117,7 +1110,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // updating it.
             // get the claimMapping related to this claimURI
 
-            for(String claimURI : claims){
+            for (String claimURI : claims) {
                 String attributeName = getClaimAtrribute(claimURI, userName, null);
                 Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
                 updatedAttributes.put(currentUpdatedAttribute);
@@ -1149,7 +1142,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
-        }        
+        }
     }
 
     /**
@@ -1167,15 +1160,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         roleContext = createRoleContext(roleName);
         roleContext.setMembers(userList);
         addLDAPRole(roleContext);
-        if(shared && isSharedGroupEnabled()){
+        if (shared && isSharedGroupEnabled()) {
             String tenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-            roleName = roleName +  UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+            roleName = roleName + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
             roleContext = createRoleContext(roleName);
             addLDAPRole(roleContext);
         }
     }
 
-    protected void addLDAPRole(RoleContext context) throws UserStoreException{
+    protected void addLDAPRole(RoleContext context) throws UserStoreException {
 
         String roleName = context.getRoleName();
         String[] userList = context.getMembers();
@@ -1216,15 +1209,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             .getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                     Attribute memberAttribute = new BasicAttribute(memberAttributeName);
                     for (String userName : userList) {
-                        
-                        if(userName == null || userName.trim().length() == 0){
+
+                        if (userName == null || userName.trim().length() == 0) {
                             continue;
                         }
                         // search the user in user search base
                         String searchFilter = realmConfig
                                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
                         searchFilter = searchFilter.replace("?", userName);
-                        results = searchInUserBase(searchFilter, new String[] {},
+                        results = searchInUserBase(searchFilter, new String[]{},
                                 SearchControls.SUBTREE_SCOPE, mainDirContext);
                         // we assume only one user with the given user
                         // name under user search base.
@@ -1271,388 +1264,419 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
 
-	/**
-	 * Update role list of user by writing to LDAP.
-	 * 
-	 * @param userName
-	 * @param deletedRoles
-	 * @param newRoles
-	 * @throws UserStoreException
-	 */
-	@SuppressWarnings("deprecation")
-	@Override
-	public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
-                                                                         throws UserStoreException {
+    /**
+     * Update role list of user by writing to LDAP.
+     *
+     * @param userName
+     * @param deletedRoles
+     * @param newRoles
+     * @throws UserStoreException
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
 
-		// get the DN of the user entry
-		String userNameDN = this.getNameInSpaceForUserName(userName);
-		String membershipAttribute =
-		                             realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+        // get the DN of the user entry
+        String userNameDN = this.getNameInSpaceForUserName(userName);
+        String membershipAttribute =
+                realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
 
 		/*
 		 * check deleted roles and delete member entries from relevant groups.
 		 */
-		String errorMessage = null;
-		String roleSearchFilter = null;
+        String errorMessage = null;
+        String roleSearchFilter = null;
 
-		DirContext mainDirContext = this.connectionSource.getContext();
+        DirContext mainDirContext = this.connectionSource.getContext();
 
-		try {
-			if (deletedRoles != null && deletedRoles.length != 0) {
-				// perform validation for empty role occurrences before
-				// updating in LDAP
-				// check whether this is shared roles and where shared roles are
-				// enable
+        try {
+            if (deletedRoles != null && deletedRoles.length != 0) {
+                // perform validation for empty role occurrences before
+                // updating in LDAP
+                // check whether this is shared roles and where shared roles are
+                // enable
 
-				for (String deletedRole : deletedRoles) {
-					LDAPRoleContext context = (LDAPRoleContext) createRoleContext(deletedRole);
-					deletedRole = context.getRoleName();
-					String searchFilter = context.getSearchFilter();
-					roleSearchFilter = searchFilter.replace("?", deletedRole);
-					String[] returningAttributes = new String[] { membershipAttribute };
-					String searchBase = context.getSearchBase();
-					NamingEnumeration<SearchResult> groupResults =
-                                                           searchInGroupBase(roleSearchFilter,
-                                                                             returningAttributes,
-                                                                             SearchControls.SUBTREE_SCOPE,
-                                                                             mainDirContext,
-                                                                             searchBase);
-					SearchResult resultedGroup = null;
-					if (groupResults.hasMore()) {
-						resultedGroup = groupResults.next();
-					}
-					if (resultedGroup != null && isOnlyUserInRole(userNameDN, resultedGroup) &&
-					    !emptyRolesAllowed) {
-						errorMessage =
-						               userName + " is the only user in the role: " + deletedRole +
-						                       ". Hence can not delete user from role.";
-						throw new UserStoreException(errorMessage);
-					}
+                for (String deletedRole : deletedRoles) {
+                    LDAPRoleContext context = (LDAPRoleContext) createRoleContext(deletedRole);
+                    deletedRole = context.getRoleName();
+                    String searchFilter = context.getSearchFilter();
+                    roleSearchFilter = searchFilter.replace("?", deletedRole);
+                    String[] returningAttributes = new String[]{membershipAttribute};
+                    String searchBase = context.getSearchBase();
+                    NamingEnumeration<SearchResult> groupResults =
+                            searchInGroupBase(roleSearchFilter,
+                                    returningAttributes,
+                                    SearchControls.SUBTREE_SCOPE,
+                                    mainDirContext,
+                                    searchBase);
+                    SearchResult resultedGroup = null;
+                    if (groupResults.hasMore()) {
+                        resultedGroup = groupResults.next();
+                    }
+                    if (resultedGroup != null && isOnlyUserInRole(userNameDN, resultedGroup) &&
+                            !emptyRolesAllowed) {
+                        errorMessage =
+                                userName + " is the only user in the role: " + deletedRole +
+                                        ". Hence can not delete user from role.";
+                        throw new UserStoreException(errorMessage);
+                    }
 
-					JNDIUtil.closeNamingEnumeration(groupResults);
-				}
-				// if empty role violation does not happen, continue
-				// updating the LDAP.
-				for (String deletedRole : deletedRoles) {
+                    JNDIUtil.closeNamingEnumeration(groupResults);
+                }
+                // if empty role violation does not happen, continue
+                // updating the LDAP.
+                for (String deletedRole : deletedRoles) {
 
                     LDAPRoleContext context = (LDAPRoleContext) createRoleContext(deletedRole);
                     deletedRole = context.getRoleName();
                     String searchFilter = context.getSearchFilter();
 
-					if (isExistingRole(deletedRole)) {
-						roleSearchFilter = searchFilter.replace("?", deletedRole);
-						String[] returningAttributes = new String[] { membershipAttribute };
-						String searchBase = context.getSearchBase();
-						NamingEnumeration<SearchResult> groupResults =
-                                                       searchInGroupBase(roleSearchFilter,
-                                                                         returningAttributes,
-                                                                         SearchControls.SUBTREE_SCOPE,
-                                                                         mainDirContext,
-                                                                         searchBase);
-						SearchResult resultedGroup = null;
-						String groupDN = null;
-						if (groupResults.hasMore()) {
-							resultedGroup = groupResults.next();
-							groupDN = resultedGroup.getName();
-						}
-						this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
-						                      searchBase);
+                    if (isExistingRole(deletedRole)) {
+                        roleSearchFilter = searchFilter.replace("?", deletedRole);
+                        String[] returningAttributes = new String[]{membershipAttribute};
+                        String searchBase = context.getSearchBase();
+                        NamingEnumeration<SearchResult> groupResults =
+                                searchInGroupBase(roleSearchFilter,
+                                        returningAttributes,
+                                        SearchControls.SUBTREE_SCOPE,
+                                        mainDirContext,
+                                        searchBase);
+                        SearchResult resultedGroup = null;
+                        String groupDN = null;
+                        if (groupResults.hasMore()) {
+                            resultedGroup = groupResults.next();
+                            groupDN = resultedGroup.getName();
+                        }
+                        this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
+                                searchBase);
 
-						JNDIUtil.closeNamingEnumeration(groupResults);
+                        JNDIUtil.closeNamingEnumeration(groupResults);
 
-						// need to update authz cache of user since roles
-						// are deleted
-						userRealm.getAuthorizationManager().clearUserAuthorization(userName);
+                        // need to update authz cache of user since roles
+                        // are deleted
+                        userRealm.getAuthorizationManager().clearUserAuthorization(userName);
 
-					} else {
-						errorMessage = "The role: " + deletedRole + " does not exist.";
-						throw new UserStoreException(errorMessage);
-					}
-				}
-			}
-			if (newRoles != null && newRoles.length != 0) {
+                    } else {
+                        errorMessage = "The role: " + deletedRole + " does not exist.";
+                        throw new UserStoreException(errorMessage);
+                    }
+                }
+            }
+            if (newRoles != null && newRoles.length != 0) {
 
-				for (String newRole : newRoles) {
+                for (String newRole : newRoles) {
 
                     LDAPRoleContext context = (LDAPRoleContext) createRoleContext(newRole);
                     newRole = context.getRoleName();
                     String searchFilter = context.getSearchFilter();
 
-					if (isExistingRole(newRole)) {
-						roleSearchFilter = searchFilter.replace("?", newRole);
-						String[] returningAttributes = new String[] { membershipAttribute };
-						String searchBase = context.getSearchBase();
+                    if (isExistingRole(newRole)) {
+                        roleSearchFilter = searchFilter.replace("?", newRole);
+                        String[] returningAttributes = new String[]{membershipAttribute};
+                        String searchBase = context.getSearchBase();
 
-						NamingEnumeration<SearchResult> groupResults =
-                                                       searchInGroupBase(roleSearchFilter,
-                                                                         returningAttributes,
-                                                                         SearchControls.SUBTREE_SCOPE,
-                                                                         mainDirContext,
-                                                                         searchBase);
-						SearchResult resultedGroup = null;
-						// assume only one group with given group name
-						String groupDN = null;
-						if (groupResults.hasMore()) {
-							resultedGroup = groupResults.next();
-							groupDN = resultedGroup.getName();
-						}
-						if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
-							modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
-							                 searchBase);
-						} else {
-							errorMessage =
-							               "User: " + userName + " already belongs to role: " +
-							                       groupDN;
-							throw new UserStoreException(errorMessage);
-						}
+                        NamingEnumeration<SearchResult> groupResults =
+                                searchInGroupBase(roleSearchFilter,
+                                        returningAttributes,
+                                        SearchControls.SUBTREE_SCOPE,
+                                        mainDirContext,
+                                        searchBase);
+                        SearchResult resultedGroup = null;
+                        // assume only one group with given group name
+                        String groupDN = null;
+                        if (groupResults.hasMore()) {
+                            resultedGroup = groupResults.next();
+                            groupDN = resultedGroup.getName();
+                        }
+                        if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
+                            modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
+                                    searchBase);
+                        } else {
+                            errorMessage =
+                                    "User: " + userName + " already belongs to role: " +
+                                            groupDN;
+                            throw new UserStoreException(errorMessage);
+                        }
 
-						JNDIUtil.closeNamingEnumeration(groupResults);
+                        JNDIUtil.closeNamingEnumeration(groupResults);
 
-					} else {
-						errorMessage = "The role: " + newRole + " does not exist.";
-						throw new UserStoreException(errorMessage);
-					}
-				}
-			}
+                    } else {
+                        errorMessage = "The role: " + newRole + " does not exist.";
+                        throw new UserStoreException(errorMessage);
+                    }
+                }
+            }
 
-		} catch (NamingException e) {
-			errorMessage = "Error occurred while modifying the role list of user: " + userName;
-			throw new UserStoreException(errorMessage);
-		} finally {
-			JNDIUtil.closeContext(mainDirContext);
-		}
-	}
+        } catch (NamingException e) {
+            errorMessage = "Error occurred while modifying the role list of user: " + userName;
+            throw new UserStoreException(errorMessage);
+        } finally {
+            JNDIUtil.closeContext(mainDirContext);
+        }
+    }
 
-	/**
-	 * Update the set of users belong to a LDAP role.
-	 * 
-	 * @param roleName
-	 * @param deletedUsers
-	 * @param newUsers
-	 */
-	@SuppressWarnings("deprecation")
-	@Override
-	public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
-                                                                         throws UserStoreException {
+    /**
+     * Update the set of users belong to a LDAP role.
+     *
+     * @param roleName
+     * @param deletedUsers
+     * @param newUsers
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
+            throws UserStoreException {
 
-		String errorMessage = null;
-		NamingEnumeration<SearchResult> groupSearchResults = null;
+        String errorMessage = null;
+        NamingEnumeration<SearchResult> groupSearchResults = null;
 
-		LDAPRoleContext ctx = (LDAPRoleContext) createRoleContext(roleName);
-		roleName = ctx.getRoleName();
+        LDAPRoleContext ctx = (LDAPRoleContext) createRoleContext(roleName);
+        roleName = ctx.getRoleName();
 
-		String searchFilter = ctx.getSearchFilter();
+        String searchFilter = ctx.getSearchFilter();
 
-		if (isExistingLDAPRole(ctx)) {
+        if (isExistingLDAPRole(ctx)) {
 
-			DirContext mainDirContext = this.connectionSource.getContext();
+            DirContext mainDirContext = this.connectionSource.getContext();
 
-			try {
-				searchFilter = searchFilter.replace("?", roleName);
-				String membershipAttributeName =
-				                                 realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-				String[] returningAttributes = new String[] { membershipAttributeName };
+            try {
+                searchFilter = searchFilter.replace("?", roleName);
+                String membershipAttributeName =
+                        realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                String[] returningAttributes = new String[]{membershipAttributeName};
 
                 String searchBase = ctx.getSearchBase();
-				groupSearchResults =
-				                     searchInGroupBase(searchFilter, returningAttributes,
-				                                       SearchControls.SUBTREE_SCOPE,
-				                                       mainDirContext, searchBase);
-				SearchResult resultedGroup = null;
-				String groupName = null;
-				while (groupSearchResults.hasMoreElements()) {
-					resultedGroup = groupSearchResults.next();
-					groupName = resultedGroup.getName();
-				}
-				// check whether update operations are going to violate non
-				// empty role
-				// restriction specified in user-mgt.xml by
-				// checking whether all users are trying to be deleted
-				// before updating LDAP.
-				Attribute returnedMemberAttribute =
-				                                    resultedGroup.getAttributes()
-				                                                 .get(membershipAttributeName);
-				if (!emptyRolesAllowed &&
-				    newUsers.length - deletedUsers.length + returnedMemberAttribute.size() == 0) {
-					errorMessage =
-					               "There should be at least one member in the role. "
-					                       + "Hence can not delete all the members.";
-					throw new UserStoreException(errorMessage);
+                groupSearchResults =
+                        searchInGroupBase(searchFilter, returningAttributes,
+                                SearchControls.SUBTREE_SCOPE,
+                                mainDirContext, searchBase);
+                SearchResult resultedGroup = null;
+                String groupName = null;
+                while (groupSearchResults.hasMoreElements()) {
+                    resultedGroup = groupSearchResults.next();
+                    groupName = resultedGroup.getName();
+                }
+                // check whether update operations are going to violate non
+                // empty role
+                // restriction specified in user-mgt.xml by
+                // checking whether all users are trying to be deleted
+                // before updating LDAP.
+                Attribute returnedMemberAttribute =
+                        resultedGroup.getAttributes()
+                                .get(membershipAttributeName);
+                if (!emptyRolesAllowed &&
+                        newUsers.length - deletedUsers.length + returnedMemberAttribute.size() == 0) {
+                    errorMessage =
+                            "There should be at least one member in the role. "
+                                    + "Hence can not delete all the members.";
+                    throw new UserStoreException(errorMessage);
 
-				} else {
-					if (newUsers!=null && newUsers.length != 0) {
-						for (String newUser : newUsers) {
-							String userNameDN = getNameInSpaceForUserName(newUser);
-							if (!isUserInRole(userNameDN, resultedGroup)) {
-								modifyUserInRole(userNameDN, groupName, DirContext.ADD_ATTRIBUTE,
-								                 searchBase);
-							} else {
-								errorMessage =
-								               "User: " + newUser + " already belongs to role: " +
-								                       roleName;
-								throw new UserStoreException(errorMessage);
-							}
-						}
-					}
+                } else {
+                    List<String> newUserList = new ArrayList<String>();
+                    List<String> deleteUserList = new ArrayList<String>();
 
-					if (deletedUsers != null && deletedUsers.length != 0) {
-						for (String deletedUser : deletedUsers) {
-                            if(deletedUser == null || deletedUser.trim().length() == 0){
+                    if (newUsers != null && newUsers.length != 0) {
+                        String invalidUserList = "";
+                        String existingUserList = "";
+
+                        for (String newUser : newUsers) {
+                            if (StringUtils.isEmpty(newUser)) {
                                 continue;
                             }
-							String userNameDN = getNameInSpaceForUserName(deletedUser);
-							modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE,
-							                 searchBase);
-							// needs to clear authz cache for deleted users
-							userRealm.getAuthorizationManager().clearUserAuthorization(deletedUser);
-						}
-					}
-				}			
-			} catch (NamingException e) {
+                            String userNameDN = getNameInSpaceForUserName(newUser);
+                            if (userNameDN == null) {
+                                invalidUserList += newUser + " ";
+                            } else if (isUserInRole(userNameDN, resultedGroup)) {
+                                existingUserList += userNameDN + ",";
+                            } else {
+                                newUserList.add(userNameDN);
+                            }
+                        }
+                        if (!StringUtils.isEmpty(invalidUserList) || !StringUtils.isEmpty(existingUserList)) {
+                            errorMessage = (StringUtils.isEmpty(invalidUserList) ? "" : "'" + invalidUserList
+                                    + "' not in the user store. ")
+                                    + (StringUtils.isEmpty(existingUserList) ? "" : "'" + existingUserList
+                                    + "' already belong to the role : " + roleName);
+                            throw new UserStoreException(errorMessage);
+                        }
+                    }
 
-				errorMessage = "Error occurred while modifying the user list of role: " + roleName;
-				throw new UserStoreException(errorMessage);
-			} finally {
-				JNDIUtil.closeNamingEnumeration(groupSearchResults);
-				JNDIUtil.closeContext(mainDirContext);
-			}
-		} else {
-			errorMessage = "The role: " + roleName + " does not exist.";
-			throw new UserStoreException(errorMessage);
-		}
-	}
+                    if (deletedUsers != null && deletedUsers.length != 0) {
+                        String invalidUserList = "";
+                        for (String deletedUser : deletedUsers) {
+                            if (StringUtils.isEmpty(deletedUser)) {
+                                continue;
+                            }
+                            String userNameDN = getNameInSpaceForUserName(deletedUser);
+                            if (userNameDN == null) {
+                                invalidUserList += deletedUser + ",";
+                            } else {
+                                deleteUserList.add(userNameDN);
+                            }
+                        }
+                        if (!StringUtils.isEmpty(invalidUserList)) {
+                            errorMessage = "'" + invalidUserList + "' not in the user store.";
+                            throw new UserStoreException(errorMessage);
+                        }
 
-	/**
-	 * Either delete or add user from/to group.
-	 * 
-	 * @param userNameDN : distinguish name of user entry.
-	 * @param groupRDN : relative distinguish name of group entry
-	 * @param modifyType : modify attribute type in DirCOntext.
-	 * @throws UserStoreException
-	 */
-	protected void modifyUserInRole(String userNameDN, String groupRDN, int modifyType, String searchBase)
-			throws UserStoreException {
-		
-		if (log.isDebugEnabled()) {
-			logger.debug("Modifying role: " + groupRDN + " with type: " + modifyType + " user: " + userNameDN
-					+ " in search base: " + searchBase);
-		}
-		
-		DirContext mainDirContext = null;
-		DirContext groupContext = null;
-		try {
-			mainDirContext = this.connectionSource.getContext();
-			groupContext = (DirContext) mainDirContext.lookup(searchBase);
-			String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-			Attributes modifyingAttributes = new BasicAttributes(true);
-			Attribute memberAttribute = new BasicAttribute(memberAttributeName);
-			memberAttribute.add(userNameDN);
-			modifyingAttributes.put(memberAttribute);
-			
-			groupContext.modifyAttributes(groupRDN, modifyType, modifyingAttributes);
-			if (log.isDebugEnabled()) {
-				logger.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: "
-						+ groupRDN);
-			}
-		} catch (NamingException e) {
-			String errorMessage = "Error occurred while modifying user entry: " + userNameDN
-					+ " in LDAP role: " + groupRDN;
-			log.error("LDAP Error", e);
-			throw new UserStoreException(errorMessage);
-		} finally {
-			JNDIUtil.closeContext(groupContext);
-			JNDIUtil.closeContext(mainDirContext);
-		}
-	}
+                    }
 
-	/**
-	 * Check whether user is in the group by searching through its member attributes.
-	 * 
-	 * @param userDN
-	 * @param groupEntry
-	 * @return
-	 * @throws UserStoreException
-	 */
-	protected boolean isUserInRole(String userDN, SearchResult groupEntry)
-			throws UserStoreException {
-		boolean isUserInRole = false;
-		try {
-			Attributes groupAttributes = groupEntry.getAttributes();
-			if (groupAttributes != null) {
-				// get group's returned attributes
-				NamingEnumeration attributes = groupAttributes.getAll();
-				// loop through attributes
-				while (attributes.hasMoreElements()) {
-					Attribute memberAttribute = (Attribute) attributes.next();
-					String memberAttributeName = realmConfig
-							.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-					if (memberAttributeName.equalsIgnoreCase(memberAttribute.getID())) {
-						// loop through attribute values
-						for (int i = 0; i < memberAttribute.size(); i++) {
-							if (userDN.equalsIgnoreCase((String) memberAttribute.get(i))) {
-								return true;
-							}
-						}
-					}
+                    for (String userNameDN : newUserList) {
+                        modifyUserInRole(userNameDN, groupName, DirContext.ADD_ATTRIBUTE, searchBase);
+                    }
 
-				}
+                    for (String userNameDN : deleteUserList) {
+                        modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE, searchBase);
+                        // needs to clear authz cache for deleted users
+                        userRealm.getAuthorizationManager().clearUserAuthorization(userNameDN);
+                    }
+                }
+            } catch (NamingException e) {
 
-				attributes.close();
-			}
-		} catch (NamingException e) {
-			String errorMessage = "Error occurred while looping through attributes set of group: "
-					+ groupEntry.getNameInNamespace();
-			throw new UserStoreException(errorMessage, e);
-		}
-		return isUserInRole;
-	}
+                errorMessage = "Error occurred while modifying the user list of role: " + roleName;
+                throw new UserStoreException(errorMessage);
+            } finally {
+                JNDIUtil.closeNamingEnumeration(groupSearchResults);
+                JNDIUtil.closeContext(mainDirContext);
+            }
+        } else {
+            errorMessage = "The role: " + roleName + " does not exist.";
+            throw new UserStoreException(errorMessage);
+        }
+    }
 
-	/**
-	 * Check whether this is the last/only user in this group.
-	 * 
-	 * @param userDN
-	 * @param groupEntry
-	 * @return              groupContext
-	 */
-	@SuppressWarnings("rawtypes")
-	protected boolean isOnlyUserInRole(String userDN, SearchResult groupEntry)
-			throws UserStoreException {
-		boolean isOnlyUserInRole = false;
-		try {
-			Attributes groupAttributes = groupEntry.getAttributes();
-			if (groupAttributes != null) {
-				NamingEnumeration attributes = groupAttributes.getAll();
-				while (attributes.hasMoreElements()) {
-					Attribute memberAttribute = (Attribute) attributes.next();
-					String memberAttributeName = realmConfig
-							.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-					String attributeID = memberAttribute.getID();
-					if (memberAttributeName.equals(attributeID)) {
-						if (memberAttribute.size() == 1 && userDN.equals(memberAttribute.get())) {
-							return true;
-						}
-					}
+    /**
+     * Either delete or add user from/to group.
+     *
+     * @param userNameDN : distinguish name of user entry.
+     * @param groupRDN   : relative distinguish name of group entry
+     * @param modifyType : modify attribute type in DirCOntext.
+     * @throws UserStoreException
+     */
+    protected void modifyUserInRole(String userNameDN, String groupRDN, int modifyType, String searchBase)
+            throws UserStoreException {
 
-				}
+        if (log.isDebugEnabled()) {
+            logger.debug("Modifying role: " + groupRDN + " with type: " + modifyType + " user: " + userNameDN
+                    + " in search base: " + searchBase);
+        }
 
-				attributes.close();
+        DirContext mainDirContext = null;
+        DirContext groupContext = null;
+        try {
+            mainDirContext = this.connectionSource.getContext();
+            groupContext = (DirContext) mainDirContext.lookup(searchBase);
+            String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+            Attributes modifyingAttributes = new BasicAttributes(true);
+            Attribute memberAttribute = new BasicAttribute(memberAttributeName);
+            memberAttribute.add(userNameDN);
+            modifyingAttributes.put(memberAttribute);
 
-			}
-		} catch (NamingException e) {
-			String errorMessage = "Error occurred while looping through attributes set of group: "
-					+ groupEntry.getNameInNamespace();
-			throw new UserStoreException(errorMessage, e);
-		}
-		return isOnlyUserInRole;
-	}
+            groupContext.modifyAttributes(groupRDN, modifyType, modifyingAttributes);
+            if (log.isDebugEnabled()) {
+                logger.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: "
+                        + groupRDN);
+            }
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while modifying user entry: " + userNameDN
+                    + " in LDAP role: " + groupRDN;
+            log.error("LDAP Error", e);
+            throw new UserStoreException(errorMessage);
+        } finally {
+            JNDIUtil.closeContext(groupContext);
+            JNDIUtil.closeContext(mainDirContext);
+        }
+    }
 
-	protected void updateLDAPRoleName(RoleContext context, String newRoleName) throws UserStoreException {
+    /**
+     * Check whether user is in the group by searching through its member attributes.
+     *
+     * @param userDN
+     * @param groupEntry
+     * @return
+     * @throws UserStoreException
+     */
+    protected boolean isUserInRole(String userDN, SearchResult groupEntry)
+            throws UserStoreException {
+        boolean isUserInRole = false;
+        try {
+            Attributes groupAttributes = groupEntry.getAttributes();
+            if (groupAttributes != null) {
+                // get group's returned attributes
+                NamingEnumeration attributes = groupAttributes.getAll();
+                // loop through attributes
+                while (attributes.hasMoreElements()) {
+                    Attribute memberAttribute = (Attribute) attributes.next();
+                    String memberAttributeName = realmConfig
+                            .getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                    if (memberAttributeName.equalsIgnoreCase(memberAttribute.getID())) {
+                        // loop through attribute values
+                        for (int i = 0; i < memberAttribute.size(); i++) {
+                            if (userDN.equalsIgnoreCase((String) memberAttribute.get(i))) {
+                                return true;
+                            }
+                        }
+                    }
+
+                }
+
+                attributes.close();
+            }
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while looping through attributes set of group: "
+                    + groupEntry.getNameInNamespace();
+            throw new UserStoreException(errorMessage, e);
+        }
+        return isUserInRole;
+    }
+
+    /**
+     * Check whether this is the last/only user in this group.
+     *
+     * @param userDN
+     * @param groupEntry
+     * @return groupContext
+     */
+    @SuppressWarnings("rawtypes")
+    protected boolean isOnlyUserInRole(String userDN, SearchResult groupEntry)
+            throws UserStoreException {
+        boolean isOnlyUserInRole = false;
+        try {
+            Attributes groupAttributes = groupEntry.getAttributes();
+            if (groupAttributes != null) {
+                NamingEnumeration attributes = groupAttributes.getAll();
+                while (attributes.hasMoreElements()) {
+                    Attribute memberAttribute = (Attribute) attributes.next();
+                    String memberAttributeName = realmConfig
+                            .getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                    String attributeID = memberAttribute.getID();
+                    if (memberAttributeName.equals(attributeID)) {
+                        if (memberAttribute.size() == 1 && userDN.equals(memberAttribute.get())) {
+                            return true;
+                        }
+                    }
+
+                }
+
+                attributes.close();
+
+            }
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while looping through attributes set of group: "
+                    + groupEntry.getNameInNamespace();
+            throw new UserStoreException(errorMessage, e);
+        }
+        return isOnlyUserInRole;
+    }
+
+    protected void updateLDAPRoleName(RoleContext context, String newRoleName) throws UserStoreException {
 
         String roleName = context.getRoleName();
-        String groupSearchFilter  = ((LDAPRoleContext) context).getSearchFilter();
-        String roleNameAttributeName  = ((LDAPRoleContext) context).getRoleNameProperty();
+        String groupSearchFilter = ((LDAPRoleContext) context).getSearchFilter();
+        String roleNameAttributeName = ((LDAPRoleContext) context).getRoleNameProperty();
         String searchBase = ((LDAPRoleContext) context).getSearchBase();
-        
+
         DirContext mainContext = this.connectionSource.getContext();
         DirContext groupContext = null;
         NamingEnumeration<SearchResult> groupSearchResults = null;
@@ -1660,7 +1684,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         try {
 
             groupSearchFilter = groupSearchFilter.replace("?", roleName);
-            String[] returningAttributes = { roleNameAttributeName };
+            String[] returningAttributes = {roleNameAttributeName};
             groupSearchResults = searchInGroupBase(groupSearchFilter, returningAttributes,
                     SearchControls.SUBTREE_SCOPE, mainContext, searchBase);
             SearchResult resultedGroup = null;
@@ -1692,27 +1716,27 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(groupContext);
             JNDIUtil.closeContext(mainContext);
         }
-	}
+    }
 
-	@Override
-	public void doUpdateRoleName(String roleName, String newRoleName) throws UserStoreException {
+    @Override
+    public void doUpdateRoleName(String roleName, String newRoleName) throws UserStoreException {
         RoleContext roleContext = createRoleContext(roleName);
         updateLDAPRoleName(roleContext, newRoleName);
-        if(roleContext.isShared()){
+        if (roleContext.isShared()) {
             roleName = roleName + UserCoreConstants.TENANT_DOMAIN_COMBINER +
                     CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             roleContext = createRoleContext(roleName);
             updateLDAPRoleName(roleContext, newRoleName);
         }
-	}
+    }
 
-	protected void deleteLDAPRole(RoleContext context)throws UserStoreException {
+    protected void deleteLDAPRole(RoleContext context) throws UserStoreException {
 
         String roleName = context.getRoleName();
-		String groupSearchFilter = ((LDAPRoleContext)context).getSearchFilter();
-		groupSearchFilter = groupSearchFilter.replace("?", context.getRoleName());
-		String[] returningAttributes = {((LDAPRoleContext)context).getRoleNameProperty()};
-		String searchBase = ((LDAPRoleContext)context).getSearchBase();
+        String groupSearchFilter = ((LDAPRoleContext) context).getSearchFilter();
+        groupSearchFilter = groupSearchFilter.replace("?", context.getRoleName());
+        String[] returningAttributes = {((LDAPRoleContext) context).getRoleNameProperty()};
+        String searchBase = ((LDAPRoleContext) context).getSearchBase();
 
         DirContext mainDirContext = null;
         DirContext groupContext = null;
@@ -1750,139 +1774,137 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             JNDIUtil.closeContext(mainDirContext);
         }
 
-	}
+    }
 
-	/**
-	 * Delete LDAP group corresponding to the role.
-	 * 
-	 * @param roleName
-	 *            The role to delete.
-	 * @throws UserStoreException
-	 *             In case if an error occurred while deleting a role.
-	 */
-	@Override
-	public void doDeleteRole(String roleName) throws UserStoreException {
+    /**
+     * Delete LDAP group corresponding to the role.
+     *
+     * @param roleName The role to delete.
+     * @throws UserStoreException In case if an error occurred while deleting a role.
+     */
+    @Override
+    public void doDeleteRole(String roleName) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);
         deleteLDAPRole(roleContext);
-        if(roleContext.isShared()){
+        if (roleContext.isShared()) {
             roleName = roleName + UserCoreConstants.TENANT_DOMAIN_COMBINER +
-                                            CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             roleContext = createRoleContext(roleName);
             deleteLDAPRole(roleContext);
         }
-	}
+    }
 
-	/**
-	 * Reused methods to search users with various filters
-	 * 
-	 * @param searchFilter
-	 * @param returningAttributes
-	 * @param searchScope
-	 * @return
-	 */
-	private NamingEnumeration<SearchResult> searchInUserBase(String searchFilter,
-			String[] returningAttributes, int searchScope, DirContext rootContext)
-			throws UserStoreException {
-		
-		if(log.isDebugEnabled()) {
-			log.debug("Searching user with " + searchFilter);
-		}
-		String userBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		SearchControls userSearchControl = new SearchControls();
-		userSearchControl.setReturningAttributes(returningAttributes);
-		userSearchControl.setSearchScope(searchScope);
-		NamingEnumeration<SearchResult> userSearchResults = null;
+    /**
+     * Reused methods to search users with various filters
+     *
+     * @param searchFilter
+     * @param returningAttributes
+     * @param searchScope
+     * @return
+     */
+    private NamingEnumeration<SearchResult> searchInUserBase(String searchFilter,
+                                                             String[] returningAttributes, int searchScope, DirContext rootContext)
+            throws UserStoreException {
 
-		try {
-			userSearchResults = rootContext.search(userBase, searchFilter, userSearchControl);
-		} catch (NamingException e) {
-			String errorMessage = "Error occurred while searching in user base.";
-			throw new UserStoreException(errorMessage, e);
-		}
+        if (log.isDebugEnabled()) {
+            log.debug("Searching user with " + searchFilter);
+        }
+        String userBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        SearchControls userSearchControl = new SearchControls();
+        userSearchControl.setReturningAttributes(returningAttributes);
+        userSearchControl.setSearchScope(searchScope);
+        NamingEnumeration<SearchResult> userSearchResults = null;
 
-		return userSearchResults;
+        try {
+            userSearchResults = rootContext.search(userBase, searchFilter, userSearchControl);
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while searching in user base.";
+            throw new UserStoreException(errorMessage, e);
+        }
 
-	}
+        return userSearchResults;
 
-	/**
-	 * Reused method to search groups with various filters.
-	 * 
-	 * @param searchFilter
-	 * @param returningAttributes
-	 * @param searchScope
-	 * @return
-	 */
-	protected NamingEnumeration<SearchResult> searchInGroupBase(String searchFilter,
-	                                                            String[] returningAttributes,
-	                                                            int searchScope,
-	                                                            DirContext rootContext,
-	                                                            String searchBase)
-	                                                                             throws UserStoreException {
-		SearchControls userSearchControl = new SearchControls();
-		userSearchControl.setReturningAttributes(returningAttributes);
-		userSearchControl.setSearchScope(searchScope);
-		NamingEnumeration<SearchResult> groupSearchResults = null;
-		try {
-			groupSearchResults = rootContext.search(searchBase, searchFilter, userSearchControl);
-		} catch (NamingException e) {
-			String errorMessage = "Error occurred while searching in group base.";
-			throw new UserStoreException(errorMessage, e);
-		}
+    }
 
-		return groupSearchResults;
-	}
+    /**
+     * Reused method to search groups with various filters.
+     *
+     * @param searchFilter
+     * @param returningAttributes
+     * @param searchScope
+     * @return
+     */
+    protected NamingEnumeration<SearchResult> searchInGroupBase(String searchFilter,
+                                                                String[] returningAttributes,
+                                                                int searchScope,
+                                                                DirContext rootContext,
+                                                                String searchBase)
+            throws UserStoreException {
+        SearchControls userSearchControl = new SearchControls();
+        userSearchControl.setReturningAttributes(returningAttributes);
+        userSearchControl.setSearchScope(searchScope);
+        NamingEnumeration<SearchResult> groupSearchResults = null;
+        try {
+            groupSearchResults = rootContext.search(searchBase, searchFilter, userSearchControl);
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while searching in group base.";
+            throw new UserStoreException(errorMessage, e);
+        }
 
-	/**
-	 * This is to read and validate the required user store configuration for this user store
-	 * manager to take decisions.
-	 * 
-	 * @throws UserStoreException
-	 */
-	@Override
-	protected void checkRequiredUserStoreConfigurations() throws UserStoreException {
+        return groupSearchResults;
+    }
 
-		super.checkRequiredUserStoreConfigurations();
+    /**
+     * This is to read and validate the required user store configuration for this user store
+     * manager to take decisions.
+     *
+     * @throws UserStoreException
+     */
+    @Override
+    protected void checkRequiredUserStoreConfigurations() throws UserStoreException {
 
-		String userObjectClass = realmConfig
-				.getUserStoreProperty(LDAPConstants.USER_ENTRY_OBJECT_CLASS);
-		if (userObjectClass == null || userObjectClass.equals("")) {
-			throw new UserStoreException(
-					"Required UserEntryObjectClass property is not set at the LDAP configurations");
-		}
+        super.checkRequiredUserStoreConfigurations();
 
-		if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null) {
-			writeGroupsEnabled =
-			                     Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
-			log.debug("Write LDAP groups enabled: " + writeGroupsEnabled);
-		} 
+        String userObjectClass = realmConfig
+                .getUserStoreProperty(LDAPConstants.USER_ENTRY_OBJECT_CLASS);
+        if (userObjectClass == null || userObjectClass.equals("")) {
+            throw new UserStoreException(
+                    "Required UserEntryObjectClass property is not set at the LDAP configurations");
+        }
 
-		if (!writeGroupsEnabled) {
-			if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
-				readGroupsEnabled =
-				                    Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
-				log.debug("Read LDAP groups enabled: " + readGroupsEnabled);
-			}
-		} else {
-			// Write overwrites Read 
-			readGroupsEnabled = true;
-			log.debug("Read LDAP groups enabled: true");
-		}
+        if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null) {
+            writeGroupsEnabled =
+                    Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
+            log.debug("Write LDAP groups enabled: " + writeGroupsEnabled);
+        }
 
-		emptyRolesAllowed =
-		                    Boolean.parseBoolean(realmConfig.getUserStoreProperty(LDAPConstants.EMPTY_ROLES_ALLOWED));
+        if (!writeGroupsEnabled) {
+            if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
+                readGroupsEnabled =
+                        Boolean.parseBoolean(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
+                log.debug("Read LDAP groups enabled: " + readGroupsEnabled);
+            }
+        } else {
+            // Write overwrites Read
+            readGroupsEnabled = true;
+            log.debug("Read LDAP groups enabled: true");
+        }
 
-		String groupEntryObjectClass = realmConfig
-				.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS);
-		if (groupEntryObjectClass == null || groupEntryObjectClass.equals("")) {
-			throw new UserStoreException(
-					"Required GroupEntryObjectClass property is not set at the LDAP configurations");
-		}
+        emptyRolesAllowed =
+                Boolean.parseBoolean(realmConfig.getUserStoreProperty(LDAPConstants.EMPTY_ROLES_ALLOWED));
 
-		userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+        String groupEntryObjectClass = realmConfig
+                .getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS);
+        if (groupEntryObjectClass == null || groupEntryObjectClass.equals("")) {
+            throw new UserStoreException(
+                    "Required GroupEntryObjectClass property is not set at the LDAP configurations");
+        }
 
-	}
+        userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+
+    }
 //
 //	/**
 //	 * Check and add the initial data to the user store for user manager to start properly.

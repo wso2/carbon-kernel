@@ -29,11 +29,20 @@ import javax.cache.Caching;
 
 public class RealmCache {
 
-    private static Log log = LogFactory.getLog(RealmCache.class);
     public static final String CUSTOM_TENANT_CACHE_MANAGER = "CUSTOM_TENANT_CACHE_MANAER";
     public static final String CUSTOM_TENANT_CACHE =
             CachingConstants.LOCAL_CACHE_PREFIX + "CUSTOM_TENANT_CACHE";
     private static final RealmCache instance = new RealmCache();
+    private static Log log = LogFactory.getLog(RealmCache.class);
+
+    /**
+     * Gets a new instance of TenantCache.
+     *
+     * @return A new instance of TenantCache.
+     */
+    public synchronized static RealmCache getInstance() {
+        return instance;
+    }
 
     private Cache<RealmCacheKey, RealmCacheEntry> getRealmCache() {
         try {
@@ -57,15 +66,6 @@ public class RealmCache {
         }
     }
 
-    /**
-     * Gets a new instance of TenantCache.
-     *
-     * @return A new instance of TenantCache.
-     */
-    public synchronized static RealmCache getInstance() {
-        return instance;
-    }
-
     public UserRealm getUserRealm(int tenantId, String realmName) {
         try {
             PrivilegedCarbonContext.startTenantFlow();
@@ -86,7 +86,7 @@ public class RealmCache {
 
     public void addToCache(int tenantId, String realmName, UserRealm userRealm) {
         instance.addToCache(new RealmCacheKey(tenantId, realmName),
-                            new RealmCacheEntry(userRealm));
+                new RealmCacheEntry(userRealm));
     }
 
     /**

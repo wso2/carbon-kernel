@@ -19,16 +19,15 @@ package org.wso2.carbon.user.api;
 
 /**
  * This is the interface to manage claims in the system.
- * 
+ * <p/>
  * A claim is a name-value pair
  */
 public interface ClaimManager {
 
     /**
      * Retrieves the attribute name of the claim URI.
-     * 
-     * @param claimURI
-     *            The claim URI
+     *
+     * @param claimURI The claim URI
      * @return
      * @throws UserStoreException
      */
@@ -36,9 +35,8 @@ public interface ClaimManager {
 
     /**
      * The Claim object of the claim URI
-     * 
-     * @param claimURI
-     *            The claim URI
+     *
+     * @param claimURI The claim URI
      * @return
      * @throws UserStoreException
      */
@@ -46,9 +44,8 @@ public interface ClaimManager {
 
     /**
      * Gets the claim mapping.
-     * 
-     * @param claimURI
-     *            The claim URI
+     *
+     * @param claimURI The claim URI
      * @return
      * @throws UserStoreException
      */
@@ -56,7 +53,7 @@ public interface ClaimManager {
 
     /**
      * Gets all supported claims by default in the system.
-     * 
+     *
      * @return An array of claim objects supported by default
      * @throws UserStoreException
      */
@@ -64,7 +61,7 @@ public interface ClaimManager {
 
     /**
      * Gets all claim objects
-     * 
+     *
      * @return An array of all claim objects
      * @throws UserStoreException
      */
@@ -72,9 +69,8 @@ public interface ClaimManager {
 
     /**
      * Gets all claims in the dialect
-     * 
-     * @param dialectUri
-     *            The dialect URI
+     *
+     * @param dialectUri The dialect URI
      * @return
      * @throws UserStoreException
      */
@@ -82,7 +78,7 @@ public interface ClaimManager {
 
     /**
      * Gets all mandatory claims
-     * 
+     *
      * @return
      * @throws UserStoreException
      */
@@ -90,7 +86,7 @@ public interface ClaimManager {
 
     /**
      * Gets all claim URIs
-     * 
+     *
      * @return
      * @throws UserStoreException
      */
@@ -98,38 +94,34 @@ public interface ClaimManager {
 
     /**
      * Adds a new claim mapping
-     * 
-     * @param mapping
-     *            The claim mapping to be added
+     *
+     * @param mapping The claim mapping to be added
      * @throws UserStoreException
      */
     void addNewClaimMapping(ClaimMapping mapping) throws UserStoreException;
 
     /**
      * Deletes a claim mapping
-     * 
-     * @param mapping
-     *            The claim mapping to be deleted
+     *
+     * @param mapping The claim mapping to be deleted
      * @throws UserStoreException
      */
     void deleteClaimMapping(ClaimMapping mapping) throws UserStoreException;
 
     /**
      * Updates a claim mapping
-     * 
-     * @param mapping
-     *            The claim mapping to be updated
+     *
+     * @param mapping The claim mapping to be updated
      * @throws UserStoreException
      */
     void updateClaimMapping(ClaimMapping mapping) throws UserStoreException;
 
     /**
-     *
      * @param domainName
      * @param claimURI
      * @return
      * @throws UserStoreException
      */
-     public String getAttributeName(String domainName, String claimURI) throws UserStoreException;
+    public String getAttributeName(String domainName, String claimURI) throws UserStoreException;
 
 }

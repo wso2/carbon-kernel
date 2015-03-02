@@ -41,7 +41,7 @@ public class UserRolesCacheKey implements Serializable {
         }
         UserRolesCacheKey userRolesCacheKey = (UserRolesCacheKey) otherObject;
         return checkKeyAttributesEqual(userRolesCacheKey.getServerId(),
-                                userRolesCacheKey.getTenantId(), userRolesCacheKey.getUserName());
+                userRolesCacheKey.getTenantId(), userRolesCacheKey.getUserName());
     }
 
     public int hashCode() {
@@ -50,9 +50,9 @@ public class UserRolesCacheKey implements Serializable {
 
     public boolean checkKeyAttributesEqual(String serverId, int tenantId, String userName) {
 
-        if(this.serverId != null){
-             return ((this.tenantId == tenantId) && (this.userName.equalsIgnoreCase(userName))  &&
-                                                                (this.serverId.equalsIgnoreCase(serverId)));
+        if (this.serverId != null) {
+            return ((this.tenantId == tenantId) && (this.userName.equalsIgnoreCase(userName)) &&
+                    (this.serverId.equalsIgnoreCase(serverId)));
         } else {
             return ((this.tenantId == tenantId) && (this.userName.equalsIgnoreCase(userName)));
         }
@@ -60,7 +60,7 @@ public class UserRolesCacheKey implements Serializable {
 
     public int getAttributeHashCode() {
 
-        if(this.serverId != null){
+        if (this.serverId != null) {
             return ((this.tenantId == MultitenantConstants.SUPER_TENANT_ID ? 0 : tenantId)
                     + this.userName.toLowerCase().hashCode() * 7) + this.serverId.hashCode() * 11;
         } else {
