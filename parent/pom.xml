@@ -209,7 +209,7 @@
         <version.equinox.p2.metadata.repository>1.2.100.v20130327-2119</version.equinox.p2.metadata.repository>
         <version.equinox.p2.reconciler.dropins>1.1.200.v20130419-1850</version.equinox.p2.reconciler.dropins>
         <version.equinox.p2.repository.tools>2.1.0.v20130327-2119</version.equinox.p2.repository.tools>
-        <version.equinox.p2.repository>2.1.0.v20110601</version.equinox.p2.repository>
+        <version.equinox.p2.repository>2.3.0.v20130412-2032</version.equinox.p2.repository>
         <version.equinox.p2.touchpoint.eclipse>2.1.0.v20110511-wso2v1</version.equinox.p2.touchpoint.eclipse> <!--TODO-Check Version-->
         <version.equinox.p2.touchpoint.natives>1.1.100.v20130327-2119</version.equinox.p2.touchpoint.natives>
         <version.equinox.p2.updatechecker>1.1.200.v20130327-2119</version.equinox.p2.updatechecker>
@@ -345,8 +345,8 @@
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
 
-        <version.tomcat>7.0.52</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v5</orbit.version.tomcat>
+        <version.tomcat>7.0.59</version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
         <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1</orbit.version.tomcat.servlet.api>
         <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
         <orbit.version.tomcat.el.api>${version.tomcat}.wso2v1</orbit.version.tomcat.el.api>
@@ -1070,7 +1070,7 @@
                 <version>${version.ibm.icu}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.tomcat.wso2</groupId>
+                <groupId>org.wso2.tomcat</groupId>
                 <artifactId>tomcat</artifactId>
                 <version>${orbit.version.tomcat}</version>
             </dependency>
@@ -1211,7 +1211,7 @@
                 <version>${version.tomcat}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.tomcat.ha.wso2</groupId>
+                <groupId>org.wso2.tomcat.ha</groupId>
                 <artifactId>tomcat-catalina-ha</artifactId>
                 <version>${orbit.version.tomcat.ha}</version>
             </dependency>
