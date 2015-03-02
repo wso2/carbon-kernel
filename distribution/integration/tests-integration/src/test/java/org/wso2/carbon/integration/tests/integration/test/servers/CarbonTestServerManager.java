@@ -36,8 +36,9 @@ public class CarbonTestServerManager extends TestServerManager {
         super(context);
     }
 
-    public CarbonTestServerManager(AutomationContext context, String carbonZip, Map<String, String> startupParameterMap) {
-        super(context,carbonZip, startupParameterMap);
+    public CarbonTestServerManager(AutomationContext context, String carbonZip,
+                                   Map<String, String> startupParameterMap) {
+        super(context, carbonZip, startupParameterMap);
     }
 
     public CarbonTestServerManager(AutomationContext context, int portOffset) {
@@ -46,7 +47,7 @@ public class CarbonTestServerManager extends TestServerManager {
 
     @Override
     @BeforeSuite(timeOut = 300000,
-                 description = "Starts up a Carbon core server")
+            description = "Starts up a Carbon core server")
     public String startServer() throws Exception {
         String carbonHome = super.startServer();
         System.setProperty("carbon.home", carbonHome);
@@ -55,7 +56,7 @@ public class CarbonTestServerManager extends TestServerManager {
 
     @Override
     @AfterSuite(timeOut = 60000,
-                description = "Stops the Carbon core server")
+            description = "Stops the Carbon core server")
     public void stopServer() throws Exception {
         super.stopServer();
     }
