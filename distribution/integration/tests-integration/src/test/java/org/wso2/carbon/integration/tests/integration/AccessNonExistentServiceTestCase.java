@@ -24,6 +24,8 @@ import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 
+import java.io.IOException;
+
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -39,7 +41,7 @@ public class AccessNonExistentServiceTestCase extends CarbonIntegrationBaseTest 
 
     @Test(groups = {"carbon.core"}, description = "Test that ?wsdl on a non-existent service returns an HTTP 404. " +
                                                   "See https://wso2.org/jira/browse/CARBON-11833")
-    public void testAccessNonExistentServiceWsdl() throws Exception {
+    public void testAccessNonExistentServiceWsdl() throws IOException {
         String URL = contextUrls.getServiceUrl();
         HttpResponse httpResponse = HttpRequestUtil.sendGetRequest(URL + "/XXXFoo", "wsdl");
         assertEquals(httpResponse.getResponseCode(), HttpStatus.SC_NOT_FOUND);

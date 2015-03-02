@@ -22,16 +22,20 @@ import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.OperationContext;
 import org.apache.axis2.description.WSDL2Constants;
+import org.apache.commons.httpclient.auth.AuthenticationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.authenticator.stub.LogoutAuthenticationExceptionException;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.core.commons.stub.loggeduserinfo.LoggedUserInfoAdminStub;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.common.utils.LoginLogoutUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
+import javax.xml.xpath.XPathExpressionException;
+import java.rmi.RemoteException;
 import java.util.Map;
 
 import static org.testng.Assert.assertTrue;
@@ -54,7 +58,7 @@ public class LoginLogoutTestCase extends CarbonIntegrationBaseTest {
 
 
     @Test(groups = {"carbon.core"}, description = "Tests the server login functionality")
-    public void testLoginWithBasicAuth() throws Exception {
+    public void testLoginWithBasicAuth() throws XPathExpressionException {
 
         boolean loginStats = util.loginWithBasicAuth(
                 automationContext.getContextTenant().getContextUser().getUserName(),
@@ -79,14 +83,15 @@ public class LoginLogoutTestCase extends CarbonIntegrationBaseTest {
 
     @Test(groups = {"carbon.core"}, dependsOnMethods = {"testLogin"}, description =
             "Tests the server logout functionality")
-    public void testLogout() throws Exception {
+    public void testLogout() throws LogoutAuthenticationExceptionException,
+            AuthenticationException, RemoteException {
         util.logout(contextUrls.getBackEndUrl());
     }
 
     @Test(groups = {"carbon.core"}, description = "Checks whether remember me data is correctly processed.",
           dependsOnMethods = "testLogout")
-    public void loginWithRememberMe() throws Exception {
-
+    public void loginWithRememberMe() throws XPathExpressionException,
+            LogoutAuthenticationExceptionException, AuthenticationException, RemoteException {
 
         LoggedUserInfoAdminStub stub = null;
         try {

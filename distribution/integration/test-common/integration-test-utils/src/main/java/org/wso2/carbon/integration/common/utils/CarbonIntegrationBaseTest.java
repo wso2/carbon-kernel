@@ -23,6 +23,8 @@ import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.beans.ContextUrls;
 
+import javax.xml.xpath.XPathExpressionException;
+
 public abstract class CarbonIntegrationBaseTest {
 
     protected ContextUrls contextUrls = new ContextUrls();
@@ -30,12 +32,12 @@ public abstract class CarbonIntegrationBaseTest {
     protected String sessionCookie;
     protected TestUserMode userMode;
 
-    protected void init() throws Exception {
+    protected void init() throws XPathExpressionException {
         userMode = TestUserMode.SUPER_TENANT_ADMIN;
         init(userMode);
     }
 
-    protected void init(TestUserMode userMode) throws Exception {
+    protected void init(TestUserMode userMode) throws XPathExpressionException {
         automationContext = new AutomationContext("CARBON", userMode);
         contextUrls = automationContext.getContextUrls();
 
