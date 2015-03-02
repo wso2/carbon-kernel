@@ -19,7 +19,6 @@
 package org.wso2.carbon.integration.tests.integration;
 
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
@@ -49,7 +48,7 @@ public class MaintenanceModeTestCase extends CarbonIntegrationBaseTest {
 
     @BeforeClass(groups = {"carbon.core"},
             description = "Initializes the JMX connection & obtains the ServerAdmin MBean")
-    public void init() throws Exception {
+    public void initTests() throws Exception {
 
         super.init(TestUserMode.SUPER_TENANT_ADMIN);
 

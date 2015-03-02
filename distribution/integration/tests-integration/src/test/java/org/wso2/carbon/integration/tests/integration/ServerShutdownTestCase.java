@@ -105,8 +105,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
                 "Port " + httpPort + " shouldn't be open when the server is shutting down");
     }
 
-    private void startServerForShutdownTest(HashMap<String, String> startUpParameterMap)
-            throws Exception {
+    private void startServerForShutdownTest(HashMap<String, String> startUpParameterMap) throws Exception {
         CarbonTestServerManager server = new CarbonTestServerManager(automationContext, System.getProperty("carbon.zip"),
                 startUpParameterMap);
         server.startServer();
