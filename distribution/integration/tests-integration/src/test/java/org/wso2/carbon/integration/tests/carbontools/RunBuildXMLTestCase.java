@@ -43,7 +43,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
     private long FILE_CREATION_TIMEOUT_MS = 1000 * 20;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         super.init();
         carbonHome = CarbonCommandToolsUtil.getCarbonHome(automationContext);
     }

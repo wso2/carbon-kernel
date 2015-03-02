@@ -55,7 +55,8 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
     private CarbonTestServerManager carbonTestServerManager;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void initialize() throws Exception {
+        super.init();
         // to start the server from a different port offset
         int portOffset = 1;
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
@@ -83,6 +84,9 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
 
     @AfterClass(alwaysRun = true)
     public void stopServers() throws Exception {
+        if (out != null) {
+            out.close();
+        }
         disconnect();  // telnet disconnection
         carbonTestServerManager.stopServer();
     }
@@ -104,7 +108,6 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
         } finally {
             if (out != null) {
                 out.flush();
-                out.close();
             }
         }
         log.info(value);
@@ -112,20 +115,29 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
 
     private void readResponseToFindActiveComponents() throws CarbonToolsIntegrationTestException {
         InputStream in = telnet.getInputStream();
+        BufferedReader bufferedReader = null;
         try {
-            BufferedReader inBuff = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            bufferedReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             String inputLine;
-            while ((inputLine = inBuff.readLine()) != null) {
+            while ((inputLine = bufferedReader.readLine()) != null) {
                 if (inputLine.contains("Active")) {  // filtering active components
                     arrList.add(inputLine);
                     log.info(inputLine);
                     break;
                 }
             }
-            inBuff.close();
+
         } catch (IOException ex) {
             log.error("Error while reading input stream ", ex);
             throw new CarbonToolsIntegrationTestException("Error while reading input stream ", ex);
+        } finally {
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    log.warn("Error when closing BufferedReader  ", e);
+                }
+            }
         }
     }
 

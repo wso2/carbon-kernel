@@ -62,7 +62,7 @@ public class ChangeUserPasswordMySQLDBTestCase extends CarbonIntegrationBaseTest
 
     @SetEnvironment(executionEnvironments = ExecutionEnvironment.PLATFORM)
     @BeforeClass(alwaysRun = true)
-    public void init() throws XPathExpressionException, MalformedURLException, AxisFault {
+    public void initialize() throws XPathExpressionException, MalformedURLException, AxisFault {
 
         automationContextOfInstance002 =
                 new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP,

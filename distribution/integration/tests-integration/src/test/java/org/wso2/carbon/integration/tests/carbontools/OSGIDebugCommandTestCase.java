@@ -52,7 +52,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
     Process process = null;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         super.init();
         automationContextOfInstance002 =
                 new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP,

@@ -21,7 +21,6 @@ package org.wso2.carbon.integration.tests.carbontools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
@@ -56,7 +55,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     private String processId;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws CarbonToolsIntegrationTestException, XPathExpressionException {
+    public void setCarbonHome() throws CarbonToolsIntegrationTestException, XPathExpressionException {
         automationContext =
                 new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP,
                                       CarbonIntegrationConstants.INSTANCE,
@@ -197,11 +196,6 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         }
     }
 
-    @AfterClass(alwaysRun = true)
-    public void serverShutDown()
-            throws CarbonToolsIntegrationTestException, XPathExpressionException {
-        CarbonCommandToolsUtil.serverShutdown(portOffset);//Shut down the carbon server
-    }
 
     /**
      * Check carbon dump zip file available or not in the carbon home directory

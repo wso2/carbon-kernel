@@ -45,7 +45,7 @@ public class Java2WsdlCommandTestCase extends CarbonIntegrationBaseTest {
     Process process;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         super.init();
         File sourceFile =
                 new File(TestConfigurationProvider.getResourceLocation() + File.separator +

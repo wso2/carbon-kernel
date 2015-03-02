@@ -45,7 +45,7 @@ public class Wsdl2JavaCommandTestCase extends CarbonIntegrationBaseTest {
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.STANDALONE})
     @BeforeClass(alwaysRun = true)
-    public void testDeployService() throws Exception {
+    public void initialize() throws Exception {
         super.init();
     }
 

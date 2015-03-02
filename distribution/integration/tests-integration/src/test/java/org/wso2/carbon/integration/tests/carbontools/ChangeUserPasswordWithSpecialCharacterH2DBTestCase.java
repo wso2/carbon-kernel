@@ -56,7 +56,8 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
     private String userName;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void initialize() throws Exception {
+        super.init();
         automationContextOfInstance002 =
                 new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP,
                                       CarbonIntegrationConstants.INSTANCE,

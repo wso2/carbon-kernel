@@ -56,7 +56,7 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
     private String userName;
 
     @BeforeClass(alwaysRun = true)
-    public void init() throws Exception {
+    public void initialize() throws Exception {
         automationContextOfInstance002 =
                 new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP,
                                       CarbonIntegrationConstants.INSTANCE,
