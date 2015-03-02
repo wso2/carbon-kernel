@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="carbon-server-features-test-suite">
+    <parameter name="useDefaultListeners" value="false"/>
+
+    <test name="" preserve-order="true" parallel="false">
+
+    </test>
+
+
+</suite>
