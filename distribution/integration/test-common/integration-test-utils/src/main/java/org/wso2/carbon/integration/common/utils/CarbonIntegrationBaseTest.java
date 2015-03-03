@@ -66,10 +66,12 @@ public abstract class CarbonIntegrationBaseTest {
                 log.info("[Status ]" + folderCreated + " Directory copied from " + source + "  to " + destination);
             }
             String files[] = source.list();
-            for (String file : files) {
-                File sourceFile = new File(source, file);
-                File destinationFile = new File(destination, file);
-                copyFolder(sourceFile, destinationFile);
+            if (files != null) {
+                for (String file : files) {
+                    File sourceFile = new File(source, file);
+                    File destinationFile = new File(destination, file);
+                    copyFolder(sourceFile, destinationFile);
+                }
             }
 
         } else {

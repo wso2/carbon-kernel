@@ -69,7 +69,7 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
         carbonTestServerManager.startServer();
     }
 
-    @Test(groups = "wso2.all", description = "Identifying active OSGI components")
+    @Test(groups = "carbon.core", description = "Identifying active OSGI components")
     public void testOSGIActiveComponents()
             throws CarbonToolsIntegrationTestException, IOException {
 

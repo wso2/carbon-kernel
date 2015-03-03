@@ -69,7 +69,7 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
         dataSourceBean = CarbonCommandToolsUtil.getDataSourceInformation("default");
     }
 
-    @Test(groups = "wso2.as", description = "H2DB Password changing script run test")
+    @Test(groups = "carbon.core", description = "H2DB Password changing script run test")
     public void testPasswordChangeScript() throws Exception {
 
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
@@ -107,7 +107,7 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
         CarbonCommandToolsUtil.startServerUsingCarbonHome(carbonHome, portOffset, null);
     }
 
-    @Test(groups = "wso2.as", description = "H2DB password change test",
+    @Test(groups = "carbon.core", description = "H2DB password change test",
             dependsOnMethods = "testPasswordChangeScript")
     public void testChangeUserPasswordH2DB() throws Exception {
         int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;

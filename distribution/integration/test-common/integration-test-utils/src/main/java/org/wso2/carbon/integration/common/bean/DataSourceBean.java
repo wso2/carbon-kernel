@@ -24,13 +24,13 @@ package org.wso2.carbon.integration.common.bean;
 public class DataSourceBean {
     private String URL;
     private String userName;
-    private char[] passWord;
+    private char[] password;
     private String driverClassName;
 
-    public DataSourceBean(String URL, String userName, char[] passWord, String driverClassName) {
+    public DataSourceBean(String URL, String userName, char[] password, String driverClassName) {
         this.URL = URL;
         this.userName = userName;
-        this.passWord = passWord;
+        this.password = password;
         this.driverClassName = driverClassName;
     }
 
@@ -51,11 +51,11 @@ public class DataSourceBean {
     }
 
     public char[] getPassWord() {
-        return passWord;
+        return password;
     }
 
     public void setPassWord(char[] passWord) {
-        this.passWord = passWord;
+        this.password = passWord;
     }
 
     public String getDriverClassName() {

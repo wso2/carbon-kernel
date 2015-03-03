@@ -68,7 +68,7 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
         dataSourceBean = CarbonCommandToolsUtil.getDataSourceInformation("default");
     }
 
-    @Test(groups = "wso2.as", description = "H2DB Password changing script test on windows and linux")
+    @Test(groups = "carbon.core", description = "H2DB Password changing script test on windows and linux")
     public void testScriptRun() throws Exception {
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
         AutomationContext autoCtx = new AutomationContext();
@@ -114,7 +114,7 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
         CarbonCommandToolsUtil.startServerUsingCarbonHome(carbonHome, portOffset, null);
     }
 
-    @Test(groups = "wso2.as", description = "H2DB password change test",
+    @Test(groups = "carbon.core", description = "H2DB password change test",
             dependsOnMethods = {"testScriptRun"})
     public void testChangeUserPasswordInH2DB() throws Exception {
         int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;

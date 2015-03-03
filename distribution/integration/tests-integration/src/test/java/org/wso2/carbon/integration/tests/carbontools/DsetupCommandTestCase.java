@@ -26,7 +26,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
-import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
 import org.wso2.carbon.integration.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
@@ -77,21 +76,12 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
         super.copyFolder(sourceFile, targetFile);
     }
 
-    @Test(groups = "wso2.greg", description = "Test -Dsetup recreate the database")
+    @Test(groups = "carbon.core", description = "Test -Dsetup recreate the database")
     public void testDsetupCommand() throws Exception {
 
-        String[] cmdArrayToRecreateDB;
-        if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
-                contains(OperatingSystems.WINDOWS.name().toLowerCase()))) {
-            cmdArrayToRecreateDB = new String[]{"-Dsetup"};
+        String[] cmdArrayToRecreateDB = new String[]{"-Dsetup"};
             process = CarbonCommandToolsUtil.
                     startServerUsingCarbonHome(carbonHome, portOffset, cmdArrayToRecreateDB);
-        } else {
-            cmdArrayToRecreateDB =
-                    new String[]{"-Dsetup"};
-            process = CarbonCommandToolsUtil.
-                    startServerUsingCarbonHome(carbonHome, portOffset, cmdArrayToRecreateDB);
-        }
 
         boolean startupStatus =
                 CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002, portOffset);

@@ -52,7 +52,7 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
                                       ContextXpathConstants.ADMIN);
     }
 
-    @Test(groups = {"wso2.as"}, description = "Server portOffset test")
+    @Test(groups = {"carbon.core"}, description = "Server portOffset test")
     public void testCommandPortOffset() throws Exception {
         serverPropertyMap = new HashMap<String, String>();
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
@@ -72,7 +72,7 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
     }
 
     // Disabled this test because of bug jira:https://wso2.org/jira/browse/CARBON-15118
-    @Test(groups = {"wso2.as"}, description = "Test Command line server startup parameters " +
+    @Test(groups = {"carbon.core"}, description = "Test Command line server startup parameters " +
                                               " -DhttpPort and -DhttpsPort test", enabled = false)
     public void testCommandDhttpDhttpsPort() throws Exception {
 

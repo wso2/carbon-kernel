@@ -65,7 +65,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         carbonHome = CarbonCommandToolsUtil.getCarbonHome(automationContext);
     }
 
-    @Test(groups = {"wso2.as"}, description = "Testing server startup argument --start")
+    @Test(groups = {"carbon.core"}, description = "Testing server startup argument --start")
     public void testStartCommand() throws CarbonToolsIntegrationTestException,
                                           NoSuchFieldException, IllegalAccessException {
         String[] cmdArrayToStart;
@@ -92,7 +92,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         assertTrue(startupStatus, "Unsuccessful login");
     }
 
-    @Test(groups = {"wso2.as"}, description = "Testing carbondump.sh execution", dependsOnMethods = "testStartCommand")
+    @Test(groups = {"carbon.core"}, description = "Testing carbondump.sh execution", dependsOnMethods = "testStartCommand")
     public void testDumpCommandOnLinux() throws CarbonToolsIntegrationTestException {
         String[] cmdArray;
         Process carbonDumpProcess = null;
@@ -116,7 +116,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
 
     }
 
-    @Test(groups = {"wso2.as"}, description = "Testing server startup argument --restart",
+    @Test(groups = {"carbon.core"}, description = "Testing server startup argument --restart",
             dependsOnMethods = {"testDumpCommandOnLinux"})
     public void testRestartCommand() throws CarbonToolsIntegrationTestException {
         String[] cmdArrayToReStart;
@@ -138,7 +138,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         assertTrue(isServerUp, "Unsuccessful login");
     }
 
-    @Test(groups = {"wso2.as"}, description = "Testing server startup argument --stop",
+    @Test(groups = {"carbon.core"}, description = "Testing server startup argument --stop",
             dependsOnMethods = {"testRestartCommand"})
     public void testStopCommand() throws CarbonToolsIntegrationTestException, InterruptedException {
         String[] cmdArray;
@@ -162,7 +162,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         assertTrue(startupStatus, "Unsuccessful login");
     }
 
-    @Test(groups = {"wso2.as"}, description = "Testing carbondump.bat execution", dependsOnMethods = {"testStopCommand"})
+    @Test(groups = {"carbon.core"}, description = "Testing carbondump.bat execution", dependsOnMethods = {"testStopCommand"})
     public void testDumpCommandOnWindows()
             throws CarbonToolsIntegrationTestException, NoSuchFieldException,
                    IllegalAccessException, NoSuchMethodException, InvocationTargetException {

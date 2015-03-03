@@ -48,7 +48,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
         carbonHome = CarbonCommandToolsUtil.getCarbonHome(automationContext);
     }
 
-    @Test(groups = {"wso2.as"}, description = "Running the ant command and verifying the jar copying")
+    @Test(groups = {"carbon.core"}, description = "Running the ant command and verifying the jar copying")
     public void testBuildXMLGenerateRemoteRegistryClients()
             throws CarbonToolsIntegrationTestException {
         boolean isJarCreated = false;
@@ -93,7 +93,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
         assertTrue(isJarCreated, "Jar not copied successfully");
     }
 
-    @Test(groups = {"wso2.as"}, description = "Run the ant localize command and verifying the languageBundle")
+    @Test(groups = {"carbon.core"}, description = "Run the ant localize command and verifying the languageBundle")
     public void testBuildXMLGenerateLanguageBundle()
             throws CarbonToolsIntegrationTestException {
         boolean isJarCreated = false;

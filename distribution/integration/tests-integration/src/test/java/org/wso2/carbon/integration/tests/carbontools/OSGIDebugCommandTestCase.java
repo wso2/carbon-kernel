@@ -61,7 +61,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
                                       ContextXpathConstants.ADMIN);
     }
 
-    @Test(groups = {"wso2.as"}, description = "OSGI debug command test")
+    @Test(groups = {"carbon.core"}, description = "OSGI debug command test")
     public void testOSGIDebugCommand()
             throws CarbonToolsIntegrationTestException, IOException {
         String[] cmdArray;
@@ -92,7 +92,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
                 br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                 if (br != null) {
                     line = br.readLine();
-                    if (line.contains(expectedString)) {
+                    if (line != null && line.contains(expectedString)) {
                         log.info("found the string " + expectedString + " in line " + line);
                         isFoundTheMessage = true;
                         break;

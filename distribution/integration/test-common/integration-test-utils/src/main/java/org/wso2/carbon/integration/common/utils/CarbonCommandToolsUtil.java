@@ -381,9 +381,12 @@ public class CarbonCommandToolsUtil {
             }
             log.info("Server started successfully.");
             return tempProcess;
-        } catch (Exception ex) {
+        } catch (XPathExpressionException ex) {
             log.error("Error while starting the server using carbon home", ex);
             throw new CarbonToolsIntegrationTestException("Error while starting the server using carbon home", ex);
+        } catch (IOException e) {
+            log.error("Server startup folder not found", e);
+            throw new CarbonToolsIntegrationTestException("Server startup folder not found", e);
         }
 
     }

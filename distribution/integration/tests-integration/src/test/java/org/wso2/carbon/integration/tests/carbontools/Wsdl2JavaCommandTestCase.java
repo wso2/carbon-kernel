@@ -50,7 +50,7 @@ public class Wsdl2JavaCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.STANDALONE})
-    @Test(groups = "wso2.as", description = "generate client code HelloWorld service")
+    @Test(groups = "carbon.core", description = "generate client code HelloWorld service")
     public void testGenerateClass()
             throws CarbonToolsIntegrationTestException, XPathExpressionException {
         boolean fileCreated = false;

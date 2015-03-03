@@ -59,7 +59,7 @@ public class Java2WsdlCommandTestCase extends CarbonIntegrationBaseTest {
         super.copyFolder(sourceFile, targetFile); //copy testjava2wsdl directory into bin
     }
 
-    @Test(groups = "wso2.as", description = "Verify Java to wsdl")
+    @Test(groups = "carbon.core", description = "Verify Java to wsdl")
     public void testJava2Wsdl() throws CarbonToolsIntegrationTestException {
         String[] cmdArrayToWsdl2Java;
         String commandDirectory;
