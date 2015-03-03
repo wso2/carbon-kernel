@@ -90,7 +90,7 @@ public class ChangeUserPasswordMySQLDBTestCase extends CarbonIntegrationBaseTest
         carbonServer.stopServer();
 
         String[] cmdArray;
-        String commandDirectory;
+        String commandDirectory = carbonHome + File.separator + "bin";
 
 
         if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
@@ -102,8 +102,6 @@ public class ChangeUserPasswordMySQLDBTestCase extends CarbonIntegrationBaseTest
                     dataSourceBean.getUserName(), "--db-password",
                     String.valueOf(dataSourceBean.getPassWord()), "--username", userName,
                     "--new-password", String.valueOf(userNewPassword)};
-
-            commandDirectory = carbonHome + File.separator + "bin";
         } else {
             cmdArray = new String[]{
                     "sh", "chpasswd.sh", "--db-url", dataSourceBean.getUrl(),
@@ -111,10 +109,7 @@ public class ChangeUserPasswordMySQLDBTestCase extends CarbonIntegrationBaseTest
                     dataSourceBean.getUserName(), "--db-password",
                     String.valueOf(dataSourceBean.getPassWord()), "--username", userName,
                     "--new-password", String.valueOf(userNewPassword)};
-
-            commandDirectory = carbonHome + File.separator + "bin";
         }
-
         boolean scriptRunStatus =
                 CarbonCommandToolsUtil.isScriptRunSuccessfully(commandDirectory, cmdArray,
                                                                "Password updated successfully");

@@ -125,7 +125,7 @@ public class CarbonCommandToolsUtil {
                     try {
                         CarbonCommandToolsUtil.serverShutdown(portOffset);
                     } catch (Exception e) {
-                        log.error("Error while server shutdown ..", e);
+                        log.warn("Error while server shutdown ..", e);
                     }
                 }
             });
@@ -469,7 +469,11 @@ public class CarbonCommandToolsUtil {
         return new DataSourceBean(URL, userName, passWord, driverClassName);
     }
 
-
+    /**
+     * Get the -DportOffset value from command array
+     * @param commandStringArray - command array
+     * @return int - port offset
+     */
     private static int getPortOffsetFromStringArray(String[] commandStringArray) {
 
         int portOffset = 0;
