@@ -200,7 +200,7 @@
         <version.equinox.p2.director>2.3.0.v20130526-0335</version.equinox.p2.director>
         <version.equinox.p2.director.app>1.0.300.v20130819-1621</version.equinox.p2.director.app>
         <version.equinox.p2.directorywatcher>1.0.300.v20130327-2119</version.equinox.p2.directorywatcher>
-        <version.equinox.p2.engine>2.1.0.v20110511-wso2v1</version.equinox.p2.engine>
+        <version.equinox.p2.engine>2.3.0.v20130526-2122-wso2v1</version.equinox.p2.engine>
         <version.equinox.p2.console>1.0.300.v20130327-2119</version.equinox.p2.console> <!-- this version was added -->
         <version.equinox.p2.extensionlocation>1.2.100.v20130327-2119</version.equinox.p2.extensionlocation>
         <version.equinox.p2.garbagecollector>1.0.200.v20130327-2119</version.equinox.p2.garbagecollector>
@@ -304,15 +304,15 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v12-SNAPSHOT</version.axis2>
-        <orbit.version.axis2>1.6.1.wso2v12-SNAPSHOT</orbit.version.axis2>
-	<axis2.client.osgi.version>1.6.1.wso2v11</axis2.client.osgi.version>
-        <axis2.osgi.version>1.6.1.wso2v12-SNAPSHOT</axis2.osgi.version>
-        <axis2.osgi.version.range>[1.6.1.wso2v12, 1.7.0)</axis2.osgi.version.range>
-        <exp.pkg.version.axis2>1.6.1.wso2v12</exp.pkg.version.axis2>
-        <imp.pkg.version.axis2>[1.6.1.wso2v12, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v12-SNAPSHOT</version.addressing>
-        <version.axis2.json>1.6.1-wso2v12-SNAPSHOT</version.axis2.json>
+        <version.axis2>1.6.1-wso2v11</version.axis2>
+        <orbit.version.axis2>1.6.1.wso2v11</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1.wso2v11</axis2.client.osgi.version>
+        <axis2.osgi.version>1.6.1.wso2v11</axis2.osgi.version>
+        <axis2.osgi.version.range>[1.6.1.wso2v11, 1.7.0)</axis2.osgi.version.range>
+        <exp.pkg.version.axis2>1.6.1.wso2v11</exp.pkg.version.axis2>
+        <imp.pkg.version.axis2>[1.6.1.wso2v11, 1.7.0)</imp.pkg.version.axis2>
+        <version.addressing>1.6.1-wso2v11</version.addressing>
+        <version.axis2.json>1.6.1-wso2v11</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
