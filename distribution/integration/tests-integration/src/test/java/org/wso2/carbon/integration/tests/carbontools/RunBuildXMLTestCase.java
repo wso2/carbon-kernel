@@ -136,7 +136,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                     File[] listOfFiles = folder.listFiles();
                     if (listOfFiles != null) {
                         for (File file : listOfFiles) {//Check repository lib as well
-                            if (file.getName().contains("org.wso2.carbon.identity.oauth.ui.languageBundle_1.jar")) {
+                            if (file.getName().contains("org.wso2.carbon.identity.oauth.ui.languageBundle_1.0.jar")) {
                                 log.info("LanguageBundle jar copied successfully");
                                 isJarCreated = true;
                                 break;
