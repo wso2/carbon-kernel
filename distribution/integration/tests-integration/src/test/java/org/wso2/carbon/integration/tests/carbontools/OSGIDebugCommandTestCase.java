@@ -46,10 +46,10 @@ import java.io.InputStreamReader;
 public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory.getLog(OSGIDebugCommandTestCase.class);
-    AutomationContext automationContextOfInstance002;
-    String commandDirectory;
+    private AutomationContext automationContextOfInstance002;
+    private String commandDirectory;
     private int portOffset = 1;
-    Process process = null;
+    private Process process = null;
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
@@ -68,7 +68,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
         String expectedString = "OSGi debugging has been enabled with options:";
         boolean isFoundTheMessage = false;
         InputStream is = null;
-        int timeout = 30000;
+        int timeout = 1000 * 30;
 
         BufferedReader br = null;
         if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().

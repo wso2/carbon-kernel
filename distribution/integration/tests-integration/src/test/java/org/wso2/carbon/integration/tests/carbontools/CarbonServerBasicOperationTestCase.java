@@ -55,7 +55,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     private String processId;
 
     @BeforeClass(alwaysRun = true)
-    public void setCarbonHome() throws CarbonToolsIntegrationTestException, XPathExpressionException {
+    public void setCarbonHome()
+            throws CarbonToolsIntegrationTestException, XPathExpressionException {
         automationContext =
                 new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP,
                                       CarbonIntegrationConstants.INSTANCE,
@@ -66,8 +67,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing server startup argument --start")
-    public void testStartCommand() throws CarbonToolsIntegrationTestException,
-                                          NoSuchFieldException, IllegalAccessException {
+    public void testServerStartCommand() throws CarbonToolsIntegrationTestException,
+                                                NoSuchFieldException, IllegalAccessException {
         String[] cmdArrayToStart;
         Process process;
 
@@ -78,8 +79,9 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         } else {
             cmdArrayToStart = new String[]
                     {"sh", "wso2server.sh", "--start", "-DportOffset=" + portOffset};
-            process = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArrayToStart);
+
         }
+        process = CarbonCommandToolsUtil.runScript(carbonHome + File.separator + "bin", cmdArrayToStart);
 
         // Waiting until start the server
         boolean startupStatus = CarbonCommandToolsUtil.isServerStartedUp(automationContext, portOffset);
@@ -87,13 +89,14 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         Field field = process.getClass().getDeclaredField("pid");
         field.setAccessible(true);
         processId = field.get(process).toString();
-        log.info("process id for carbon server with offset 1 : " + processId);
+        log.info("process id for carbon server with offset " + portOffset + " : " + processId);
 
         assertTrue(startupStatus, "Unsuccessful login");
     }
 
-    @Test(groups = {"carbon.core"}, description = "Testing carbondump.sh execution", dependsOnMethods = "testStartCommand")
-    public void testDumpCommandOnLinux() throws CarbonToolsIntegrationTestException {
+    @Test(groups = {"carbon.core"}, description = "Testing carbondump.sh execution",
+            dependsOnMethods = "testServerStartCommand")
+    public void testCarbonDumpCommandOnLinux() throws CarbonToolsIntegrationTestException {
         String[] cmdArray;
         Process carbonDumpProcess = null;
         try {
@@ -105,9 +108,10 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             } else {
                 cmdArray = new String[]
                         {"sh", "carbondump.sh", "-carbonHome", carbonHome, "-pid", processId};
-                carbonDumpProcess = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArray);
+
             }
-            assertTrue(isFoundDumpFile(carbonHome), "Couldn't find the dump file");
+            carbonDumpProcess = CarbonCommandToolsUtil.runScript(carbonHome + File.separator + "bin", cmdArray);
+            assertTrue(isDumpFileFound(carbonHome), "Couldn't find the dump file");
         } finally {
             if (carbonDumpProcess != null) {
                 carbonDumpProcess.destroy();
@@ -117,8 +121,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing server startup argument --restart",
-            dependsOnMethods = {"testDumpCommandOnLinux"})
-    public void testRestartCommand() throws CarbonToolsIntegrationTestException {
+            dependsOnMethods = {"testCarbonDumpCommandOnLinux"})
+    public void testServerRestartCommand() throws CarbonToolsIntegrationTestException {
         String[] cmdArrayToReStart;
         if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
                 contains(OperatingSystems.WINDOWS.name().toLowerCase()))) {
@@ -127,8 +131,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         } else {
             cmdArrayToReStart = new String[]
                     {"sh", "wso2server.sh", "--restart", "-DportOffset=" + portOffset};
-            CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArrayToReStart);
         }
+        CarbonCommandToolsUtil.runScript(carbonHome + File.separator + "bin", cmdArrayToReStart);
 
         boolean isServerDown = CarbonCommandToolsUtil.isServerDown(portOffset);
         assertTrue(isServerDown, "Shutting down the server failed");
@@ -139,7 +143,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing server startup argument --stop",
-            dependsOnMethods = {"testRestartCommand"})
+            dependsOnMethods = {"testServerRestartCommand"})
     public void testStopCommand() throws CarbonToolsIntegrationTestException, InterruptedException {
         String[] cmdArray;
         Process processStop = null;
@@ -151,8 +155,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
                 throw new SkipException("--stop command is not available for windows");
             } else {
                 cmdArray = new String[]{"sh", "wso2server.sh", "--stop", "-DportOffset=" + portOffset};
-                processStop = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArray);
             }
+            processStop = CarbonCommandToolsUtil.runScript(carbonHome + File.separator + "bin", cmdArray);
             startupStatus = CarbonCommandToolsUtil.isServerDown(portOffset);
         } finally {
             if (processStop != null) {
@@ -163,7 +167,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing carbondump.bat execution", dependsOnMethods = {"testStopCommand"})
-    public void testDumpCommandOnWindows()
+    public void testCarbonDumpCommandOnWindows()
             throws CarbonToolsIntegrationTestException, NoSuchFieldException,
                    IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         Process processDump = null;
@@ -184,7 +188,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
                         {"cmd.exe", "/c", "carbondump.bat", "-carbonHome"
                                 , carbonHome, "-pid", Integer.toString(processId)};
                 processDump = CarbonCommandToolsUtil.runScript(carbonHome + "/bin", cmdArray);
-                assertTrue(isFoundDumpFile(carbonHome), "Couldn't find the dump file");
+                assertTrue(isDumpFileFound(carbonHome), "Couldn't find the dump file");
             } else {
                 //Skip test from linux
                 throw new SkipException(" This test method is only for windows");
@@ -203,7 +207,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
      * @param carbonHome - carbon Home
      * @return boolean - true if found the zip file, else false
      */
-    private boolean isFoundDumpFile(String carbonHome) {
+    private boolean isDumpFileFound(String carbonHome) {
         boolean isFoundDumpFolder = false;
         File folder = new File(carbonHome);
         long startTime = System.currentTimeMillis();

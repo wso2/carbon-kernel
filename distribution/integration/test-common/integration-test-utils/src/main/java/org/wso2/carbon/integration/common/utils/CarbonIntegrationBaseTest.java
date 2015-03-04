@@ -54,22 +54,23 @@ public abstract class CarbonIntegrationBaseTest {
     /**
      * Copy folders from a source to a destination
      *
-     * @param source      - source file
-     * @param destination - destination file
+     * @param sourceFolder      - source file
+     * @param destinationFolder - destination file
      * @throws CarbonToolsIntegrationTestException
      */
-    public void copyFolder(File source, File destination)
+    public void copyFolder(File sourceFolder, File destinationFolder)
             throws CarbonToolsIntegrationTestException {
-        if (source.isDirectory()) {
-            if (!destination.exists()) {
-                boolean folderCreated = destination.mkdir();
-                log.info("[Status ]" + folderCreated + " Directory copied from " + source + "  to " + destination);
+        if (sourceFolder.isDirectory()) {
+            if (!destinationFolder.exists()) {
+                boolean folderCreated = destinationFolder.mkdir();
+                log.info("[Status ]" + folderCreated + " Directory copied from " + sourceFolder +
+                         "  to " + destinationFolder);
             }
-            String files[] = source.list();
+            String files[] = sourceFolder.list();
             if (files != null) {
                 for (String file : files) {
-                    File sourceFile = new File(source, file);
-                    File destinationFile = new File(destination, file);
+                    File sourceFile = new File(sourceFolder, file);
+                    File destinationFile = new File(destinationFolder, file);
                     copyFolder(sourceFile, destinationFile);
                 }
             }
@@ -79,8 +80,8 @@ public abstract class CarbonIntegrationBaseTest {
             InputStream in = null;
             OutputStream out = null;
             try {
-                in = new FileInputStream(source);
-                out = new FileOutputStream(destination);
+                in = new FileInputStream(sourceFolder);
+                out = new FileOutputStream(destinationFolder);
                 byte[] buffer = new byte[1024];
                 int length;
                 while ((length = in.read(buffer)) > 0) {
@@ -102,7 +103,7 @@ public abstract class CarbonIntegrationBaseTest {
                     log.warn("Unable to closing in and out streams");
                 }
             }
-            log.info("File copied from " + source + " to " + destination);
+            log.info("File copied from " + sourceFolder + " to " + destinationFolder);
         }
     }
 }

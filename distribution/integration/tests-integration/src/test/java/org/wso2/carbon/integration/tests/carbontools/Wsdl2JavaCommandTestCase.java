@@ -50,16 +50,16 @@ public class Wsdl2JavaCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     @SetEnvironment(executionEnvironments = {ExecutionEnvironment.STANDALONE})
-    @Test(groups = "carbon.core", description = "generate client code HelloWorld service")
-    public void testGenerateClass()
+    @Test(groups = "carbon.core", description = "Generate java codes from wsdl using wsdl2java script")
+    public void testWsdl2JavaCodeGeneration()
             throws CarbonToolsIntegrationTestException, XPathExpressionException {
         boolean fileCreated = false;
         Process process = null;
         String commandDirectory;
 
         try {
-            String serviceUrl = automationContext.getContextUrls().getServiceUrl() + "/Version?wsdl";
-            log.info("Service URL -" + serviceUrl);
+            String wsdlURL = automationContext.getContextUrls().getServiceUrl() + "/Version?wsdl";
+            log.info("Service URL -" + wsdlURL);
             String[] cmdArrayToWsdl2Java;
             if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().contains(
                     OperatingSystems.WINDOWS.name().toLowerCase()))) {
@@ -72,7 +72,7 @@ public class Wsdl2JavaCommandTestCase extends CarbonIntegrationBaseTest {
                 //File.separator + "bin";
             } else {
                 cmdArrayToWsdl2Java =
-                        new String[]{"sh", "wsdl2java.sh", "-uri", serviceUrl};
+                        new String[]{"sh", "wsdl2java.sh", "-uri", wsdlURL};
                 commandDirectory = System.getProperty(ServerConstants.CARBON_HOME) + File.separator + "bin";
             }
             process = CarbonCommandToolsUtil.runScript(commandDirectory, cmdArrayToWsdl2Java);

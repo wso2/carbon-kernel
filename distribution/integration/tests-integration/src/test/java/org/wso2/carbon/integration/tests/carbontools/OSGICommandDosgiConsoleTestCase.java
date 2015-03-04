@@ -53,6 +53,7 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
     private HashMap<String, String> serverPropertyMap = new HashMap<String, String>();
     private PrintStream out;
     private CarbonTestServerManager carbonTestServerManager;
+    private int telnetTimeOutMS = 1000 * 10 ;
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
@@ -74,21 +75,12 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
             throws CarbonToolsIntegrationTestException, IOException {
 
         telnet.connect(InetAddress.getLocalHost().getHostAddress(), telnetPort);
-        telnet.setSoTimeout(10000);
+        telnet.setSoTimeout(telnetTimeOutMS);
         ArrayList<String> arr = retrieveActiveComponentsList("ls");//run ls command to list bundles
         for (int x = 0; x < arr.size(); x++) {
             activeList.add(arrList.get(x).split("\t")[3]);
         }
         assertNotEquals(activeList.size(), 0, "Active components not detected in server startup.");
-    }
-
-    @AfterClass(alwaysRun = true)
-    public void stopServers() throws Exception {
-        if (out != null) {
-            out.close();
-        }
-        disconnect();  // telnet disconnection
-        carbonTestServerManager.stopServer();
     }
 
     private ArrayList<String> retrieveActiveComponentsList(String command)
@@ -147,5 +139,14 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
         } catch (IOException e) {
             log.error("Error occurred while telnet disconnection " + e);
         }
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void stopServers() throws Exception {
+        if (out != null) {
+            out.close();
+        }
+        disconnect();  // telnet disconnection
+        carbonTestServerManager.stopServer();
     }
 }

@@ -29,6 +29,7 @@ import org.wso2.carbon.integration.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.common.utils.CarbonIntegrationBaseTest;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import static org.testng.Assert.assertTrue;
 
@@ -56,7 +57,11 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
         try {
 
             File folder = new File(carbonHome + File.separator + "repository" + File.separator + "lib");
-            File[] listOfFilesBeforeRunAntCommand = folder.listFiles();
+            File[] listOfFilesBeforeRunAntCommand = folder.listFiles(new FilenameFilter() {
+                public boolean accept(File directory, String fileName) {
+                    return fileName.toLowerCase().endsWith(".jar");
+                }
+            });
             String[] cmdArray;
 
             if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().contains(
@@ -70,7 +75,12 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
             long startTime = System.currentTimeMillis();
 
             while ((System.currentTimeMillis() - startTime) < FILE_CREATION_TIMEOUT_MS) {
-                File[] listOfFilesAfterRunAntCommand = folder.listFiles();
+                File[] listOfFilesAfterRunAntCommand = folder.listFiles(new FilenameFilter() {
+                    public boolean accept(File directory, String fileName) {
+                        return fileName.toLowerCase().endsWith(".jar");
+                    }
+                });
+
                 if (listOfFilesBeforeRunAntCommand != null && listOfFilesAfterRunAntCommand != null) {
                     if (listOfFilesAfterRunAntCommand.length > listOfFilesBeforeRunAntCommand.length) {
                         log.info("Jars copied successfully");
@@ -126,7 +136,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                     File[] listOfFiles = folder.listFiles();
                     if (listOfFiles != null) {
                         for (File file : listOfFiles) {//Check repository lib as well
-                            if (file.getName().contains("org.wso2.carbon.identity.oauth.ui.languageBundle_4.0.7.jar")) {
+                            if (file.getName().contains("org.wso2.carbon.identity.oauth.ui.languageBundle_1.jar")) {
                                 log.info("LanguageBundle jar copied successfully");
                                 isJarCreated = true;
                                 break;

@@ -47,8 +47,7 @@ public class CarbonCommandToolsUtil {
 
     private static final Log log = LogFactory.getLog(CarbonCommandToolsUtil.class);
     private static String carbonHomePath = null;
-    private static ServerLogReader inputStreamHandler;
-    private static final String CMD_ARG = "cmdArg";
+    private static ServerLogReader serverLogStreamHandler;
 
     /**
      * This method is to execute commands and reading the logs to find the expected string.
@@ -80,7 +79,7 @@ public class CarbonCommandToolsUtil {
                 while ((line = br.readLine()) != null) {
                     log.info(line);
                     if (line.contains(expectedString)) {
-                        log.info("found the string " + expectedString + " in line " + line);
+                        log.info("found the string expected string" + expectedString + ", in line " + line);
                         isFoundTheMessage = true;
                         break;
                     }
@@ -138,7 +137,6 @@ public class CarbonCommandToolsUtil {
         }
     }
 
-
     /**
      * This method to find multiple strings in same line in log
      *
@@ -150,13 +148,13 @@ public class CarbonCommandToolsUtil {
 
         long startTime = System.currentTimeMillis();
         while (!expectedStringFound && (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
-            String message = inputStreamHandler.getOutput();
+            String message = serverLogStreamHandler.getOutput();
             for (String stringToFind : stringArrayToFind) {
                 if (message.contains(stringToFind)) {
-                    expectedStringFound = true;
+                    expectedStringFound = true; // Continue until find all the strings in this line
                 } else {
                     expectedStringFound = false;
-                    break;
+                    break; // break the loop and search the stringToFind in new line
                 }
             }
             try {
@@ -167,7 +165,6 @@ public class CarbonCommandToolsUtil {
         }
         return expectedStringFound;
     }
-
 
     /**
      * This method to check whether server is up or not
@@ -286,7 +283,7 @@ public class CarbonCommandToolsUtil {
     public static void serverShutdown(int portOffset) throws CarbonToolsIntegrationTestException {
         long time = System.currentTimeMillis() + CarbonIntegrationConstants.DEFAULT_WAIT_MS;
         log.info("Shutting down server..");
-        boolean logOutSuccess = false;
+        boolean isLogoutSuccess = false;
 
         try {
             AutomationContext automationContext = new AutomationContext();
@@ -304,8 +301,8 @@ public class CarbonCommandToolsUtil {
                                 automationContext.getSuperTenant().getTenantAdmin().getPassword());
 
                 serverAdminServiceClient.shutdown();
-                while (System.currentTimeMillis() < time && !logOutSuccess) {
-                    logOutSuccess = isServerDown(portOffset);
+                while (System.currentTimeMillis() < time && !isLogoutSuccess) {
+                    isLogoutSuccess = isServerDown(portOffset);
                     // wait until server shutdown is completed
                 }
                 log.info("Server stopped successfully...");
@@ -317,7 +314,6 @@ public class CarbonCommandToolsUtil {
         }
 
     }
-
 
     /**
      * This method is to start a carbon server with a port offset and startup arguments
@@ -365,17 +361,17 @@ public class CarbonCommandToolsUtil {
 
             InputStreamHandler errorStreamHandler =
                     new InputStreamHandler("errorStream", tempProcess.getErrorStream());
-            inputStreamHandler = new ServerLogReader("inputStream", tempProcess.getInputStream());
+            serverLogStreamHandler = new ServerLogReader("inputStream", tempProcess.getInputStream());
 
             // start the stream readers
-            inputStreamHandler.start();
+            serverLogStreamHandler.start();
             errorStreamHandler.start();
             ClientConnectionUtil.waitForPort(defaultHttpPort, CarbonIntegrationConstants.DEFAULT_WAIT_MS, false,
                                              automationContext.getInstance().getHosts().get("default"));
 
             //wait until Mgt console url printed
             long time = System.currentTimeMillis() + CarbonIntegrationConstants.DEFAULT_WAIT_MS;
-            while (!inputStreamHandler.getOutput().contains(CarbonIntegrationConstants.SERVER_STARTUP_MESSAGE) &&
+            while (!serverLogStreamHandler.getOutput().contains(CarbonIntegrationConstants.SERVER_STARTUP_MESSAGE) &&
                    System.currentTimeMillis() < time) {
                 // wait until server startup is completed
             }
@@ -388,7 +384,6 @@ public class CarbonCommandToolsUtil {
             log.error("Server startup folder not found", e);
             throw new CarbonToolsIntegrationTestException("Server startup folder not found", e);
         }
-
     }
 
     /**
