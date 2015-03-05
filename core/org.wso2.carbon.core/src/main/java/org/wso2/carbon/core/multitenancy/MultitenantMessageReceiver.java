@@ -504,7 +504,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             String httpMethod = (String) mainInMsgContext.getProperty(Constants.Configuration.HTTP_METHOD);
             if (httpMethod.equals(Constants.Configuration.HTTP_METHOD_GET) ||
                     httpMethod.equals(Constants.Configuration.HTTP_METHOD_DELETE) ||
-                    httpMethod.equals("OPTIONS")) {
+                    "OPTIONS".equals(httpMethod) || Constants.Configuration.HTTP_METHOD_HEAD.equals(httpMethod)) {
                 //RESTUtil.processURLRequest(tenantInMsgCtx, os, contentType);
             	this.processRESTRequest(tenantInMsgCtx,os,contentType);
             } else if (httpMethod.equals(Constants.Configuration.HTTP_METHOD_POST) ||
