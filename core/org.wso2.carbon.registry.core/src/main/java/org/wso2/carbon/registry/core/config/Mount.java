@@ -30,6 +30,7 @@ public class Mount {
     private String targetPath;
     private boolean overwrite;
     private boolean virtual;
+    private boolean isExecuteQueryAllowed;
 
     /**
      * Method to obtain the local path of the mount.
@@ -125,5 +126,23 @@ public class Mount {
      */
     public void setVirtual(boolean virtual) {
         this.virtual = virtual;
+    }
+
+    /**
+     * Method to get whether an execute queries are allowed to run on this mount
+     *
+     * @return whether an execute queries are allowed or not.
+     */
+    public boolean isExecuteQueryAllowed() {
+        return isExecuteQueryAllowed;
+    }
+
+    /**
+     * Method to set whether an execute queries are allowed to run on this mount
+     *
+     * @param isExecuteQueryAllowed whether an execute queries are allowed or not.
+     */
+    public void setExecuteQueryAllowed(boolean isExecuteQueryAllowed) {
+        this.isExecuteQueryAllowed = isExecuteQueryAllowed;
     }
 }

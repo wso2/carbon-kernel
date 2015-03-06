@@ -39,6 +39,7 @@ import org.wso2.carbon.registry.core.ResourceImpl;
 import org.wso2.carbon.registry.core.ResourcePath;
 import org.wso2.carbon.registry.core.caching.RegistryCacheEntry;
 import org.wso2.carbon.registry.core.caching.RegistryCacheKey;
+import org.wso2.carbon.registry.core.config.Mount;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.config.RemoteConfiguration;
 import org.wso2.carbon.registry.core.config.StaticConfiguration;
@@ -1117,7 +1118,7 @@ public final class RegistryUtils {
      * @return the built filter instance.
      */
     public static URLMatcher getMountingMatcher(String path) {
-        URLMatcher matcher = new MountingMatcher();
+        URLMatcher matcher = new MountingMatcher(path);
         String matchedWith = Pattern.quote(path) + "($|" + RegistryConstants.PATH_SEPARATOR +
                 ".*|" + RegistryConstants.URL_SEPARATOR + ".*)";
         matcher.setPattern(matchedWith);
@@ -1184,10 +1185,24 @@ public final class RegistryUtils {
     // This class is used to implement a URL Matcher that could be used for Mounting related
     // handlers.
     private static class MountingMatcher extends URLMatcher {
+
+        private boolean isExecuteQueryAllowed;
+
+        public MountingMatcher(String path) {
+            RegistryContext registryContext = RegistryContext.getBaseInstance();
+            for (Mount mount : registryContext.getMounts()) {
+                if (path.equals(mount.getPath())) {
+                    isExecuteQueryAllowed = mount.isExecuteQueryAllowed();
+                    break;
+                }
+            }
+
+        }
+
         // Mounting related handlers support execute query for any path.
         public boolean handleExecuteQuery(RequestContext requestContext)
                 throws RegistryException {
-            return true;
+            return isExecuteQueryAllowed;
         }
 
         // Mounting related handlers support get resource paths with tag for any path.
