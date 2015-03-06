@@ -20,6 +20,10 @@ package org.wso2.carbon.registry.core.jdbc.dataaccess;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.ndatasource.rdbms.RDBMSConfiguration;
 import org.wso2.carbon.ndatasource.rdbms.RDBMSDataSource;
 import org.wso2.carbon.registry.core.config.DataBaseConfiguration;
@@ -178,60 +182,60 @@ public class JDBCDataAccessManager implements DataAccessManager {
 	 * @return the built data source.
 	 */
 	public static DataSource buildDataSource(DataBaseConfiguration config) {
-		RDBMSConfiguration dsConf = new RDBMSConfiguration();
-		dsConf.setUrl(config.getDbUrl());
-		dsConf.setDriverClassName(config.getDriverName());
-		dsConf.setUsername(config.getUserName());
-		dsConf.setPassword(config.getResolvedPassword());
+        PoolProperties poolProperties = new PoolProperties();
+        poolProperties.setUrl(config.getDbUrl());
+        poolProperties.setDriverClassName(config.getDriverName());
+        poolProperties.setUsername(config.getUserName());
+        poolProperties.setPassword(config.getResolvedPassword());
 
 		if (config.getTestWhileIdle() != null) {
-			dsConf.setTestWhileIdle(Boolean.parseBoolean(config
+            poolProperties.setTestWhileIdle(Boolean.parseBoolean(config
 					.getTestWhileIdle()));
 		}
 
 		if (config.getTimeBetweenEvictionRunsMillis() != null) {
-			dsConf.setTimeBetweenEvictionRunsMillis(Integer
+            poolProperties.setTimeBetweenEvictionRunsMillis(Integer
 					.parseInt(config.getTimeBetweenEvictionRunsMillis()));
 		}
 
 		if (config.getMinEvictableIdleTimeMillis() != null) {
-			dsConf.setMinEvictableIdleTimeMillis(Integer.parseInt(config
+            poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(config
 					.getMinEvictableIdleTimeMillis()));
 		}
 
 		if (config.getNumTestsPerEvictionRun() != null) {
-			dsConf.setNumTestsPerEvictionRun(Integer.parseInt(config
+            poolProperties.setNumTestsPerEvictionRun(Integer.parseInt(config
 					.getNumTestsPerEvictionRun()));
 		}
 
 		if (config.getMaxActive() != null) {
-			dsConf
+            poolProperties
 					.setMaxActive(Integer.parseInt(config.getMaxActive()));
 		} else {
-			dsConf.setMaxActive(DatabaseConstants.DEFAULT_MAX_ACTIVE);
+            poolProperties.setMaxActive(DatabaseConstants.DEFAULT_MAX_ACTIVE);
 		}
 
 		if (config.getMaxWait() != null) {
-			dsConf.setMaxWait(Integer.parseInt(config.getMaxWait()));
+            poolProperties.setMaxWait(Integer.parseInt(config.getMaxWait()));
 		} else {
-			dsConf.setMaxWait(DatabaseConstants.DEFAULT_MAX_WAIT);
+            poolProperties.setMaxWait(DatabaseConstants.DEFAULT_MAX_WAIT);
 		}
 
 		if (config.getMaxIdle() != null) {
-			dsConf.setMaxIdle(Integer.parseInt(config.getMaxIdle()));
+            poolProperties.setMaxIdle(Integer.parseInt(config.getMaxIdle()));
 		}
 
 		if (config.getMinIdle() != null) {
-			dsConf.setMinIdle(Integer.parseInt(config.getMinIdle()));
+            poolProperties.setMinIdle(Integer.parseInt(config.getMinIdle()));
 		} else {
-			dsConf.setMinIdle(DatabaseConstants.DEFAULT_MIN_IDLE);
+            poolProperties.setMinIdle(DatabaseConstants.DEFAULT_MIN_IDLE);
 		}
 
 		if (config.getValidationQuery() != null) {
-			dsConf.setValidationQuery(config.getValidationQuery());
+            poolProperties.setValidationQuery(config.getValidationQuery());
 		}
 		try {
-		    return new RDBMSDataSource(dsConf).getDataSource();
+		    return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
 		} catch (Exception e) {
 			throw new RuntimeException("Error in creating data source for the registry: " +
 		            e.getMessage(), e);
