@@ -133,9 +133,11 @@ public class CarbonTomcatJarScanner extends StandardJarScanner{
        } else {
            ignoredJars = jarsToSkip;
        }
-       Set<String[]> ignoredJarsTokens = new HashSet<String[]>();
+       Set<String> ignoredJarsTokens = new HashSet<String>();
        for (String pattern: ignoredJars) {
-           ignoredJarsTokens.add(Matcher.tokenizePathAsArray(pattern));
+           if (pattern.length() > 0) {
+               ignoredJarsTokens.add(pattern);
+           }
        }
 
        // Scan WEB-INF/lib
@@ -145,7 +147,7 @@ public class CarbonTomcatJarScanner extends StandardJarScanner{
            while (it.hasNext()) {
                String path = it.next();
                if (path.endsWith(Constants.JAR_EXT) &&
-                       !Matcher.matchPath(ignoredJarsTokens,
+                       !Matcher.matchName(ignoredJarsTokens,
                                path.substring(path.lastIndexOf('/')+1))) {
                    // Need to scan this JAR
                    if (log.isDebugEnabled()) {
@@ -192,7 +194,7 @@ public class CarbonTomcatJarScanner extends StandardJarScanner{
                        // Skip JARs known not to be interesting and JARs
                        // in WEB-INF/lib we have already scanned
                        if (jarName != null &&
-                               !(Matcher.matchPath(ignoredJarsTokens, jarName) ||
+                               !(Matcher.matchName(ignoredJarsTokens, jarName) ||
                                        urls[i].toString().contains(
                                                Constants.WEB_INF_LIB + jarName))) {
                            if (log.isDebugEnabled()) {

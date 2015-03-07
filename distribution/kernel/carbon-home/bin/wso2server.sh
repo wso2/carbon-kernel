@@ -211,10 +211,10 @@ elif [ "$CMD" = "version" ]; then
 fi
 
 # ---------- Handle the SSL Issue with proper JDK version --------------------
-jdk_16=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[6|7]"`
-if [ "$jdk_16" = "" ]; then
+jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[8]"`
+if [ "$jdk_18" = "" ]; then
    echo " Starting WSO2 Carbon (in unsupported JDK)"
-   echo " [ERROR] CARBON is supported only on JDK 1.6 and 1.7"
+   echo " [ERROR] CARBON is supported only on 1.8"
 fi
 
 CARBON_XBOOTCLASSPATH=""
@@ -274,7 +274,7 @@ while [ "$status" = "$START_EXIT_STATUS" ]
 do
     $JAVACMD \
     -Xbootclasspath/a:"$CARBON_XBOOTCLASSPATH" \
-    -Xms256m -Xmx1024m -XX:MaxPermSize=256m \
+    -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:HeapDumpPath="$CARBON_HOME/repository/logs/heap-dump.hprof" \
     $JAVA_OPTS \
