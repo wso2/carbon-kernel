@@ -18,9 +18,6 @@
  */
 package org.wso2.carbon.registry.core.test.jdbc;
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.*;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -30,7 +27,6 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 
 import java.util.*;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CustomQueryTest  extends BaseTestCase {
 
     protected static Registry registry = null;
@@ -59,8 +55,7 @@ public class CustomQueryTest  extends BaseTestCase {
         }
     }
 
-    @Test
-    public void test1AssociationsQuery() throws Exception {
+    public void testAssociationsQuery() throws Exception {
         Resource r1 = registry.newResource();
         String r1Content = "this is r1 content";
         r1.setContent(r1Content.getBytes());
@@ -119,8 +114,7 @@ public class CustomQueryTest  extends BaseTestCase {
         assertEquals("Incorrect number of results returned", 1, matchingPaths.size());
     }
 
-    @Test
-    public void test2AssociationsCollectionQuery() throws Exception {
+    public void testAssociationsCollectionQuery() throws Exception {
         Resource r1 = registry.newCollection();
         r1.setDescription("production ready.");
         String r1Path = "/cb1/r1";
@@ -171,8 +165,7 @@ public class CustomQueryTest  extends BaseTestCase {
         assertEquals("Incorrect number of results returned", 1, matchingPaths.size());
     }
 
-    @Test
-    public void test3QueryAsParameter() throws RegistryException {
+    public void testQueryAsParameter() throws RegistryException {
         Resource r1 = registry.newResource();
         r1.setContent("r1 content");
         registry.put("/test/comments/r1", r1);
@@ -195,8 +188,7 @@ public class CustomQueryTest  extends BaseTestCase {
         assertEquals("Query result count should be 1", qPaths.length, 1);
     }
 
-    @Test
-    public void test4CustomQueryResultsOrderForComments() throws RegistryException {
+    public void testCustomQueryResultsOrderForComments() throws RegistryException {
 
         Resource r1 = registry.newResource();
         r1.setContent("r1x content");
@@ -308,8 +300,8 @@ public class CustomQueryTest  extends BaseTestCase {
         assertNotNull("Comment query result is invalid", c1.getCreatedTime());
     }
 
-    @Test
-    public void test5CustomQueryResultsOrderForResources() throws RegistryException {
+
+    public void testCustomQueryResultsOrderForResources() throws RegistryException {
         // This is a legacy test to ensure ordering doesn't break..
 
         Registry rootSystemRegistry = embeddedRegistryService.getSystemRegistry();

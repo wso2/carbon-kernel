@@ -158,8 +158,6 @@ public class ProvWSUtils {
                 IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(IInstallableUnit.class, matchExpression, new Object[0]);
                 IInstallableUnit[] requiredInstallableUnits = queryable.query(query,
                         new NullProgressMonitor()).toArray(IInstallableUnit.class);
-                //sorting here to get the first element from the search
-                Arrays.sort(requiredInstallableUnits);
                 for (IInstallableUnit installableUnit : requiredInstallableUnits) {
                     if (installableUnit.getId().endsWith("feature.group") &&
                             !installableUnit.getId().startsWith("org.eclipse.equinox") &&
@@ -172,14 +170,6 @@ public class ProvWSUtils {
                                 iuStack.push(requiredIU);
                                 featureStack.add(requiredFeature);
                                 requiredFeaturesList.add(requiredFeature);
-                            }
-                            // Break the loop if we are processing a nested.category because we only need the element
-                            // from the search for a nested category. This is due to having multiple features in
-                            // requiredInstallableUnits, when they are defined without any "match" at importFeatureDef.
-                            // This check can be removed once all the features for a nested.category is properly
-                            // configured using "perfect" match. See : CARBON-15127
-                            if (popedIU.getId().contains("nested.category.feature")) {
-                                break;
                             }
                         }
                     }

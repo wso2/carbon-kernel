@@ -50,7 +50,7 @@
             <artifactId>javax.servlet</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.tomcat</groupId>
+            <groupId>org.apache.tomcat.wso2</groupId>
             <artifactId>tomcat</artifactId>
         </dependency>
         <dependency>

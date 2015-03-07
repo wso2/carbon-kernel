@@ -182,7 +182,32 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             orgGroupContextValue = LDAPConstants.GROUP_CONTEXT_NAME;
         }
         createOrganizationalSubContext(dnOfOrganizationalContext, orgGroupContextValue, initialDirContext);
+        //create admin entry
+        String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
+                UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
+        //eg: ou=users,o=cse.org,dc=wso2,dc=com
+        String dnOfUserContextName = tenantMgtConfig.getTenantStoreProperties().get(
+                UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE);
+        if (dnOfUserContextName == null) {
+            dnOfUserContextName = LDAPConstants.USER_CONTEXT_NAME;
+        }
+        String dnOfUserContext = orgSubContextAttribute + "=" + dnOfUserContextName + "," + dnOfOrganizationalContext;
+        String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
 
+        //create admin group if write ldap group is enabled
+        if (("true").equals(realmConfig.getUserStoreProperty(
+                UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
+            //construct dn of group context: eg:ou=groups,o=cse.org,dc=wso2,dc=com
+            String dnOfGroupContextValue = tenantMgtConfig.getTenantStoreProperties().get(
+                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
+            if (dnOfGroupContextValue == null) {
+                //if property value is not set use default value
+                dnOfGroupContextValue = LDAPConstants.GROUP_CONTEXT_NAME;
+            }
+            String dnOfGroupContext = orgSubContextAttribute + "=" + dnOfGroupContextValue + "," +
+                    dnOfOrganizationalContext;
+            createAdminGroup(dnOfGroupContext, dnOfUserEntry, initialDirContext);
+        }
     }
 
     /**
@@ -311,7 +336,6 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         }
     }
 
-    @Deprecated
     protected String createAdminEntry(String dnOfUserContext, Tenant tenant,
                                       DirContext initialDirContext)
             throws UserStoreException {
@@ -391,7 +415,6 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         return userDN;
     }
 
-    @Deprecated
     protected void createAdminGroup(String dnOfGroupContext, String adminUserDN,
                                     DirContext initialDirContext)
             throws UserStoreException {

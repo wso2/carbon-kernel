@@ -16,9 +16,6 @@
 
 package org.wso2.carbon.registry.core.test.jdbc;
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.wso2.carbon.registry.core.*;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.EmbeddedRegistryService;
@@ -28,7 +25,6 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CommentsTest extends BaseTestCase {
 
     protected static Registry registry = null;
@@ -62,8 +58,7 @@ public class CommentsTest extends BaseTestCase {
         }
     }
 
-    @Test
-    public void test1CommentQueryRootRegistry() throws RegistryException {
+    public void testCommentQueryRootRegistry() throws RegistryException {
 
         Resource r1 = registry.newResource();
         r1.setContent("r1 content");
@@ -105,8 +100,7 @@ public class CommentsTest extends BaseTestCase {
         assertNotNull("Comment query result is invalid", c1.getCreatedTime());
     }
 
-    @Test
-    public void test2CommentQueryNonRootRegistry() throws RegistryException {
+    public void testCommentQueryNonRootRegistry() throws RegistryException {
 
         Resource r1 = localRepository.newResource();
         r1.setContent("r1 content");
@@ -150,8 +144,7 @@ public class CommentsTest extends BaseTestCase {
     }
 
     @SuppressWarnings("unused")
-    @Test
-    public void test3CommentDelete() throws RegistryException {
+    public void testCommentDelete() throws RegistryException {
 
         String r1Path = "/c1d1/c1";
         Collection r1 = registry.newCollection();

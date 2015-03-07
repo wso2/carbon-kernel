@@ -16,9 +16,6 @@
 
 package org.wso2.carbon.registry.core.test.jdbc;
 
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.wso2.carbon.registry.core.Registry;
 import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -33,7 +30,6 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.ByteArrayInputStream;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class HandlerTest extends BaseTestCase {
 
     /**
@@ -64,8 +60,7 @@ public class HandlerTest extends BaseTestCase {
         }
     }
 
-    @Test
-    public void test1CommitHandlerExecution() throws Exception {
+    public void testCommitHandlerExecution() throws Exception {
 
         final class TestData {
             private boolean handlerExecuted = false;
@@ -106,8 +101,7 @@ public class HandlerTest extends BaseTestCase {
         assertTrue(testData.isHandlerExecuted());
     }
 
-    @Test
-    public void test2RollbackHandlerExecution() throws Exception {
+    public void testRollbackHandlerExecution() throws Exception {
 
         final class TestData {
             private boolean handlerExecuted = false;
