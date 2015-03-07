@@ -1255,17 +1255,6 @@ public class CarbonUtils {
 		return proxyContextPath;
 	}
 
-    /**
-     * Checks the incoming request transport
-     *
-     * @return true if the incoming request is from a local transport
-     */
-    public static boolean isRequestedFromLocalTransport() {
-        MessageContext msgCtx = MessageContext.getCurrentMessageContext();
-        String incomingTransportName = msgCtx.getIncomingTransportName();
-        return incomingTransportName.equals(ServerConstants.LOCAL_TRANSPORT);
-    }
-
 	/**
 	 * Retrieves the proxy context path from the ServerConfiguration and process it before returning. (Duplicated Util Method)
 	 *
