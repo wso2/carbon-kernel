@@ -40,12 +40,12 @@ public class TenantMgtConfiguration {
         return tenantStoreProperties;
     }
 
-    public String getTenantStoreProperty(String propertyName) {
-        return tenantStoreProperties.get(propertyName);
-    }
-
     public void setTenantStoreProperties(Map<String, String> tenantStoreProperties) {
         this.tenantStoreProperties = tenantStoreProperties;
+    }
+
+    public String getTenantStoreProperty(String propertyName) {
+        return tenantStoreProperties.get(propertyName);
     }
 
 }

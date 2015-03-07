@@ -65,8 +65,9 @@
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.ndatasource.rdbms</artifactId>
+            <groupId>org.apache.tomcat.wso2</groupId>
+            <artifactId>jdbc-pool</artifactId>
+            <version>${jdbc-pool.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.securevault</groupId>

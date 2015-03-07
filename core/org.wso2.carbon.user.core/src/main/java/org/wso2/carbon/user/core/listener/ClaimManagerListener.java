@@ -35,7 +35,7 @@ public interface ClaimManagerListener {
      *
      * @param claimURI The claim URI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getAttributeName(String claimURI) throws UserStoreException;
@@ -45,7 +45,7 @@ public interface ClaimManagerListener {
      *
      * @param claimURI The claim URI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getClaim(String claimURI) throws UserStoreException;
@@ -55,7 +55,7 @@ public interface ClaimManagerListener {
      *
      * @param claimURI The claim URI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getClaimMapping(String claimURI) throws UserStoreException;
@@ -64,7 +64,7 @@ public interface ClaimManagerListener {
      * Gets all supported claims by default in the system.
      *
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getAllSupportClaimMappingsByDefault() throws UserStoreException;
@@ -73,7 +73,7 @@ public interface ClaimManagerListener {
      * Gets all claim objects
      *
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getAllClaimMappings() throws UserStoreException;
@@ -83,7 +83,7 @@ public interface ClaimManagerListener {
      *
      * @param dialectUri The dialect URI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getAllClaimMappings(String dialectUri) throws UserStoreException;
@@ -92,7 +92,7 @@ public interface ClaimManagerListener {
      * Gets all mandatory claims
      *
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getAllRequiredClaimMappings() throws UserStoreException;
@@ -101,7 +101,7 @@ public interface ClaimManagerListener {
      * Gets all claim URIs
      *
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getAllClaimUris() throws UserStoreException;
@@ -111,7 +111,7 @@ public interface ClaimManagerListener {
      *
      * @param mapping The claim mapping to be added
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean addNewClaimMapping(ClaimMapping mapping) throws UserStoreException;
@@ -121,7 +121,7 @@ public interface ClaimManagerListener {
      *
      * @param mapping The claim mapping to be deleted
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean deleteClaimMapping(ClaimMapping mapping) throws UserStoreException;
@@ -131,7 +131,7 @@ public interface ClaimManagerListener {
      *
      * @param mapping The claim mapping to be updated
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean updateClaimMapping(ClaimMapping mapping) throws UserStoreException;
@@ -142,7 +142,7 @@ public interface ClaimManagerListener {
      * @param domainName
      * @param claimURI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws UserStoreException
      */
     boolean getAttributeName(String domainName, String claimURI) throws UserStoreException;

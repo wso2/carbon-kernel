@@ -20,10 +20,10 @@ public class RoleContext {
 
     private String roleName;
 
-	private boolean shared;
+    private boolean shared;
 
     private boolean myRole;
-    
+
     private String[] members;
 
     public boolean isShared() {

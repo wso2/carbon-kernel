@@ -25,34 +25,34 @@ import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import java.util.Map;
 
 public abstract class AbstractUserStoreManagerListener implements UserStoreManagerListener {
-	
-	public boolean authenticate(String userName, Object credential,
-			UserStoreManager userStoreManager) throws UserStoreException {
-		return true;
-	}
 
-	public boolean addUser(String userName, Object credential, String[] roleList,
-			Map<String, String> claims, String profileName, UserStoreManager userStoreManager)
-			throws UserStoreException {
-		return true;
-	}
+    public boolean authenticate(String userName, Object credential,
+                                UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
 
-	public boolean updateCredential(String userName, Object newCredential, Object oldCredential,
-			UserStoreManager userStoreManager) throws UserStoreException {
-		return true;
-	}
+    public boolean addUser(String userName, Object credential, String[] roleList,
+                           Map<String, String> claims, String profileName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+        return true;
+    }
 
-	public boolean updateCredentialByAdmin(String userName, Object newCredential,
-			UserStoreManager userStoreManager) throws UserStoreException {
-		return true;
-	}
+    public boolean updateCredential(String userName, Object newCredential, Object oldCredential,
+                                    UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
 
-	public boolean deleteUser(String userName, UserStoreManager userStoreManager)
-			throws UserStoreException {
-		return true;
-	}
+    public boolean updateCredentialByAdmin(String userName, Object newCredential,
+                                           UserStoreManager userStoreManager) throws UserStoreException {
+        return true;
+    }
 
-	public boolean updateRoleName(String roleName, String newRoleName) throws UserStoreException {
-		return true;
-	}
+    public boolean deleteUser(String userName, UserStoreManager userStoreManager)
+            throws UserStoreException {
+        return true;
+    }
+
+    public boolean updateRoleName(String roleName, String newRoleName) throws UserStoreException {
+        return true;
+    }
 }

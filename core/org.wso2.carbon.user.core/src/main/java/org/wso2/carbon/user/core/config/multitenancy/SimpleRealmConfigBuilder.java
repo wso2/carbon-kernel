@@ -32,25 +32,25 @@ import java.util.Map;
 public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
 
     private static Log log = LogFactory.getLog(SimpleRealmConfigBuilder.class);
-    
+
     public RealmConfiguration getRealmConfigForTenantToCreateRealm(
             RealmConfiguration bootStrapConfig, RealmConfiguration persistedConfig, int tenantId)
             throws UserStoreException {
-    	
+
         RealmConfiguration realmConfig;
         try {
             realmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
             realmConfig.setAdminUserName(persistedConfig.getAdminUserName());
             realmConfig.setAdminPassword(persistedConfig.getAdminPassword());
             realmConfig.setAdminRoleName(persistedConfig.getAdminRoleName());
-            realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());       
+            realmConfig.setEveryOneRoleName(persistedConfig.getEveryOneRoleName());
             Map<String, String> authz = realmConfig.getAuthzProperties();
             authz.put(UserCoreConstants.RealmConfig.PROPERTY_ADMINROLE_AUTHORIZATION,
-                      CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);     
+                    CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);
             realmConfig.setSecondaryRealmConfig(persistedConfig.getSecondaryRealmConfig());
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration" +
-                                  "when creating tenant's realm.";
+                    "when creating tenant's realm.";
             log.error(errorMessage, e);
             throw new UserStoreException(errorMessage, e);
         }
@@ -63,29 +63,29 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
         return persistedConfig;
     }
 
-	public RealmConfiguration getRealmConfigForTenantToPersist(RealmConfiguration bootStrapConfig,
-	                                                           TenantMgtConfiguration tenantMgtConfig,
-	                                                           Tenant tenantInfo, int tenantId)
-                                                                       throws UserStoreException {
-		try {
-			RealmConfiguration realmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
+    public RealmConfiguration getRealmConfigForTenantToPersist(RealmConfiguration bootStrapConfig,
+                                                               TenantMgtConfiguration tenantMgtConfig,
+                                                               Tenant tenantInfo, int tenantId)
+            throws UserStoreException {
+        try {
+            RealmConfiguration realmConfig = bootStrapConfig.cloneRealmConfigurationWithoutSecondary();
             removePropertiesFromTenantRealmConfig(realmConfig);
-			realmConfig.setAdminUserName(UserCoreUtil.removeDomainFromName(tenantInfo.getAdminName()));
-			realmConfig.setAdminPassword(UserCoreUtil.getDummyPassword());
+            realmConfig.setAdminUserName(UserCoreUtil.removeDomainFromName(tenantInfo.getAdminName()));
+            realmConfig.setAdminPassword(UserCoreUtil.getDummyPassword());
             realmConfig.setTenantId(tenantId);
 
             realmConfig.setEveryOneRoleName(UserCoreUtil.
-                                            removeDomainFromName(realmConfig.getEveryOneRoleName()));
-            
-			return realmConfig;
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage(), e);
-		}
-	}
+                    removeDomainFromName(realmConfig.getEveryOneRoleName()));
 
-	private void removePropertiesFromTenantRealmConfig(RealmConfiguration tenantRealmConfiguration) {
-		tenantRealmConfiguration.getRealmProperties().clear();
+            return realmConfig;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new UserStoreException(e.getMessage(), e);
+        }
+    }
+
+    private void removePropertiesFromTenantRealmConfig(RealmConfiguration tenantRealmConfiguration) {
+        tenantRealmConfiguration.getRealmProperties().clear();
 
         //remove sensitive information from user store properties before persisting
         //tenant specific user-mgt.xml
@@ -95,8 +95,8 @@ public class SimpleRealmConfigBuilder implements MultiTenantRealmConfigBuilder {
         // we are not keeping sensitive information with JDBC. Only the datasource name
         //tenantRealmConfiguration.getUserStoreProperties().clear();
         tenantRealmConfiguration.getUserStoreProperties().put(tenantManagerKey, tenantManagerValue);
-		
-		tenantRealmConfiguration.getAuthzProperties().clear();
-	}
+
+        tenantRealmConfiguration.getAuthzProperties().clear();
+    }
 
 }

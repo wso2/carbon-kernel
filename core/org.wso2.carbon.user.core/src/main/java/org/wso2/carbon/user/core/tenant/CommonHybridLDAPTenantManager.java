@@ -17,20 +17,9 @@
 */
 package org.wso2.carbon.user.core.tenant;
 
-import java.util.Locale;
-import java.util.Map;
-
-import javax.naming.Name;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.*;
-import javax.sql.DataSource;
-
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.api.TenantMgtConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -40,22 +29,36 @@ import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import javax.naming.Name;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.sql.DataSource;
+import java.util.Locale;
+import java.util.Map;
+
 /**
  * This class is the tenant manager for any external LDAP and based on the "ou" partitioning
  * per tenant under one DIT.
  */
 public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
-    private static Log logger = LogFactory.getLog(CommonHybridLDAPTenantManager.class);
-    private LDAPConnectionContext ldapConnectionSource;
-    //TODO move the following configurations and constants to relevant files.
-
-    private TenantMgtConfiguration tenantMgtConfig = null;
-    private RealmConfiguration realmConfig = null;
     //constants
     private static final String USER_PASSWORD_ATTRIBUTE_NAME = "userPassword";
     private static final String EMAIL_ATTRIBUTE_NAME = "mail";
+    //TODO move the following configurations and constants to relevant files.
     private static final String SN_ATTRIBUTE_NAME = "sn";
     private static final String CN_ATTRIBUTE_NAME = "cn";
+    private static Log logger = LogFactory.getLog(CommonHybridLDAPTenantManager.class);
+    private LDAPConnectionContext ldapConnectionSource;
+    private TenantMgtConfiguration tenantMgtConfig = null;
+    private RealmConfiguration realmConfig = null;
 
     public CommonHybridLDAPTenantManager(OMElement omElement, Map<String, Object> properties)
             throws Exception {
@@ -68,9 +71,9 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         if (realmConfig == null) {
             throw new UserStoreException("Tenant Manager can not function without a bootstrap realm config");
         }
-        
+
         if (ldapConnectionSource == null) {
-        	ldapConnectionSource = new LDAPConnectionContext(realmConfig);
+            ldapConnectionSource = new LDAPConnectionContext(realmConfig);
         }
 
     }
@@ -98,8 +101,8 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             if (!isOrganizationalUnitCreated(tenant.getDomain(), initialDirContext)) {
                 createOrganizationalUnit(tenant.getDomain(), (Tenant) tenant, initialDirContext);
                 addSharedGroupForTenant((Tenant) tenant, initialDirContext);
-            }else {               
-                logger.warn("Organizational unit for tenant domain:"+tenant.getDomain() +" is already created.");              
+            } else {
+                logger.warn("Organizational unit for tenant domain:" + tenant.getDomain() + " is already created.");
             }
         } finally {
             closeContext(initialDirContext);
@@ -141,7 +144,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         }
     }
 
-/**
+    /**
      * Create a space for tenant in LDAP.
      *
      * @param orgName           Organization name.
@@ -162,7 +165,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
                 UserCoreConstants.TenantMgtConfig.PROPERTY_ORGANIZATIONAL_ATTRIBUTE);
         //eg:o=cse.org,dc=wso2,dc=com
         String dnOfOrganizationalContext = organizationNameAttribute + "=" + orgName + "," +
-                                           partitionDN;
+                partitionDN;
         String orgSubContextValue = tenantMgtConfig.getTenantStoreProperties().get(
                 UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE);
         if (orgSubContextValue == null) {
@@ -178,7 +181,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             //if property value is not set use default value
             orgGroupContextValue = LDAPConstants.GROUP_CONTEXT_NAME;
         }
-        createOrganizationalSubContext(dnOfOrganizationalContext,orgGroupContextValue , initialDirContext);
+        createOrganizationalSubContext(dnOfOrganizationalContext, orgGroupContextValue, initialDirContext);
 
     }
 
@@ -219,18 +222,18 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             String rdnOfOrganizationalContext = organizationalNameAttribute + "=" + orgName;
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding sub context: " + rdnOfOrganizationalContext + " under " +
-                             rootDN + " ...");
+                        rootDN + " ...");
             }
             //create organization sub context
             organizationalContext = subContext.createSubcontext(rdnOfOrganizationalContext, contextAttributes);
             if (logger.isDebugEnabled()) {
                 logger.debug("Sub context: " + rdnOfOrganizationalContext + " was added under "
-                             + rootDN + " successfully.");
+                        + rootDN + " successfully.");
             }
 
         } catch (NamingException e) {
             String errorMsg = "Error occurred while adding the organizational unit " +
-                              "sub context.";
+                    "sub context.";
             logger.error(errorMsg, e);
             throw new UserStoreException(errorMsg, e);
         } finally {
@@ -285,21 +288,21 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
 
             //construct the rdn of org sub context
             String rdnOfOrganizationalContext = orgSubUnitAttributeName + "=" +
-                                                nameOfCurrentContext;
+                    nameOfCurrentContext;
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding sub context: " + rdnOfOrganizationalContext + " under " +
-                             dnOfParentContext + " ...");
+                        dnOfParentContext + " ...");
             }
             //create sub context
             organizationalContext = subContext.createSubcontext(rdnOfOrganizationalContext, contextAttributes);
             if (logger.isDebugEnabled()) {
                 logger.debug("Sub context: " + rdnOfOrganizationalContext + " was added under "
-                             + dnOfParentContext + " successfully.");
+                        + dnOfParentContext + " successfully.");
             }
 
         } catch (NamingException e) {
             String errorMsg = "Error occurred while adding the organizational unit " +
-                              "sub context.";
+                    "sub context.";
             logger.error(errorMsg, e);
             throw new UserStoreException(errorMsg, e);
         } finally {
@@ -324,29 +327,29 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             Attribute objClass = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
             objClass.add(realmConfig.getUserStoreProperty(LDAPConstants.USER_ENTRY_OBJECT_CLASS));
             if (UserCoreUtil.isKdcEnabled(realmConfig)) {
-    			// Add Kerberos specific object classes
-            	objClass.add("krb5principal");
-            	objClass.add("krb5kdcentry");
-            	objClass.add("subschema");
-            	
+                // Add Kerberos specific object classes
+                objClass.add("krb5principal");
+                objClass.add("krb5kdcentry");
+                objClass.add("subschema");
+
                 String principal = tenant.getAdminName() + UserCoreConstants.PRINCIPAL_USERNAME_SEPARATOR + tenant.getDomain() + UserCoreConstants.TENANT_DOMAIN_COMBINER + getRealmName();
                 Attribute kerberosPrincipalName = new BasicAttribute("krb5PrincipalName");
                 kerberosPrincipalName.add(principal);
-                
+
                 Attribute keyVersionNumber = new BasicAttribute("krb5KeyVersionNumber");
                 keyVersionNumber.add("0");
-                
+
                 userAttributes.put(kerberosPrincipalName);
                 userAttributes.put(keyVersionNumber);
-    		}
+            }
             userAttributes.put(objClass);
-            
-           
+
+
             //create user password attribute
             Attribute password = new BasicAttribute(USER_PASSWORD_ATTRIBUTE_NAME);
             String passwordHashMethod = realmConfig.getUserStoreProperty(LDAPConstants.PASSWORD_HASH_METHOD);
-            if(passwordHashMethod == null)  {
-                passwordHashMethod =  realmConfig.getUserStoreProperty("passwordHashMethod");
+            if (passwordHashMethod == null) {
+                passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
             }
             String passwordToStore = UserCoreUtil.getPasswordToStore(
                     tenant.getAdminPassword(), passwordHashMethod, isKDCEnabled());
@@ -357,7 +360,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             Attribute adminEmail = new BasicAttribute(EMAIL_ATTRIBUTE_NAME);
             adminEmail.add(tenant.getEmail());
             userAttributes.put(adminEmail);
-			
+
             //create compulsory attribute: sn-last name
             Attribute lastName = new BasicAttribute(SN_ATTRIBUTE_NAME);
             lastName.add(tenant.getAdminLastName());
@@ -433,84 +436,83 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         return UserCoreUtil.isKdcEnabled(realmConfig);
     }
 
-	public boolean isSharedGroupEnabled() {
-		String value = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.SHARED_GROUPS_ENABLED);
-		return realmConfig.isPrimary() && "true".equalsIgnoreCase(value);
-	}
+    public boolean isSharedGroupEnabled() {
+        String value = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.SHARED_GROUPS_ENABLED);
+        return realmConfig.isPrimary() && "true".equalsIgnoreCase(value);
+    }
 
-	public void addSharedGroupForTenant(Tenant tenant, DirContext mainDirContext) throws UserStoreException {
+    public void addSharedGroupForTenant(Tenant tenant, DirContext mainDirContext) throws UserStoreException {
 
-		if(!isSharedGroupEnabled()){
-			return;
-		}
-		Attributes groupAttributes = new BasicAttributes(true);
+        if (!isSharedGroupEnabled()) {
+            return;
+        }
+        Attributes groupAttributes = new BasicAttributes(true);
 
-		String domainName = tenant.getDomain();
-		// create ou attribute
-		String groupNameAttributeName =
-                        realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE);
+        String domainName = tenant.getDomain();
+        // create ou attribute
+        String groupNameAttributeName =
+                realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE);
 
-		// create group entry's object class attribute
-		Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
-		objectClassAttribute.add(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_OBJECT_CLASS));
-		groupAttributes.put(objectClassAttribute);
+        // create group entry's object class attribute
+        Attribute objectClassAttribute = new BasicAttribute(LDAPConstants.OBJECT_CLASS_NAME);
+        objectClassAttribute.add(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_OBJECT_CLASS));
+        groupAttributes.put(objectClassAttribute);
 
-		DirContext groupContext = null;
+        DirContext groupContext = null;
 
-		String searchBase =
-		                    realmConfig.getUserStoreProperties()
-		                               .get(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
+        String searchBase =
+                realmConfig.getUserStoreProperties()
+                        .get(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
 
-		try {
-			groupContext = (DirContext) mainDirContext.lookup(searchBase);
-			NameParser ldapParser = groupContext.getNameParser("");
-			Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" + domainName);
-			groupContext.bind(compoundGroupName, null, groupAttributes);
+        try {
+            groupContext = (DirContext) mainDirContext.lookup(searchBase);
+            NameParser ldapParser = groupContext.getNameParser("");
+            Name compoundGroupName = ldapParser.parse(groupNameAttributeName + "=" + domainName);
+            groupContext.bind(compoundGroupName, null, groupAttributes);
 
-		} catch (Exception e) {
-			String errorMsg = "Shared tenant: " + domainName + "could not be added.";
-			throw new UserStoreException(errorMsg, e);
-		} finally {
-			JNDIUtil.closeContext(groupContext);
-		}
+        } catch (Exception e) {
+            String errorMsg = "Shared tenant: " + domainName + "could not be added.";
+            throw new UserStoreException(errorMsg, e);
+        } finally {
+            JNDIUtil.closeContext(groupContext);
+        }
 
-	}
-    
-	/**
-	 * 
-	 * @return
-	 */
-	protected String getRealmName() {
+    }
 
-		// First check whether realm name is defined in the configuration
-		String defaultRealmName = this.realmConfig
-				.getUserStoreProperty(UserCoreConstants.RealmConfig.DEFAULT_REALM_NAME);
+    /**
+     * @return
+     */
+    protected String getRealmName() {
 
-		if (defaultRealmName != null) {
-			return defaultRealmName;
-		}
+        // First check whether realm name is defined in the configuration
+        String defaultRealmName = this.realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.DEFAULT_REALM_NAME);
 
-		// If not build the realm name from the search base.
-		// Here the realm name will be a concatenation of dc components in the
-		// search base.
-		String searchBase = this.realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        if (defaultRealmName != null) {
+            return defaultRealmName;
+        }
 
-		String[] domainComponents = searchBase.split("dc=");
+        // If not build the realm name from the search base.
+        // Here the realm name will be a concatenation of dc components in the
+        // search base.
+        String searchBase = this.realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
 
-		StringBuilder builder = new StringBuilder();
+        String[] domainComponents = searchBase.split("dc=");
 
-		for (String dc : domainComponents) {
-			if (!dc.contains("=")) {
-				String trimmedDc = dc.trim();
-				if (trimmedDc.endsWith(",")) {
-					builder.append(trimmedDc.replace(',', '.'));
-				} else {
-					builder.append(trimmedDc);
-				}
-			}
-		}
+        StringBuilder builder = new StringBuilder();
 
-		return builder.toString().toUpperCase(Locale.ENGLISH);
-	}
-    
+        for (String dc : domainComponents) {
+            if (!dc.contains("=")) {
+                String trimmedDc = dc.trim();
+                if (trimmedDc.endsWith(",")) {
+                    builder.append(trimmedDc.replace(',', '.'));
+                } else {
+                    builder.append(trimmedDc);
+                }
+            }
+        }
+
+        return builder.toString().toUpperCase(Locale.ENGLISH);
+    }
+
 }

@@ -18,9 +18,9 @@ package org.wso2.carbon.user.api;
 
 /**
  * The Realm of the WSO2 user Kernel.
- * 
+ * <p/>
  * The realm represents a user store. This is a collection of interfaces.
- * 
+ * <p/>
  * To enable WSO2 platform with a custom realm, implement this interface and
  * add the class to the class path. Provide the class name in the configuration
  * file and the framework will pick the new realm code.
@@ -29,7 +29,7 @@ public interface UserRealm {
 
     /**
      * Get the AuthorizationReader of the system
-     * 
+     *
      * @return The AuthorizationReader the system
      * @throws UserStoreException
      */
@@ -37,7 +37,7 @@ public interface UserRealm {
 
     /**
      * Get the UserStoreManager of the system
-     * 
+     *
      * @return The UserStoreManager of the system
      * @throws UserStoreException
      */
@@ -45,7 +45,7 @@ public interface UserRealm {
 
     /**
      * Get the ClaimManager of the system
-     * 
+     *
      * @return The ClaimManager of the system
      * @throws UserStoreException
      */
@@ -53,7 +53,7 @@ public interface UserRealm {
 
     /**
      * Get the ProfileConfigurationManager of the system
-     * 
+     *
      * @return The ProfileConfigurationManager of the system
      * @throws UserStoreException
      */

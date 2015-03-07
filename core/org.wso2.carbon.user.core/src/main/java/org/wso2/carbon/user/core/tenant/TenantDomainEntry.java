@@ -29,6 +29,7 @@ import java.io.Serializable;
 class TenantDomainEntry implements Serializable {
 
     private static final long serialVersionUID = -973366456167638275L;
+    private String tenantDomainName;
 
     public TenantDomainEntry(String tenantDomainName) {
         this.tenantDomainName = tenantDomainName;
@@ -37,6 +38,4 @@ class TenantDomainEntry implements Serializable {
     public String getTenantDomainName() {
         return tenantDomainName;
     }
-
-    private String tenantDomainName;
 }

@@ -18,7 +18,7 @@ package org.wso2.carbon.user.api;
 /**
  * The exception to throw when there is a problem with the realm.
  */
-public class UserStoreException extends Exception{
+public class UserStoreException extends Exception {
 
     /**
      * Default serial
