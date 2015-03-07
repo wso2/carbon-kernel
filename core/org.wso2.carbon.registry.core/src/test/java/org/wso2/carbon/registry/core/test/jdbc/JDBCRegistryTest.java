@@ -16,6 +16,9 @@
 
 package org.wso2.carbon.registry.core.test.jdbc;
 
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.wso2.carbon.registry.core.Collection;
 import org.wso2.carbon.registry.core.*;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -29,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class JDBCRegistryTest extends BaseTestCase {
 
     /**
@@ -59,7 +63,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         }
     }
 
-    public void testIllegalCharacters() throws Exception {
+    @Test
+    public void test1IllegalCharacters() throws Exception {
         Resource r1 = registry.newResource();
         String str = "My Content";
         r1.setContentStream(new ByteArrayInputStream(str.getBytes()));
@@ -76,7 +81,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         }
     }
 
-    public void testMediaTypesInCaps() throws Exception {
+    @Test
+    public void test2MediaTypesInCaps() throws Exception {
         MediaTypesUtils.getResourceMediaTypeMappings(
                 embeddedRegistryService.getConfigSystemRegistry());
         Resource r1 = registry.newResource();
@@ -87,7 +93,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         assertEquals("image/jpeg", registry.get("/abc.JPG").getMediaType());
     }
 
-    public void testCollectionDetails() throws Exception {
+    @Test
+    public void test3CollectionDetails() throws Exception {
         Resource r1 = registry.newResource();
         String str = "My Content";
         r1.setContentStream(new ByteArrayInputStream(str.getBytes()));
@@ -110,7 +117,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         r1.discard();
     }
 
-    public void testFlatResourceHandling() throws RegistryException {
+    @Test
+    public void test4FlatResourceHandling() throws RegistryException {
         Resource r1 = registry.newResource();
         r1.setDescription("This is a test resource used for registry testing.");
         String r1Content = "<c>This is r1 content</c>";
@@ -143,7 +151,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         r1f.discard();
     }
 
-    public void testHierarchicalResourceHandling() throws Exception {
+    @Test
+    public void test5HierarchicalResourceHandling() throws Exception {
 
         // add a resource
 
@@ -194,7 +203,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         assertTrue("Deleted collection /d1/r1 is not marked as deleted.", f2);
     }
 
-    public void testResourceVersioning() throws Exception {
+    @Test
+    public void test6ResourceVersioning() throws Exception {
         boolean isVersionOnChange = registry.getRegistryContext().isVersionOnChange();
         Resource r1 = registry.newResource();
         byte[] r1Content = "R1 content".getBytes();
@@ -256,7 +266,8 @@ public class JDBCRegistryTest extends BaseTestCase {
     }
 
     // todo: test this with persistence db
-    public void testPutOnSamePath() {
+    @Test
+    public void test7PutOnSamePath() {
 
         try {
             Resource userProfile = registry.newResource();
@@ -275,7 +286,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         }
     }
 
-    public void testCollectionVersioning() throws Exception {
+    @Test
+    public void test8CollectionVersioning() throws Exception {
 
         String r1Content = "r1 content1";
         Resource r1 = registry.newResource();
@@ -319,8 +331,8 @@ public class JDBCRegistryTest extends BaseTestCase {
                 !containsString(restoredC10Children, "/c10/r2"));
     }
 
-
-    public void testValueChange() throws Exception {
+    @Test
+    public void test9ValueChange() throws Exception {
         Resource r1 = registry.newResource();
         String content1 = "Content1";
         r1.setContent(content1.getBytes());
@@ -336,7 +348,8 @@ public class JDBCRegistryTest extends BaseTestCase {
 
     }
 
-    public void testComments() throws Exception {
+    @Test
+    public void test10Comments() throws Exception {
         // add a resource
         Resource r1 = registry.newResource();
         byte[] r1content = "R1 content".getBytes();
@@ -379,7 +392,7 @@ public class JDBCRegistryTest extends BaseTestCase {
         registry.delete("/d12");
     }
 
-    public void testRatings() throws Exception {
+    public void test11Ratings() throws Exception {
         // add a resource
         Resource r1 = registry.newResource();
         byte[] r1content = "R1 content".getBytes();
@@ -395,7 +408,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         registry.delete("/d13");
     }
 
-    public void testUserDefinedResourceQuery() throws Exception {
+    @Test
+    public void test12UserDefinedResourceQuery() throws Exception {
         Resource r1 = registry.newResource();
         String r1Content = "this is r1 content";
         r1.setContent(r1Content.getBytes());
@@ -442,7 +456,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         assertTrue("Path /c2/r2 should be in the results.", matchingPaths.contains("/c2/r2"));
     }
 
-    public void testUserDefinedRatingsQuery() throws Exception {
+    @Test
+    public void test13UserDefinedRatingsQuery() throws Exception {
         Resource r1 = registry.newResource();
         String r1Content = "this is r1 content";
         r1.setContent(r1Content.getBytes());
@@ -495,7 +510,8 @@ public class JDBCRegistryTest extends BaseTestCase {
 //                rating2.getContent().toString(), "4");
     }
 
-    public void testUserDefinedTagsQuery() throws Exception {
+    @Test
+    public void test14UserDefinedTagsQuery() throws Exception {
         Resource r1 = registry.newResource();
         String r1Content = "this is r1 content";
         r1.setContent(r1Content.getBytes());
@@ -550,7 +566,8 @@ public class JDBCRegistryTest extends BaseTestCase {
                 (String)tag1.getContent(), "jsp");
     }
 
-    public void testUserDefinedCommentsQuery() throws Exception {
+    @Test
+    public void test15UserDefinedCommentsQuery() throws Exception {
         Resource r1 = registry.newResource();
         String r1Content = "this is r1 content";
         r1.setContent(r1Content.getBytes());
@@ -611,7 +628,8 @@ public class JDBCRegistryTest extends BaseTestCase {
                 (String)c2.getContent(), "replace this with a better one");
     }
 
-    public void testTagsAsResources() {
+    @Test
+    public void test16TagsAsResources() {
         //Resource r1 = new Resource();
         //String r1Content = "this is r1 content";
         //r1.setContent(r1Content.getBytes());
@@ -664,7 +682,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         //int a = 1;
     }
 
-    public void testCommentsAsResources() throws RegistryException {
+    @Test
+    public void test17CommentsAsResources() throws RegistryException {
         Resource r1 = registry.newResource();
         String r1Content = "this is r1 content";
         r1.setContent(r1Content.getBytes());
@@ -715,7 +734,8 @@ public class JDBCRegistryTest extends BaseTestCase {
                 commentStrings.contains("simple test resource."));
     }
 
-    public void testRatingsAsResources() throws RegistryException {
+    @Test
+    public void test18RatingsAsResources() throws RegistryException {
         Resource r5 = registry.newResource();
         String r5Content = "this is r5 content";
         r5.setContent(r5Content.getBytes());
@@ -761,7 +781,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         assertEquals("Ratings are not retrieved properly as resources.", rating, 3);
     }
 
-    public void testLogs() throws RegistryException {
+    @Test
+    public void test19Logs() throws RegistryException {
         String r1Content = "this is the r200 content.";
         Resource r1 = registry.newResource();
         r1.setContent(r1Content.getBytes());
@@ -776,7 +797,8 @@ public class JDBCRegistryTest extends BaseTestCase {
 
     }
 
-    public void testResourceDelete() throws RegistryException {
+    @Test
+    public void test20ResourceDelete() throws RegistryException {
         String content1 = "Content1";
         Resource r1 = registry.newResource();
         r1.setContent(content1);
@@ -827,7 +849,8 @@ public class JDBCRegistryTest extends BaseTestCase {
 
     }
 
-    public void testCombinedScenario() throws RegistryException {
+    @Test
+    public void test21CombinedScenario() throws RegistryException {
         // put a content resource in to the root
         String r1Content = "this is the r1 content.";
         Resource r1 = registry.newResource();
@@ -905,7 +928,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         registry.delete("/c2");
     }
 
-    public void testGetMetaData() throws RegistryException {
+    @Test
+    public void test22GetMetaData() throws RegistryException {
 
         String r1Content = "this is the rgm content.";
         Resource r = registry.newResource();
@@ -920,7 +944,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         
     }
 
-    public void testResourceCollectionMix() throws RegistryException {
+    @Test
+    public void test23ResourceCollectionMix() throws RegistryException {
         Resource defaultGadgetCollection = registry.newResource();
         registry.put("/system/gadgets", defaultGadgetCollection);
 
@@ -949,8 +974,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         assertTrue("R should exist", registry.resourceExists("/system/gadgets"));
     }
 
-
-    public void testLastUpdateWithGet() throws RegistryException {
+    @Test
+    public void test24LastUpdateWithGet() throws RegistryException {
         Resource r1 = registry.newResource();
         r1.setContent("test");
         registry.put("/pqr/xyz", r1);
@@ -970,9 +995,8 @@ public class JDBCRegistryTest extends BaseTestCase {
         assertEquals("update time should be equal", date2, date3);
     }
 
-
-
-    public void testLastUpdateWithPut() throws RegistryException {
+    @Test
+    public void test25LastUpdateWithPut() throws RegistryException {
         Resource r1 = registry.newResource();
         registry.put("/pqr/xyz", r1);
 
