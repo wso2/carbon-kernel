@@ -20,6 +20,7 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.axis2.context.MessageContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
@@ -231,10 +232,24 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 audit.info(logMsg);
             }
             //We should not invalidate the session if the system is running on local transport
-            if(!CarbonUtils.isRunningOnLocalTransportMode()){
+            if (isRequestedFromLocalTransport()) {
                 session.invalidate();
             }
         }
+    }
+
+    /**
+     * Checks the incoming request transport
+     *
+     * @return true if the incoming request is from a local transport
+     */
+    private boolean isRequestedFromLocalTransport() {
+        MessageContext msgCtx = MessageContext.getCurrentMessageContext();
+        if (msgCtx != null) {
+            String incomingTransportName = msgCtx.getIncomingTransportName();
+            return incomingTransportName.equals(ServerConstants.LOCAL_TRANSPORT);
+        }
+        return false;
     }
 
     public String getAuthenticatorName() {
