@@ -245,8 +245,11 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
      */
     private boolean isRequestedFromLocalTransport() {
         MessageContext msgCtx = MessageContext.getCurrentMessageContext();
-        String incomingTransportName = msgCtx.getIncomingTransportName();
-        return incomingTransportName.equals(ServerConstants.LOCAL_TRANSPORT);
+        if (msgCtx != null) {
+            String incomingTransportName = msgCtx.getIncomingTransportName();
+            return incomingTransportName.equals(ServerConstants.LOCAL_TRANSPORT);
+        }
+        return false;
     }
 
     public String getAuthenticatorName() {
