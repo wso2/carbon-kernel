@@ -231,7 +231,7 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 audit.info(logMsg);
             }
             //We should not invalidate the session if the system is running on local transport
-            if(!CarbonUtils.isRunningOnLocalTransportMode()){
+            if (!CarbonUtils.isRequestedFromLocalTransport()) {
                 session.invalidate();
             }
         }
