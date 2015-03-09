@@ -42,6 +42,7 @@ import java.util.Map;
 public class TenantTransportSender extends AbstractHandler implements TransportSender{
 
     private ConfigurationContext superTenantConfigurationContext;
+    private static final String SERVICE_PREFIX = "SERVICE_PREFIX";
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
@@ -188,6 +189,9 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
                     msgContext.getProperty(MultitenantConstants.REST_GET_DELETE_INVOKE));
         }
 
+        if (msgContext.getProperty(SERVICE_PREFIX) != null) {
+            superTenantOutMessageContext.setProperty(SERVICE_PREFIX, msgContext.getProperty(SERVICE_PREFIX));
+        }
 
         EndpointReference epr = getDestinationEPR(msgContext);
         // this is a request message so we need to set the response message context
