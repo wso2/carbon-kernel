@@ -20,7 +20,6 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.axis2.context.MessageContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
@@ -36,7 +35,6 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.AuthenticationObserver;
-import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -231,25 +229,10 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 log.info(logMsg);
                 audit.info(logMsg);
             }
-            //We should not invalidate the session if the system is running on local transport
-            if (isRequestedFromLocalTransport()) {
-                session.invalidate();
-            }
+            // We need to invalidate the backend session. If the system is running in local transport there will be 
+            // only one session for both backend and frontend and is invalidated here.
+            session.invalidate();
         }
-    }
-
-    /**
-     * Checks the incoming request transport
-     *
-     * @return true if the incoming request is from a local transport
-     */
-    private boolean isRequestedFromLocalTransport() {
-        MessageContext msgCtx = MessageContext.getCurrentMessageContext();
-        if (msgCtx != null) {
-            String incomingTransportName = msgCtx.getIncomingTransportName();
-            return incomingTransportName.equals(ServerConstants.LOCAL_TRANSPORT);
-        }
-        return false;
     }
 
     public String getAuthenticatorName() {
