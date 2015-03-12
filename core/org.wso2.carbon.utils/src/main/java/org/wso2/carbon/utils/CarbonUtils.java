@@ -173,19 +173,15 @@ public class CarbonUtils {
      *                               has been called before the ListenerManager has started
      */
     public static int getTransportProxyPort(AxisConfiguration axisConfig, String transport) {
-        int proxyPort = 0;  //read proxyPort from ServletTransportManager
+        int proxyPort = -1;
         try {
-            proxyPort = readProxyPort(transport);
+            proxyPort = readProxyPort(transport);  //read proxyPort from ServletTransportManager
         } catch (CarbonException e) {
             //logging error and continue
             //Exceptions in here, are due to issues with reading proxyPort
             log.error("Error reading proxyPort value ", e);
         }
-        if (proxyPort != 0) {
-            return proxyPort;
-        }
-
-        return -1;
+        return proxyPort;
     }
 
     private static int readProxyPort(String transport) throws CarbonException {
