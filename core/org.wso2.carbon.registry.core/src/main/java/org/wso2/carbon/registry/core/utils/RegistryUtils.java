@@ -89,6 +89,7 @@ public final class RegistryUtils {
 
     private static final Log log = LogFactory.getLog(RegistryUtils.class);
     private static final String ENCODING = System.getProperty("carbon.registry.character.encoding");
+    private static final String MY_SQL_PRODUCT_NAME = "MySQL";
 
     private RegistryUtils() {
     }
@@ -185,18 +186,30 @@ public final class RegistryUtils {
      * @return the unique identifier.
      */
     public static String getConnectionId(Connection connection) {
+        String connectionId = null;
         try {
             // The connection URL is unique enough to be used as an identifier since one thread
             // makes one connection to the given URL according to our model.
             DatabaseMetaData connectionMetaData = connection.getMetaData();
+            String productName = connectionMetaData.getDatabaseProductName();
             if (connectionMetaData != null) {
+                if (MY_SQL_PRODUCT_NAME.equals(productName)) {
+                    /*
+                     For MySQL getUserName() method executes 'SELECT USER()' query on DB via mysql connector
+                     causing a huge number of 'SELECT USER()' queries to be executed.
+                     Hence removing username when the DB in use is MySQL.
+                     */
+                    connectionId = connectionMetaData.getURL();
+                } else {
+                    connectionId = connectionMetaData.getUserName() + "@" + connectionMetaData.getURL();
+                }
                 return (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
                         connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
             }
-        } catch (SQLException ignore) {
-            log.debug("Failed to construct the connectionId ." + ignore.getMessage());
+        } catch (SQLException e) {
+            log.error("Failed to construct the connectionId.", e);
         }
-        return null;
+        return connectionId;
     }
 
     /**
