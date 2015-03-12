@@ -454,9 +454,12 @@ public class ClaimDAO {
 				dialectId = rs.getInt(1);
 			}
 		} catch (SQLException e) {
-			log.error("Database Error - " + e.getMessage(), e);
-			throw new UserStoreException("Database Error - " + e.getMessage(), e);
-		} finally {
+            String errorMessage = "Error occurred while getting Dialect for URI : " + uri;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
 			DatabaseUtil.closeAllConnections(null, rs, prepStmt);
 		}
 		return dialectId;
