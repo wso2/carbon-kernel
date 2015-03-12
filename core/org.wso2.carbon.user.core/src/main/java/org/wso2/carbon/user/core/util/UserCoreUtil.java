@@ -575,7 +575,7 @@ public final class UserCoreUtil {
                 combinedName = domainName + userName;
             }
         } else {
-            if (userName.equals(displayName)) {
+            if (!userName.equals(displayName) && displayName != null) {
                 combinedName = userName + UserCoreConstants.NAME_COMBINER + displayName;
             } else {
                 combinedName = userName;

@@ -616,30 +616,54 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return isExisting;
     }
 
-    /**
-     *
-     */
     public boolean doCheckExistingUser(String userName) throws UserStoreException {
 
+        if (log.isDebugEnabled()) {
+            log.debug("Searching for user " + userName);
+        }
         boolean bFound = false;
-        boolean debug = log.isDebugEnabled();
-
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        userSearchFilter = userSearchFilter.replace("?", userName);
         try {
-            if (debug) {
-                log.debug("Searching for user " + userName);
+            String searchBase = null;
+            String userDN = userCache.get(userName);
+            if(userDN == null){
+                String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
+                if (userDNPattern != null && userDNPattern.trim().length() > 0) {
+                    String[] patterns = userDNPattern.split("#");
+                    for (String pattern : patterns) {
+                        searchBase = MessageFormat.format(pattern, userName);
+                        userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter);
+                        if (userDN != null && userDN.length() > 0) {
+                            bFound = true;
+                            userCache.put(userName, userDN);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                searchBase = MessageFormat.format(userDN, userName);
+                userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter);
+                if (userDN != null && userDN.length() > 0) {
+                    bFound = true;
+                } else {
+                    userCache.remove(userName);
+                }
             }
-            String name = getNameInSpaceForUserName(userName);
-            if (name != null && name.length() > 0) {
-                bFound = true;
+            if(!bFound){
+                searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+                userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter);
+                if(userDN != null && userDN.length() > 0){
+                    bFound = true;
+                }
             }
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while checking existence of user : " + userName;
+            throw new UserStoreException(errorMessage, e);
         }
-
-        if (debug) {
+        if (log.isDebugEnabled()) {
             log.debug("User: " + userName + " exist: " + bFound);
         }
-
         return bFound;
     }
 
@@ -1775,11 +1799,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter) throws UserStoreException {
         boolean debug = log.isDebugEnabled();
 
-        // check the cache first
-        String name = userCache.get(userName);
-        if (name != null) {
-            return name;
-        }
+        String userDN = null;
 
         DirContext dirContext = this.connectionSource.getContext();
         NamingEnumeration<SearchResult> answer = null;
@@ -1801,16 +1821,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (answer.hasMore()) {
                     userObj = (SearchResult) answer.next();
                     if (userObj != null) {
-                        name = userObj.getNameInNamespace();
+                        userDN = userObj.getNameInNamespace();
                         break;
                     }
                 }
             }
-            if (name != null) {
-                userCache.put(userName, name);
+            if (userDN != null) {
+                userCache.put(userName, userDN);
             }
             if (debug) {
-                log.debug("Name in space for " + userName + " is " + name);
+                log.debug("Name in space for " + userName + " is " + userDN);
             }
         } catch (Exception e) {
             log.debug(e.getMessage(), e);
@@ -1818,7 +1838,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
         }
-        return name;
+        return userDN;
     }
 
     /**
