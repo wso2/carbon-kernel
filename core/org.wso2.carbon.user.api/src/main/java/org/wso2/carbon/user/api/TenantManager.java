@@ -15,22 +15,20 @@
  */
 package org.wso2.carbon.user.api;
 
-import java.lang.String;
-
 public interface TenantManager {
 
     /**
      * Adds a tenant to the system
-     * 
+     *
      * @param tenant The tenant to be added
      * @return The Id of the tenant
      * @throws UserStoreException
      */
     int addTenant(Tenant tenant) throws UserStoreException;
-    
+
     /**
      * Updates a tenant in the system
-     *  
+     *
      * @param tenant The tenant to be updated
      * @throws UserStoreException
      */
@@ -38,7 +36,7 @@ public interface TenantManager {
 
     /**
      * Gets a Tenant object
-     * 
+     *
      * @param tenantId The tenant Id of the tenant
      * @return The tenant object
      * @throws UserStoreException
@@ -47,25 +45,23 @@ public interface TenantManager {
 
     /**
      * Gets all tenants in the system.
-     * 
+     *
      * @return An array of all tenants
-     * 
      * @throws UserStoreException
      */
     Tenant[] getAllTenants() throws UserStoreException;
 
     /**
      * Gets  tenants in the system which matches the given domain String(which can be used for partial searches).
-     * 
+     *
      * @return An array of tenants which matches the domain
-     * 
      * @throws UserStoreException
      */
     Tenant[] getAllTenantsForTenantDomainStr(String domain) throws UserStoreException;
 
     /**
      * Retrieves the domain given a tenant Id
-     * 
+     *
      * @param tenantId The Id of the tenant
      * @return
      * @throws UserStoreException
@@ -74,7 +70,7 @@ public interface TenantManager {
 
     /**
      * Retrieves the tenant Id given the domain
-     * 
+     *
      * @param domain The domain of the tenant
      * @return
      * @throws UserStoreException
@@ -83,7 +79,7 @@ public interface TenantManager {
 
     /**
      * Activates a tenant
-     * 
+     *
      * @param tenantId The Id of the tenant
      * @throws UserStoreException
      */
@@ -91,7 +87,7 @@ public interface TenantManager {
 
     /**
      * De-activates a tenant
-     * 
+     *
      * @param tenantId The Id of the tenant
      * @throws UserStoreException
      */
@@ -99,7 +95,7 @@ public interface TenantManager {
 
     /**
      * Checks whether a tenant is active
-     * 
+     *
      * @param tenantId The Id of the tenant
      * @return
      * @throws UserStoreException
@@ -108,7 +104,7 @@ public interface TenantManager {
 
     /**
      * Deletes a tenant from the system
-     * 
+     *
      * @param tenantId
      * @throws UserStoreException
      */
@@ -122,11 +118,11 @@ public interface TenantManager {
      * @param removeFromPersistentStorage
      * @throws UserStoreException
      */
-    public void deleteTenant(int tenantId, boolean removeFromPersistentStorage)throws UserStoreException;
+    public void deleteTenant(int tenantId, boolean removeFromPersistentStorage) throws UserStoreException;
 
     /**
      * Checks whether the super tenant.
-     * 
+     *
      * @return
      * @throws UserStoreException
      */

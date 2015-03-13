@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 public class TenantCacheEntry<T> implements Serializable {
     /**
-     *  TODO
+     * TODO
      */
     private static final long serialVersionUID = 1L;
 

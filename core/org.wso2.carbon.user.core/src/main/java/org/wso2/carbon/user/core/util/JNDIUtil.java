@@ -24,7 +24,6 @@ import org.wso2.carbon.user.core.UserStoreException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchResult;
 
 public class JNDIUtil {
 
@@ -36,18 +35,19 @@ public class JNDIUtil {
                 dirContext.close();
             }
         } catch (NamingException e) {
-            String errorMessage="Error in closing connection context.";
+            String errorMessage = "Error in closing connection context.";
             log.error(errorMessage, e);
         }
     }
 
     /**
      * Util method to close the used NamingEnumerations to free up resources.
+     *
      * @param namingEnumeration
      */
-    public static void closeNamingEnumeration(NamingEnumeration<?> namingEnumeration){
+    public static void closeNamingEnumeration(NamingEnumeration<?> namingEnumeration) {
 
-        if(namingEnumeration !=null){
+        if (namingEnumeration != null) {
             try {
                 namingEnumeration.close();
             } catch (NamingException e) {
@@ -55,7 +55,7 @@ public class JNDIUtil {
                 log.error(errorMessage, e);
             }
         }
-        
+
     }
 
 }

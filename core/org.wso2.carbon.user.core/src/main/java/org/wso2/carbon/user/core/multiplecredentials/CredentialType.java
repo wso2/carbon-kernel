@@ -23,30 +23,30 @@ package org.wso2.carbon.user.core.multiplecredentials;
  */
 public interface CredentialType {
 
-	public void add(String userId, Credential credential) throws MultipleCredentialsException;
+    public void add(String userId, Credential credential) throws MultipleCredentialsException;
 
-	public void update(String userId, Credential newCredential) throws MultipleCredentialsException;
+    public void update(String userId, Credential newCredential) throws MultipleCredentialsException;
 
-	public boolean authenticate(Credential credential) throws MultipleCredentialsException;
+    public boolean authenticate(Credential credential) throws MultipleCredentialsException;
 
-	public void delete(Credential credential) throws MultipleCredentialsException;
+    public void delete(Credential credential) throws MultipleCredentialsException;
 
-	public Credential get(String identifier) throws MultipleCredentialsException;
+    public Credential get(String identifier) throws MultipleCredentialsException;
 
-	public void activate(String identifier) throws MultipleCredentialsException;
+    public void activate(String identifier) throws MultipleCredentialsException;
 
-	public void deactivate(String identifier) throws MultipleCredentialsException;
+    public void deactivate(String identifier) throws MultipleCredentialsException;
 
-	public boolean isActive(String identifier) throws MultipleCredentialsException;
+    public boolean isActive(String identifier) throws MultipleCredentialsException;
 
-	public String getCredentialTypeName();
+    public String getCredentialTypeName();
 
-	void setCredentialTypeName(String credentialTypeName);
+    void setCredentialTypeName(String credentialTypeName);
 
-	/**
-	 * Returns true if this credential type contains null passwords.
-	 * 
-	 * @return
-	 */
-	public boolean isNullSecretAllowed();
+    /**
+     * Returns true if this credential type contains null passwords.
+     *
+     * @return
+     */
+    public boolean isNullSecretAllowed();
 }

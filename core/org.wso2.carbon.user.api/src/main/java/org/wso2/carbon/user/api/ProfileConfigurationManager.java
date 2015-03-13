@@ -19,15 +19,14 @@ package org.wso2.carbon.user.api;
 
 /**
  * This is the interface to manage profiles in the system.
- * 
+ * <p/>
  * A profile contains a set of claims.
- * 
  */
 public interface ProfileConfigurationManager {
 
     /**
      * Gets the profile configuration given the profile name.
-     * 
+     *
      * @param profileName
      * @return
      * @throws UserStoreException
@@ -36,7 +35,7 @@ public interface ProfileConfigurationManager {
 
     /**
      * Adds a profile configuration
-     * 
+     *
      * @param profileConfig
      * @throws UserStoreException
      */
@@ -44,7 +43,7 @@ public interface ProfileConfigurationManager {
 
     /**
      * Updates a profile configuration
-     * 
+     *
      * @param profileConfig
      * @throws UserStoreException
      */
@@ -52,7 +51,7 @@ public interface ProfileConfigurationManager {
 
     /**
      * Deletes a profile configuration
-     * 
+     *
      * @param profileConfig
      * @throws UserStoreException
      */
@@ -60,7 +59,7 @@ public interface ProfileConfigurationManager {
 
     /**
      * Retrieves all profiles
-     * 
+     *
      * @return An array of profiles in the system
      * @throws UserStoreException
      */

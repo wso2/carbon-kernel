@@ -18,27 +18,33 @@
 package org.wso2.carbon.user.core.system;
 
 import org.apache.axis2.util.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 public class SystemUserRoleManager {
 
     private static Log log = LogFactory.getLog(SystemUserRoleManager.class);
-
-    private DataSource dataSource;
     int tenantId;
+    private DataSource dataSource;
     private Random random = new Random();
 
     public SystemUserRoleManager(DataSource dataSource, int tenantId) throws UserStoreException {
@@ -47,7 +53,7 @@ public class SystemUserRoleManager {
         this.tenantId = tenantId;
         //persist system domain
         UserCoreUtil.persistDomain(UserCoreConstants.SYSTEM_DOMAIN_NAME, this.tenantId,
-                                         this.dataSource);
+                this.dataSource);
     }
 
     public void addSystemRole(String roleName, String[] userList) throws UserStoreException {
@@ -64,7 +70,7 @@ public class SystemUserRoleManager {
                 if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
                     sql = SystemJDBCConstants.ADD_USER_TO_ROLE_SQL_MSSQL;
                 }
-                if(UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
+                if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                     sql = SystemJDBCConstants.ADD_USER_TO_ROLE_SQL_OPENEDGE;
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sql, userList,
                             tenantId, roleName, tenantId);
@@ -117,9 +123,9 @@ public class SystemUserRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = getDBConnection();
-            String[] roles =  DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
-                    tenantId); 
-            return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);            
+            String[] roles = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
+                    tenantId);
+            return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             throw new UserStoreException(e.getMessage(), e);
@@ -295,7 +301,7 @@ public class SystemUserRoleManager {
     }
 
     public void addSystemUser(String userName, Object credential,
-                                                    String[] roleList) throws UserStoreException{
+                              String[] roleList) throws UserStoreException {
 
         Connection dbConnection = null;
         String password = (String) credential;
@@ -319,7 +325,7 @@ public class SystemUserRoleManager {
             dbConnection.commit();
         } catch (Throwable e) {
             try {
-                if(dbConnection != null){
+                if (dbConnection != null) {
                     dbConnection.rollback();
                 }
             } catch (SQLException e1) {
@@ -376,7 +382,7 @@ public class SystemUserRoleManager {
                 if (i < maxItemLimit) {
                     String name = rs.getString(1);
                     lst.add(name);
-                }else{
+                } else {
                     break;
                 }
                 i++;
@@ -387,7 +393,7 @@ public class SystemUserRoleManager {
                 systemsUsers = lst.toArray(new String[lst.size()]);
             }
             Arrays.sort(systemsUsers);
-            systemsUsers =  UserCoreUtil.addDomainToNames(systemsUsers, UserCoreConstants.SYSTEM_DOMAIN_NAME);
+            systemsUsers = UserCoreUtil.addDomainToNames(systemsUsers, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
             log.error(e.getMessage(), e);
             log.error("Using sql : " + sqlStmt);
@@ -502,14 +508,14 @@ public class SystemUserRoleManager {
                     } else if (param instanceof Date) {
                         //Timestamp timestamp = new Timestamp(((Date) param).getTime());
                         //prepStmt.setTimestamp(i + 1, timestamp);
-                        prepStmt.setTimestamp(i + 1,new Timestamp(System.currentTimeMillis()));
+                        prepStmt.setTimestamp(i + 1, new Timestamp(System.currentTimeMillis()));
                     } else if (param instanceof Boolean) {
                         prepStmt.setBoolean(i + 1, (Boolean) param);
                     }
                 }
             }
             int count = prepStmt.executeUpdate();
-            if(count == 0) {
+            if (count == 0) {
                 log.info("No rows were updated");
             }
             if (log.isDebugEnabled()) {

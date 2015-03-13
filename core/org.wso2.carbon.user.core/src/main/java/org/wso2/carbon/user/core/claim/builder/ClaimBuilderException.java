@@ -19,28 +19,28 @@ package org.wso2.carbon.user.core.claim.builder;
 
 public class ClaimBuilderException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -3422270808455087156L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -3422270808455087156L;
 
-	public ClaimBuilderException() {
-		super();
-	}
+    public ClaimBuilderException() {
+        super();
+    }
 
-	public ClaimBuilderException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public ClaimBuilderException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public ClaimBuilderException(String message, boolean convertMessage) {
-		super(message);
-	}
+    public ClaimBuilderException(String message, boolean convertMessage) {
+        super(message);
+    }
 
-	public ClaimBuilderException(String message) {
-		super(message);
-	}
+    public ClaimBuilderException(String message) {
+        super(message);
+    }
 
-	public ClaimBuilderException(Throwable cause) {
-		super(cause);
-	}
+    public ClaimBuilderException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -21,13 +21,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * The class managing the profile configuration. A profile of a user is
  * collection of claims. Claims can be in one of the three states - hidden,
- * overridden or inherited. 
+ * overridden or inherited.
  * <ul>
- * <li>InheritedClaim - If the value of the claim is null then, read the value of the claim Default profile.</li> 
+ * <li>InheritedClaim - If the value of the claim is null then, read the value of the claim Default profile.</li>
  * <li>Hidden - The claim is hidden in this profile.</li>
  * <li>Overriden - Always read the value of the claim fromcurrent profile.</li>
  * </ul>
- * 
  */
 public class ProfileConfiguration extends org.wso2.carbon.user.api.ProfileConfiguration {
 
@@ -57,7 +56,7 @@ public class ProfileConfiguration extends org.wso2.carbon.user.api.ProfileConfig
     }
 
     public ProfileConfiguration(String profileName, List<String> hiddenClaims,
-            List<String> overriddenClaims, List<String> inheritedClaims) {
+                                List<String> overriddenClaims, List<String> inheritedClaims) {
         super();
         this.profileName = profileName;
         this.hiddenClaims = new CopyOnWriteArrayList<String>(hiddenClaims);
@@ -66,7 +65,7 @@ public class ProfileConfiguration extends org.wso2.carbon.user.api.ProfileConfig
     }
 
     public ProfileConfiguration(String profileName, String dialect, List<String> hiddenClaims,
-            List<String> overriddenClaims, List<String> inheritedClaims) {
+                                List<String> overriddenClaims, List<String> inheritedClaims) {
         super();
         this.profileName = profileName;
         this.dialectName = dialect;

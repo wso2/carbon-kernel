@@ -452,6 +452,13 @@
 
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
         <testng.version>6.8.5</testng.version>
+        
+        <!-- Test integration -->
+        <automation.framework.version>4.3.1</automation.framework.version>
+        <slf4j.version>1.5.10</slf4j.version>
+        <woden.api.version>1.0M9</woden.api.version>
+        <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
+
 
     </properties>
 
@@ -1469,17 +1476,33 @@
             </dependency>
 
 
-            <!--Test Framework Dependencies-->
-            <dependency>
-                <groupId>org.wso2.carbon.automation</groupId>
-                <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
-                <version>${test.framework.version}</version>
-            </dependency>
+                <!-- Test integration dependencies -->
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.engine</artifactId>
-                <version>${test.framework.version}</version>
+                <version>${automation.framework.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.extensions</artifactId>
+                <version>${automation.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
+                <version>${automation.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.woden</groupId>
+                <artifactId>woden-api</artifactId>
+                <version>${woden.api.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 </project>

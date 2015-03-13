@@ -77,7 +77,7 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             realmConfig.setSecondaryRealmConfig(null);
 
             //If there exist tenant defined user stores,then add them as secondary
-            if(persistedConfig.getSecondaryRealmConfig()!=null){
+            if (persistedConfig.getSecondaryRealmConfig() != null) {
                 realmConfig.setSecondaryRealmConfig(persistedConfig.getSecondaryRealmConfig());
             }
 
@@ -127,7 +127,7 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
                 userContextRDNValue = LDAPConstants.USER_CONTEXT_NAME;
             }
             String userContextRDN = orgSubContextAttribute + "=" + userContextRDNValue;
-                    //eg: ou=users,o=cse.org, dc=cloud, dc=com
+            //eg: ou=users,o=cse.org, dc=cloud, dc=com
             String userSearchBase = userContextRDN + "," + organizationRDN + "," +
                     partitionDN;
             //replace the tenant specific user search base.

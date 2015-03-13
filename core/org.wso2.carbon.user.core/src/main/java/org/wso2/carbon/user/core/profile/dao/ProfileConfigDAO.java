@@ -39,7 +39,7 @@ public class ProfileConfigDAO {
     private static Log log = LogFactory.getLog(DatabaseUtil.class);
 
     private DataSource dataSource = null;
-    
+
     private int tenantId;
 
     public ProfileConfigDAO(DataSource dataSource, int tenantId) {
@@ -173,8 +173,8 @@ public class ProfileConfigDAO {
             }
             rs.close();
             prepStmt.close();
-            
-            if(dialectId == -1){
+
+            if (dialectId == -1) {
                 throw new UserStoreException("Please add the dialect URI first.");
             }
 
@@ -225,11 +225,11 @@ public class ProfileConfigDAO {
             prepStmt.setInt(4, tenantId);
             prepStmt.setInt(5, tenantId);
             int ival = prepStmt.executeUpdate();
-            
-            if(log.isDebugEnabled()){
-                log.debug("Deleted claim behavior numbers :: "+ival);
+
+            if (log.isDebugEnabled()) {
+                log.debug("Deleted claim behavior numbers :: " + ival);
             }
-            
+
             prepStmt.close();
             prepStmt = dbConnection
                     .prepareStatement(ProfileDBConstant.DELETE_PROFILE_CONFIG);
@@ -239,10 +239,10 @@ public class ProfileConfigDAO {
             prepStmt.setInt(4, tenantId);
             ival = prepStmt.executeUpdate();
 
-            if(log.isDebugEnabled()){
-                log.debug("Deleted profile names :: "+ival);
+            if (log.isDebugEnabled()) {
+                log.debug("Deleted profile names :: " + ival);
             }
-            
+
             prepStmt.close();
         } catch (SQLException e) {
             log.error("Database Error - " + e.getMessage(), e);
@@ -274,8 +274,8 @@ public class ProfileConfigDAO {
     }
 
     private void addToAddBatch(List<String> lst, int profileId, Map<String, Integer> ids,
-            short behavior, PreparedStatement prepStmt) throws SQLException {
-        for (Iterator<String> ite = lst.iterator(); ite.hasNext();) {
+                               short behavior, PreparedStatement prepStmt) throws SQLException {
+        for (Iterator<String> ite = lst.iterator(); ite.hasNext(); ) {
             String claimUri = ite.next();
             if (claimUri == null || ids.get(claimUri) == null) {
                 continue;

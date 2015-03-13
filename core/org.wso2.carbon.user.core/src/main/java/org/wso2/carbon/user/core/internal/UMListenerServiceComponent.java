@@ -24,35 +24,38 @@ import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerListener;
 import org.wso2.carbon.user.core.tenant.LDAPTenantManager;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @scr.component name="org.wso2.carbon.user.core.listener" immediate="true"
  * @scr.reference name="authorization.manager.listener.service"
- *                interface="org.wso2.carbon.user.core.listener.AuthorizationManagerListener"
- *                cardinality="0..n" policy="dynamic"
- *                bind="setAuthorizationManagerListenerService"
- *                unbind="unsetAuthorizationManagerListenerService"
+ * interface="org.wso2.carbon.user.core.listener.AuthorizationManagerListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setAuthorizationManagerListenerService"
+ * unbind="unsetAuthorizationManagerListenerService"
  * @scr.reference name="user.store.manager.listener.service"
- *                interface="org.wso2.carbon.user.core.listener.UserStoreManagerListener"
- *                cardinality="0..n" policy="dynamic"
- *                bind="setUserStoreManagerListenerService"
- *                unbind="unsetUserStoreManagerListenerService"
+ * interface="org.wso2.carbon.user.core.listener.UserStoreManagerListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setUserStoreManagerListenerService"
+ * unbind="unsetUserStoreManagerListenerService"
  * @scr.reference name="user.operation.event.listener.service"
- *                interface="org.wso2.carbon.user.core.listener.UserOperationEventListener"
- *                cardinality="0..n" policy="dynamic"
- *                bind="setUserOperationEventListenerService"
- *                unbind="unsetUserOperationEventListenerService" *
+ * interface="org.wso2.carbon.user.core.listener.UserOperationEventListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setUserOperationEventListenerService"
+ * unbind="unsetUserOperationEventListenerService" *
  * @scr.reference name="claim.manager.listener.service"
- *                interface="org.wso2.carbon.user.core.listener.ClaimManagerListener"
- *                cardinality="0..n" policy="dynamic"
- *                bind="setClaimManagerListenerService"
- *                unbind="unsetClaimManagerListenerService" *
+ * interface="org.wso2.carbon.user.core.listener.ClaimManagerListener"
+ * cardinality="0..n" policy="dynamic"
+ * bind="setClaimManagerListenerService"
+ * unbind="unsetClaimManagerListenerService" *
  * @scr.reference name="ldap.tenant.manager.listener.service"
- *                interface="org.wso2.carbon.user.core.tenant.LDAPTenantManager"
- *                cardinality="0..n" policy="dynamic"
- *                bind="addLDAPTenantManager"
- *                unbind="removeLDAPTenantManager"
+ * interface="org.wso2.carbon.user.core.tenant.LDAPTenantManager"
+ * cardinality="0..n" policy="dynamic"
+ * bind="addLDAPTenantManager"
+ * unbind="removeLDAPTenantManager"
  */
 public class UMListenerServiceComponent {
 
@@ -169,7 +172,7 @@ public class UMListenerServiceComponent {
     }
     
     /*protected void setCacheInvalidator(CacheInvalidator invalidator) {
-    	cacheInvalidator = invalidator;
+        cacheInvalidator = invalidator;
     }
     
     protected void removeCacheInvalidator(CacheInvalidator invalidator) {
@@ -180,7 +183,7 @@ public class UMListenerServiceComponent {
     	return cacheInvalidator;
     }*/
 
-	public static synchronized Collection<UserOperationEventListener> getUserOperationEventListeners() {
+    public static synchronized Collection<UserOperationEventListener> getUserOperationEventListeners() {
         if (userOperationEventListeners == null) {
             userOperationEventListeners = new TreeMap<Integer, UserOperationEventListener>();
         }
@@ -206,6 +209,7 @@ public class UMListenerServiceComponent {
      * Main purpose of this method is to make a dependency to LDAP server component.
      * Then LDAP server bundle will get started before user core.
      * In addition this method can be used to register all tenant managers.
+     *
      * @param tenantManager An implementation of LDAPTenantManager.
      */
     protected static synchronized void addLDAPTenantManager(LDAPTenantManager tenantManager) {
@@ -220,6 +224,7 @@ public class UMListenerServiceComponent {
 
     /**
      * This method will remove an already registered tenant manager.
+     *
      * @param tenantManager An implementation of LDAPTenantManager.
      */
     protected static synchronized void removeLDAPTenantManager(LDAPTenantManager tenantManager) {
@@ -231,11 +236,12 @@ public class UMListenerServiceComponent {
 
     /**
      * Returns all registered tenant managers.
+     *
      * @return A map of tenant managers with their hash codes.
      */
-    public static Map<Integer, LDAPTenantManager> getTenantManagers () {
+    public static Map<Integer, LDAPTenantManager> getTenantManagers() {
         return tenantManagers;
     }
-    
+
 
 }

@@ -34,7 +34,7 @@ public class LDAPRoleContext extends RoleContext {
     private String listFilter;
 
     private String roleNameProperty;
-    
+
     private String groupEntryObjectClass;
 
     // used for shared roles

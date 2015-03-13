@@ -27,7 +27,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <li>Hidden - The claim is hidden in this profile.</li>
  * <li>Overridden - Always read the value of the claim from current profile.</li>
  * </ul>
- *
  */
 public class ProfileConfiguration {
 
@@ -57,7 +56,7 @@ public class ProfileConfiguration {
     }
 
     public ProfileConfiguration(String profileName, List<String> hiddenClaims,
-            List<String> overriddenClaims, List<String> inheritedClaims) {
+                                List<String> overriddenClaims, List<String> inheritedClaims) {
         super();
         this.profileName = profileName;
         this.hiddenClaims = new CopyOnWriteArrayList<String>(hiddenClaims);
@@ -66,7 +65,7 @@ public class ProfileConfiguration {
     }
 
     public ProfileConfiguration(String profileName, String dialect, List<String> hiddenClaims,
-            List<String> overriddenClaims, List<String> inheritedClaims) {
+                                List<String> overriddenClaims, List<String> inheritedClaims) {
         super();
         this.profileName = profileName;
         this.dialectName = dialect;

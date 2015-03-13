@@ -27,7 +27,7 @@ package org.wso2.carbon.user.core.tenant;
 import java.io.Serializable;
 
 /**
- * Id class for tenant cache. 
+ * Id class for tenant cache.
  */
 public class TenantIdKey implements Serializable {
 
@@ -49,7 +49,7 @@ public class TenantIdKey implements Serializable {
             return false;
         }
 
-        TenantIdKey secondKey = (TenantIdKey)otherObject;
+        TenantIdKey secondKey = (TenantIdKey) otherObject;
 
         return this.getTenantId() == secondKey.getTenantId();
     }

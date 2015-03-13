@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 /**
  * Represents a property in user store manager
- *
  */
 public class Property {
     private String name;
@@ -31,7 +30,7 @@ public class Property {
         this.name = name;
         this.value = value;
         this.description = description;
-        if(childProperties == null) {
+        if (childProperties == null) {
             this.childProperties = new Property[0];
         } else {
             this.childProperties = Arrays.copyOf(childProperties, childProperties.length);
@@ -67,7 +66,7 @@ public class Property {
     }
 
     public void setChildProperties(Property[] childProperties) {
-        if(childProperties == null) {
+        if (childProperties == null) {
             this.childProperties = new Property[0];
         } else {
             this.childProperties = Arrays.copyOf(childProperties, childProperties.length);

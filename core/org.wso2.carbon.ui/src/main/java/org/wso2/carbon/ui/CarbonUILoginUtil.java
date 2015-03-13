@@ -424,6 +424,11 @@ public final class CarbonUILoginUtil {
 				}
                 return false;
             }
+            String relayState = request.getParameter("RelayState");
+            if(relayState!= null && relayState.endsWith("-logout")){
+                response.sendRedirect("/carbon/admin/logout_action.jsp");
+                return false;
+            }
             if (contextPath != null) {
                 if (indexPageURL.startsWith("../..")) {
                     indexPageURL = indexPageURL.substring(5);

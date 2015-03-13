@@ -88,8 +88,8 @@ public interface UserOperationEventListener {
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
     public boolean doPostAddUser(String userName, Object credential, String[] roleList,
-                                Map<String, String> claims, String profile,
-                                UserStoreManager userStoreManager)
+                                 Map<String, String> claims, String profile,
+                                 UserStoreManager userStoreManager)
             throws UserStoreException;
 
     /**
@@ -111,7 +111,7 @@ public interface UserOperationEventListener {
      * Define any additional actions after credential is updated by user
      *
      * @param userName         User name of User
-     * @param credential 
+     * @param credential
      * @param userStoreManager The underlying UserStoreManager
      * @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager
@@ -137,7 +137,7 @@ public interface UserOperationEventListener {
      *
      * @param userName         User name of User
      * @param credential
-     *@param userStoreManager The underlying UserStoreManager  @return Whether execution of this method of the underlying UserStoreManager must happen.
+     * @param userStoreManager The underlying UserStoreManager  @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
 
@@ -213,7 +213,7 @@ public interface UserOperationEventListener {
      *
      * @param userName         User name of User
      * @param claims
-     *@param profileName
+     * @param profileName
      * @param userStoreManager The underlying UserStoreManager  @return Whether execution of this method of the underlying UserStoreManager must happen.
      * @throws UserStoreException Thrown by the underlying UserStoreManager
      */
@@ -370,6 +370,7 @@ public interface UserOperationEventListener {
 
     /**
      * Define any additional actions before updating role list of user.
+     *
      * @param userName
      * @param deletedRoles
      * @param newRoles
@@ -384,6 +385,7 @@ public interface UserOperationEventListener {
 
     /**
      * Define any additional actions after updating role list of user.
+     *
      * @param userName
      * @param deletedRoles
      * @param newRoles
