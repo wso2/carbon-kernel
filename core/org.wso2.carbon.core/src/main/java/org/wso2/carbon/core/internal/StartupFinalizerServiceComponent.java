@@ -39,6 +39,7 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.ServerException;
+import org.wso2.carbon.core.multitenancy.eager.TenantEagerLoader;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -77,6 +78,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
     private Timer pendingServicesObservationTimer = new Timer();
     private CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
     private ServiceRegistration listerManagerServiceRegistration;
+    private TenantEagerLoader tenantEagerLoader = new TenantEagerLoader();
    
     protected void activate(ComponentContext ctxt) {
         try {
@@ -163,6 +165,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         listenerManager.startSystem(configCtx);
 
         try {
+            tenantEagerLoader.initializeEagerLoadingTenants();
             TenantAxisUtils.initializeTenantTransports(configCtx);
         } catch (AxisFault e) {
             log.error("Cannot initialize tenant transports", e);

@@ -181,6 +181,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             //if property value is not set use default value
             orgGroupContextValue = LDAPConstants.GROUP_CONTEXT_NAME;
         }
+
         createOrganizationalSubContext(dnOfOrganizationalContext, orgGroupContextValue, initialDirContext);
         //create admin entry
         String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
@@ -336,6 +337,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         }
     }
 
+    @Deprecated
     protected String createAdminEntry(String dnOfUserContext, Tenant tenant,
                                       DirContext initialDirContext)
             throws UserStoreException {
@@ -415,6 +417,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         return userDN;
     }
 
+    @Deprecated
     protected void createAdminGroup(String dnOfGroupContext, String adminUserDN,
                                     DirContext initialDirContext)
             throws UserStoreException {
