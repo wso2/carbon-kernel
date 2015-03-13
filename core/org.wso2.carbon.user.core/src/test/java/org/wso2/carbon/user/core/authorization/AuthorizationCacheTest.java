@@ -16,15 +16,20 @@
 
 package org.wso2.carbon.user.core.authorization;
 
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.wso2.carbon.user.core.BaseTestCase;
 
 /**
  * Date: Oct 1, 2010 Time: 1:35:11 PM
  */
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AuthorizationCacheTest extends BaseTestCase {
 
-    public void testAddToCache() {
+    @Test
+    public void test1AddToCache() {
         AuthorizationCache cache = AuthorizationCache.getInstance();
         try {
             cache.isUserAuthorized(null, 1,"roadrunner","/x/y", "read");
@@ -34,7 +39,8 @@ public class AuthorizationCacheTest extends BaseTestCase {
         }
     }
 
-    public void testAddCacheHit() {
+    @Test
+    public void test2AddCacheHit() {
         AuthorizationCache cache = AuthorizationCache.getInstance();
         try {
             cache.isUserAuthorized(null, 1,"roadrunner", "/x/y", "read");

@@ -35,7 +35,6 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.AuthenticationObserver;
-import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -230,10 +229,9 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 log.info(logMsg);
                 audit.info(logMsg);
             }
-            //We should not invalidate the session if the system is running on local transport
-            if(!CarbonUtils.isRunningOnLocalTransportMode()){
-                session.invalidate();
-            }
+            // We need to invalidate the backend session. If the system is running in local transport there will be 
+            // only one session for both backend and frontend and is invalidated here.
+            session.invalidate();
         }
     }
 

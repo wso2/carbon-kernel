@@ -58,6 +58,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * This MessageReceiver will try to locate the tenant specific AxisConfiguration and dispatch the
@@ -271,8 +272,38 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 
             // inject the message to the tenant inflow handlers
             AxisEngine.receive(tenantInMsgCtx);
-            mainInMsgContext.getOperationContext().setProperty(Constants.RESPONSE_WRITTEN,
-            		tenantInMsgCtx.getOperationContext().getProperty(Constants.RESPONSE_WRITTEN));
+
+            boolean nioAck = tenantInMsgCtx.isPropertyTrue("NIO-ACK-Requested", false);
+
+            String respWritten = "";
+            if (tenantInMsgCtx.getOperationContext() != null) {
+                respWritten = (String) tenantInMsgCtx.getOperationContext().getProperty(Constants.RESPONSE_WRITTEN);
+            }
+
+            boolean respWillFollow = !Constants.VALUE_TRUE.equals(respWritten) && !"SKIP".equals(respWritten);
+
+            boolean forced = tenantInMsgCtx.isPropertyTrue("FORCE_SC_ACCEPTED");
+
+            if (forced) {
+                mainInMsgContext.setProperty("FORCE_SC_ACCEPTED", true);
+            }
+
+            if (nioAck || respWillFollow || forced) {
+                mainInMsgContext.setProperty("HTTP_SC",
+                        tenantInMsgCtx.getProperty("HTTP_SC"));
+                mainInMsgContext.setProperty("NIO-ACK-Requested", nioAck);
+                mainInMsgContext
+                        .removeProperty(MessageContext.TRANSPORT_HEADERS);
+                Map<String, String> responseHeaders = (Map<String, String>) tenantInMsgCtx
+                        .getProperty(MessageContext.TRANSPORT_HEADERS);
+                mainInMsgContext.setProperty(MessageContext.TRANSPORT_HEADERS,
+                        responseHeaders);
+            }
+
+            if (mainInMsgContext.getOperationContext() != null && tenantInMsgCtx.getOperationContext() != null) {
+                mainInMsgContext.getOperationContext().setProperty(Constants.RESPONSE_WRITTEN,
+                        tenantInMsgCtx.getOperationContext().getProperty(Constants.RESPONSE_WRITTEN));
+            }
         } catch (AxisFault axisFault) {
             // at a fault flow message receiver throws a fault.
             // we need to first catch this fault and invoke the fault flow
@@ -504,7 +535,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             String httpMethod = (String) mainInMsgContext.getProperty(Constants.Configuration.HTTP_METHOD);
             if (httpMethod.equals(Constants.Configuration.HTTP_METHOD_GET) ||
                     httpMethod.equals(Constants.Configuration.HTTP_METHOD_DELETE) ||
-                    httpMethod.equals("OPTIONS")) {
+                    "OPTIONS".equals(httpMethod) || Constants.Configuration.HTTP_METHOD_HEAD.equals(httpMethod)) {
                 //RESTUtil.processURLRequest(tenantInMsgCtx, os, contentType);
             	this.processRESTRequest(tenantInMsgCtx,os,contentType);
             } else if (httpMethod.equals(Constants.Configuration.HTTP_METHOD_POST) ||
