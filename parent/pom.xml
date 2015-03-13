@@ -285,7 +285,7 @@
         <version.xmlbeans>2.3.0.wso2v1</version.xmlbeans>
 
         <!-- Apache woden-->
-        <version.woden>1.0.0.M8-wso2v1</version.woden>
+        <version.woden>1.0.0.M9-wso2v1</version.woden>
 
         <!-- Apache Neethi -->
         <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
