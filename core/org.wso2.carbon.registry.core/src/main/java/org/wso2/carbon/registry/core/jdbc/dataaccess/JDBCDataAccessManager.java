@@ -21,16 +21,15 @@ package org.wso2.carbon.registry.core.jdbc.dataaccess;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
-import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.ndatasource.rdbms.RDBMSConfiguration;
-import org.wso2.carbon.ndatasource.rdbms.RDBMSDataSource;
 import org.wso2.carbon.registry.core.config.DataBaseConfiguration;
-import org.wso2.carbon.registry.core.dataaccess.*;
+import org.wso2.carbon.registry.core.dataaccess.ClusterLock;
+import org.wso2.carbon.registry.core.dataaccess.DAOManager;
+import org.wso2.carbon.registry.core.dataaccess.DataAccessManager;
+import org.wso2.carbon.registry.core.dataaccess.DatabaseTransaction;
+import org.wso2.carbon.registry.core.dataaccess.QueryProcessor;
+import org.wso2.carbon.registry.core.dataaccess.TransactionManager;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.jdbc.DatabaseConstants;
-import org.wso2.carbon.registry.core.dataaccess.QueryProcessor;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 
 import javax.naming.Context;
@@ -171,74 +170,71 @@ public class JDBCDataAccessManager implements DataAccessManager {
 		return dataSource;
 	}
 
-	
-	
-	/**
-	 * Method to build a data source from a given database configuration.
-	 * 
-	 * @param config
-	 *            the database configuration.
-	 * 
-	 * @return the built data source.
-	 */
-	public static DataSource buildDataSource(DataBaseConfiguration config) {
+
+    /**
+     * Method to build a data source from a given database configuration.
+     *
+     * @param config the database configuration.
+     * @return the built data source.
+     */
+    public static DataSource buildDataSource(DataBaseConfiguration config) {
         PoolProperties poolProperties = new PoolProperties();
         poolProperties.setUrl(config.getDbUrl());
         poolProperties.setDriverClassName(config.getDriverName());
         poolProperties.setUsername(config.getUserName());
         poolProperties.setPassword(config.getResolvedPassword());
 
-		if (config.getTestWhileIdle() != null) {
+        if (config.getTestWhileIdle() != null) {
             poolProperties.setTestWhileIdle(Boolean.parseBoolean(config
-					.getTestWhileIdle()));
-		}
+                    .getTestWhileIdle()));
+        }
 
-		if (config.getTimeBetweenEvictionRunsMillis() != null) {
+        if (config.getTimeBetweenEvictionRunsMillis() != null) {
             poolProperties.setTimeBetweenEvictionRunsMillis(Integer
-					.parseInt(config.getTimeBetweenEvictionRunsMillis()));
-		}
+                    .parseInt(config.getTimeBetweenEvictionRunsMillis()));
+        }
 
-		if (config.getMinEvictableIdleTimeMillis() != null) {
+        if (config.getMinEvictableIdleTimeMillis() != null) {
             poolProperties.setMinEvictableIdleTimeMillis(Integer.parseInt(config
-					.getMinEvictableIdleTimeMillis()));
-		}
+                    .getMinEvictableIdleTimeMillis()));
+        }
 
-		if (config.getNumTestsPerEvictionRun() != null) {
+        if (config.getNumTestsPerEvictionRun() != null) {
             poolProperties.setNumTestsPerEvictionRun(Integer.parseInt(config
-					.getNumTestsPerEvictionRun()));
-		}
+                    .getNumTestsPerEvictionRun()));
+        }
 
-		if (config.getMaxActive() != null) {
+        if (config.getMaxActive() != null) {
             poolProperties
-					.setMaxActive(Integer.parseInt(config.getMaxActive()));
-		} else {
+                    .setMaxActive(Integer.parseInt(config.getMaxActive()));
+        } else {
             poolProperties.setMaxActive(DatabaseConstants.DEFAULT_MAX_ACTIVE);
-		}
+        }
 
-		if (config.getMaxWait() != null) {
+        if (config.getMaxWait() != null) {
             poolProperties.setMaxWait(Integer.parseInt(config.getMaxWait()));
-		} else {
+        } else {
             poolProperties.setMaxWait(DatabaseConstants.DEFAULT_MAX_WAIT);
-		}
+        }
 
-		if (config.getMaxIdle() != null) {
+        if (config.getMaxIdle() != null) {
             poolProperties.setMaxIdle(Integer.parseInt(config.getMaxIdle()));
-		}
+        }
 
-		if (config.getMinIdle() != null) {
+        if (config.getMinIdle() != null) {
             poolProperties.setMinIdle(Integer.parseInt(config.getMinIdle()));
-		} else {
+        } else {
             poolProperties.setMinIdle(DatabaseConstants.DEFAULT_MIN_IDLE);
-		}
+        }
 
-		if (config.getValidationQuery() != null) {
+        if (config.getValidationQuery() != null) {
             poolProperties.setValidationQuery(config.getValidationQuery());
-		}
-		try {
-		    return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
-		} catch (Exception e) {
-			throw new RuntimeException("Error in creating data source for the registry: " +
-		            e.getMessage(), e);
-		}
-	}
+        }
+        try {
+            return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
+        } catch (Exception e) {
+            throw new RuntimeException("Error in creating data source for the registry: " +
+                    e.getMessage(), e);
+        }
+    }
 }
