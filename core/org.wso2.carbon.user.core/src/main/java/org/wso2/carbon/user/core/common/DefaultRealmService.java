@@ -168,8 +168,11 @@ public class DefaultRealmService implements RealmService {
             }
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new org.wso2.carbon.user.api.UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting tenant user realm for tenant id : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
         return userRealm;
     }
@@ -222,7 +225,9 @@ public class DefaultRealmService implements RealmService {
                 log.warn(msg, e);
             } else {
                 String msg = "Cannot initialize the realm.";
-                log.error(msg, e);
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
                 throw new UserStoreException(msg, e);
             }
         }
@@ -254,13 +259,22 @@ public class DefaultRealmService implements RealmService {
             StAXOMBuilder builder = new StAXOMBuilder(CarbonUtils.replaceSystemVariablesInXml(inStream));
             return builder.getDocumentElement();
         } catch (FileNotFoundException e) {
-            log.error(e.getMessage(), e);
+            //e.getMessage() contains meaningful message
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             throw new UserStoreException(e.getMessage(), e);
         } catch (XMLStreamException e) {
-            log.error(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             throw new UserStoreException(e.getMessage(), e);
         } catch (CarbonException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while replacing System variables in XML";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 
@@ -277,6 +291,9 @@ public class DefaultRealmService implements RealmService {
                 }
             } catch (Exception e) {
                 String msg = "Error in creating the database";
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
                 throw new Exception(msg, e);
             }
         }
@@ -370,7 +387,9 @@ public class DefaultRealmService implements RealmService {
 
     private void errorEncountered(Exception e) throws UserStoreException {
         String msg = "Exception while creating multi tenant builder " + e.getMessage();
-        log.error(msg, e);
+        if (log.isDebugEnabled()) {
+            log.debug(msg, e);
+        }
         throw new UserStoreException(msg, e);
     }
 }
