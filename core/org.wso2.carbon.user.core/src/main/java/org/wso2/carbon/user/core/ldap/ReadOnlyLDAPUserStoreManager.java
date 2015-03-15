@@ -152,9 +152,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.info("LDAP connection created successfully in read-only mode");
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException("Cannot create connection to LDAP server. Error message " +
-                    e.getMessage());
+            String errorMessage = "Cannot create connection to LDAP server. Error message " +
+                                  e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
         this.userRealm = realm;
         this.persistDomain();
@@ -388,8 +391,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             } catch (NamingException e) {
-                log.debug(e.getMessage(), e);
-                throw new UserStoreException(e.getMessage());
+                String errorMessage = "Cannot bind user : " + userName;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
             }
         }
 
@@ -473,8 +479,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 try {
                     answer = dirContext.search(userDN, searchFilter, searchCtls);
                 } catch (NamingException e) {
-                    log.debug(e.getMessage(), e);
-                    throw new UserStoreException(e.getMessage());
+                    String errorMessage = "Error occurred while searching directory context for user : " + userName;
+                    if (log.isDebugEnabled()) {
+                        log.debug(errorMessage, e);
+                    }
+                    throw new UserStoreException(errorMessage, e);
                 }
             } else {
                 answer = this.searchForUser(searchFilter, propertyNames, dirContext);
@@ -519,8 +528,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
 
         } catch (NamingException e) {
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage());
+            String errorMessage = "Error occurred while getting user property values for user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             // close the naming enumeration and free up resources
             JNDIUtil.closeNamingEnumeration(attrs);
@@ -659,6 +671,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (Exception e) {
             String errorMessage = "Error occurred while checking existence of user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
         if (log.isDebugEnabled()) {
@@ -821,8 +836,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
 
         } catch (NamingException e) {
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "Error occurred while getting user list for filter : " + filter + "max limit : " + maxItemLimit;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
@@ -996,8 +1015,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         } catch (NamingException e) {
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage());
+            String errorMessage = "Error occurred while search user for filter : " + searchFilter;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
         return answer;
     }
@@ -1117,8 +1139,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         } catch (NamingException e) {
-            log.debug(e);
-            throw new UserStoreException(e.getMessage());
+            String errorMessage = "Error occurred while getting LDAP role names";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
@@ -1536,8 +1561,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug(e.getMessage(), e);
             }
         } catch (NamingException e) {
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException("Error in reading user information in the user store.");
+            String errorMessage = "Error in reading user information in the user store for filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
@@ -1934,8 +1962,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug("LDAP", e);
             }
         } catch (NamingException e) {
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage());
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
+            throw new UserStoreException(e.getMessage(), e);
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
@@ -2133,8 +2163,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
 
         } catch (NamingException e) {
-            log.debug(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "Error occurred while getting user list form property : " + property + " & value : " + value +
+                    " & profile : " + profileName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             // close the naming enumeration and free up resources
             JNDIUtil.closeNamingEnumeration(attrs);
@@ -2578,11 +2613,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         } catch (UserStoreException e) {
-            log.debug("LDAPError", e);
-            throw new UserStoreException("Error in getting group name attribute values of groups");
+            String errorMessage = "Error in getting group name attribute values of groups";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (NamingException e) {
-            log.debug("LDAPError", e);
-            throw new UserStoreException("Error in getting group name attribute values of groups");
+            String errorMessage = "Error in getting group name attribute values of groups";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
         return groupNameAttributeValues;
     }
