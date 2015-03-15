@@ -82,7 +82,9 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration" +
                     "when creating tenant's realm.";
-            logger.error(errorMessage, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
         return realmConfig;
@@ -195,7 +197,9 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration " +
                     "to be persisted.";
-            logger.error(errorMessage, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
     }
