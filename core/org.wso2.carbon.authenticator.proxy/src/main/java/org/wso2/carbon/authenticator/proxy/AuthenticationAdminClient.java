@@ -131,8 +131,8 @@ public class AuthenticationAdminClient {
 
     public void logout() throws AuthenticationException {
         try {
-            stub.logout();
             session.removeAttribute(ServerConstants.ADMIN_SERVICE_AUTH_TOKEN);
+            stub.logout();
         } catch (java.lang.Exception e) {
             String msg = "Error occurred while logging out";
             log.error(msg, e);
