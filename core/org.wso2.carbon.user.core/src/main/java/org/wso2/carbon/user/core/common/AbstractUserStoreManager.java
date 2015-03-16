@@ -1224,15 +1224,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        String[] internalRoleListOfUser = doGetInternalRoleListOfUser(userName, "*");
-        if(internalRoleListOfUser == null) {
-            internalRoleListOfUser = new String[0];
+        try {
+            roleList = UserCoreUtil
+                    .combine(doGetInternalRoleListOfUser(userName, "*"), Arrays.asList(roleList));
+            // If the newly created user has internal roles assigned from the UI wizard those internal roles
+            // will be duplicated in the roles list. Duplcated roles are eliminated here.
+            Set<String> rolesSet = new HashSet<String>(Arrays.asList(roleList));
+            roleList = new String[rolesSet.size()];
+            rolesSet.toArray(roleList);
+            addToUserRolesCache(tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
+                    roleList);
+        } catch (Exception e) {
+            //if adding newly created user's roles to the user roles cache fails, do nothing. It will read
+            //from the database upon updating user.
         }
-        if(roleList == null){
-            roleList = new String[0];
-        }
-        roleList = UserCoreUtil.combine(internalRoleListOfUser, Arrays.asList(roleList));
-        addToUserRolesCache(tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()),roleList);
     }
 
     /**
@@ -3083,14 +3088,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                             getMyDomainName());
         }
 
-        if(internalRoles == null){
-            internalRoles = new String[0];
-        }
-        if(modifiedExternalRoleList == null){
-            modifiedExternalRoleList = new String[0];
-        }
         roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
-        addToUserRolesCache(this.tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()), roleList);
+
+        addToUserRolesCache(this.tenantId,
+                UserCoreUtil.addDomainToName(userName, getMyDomainName()), roleList);
 
         return roleList;
     }
