@@ -318,8 +318,7 @@ public final class CarbonUILoginUtil {
             return false;
         }
 
-        HttpSession currentSession = request.getSession(false);
-        if (currentSession != null) {
+        if (request.isRequestedSessionIdValid()) {
             // Check if current session has expired
             session.removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
             session.getServletContext().removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
