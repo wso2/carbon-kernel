@@ -25,7 +25,7 @@ import java.util.Date;
  */
 @SuppressWarnings("unused")
 public class Tenant {
-        
+
     /**
      * The tenant Id
      */
@@ -40,7 +40,7 @@ public class Tenant {
      * The admin user name of the tenant
      */
     private String adminName;
-    
+
     /**
      * Full name of admin user
      */
@@ -70,18 +70,18 @@ public class Tenant {
      * Holds the created date
      */
     private Date createdDate;
-    
+
     /**
      * Realm configuration of the tenant
      */
     private RealmConfiguration realmConfig;
-    
+
     /**
-     * The admin password of the tenant. 
+     * The admin password of the tenant.
      * Used only when using as DTO strictly on Tenant additions
      */
     private String adminPassword;
-    
+
     public String getAdminFullName() {
         return adminFullName;
     }
@@ -154,22 +154,22 @@ public class Tenant {
         this.adminPassword = adminPassword;
     }
 
-	public Date getCreatedDate() {
-		if (null != createdDate){
-            return (Date)createdDate.clone();
+    public Date getCreatedDate() {
+        if (null != createdDate) {
+            return (Date) createdDate.clone();
         } else {
             return null;
         }
-	}
+    }
 
-	public void setCreatedDate(Date createdDate) {
-        if (null != createdDate){
-            this.createdDate = (Date)createdDate.clone();
+    public void setCreatedDate(Date createdDate) {
+        if (null != createdDate) {
+            this.createdDate = (Date) createdDate.clone();
         } else {
             this.createdDate = null;
         }
 
-	}
+    }
 
     public RealmConfiguration getRealmConfig() {
         return realmConfig;
@@ -178,6 +178,6 @@ public class Tenant {
     public void setRealmConfig(RealmConfiguration realmConfig) {
         this.realmConfig = realmConfig;
     }
-	
-	
+
+
 }

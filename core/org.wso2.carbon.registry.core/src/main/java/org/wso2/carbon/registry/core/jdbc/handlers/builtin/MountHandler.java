@@ -51,7 +51,7 @@ import java.util.*;
  */
 public class MountHandler extends Handler {
 
-    private static final Log log = LogFactory.getLog(ResourceImpl.class);
+    private static final Log log = LogFactory.getLog(MountHandler.class);
 
     private static final String EXECUTE_QUERY_CONNECTION_LIST_KEY = "execute.query.conn.key";
     private static final String CAUSED_BY_MSG = "Caused by: ";

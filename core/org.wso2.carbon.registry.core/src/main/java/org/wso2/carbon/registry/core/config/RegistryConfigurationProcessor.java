@@ -778,6 +778,13 @@ public class RegistryConfigurationProcessor {
                         virtual = "virtual".equalsIgnoreCase(overwriteStr);
                     }
                 }
+
+                String resolveLinksElement = mountElement.getAttributeValue(new QName("resolveLinks"));
+                boolean isExecuteQueryAllowed = true;
+                if (resolveLinksElement != null && Boolean.toString(false).equalsIgnoreCase(resolveLinksElement)) {
+                    isExecuteQueryAllowed = false;
+                }
+
                 String instanceId = instanceIdElement.getText();
                 String targetPath = targetPathElement.getText();
 
@@ -787,6 +794,7 @@ public class RegistryConfigurationProcessor {
                 mount.setVirtual(virtual);
                 mount.setInstanceId(instanceId);
                 mount.setTargetPath(targetPath);
+                mount.setExecuteQueryAllowed(isExecuteQueryAllowed);
 
                 registryContext.getMounts().add(mount);
 

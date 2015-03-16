@@ -59,6 +59,9 @@ public class CarbonAuthenticationUtil {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setUsername(username);
             carbonContext.setTenantId(tenantId);
+            if (tenantDomain == null) {
+                tenantDomain = carbonContext.getTenantDomain(true);
+            }
             carbonContext.setTenantDomain(tenantDomain);
         }
 

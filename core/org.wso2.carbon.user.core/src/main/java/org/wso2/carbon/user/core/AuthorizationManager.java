@@ -17,20 +17,16 @@
 */
 package org.wso2.carbon.user.core;
 
-public interface AuthorizationManager extends org.wso2.carbon.user.api.AuthorizationManager{
+public interface AuthorizationManager extends org.wso2.carbon.user.api.AuthorizationManager {
 
     /**
-     * 
      * Checks for user authorization
-     * 
-     * @param userName
-     *            The user name
-     * @param resourceId
-     *            Resource Id String
-     * @param action
-     *            The action user is trying to perform
+     *
+     * @param userName   The user name
+     * @param resourceId Resource Id String
+     * @param action     The action user is trying to perform
      * @return Returns true when user is authorized to perform the action on the
-     *         resource and false otherwise.
+     * resource and false otherwise.
      * @throws UserStoreException
      */
     boolean isUserAuthorized(String userName, String resourceId, String action)
@@ -38,49 +34,39 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Checks for role authorization.
-     * 
-     * @param roleName
-     *            The role name
-     * @param resourceId
-     *            Resource Id String
-     * @param action
-     *            The action the role is trying to perform
+     *
+     * @param roleName   The role name
+     * @param resourceId Resource Id String
+     * @param action     The action the role is trying to perform
      * @return Returns true when the role is authorized to perform the action on
-     *         the resource and false otherwise
+     * the resource and false otherwise
      * @throws UserStoreException
      */
     boolean isRoleAuthorized(String roleName, String resourceId, String action)
             throws UserStoreException;
 
     /**
-     * 
      * Retrieves a list of users allowed to perform the given action on the
      * resource
-     * 
-     * @param resourceId
-     *            Resource Id String
-     * @param action
-     *            The action that is allowed to perform
+     *
+     * @param resourceId Resource Id String
+     * @param action     The action that is allowed to perform
      * @return Returns a list of users allowed to perform the given action on
-     *         the resource
+     * the resource
      * @throws UserStoreException
-     * 
      * @deprecated
      */
     String[] getExplicitlyAllowedUsersForResource(String resourceId, String action)
             throws UserStoreException;
 
     /**
-     * 
      * Retrieves a list of roles allowed to perform the given action on the
      * resource
-     * 
-     * @param resourceId
-     *            Resource Id String
-     * @param action
-     *            The action that is allowed to perform
+     *
+     * @param resourceId Resource Id String
+     * @param action     The action that is allowed to perform
      * @return Returns a list of roles allowed to perform the given action on
-     *         the resource
+     * the resource
      * @throws UserStoreException
      */
     String[] getAllowedRolesForResource(String resourceId, String action)
@@ -90,12 +76,10 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
             throws UserStoreException;
 
     /**
-     * 
      * @param resourceId
      * @param action
      * @return
      * @throws UserStoreException
-     * 
      * @deprecated
      */
     String[] getExplicitlyDeniedUsersForResource(String resourceId, String action)
@@ -103,15 +87,11 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Grants authorizations to a user to perform an action on a resource.
-     * 
-     * @param userName
-     *            The user name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the user
+     *
+     * @param userName   The user name
+     * @param resourceId Resource identification string
+     * @param action     The action granted to the user
      * @throws UserStoreException
-     * 
      * @deprecated
      */
     void authorizeUser(String userName, String resourceId, String action)
@@ -119,13 +99,10 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Grants authorizes to a role to perform an action on a resource.
-     * 
-     * @param roleName
-     *            The role name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the role
+     *
+     * @param roleName   The role name
+     * @param resourceId Resource identification string
+     * @param action     The action granted to the role
      * @throws UserStoreException
      */
     void authorizeRole(String roleName, String resourceId, String action)
@@ -133,15 +110,11 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Deny authorizations to a user to perform an action on a resource.
-     * 
-     * @param userName
-     *            The user name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the user
+     *
+     * @param userName   The user name
+     * @param resourceId Resource identification string
+     * @param action     The action granted to the user
      * @throws UserStoreException
-     * 
      * @deprecated
      */
     void denyUser(String userName, String resourceId, String action)
@@ -149,13 +122,10 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Deny authorizations to a role to perform an action on a resource.
-     * 
-     * @param roleName
-     *            The role name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted to the role
+     *
+     * @param roleName   The role name
+     * @param resourceId Resource identification string
+     * @param action     The action granted to the role
      * @throws UserStoreException
      */
     void denyRole(String roleName, String resourceId, String action)
@@ -163,38 +133,29 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Deletes an already granted authorization of a user.
-     * 
-     * @param userName
-     *            The user name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted
+     *
+     * @param userName   The user name
+     * @param resourceId Resource identification string
+     * @param action     The action granted
      * @throws UserStoreException
-     * 
      * @deprecated
      */
     void clearUserAuthorization(String userName, String resourceId, String action)
             throws UserStoreException;
 
     /**
-     * 
      * @param userName
      * @throws UserStoreException
-     * 
      * @deprecated
      */
     void clearUserAuthorization(String userName) throws UserStoreException;
 
     /**
      * Deletes an already granted authorization of a role.
-     * 
-     * @param roleName
-     *            The role name
-     * @param resourceId
-     *            Resource identification string
-     * @param action
-     *            The action granted
+     *
+     * @param roleName   The role name
+     * @param resourceId Resource identification string
+     * @param action     The action granted
      * @throws UserStoreException
      */
     void clearRoleAuthorization(String roleName, String resourceId, String action)
@@ -202,11 +163,9 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Deletes the role's right to perform the action on all resources.
-     * 
-     * @param roleName
-     *            The role name
-     * @param action
-     *            The action granted
+     *
+     * @param roleName The role name
+     * @param action   The action granted
      * @throws UserStoreException
      */
     void clearRoleActionOnAllResources(String roleName, String action)
@@ -214,7 +173,7 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Used when deleting roles.
-     * 
+     *
      * @param roleName
      * @throws UserStoreException
      */
@@ -222,16 +181,15 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
 
     /**
      * Deletes all granted authorization on a resource.
-     * 
-     * @param resourceId
-     *            Resource identification string
+     *
+     * @param resourceId Resource identification string
      * @throws UserStoreException
      */
     void clearResourceAuthorizations(String resourceId) throws UserStoreException;
 
     /**
      * Returns the complete set of UI resources allowed for User.
-     * 
+     *
      * @param userName
      * @return
      * @throws UserStoreException
@@ -252,19 +210,19 @@ public interface AuthorizationManager extends org.wso2.carbon.user.api.Authoriza
     /**
      * this will reset the permission of the renamed role
      *
-     *@param roleName
-     *@param newRoleName 
+     * @param roleName
+     * @param newRoleName
      */
     void resetPermissionOnUpdateRole(String roleName, String newRoleName)
             throws UserStoreException;
-    
-	/**
-	 * This method should be used to remove the distinguished names from the
-	 * roles and to do any other normalization activity
-	 * 
-	 * @param roles
-	 * @return
-	 */
-	String[] normalizeRoles(String[] roles);
+
+    /**
+     * This method should be used to remove the distinguished names from the
+     * roles and to do any other normalization activity
+     *
+     * @param roles
+     * @return
+     */
+    String[] normalizeRoles(String[] roles);
 
 }

@@ -21,6 +21,9 @@ package org.wso2.carbon.registry.core.jdbc.dataaccess;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
+import org.wso2.carbon.base.MultitenantConstants;
+import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.config.DataBaseConfiguration;
 import org.wso2.carbon.registry.core.dataaccess.*;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
@@ -71,20 +74,46 @@ public class JDBCDataAccessManager implements DataAccessManager {
 	 */
 	public JDBCDataAccessManager(DataBaseConfiguration dataBaseConfiguration) {
 		final String dataSourceName = dataBaseConfiguration.getDataSourceName();
-		if (dataSourceName != null) {
-			try {
-                dataSource = dataSources.get(dataSourceName);
-                if (dataSource == null) {
+        if (dataSourceName != null) {
+            dataSource = dataSources.get(dataSourceName);
+            if (dataSource == null) {
+                int tenantId = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+                try {
                     Context context = new InitialContext();
                     dataSource = (DataSource) context.lookup(dataSourceName);
-                    dataSources.put(dataSourceName, dataSource);
+                } catch (NamingException ignored) {
+                    if (log.isDebugEnabled()) {
+                        StringBuilder messageBuilder = new StringBuilder("Couldn't find dataSource '").append(
+                                dataSourceName).append("' in current tenant space (").append("Tenant Id : '").append(
+                                tenantId).append("', Hence searching for dataSource in Super Tenant space");
+                        log.debug(messageBuilder.toString());
+                    }
                 }
-			} catch (NamingException e) {
-				// Problems!
-				log.error("Couldn't find dataSource '" + dataSourceName + "'",
-						e);
-			}
-		} else {
+                if (dataSource == null && tenantId != MultitenantConstants.SUPER_TENANT_ID) {
+                    PrivilegedCarbonContext.startTenantFlow();
+                    try {
+                        PrivilegedCarbonContext privilegedCarbonContext =
+                                PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                        privilegedCarbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
+                        privilegedCarbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
+                        try {
+                            Context context = new InitialContext();
+                            dataSource = (DataSource) context.lookup(dataSourceName);
+                        } catch (NamingException e) {
+                            log.error("Couldn't find dataSource '" + dataSourceName + "'", e);
+                        }
+                    } finally {
+                        PrivilegedCarbonContext.endTenantFlow();
+                    }
+                }
+                if (dataSource != null) {
+                    dataSources.put(dataSourceName, dataSource);
+                } else {
+                    log.error("Couldn't find dataSource '" + dataSourceName + "'");
+                }
+
+            }
+        } else {
 			String configName = dataBaseConfiguration.getConfigName();
 			dataSource = dataSources.get(configName);
 			if (dataSource == null) {

@@ -32,7 +32,7 @@ public class DefaultProfileConfigurationManager implements ProfileConfigurationM
     private ProfileConfigDAO profileDAO = null;
 
     public DefaultProfileConfigurationManager(Map<String, ProfileConfiguration> profileConfigs,
-            DataSource dataSource, int tenantId) {
+                                              DataSource dataSource, int tenantId) {
         this.profileConfigs = new ConcurrentHashMap<String, ProfileConfiguration>();
         this.profileConfigs.putAll(profileConfigs);
         profileDAO = new ProfileConfigDAO(dataSource, tenantId);
@@ -48,13 +48,13 @@ public class DefaultProfileConfigurationManager implements ProfileConfigurationM
     }
 
     public void updateProfileConfig(org.wso2.carbon.user.api.ProfileConfiguration profileConfig) throws UserStoreException {
-        profileConfigs.put(profileConfig.getProfileName(), (ProfileConfiguration)profileConfig);
-        profileDAO.updateProfileConfig((ProfileConfiguration)profileConfig);
+        profileConfigs.put(profileConfig.getProfileName(), (ProfileConfiguration) profileConfig);
+        profileDAO.updateProfileConfig((ProfileConfiguration) profileConfig);
     }
 
     public void deleteProfileConfig(org.wso2.carbon.user.api.ProfileConfiguration profileConfig) throws UserStoreException {
         profileConfigs.remove(profileConfig.getProfileName());
-        profileDAO.deleteProfileConfig((ProfileConfiguration)profileConfig);
+        profileDAO.deleteProfileConfig((ProfileConfiguration) profileConfig);
     }
 
     public ProfileConfiguration[] getAllProfiles() throws UserStoreException {

@@ -50,7 +50,11 @@ import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.PreAxisConfigurationPopulationObserver;
 import org.wso2.carbon.utils.WSO2Constants;
 import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
-import org.wso2.carbon.utils.deployment.*;
+import org.wso2.carbon.utils.deployment.Axis2DeployerProvider;
+import org.wso2.carbon.utils.deployment.Axis2DeployerRegistry;
+import org.wso2.carbon.utils.deployment.Axis2ModuleRegistry;
+import org.wso2.carbon.utils.deployment.GhostArtifactRepository;
+import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
