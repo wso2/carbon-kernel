@@ -153,7 +153,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             }
 
             //if read ldap group is enabled, set the tenant specific group search base
-            if (("true").equals(bootStrapConfig.
+            if ("true".equals(bootStrapConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
                 String groupContextRDNValue = tenantMgtConfig.getTenantStoreProperties().
                         get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);

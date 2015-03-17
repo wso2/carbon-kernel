@@ -134,7 +134,7 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             userStoreProperties.put(LDAPConstants.USER_SEARCH_BASE, userSearchBase);
 
             //if read ldap group is enabled, set the tenant specific group search base
-            if (("true").equals(bootStrapConfig.getUserStoreProperty(LDAPConstants.READ_LDAP_GROUPS))) {
+            if ("true".equals(bootStrapConfig.getUserStoreProperty(LDAPConstants.READ_LDAP_GROUPS))) {
                 //eg: ou=groups
                 String groupContextRDNValue = tenantMgtConfig.getTenantStoreProperties().get(
                         UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
