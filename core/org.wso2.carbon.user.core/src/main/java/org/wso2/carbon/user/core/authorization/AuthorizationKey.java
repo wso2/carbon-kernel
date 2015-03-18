@@ -52,7 +52,7 @@ public class AuthorizationKey implements Serializable {
     @Override
     public boolean equals(Object otherObject) {
 
-        if (!(otherObject instanceof AuthorizationKey)) {
+        if ((otherObject==null) || !(otherObject instanceof AuthorizationKey)) {
             return false;
         }
 
