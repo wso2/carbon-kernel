@@ -51,7 +51,7 @@ import java.util.*;
  */
 public class MountHandler extends Handler {
 
-    private static final Log log = LogFactory.getLog(ResourceImpl.class);
+    private static final Log log = LogFactory.getLog(MountHandler.class);
 
     private static final String EXECUTE_QUERY_CONNECTION_LIST_KEY = "execute.query.conn.key";
     private static final String CAUSED_BY_MSG = "Caused by: ";
@@ -292,7 +292,8 @@ public class MountHandler extends Handler {
             }
             requestContext.setProcessingComplete(true);
         } catch (Exception e) {
-            throw new RegistryException("Unable to put resource", e);
+            String msg = "Unable to put resource " + e.getMessage();
+            throw new RegistryException(msg, e);
         } finally {
             setInExecution(false);
         }
@@ -506,8 +507,7 @@ public class MountHandler extends Handler {
                     endNestedOperation();
                 }
             } catch (Exception e) {
-                String msg = "Could not delete the remote resource.";
-                log.error(msg);
+                String msg = "Could not delete the remote resource. " + e.getMessage();
                 setInExecution(false);
                 throw new RegistryException(msg, e);
             }

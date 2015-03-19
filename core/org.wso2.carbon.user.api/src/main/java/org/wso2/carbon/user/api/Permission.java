@@ -23,7 +23,7 @@ public class Permission {
      * The resource Id string
      */
     private String resourceId;
-    
+
     /**
      * The action string
      */
@@ -38,12 +38,12 @@ public class Permission {
         return resourceId;
     }
 
-    public String getAction() {
-        return action;
-    }
-
     public void setResourceId(String resourceId) {
         this.resourceId = resourceId;
+    }
+
+    public String getAction() {
+        return action;
     }
 
     public void setAction(String action) {

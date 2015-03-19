@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -17,14 +17,11 @@
 */
 package org.wso2.carbon.context;
 
-
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.context.MessageContext;
-import org.apache.axis2.description.AxisService;
-import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.context.internal.CarbonContextDataHolder;
 import org.wso2.carbon.context.internal.OSGiDataHolder;
@@ -34,13 +31,13 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.api.UserRealmService;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.ThriftSession;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
+
 
 /**
  * This CarbonContext provides users the ability to carry out privileged actions such as
@@ -89,102 +86,12 @@ public class PrivilegedCarbonContext extends CarbonContext {
     }
 
     /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder.
-     *
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext() {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(null);
-    }
-
-    /**
      *
      * @return PrivilegedCarbonContext from the current thread
      */
     public static PrivilegedCarbonContext getThreadLocalCarbonContext(){
         CarbonUtils.checkSecurity();
         return new PrivilegedCarbonContext(CarbonContextDataHolder.getThreadLocalCarbonContextHolder());
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given Message
-     * Context. If an instance does not exist, it will first be added to the Message Context.
-     *
-     * @param messageContext The Message Context on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(MessageContext messageContext) {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder(messageContext));
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given Axis2
-     * Configuration Context. If an instance does not exist, it will first be added to the
-     * Axis2 Configuration Context.
-     *
-     * @param configContext The Axis2 Configuration Context on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(ConfigurationContext configContext) {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder(configContext));
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given Axis2
-     * Configuration. If an instance does not exist, it will first be added to the Axis2
-     * Configuration.
-     *
-     * @param axisConfiguration The Axis2 Configuration on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(AxisConfiguration axisConfiguration) {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder(axisConfiguration));
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder attached to the given
-     * Axis2 Service. If an instance does not exist, it will first be attached to the Axis2 Service.
-     *
-     * @param axisService The Axis2 Service on which the CarbonContext is attached to.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(AxisService axisService) {
-        CarbonUtils.checkSecurity();
-        AxisConfiguration axisConfiguration = axisService.getAxisConfiguration();
-        return (axisConfiguration != null) ? getCurrentContext(axisConfiguration) :
-               getCurrentContext();
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given HTTP
-     * Session. If an instance does not exist, it will first be added to the HTTP Session
-     * Configuration.
-     *
-     * @param httpSession The HTTP Session on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(HttpSession httpSession) {
-        CarbonUtils.checkSecurity();
-        return new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder(httpSession));
-    }
-
-    /**
-     * Obtains the CarbonContext instance stored on the CarbonContext holder in the given Thrift
-     * Session. If an instance does not exist, it will first be added to the Thrift Session.
-     *
-     * @param thriftSession The HTTP Session on which the CarbonContext is found.
-     * @return the CarbonContext instance.
-     */
-    public static PrivilegedCarbonContext getCurrentContext(ThriftSession thriftSession) {
-        CarbonUtils.checkSecurity();
-        PrivilegedCarbonContext privilegedCarbonContext =
-                new PrivilegedCarbonContext(CarbonContextDataHolder.getCurrentCarbonContextHolder());
-        thriftSession.setAttribute("carbonContextHolder",privilegedCarbonContext);
-        return privilegedCarbonContext;
     }
 
     /**
@@ -427,32 +334,71 @@ public class PrivilegedCarbonContext extends CarbonContext {
      * Obtain the first OSGi service found for interface or class <code>clazz</code>
      * @param clazz The type of the OSGi service
      * @return The OSGi service
+     * @deprecated please use {@link #getOSGiService(Class, java.util.Hashtable)}instead
      */
+    @Deprecated
     public Object getOSGiService(Class clazz) {
-        BundleContext bundleContext = dataHolder.getBundleContext();
-        ServiceTracker serviceTracker = new ServiceTracker(bundleContext, clazz, null);
-        try {
-            serviceTracker.open();
-            return serviceTracker.getServices()[0];
-        } finally {
-            serviceTracker.close();
-        }
+        return getOSGiService(clazz, null);
     }
 
     /**
      * Obtain the OSGi services found for interface or class <code>clazz</code>
      * @param clazz The type of the OSGi service
      * @return The List of OSGi services
+     * @deprecated please use {@link #getOSGiServices(Class, java.util.Hashtable)} instead
      */
+    @Deprecated
     public List<Object> getOSGiServices(Class clazz) {
-        BundleContext bundleContext = dataHolder.getBundleContext();
-        ServiceTracker serviceTracker = new ServiceTracker(bundleContext, clazz, null);
+        return getOSGiServices(clazz, null);
+    }
+
+    /**
+     * Obtain the first OSGi service found for interface or class <code>clazz</code>  and props
+     *
+     * @param props attribute list that filter the service
+     * @param clazz The type of the OSGi service
+     * @return The OSGi service
+     */
+    public Object getOSGiService(Class clazz, Hashtable<String, String> props) {
+        ServiceTracker serviceTracker = null;
+        try {
+            BundleContext bundleContext = dataHolder.getBundleContext();
+            Filter osgiFilter = createFilter(bundleContext, clazz, props);
+            serviceTracker = new ServiceTracker(bundleContext, osgiFilter, null);
+            serviceTracker.open();
+            return serviceTracker.getServices()[0];
+        } catch (InvalidSyntaxException e) {
+            log.error("Invalid syntax for filter passed for service : " + clazz.getName(), e);
+        } finally {
+            if (serviceTracker != null) {
+                serviceTracker.close();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Obtain the OSGi services found for interface or class <code>clazz</code> and props
+     *
+     * @param props attribute list that filter the service list
+     * @param clazz The type of the OSGi service
+     * @return The List of OSGi services
+     */
+    public List<Object> getOSGiServices(Class clazz, Hashtable<String, String> props) {
+        ServiceTracker serviceTracker = null;
         List<Object> services = new ArrayList<Object>();
         try {
+            BundleContext bundleContext = dataHolder.getBundleContext();
+            Filter osgiFilter = createFilter(bundleContext, clazz, props);
+            serviceTracker = new ServiceTracker(bundleContext, osgiFilter, null);
             serviceTracker.open();
             Collections.addAll(services, serviceTracker.getServices());
+        } catch (InvalidSyntaxException e) {
+            log.error("Invalid syntax for filter passed for service : " + clazz.getName(), e);
         } finally {
-            serviceTracker.close();
+            if (serviceTracker != null) {
+                serviceTracker.close();
+            }
         }
         return services;
     }

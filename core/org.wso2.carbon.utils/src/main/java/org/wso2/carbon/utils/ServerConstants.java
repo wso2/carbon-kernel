@@ -39,6 +39,10 @@ public final class ServerConstants {
     public static final String USER_MGT_XML_PATH = "wso2.user.mgt.xml";
     public static final String CARBON_TENANTS_DIR_PATH = "tenants.dir.path";
 
+	//Constants related to Proxy Context Path
+	public static final String PROXY_CONTEXT_PATH = "MgtProxyContextPath";
+	public static final String WORKER_PROXY_CONTEXT_PATH = "ProxyContextPath";
+
     /**
      * Mode in which Carbon is started as a Repo writer, where the
      * metadata of the artifacts  in the repo are written to the Registry

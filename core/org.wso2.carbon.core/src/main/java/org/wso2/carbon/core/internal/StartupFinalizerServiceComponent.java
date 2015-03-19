@@ -34,12 +34,12 @@ import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.init.JMXServerManager;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
 import org.wso2.carbon.core.util.ClusteringUtil;
-import org.wso2.carbon.core.util.Utils;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ConfigurationContextService;
 import org.wso2.carbon.utils.ServerException;
+import org.wso2.carbon.core.multitenancy.eager.TenantEagerLoader;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -78,6 +78,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
     private Timer pendingServicesObservationTimer = new Timer();
     private CarbonCoreDataHolder dataHolder = CarbonCoreDataHolder.getInstance();
     private ServiceRegistration listerManagerServiceRegistration;
+    private TenantEagerLoader tenantEagerLoader = new TenantEagerLoader();
    
     protected void activate(ComponentContext ctxt) {
         try {
@@ -164,6 +165,7 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         listenerManager.startSystem(configCtx);
 
         try {
+            tenantEagerLoader.initializeEagerLoadingTenants();
             TenantAxisUtils.initializeTenantTransports(configCtx);
         } catch (AxisFault e) {
             log.error("Cannot initialize tenant transports", e);
@@ -179,8 +181,8 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
             throw new RuntimeException(msg, e);
         }
 
-        /* notify listeners of server startup */
-        CarbonCoreServiceComponent.startup();
+        /* notify listeners of server startup before transport starts */
+        CarbonCoreServiceComponent.notifyBefore();
         
         if (CarbonUtils.isRunningInStandaloneMode()) {
             try {
@@ -204,6 +206,9 @@ public class StartupFinalizerServiceComponent implements ServiceListener {
         if (log.isDebugEnabled()) {
             log.debug("Started Transport Listener Manager");
         }
+        /* notify listeners of server startup after transport starts */
+        CarbonCoreServiceComponent.startup();
+        CarbonCoreServiceComponent.notifyAfter();
         setServerStartTimeParam();
         printInfo();
     }

@@ -17,13 +17,13 @@
 */
 package org.wso2.carbon.core.clustering.hazelcast;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.GroupConfig;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.*;
 import com.hazelcast.core.*;
 import com.hazelcast.core.Member;
+import com.hazelcast.nio.serialization.ByteArraySerializer;
+import com.hazelcast.nio.serialization.StreamSerializer;
+import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMElement;
 import org.apache.axis2.clustering.*;
 import org.apache.axis2.clustering.control.ControlCommand;
 import org.apache.axis2.clustering.management.DefaultGroupManagementAgent;
@@ -39,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
+import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
 import org.wso2.carbon.core.clustering.api.ClusterMessage;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
@@ -48,6 +49,7 @@ import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 
+import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -127,6 +129,10 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         String localMemberHost = "";
         if (localMemberHostParam != null) {
             localMemberHost = ((String) localMemberHostParam.getValue()).trim();
+            if ("127.0.0.1".equals(localMemberHost) || "localhost".equals(localMemberHost)) {
+                log.warn("localMemberHost is configured to use the loopback address. " +
+                        "Hazelcast Clustering needs ip addresses for localMemberHost and well-known members.");
+            }
         } else {
             try {
                 localMemberHost = Utils.getIpAddress();
@@ -149,6 +155,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             mapConfig.setInMemoryFormat(InMemoryFormat.OFFHEAP);
         }
         primaryHazelcastConfig.addMapConfig(mapConfig);
+        loadCustomHazelcastSerializers();
 
         if (clusterManagementMode) {
             for (Map.Entry<String, Map<String, GroupManagementAgent>> entry : groupManagementAgents.entrySet()) {
@@ -225,15 +232,27 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
             @Override
             public void run() {
-                primaryHazelcastInstance.getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK).lock();
-                isCoordinator = true;
-                log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
-                        "as the Coordinator for the cluster [" + carbonLocalMember.getDomain() + "]");
+                ILock lock = primaryHazelcastInstance.getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK);
 
-                // Notify all OSGi services which are waiting for this member to become the coordinator
-                List<CoordinatedActivity> coordinatedActivities = CarbonCoreDataHolder.getInstance().getCoordinatedActivities();
-                for (CoordinatedActivity coordinatedActivity : coordinatedActivities) {
-                    coordinatedActivity.execute();
+                try {
+                    lock.lock();
+                    isCoordinator = true;
+                    log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
+                            "as the Coordinator for the cluster [" + carbonLocalMember.getDomain() + "]");
+
+                    // Notify all OSGi services which are waiting for this member to become the coordinator
+                    List<CoordinatedActivity> coordinatedActivities = CarbonCoreDataHolder.getInstance().getCoordinatedActivities();
+                    for (CoordinatedActivity coordinatedActivity : coordinatedActivities) {
+                        coordinatedActivity.execute();
+                    }
+
+                } catch (HazelcastInstanceNotActiveException e) {
+                    String serverStatus = ServerStatus.getCurrentStatus();
+                    if ( !(ServerStatus.STATUS_SHUTTING_DOWN.equals(serverStatus) ||
+                            ServerStatus.STATUS_RESTARTING.equals(serverStatus)) ) {
+                        log.error("Could not acquire Hazelcast coordinator lock", e);
+                    }
+                    // Ignoring this exception if the server is shutting down.
                 }
             }
         };
@@ -242,6 +261,57 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         coordinatorElectorThread.start();
 
         log.info("Cluster initialization completed");
+    }
+
+    /**
+     * Load hazelcastSerializers section from the clustering configuration in axis2.xml and
+     * set custom Hazelcast data serializers.
+     * <p/>
+     * The following element has to be placed in the clustering section of the axis2.xml file.
+     * <p/>
+     * For example;
+     * <p/>
+     * &lt;parameter name="hazelcastSerializers"&gt;
+     *  &lt;serializer typeClass="java.util.TreeSet">org.wso2.carbon.hazelcast.serializer.TreeSetSerializer&lt;/serializer&gt;
+     *  &lt;serializer typeClass="java.util.Map">org.wso2.carbon.hazelcast.serializer.MapSerializer&lt;/serializer&gt;
+     * &lt;/parameter&gt;
+     */
+    private void loadCustomHazelcastSerializers() {
+        Parameter hazelcastSerializers = getParameter("hazelcastSerializers");
+        if (hazelcastSerializers == null) {
+            return;
+        }
+
+        OMElement paramEle = hazelcastSerializers.getParameterElement();
+        for (Iterator iter = paramEle.getChildrenWithLocalName("serializer"); iter.hasNext(); ) {
+            OMElement serializerEle = (OMElement) iter.next();
+            OMAttribute typeClassAttrib = serializerEle.getAttribute(new QName("typeClass"));
+            if (typeClassAttrib != null) {
+                String typeClass = typeClassAttrib.getAttributeValue();
+                String serializer = serializerEle.getText();
+                try {
+                    Class serializerClass = Class.forName(serializer);
+                    SerializerConfig serializerConfig = new SerializerConfig();
+                    Object serializerObj = serializerClass.newInstance();
+                    if (serializerObj instanceof StreamSerializer) {
+                        serializerConfig.setImplementation((StreamSerializer) serializerObj);
+                    } else if (serializerObj instanceof ByteArraySerializer) {
+                        serializerConfig.setImplementation((ByteArraySerializer) serializerObj);
+                    } else {
+                        throw new IllegalArgumentException("Unknown Hazelcast serializer type: " +
+                                serializerObj.getClass());
+                    }
+                    serializerConfig.setTypeClass(Class.forName(typeClass));
+                    primaryHazelcastConfig.getSerializationConfig().addSerializerConfig(serializerConfig);
+                } catch (ClassNotFoundException e) {
+                    log.error("Cannot find Hazelcast serializer class " + serializer, e);
+                } catch (InstantiationException e) {
+                    log.error("Cannot instantiate Hazelcast serializer class " + serializer, e);
+                } catch (IllegalAccessException e) {
+                    log.error("Illegal access while trying to instantiate Hazelcast serializer class " + serializer, e);
+                }
+            }
+        }
     }
 
     private void setHazelcastProperties() {
@@ -485,7 +555,16 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
             sentMsgsBuffer.add(clusteringMessage); // Buffer the message for replay
         }
         if (clusteringMessageTopic != null) {
-            clusteringMessageTopic.publish(clusteringMessage);
+            try {
+                clusteringMessageTopic.publish(clusteringMessage);
+            } catch (HazelcastInstanceNotActiveException e) {
+                String serverStatus = ServerStatus.getCurrentStatus();
+                if (!(ServerStatus.STATUS_SHUTTING_DOWN.equals(serverStatus) ||
+                      ServerStatus.STATUS_RESTARTING.equals(serverStatus))) {
+                    log.error("Could not send cluster message", e);
+                }
+                // Ignoring this exception if the server is shutting down.
+            }
         }
         return new ArrayList<ClusteringCommand>();  // TODO: How to get the response? Send to another topic, and use a correlation ID to correlate
     }

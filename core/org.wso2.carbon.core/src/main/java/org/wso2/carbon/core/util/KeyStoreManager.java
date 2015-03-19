@@ -341,14 +341,17 @@ public class KeyStoreManager {
     /**
      * Load the register key store, this is allowed only for the super tenant
      *
+     * @deprecated use {@link #getPrimaryKeyStore()} instead.
+     *
      * @return register key store object
      * @throws Exception Carbon Exception when trying to call this method from a tenant other
      *                   than tenant 0
      */
+    @Deprecated
     public KeyStore getRegistryKeyStore() throws Exception {
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             if (registryKeyStore == null) {
-     
+
                 ServerConfigurationService config = this.getServerConfigService();
                 String file =
                         new File(config

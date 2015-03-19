@@ -56,7 +56,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
 
             Map<String, String> authz = realmConfig.getAuthzProperties();
             authz.put(UserCoreConstants.RealmConfig.PROPERTY_ADMINROLE_AUTHORIZATION,
-                      CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);
+                    CarbonConstants.UI_ADMIN_PERMISSION_COLLECTION);
 
             if (persistedConfig.getUserStoreProperties().get(LDAPConstants.USER_SEARCH_BASE) != null) {
                 realmConfig.getUserStoreProperties().put(
@@ -81,7 +81,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             realmConfig.setSecondaryRealmConfig(persistedConfig.getSecondaryRealmConfig());
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration" +
-                                  "when creating tenant's realm.";
+                    "when creating tenant's realm.";
             logger.error(errorMessage, e);
             throw new UserStoreException(errorMessage, e);
         }
@@ -113,22 +113,20 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             //eg: o=cse.rog
             String organizationRDN = tenantMgtConfig.getTenantStoreProperties().get(
                     UserCoreConstants.TenantMgtConfig.PROPERTY_ORGANIZATIONAL_ATTRIBUTE) + "=" +
-                                     organizationName;
+                    organizationName;
             //eg: ou=users
             String orgSubContextAttribute = tenantMgtConfig.getTenantStoreProperties().get(
                     UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_ATTRIBUTE);
-            String userContextRDN;
-            if (tenantMgtConfig.getTenantStoreProperties().get(
-                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE) != null) {
-                userContextRDN = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().get(
-                        UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE);
-            } else {
+            String userContextRDNValue = tenantMgtConfig.getTenantStoreProperties().get(
+                    UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_USER_CONTEXT_VALUE);
+            if (userContextRDNValue == null) {
                 //if property value is not set use default value
-                userContextRDN = orgSubContextAttribute + "=" + LDAPConstants.USER_CONTEXT_NAME;
+                userContextRDNValue = LDAPConstants.USER_CONTEXT_NAME;
             }
+            String userContextRDN = orgSubContextAttribute + "=" + userContextRDNValue;
             //eg: ou=users,o=cse.org, dc=cloud, dc=com
             String userSearchBase = userContextRDN + "," + organizationRDN + "," +
-                                    partitionDN;
+                    partitionDN;
             //replace the tenant specific user search base.
             userStoreProperties.put(LDAPConstants.USER_SEARCH_BASE, userSearchBase);
 
@@ -155,18 +153,15 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             }
 
             //if read ldap group is enabled, set the tenant specific group search base
-            if (("true").equals(bootStrapConfig.
+            if ("true".equals(bootStrapConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
-                String groupContextRDN;
+                String groupContextRDNValue = tenantMgtConfig.getTenantStoreProperties().
+                        get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
                 //eg: ou=groups
-                if (tenantMgtConfig.getTenantStoreProperties().
-                        get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE) != null) {
-                    groupContextRDN = orgSubContextAttribute + "=" + tenantMgtConfig.getTenantStoreProperties().
-                            get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
-                } else {
-                    //if property value is not set use default value
-                    groupContextRDN = orgSubContextAttribute + "=" + LDAPConstants.GROUP_CONTEXT_NAME;
+                if (groupContextRDNValue == null) {
+                    groupContextRDNValue = LDAPConstants.GROUP_CONTEXT_NAME;
                 }
+                String groupContextRDN = orgSubContextAttribute + "=" + groupContextRDNValue;
                 //eg: ou=users,o=cse.org, dc=cloud, dc=com
                 String groupSearchBase = groupContextRDN + "," + organizationRDN + "," + partitionDN;
 
@@ -176,7 +171,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
                 if (bootStrapConfig.getUserStoreProperties().containsKey(LDAPConstants.ROLE_DN_PATTERN)) {
                     //get userDN pattern from super tenant realm config
                     String roleDNPattern = bootStrapConfig.getUserStoreProperties().
-                                                                get(LDAPConstants.ROLE_DN_PATTERN);
+                            get(LDAPConstants.ROLE_DN_PATTERN);
                     //obtain the identifier - eg: uid={0}
                     String roleIdentifier = roleDNPattern.split(",")[0];
                     //build tenant specific one - eg:uid={0},ou=Users,ou=cse.org,dc=wso2,dc=org
@@ -199,7 +194,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
 
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration " +
-                                  "to be persisted.";
+                    "to be persisted.";
             logger.error(errorMessage, e);
             throw new UserStoreException(errorMessage, e);
         }

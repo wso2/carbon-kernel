@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>student-manager</artifactId>
         <groupId>org.wso2.carbon</groupId>
-        <version>${carbon.platform.version}</version>
+        <version>4.4.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -20,7 +20,6 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
-                <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>2-p2-repo-generation</id>
@@ -35,7 +34,7 @@
                             <publishArtifactRepository>true</publishArtifactRepository>
                             <featureArtifacts>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.student.mgt.feature:${carbon.platform.version}
+                                    org.wso2.carbon:org.wso2.carbon.student.mgt.feature:${carbon.kernel.version}
                                 </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>

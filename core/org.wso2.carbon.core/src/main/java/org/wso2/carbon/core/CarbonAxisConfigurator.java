@@ -37,6 +37,7 @@ import org.apache.axis2.util.XMLUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
+import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.RegistryType;
 import org.wso2.carbon.core.deployment.CarbonDeploymentSchedulerTask;
@@ -47,9 +48,11 @@ import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.Axis2ConfigItemHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerException;
+import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
+import org.wso2.carbon.utils.deployment.Axis2DeployerProvider;
 import org.wso2.carbon.utils.deployment.Axis2DeployerRegistry;
 import org.wso2.carbon.utils.deployment.Axis2ModuleRegistry;
-import org.wso2.carbon.utils.deployment.GhostDeployerRegistry;
+import org.wso2.carbon.utils.deployment.GhostArtifactRepository;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.deployment.service.listeners.Axis2ConfigServiceListener;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -63,6 +66,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -197,12 +201,33 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             configServiceListener = new Axis2ConfigServiceListener(axisConfig, bundleContext);
         }
 
-        // Adding deployers which come inside bundles
-        if (GhostDeployerUtils.isGhostOn()) {
-            new GhostDeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles());
-        } else {
-            new Axis2DeployerRegistry((axisConfig)).register(configItemHolder.getDeployerBundles());
+        //reading deployers for virtual hosts
+        ServiceTracker deployerServiceTracker = null;
+        Axis2DeployerProvider[] axis2DeployerProviderList = null;
+        try {
+            deployerServiceTracker = new ServiceTracker(bundleContext,
+                    Axis2DeployerProvider.class.getName(), null);
+            deployerServiceTracker.open();
+            if (deployerServiceTracker.getServices() == null) {
+                axis2DeployerProviderList = new Axis2DeployerProvider[]{};
+            } else {
+                axis2DeployerProviderList = Arrays.copyOf(deployerServiceTracker.getServices(),
+                        deployerServiceTracker.getServices().length, Axis2DeployerProvider[].class);
+            }
+        } finally {
+            if (deployerServiceTracker != null) {
+                deployerServiceTracker.close();
+            }
         }
+        List<DeployerConfig> deployerConfigs = readDeployerConfigs(axis2DeployerProviderList);
+        if (GhostDeployerUtils.isGhostOn()) {
+            GhostArtifactRepository ghostArtifactRepository = new GhostArtifactRepository(axisConfig);
+            GhostDeployerUtils.setGhostArtifactRepository(ghostArtifactRepository, axisConfig);
+        }
+
+        // Adding deployers from vhosts and deployers which come inside bundles
+        new Axis2DeployerRegistry(axisConfig).register(configItemHolder.getDeployerBundles(),
+                    deployerConfigs);
 
         //Deploying modules which come inside bundles.
         Axis2ModuleRegistry moduleRegistry = new Axis2ModuleRegistry(axisConfig);
@@ -249,6 +274,14 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             axisConfig.addParameter(contextRootParam);
         }
         return axisConfig;
+    }
+
+    private List<DeployerConfig> readDeployerConfigs(Axis2DeployerProvider[] axis2DeployerProviders) {
+        List<DeployerConfig> allDeployerConfig = new ArrayList<DeployerConfig>();
+        for (Axis2DeployerProvider axis2DeployerProvider : axis2DeployerProviders) {
+            allDeployerConfig.addAll(axis2DeployerProvider.getDeployerConfigs());
+        }
+        return allDeployerConfig;
     }
 
     public boolean isGlobalyEngaged(AxisModule axisModule) {
@@ -450,20 +483,8 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
     }
 
     public void loadServices() {
-        //TODO: Do DeploymentSynchronization
-
-        setWebLocationString(webLocation);
-        if (repoLocation != null && repoLocation.trim().length() != 0) {
-            if (isUrlRepo) {
-                try {
-                    loadServicesFromUrl(new URL(repoLocation));
-                } catch (MalformedURLException e) {
-                    log.error("Services repository URL " + repoLocation + " is invalid");
-                }
-            } else {
-                super.loadServices();
-            }
-        }
+        //We don't deploy any artifacts at this time, DeploymentServerStartupObserver will take care about
+        //deployment in later stage of server startup (Refer CARBON-14977 ).
     }
 
     public void addAxis2ConfigServiceListener() throws Exception{
@@ -531,5 +552,20 @@ public class CarbonAxisConfigurator extends DeploymentEngine implements AxisConf
             log.error("Cannot find axis2.xml file",e);
         }
         return axis2xmlStream;
+    }
+
+    public void deployServices() {
+        setWebLocationString(webLocation);
+        if (repoLocation != null && repoLocation.trim().length() != 0) {
+            if (isUrlRepo) {
+                try {
+                    loadServicesFromUrl(new URL(repoLocation));
+                } catch (MalformedURLException e) {
+                    log.error("Services repository URL " + repoLocation + " is invalid");
+                }
+            } else {
+                super.loadServices();
+            }
+        }
     }
 }

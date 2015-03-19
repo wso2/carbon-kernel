@@ -24,14 +24,10 @@ import org.apache.axis2.deployment.repository.util.DeploymentFileData;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.application.deployer.internal.AppDeployerServiceComponent;
 import org.wso2.carbon.application.deployer.internal.ApplicationManager;
-import org.wso2.carbon.application.deployer.service.CappDeploymentService;
-import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.FileManipulator;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CappAxis2Deployer extends AbstractDeployer {
 
@@ -41,57 +37,19 @@ public class CappAxis2Deployer extends AbstractDeployer {
 
     private String cAppDir;
 
-    private boolean isAlreadyRegistered = false;
-
-    private List<String> pendingCAppList = new ArrayList<String>();
-
     public void init(ConfigurationContext configurationContext) {
-        // create the cApp hot directory
-        if (cAppDir != null && !"".equals(cAppDir)) {
-            File cAppDirFile = new File(cAppDir);
-            if (!cAppDirFile.exists() && !cAppDirFile.mkdir()) {
-                log.warn("Couldn't create directory : " + cAppDirFile.getAbsolutePath());
-            }
-        }
         if (log.isDebugEnabled()) {
             log.debug("Initializing Capp Axis2 Deployer..");
         }
         this.axisConfig = configurationContext.getAxisConfiguration();
+
+        //delete the older extracted capps for this tenant.
+        String appUnzipDir = AppDeployerUtils.getAppUnzipDir() + File.separator +
+                             AppDeployerUtils.getTenantIdString();
+        FileManipulator.deleteDir(appUnzipDir);
+
         // load the existing Carbon apps from tenant registry space
 //        loadPersistedApps();
-
-        populatePendingCAppList();
-
-        if(pendingCAppList.isEmpty() && !isAlreadyRegistered){
-            registerCappdeploymentService();
-            isAlreadyRegistered = true;
-        }
-    }
-
-    /**
-     * Populate the names of the carbon apps to be deployed
-     *
-     * @param
-     * @throws
-     */
-    private void populatePendingCAppList(){
-
-        File cAppDirFile = new File(CarbonUtils.getCarbonRepository() + File.separator + cAppDir);
-
-        if(cAppDirFile.exists()){
-            File [] cAppFiles = cAppDirFile.listFiles();
-            for(int i = 0 ; i< cAppFiles.length ; i++){
-                String extension = "";
-                String fileName = cAppFiles[i].getName();
-                int index = fileName.lastIndexOf('.');
-                if (index > 0) {
-                    extension = fileName.substring(index+1);
-                    if(extension.equalsIgnoreCase("car")){
-                        pendingCAppList.add(fileName);
-                    }
-                }
-            }
-        }
 
     }
 
@@ -118,13 +76,6 @@ public class CappAxis2Deployer extends AbstractDeployer {
 
         super.deploy(deploymentFileData);
 
-        pendingCAppList.remove(deploymentFileData.getName());
-
-        if(pendingCAppList.isEmpty() && !isAlreadyRegistered){
-            //If there are no pending Capps register CAPP Deployer Service
-            registerCappdeploymentService();
-            isAlreadyRegistered = true;
-        }
     }
 
     public void setDirectory(String s) {
@@ -132,17 +83,6 @@ public class CappAxis2Deployer extends AbstractDeployer {
     }
 
     public void setExtension(String s) {
-
-    }
-
-    private void registerCappdeploymentService(){
-        try {
-            AppDeployerServiceComponent.getBundleContext().registerService(CappDeploymentService.class.getName(),
-                    new CappDeploymentServiceImpl(), null);
-            log.debug("Carbon CAPP Services bundle is activated ");
-        } catch (Throwable e) {
-            log.error("Failed to activate Carbon CAPP Services bundle ", e);
-        }
 
     }
 
@@ -154,7 +94,7 @@ public class CappAxis2Deployer extends AbstractDeployer {
      * @throws DeploymentException
      */
     public void undeploy(String filePath) throws DeploymentException {
-        String tenantId = AppDeployerUtils.getTenantIdString(axisConfig);
+        String tenantId = AppDeployerUtils.getTenantIdString();
         String artifactPath = AppDeployerUtils.formatPath(filePath);
         CarbonApplication existingApp = null;
         for (CarbonApplication carbonApp : ApplicationManager
@@ -174,7 +114,7 @@ public class CappAxis2Deployer extends AbstractDeployer {
     }
 
     private void removeFaultyCAppOnUndeploy(String filePath) {
-        String tenantId = AppDeployerUtils.getTenantIdString(axisConfig);
+        String tenantId = AppDeployerUtils.getTenantIdString();
         //check whether this application file name already exists in faulty app list
         for (String faultyAppPath : ApplicationManager.getInstance().getFaultyCarbonApps(tenantId).keySet()) {
             if (filePath.equals(faultyAppPath)) {
@@ -185,7 +125,8 @@ public class CappAxis2Deployer extends AbstractDeployer {
     }
 
     public void cleanup() throws DeploymentException {
-        // do nothing        
+        //cleanup the capp list of a tenant during a tenant unload
+        ApplicationManager.getInstance().cleanupCarbonApps(axisConfig);
     }
 
 //    private void loadPersistedApps() {

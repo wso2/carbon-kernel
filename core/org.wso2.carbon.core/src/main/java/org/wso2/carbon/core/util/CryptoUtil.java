@@ -120,7 +120,7 @@ public class CryptoUtil {
                     MultitenantConstants.SUPER_TENANT_ID,
                     this.getServerConfigService(),
                     this.getRegistryService());
-            KeyStore keyStore = keyMan.getRegistryKeyStore();
+            KeyStore keyStore = keyMan.getPrimaryKeyStore();
 
             Certificate[] certs = keyStore.getCertificateChain(keyAlias);
             Cipher cipher = Cipher.getInstance("RSA", "BC");
@@ -162,7 +162,7 @@ public class CryptoUtil {
                     MultitenantConstants.SUPER_TENANT_ID,
                     this.getServerConfigService(),
                     this.getRegistryService());
-            KeyStore keyStore = keyMan.getRegistryKeyStore();
+            KeyStore keyStore = keyMan.getPrimaryKeyStore();
             PrivateKey privateKey = (PrivateKey) keyStore.getKey(keyAlias,
                     keyPass.toCharArray());
 

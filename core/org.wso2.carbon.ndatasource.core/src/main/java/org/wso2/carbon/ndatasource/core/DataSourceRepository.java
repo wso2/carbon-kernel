@@ -467,11 +467,11 @@ public class DataSourceRepository {
 		if (log.isDebugEnabled()) {
 			log.debug("Adding data source: " + dsmInfo.getName());
 		}
-		if (!dsmInfo.isSystem()) {
+        if (dsmInfo.isPersistable()) {
 		    this.persistDataSource(dsmInfo);
 		}
 		this.registerDataSource(dsmInfo);
-		if (!dsmInfo.isSystem()) {
+        if (dsmInfo.isPersistable()) {
 		    this.notifyClusterDSChange(dsmInfo.getName());
 		}
 	}
@@ -491,9 +491,11 @@ public class DataSourceRepository {
 		if (cds.getDSMInfo().isSystem()) {
 			throw new DataSourceException("System data sources cannot be deleted: " + dsName);
 		}
-		this.removePersistedDataSource(dsName);
-		this.unregisterDataSource(dsName);
-		this.notifyClusterDSChange(dsName);
+        this.unregisterDataSource(dsName);
+        if (cds.getDSMInfo().isPersistable()) {
+            this.removePersistedDataSource(dsName);
+            this.notifyClusterDSChange(dsName);
+        }
 	}
 	
 	/**

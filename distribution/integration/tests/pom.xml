@@ -15,20 +15,19 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>integration</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <version>4.4.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.integration.tests</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>WSO2 Carbon - Integration Tests</name>
 
@@ -36,8 +35,6 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.1.1</version>
-            <!--<scope>test</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.ws.commons.axiom.wso2</groupId>
@@ -51,7 +48,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.integration.framework</artifactId>
-	    <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -84,17 +80,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.authenticator.proxy</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.authenticator.proxy</artifactId>
-            <version>${project.version}</version>
-            <classifier>tests</classifier>
-        </dependency-->
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server.admin</artifactId>
@@ -106,11 +91,14 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
-            <!--scope>test</scope-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server.admin.stub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.woden.wso2</groupId>
+            <artifactId>woden</artifactId>
         </dependency>
     </dependencies>
 
@@ -118,11 +106,10 @@
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12</version>
                 <inherited>false</inherited>
                 <configuration>
-                    <argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=256m</argLine>
-                    <!--<argLine>-Xms512m -Xmx1024m -XX:MaxPermSize=256m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</argLine>-->
+                    <argLine>-Xms512m -Xmx1024m</argLine>
+                    <!--<argLine>-Xms512m -Xmx1024m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</argLine>-->
                     <includes>
                         <include>**/*TestCase.java</include>
                         <include>**/*TestServerManager.java</include>
@@ -130,8 +117,8 @@
                     <testFailureIgnore>false</testFailureIgnore>
                     <skip>false</skip>
                     <systemPropertyVariables>
-                        <sec.verifier.dir>${basedir}/target/security-verifier/</sec.verifier.dir> 
-                        <carbon.zip>${basedir}/../../kernel/target/wso2carbon-core-${project.version}.zip</carbon.zip>
+                        <sec.verifier.dir>${basedir}/target/security-verifier/</sec.verifier.dir>
+                        <carbon.zip>${basedir}/../../kernel/target/wso2carbon-core-${carbon.kernel.version}.zip</carbon.zip>
                         <emma.home>${basedir}/target/emma</emma.home>
                     </systemPropertyVariables>
                     <workingDirectory>${basedir}/target</workingDirectory>
@@ -169,7 +156,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
                 <executions>
                     <execution>
                         <goals>

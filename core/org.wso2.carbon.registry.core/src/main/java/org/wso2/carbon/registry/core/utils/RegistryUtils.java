@@ -30,13 +30,22 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.api.GhostResource;
 import org.wso2.carbon.registry.core.*;
 import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.CollectionImpl;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.RegistryConstants;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.ResourceIDImpl;
+import org.wso2.carbon.registry.core.ResourceImpl;
+import org.wso2.carbon.registry.core.ResourcePath;
 import org.wso2.carbon.registry.core.caching.RegistryCacheEntry;
 import org.wso2.carbon.registry.core.caching.RegistryCacheKey;
+import org.wso2.carbon.registry.core.config.Mount;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.config.RemoteConfiguration;
 import org.wso2.carbon.registry.core.config.StaticConfiguration;
 import org.wso2.carbon.registry.core.dao.ResourceDAO;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.internal.RegistryCoreServiceComponent;
 import org.wso2.carbon.registry.core.jdbc.handlers.HandlerLifecycleManager;
 import org.wso2.carbon.registry.core.jdbc.handlers.HandlerManager;
 import org.wso2.carbon.registry.core.jdbc.handlers.RequestContext;
@@ -47,6 +56,7 @@ import org.wso2.carbon.registry.core.jdbc.handlers.filters.URLMatcher;
 import org.wso2.carbon.registry.core.jdbc.realm.RegistryRealm;
 import org.wso2.carbon.registry.core.jdbc.utils.ServiceConfigUtil;
 import org.wso2.carbon.registry.core.jdbc.utils.Transaction;
+import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.session.CurrentSession;
 import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.registry.core.statistics.StatisticsCollector;
@@ -80,6 +90,7 @@ public final class RegistryUtils {
 
     private static final Log log = LogFactory.getLog(RegistryUtils.class);
     private static final String ENCODING = System.getProperty("carbon.registry.character.encoding");
+    private static final String MY_SQL_PRODUCT_NAME = "MySQL";
 
     private RegistryUtils() {
     }
@@ -176,18 +187,30 @@ public final class RegistryUtils {
      * @return the unique identifier.
      */
     public static String getConnectionId(Connection connection) {
+        String connectionId = null;
         try {
             // The connection URL is unique enough to be used as an identifier since one thread
             // makes one connection to the given URL according to our model.
             DatabaseMetaData connectionMetaData = connection.getMetaData();
+            String productName = connectionMetaData.getDatabaseProductName();
             if (connectionMetaData != null) {
+                if (MY_SQL_PRODUCT_NAME.equals(productName)) {
+                    /*
+                     For MySQL getUserName() method executes 'SELECT USER()' query on DB via mysql connector
+                     causing a huge number of 'SELECT USER()' queries to be executed.
+                     Hence removing username when the DB in use is MySQL.
+                     */
+                    connectionId = connectionMetaData.getURL();
+                } else {
+                    connectionId = connectionMetaData.getUserName() + "@" + connectionMetaData.getURL();
+                }
                 return (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
                         connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
             }
-        } catch (SQLException ignore) {
-            log.debug("Failed to construct the connectionId ." + ignore.getMessage());
+        } catch (SQLException e) {
+            log.error("Failed to construct the connectionId.", e);
         }
-        return null;
+        return connectionId;
     }
 
     /**
@@ -284,6 +307,17 @@ public final class RegistryUtils {
         CacheManager manager = getCacheManager();
         return (manager != null) ? manager.<RegistryCacheKey, RegistryCacheEntry>getCache(name) :
                 Caching.getCacheManager().<RegistryCacheKey, RegistryCacheEntry>getCache(name);
+    }
+
+    /**
+     * Method used to retrieve cache object for UUID, resource paths.
+     * @param name the name of the cache
+     * @return the cache object for the given cache manger and cache name
+     */
+    public static Cache<String, String> getUUIDCache(String name) {
+        CacheManager manager = getCacheManager();
+        return (manager != null) ? manager.<String, String>getCache(name) :
+                Caching.getCacheManager().<String, String>getCache(name);
     }
 
     private static CacheManager getCacheManager() {
@@ -1097,20 +1131,91 @@ public final class RegistryUtils {
      * @return the built filter instance.
      */
     public static URLMatcher getMountingMatcher(String path) {
-        URLMatcher matcher = new MountingMatcher();
+        URLMatcher matcher = new MountingMatcher(path);
         String matchedWith = Pattern.quote(path) + "($|" + RegistryConstants.PATH_SEPARATOR +
                 ".*|" + RegistryConstants.URL_SEPARATOR + ".*)";
         matcher.setPattern(matchedWith);
         return matcher;
     }
+    
+	// Sets-up the media types for this instance.
+	public static void setupMediaTypes(RegistryService registryService, int tenantId) {
+		try {
+			Registry registry = registryService.getConfigSystemRegistry(tenantId);
+			MediaTypesUtils.getResourceMediaTypeMappings(registry);
+			MediaTypesUtils.getCustomUIMediaTypeMappings(registry);
+			MediaTypesUtils.getCollectionMediaTypeMappings(registry);
+		} catch (RegistryException e) {
+			log.error("Unable to create fixed remote mounts.", e);
+		}
+	}
+
+	// Do tenant-specific initialization.
+	public static void initializeTenant(RegistryService registryService, int tenantId)
+	                                                                                  throws RegistryException {
+		try {
+			UserRegistry systemRegistry = registryService.getConfigSystemRegistry();
+			if (systemRegistry.getRegistryContext() != null) {
+				HandlerManager handlerManager =
+				                                systemRegistry.getRegistryContext()
+				                                              .getHandlerManager();
+				if (handlerManager instanceof HandlerLifecycleManager) {
+					((HandlerLifecycleManager) handlerManager).init(tenantId);
+				}
+			}
+			systemRegistry =
+			                 registryService.getRegistry(CarbonConstants.REGISTRY_SYSTEM_USERNAME,
+			                                             tenantId);
+			addMountCollection(systemRegistry);
+			registerMountPoints(systemRegistry, tenantId);
+			new RegistryCoreServiceComponent().setupMounts(registryService, tenantId);
+			setupMediaTypes(registryService, tenantId);
+			// We need to set the tenant ID for current session. Otherwise the
+			// underlying operations fails
+			try {
+				CurrentSession.setTenantId(tenantId);
+				RegistryContext registryContext = systemRegistry.getRegistryContext();
+				// Adding collection to store user profile information.
+				addUserProfileCollection(systemRegistry,
+				                         getAbsolutePath(registryContext,
+				                                         registryContext.getProfilesPath()));
+				// Adding collection to store services.
+				addServiceStoreCollection(systemRegistry,
+				                          getAbsolutePath(registryContext,
+				                                          registryContext.getServicePath()));
+				// Adding service configuration resources.
+				addServiceConfigResources(systemRegistry);
+			} finally {
+				CurrentSession.removeTenantId();
+			}
+		} catch (RegistryException e) {
+			log.error("Unable to initialize registry for tenant " + tenantId + ".", e);
+			throw new RegistryException("Unable to initialize registry for tenant " + tenantId +
+			                            ".", e);
+		}
+	}
 
     // This class is used to implement a URL Matcher that could be used for Mounting related
     // handlers.
     private static class MountingMatcher extends URLMatcher {
+
+        private boolean isExecuteQueryAllowed;
+
+        public MountingMatcher(String path) {
+            RegistryContext registryContext = RegistryContext.getBaseInstance();
+            for (Mount mount : registryContext.getMounts()) {
+                if (path.equals(mount.getPath())) {
+                    isExecuteQueryAllowed = mount.isExecuteQueryAllowed();
+                    break;
+                }
+            }
+
+        }
+
         // Mounting related handlers support execute query for any path.
         public boolean handleExecuteQuery(RequestContext requestContext)
                 throws RegistryException {
-            return true;
+            return isExecuteQueryAllowed;
         }
 
         // Mounting related handlers support get resource paths with tag for any path.

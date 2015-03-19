@@ -1,25 +1,18 @@
 /*
- *  Copyright (c) 2005-2009, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright 2005,2014 WSO2, Inc. http://www.wso2.org
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.wso2.carbon.utils.logging;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.helpers.FormattingInfo;
@@ -28,8 +21,12 @@ import org.apache.log4j.helpers.PatternParser;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.context.CarbonContext;
-import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * A log4j pattern layout implementation capable of capturing tenant details
@@ -44,6 +41,23 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
  * string will be returned. The tenant pattern can be changed via the log4j
  * configuration. You simply need to add a line in the format,
  * <code>log4j.appender.NAME.layout.TenantPattern=%U@%D [%T]</code>.
+ *
+ * Available patterns:
+ * [%D] - tenant domain
+ * [%P] - tenant pattern (TenantPattern as configured in the log4j.properties file. eg:
+ *                      %U%@%D[%T] - will be converted to "username @ tenant_domain [tenant_id]" )
+ * [%T] - tenant id
+ * [%S] - server name
+ * [%U] - user name
+ * [%A] - application name
+ * [%H] - host name/address
+ * [%I] - instance id
+ *
+ * How to use these patterns:
+ * Configure the log4j.properties file using above patterns.
+ * eg: for the console appender,
+ * log4j.appender.CARBON_CONSOLE.layout.ConversionPattern=TID: [%T] [%S] [%U] [%A] [%D] [%I] [%H]
+ * [%P] [%d] %P%5p {%c} - %x %m%n
  */
 
 public class TenantAwarePatternLayout extends PatternLayout {
@@ -107,12 +121,14 @@ public class TenantAwarePatternLayout extends PatternLayout {
     // structure of this
     // class see log4j PatternParser code.
     private static class TenantAwarePatternParser extends PatternParser {
-        CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
-        int tenantId = carbonContext.getTenantId();
         InetAddress inetAddress;
         String address;
+        String serverName = AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return ServerConfiguration.getInstance().getFirstProperty("ServerKey");
+            }
+        });
 
-        String serverName = ServerConfiguration.getInstance().getFirstProperty("ServerKey");
         public TenantAwarePatternParser(String pattern) {
             super(pattern);
             try {
@@ -127,28 +143,30 @@ public class TenantAwarePatternLayout extends PatternLayout {
             PatternConverter pc = null;
             switch (c) {
                 case 'D':
-                    pc = new TenantDomainPatternConverter(formattingInfo, extractPrecisionOption(), carbonContext);
+                    pc = new TenantDomainPatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case '@':
                     pc = new AtSignPatternConverter(formattingInfo);
                     break;
                 case 'P':
-                    pc = new TenantPatternConverter(formattingInfo, extractPrecisionOption(), tenantId);
+                    pc = new TenantPatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case 'T':
-                    pc = new TenantIdPatternConverter(formattingInfo, extractPrecisionOption(), tenantId);
+                    pc = new TenantIdPatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case 'S':
-                    pc = new ServiceNamePatternConverter(formattingInfo, extractPrecisionOption(), serverName);
+                    pc = new ServerNamePatternConverter(formattingInfo, extractPrecisionOption(),
+                                                         serverName);
                     break;
                 case 'U':
-                    pc = new UserNamePatternConverter(formattingInfo, extractPrecisionOption(), carbonContext);
+                    pc = new UserNamePatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case 'A':
-                    pc = new AppNamePatternConverter(formattingInfo, extractPrecisionOption(), carbonContext);
+                    pc = new AppNamePatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 case 'H':
-                    pc = new HostNamePatternConverter(formattingInfo, extractPrecisionOption(), address);
+                    pc = new HostNamePatternConverter(formattingInfo, extractPrecisionOption(),
+                                                      address);
                     break;
                 case 'I':
                     pc = new InstanceIdPatternConverter(formattingInfo, extractPrecisionOption());
@@ -201,71 +219,70 @@ public class TenantAwarePatternLayout extends PatternLayout {
         }
 
         private static class TenantIdPatternConverter extends TenantAwareNamedPatternConverter {
-            int tenantId;
-
-            public TenantIdPatternConverter(FormattingInfo formattingInfo, int precision, int tenantId1) {
+            public TenantIdPatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                tenantId = tenantId1;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
                 if (event instanceof TenantAwareLoggingEvent) {
                     return ((TenantAwareLoggingEvent) event).getTenantId();
                 } else {
+                    int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+                        public Integer run() {
+                            return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+                        }
+                    });
                     if (tenantId !=
                             MultitenantConstants.INVALID_TENANT_ID) {
                         return Integer.toString(tenantId);
                     }
                 }
-
                 return null;
             }
         }
 
         private static class UserNamePatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext carbonContext;
-
-            public UserNamePatternConverter(FormattingInfo formattingInfo, int precision, CarbonContext carbonContext1) {
+            public UserNamePatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                carbonContext = carbonContext1;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-
-                return carbonContext.getUsername();
+                return CarbonContext.getThreadLocalCarbonContext().getUsername();
             }
         }
 
         private static class TenantDomainPatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext carbonContext;
 
-            public TenantDomainPatternConverter(FormattingInfo formattingInfo, int precision, CarbonContext carbonContext1) {
+            public TenantDomainPatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                carbonContext = carbonContext1;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-                return carbonContext.getTenantDomain();
+                return CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             }
         }
 
-        private static class ServiceNamePatternConverter extends TenantAwareNamedPatternConverter {
-            String serverName;
-            public ServiceNamePatternConverter(FormattingInfo formattingInfo, int precision, String serverName1) {
+        private static class ServerNamePatternConverter extends TenantAwareNamedPatternConverter {
+            String name;
+
+            public ServerNamePatternConverter(FormattingInfo formattingInfo, int precision,
+                                              String serverName) {
                 super(formattingInfo, precision);
-                serverName = serverName1;
+                name = serverName;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
-                return serverName;
+                return name;
             }
         }
 
         private static class HostNamePatternConverter extends TenantAwareNamedPatternConverter {
             String address;
-            public HostNamePatternConverter(FormattingInfo formattingInfo, int precision, String address1) {
+
+            public HostNamePatternConverter(FormattingInfo formattingInfo, int precision,
+                                            String hostAddress) {
                 super(formattingInfo, precision);
-                address = address1;
+                address = hostAddress;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
@@ -290,10 +307,8 @@ public class TenantAwarePatternLayout extends PatternLayout {
 
 
         private static class AppNamePatternConverter extends TenantAwareNamedPatternConverter {
-            CarbonContext context;
-            public AppNamePatternConverter(FormattingInfo formattingInfo, int precision, CarbonContext carbonContext1) {
+            public AppNamePatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                context = carbonContext1;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
@@ -304,15 +319,14 @@ public class TenantAwarePatternLayout extends PatternLayout {
                         return "";
                     }
                 } else {
-                    String temp =  context.getApplicationName();
-                    if (temp != null) {
-                        return temp;
+                    String appName = CarbonContext.getThreadLocalCarbonContext()
+                                                            .getApplicationName();
+                    if (appName != null) {
+                        return appName;
                     } else {
                         return "";
                     }
-
                 }
-//				
             }
         }
 
@@ -331,13 +345,17 @@ public class TenantAwarePatternLayout extends PatternLayout {
         }
 
         private static class TenantPatternConverter extends TenantAwareNamedPatternConverter {
-            int tenantId;
-            public TenantPatternConverter(FormattingInfo formattingInfo, int precision, int tenantId1) {
+
+            public TenantPatternConverter(FormattingInfo formattingInfo, int precision) {
                 super(formattingInfo, precision);
-                tenantId = tenantId1;
             }
 
             public String getFullyQualifiedName(LoggingEvent event) {
+                int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+                    public Integer run() {
+                        return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+                    }
+                });
                 if (tenantId !=
                         MultitenantConstants.INVALID_TENANT_ID
                         && tenantId != MultitenantConstants.SUPER_TENANT_ID) {

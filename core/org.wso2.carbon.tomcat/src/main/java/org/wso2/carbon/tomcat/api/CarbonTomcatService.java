@@ -32,7 +32,10 @@ public interface CarbonTomcatService {
 
     int getProxyPort(String scheme);
 
+    @Deprecated
     void startConnectors(int port, String keyPass, String keyStorePass, String keyStoreFile);
+
+    void startConnectors(int portOffset);
 
     void stopConnectors();
 

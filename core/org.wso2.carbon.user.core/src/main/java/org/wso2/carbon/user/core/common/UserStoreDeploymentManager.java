@@ -89,30 +89,29 @@ public class UserStoreDeploymentManager {
      * Set secondary user store at the very end of chain
      *
      * @param parent : primary user store
-     * @param child : secondary user store
+     * @param child  : secondary user store
      */
     private void setSecondaryUserStore(RealmConfiguration parent, RealmConfiguration child) {
-    	String parentDomain = parent.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
-    	String addingDomain = child.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
-    	
-    	if(parentDomain == null) {
-    		return;
-    	}
-    				
-    	
-    	
-        while (parent.getSecondaryRealmConfig() != null) {
-        	if(parentDomain.equals(addingDomain)) {
-        		return;
-        	}
-            parent = parent.getSecondaryRealmConfig();
-        	parentDomain = parent.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
+        String parentDomain = parent.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
+        String addingDomain = child.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
+
+        if (parentDomain == null) {
+            return;
         }
-        
-        if(parentDomain.equals(addingDomain)) {
-    		return;
-    	}
-       	parent.setSecondaryRealmConfig(child);
+
+
+        while (parent.getSecondaryRealmConfig() != null) {
+            if (parentDomain.equals(addingDomain)) {
+                return;
+            }
+            parent = parent.getSecondaryRealmConfig();
+            parentDomain = parent.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME);
+        }
+
+        if (parentDomain.equals(addingDomain)) {
+            return;
+        }
+        parent.setSecondaryRealmConfig(child);
     }
 
 
@@ -120,12 +119,11 @@ public class UserStoreDeploymentManager {
      * Trigger un-deploying of a deployed file. Removes the deleted user store from chain
      *
      * @param fileName: domain name --> file name
-     * @throws org.apache.axis2.deployment.DeploymentException
-     *          for any errors
+     * @throws org.apache.axis2.deployment.DeploymentException for any errors
      */
     public void undeploy(String fileName) throws DeploymentException {
-        
-        String pattern = Pattern.quote(System.getProperty("file.separator"));        
+
+        String pattern = Pattern.quote(System.getProperty("file.separator"));
         String[] fileNames = fileName.split(pattern);
         String domainName = fileNames[fileNames.length - 1].replace(".xml", "").replace("_", ".");
 
@@ -141,12 +139,12 @@ public class UserStoreDeploymentManager {
             while (realmConfig.getSecondaryRealmConfig() != null) {
                 secondaryRealm = realmConfig.getSecondaryRealmConfig();
                 if (secondaryRealm.getUserStoreProperty(UserStoreConfigConstants.DOMAIN_NAME).equalsIgnoreCase(domainName)) {
-                	String disabled = secondaryRealm
-                			.getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED);
-                	if (disabled != null) {
-                		isDisabled = Boolean.parseBoolean(disabled);
-                	}
-                    
+                    String disabled = secondaryRealm
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED);
+                    if (disabled != null) {
+                        isDisabled = Boolean.parseBoolean(disabled);
+                    }
+
                     realmConfig.setSecondaryRealmConfig(secondaryRealm.getSecondaryRealmConfig());
                     log.info("User store: " + domainName + " of tenant:" + tenantId + " is removed from realm chain.");
                     break;
@@ -154,25 +152,26 @@ public class UserStoreDeploymentManager {
                     realmConfig = realmConfig.getSecondaryRealmConfig();
                 }
             }
-            
+
             if (!isDisabled) {
                 userStoreManager.removeSecondaryUserStoreManager(domainName);
             }
         } catch (Exception ex) {
-        	log.error(ex.getMessage());
+            log.error(ex.getMessage());
             throw new DeploymentException("Error occurred at undeploying " + domainName + " from tenant:" + CarbonContext.getThreadLocalCarbonContext().getTenantId(), ex);
         }
 
     }
-    
+
     /**
      * Builds userstore realm configuration from the file
+     *
      * @param absoluteFilePath
      * @return
      * @throws UserStoreException
      */
     public RealmConfiguration getUserStoreConfiguration(String absoluteFilePath) throws UserStoreException {
         UserStoreConfigXMLProcessor userStoreXMLProcessor = new UserStoreConfigXMLProcessor(absoluteFilePath);
-		return userStoreXMLProcessor.buildUserStoreConfigurationFromFile();
+        return userStoreXMLProcessor.buildUserStoreConfigurationFromFile();
     }
 }

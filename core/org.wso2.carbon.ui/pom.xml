@@ -15,14 +15,13 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.4.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -31,7 +30,7 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - UI</name>
     <description>org.wso2.carbon.ui</description>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <url>http://wso2.org</url>
 
     <dependencies>
@@ -50,7 +49,6 @@
         <dependency>
             <groupId>org.apache.tiles.wso2</groupId>
             <artifactId>tiles-jsp</artifactId>
-            <version>2.0.5.wso2v2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.tiles</groupId>
@@ -69,48 +67,32 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-            <!--<exclusions>
-                <exclusion>
-                    <groupId>org.wso2.carbon</groupId>
-                    <artifactId>org.wso2.carbon.tomcat</artifactId>
-                </exclusion>
-            </exclusions>-->
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.authenticator.proxy</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.common</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.geronimo.specs</groupId>
                     <artifactId>geronimo-stax-api_1.0_spec</artifactId>
                 </exclusion>
-                <!--exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion-->
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.axis2.wso2</groupId>
@@ -129,16 +111,10 @@
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.apache.jasper.glassfish</artifactId>
-            <version>${version.equinox.jasper}</version>
         </dependency>
-        <!--dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.apache.jasper</artifactId>
-        </dependency-->
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>javax.servlet.jsp</artifactId>
-            <version>${version.equinox.javax.servlet.jsp}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -147,7 +123,6 @@
         <dependency>
             <groupId>javax.servlet.jsp.jstl.wso2</groupId>
             <artifactId>jstl</artifactId>
-            <version>${orbit.version.jstl}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.servlet</groupId>
@@ -166,13 +141,11 @@
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>javax.servlet</artifactId>
-            <version>${version.equinox.javax.servlet}</version>
         </dependency>
-                <dependency>
-                    <groupId>commons-lang.wso2</groupId>
-                    <artifactId>commons-lang</artifactId>
-                    <version>${orbit.version.commons.lang}</version>
-                </dependency>
+        <dependency>
+            <groupId>commons-lang.wso2</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -184,7 +157,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -199,7 +171,7 @@
                         </Export-Package>
                         <Import-Package>
                             !org.wso2.carbon.ui.*,
-                            org.wso2.carbon.core.commons.stub.*;version="${carbon.platform.package.import.version.range}",
+                            org.wso2.carbon.core.commons.stub.*;version="${carbon.kernel.imp.pkg.version}",
                             org.wso2.carbon.core.common;version="0.0.0",
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",

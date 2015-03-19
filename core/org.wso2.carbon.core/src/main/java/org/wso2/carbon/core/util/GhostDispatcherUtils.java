@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2007 WSO2, Inc. (http://wso2.com)
+ * Copyright 2005-2014 WSO2, Inc. (http://wso2.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package org.wso2.carbon.core.util;
 
-import org.apache.axis2.deployment.DeploymentException;
-import org.apache.axis2.deployment.repository.util.DeploymentFileData;
 import org.apache.axis2.description.AxisService;
 import org.apache.axis2.description.Parameter;
 import org.apache.axis2.engine.AxisConfiguration;
@@ -29,11 +27,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.deployment.DeploymentSynchronizer;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.utils.deployment.GhostDeployer;
-import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 
 import java.io.File;
-import java.net.URL;
 
 public class GhostDispatcherUtils {
 
@@ -43,11 +38,13 @@ public class GhostDispatcherUtils {
     }
 
     /**
+     * @deprecated partial depsync update is deprecated.
      * This method handles the partial synchronizing/updating of the service file
      * synchronized to avoid concurrent dep sycnh updates of the same file
      * @param axisConfig - axis configuration of the tenant
      * @param axisService - ghost service
      */
+    @Deprecated
     public synchronized static void handleDepSynchUpdate(AxisConfiguration axisConfig,
                                                          AxisService axisService) {
         String deploymentDir = CarbonConstants.SERVICES_HOTDEPLOYMENT_DIR, extension = "aar";
@@ -116,7 +113,7 @@ public class GhostDispatcherUtils {
                             }
                             depsync.update(repoPath, serviceMetaFilePath, 3);*/
                             File fileToUpdate = new File(absoluteFilePath);
-
+                            /*
                             if (fileToUpdate.exists()) {
                                 axisService.setFileName(new URL("file:" + absoluteFilePath));
                                 DeploymentFileData dfd = new DeploymentFileData(fileToUpdate);
@@ -133,6 +130,7 @@ public class GhostDispatcherUtils {
                                     ghostDeployer.addFileData(dfd);
                                 }
                             }
+                            */
                         }
                     } catch (Throwable t) {
                         log.error("Deployment synchronization update failed", t);
@@ -144,33 +142,5 @@ public class GhostDispatcherUtils {
         }
     }
 
-    @Deprecated
-    public static void deployServiceMetaFile(String serviceGroupName,
-                                             AxisConfiguration axisConfig) {
-        if (serviceGroupName != null) {
-            synchronized (serviceGroupName.intern()) {
-                String axisRepo = axisConfig.getRepository().getPath();
-                String serviceMetaFileDirPath = axisRepo + File.separator +
-                                                CarbonConstants.SERVICE_METAFILE_HOTDEPLOYMENT_DIR;
-                String serviceMetaFilePath = serviceMetaFileDirPath + File.separator +
-                                             serviceGroupName + ".xml";
 
-                GhostDeployer ghostDeployer = GhostDeployerUtils.getGhostDeployer(axisConfig);
-                File serviceMetaFile = new File(serviceMetaFilePath);
-                if (serviceMetaFile.exists() && ghostDeployer != null) {
-                    DeploymentFileData metaFileDFD = new DeploymentFileData(serviceMetaFile);
-                    metaFileDFD.setDeployer(ghostDeployer.
-                            getDeployer(CarbonConstants.SERVICE_METAFILE_HOTDEPLOYMENT_DIR, "xml"));
-                    try {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Deploying service metafile : " + serviceMetaFile);
-                        }
-                        metaFileDFD.deploy();
-                    } catch (DeploymentException e) {
-                        log.error("Error while deploying service metafile : " + serviceMetaFile);
-                    }
-                }
-            }
-        }
-    }
 }

@@ -14,21 +14,19 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>feature-manager</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <version>4.4.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.feature.mgt.services</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Feature Manager Web Services</name>
     <description>This bundle provides the component mgt Web Services</description>
@@ -38,28 +36,24 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
-		<dependency>
-			<groupId>org.apache.neethi.wso2</groupId>
-			<artifactId>neethi</artifactId>
-			<version>${orbit.version.neethi}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.neethi</groupId>
-					<artifactId>neethi</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.neethi.wso2</groupId>
+            <artifactId>neethi</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.neethi</groupId>
+                    <artifactId>neethi</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.feature.mgt.core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
@@ -88,14 +82,14 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Axis2Module>${project.artifactId}-${project.version}</Axis2Module>
-                        <Bundle-Activator>org.wso2.carbon.feature.mgt.services.internal.FeatureManagerBundleActivator</Bundle-Activator>
+                        <Bundle-Activator>org.wso2.carbon.feature.mgt.services.internal.FeatureManagerBundleActivator
+                        </Bundle-Activator>
                         <Private-Package>
                             org.wso2.carbon.feature.mgt.services.*,
                             org.wso2.carbon.feature.mgt.module.*
@@ -109,5 +103,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

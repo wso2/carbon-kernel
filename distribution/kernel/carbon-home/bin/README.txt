@@ -1,21 +1,21 @@
 ${product.name} v${product.version}
 
 
-This file explains the usages of all the scipts contained within
+This file explains the usages of all the scripts contained within
 this directory.
 
 1. chpasswd.sh & chpasswd.bat
-    - Utiliy for changing the passwords of users registered in the CARBON user
+    - Utility for changing the passwords of users registered in the CARBON user
       database
 
-	This script is designed to be used with any databases. Tested with H2,MSSQL and Derby. H2 database is embedded with CARBON. 
+	This script is designed to be used with any databases. Tested with H2, MSSQL and Derby. H2 database is embedded with CARBON.
 	Open a console/shell and run the script from "$CARBON_HOME/bin" directory.
 
 	Usage:
 	# chpasswd.bat/sh --db-url jdbc:h2:/$CARBON_HOME/repository/database/WSO2CARBON_DB
 
 	If the administrator wants to use other databases, he should configure the datasource in the "master-datasources.xml", which is in 
-	"$CARBON_HOME/repository/conf/datasources" directory. This datasource is lookedup in "registry.xml" and "user-mgt.xml" as a JNDI resource.
+	"$CARBON_HOME/repository/conf/datasources" directory. This datasource is looked up in "registry.xml" and "user-mgt.xml" as a JNDI resource.
   	He also needs to keep the drivers of the database inside the "$CARBON_HOME/repository/components/lib" directory.
 
 	For eg,
@@ -68,26 +68,21 @@ this directory.
             <Property name="MultiTenantRealmConfigBuilder">org.wso2.carbon.user.core.config.multitenancy.SimpleRealmConfigBuilder</Property>
         </Configuration>
 
-	d. Open a console/shell and run the script from "$CARBON_HOME/bin" directory having shutdown the server.
+	d. Open a console/shell and run the script from "$CARBON_HOME/bin" directory. Stop the server before running this script.
 	
-	Usage:
-	# chpasswd.bat/sh --db-url jdbc:jtds:sqlserver://10.100.1.68:1433/USERDB --db-driver net.sourceforge.jtds.jdbc.Driver --db-username USER --db-password USER
+	Usage 01:
+	# chpasswd.bat/sh --db-url jdbc:jtds:sqlserver://10.100.1.68:1433/USERDB --db-driver net.sourceforge.jtds.jdbc.Driver --db-username wso2carbon --db-password wso2carbon --username admin --new-password admin123
+
+	Usage 02: MySQL DB
+    sh chpasswd.sh --db-url jdbc:mysql://mysql.carbon-test.org:3306/userstore  --db-driver com.mysql.jdbc.Driver  --db-username root --db-password root123 --username admin --new-password admin123
 
 	e. Now you can access the admin console with your new password.
-
-	NOTE:- To create your own database, you need to put the driver into the "$CARBON_HOME/repository/components/extensions" directory.
-        Then, start the server with "-Dsetup" option.
-
-	Usage:
-	# wso2server.bat/sh -Dsetup
-	It will create the tables. Thereafter shutdown the server and open a console/shell and run the script as enumerated above.
-	You may delete the driver, which is inside the "$CARBON_HOME/repository/components/extensions" directory, as it is no more required.
 
 2. README.txt
     - This file
 
 3. version.txt
-    - A simple text file used for storing the version
+    - A simple text file used for storing the product version
 
 4. wso2server.sh & wso2server.bat
     - The main script file used for running the server.
@@ -95,16 +90,15 @@ this directory.
     Usage: wso2server.sh [commands] [system-properties]
 
             commands:
-                --debug <port>  Start the server in remote debugging mode.
-                                port: The remote debugging port.
-
-                --startHttpTransports	Immediately starts all Tomcat HTTP connectors.
                 --start		Start Carbon using nohup
                 --stop		Stop the Carbon server process
                 --restart	Restart the Carbon server process
                 --cleanRegistry Clean registry space.
                                 [CAUTION] All Registry data will be lost..
-                --version       The version of the product you are running.
+                --debug <port>  Start the server in remote debugging mode.
+                                port: The remote debugging port.
+                --help      List all the available commands and system properties
+                --version   The version of the product you are running.
 
             system-properties:
 
@@ -113,59 +107,57 @@ this directory.
                                 If the optional 'port' parameter is provided, a
                                 telnet port will be opened.
 
-                -DosgiDebugOptions=[options-file]
+                -DosgiDebugOptions
                                 Start Carbon with OSGi debugging enabled.
-                                If the optional 'options-file' is provided, the OSGi
-                                debug options will be loaded from it.
+                                Debug options are loaded from the file
+                                repository/conf/etc/osgi-debug.options
 
                 -Dsetup         Clean the Registry and other configuration,
                                 recreate DB, re-populate the configuration,
                                 and start Carbon.
 
+                -DhttpPort=<httpPort>
+                                Overrides the HTTP port defined in the carbon.xml file
+
+                -DhttpsPort=<httpsPort>
+                                Overrides the HTTPS port defined in the carbon.xml file
+
+                -DportOffset=<offset>
+                                The number by which all ports defined in the runtime ports will be offset
+
+                -DserverRoles<roles>
+                                A comma separated list of roles. Used in deploying cApps
+
+                -DworkerNode
+                                Set this system property when starting as a worker node.
+		
+                -Dprofile=<profileName>
+				Starts the server as the specified profile. e.g. worker profile.
+
+                -Dtenant.idle.time=<timeInMinutes>
+                                If a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.
+
                 -Dcarbon.registry.root
                                 The root of the Registry used by
                                 this Carbon instance.
-
      
-                -Dweb.location  The directory into which the UI artifacts
+                -Dweb.location=<path>
+                                The directory into which the UI artifacts
                                 included in an Axis2 AAR file are extracted to.
 
-		-Dcarbon.config.dir.path=[path]
-				Overwrite the conf directory path where we keep all 
-				configuration files like carbon.xml, axis2.xml etc.
+                -Dcarbon.config.dir.path=<path>
+                        Overwrite the conf directory path where we keep all
+                        configuration files like carbon.xml, axis2.xml etc.
 
-		-Dcarbon.logs.path=[path]
-				Define the path to keep Log files.
-
-		-Daxis2.repository=[path]
-				Overwrite the default location we keep axis2 client/service
-				artifacts.
-
-		-Dcomponents.repository=[path]
-				Overwrite the default location we keep all the OSGi bundles. 
+                -Dcarbon.logs.path=>path>
+                        Define the path to keep Log files. If you want to change the logs directory, you need to update
+                        repository/conf/log4j.properties file also.
 
 5. wsdl2java.sh & wsdl2java.bat - Tool for generating Java code from WSDLs
 
 6. java2wsdl.sh & java2wsdl.bat - Tool for generating WSDL from Java code
 
-7. ciphertool.sh & ciphertool.bat - Tool for encrypting and decrypting simple texts such as passwords.
-    The arguments that are inputs to this tool with their meanings are shown bellow.
-
-	keystore        - If keys are in a store , it's location
-	storepass       - Password for access keyStore
-	keypass         - To get private key
-	alias           - Alias to identify key owner
-	storetype       - Type of keyStore , Default is JKS
-	keyfile         - If key is in a file
-	opmode          - encrypt or decrypt , Default is encrypt
-	algorithm       - encrypt or decrypt algorithm , Default is RSA
-	source          - Either cipher or plain text as an in-lined form
-	outencode       - Currently base64 and use for encode result
-	inencode        - Currently base64 and use to decode input
-	trusted         - Is KeyStore a trusted store? If presents this, consider as a trusted store
-	passphrase      - if a simple symmetric encryption using a pass phrase shall be used
-
-8. build.xml - Build configuration for the ant command. 
+7. build.xml - Build configuration for the ant command.
       Default task - Running the ant command in this directory, will copy the libraries that are require to run remote registry clients in to the repo                     sitory/lib directory.
       createWorker task - removes the front end components from the server runtime.
       localize task - Generates language bundles in the $CARBON_HOME/repository/components/dropins to be picked at a locale change.
@@ -174,7 +166,7 @@ this directory.
 	RUNNING INSTRUCTIONS FOR LOCALIZE TASK
 	--------------------------------------
 	(i) Create a directory as resources in your $CARBON_HOME.
-	(ii) Add the relevent resources files of your desired languages in to that directory  by following the proper naming conventions of the ui jars.
+	(ii) Add the relevant resources files of your desired languages in to that directory  by following the proper naming conventions of the ui jars.
 
 		For an example in your resources directory, you can add the resource files as follows.
 
@@ -200,4 +192,10 @@ this directory.
 
       	If you want to change the default locations of the resources directory and dropins directory, run the following command.
 		ant localize -Dresources.directory=<your path to the resource directory> -Ddropins.directory=<path to the directory where you want to store generated language bundles>
-9. yajsw - contains the wrapper.conf file to run a Carbon server as a windows service using YAJSW (Yet Another Java Service Wrapper)
+
+8. yajsw - contains the wrapper.conf file to run a Carbon server as a windows service using YAJSW (Yet Another Java Service Wrapper)
+
+9. wso2carbon-version.txt
+    - A simple text file used for storing the Carbon kernel version
+
+10. carbondump.sh & carbondump.bat - Carbondump is a tool for collecting all the necessary data from a running Carbon instance at the time of an error. The carbondump generates a zip archive with the collected data, which can be used to analyze your system and determine the problem which caused the error.

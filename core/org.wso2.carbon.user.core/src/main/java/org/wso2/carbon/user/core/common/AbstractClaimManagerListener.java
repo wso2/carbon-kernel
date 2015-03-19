@@ -38,9 +38,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      *
      * @param claimURI The claim URI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getAttributeName(String claimURI) throws UserStoreException {
@@ -52,9 +51,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      *
      * @param claimURI The claim URI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getClaim(String claimURI) throws UserStoreException {
@@ -66,9 +64,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      *
      * @param claimURI The claim URI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getClaimMapping(String claimURI) throws UserStoreException {
@@ -79,9 +76,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      * Gets all supported claims by default in the system.
      *
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getAllSupportClaimMappingsByDefault() throws UserStoreException {
@@ -92,9 +88,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      * Gets all claim objects
      *
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getAllClaimMappings() throws UserStoreException {
@@ -106,9 +101,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      *
      * @param dialectUri The dialect URI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getAllClaimMappings(String dialectUri) throws UserStoreException {
@@ -119,9 +113,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      * Gets all mandatory claims
      *
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getAllRequiredClaimMappings() throws UserStoreException {
@@ -132,9 +125,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      * Gets all claim URIs
      *
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getAllClaimUris() throws UserStoreException {
@@ -146,9 +138,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      *
      * @param mapping The claim mapping to be added
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean addNewClaimMapping(org.wso2.carbon.user.api.ClaimMapping mapping) throws UserStoreException {
@@ -160,9 +151,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      *
      * @param mapping The claim mapping to be deleted
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean deleteClaimMapping(org.wso2.carbon.user.api.ClaimMapping mapping) throws UserStoreException {
@@ -174,9 +164,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      *
      * @param mapping The claim mapping to be updated
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean updateClaimMapping(org.wso2.carbon.user.api.ClaimMapping mapping) throws UserStoreException {
@@ -189,9 +178,8 @@ public class AbstractClaimManagerListener implements ClaimManagerListener {
      * @param domainName
      * @param claimURI
      * @return - Whether execution of this method of the underlying
-     *         ClaimManager must happen.
+     * ClaimManager must happen.
      * @throws org.wso2.carbon.user.core.UserStoreException
-     *
      */
     @Override
     public boolean getAttributeName(String domainName, String claimURI) throws UserStoreException {

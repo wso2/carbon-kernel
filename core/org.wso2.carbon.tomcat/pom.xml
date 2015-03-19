@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.4.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -41,7 +41,6 @@
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.http.servlet</artifactId>
-            <version>1.0.200.v20090520-1800</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
@@ -52,25 +51,21 @@
             <artifactId>javax.servlet</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat.wso2</groupId>
+            <groupId>org.wso2.tomcat</groupId>
             <artifactId>tomcat</artifactId>
-            <version>${orbit.version.tomcat}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
-             <groupId>org.wso2.carbon</groupId>
-             <artifactId>org.wso2.carbon.utils</artifactId>
-             <version>${project.version}</version>
-         </dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.wso2.securevault</groupId>
             <artifactId>org.wso2.securevault</artifactId>
-            <version>${securevault.version}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

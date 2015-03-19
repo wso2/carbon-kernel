@@ -86,9 +86,23 @@
     <Package>org.wso2.carbon</Package>
 
     <!--
-       Webapp context root of WSO2 Carbon.
+       Webapp context root of WSO2 Carbon management console.
     -->
     <WebContextRoot>/</WebContextRoot>
+
+    <!--
+    	Proxy context path is a useful parameter to add a proxy path when a Carbon server is fronted by reverse proxy. In addtion
+        to the proxy host and proxy port this parameter allows you add a path component to external URLs. e.g.
+     		URL of the Carbon server -> https://10.100.1.1:9443/carbon
+   		URL of the reverse proxy -> https://prod.abc.com/appserver/carbon
+
+   	appserver - proxy context path. This specially required whenever you are generating URLs to displace in
+   	Carbon UI components.
+    -->
+    <!--
+    	<MgtProxyContextPath></MgtProxyContextPath>
+    	<ProxyContextPath></ProxyContextPath>
+    -->
 
     <!-- In-order to  get the registry http Port from the back-end when the default http transport is not the same-->
     <!--RegistryHttpPort>9763</RegistryHttpPort-->
@@ -205,8 +219,49 @@
     -->
     <GhostDeployment>
         <Enabled>false</Enabled>
-        <PartialUpdate>false</PartialUpdate>
     </GhostDeployment>
+
+
+    <!--
+        Eager loading or lazy loading is a design pattern commonly used in computer programming which
+        will initialize an object upon creation or load on-demand. In carbon, lazy loading is used to
+        load tenant when a request is received only. Similarly Eager loading is used to enable load
+        existing tenants after carbon server starts up. Using this feature, you will be able to include
+        or exclude tenants which are to be loaded when server startup.
+
+        We can enable only one LoadingPolicy at a given time.
+
+        1. Tenant Lazy Loading
+           This is the default behaviour and enabled by default. With this policy, tenants are not loaded at
+           server startup, but loaded based on-demand (i.e when a request is received for a tenant).
+           The default tenant idle time is 30 minutes.
+
+        2. Tenant Eager Loading
+           This is by default not enabled. It can be be enabled by un-commenting the <EagerLoading> section.
+           The eager loading configurations supported are as below. These configurations can be given as the
+           value for <Include> element with eager loading.
+                (i)Load all tenants when server startup             -   *
+                (ii)Load all tenants except foo.com & bar.com       -   *,!foo.com,!bar.com
+                (iii)Load only foo.com &  bar.com to be included    -   foo.com,bar.com
+    -->
+    <Tenant>
+        <LoadingPolicy>
+            <LazyLoading>
+                <IdleTime>30</IdleTime>
+            </LazyLoading>
+            <!-- <EagerLoading>
+                   <Include>*,!foo.com,!bar.com</Include>
+            </EagerLoading>-->
+        </LoadingPolicy>
+    </Tenant>
+
+    <!--
+     Caching related configurations
+    -->
+    <Cache>
+        <!-- Default cache timeout in minutes -->
+        <DefaultCacheTimeout>15</DefaultCacheTimeout>
+    </Cache>
 
     <!--
     Axis2 related configurations
@@ -309,22 +364,6 @@
             <!-- Private Key password-->
             <KeyPassword>wso2carbon</KeyPassword>
         </KeyStore>
-		
-		 <!--
-			Encrypt Decrypt Store will be used for encrypting and decrypting
-		-->
-        <RegistryKeyStore>
-            <!-- Keystore file location-->
-            <Location>${carbon.home}/repository/resources/security/wso2carbon.jks</Location>
-            <!-- Keystore type (JKS/PKCS12 etc.)-->
-            <Type>JKS</Type>
-            <!-- Keystore password-->
-            <Password>wso2carbon</Password>
-            <!-- Private Key alias-->
-            <KeyAlias>wso2carbon</KeyAlias>
-            <!-- Private Key password-->
-            <KeyPassword>wso2carbon</KeyPassword>
-        </RegistryKeyStore>
 
         <!--
             System wide trust-store which is used to maintain the certificates of all
@@ -588,8 +627,8 @@
        Default Feature Repository of WSO2 Carbon.
     -->
     <FeatureRepository>
-	<RepositoryName>default repository</RepositoryName>
-	<RepositoryURL>${p2.repo.url}</RepositoryURL>
+	    <RepositoryName>default repository</RepositoryName>
+	    <RepositoryURL>${p2.repo.url}</RepositoryURL>
     </FeatureRepository>
 
     <!--

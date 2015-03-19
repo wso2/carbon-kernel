@@ -93,7 +93,7 @@ public class ServerManagement {
     public void startMaintenanceForShutDown() throws Exception {
         startMaintenance();
         waitForDeploymentThreadCompletion();
-        cleanCAppWorkDir();
+        //cleanCAppWorkDir();
         waitForServerTaskCompletion();
     }
 

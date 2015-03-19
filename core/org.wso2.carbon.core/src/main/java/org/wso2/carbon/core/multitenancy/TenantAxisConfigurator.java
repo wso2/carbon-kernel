@@ -49,9 +49,11 @@ import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.PreAxisConfigurationPopulationObserver;
 import org.wso2.carbon.utils.WSO2Constants;
+import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
+import org.wso2.carbon.utils.deployment.Axis2DeployerProvider;
 import org.wso2.carbon.utils.deployment.Axis2DeployerRegistry;
 import org.wso2.carbon.utils.deployment.Axis2ModuleRegistry;
-import org.wso2.carbon.utils.deployment.GhostDeployerRegistry;
+import org.wso2.carbon.utils.deployment.GhostArtifactRepository;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
@@ -64,7 +66,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -474,14 +478,42 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
         if (disableArtifactLoading == null || "false".equals(disableArtifactLoading.getValue())) {
             moduleDeployer = new ModuleDeployer(axisConfig);
             new Axis2ModuleRegistry(axisConfig).register(moduleBundles);
-            // Add Ghost deployer registry only if ghost is on
-            if (GhostDeployerUtils.isGhostOn()) {
-                new GhostDeployerRegistry(axisConfig).register(deployerBundles);
-            } else {
-                new Axis2DeployerRegistry(axisConfig).register(deployerBundles);
+            ServiceTracker deployerServiceTracker = null;
+            Axis2DeployerProvider[] axis2DeployerProviderList;
+            try {
+                deployerServiceTracker = new ServiceTracker(bundleContext,
+                        Axis2DeployerProvider.class.getName(), null);
+                deployerServiceTracker.open();
+                if (deployerServiceTracker.getServices() == null) {
+                    axis2DeployerProviderList = new Axis2DeployerProvider[]{};
+                } else {
+                    axis2DeployerProviderList = Arrays.copyOf(deployerServiceTracker.getServices(),
+                            deployerServiceTracker.getServices().length, Axis2DeployerProvider[].class);
+                }
+            } finally {
+                if (deployerServiceTracker != null) {
+                    deployerServiceTracker.close();
+                }
             }
+            List<DeployerConfig> deployerConfigs = readDeployerConfigs(axis2DeployerProviderList);
+            if (GhostDeployerUtils.isGhostOn()) {
+                GhostArtifactRepository ghostArtifactRepository = new GhostArtifactRepository(axisConfig);
+                GhostDeployerUtils.setGhostArtifactRepository(ghostArtifactRepository, axisConfig);
+            }
+
+            // Adding deployers from vhosts and deployers which come inside bundles
+            new Axis2DeployerRegistry(axisConfig).register(deployerBundles,
+                    deployerConfigs);
         }
         return axisConfig;
+    }
+
+    private List<DeployerConfig> readDeployerConfigs(Axis2DeployerProvider[] axis2DeployerProviders) {
+        List<DeployerConfig> allDeployerConfig = new ArrayList<DeployerConfig>();
+        for (Axis2DeployerProvider axis2DeployerProvider : axis2DeployerProviders) {
+            allDeployerConfig.addAll(axis2DeployerProvider.getDeployerConfigs());
+        }
+        return allDeployerConfig;
     }
 
     public synchronized void runDeployment(){
@@ -554,5 +586,16 @@ public class TenantAxisConfigurator extends DeploymentEngine implements AxisConf
         } catch (AxisFault axisFault) {
             throw new DeploymentException(axisFault.getMessage(), axisFault);
         }
+    }
+
+    @Override
+    public void loadServices() {
+        //We don't deploy any artifacts at this time, TenantAxisUtils will take care of
+        //deployment in later stage of server startup (Refer CARBON-14977 ).
+
+    }
+
+    public  void deployServices() {
+        super.loadServices();
     }
 }

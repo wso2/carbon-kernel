@@ -27,6 +27,7 @@ import java.io.Serializable;
 public class AuthorizeCacheEntry implements Serializable {
 
     private static final long serialVersionUID = 1125082384187016686L;
+    private boolean isUserAuthorized;
 
     public AuthorizeCacheEntry(boolean userAuthorized) {
         isUserAuthorized = userAuthorized;
@@ -35,6 +36,4 @@ public class AuthorizeCacheEntry implements Serializable {
     public boolean isUserAuthorized() {
         return isUserAuthorized;
     }
-
-    private boolean isUserAuthorized;
 }

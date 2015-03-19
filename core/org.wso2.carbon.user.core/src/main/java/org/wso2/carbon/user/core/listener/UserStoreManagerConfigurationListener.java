@@ -21,8 +21,7 @@ package org.wso2.carbon.user.core.listener;
 public interface UserStoreManagerConfigurationListener {
 
     /**
-     *
      * @param domainName
      */
-    void propertyChange(String domainName) ;
+    void propertyChange(String domainName);
 }

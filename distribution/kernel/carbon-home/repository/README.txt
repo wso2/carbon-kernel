@@ -31,4 +31,4 @@ under this folder.
    Directory contains LDAP related data.
 
 9. database
-   Directory contains the default applicaton database.
+   Directory contains the default application database.

@@ -23,7 +23,7 @@ import org.wso2.carbon.user.core.common.RoleContext;
  *
  */
 public class JDBCRoleContext extends RoleContext {
-    
+
     private int tenantId;
 
     public int getTenantId() {

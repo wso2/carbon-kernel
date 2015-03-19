@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -180,7 +180,7 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
                 continue;
             } else if ((artifact.getType().startsWith("lib/") || BUNDLE_TYPE.
                     equals(artifact.getType()))
-                       && AppDeployerUtils.getTenantId(axisConfig) ==
+                       && AppDeployerUtils.getTenantId() ==
                           MultitenantConstants.SUPER_TENANT_ID) {
                 // First copy the file into dropoins
                 /**
@@ -263,7 +263,7 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
                 continue;
             } else if (artifact.getType() != null && (artifact.getType().startsWith("lib/") ||
                                                       BUNDLE_TYPE.equals(artifact.getType()))
-                       && AppDeployerUtils.getTenantId(axisConfig) ==
+                       && AppDeployerUtils.getTenantId() ==
                           MultitenantConstants.SUPER_TENANT_ID) {
                 /**
                  * Removing code that removes jar artifact from dropins. We call uninstallBundle from the extracted
@@ -291,7 +291,17 @@ public class DefaultAppDeployer implements AppDeploymentHandler {
 
         // for each service type, select the correct deployer
         if (AAR_TYPE.equals(artifactType)) {
-            deployer = deploymentEngine.getServiceDeployer();
+            deployer = deploymentEngine.getDeployer("axis2services", "aar");
+
+            /* when ghost deployer is off, deployer is null since the ServiceDeployer is not
+            registered as a normal deployer. Therefore the axis2service deployer is obtained as
+            follows.
+
+            Fix me properly.
+            */
+            if (deployer == null) {
+                deployer = deploymentEngine.getServiceDeployer();
+            }
         } else if (DS_TYPE.equals(artifactType)) {
             // TODO : Move data services out of carbon core
             deployer = deploymentEngine.getDeployer(DefaultAppDeployer.DS_DIR, "dbs");

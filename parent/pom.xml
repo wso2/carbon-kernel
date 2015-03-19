@@ -1,12 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>1</version>
+    </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -15,94 +20,17 @@
         <maven>3.0.0</maven>
     </prerequisites>
 
-    <repositories>
-		<!-- WSO2 released artifact repository -->
-		<repository>
-			<id>wso2.releases</id>
-			<name>WSO2 Releases Repository</name>
-			<url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</repository>
-
-		<!-- WSO2 Snapshot artifact repository -->
-		<repository>
-			<id>wso2.snapshots</id>
-			<name>WSO2 Snapshot Repository</name>
-			<url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-			</snapshots>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-		</repository>
-
-		<repository>
-			<id>wso2-nexus</id>
-			<name>WSO2 internal Repository</name>
-			<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</repository>
-	</repositories>
-
-  <distributionManagement>
-        <repository>
-            <id>wso2-maven2-repository</id>
-            <name>WSO2 Maven2 Repository</name>
-            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/</url>
-        </repository>
-        <snapshotRepository>
-            <id>wso2-maven2-snapshot-repository</id>
-            <name>WSO2 Maven2 Snapshot Repository</name>
-            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/snapshots/maven2/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <pluginRepositories>
-       <pluginRepository>
-            <id>wso2.releases</id>
+        <pluginRepository>
+            <id>wso2-nexus</id>
             <name>WSO2 internal Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </pluginRepository>
-        
-        <pluginRepository>
-            <id>wso2.snapshots</id>
-            <name>Apache Snapshot Repository</name>
-            <url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository> 
-        
-         <pluginRepository>
-			<id>wso2-nexus</id>
-			<name>WSO2 internal Repository</name>
-			<url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</pluginRepository>
-
     </pluginRepositories>
 
     <build>
@@ -110,14 +38,14 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>2.1</version>
+                <version>${wagon.ssh.version}</version>
             </extension>
         </extensions>
         <plugins>
             <plugin>
                 <groupId>org.jvnet.maven.incrementalbuild</groupId>
                 <artifactId>incremental-build-plugin</artifactId>
-                <version>1.3</version>
+                <version>${maven.incremental.plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -129,20 +57,31 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <encoding>UTF-8</encoding>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <preparationGoals>clean install</preparationGoals>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                        <source>1.7</source>
+                        <target>1.7</target>
+                    </configuration>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-scr-plugin</artifactId>
-                    <version>1.7.2</version>
+                    <version>${maven.scr.plugin.version}</version>
                     <executions>
                         <execution>
                             <id>generate-scr-scrdescriptor</id>
@@ -155,7 +94,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.3.5</version>
+                    <version>${maven.bundle.plugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
                         <obrRepository>NONE</obrRepository>
@@ -167,7 +106,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>2.1.2</version>
+                    <version>${maven.source.plugin.version}</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -179,13 +118,34 @@
                     </executions>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2-beta-2</version>
+                    <version>${maven.assembly.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>${maven.build.helper.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.wso2.maven</groupId>
+                    <artifactId>carbon-p2-plugin</artifactId>
+                    <version>${carbon.p2.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>maven-buildnumber-plugin</artifactId>
+                    <version>${maven.build.number.plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.axis2</groupId>
+                    <artifactId>axis2-aar-maven-plugin</artifactId>
+                    <version>${version.axis2}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>2.4</version>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar.plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -194,42 +154,44 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Carbon platform version comes here-->
-        <carbon.platform.version>4.3.0-SNAPSHOT</carbon.platform.version>
-        <carbon.platform.package.export.version>4.3.0-SNAPSHOT</carbon.platform.package.export.version>
-        <carbon.platform.package.import.version.range>[4.3.0-SNAPSHOT, 4.4.0)
-        </carbon.platform.package.import.version.range>
-	
+        <!-- Carbon Kernel Related Versions-->
+        <carbon.kernel.version>4.4.0-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.exp.pkg.version>4.4.0-SNAPSHOT</carbon.kernel.exp.pkg.version>
+        <carbon.kernel.imp.pkg.version>[4.4.0-SNAPSHOT, 4.5.0)</carbon.kernel.imp.pkg.version>
+
+        <test.framework.version>4.3.1</test.framework.version>
+
 	<!-- Equinox dependency versions -->
-        <version.equinox.simpleconfigurator>1.0.301.v20120828-033635</version.equinox.simpleconfigurator>
-        <version.equinox.common>3.6.100.v20120522-1841</version.equinox.common>
-        <version.equinox.ds>1.4.0.v20120522-1841</version.equinox.ds>
-        <version.equinox.launcher>1.3.0.v20120522-1813</version.equinox.launcher>
-        <version.equinox.util>1.0.400.v20120522-2049</version.equinox.util>
-        <version.equinox.app>1.3.100.v20120522-1841</version.equinox.app>
-        <version.equinox.concurrent>1.0.300.v20120522-2049</version.equinox.concurrent>
-        <version.equinox.frameworkadmin>2.0.100.v20120606-175127</version.equinox.frameworkadmin>
-        <version.equinox.frameworkadmin.equinox>1.0.400.v20120428-0117</version.equinox.frameworkadmin.equinox>
-        <version.equinox.preferences>3.5.0.v20120522-1841</version.equinox.preferences>
-        <version.equinox.registry>3.5.200.v20120522-1841</version.equinox.registry>
-        <version.equinox.security>1.1.100.v20120522-1841</version.equinox.security>
-        <version.equinox.simpleconfigurator.manipulator>2.0.0.v20110808-1657</version.equinox.simpleconfigurator.manipulator>
-        <version.equinox.launcher.gtk.linux.x86>1.1.200.v20120522-1813</version.equinox.launcher.gtk.linux.x86>
-        <version.equinox.core.runtime>3.8.0.v20120521-2346</version.equinox.core.runtime>
-        <version.equinox.osgi.services>3.3.100.v20120522-1822</version.equinox.osgi.services>
-        <version.equinox.osgi>3.8.1.v20120830-144521</version.equinox.osgi>
-        <version.equinox.core.contenttype>3.4.200.v20120523-2004</version.equinox.core.contenttype>
-        <version.equinox.core.expressions>3.4.401.v20120627-124442</version.equinox.core.expressions>
-        <version.equinox.core.jobs>3.5.300.v20120622-204750</version.equinox.core.jobs>
-        <version.equinox.console>1.0.0.v20120522-1841</version.equinox.console>
-        <version.ecf>3.1.300.v20110531-2218</version.ecf>
-        <version.ecf.filetransfer>5.0.0.v20110531-2218</version.ecf.filetransfer>
-        <version.ecf.identity>3.1.100.v20110531-2218</version.ecf.identity>
-        <version.ecf.provider.filetransfer>3.2.0.v20110531-2218</version.ecf.provider.filetransfer>
-        <version.sat4j.core>2.3.0.v20110329</version.sat4j.core>
+        <version.equinox.simpleconfigurator>1.0.400.v20130327-2119</version.equinox.simpleconfigurator>
+        <version.equinox.common>3.6.200.v20130402-1505</version.equinox.common>
+        <version.equinox.ds>1.4.101.v20130813-1853</version.equinox.ds>
+        <version.equinox.launcher>1.3.0.v20130327-1440</version.equinox.launcher>
+        <version.equinox.util>1.0.500.v20130404-1337</version.equinox.util>
+        <version.equinox.app>1.3.100.v20130327-1442</version.equinox.app>
+        <version.equinox.concurrent>1.1.0.v20130327-1442</version.equinox.concurrent>
+        <version.equinox.frameworkadmin>2.0.100.v20130327-2119</version.equinox.frameworkadmin>
+        <version.equinox.frameworkadmin.equinox>1.0.500.v20130327-2119</version.equinox.frameworkadmin.equinox>
+        <version.equinox.preferences>3.5.100.v20130422-1538</version.equinox.preferences>
+        <version.equinox.registry>3.5.301.v20130717-1549</version.equinox.registry>
+        <version.equinox.security>1.2.0.v20130424-1801</version.equinox.security>
+        <version.equinox.simpleconfigurator.manipulator>2.0.0.v20130327-2119</version.equinox.simpleconfigurator.manipulator>
+        <version.equinox.launcher.gtk.linux.x86>1.1.200.v20130807-1835</version.equinox.launcher.gtk.linux.x86>
+        <version.equinox.core.runtime>3.9.0.v20130326-1255</version.equinox.core.runtime>
+        <version.equinox.osgi.services>3.3.100.v20130513-1956</version.equinox.osgi.services>
+        <version.equinox.osgi>3.9.1.v20130814-1242</version.equinox.osgi>
+        <version.equinox.core.contenttype>3.4.200.v20130326-1255</version.equinox.core.contenttype>
+        <version.equinox.core.expressions>3.4.500.v20130515-1343</version.equinox.core.expressions>
+        <version.equinox.core.jobs>3.5.300.v20130429-1813</version.equinox.core.jobs>
+        <version.equinox.console>1.0.100.v20130429-0953</version.equinox.console>
+        <version.ecf>3.2.0.v20130604-1622</version.ecf>
+        <version.ecf.filetransfer>5.0.0.v20130604-1622</version.ecf.filetransfer>
+        <version.ecf.identity>3.2.0.v20130604-1622</version.ecf.identity>
+        <version.ecf.provider.filetransfer>3.2.0.v20130604-1622</version.ecf.provider.filetransfer>
+        <version.sat4j.core>2.3.5.v201308161310</version.sat4j.core>
+        <version.sat4j.pb>2.3.5.v201308161310</version.sat4j.pb>
         <version.org.sat4j.pb>2.3.0.v20110329</version.org.sat4j.pb>
 
-        <version.equinox.http.servlet>1.1.300.v20120522-1841</version.equinox.http.servlet>
+        <version.equinox.http.servlet>1.1.400.v20130418-1354</version.equinox.http.servlet>
         <version.equinox.http.helper>1.1.0.wso2v1</version.equinox.http.helper>
         <version.equinox.jsp.jasper>1.0.400.v20120522-2049</version.equinox.jsp.jasper>
         <version.equinox.javax.servlet>3.0.0.v201112011016</version.equinox.javax.servlet>
@@ -238,30 +200,34 @@
         <version.equinox.jasper>2.2.2.v201205150955</version.equinox.jasper>
 
         <version.equinox.p2.artifact.repository>1.1.100.v20110519</version.equinox.p2.artifact.repository>
-        <version.equinox.p2.core>2.1.0.v20110502-1955</version.equinox.p2.core>
-        <version.equinox.p2.director>2.1.0.v20110504-1715</version.equinox.p2.director>
-        <version.equinox.p2.director.app>1.0.300.v20110505</version.equinox.p2.director.app>
-        <version.equinox.p2.directorywatcher>1.0.300.v20110502-1955</version.equinox.p2.directorywatcher>
-        <version.equinox.p2.engine>2.1.0.v20110511</version.equinox.p2.engine>
-        <version.equinox.p2.console></version.equinox.p2.console>
-        <version.equinox.p2.extensionlocation>1.2.100.v20110510</version.equinox.p2.extensionlocation>
-        <version.equinox.p2.garbagecollector>1.0.200.v20110510</version.equinox.p2.garbagecollector>
-        <version.equinox.p2.jarprocessor>1.0.200.v20110502-1955</version.equinox.p2.jarprocessor>
-        <version.equinox.p2.metadata>2.1.0.v20110510</version.equinox.p2.metadata>
-        <version.equinox.p2.metadata.repository>1.2.0.v20110511-1359</version.equinox.p2.metadata.repository>
-        <version.equinox.p2.reconciler.dropins>1.1.100.v20110510</version.equinox.p2.reconciler.dropins>
-        <version.equinox.p2.repository.tools>2.0.100.v20110512-1320</version.equinox.p2.repository.tools>
-        <version.equinox.p2.repository>2.1.0.v20110601</version.equinox.p2.repository>
-        <version.equinox.p2.touchpoint.eclipse>2.1.0.v20110511-wso2v1</version.equinox.p2.touchpoint.eclipse>
-        <version.equinox.p2.touchpoint.natives>1.0.300.v20110502-1955</version.equinox.p2.touchpoint.natives>
-        <version.equinox.p2.updatechecker>1.1.200.v20110502-1955</version.equinox.p2.updatechecker>
-        <version.equinox.p2.updatesite>1.0.300.v20110510</version.equinox.p2.updatesite>
+        <version.equinox.p2.core>2.3.0.v20130327-2119</version.equinox.p2.core>
+        <version.equinox.p2.director>2.3.0.v20130526-0335</version.equinox.p2.director>
+        <version.equinox.p2.director.app>1.0.300.v20130819-1621</version.equinox.p2.director.app>
+        <version.equinox.p2.directorywatcher>1.0.300.v20130327-2119</version.equinox.p2.directorywatcher>
+        <version.equinox.p2.engine>2.3.0.v20130526-2122-wso2v1</version.equinox.p2.engine>
+        <version.equinox.p2.console>1.0.300.v20130327-2119</version.equinox.p2.console> <!-- this version was added -->
+        <version.equinox.p2.extensionlocation>1.2.100.v20130327-2119</version.equinox.p2.extensionlocation>
+        <version.equinox.p2.garbagecollector>1.0.200.v20130327-2119</version.equinox.p2.garbagecollector>
+        <version.equinox.p2.jarprocessor>1.0.300.v20130327-2119</version.equinox.p2.jarprocessor>
+        <version.equinox.p2.metadata>2.2.0.v20130523-1557</version.equinox.p2.metadata>
+        <version.equinox.p2.metadata.repository>1.2.100.v20130327-2119</version.equinox.p2.metadata.repository>
+        <version.equinox.p2.reconciler.dropins>1.1.200.v20130419-1850</version.equinox.p2.reconciler.dropins>
+        <version.equinox.p2.repository.tools>2.1.0.v20130327-2119</version.equinox.p2.repository.tools>
+        <version.equinox.p2.repository>2.3.0.v20130412-2032</version.equinox.p2.repository>
+        <version.equinox.p2.touchpoint.eclipse>2.1.0.v20110511-wso2v1</version.equinox.p2.touchpoint.eclipse> <!--TODO-Check Version-->
+        <version.equinox.p2.touchpoint.natives>1.1.100.v20130327-2119</version.equinox.p2.touchpoint.natives>
+        <version.equinox.p2.updatechecker>1.1.200.v20130327-2119</version.equinox.p2.updatechecker>
+        <version.equinox.p2.updatesite>1.0.400.v20130515-2028</version.equinox.p2.updatesite>
 
-        <version.apache.felix.gogo.shell>0.8.0.v201110170705</version.apache.felix.gogo.shell>
-        <version.apache.felix.gogo.runtime>0.8.0.v201108120515</version.apache.felix.gogo.runtime>
-        <version.apache.felix.gogo.command>0.8.0.v201108120515</version.apache.felix.gogo.command>
+        <version.apache.felix.gogo.shell>0.10.0.v201212101605</version.apache.felix.gogo.shell>
+        <version.apache.felix.gogo.runtime>0.10.0.v201209301036</version.apache.felix.gogo.runtime>
+        <version.apache.felix.gogo.command>0.10.0.v201209301215</version.apache.felix.gogo.command>
+        <version.equinox.p2.publisher.eclipse>1.0.0.v20110511</version.equinox.p2.publisher.eclipse>
+        <version.equinox.p2.publisher>1.2.0.v20110511</version.equinox.p2.publisher>
+        <version.equinox.p2.transport.ecf>1.0.100.v20110902-0807</version.equinox.p2.transport.ecf>
+        <version.ecf.provider.filetransfer.httpclient>4.0.200.v20120319-0616</version.ecf.provider.filetransfer.httpclient>
 
-        <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
 
         <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4, 3.1.0)</neethi.osgi.version.range>
@@ -276,7 +242,7 @@
         <imp.pkg.version.javax.servlet.jsp>[2.2.0, 2.3.0)</imp.pkg.version.javax.servlet.jsp>
 
         <!-- JSTL -->
-	<version.jstl>1.2.1</version.jstl>
+        <version.jstl>1.2.1</version.jstl>
         <orbit.version.jstl>1.2.1.wso2v2</orbit.version.jstl>
         <exp.pkg.version.javax.servlet.jsp.jstl>1.2.1</exp.pkg.version.javax.servlet.jsp.jstl>
         <imp.pkg.version.javax.servlet.jsp.jstl>[1.2.1, 1.3.0)</imp.pkg.version.javax.servlet.jsp.jstl>
@@ -304,24 +270,22 @@
         <!-- Apache Geronimo -->
         <version.geronimo.saaj.spec>1.0.0.wso2v3</version.geronimo.saaj.spec>
         <version.geronimo.jms.spec>1.1.0.wso2v1</version.geronimo.jms.spec>
-        <version.geronimo.stax.spec>1.0.1.wso2v1</version.geronimo.stax.spec>
-        <version.geronimo.jta.spec>1.1.0.wso2v1</version.geronimo.jta.spec>
+        <version.geronimo.stax.api.spec>1.0.1.wso2v2</version.geronimo.stax.api.spec>
+        <version.geronimo.stax.spec>1.2</version.geronimo.stax.spec>
+        <version.geronimo.jta.spec>1.1</version.geronimo.jta.spec>
         <version.geronimo.jaxws.spec>1.0</version.geronimo.jaxws.spec>
-        <version.woodstox.core.asl>4.2.0</version.woodstox.core.asl>
-        <version.stax2.api>3.1.1</version.stax2.api>
-
-
-
-
+        <version.woodstox.core.asl>4.4.1</version.woodstox.core.asl>
+        <version.stax2.api>3.1.4</version.stax2.api>
 
         <!-- Apache Ant -->
         <version.ant>1.7.0.wso2v1</version.ant>
+        <version.ant.contrib>1.0b3</version.ant.contrib>
 
         <!-- Apache xmlbeans -->
         <version.xmlbeans>2.3.0.wso2v1</version.xmlbeans>
 
         <!-- Apache woden-->
-        <version.woden>1.0.0.M8-wso2v1</version.woden>
+        <version.woden>1.0.0.M9-wso2v1</version.woden>
 
         <!-- Apache Neethi -->
         <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
@@ -329,12 +293,12 @@
         <imp.pkg.version.neethi>[2.0.4.wso2v4, 3.0.0)</imp.pkg.version.neethi>
 
         <!-- Apache Axiom -->
-        <orbit.version.axiom>1.2.11.wso2v5-SNAPSHOT</orbit.version.axiom>
-        <exp.pkg.version.axiom>1.2.11.wso2v5-SNAPSHOT</exp.pkg.version.axiom>
-        <imp.pkg.version.axiom>[1.2.11.wso2v5-SNAPSHOT, 1.3.0)</imp.pkg.version.axiom>
-        <version.axiom>1.2.11-wso2v5-SNAPSHOT</version.axiom>
-	<axiom.osgi.version>1.2.11.wso2v5-SNAPSHOT</axiom.osgi.version>
-        <axiom.osgi.version.range>[1.2.11.wso2v5-SNAPSHOT, 1.3.0)</axiom.osgi.version.range>
+        <orbit.version.axiom>1.2.11.wso2v6-SNAPSHOT</orbit.version.axiom>
+        <exp.pkg.version.axiom>1.2.11.wso2v6</exp.pkg.version.axiom>
+        <imp.pkg.version.axiom>[1.2.11.wso2v6, 1.3.0)</imp.pkg.version.axiom>
+        <version.axiom>1.2.11-wso2v6-SNAPSHOT</version.axiom>
+	    <axiom.osgi.version>1.2.11.wso2v6-SNAPSHOT</axiom.osgi.version>
+        <axiom.osgi.version.range>[1.2.11.wso2v6, 1.3.0)</axiom.osgi.version.range>
 
 
         <!-- Spring Framework -->
@@ -343,52 +307,21 @@
         <imp.pkg.version.spring>[3.1.0.wso2v2, 3.2.0)</imp.pkg.version.spring>
         <version.spring>3.1.0.RELEASE</version.spring>
 
-        <!--Infinispan-->
-        <orbit.version.infinispan>5.1.2.wso2v1</orbit.version.infinispan>
-        <exp.pkg.version.infinispan>5.1.2.wso2v1</exp.pkg.version.infinispan>
-        <imp.pkg.version.infinispan>[5.1.2.wso2v1, 5.2.0)</imp.pkg.version.infinispan>
-
-        <!--JBoss Logging-->
-        <orbit.version.jboss.logging>3.1.0.wso2v1</orbit.version.jboss.logging>
-        <exp.pkg.version.jboss.logging>3.1.0.wso2v1</exp.pkg.version.jboss.logging>
-        <imp.pkg.version.jboss.logging>[3.1.0.wso2v1, 3.2.0)</imp.pkg.version.jboss.logging>
-
-        <!--Jboss marshalling-->
-        <orbit.version.marshalling>1.3.6.wso2v1</orbit.version.marshalling>
-        <exp.pkg.version.marshalling>1.3.6.wso2v1</exp.pkg.version.marshalling>
-        <imp.pkg.version.marshalling>[1.3.6.wso2v1, 1.4.0)</imp.pkg.version.marshalling>
-
-        <!--JGroups-->
-        <orbit.version.jgroups>3.0.6.wso2v1</orbit.version.jgroups>
-        <exp.pkg.version.jgroups>3.0.6.wso2v1</exp.pkg.version.jgroups>
-        <imp.pkg.version.jgroups>[3.0.6.wso2v1, 3.1.0)</imp.pkg.version.jgroups>
-
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v11-SNAPSHOT</version.axis2>
-        <orbit.version.axis2>1.6.1.wso2v11-SNAPSHOT</orbit.version.axis2>
-        <axis2.osgi.version>1.6.1.wso2v11-SNAPSHOT</axis2.osgi.version>
-        <axis2.osgi.version.range>[1.6.1.wso2v11-SNAPSHOT, 1.7.0)</axis2.osgi.version.range>
-        <exp.pkg.version.axis2>1.6.1.wso2v11-SNAPSHOT</exp.pkg.version.axis2>
-        <imp.pkg.version.axis2>[1.6.1.wso2v11-SNAPSHOT, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v11-SNAPSHOT</version.addressing>
-        <version.axis2.json>1.6.1-wso2v11-SNAPSHOT</version.axis2.json>
+        <version.axis2>1.6.1-wso2v12-SNAPSHOT</version.axis2>
+        <orbit.version.axis2>1.6.1.wso2v12-SNAPSHOT</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1.wso2v12-SNAPSHOT</axis2.client.osgi.version>
+        <axis2.osgi.version>1.6.1.wso2v12-SNAPSHOT</axis2.osgi.version>
+        <axis2.osgi.version.range>[1.6.1.wso2v12, 1.7.0)</axis2.osgi.version.range>
+        <exp.pkg.version.axis2>1.6.1.wso2v12-SNAPSHOT</exp.pkg.version.axis2>
+        <imp.pkg.version.axis2>[1.6.1.wso2v12, 1.7.0)</imp.pkg.version.axis2>
+        <version.addressing>1.6.1-wso2v12-SNAPSHOT</version.addressing>
+        <version.axis2.json>1.6.1-wso2v12-SNAPSHOT</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
         <exp.pkg.version.xmlsec>1.4.2-patched</exp.pkg.version.xmlsec>
         <imp.pkg.version.xmlsec>[1.4.2,2)</imp.pkg.version.xmlsec>
-
-        <!-- Wss4j -->
-	<wss4j.version>1.5.11-wso2v7-SNAPSHOT</wss4j.version>
-        <orbit.version.wss4j>1.5.11.wso2v7-SNAPSHOT</orbit.version.wss4j>
-        <exp.pkg.version.wss4j>1.5.11.wso2v7-SNAPSHOT</exp.pkg.version.wss4j>
-        <imp.pkg.version.wss4j>[1.5.11.wso2v7-SNAPSHOT,2)</imp.pkg.version.wss4j>
-        <wss4j.osgi.version>1.5.11.wso2v7-SNAPSHOT</wss4j.osgi.version>
-
-        <!-- Rampart -->
-        <rampart.version>1.6.1-wso2v9</rampart.version>
-        <rampart.mar.version>1.6.1-wso2v9</rampart.mar.version>
-        <rampart.osgi.version>1.6.1.wso2v9</rampart.osgi.version>
 
         <!-- Antlr Version -->
         <antlr.wso2.version>3.2.0.wso2v1</antlr.wso2.version>
@@ -400,7 +333,8 @@
         <orbit.version.hsqldb>1.8.0.7wso2v1</orbit.version.hsqldb>
         <orbit.version.commons.beanutils>1.8.0.wso2v1</orbit.version.commons.beanutils>
         <orbit.version.poi>3.9.0.wso2v1</orbit.version.poi>
-        <orbit.version.poi.ooxml>3.9.0.wso2v2</orbit.version.poi.ooxml>
+        <orbit.version.poi.scratchpad>3.9.0.wso2v1</orbit.version.poi.scratchpad>
+        <orbit.version.poi.ooxml>3.9.0.wso2v3</orbit.version.poi.ooxml>
         <orbit.version.commons.lang>2.6.0.wso2v1</orbit.version.commons.lang>
         <orbit.version.commons.collection>3.2.0.wso2v1</orbit.version.commons.collection>
         <orbit.version.commons.io>2.0.0.wso2v2</orbit.version.commons.io>
@@ -409,14 +343,13 @@
         <orbit.version.apacheds>1.5.7-wso2v1</orbit.version.apacheds>
         <orbit.version.geronimo-jms_1.1_spec>1.1.0.wso2v1</orbit.version.geronimo-jms_1.1_spec>
 
-        <version.axis2.transport>1.6.1-wso2v11-SNAPSHOT</version.axis2.transport>
         <version.jakarta.taglib>1.1.2.wso2v1</version.jakarta.taglib>
         <version.sourceforge.ajaxtags>1.3.0.beta-rc7-wso2v1</version.sourceforge.ajaxtags>
         <version.synapse>2.1.0-wso2v5</version.synapse>
         <version.lucene.core>2.3.2</version.lucene.core>
 
-        <version.tomcat>7.0.52</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v5</orbit.version.tomcat>
+        <version.tomcat>7.0.59</version.tomcat>
+        <orbit.version.tomcat>${version.tomcat}.wso2v1</orbit.version.tomcat>
         <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1</orbit.version.tomcat.servlet.api>
         <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
         <orbit.version.tomcat.el.api>${version.tomcat}.wso2v1</orbit.version.tomcat.el.api>
@@ -425,14 +358,15 @@
 
         <version.eclipse.ecj>4.3.1</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>3.2.3.wso2v1</orbit.version.hazelcast>
+        <orbit.version.hazelcast>3.2.6.wso2v3</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
         <hibernate.orbit.version>3.2.5.ga-wso2v1</hibernate.orbit.version>
 
         <!-- bouncycastle -->
-        <bouncycastle.version>1.49.wso2v1</bouncycastle.version>
+        <bouncycastle.version>1.49.0.wso2v2</bouncycastle.version>
+	    <imp.pkg.version.bcp>[1.49.0.wso2v2, 1.50.0)</imp.pkg.version.bcp>
 
         <!--BPS specific-->
         <saxon-bps.wso2.version.human-task>9.0.0.x-wso2v1</saxon-bps.wso2.version.human-task>
@@ -445,22 +379,20 @@
         <emma.version>2.1.5320</emma.version>
 
         <!-- slf4j -->
+        <slf4j.version>1.5.10</slf4j.version>
         <!--<slf4j.wso2.version>1.5.10.wso2v1</slf4j.wso2.version>-->
 
         <!-- findbugs -->
         <version.findbugs.annotations>1.3.2</version.findbugs.annotations>
-        <version.commons.logging>1.1.1</version.commons.logging>
+        <version.commons.logging>1.2</version.commons.logging>
 
         <version.opensaml2>2.4.1.wso2v1</version.opensaml2>
         <version.compass>2.0.1.wso2v2</version.compass>
-        <version.jsr107cache>1.1.0-wso2v2</version.jsr107cache>
-
-        <!-- jboss transaction api -->
-        <version.jboss.transaction.spec>1.0.0.Final</version.jboss.transaction.spec>
 
         <version.xercesImpl>2.8.1.wso2v2</version.xercesImpl>
         <version.xalan>2.7.1.wso2v1</version.xalan>
-        <version.XmlSchema>1.4.7.wso2v2</version.XmlSchema>
+        <version.XmlSchema>1.4.7.wso2v3</version.XmlSchema>
+        <orbit.version.xmlschema>1.4.7.wso2v3</orbit.version.xmlschema>
         <version.commons.codec>1.4.0.wso2v1</version.commons.codec>
         <version.annogen>0.1.0.wso2v1</version.annogen>
         <version.xml.apis>1.3.04.wso2v2</version.xml.apis>
@@ -469,7 +401,7 @@
         <version.ehcache>1.5.0.wso2v2</version.ehcache>
         <version.opencsv>1.8.wso2v1</version.opencsv>
 
-        <orbit.version.httpcore>4.3.0.wso2v1</orbit.version.httpcore>
+        <orbit.version.httpcore>4.3.3.wso2v1</orbit.version.httpcore>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
         <orbit.version.poi>3.9.0.wso2v1</orbit.version.poi>
         <orbit.version.commons.httpclient>3.1.0.wso2v2</orbit.version.commons.httpclient>
@@ -481,10 +413,10 @@
         <version.drools>5.1.1</version.drools>
         <version.jsr94>1.1</version.jsr94>
 
+        <orbit.version.log4j>1.2.17.wso2v1</orbit.version.log4j>
         <version.xmlunit>1.1</version.xmlunit>
         <version.jaxen>1.1.1</version.jaxen>
-        <version.log4j>1.2.13</version.log4j>
-        <version.junit>3.8.2</version.junit>
+        <version.junit>4.11</version.junit>
         <version.xmlunit1>1.0</version.xmlunit1>
         <version.tcpmon>1.0</version.tcpmon>
         <version.ibm.icu>4.0.1.v20090415</version.ibm.icu>
@@ -499,6 +431,17 @@
         <version.jsr311.api>1.0</version.jsr311.api>
         <version.javax.el>2.2.0.v201108011116</version.javax.el>
         <version.authenticator>0.7.0.wso2v1</version.authenticator>
+        <javasysmon.version>0.3.3.wso2v1</javasysmon.version>
+        <zookeeper.version>3.3.5.wso2v1</zookeeper.version>
+        <wagon.ssh.version>2.1</wagon.ssh.version>
+        <maven.incremental.plugin.version>1.3</maven.incremental.plugin.version>
+        <maven.scr.plugin.version>1.7.4</maven.scr.plugin.version>
+        <maven.bundle.plugin.version>2.3.5</maven.bundle.plugin.version>
+        <maven.source.plugin.version>2.1.2</maven.source.plugin.version>
+        <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>
+        <maven.build.helper.plugin.version>1.7</maven.build.helper.plugin.version>
+        <maven.build.number.plugin.version>0.9.4</maven.build.number.plugin.version>
+        <maven.jar.plugin.version>2.4</maven.jar.plugin.version>
 
         <!--Qpid -->
         <orbit.version.qpid-client>0.12.wso2v1</orbit.version.qpid-client>
@@ -507,11 +450,17 @@
         <!--Wso2 Secure Vault -->
         <securevault.version>1.0.0-wso2v2</securevault.version>
 
-        <version.commons.logging>1.1.1</version.commons.logging>
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
-	
-    </properties>
+        <testng.version>6.8.5</testng.version>
+        
+        <!-- Test integration -->
+        <automation.framework.version>4.3.1</automation.framework.version>
+        <slf4j.version>1.5.10</slf4j.version>
+        <woden.api.version>1.0M9</woden.api.version>
+        <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
 
+
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -539,11 +488,6 @@
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
                 <version>${version.equinox.simpleconfigurator}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.osgi.security</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
@@ -762,11 +706,10 @@
                 <artifactId>ecj</artifactId>
                 <version>${version.eclipse.ecj}</version>
             </dependency>
-
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.apache.log4j</artifactId>
-                <version>1.2.13.v200706111418</version>
+                <groupId>org.apache.log4j.wso2</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${orbit.version.log4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
@@ -798,7 +741,16 @@
                 <artifactId>javax.el</artifactId>
                 <version>${version.javax.el}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.eclipse.equinox</groupId>
+                <artifactId>org.eclipse.equinox.p2.publisher</artifactId>
+                <version>${version.equinox.p2.publisher}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.equinox</groupId>
+                <artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
+                <version>${version.equinox.p2.publisher.eclipse}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.gogo.command</artifactId>
@@ -814,28 +766,30 @@
                 <artifactId>org.apache.felix.gogo.runtime</artifactId>
                 <version>${version.apache.felix.gogo.runtime}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
+                <version>${version.equinox.p2.transport.ecf}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.ecf.provider.filetransfer</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${version.ecf.provider.filetransfer.httpclient}</version>
+            </dependency>
             <dependency>
                 <groupId>net.sourceforge.findbugs</groupId>
                 <artifactId>annotations</artifactId>
                 <version>${version.findbugs.annotations}</version>
             </dependency>
-
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>${version.commons.logging}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>javax.servlet</artifactId>
                 <version>${version.equinox.javax.servlet}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.ws.security.wso2</groupId>
-                <artifactId>wss4j</artifactId>
-                <version>${orbit.version.wss4j}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle.wso2</groupId>
@@ -853,41 +807,6 @@
                 <version>${version.compass}</version>
             </dependency>
             <dependency>
-                <groupId>net.sf.jsr107cache</groupId>
-                <artifactId>jsr107cache</artifactId>
-                <version>${version.jsr107cache}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.jsr107cache.wso2</groupId>
-                <artifactId>jsr107cache</artifactId>
-                <version>${version.jsr107cache}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.infinispan.wso2</groupId>
-                <artifactId>infinispan-core</artifactId>
-                <version>${orbit.version.infinispan}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.marshalling.wso2</groupId>
-                <artifactId>marshalling</artifactId>
-                <version>${orbit.version.marshalling}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.logging.wso2</groupId>
-                <artifactId>jboss-logging</artifactId>
-                <version>${orbit.version.jboss.logging}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jgroups.wso2</groupId>
-                <artifactId>jgroups</artifactId>
-                <version>${orbit.version.jgroups}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.spec.javax.transaction</groupId>
-                <artifactId>jboss-transaction-api_1.1_spec</artifactId>
-                <version>${version.jboss.transaction.spec}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.axis2.wso2</groupId>
                 <artifactId>axis2</artifactId>
                 <version>${orbit.version.axis2}</version>
@@ -895,12 +814,12 @@
             <dependency>
                 <groupId>org.apache.axis2</groupId>
                 <artifactId>axis2-transport-base</artifactId>
-                <version>${version.axis2.transport}</version>
+                <version>${version.axis2}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.axis2</groupId>
-                <artifactId>axis2-transport-jms</artifactId>
-                <version>${version.axis2.transport}</version>
+                <groupId>org.apache.axis2.wso2</groupId>
+                <artifactId>axis2-client</artifactId>
+                <version>${axis2.client.osgi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat.wso2</groupId>
@@ -921,6 +840,11 @@
                 <groupId>org.apache.geronimo.specs.wso2</groupId>
                 <artifactId>geronimo-jms_1.1_spec</artifactId>
                 <version>${version.geronimo.jms.spec}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.geronimo.specs.wso2</groupId>
+                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                <version>${version.geronimo.stax.api.spec}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tiles.wso2</groupId>
@@ -1000,8 +924,8 @@
                 <version>${version.XmlSchema}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.geronimo.specs.wso2</groupId>
-                <artifactId>geronimo-stax-api_1.0_spec</artifactId>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-stax-api_1.2_spec</artifactId>
                 <version>${version.geronimo.stax.spec}</version>
             </dependency>
             <dependency>
@@ -1065,7 +989,7 @@
                 <version>version.authenticator</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.geronimo.specs.wso2</groupId>
+                <groupId>org.apache.geronimo.specs</groupId>
                 <artifactId>geronimo-jta_1.1_spec</artifactId>
                 <version>${version.geronimo.jta.spec}</version>
             </dependency>
@@ -1102,17 +1026,12 @@
             <dependency>
                 <groupId>org.apache.poi.wso2</groupId>
                 <artifactId>poi-scratchpad</artifactId>
-                <version>${orbit.version.poi}</version>
+                <version>${orbit.version.poi.scratchpad}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.poi.wso2</groupId>
                 <artifactId>poi-ooxml</artifactId>
-                <version>3.9.0.wso2v2</version>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${version.log4j}</version>
+                <version>${orbit.version.poi.ooxm}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -1146,11 +1065,6 @@
                 <version>${version.tcpmon}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.ciphertool</groupId>
-                <artifactId>org.wso2.ciphertool</artifactId>
-                <version>${securevault.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.igniterealtime.smack.wso2</groupId>
                 <artifactId>smackx</artifactId>
                 <version>${orbit.version.smack}</version>
@@ -1160,20 +1074,13 @@
                 <artifactId>org.wso2.securevault</artifactId>
                 <version>${securevault.version}</version>
             </dependency>
-            <!--/ <dependency>
-                 <groupId>org.apache.synapse</groupId>
-                 <artifactId>synapse-commons</artifactId>
-                 <version>${version.synapse}</version>
-             </dependency>-->
-
             <dependency>
                 <groupId>org.eclipse</groupId>
                 <artifactId>com.ibm.icu</artifactId>
                 <version>${version.ibm.icu}</version>
             </dependency>
-
             <dependency>
-                <groupId>org.apache.tomcat.wso2</groupId>
+                <groupId>org.wso2.tomcat</groupId>
                 <artifactId>tomcat</artifactId>
                 <version>${orbit.version.tomcat}</version>
             </dependency>
@@ -1192,17 +1099,11 @@
                 <artifactId>lucene-core</artifactId>
                 <version>${version.lucene.core}</version>
             </dependency>
-
             <dependency>
                 <groupId>commons-modeler</groupId>
                 <artifactId>commons-modeler</artifactId>
                 <version>${version.commons.modeler}</version>
             </dependency>
-            <!--dependency>
-                <groupId>commons-el</groupId>
-                <artifactId>commons-el</artifactId>
-                <version>1.0</version>
-            </dependency-->
             <dependency>
                 <groupId>commons-cli</groupId>
                 <artifactId>commons-cli</artifactId>
@@ -1233,52 +1134,46 @@
                 <artifactId>antlr</artifactId>
                 <version>${antlr.wso2.version}</version>
             </dependency>
-            <!--<dependency>-->
-            <!--<groupId>slf4j.wso2</groupId>-->
-            <!--<artifactId>slf4j</artifactId>-->
-            <!--<version>${slf4j.wso2.version}</version>-->
-            <!--</dependency>-->
+            <dependency>
+                <groupId>ant-contrib</groupId>
+                <artifactId>ant-contrib</artifactId>
+                <version>${version.ant.contrib}</version>
+            </dependency>
             <dependency>
                 <groupId>org.codehaus.jettison.wso2</groupId>
                 <artifactId>jettison</artifactId>
                 <version>${orbit.version.jettison}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.axis2.wso2</groupId>
-                <artifactId>axis2-json</artifactId>
-                <version>${version.axis2.json}</version>
-            </dependency>
-
             <!--service-stub versions -->
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.authenticator.stub</artifactId>
-                <version>${carbon.platform.version}</version>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.feature.mgt.stub</artifactId>
-                <version>${carbon.platform.version}</version>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.server.admin.stub</artifactId>
-                <version>${carbon.platform.version}</version>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.user.mgt.stub</artifactId>
-                <version>${carbon.platform.version}</version>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.roles.mgt.stub</artifactId>
-                <version>${carbon.platform.version}</version>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core.commons.stub</artifactId>
-                <version>${carbon.platform.version}</version>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet.jsp.jstl.wso2</groupId>
@@ -1306,18 +1201,308 @@
                 <version>${jdbc-pool.version}</version>
             </dependency>
             <dependency>
-                 <groupId>org.codehaus.woodstox</groupId>
-                 <artifactId>woodstox-core-asl</artifactId>
-                 <version>${version.woodstox.core.asl}</version>           
+                <groupId>org.codehaus.woodstox</groupId>
+                <artifactId>woodstox-core-asl</artifactId>
+                <version>${version.woodstox.core.asl}</version>
             </dependency>
             <dependency>
-                  <groupId>org.codehaus.woodstox</groupId>
-                  <artifactId>stax2-api</artifactId>
-                  <version>${version.stax2.api}</version>
+                <groupId>org.codehaus.woodstox</groupId>
+                <artifactId>stax2-api</artifactId>
+                <version>${version.stax2.api}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-catalina-ha</artifactId>
+                <version>${version.tomcat}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-juli</artifactId>
+                <version>${version.tomcat}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.tomcat.ha</groupId>
+                <artifactId>tomcat-catalina-ha</artifactId>
+                <version>${orbit.version.tomcat.ha}</version>
+            </dependency>
+            <dependency>
+                <groupId>jaxen</groupId>
+                <artifactId>jaxen</artifactId>
+                <version>${version.jaxen}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.jezhumble.wso2</groupId>
+                <artifactId>javasysmon</artifactId>
+                <version>${javasysmon.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>emma</groupId>
+                <artifactId>emma</artifactId>
+                <version>${emma.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.zookeeper.wso2</groupId>
+                <artifactId>apache-zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+            </dependency>
+            <!--Carbon Kernel Dependencies-->
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.utils</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.base</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.logging</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.tomcat</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.registry.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.user.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.bootstrap</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.registry.api</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.queuing</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.user.api</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.ndatasource.rdbms</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.registry.xboot</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>javax.cache.wso2</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.roles.mgt</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.feature.mgt.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.feature.mgt.ui</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.bridge</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.authenticator.proxy</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core.common</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.server.admin.common</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core.services</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.ndatasource.common</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.http.bridge</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.servletbridge</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.server</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.styles</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.student.mgt</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.student.mgt.ui</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.integration.framework</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.securevault</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.ui</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.coordination.common</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.server.admin</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.server.admin.ui</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.osgi.security</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>SecVerifier</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>aar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>wso2carbon-core</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+
+            <!--Carbon Kernel Features Dependencies-->
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core.server.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core.ui.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.student.mgt.server.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.student.mgt.ui.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+
+
+                <!-- Test integration dependencies -->
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.engine</artifactId>
+                <version>${automation.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.extensions</artifactId>
+                <version>${automation.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automation</groupId>
+                <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
+                <version>${automation.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.woden</groupId>
+                <artifactId>woden-api</artifactId>
+                <version>${woden.api.version}</version>
             </dependency>
 
         </dependencies>
     </dependencyManagement>
-
-
 </project>

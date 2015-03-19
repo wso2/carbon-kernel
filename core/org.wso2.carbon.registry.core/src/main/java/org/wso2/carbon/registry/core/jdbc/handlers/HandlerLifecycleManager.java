@@ -259,12 +259,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).editComment(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).editComment(
 						requestContext);
-		}
     }
 
     @Override
@@ -284,12 +280,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).removeComment(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).removeComment(
 						requestContext);
-		}
     }
 
     @Override
@@ -309,12 +301,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).createVersion(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).createVersion(
 						requestContext);
-		}
     }
 
     @Override
@@ -335,12 +323,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
 						.restoreVersion(requestContext);
-		}
     }
 
     @Override
@@ -360,12 +344,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).rateResource(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).rateResource(
 						requestContext);
-		}
     }
 
     @Override
@@ -385,12 +365,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).removeTag(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).removeTag(
 					requestContext);
-		}
     }
 
     @Override
@@ -410,12 +386,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).applyTag(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).applyTag(
 					requestContext);
-		}
     }
 
     @Override
@@ -437,12 +409,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
 					.removeAssociation(requestContext);
-		}
     }
 
     @Override
@@ -463,12 +431,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
 					.addAssociation(requestContext);
-		}
     }
 
     @Override
@@ -488,12 +452,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).delete(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).delete(
 					requestContext);
-		}
     }
 
     @Override
@@ -513,12 +473,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).putChild(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).putChild(
 					requestContext);
-		}
     }
 
     @Override
@@ -538,12 +494,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).importChild(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).importChild(
 					requestContext);
-		}
     }
 
     @Override
@@ -563,12 +515,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).invokeAspect(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).invokeAspect(
 					requestContext);
-		}
     }
 
     @Override
@@ -588,12 +536,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).createLink(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).createLink(
 					requestContext);
-		}
     }
 
     @Override
@@ -613,12 +557,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).removeLink(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).removeLink(
 					requestContext);
-		}
     }
 
     @Override
@@ -638,12 +578,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).restore(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).restore(
 					requestContext);
-		}
     }
 
     @Override
@@ -674,12 +610,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
 					.getAllAssociations(requestContext);
-		}
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -714,12 +646,9 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
 					.getAssociations(requestContext);
-		}
+
         if (userDefinedValue != null) {
             return userDefinedValue;
         }
@@ -752,13 +681,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         TaggedResourcePath[] userDefinedValue = handlerManagers.get(
                 USER_DEFINED_HANDLER_PHASE).getResourcePathsWithTag(requestContext);
         isProcessingComplete |= requestContext.isProcessingComplete();
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE).getResourcePathsWithTag(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).getResourcePathsWithTag(
 					requestContext);
-		}
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -794,12 +718,7 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE).getTags(requestContext);
-		}
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).getTags(requestContext);
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -834,12 +753,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
 							.getComments(requestContext);
-		}
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -874,13 +789,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE)
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE)
 					.getVersions(requestContext);
-		}
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -915,13 +825,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE).executeQuery(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).executeQuery(
 					requestContext);
-		}
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -956,13 +861,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE).searchContent(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).searchContent(
 					requestContext);
-		}
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -997,12 +897,7 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE).addComment(requestContext);
-		}
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).addComment(requestContext);
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -1040,12 +935,7 @@ public class HandlerLifecycleManager extends HandlerManager {
         Resource resourceOnContext = requestContext.getResource();
         Resource output = (userDefinedValue != null) ? userDefinedValue : defaultValue;
         requestContext.setResource(output);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE).get(requestContext);
-		}
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).get(requestContext);
         requestContext.setResource(resourceOnContext);
         return output;
     }
@@ -1077,12 +967,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).put(requestContext);
 
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE).put(requestContext);
-		}
         if (userDefinedValue != null) {
             return userDefinedValue;
         }
@@ -1116,13 +1002,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		// Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(
-					DEFAULT_REPORTING_HANDLER_PHASE).importResource(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).importResource(
 					requestContext);
-		}
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -1157,11 +1038,7 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).copy(requestContext);
-		}
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).copy(requestContext);
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -1196,12 +1073,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-		
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).move(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).move(
 					requestContext);
-		}
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -1236,11 +1109,7 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).rename(requestContext);
-		}
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).rename(requestContext);
 
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -1275,12 +1144,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).dump(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).dump(
 					requestContext);
-		}
 		
         if (userDefinedValue != null) {
             return userDefinedValue;
@@ -1315,12 +1180,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-		
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).getAverageRating(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).getAverageRating(
 					requestContext);
-		}
 
         if (userDefinedValue != -1) {
             return userDefinedValue;
@@ -1355,11 +1216,7 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-		
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).getRating(requestContext);
-		}
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).getRating(requestContext);
 
         if (userDefinedValue != -1) {
             return userDefinedValue;
@@ -1390,12 +1247,9 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).resourceExists(
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).resourceExists(
 					requestContext);
-		}
+
 		return userDefinedValue || defaultValue;
     }
 
@@ -1426,11 +1280,8 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).getRegistryContext(requestContext);
 
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).getRegistryContext(requestContext);
-		}
         if (userDefinedValue != null) {
             return userDefinedValue;
         }
@@ -1464,11 +1315,7 @@ public class HandlerLifecycleManager extends HandlerManager {
         isProcessingComplete |= requestContext.isProcessingComplete();
         // The reporting handler phase needs to know about the state of processing
         requestContext.setProcessingComplete(isProcessingComplete);
-
-		//Check process completion to avoid receiving two notifications
-		if (!isProcessingComplete) {
-			handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).dumpLite(requestContext);
-		}
+        handlerManagers.get(DEFAULT_REPORTING_HANDLER_PHASE).dumpLite(requestContext);
 
         if (userDefinedValue != null) {
             return userDefinedValue;

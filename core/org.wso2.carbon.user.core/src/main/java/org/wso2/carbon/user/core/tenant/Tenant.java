@@ -19,5 +19,5 @@
 package org.wso2.carbon.user.core.tenant;
 
 public class Tenant extends org.wso2.carbon.user.api.Tenant {
-    
+
 }

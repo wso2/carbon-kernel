@@ -18,6 +18,7 @@
  */
 package org.wso2.carbon.registry.core.service;
 
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.utils.AuthenticationObserver;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 
@@ -41,6 +42,6 @@ public interface TenantRegistryLoader {
      *                 tenant of the system, whereas identifiers greater than '0' correspond to
      *                 valid tenants.
      */
-    void loadTenantRegistry(int tenantId);
+    void loadTenantRegistry(int tenantId) throws RegistryException;
 
 }

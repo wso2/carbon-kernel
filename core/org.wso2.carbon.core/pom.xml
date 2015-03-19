@@ -15,20 +15,19 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <version>4.4.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.core</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Kernel</name>
     <description>OSGi Bundle for Carbon Core</description>
@@ -38,6 +37,12 @@
         <dependency>
             <groupId>com.hazelcast.wso2</groupId>
             <artifactId>hazelcast</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.hazelcast</groupId>
+                    <artifactId>hazelcast</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.eclipse.osgi</groupId>
@@ -61,19 +66,12 @@
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.infinispan.wso2</groupId>
-            <artifactId>infinispan-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>javax.cache.wso2</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -84,12 +82,10 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>commons-collections.wso2</groupId>
@@ -102,12 +98,10 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.neethi.wso2</groupId>
             <artifactId>neethi</artifactId>
-            <version>${orbit.version.neethi}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.neethi</groupId>
@@ -118,12 +112,10 @@
         <dependency>
             <groupId>org.apache.httpcomponents.wso2</groupId>
             <artifactId>httpcore</artifactId>
-            <version>${orbit.version.httpcore}</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina-ha</artifactId>
-            <version>${version.tomcat}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.tomcat</groupId>
@@ -138,7 +130,6 @@
         <dependency>
             <groupId>wsdl4j.wso2</groupId>
             <artifactId>wsdl4j</artifactId>
-            <version>${orbit.version.wsdl4j}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database.wso2</groupId>
@@ -148,13 +139,11 @@
         <dependency>
             <groupId>net.sf.ehcache.wso2</groupId>
             <artifactId>ehcache</artifactId>
-            <version>1.5.0.wso2v2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
-            <version>${version.backport.util.concurrent}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -194,7 +183,7 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.core.internal,
-                            org.wso2.carbon.core.*; version="${carbon.platform.package.export.version}",
+                            org.wso2.carbon.core.*; version="${carbon.kernel.exp.pkg.version}",
                         </Export-Package>
                         <Import-Package>
                             !javax.xml.namespace,
@@ -207,10 +196,11 @@
                             javax.xml.stream.*; version=1.0.1,
                             org.wso2.carbon.registry.core.service,
                             org.wso2.carbon.user.core.*; version=0.0.0,
+                            org.bouncycastle.*; version="${imp.pkg.version.bcp}",
                             *;resolution:=optional
                         </Import-Package>
                         <Embed-Dependency>
-                            bcprov-jdk15|naming-factory|naming-resources|commons-collections;scope=compile|runtime;inline=false
+                            naming-factory|naming-resources|commons-collections;scope=compile|runtime;inline=false
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <DynamicImport-Package>*</DynamicImport-Package>

@@ -27,6 +27,7 @@ import org.wso2.carbon.user.core.tenant.TenantManager;
 public interface RealmService extends org.wso2.carbon.user.api.UserRealmService {
     /**
      * Get a user realm from a given configuration
+     *
      * @param tenantRealmConfig
      * @return UserRealm
      * @throws UserStoreException
@@ -35,40 +36,41 @@ public interface RealmService extends org.wso2.carbon.user.api.UserRealmService 
 
     /**
      * Get the boot strap realm configuration, this is always build from conf/user-mgt.xml
+     *
      * @return tge realm configuration
      */
     RealmConfiguration getBootstrapRealmConfiguration();
 
     /**
-     * Get the bootstrap realm 
+     * Get the bootstrap realm
+     *
      * @return
      * @throws UserStoreException
      */
     UserRealm getBootstrapRealm() throws UserStoreException;
 
     /**
-     * 
+     * Get tenant manager
+     *
+     * @return TenantManager
+     */
+    TenantManager getTenantManager();
+
+    /**
      * @param tenantManager
      * @throws UserStoreException
      */
     void setTenantManager(TenantManager tenantManager) throws UserStoreException;
 
     /**
-     * Get tenant manager
-     * @return TenantManager
-     */
-    TenantManager getTenantManager();
-    
-    /**
-     * 
      * @return
      * @throws Exception
      */
     MultiTenantRealmConfigBuilder getMultiTenantRealmConfigBuilder() throws UserStoreException;
-    
+
     /**
      * Only returns if available in cache.
-     * 
+     *
      * @param tenantId
      * @return
      * @throws UserStoreException

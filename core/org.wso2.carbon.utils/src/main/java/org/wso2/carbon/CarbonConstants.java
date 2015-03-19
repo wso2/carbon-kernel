@@ -162,6 +162,7 @@ public final class CarbonConstants {
     public static final String HTTP_URLS = "httpUrls";
 
     // Ghost Deployment related constants
+    public static final String GHOST_ARTIFACT_REPOSITORY = "ghostArtifactRepository";
     public static final String GHOST_DEPLOYER = "ghostDeployer";
     public static final String GHOST_SERVICE_PARAM = "GhostService";
     public static final String GHOST_SERVICES_FOLDER = "ghostServices";
@@ -365,7 +366,10 @@ public final class CarbonConstants {
      * Name of the property which is used for storing the WebApplicationsHolder
      */
     public static final String WEB_APPLICATIONS_HOLDER = "carbon.webapps.holder";
-
+    /**
+     * Name of the property which is used for storing web applications holders list
+     */
+    public static final String WEB_APPLICATIONS_HOLDER_LIST = "carbon.webapps.holderlist";
     /**
      * Name of the property to hold the servletContextParameters list
      */

@@ -17,7 +17,7 @@
  -->
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>wso2carbon-core-${pom.version}</baseDirectory>
+    <baseDirectory>wso2carbon-core-${carbon.kernel.version}</baseDirectory>
     <id>carbon</id>
     <formats>
         <format>zip</format>
@@ -128,8 +128,11 @@
                 <include>xml-apis.wso2:xml-apis:jar</include>
                 <include>org.apache.geronimo.specs:geronimo-jaxws_2.2_spec:jar</include>
                 <include>org.apache.geronimo.specs.wso2:geronimo-jms_1.1_spec:jar</include>
-                <include>org.jboss.spec.javax.transaction:jboss-transaction-api_1.1_spec:jar</include>
+                <include>org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar</include>
                 <include>org.apache.tomcat:tomcat-annotations-api:jar</include>
+                <include>org.apache.geronimo.specs:geronimo-stax-api_1.2_spec</include>
+                <include>org.codehaus.woodstox:woodstox-core-asl</include>
+                <include>org.codehaus.woodstox:stax2-api</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -137,7 +140,6 @@
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
                 <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
-                <include>org.wso2.ciphertool:org.wso2.ciphertool:jar</include>
                 <include>commons-lang.wso2:commons-lang:jar</include>
  		        <include>ant-contrib:ant-contrib:jar</include>
             </includes>

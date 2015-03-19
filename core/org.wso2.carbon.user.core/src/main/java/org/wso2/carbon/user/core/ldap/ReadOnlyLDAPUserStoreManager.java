@@ -17,29 +17,6 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.naming.AuthenticationException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.PartialResultException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
-import javax.sql.DataSource;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,65 +40,85 @@ import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.LDAPUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
+import javax.naming.AuthenticationException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.PartialResultException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapContext;
+import javax.sql.DataSource;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
-	protected LDAPConnectionContext connectionSource = null;
-	private final int MAX_USER_CACHE = 200;
+    private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
+    private final int MAX_USER_CACHE = 200;
 
     // Todo: use a cache provided by carbon kernel
-	Map<String, String> userCache = new ConcurrentHashMap<String, String>(MAX_USER_CACHE);
+    Map<String, String> userCache = new ConcurrentHashMap<String, String>(MAX_USER_CACHE);
+    protected LDAPConnectionContext connectionSource = null;
+    protected String userSearchBase = null;
+    protected String groupSearchBase = null;
 
-	private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
-	
-	protected String userSearchBase = null;
-	protected String groupSearchBase = null;
+    /*
+     * following is by default true since embedded-ldap allows it. If connected
+     * to an external ldap
+     * where empty roles not allowed, then following property should be set
+     * accordingly in
+     * user-mgt.xml
+     */
+    protected boolean emptyRolesAllowed = false;
 
-	/*
-	 * following is by default true since embedded-ldap allows it. If connected
-	 * to an external ldap
-	 * where empty roles not allowed, then following property should be set
-	 * accordingly in
-	 * user-mgt.xml
-	 */
-	protected boolean emptyRolesAllowed = false;
+    public ReadOnlyLDAPUserStoreManager() {
 
-	public ReadOnlyLDAPUserStoreManager() {
+    }
 
-	}
+    public ReadOnlyLDAPUserStoreManager(RealmConfiguration realmConfig,
+                                        Map<String, Object> properties, ClaimManager claimManager,
+                                        ProfileConfigurationManager profileManager,
+                                        UserRealm realm, Integer tenantId)
+            throws UserStoreException {
+        this(realmConfig, properties, claimManager, profileManager, realm, tenantId, false);
+    }
 
-	public ReadOnlyLDAPUserStoreManager(RealmConfiguration realmConfig,
-	                                    Map<String, Object> properties, ClaimManager claimManager,
-	                                    ProfileConfigurationManager profileManager,
-	                                    UserRealm realm, Integer tenantId)
-	                                                                      throws UserStoreException {
-		this(realmConfig, properties, claimManager, profileManager, realm, tenantId, false);
-	}
+    /**
+     * Constructor with Hybrid Role Manager
+     *
+     * @param realmConfig
+     * @param properties
+     * @param claimManager
+     * @param profileManager
+     * @param realm
+     * @param tenantId
+     * @throws UserStoreException
+     */
+    public ReadOnlyLDAPUserStoreManager(RealmConfiguration realmConfig,
+                                        Map<String, Object> properties, ClaimManager claimManager,
+                                        ProfileConfigurationManager profileManager,
+                                        UserRealm realm, Integer tenantId, boolean skipInitData)
+            throws UserStoreException {
 
-	/**
-	 * Constructor with Hybrid Role Manager
-	 * 
-	 * @param realmConfig
-	 * @param properties
-	 * @param claimManager
-	 * @param profileManager
-	 * @param realm
-	 * @param tenantId
-	 * @throws UserStoreException
-	 */
-	public ReadOnlyLDAPUserStoreManager(RealmConfiguration realmConfig,
-	                                    Map<String, Object> properties, ClaimManager claimManager,
-	                                    ProfileConfigurationManager profileManager,
-	                                    UserRealm realm, Integer tenantId, boolean skipInitData)
-	                                                                                            throws UserStoreException {
+        if (log.isDebugEnabled()) {
+            log.debug("Initialization Started " + System.currentTimeMillis());
+        }
 
-		if (log.isDebugEnabled()) {
-			log.debug("Initializing Started " + System.currentTimeMillis());
-		}
-
-		this.realmConfig = realmConfig;
-		this.claimManager = claimManager;
-		this.userRealm = realm;
-		this.tenantId = tenantId;
+        this.realmConfig = realmConfig;
+        this.claimManager = claimManager;
+        this.userRealm = realm;
+        this.tenantId = tenantId;
 
 //		if (isReadOnly() && realmConfig.isPrimary()) {
 //			String adminRoleName =
@@ -129,37 +126,37 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 //			realmConfig.setAdminRoleName(UserCoreUtil.addInternalDomainName(adminRoleName));
 //		}
 
-		// check if required configurations are in the user-mgt.xml
-		checkRequiredUserStoreConfigurations();
+        // check if required configurations are in the user-mgt.xml
+        checkRequiredUserStoreConfigurations();
 
-		dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
-		if (dataSource == null) {
-			// avoid returning null
-			dataSource = DatabaseUtil.getRealmDataSource(realmConfig);
-		}
-		if (dataSource == null) {
-			throw new UserStoreException("Data Source is null");
-		}
-		properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
+        dataSource = (DataSource) properties.get(UserCoreConstants.DATA_SOURCE);
+        if (dataSource == null) {
+            // avoid returning null
+            dataSource = DatabaseUtil.getRealmDataSource(realmConfig);
+        }
+        if (dataSource == null) {
+            throw new UserStoreException("Data Source is null");
+        }
+        properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
 
 		/*
-		 * obtain the ldap connection source that was created in
+         * obtain the ldap connection source that was created in
 		 * DefaultRealmService.
 		 */
 
-		connectionSource = new LDAPConnectionContext(realmConfig);
+        connectionSource = new LDAPConnectionContext(realmConfig);
 
-		try {
-			connectionSource.getContext();
-			if (this.isReadOnly()) {
-				log.info("LDAP connection created successfully in read-only mode");
-			}
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			throw new UserStoreException("Cannot create connection to LDAP server. Error message " +
-			                             e.getMessage());
-		}
-		this.userRealm = realm;
+        try {
+            connectionSource.getContext();
+            if (this.isReadOnly()) {
+                log.info("LDAP connection created successfully in read-only mode");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new UserStoreException("Cannot create connection to LDAP server. Error message " +
+                    e.getMessage());
+        }
+        this.userRealm = realm;
         this.persistDomain();
         doInitialSetup();
         if (realmConfig.isPrimary()) {
@@ -172,70 +169,69 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
          */
         initUserRolesCache();
 
-		if (log.isDebugEnabled()) {
-			log.debug("Initializing Ended " + System.currentTimeMillis());
-		}
-	}
+        if (log.isDebugEnabled()) {
+            log.debug("Initialization Ended " + System.currentTimeMillis());
+        }
+    }
 
-	/**
-	 * This operates in the pure read-only mode without a connection to a
-	 * database. No handling of
-	 * Internal roles.
-	 */
-	public ReadOnlyLDAPUserStoreManager(RealmConfiguration realmConfig, ClaimManager claimManager,
-	                                    ProfileConfigurationManager profileManager)
-	                                                                               throws UserStoreException {
+    /**
+     * This operates in the pure read-only mode without a connection to a
+     * database. No handling of
+     * Internal roles.
+     */
+    public ReadOnlyLDAPUserStoreManager(RealmConfiguration realmConfig, ClaimManager claimManager,
+                                        ProfileConfigurationManager profileManager)
+            throws UserStoreException {
 
-		if (log.isDebugEnabled()) {
-			log.debug("Started " + System.currentTimeMillis());
-		}
-		this.realmConfig = realmConfig;
-		this.claimManager = claimManager;
+        if (log.isDebugEnabled()) {
+            log.debug("Started " + System.currentTimeMillis());
+        }
+        this.realmConfig = realmConfig;
+        this.claimManager = claimManager;
 
-		// check if required configurations are in the user-mgt.xml
-		checkRequiredUserStoreConfigurations();
+        // check if required configurations are in the user-mgt.xml
+        checkRequiredUserStoreConfigurations();
 
-		this.connectionSource = new LDAPConnectionContext(realmConfig);
-	}
+        this.connectionSource = new LDAPConnectionContext(realmConfig);
+    }
 
-	/**
-	 * 
-	 * @throws UserStoreException
-	 */
-	protected void checkRequiredUserStoreConfigurations() throws UserStoreException {
+    /**
+     * @throws UserStoreException
+     */
+    protected void checkRequiredUserStoreConfigurations() throws UserStoreException {
 
-		log.debug("Checking LDAP configurations ");
+        log.debug("Checking LDAP configurations ");
 
-		String connectionURL = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
-		String DNSURL = realmConfig.getUserStoreProperty(LDAPConstants.DNS_URL);
+        String connectionURL = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
+        String DNSURL = realmConfig.getUserStoreProperty(LDAPConstants.DNS_URL);
 
-		if ((connectionURL == null || connectionURL.trim().length() == 0) &&
-		    ((DNSURL == null || DNSURL.trim().length() == 0))) {
-			throw new UserStoreException(
-			                             "Required ConnectionURL property is not set at the LDAP configurations");
-		}
-		String connectionName = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME);
-		if (connectionName == null || connectionName.trim().length() == 0) {
-			throw new UserStoreException(
-			                             "Required ConnectionNme property is not set at the LDAP configurations");
-		}
-		String connectionPassword =
-		                            realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_PASSWORD);
-		if (connectionPassword == null || connectionPassword.trim().length() == 0) {
-			throw new UserStoreException(
-			                             "Required ConnectionPassword property is not set at the LDAP configurations");
-		}
-		userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		if (userSearchBase == null || userSearchBase.trim().length() == 0) {
-			throw new UserStoreException(
-			                             "Required UserSearchBase property is not set at the LDAP configurations");
-		}
-		String usernameListFilter =
-		                            realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-		if (usernameListFilter == null || usernameListFilter.trim().length() == 0) {
-			throw new UserStoreException(
-			                             "Required UserNameListFilter property is not set at the LDAP configurations");
-		}
+        if ((connectionURL == null || connectionURL.trim().length() == 0) &&
+                ((DNSURL == null || DNSURL.trim().length() == 0))) {
+            throw new UserStoreException(
+                    "Required ConnectionURL property is not set at the LDAP configurations");
+        }
+        String connectionName = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_NAME);
+        if (connectionName == null || connectionName.trim().length() == 0) {
+            throw new UserStoreException(
+                    "Required ConnectionNme property is not set at the LDAP configurations");
+        }
+        String connectionPassword =
+                realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_PASSWORD);
+        if (connectionPassword == null || connectionPassword.trim().length() == 0) {
+            throw new UserStoreException(
+                    "Required ConnectionPassword property is not set at the LDAP configurations");
+        }
+        userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        if (userSearchBase == null || userSearchBase.trim().length() == 0) {
+            throw new UserStoreException(
+                    "Required UserSearchBase property is not set at the LDAP configurations");
+        }
+        String usernameListFilter =
+                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+        if (usernameListFilter == null || usernameListFilter.trim().length() == 0) {
+            throw new UserStoreException(
+                    "Required UserNameListFilter property is not set at the LDAP configurations");
+        }
 
         String usernameSearchFilter =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
@@ -244,33 +240,33 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     "Required UserNameSearchFilter property is not set at the LDAP configurations");
         }
 
-		String usernameAttribute =
-		                           realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-		if (usernameAttribute == null || usernameAttribute.trim().length() == 0) {
-			throw new UserStoreException(
-			                             "Required UserNameAttribute property is not set at the LDAP configurations");
-		}
+        String usernameAttribute =
+                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        if (usernameAttribute == null || usernameAttribute.trim().length() == 0) {
+            throw new UserStoreException(
+                    "Required UserNameAttribute property is not set at the LDAP configurations");
+        }
 
-		writeGroupsEnabled = false;
+        writeGroupsEnabled = false;
 
-		// Groups properties
-		if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
-			readGroupsEnabled = Boolean.parseBoolean(realmConfig.
+        // Groups properties
+        if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED) != null) {
+            readGroupsEnabled = Boolean.parseBoolean(realmConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
-		} 
+        }
 
-		if (readGroupsEnabled) {
-			groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
-			if (groupSearchBase == null || groupSearchBase.trim().length() == 0) {
-				throw new UserStoreException(
-				                             "Required GroupSearchBase property is not set at the LDAP configurations");
-			}
-			String groupNameListFilter =
-			                             realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER);
-			if (groupNameListFilter == null || groupNameListFilter.trim().length() == 0) {
-				throw new UserStoreException(
-				                             "Required GroupNameListFilter property is not set at the LDAP configurations");
-			}
+        if (readGroupsEnabled) {
+            groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+            if (groupSearchBase == null || groupSearchBase.trim().length() == 0) {
+                throw new UserStoreException(
+                        "Required GroupSearchBase property is not set at the LDAP configurations");
+            }
+            String groupNameListFilter =
+                    realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER);
+            if (groupNameListFilter == null || groupNameListFilter.trim().length() == 0) {
+                throw new UserStoreException(
+                        "Required GroupNameListFilter property is not set at the LDAP configurations");
+            }
 
             String groupNameSearchFilter =
                     realmConfig.getUserStoreProperty(LDAPConstants.ROLE_NAME_FILTER);
@@ -279,53 +275,53 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         "Required GroupNameSearchFilter property is not set at the LDAP configurations");
             }
 
-			String groupNameAttribute =
-			                            realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
-			if (groupNameAttribute == null || groupNameAttribute.trim().length() == 0) {
-				throw new UserStoreException(
-				                             "Required GroupNameAttribute property is not set at the LDAP configurations");
-			}
-			String memebershipAttribute =
-			                              realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-			if (memebershipAttribute == null || memebershipAttribute.trim().length() == 0) {
-				throw new UserStoreException(
-				                             "Required MembershipAttribute property is not set at the LDAP configurations");
-			}
-		}
-	}
+            String groupNameAttribute =
+                    realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+            if (groupNameAttribute == null || groupNameAttribute.trim().length() == 0) {
+                throw new UserStoreException(
+                        "Required GroupNameAttribute property is not set at the LDAP configurations");
+            }
+            String memebershipAttribute =
+                    realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+            if (memebershipAttribute == null || memebershipAttribute.trim().length() == 0) {
+                throw new UserStoreException(
+                        "Required MembershipAttribute property is not set at the LDAP configurations");
+            }
+        }
+    }
 
-	/**
-	 * 
-	 */
-	public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
-		
-		boolean debug = log.isDebugEnabled();
+    /**
+     *
+     */
+    public boolean doAuthenticate(String userName, Object credential) throws UserStoreException {
 
-		if (userName == null || credential == null) {
-			return false;
-		}
-		
-		userName = userName.trim();
-		// if replace escape characters enabled, modify username by replacing
-		// escape characters.
-		userName = replaceEscapeCharacters(userName);
-		String password = (String) credential;
-		password = password.trim();
+        boolean debug = log.isDebugEnabled();
 
-		if (userName.equals("") || password.equals("")) {
-			return false;
-		}
-		
-		if(debug) {
-			log.debug("Authenticating user " + userName);
-		}
+        if (userName == null || credential == null) {
+            return false;
+        }
 
-		boolean bValue = false;
+        userName = userName.trim();
+        // if replace escape characters enabled, modify username by replacing
+        // escape characters.
+        userName = replaceEscapeCharacters(userName);
+        String password = (String) credential;
+        password = password.trim();
+
+        if (userName.equals("") || password.equals("")) {
+            return false;
+        }
+
+        if (debug) {
+            log.debug("Authenticating user " + userName);
+        }
+
+        boolean bValue = false;
         // check cached user DN first.
-		String name = userCache.get(userName);
+        String name = userCache.get(userName);
         if (name != null) {
             try {
-                if(debug) {
+                if (debug) {
                     log.debug("Cache hit. Using DN " + name);
                 }
                 bValue = this.bindAsUser(name, (String) credential);
@@ -334,7 +330,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 // patterns as well.
                 if (log.isDebugEnabled()) {
                     log.debug("Checking authentication with UserDN " + name + "failed " +
-                            e.getMessage(),e);
+                            e.getMessage(), e);
                 }
             }
 
@@ -344,95 +340,95 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         // read list of patterns from user-mgt.xml
-		String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
+        String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
 
-		if (patterns != null && !patterns.isEmpty()) {
-			
-			if(debug) {
-				log.debug("Using UserDNPatterns " + patterns);
-			}
+        if (patterns != null && !patterns.isEmpty()) {
 
-			// if the property is present, split it using # to see if there are
-			// multiple patterns specified.
-			String[] userDNPatternList = patterns.split("#");
-			if (userDNPatternList.length > 0) {
-				for (String userDNPattern : userDNPatternList) {
-					name = MessageFormat.format(userDNPattern, userName);
-					if(debug) {
-						log.debug("Authenticating with " + name);
-					}
-					try {
-						if (name != null) {
-							bValue = this.bindAsUser(name, (String) credential);
-							if (bValue) {
-								userCache.put(userName, name);
-								break;
-							}
-						}
-					} catch (NamingException e) {
-						// do nothing if bind fails since we check for other DN
-						// patterns as well.
-						if (log.isDebugEnabled()) {
-							log.debug("Checking authentication with UserDN " + userDNPattern +
-							          "failed " + e.getMessage(),e);
-						}
-					}
-				}
-			}
-		} else {
-			name = getNameInSpaceForUserName(userName);
-			try {
-				if (name != null) {
-					if(debug) {
-						log.debug("Authenticating with " + name);
-					}
-					bValue = this.bindAsUser(name, (String) credential);
+            if (debug) {
+                log.debug("Using UserDNPatterns " + patterns);
+            }
+
+            // if the property is present, split it using # to see if there are
+            // multiple patterns specified.
+            String[] userDNPatternList = patterns.split("#");
+            if (userDNPatternList.length > 0) {
+                for (String userDNPattern : userDNPatternList) {
+                    name = MessageFormat.format(userDNPattern, userName);
+                    if (debug) {
+                        log.debug("Authenticating with " + name);
+                    }
+                    try {
+                        if (name != null) {
+                            bValue = this.bindAsUser(name, (String) credential);
+                            if (bValue) {
+                                userCache.put(userName, name);
+                                break;
+                            }
+                        }
+                    } catch (NamingException e) {
+                        // do nothing if bind fails since we check for other DN
+                        // patterns as well.
+                        if (log.isDebugEnabled()) {
+                            log.debug("Checking authentication with UserDN " + userDNPattern +
+                                    "failed " + e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        } else {
+            name = getNameInSpaceForUserName(userName);
+            try {
+                if (name != null) {
+                    if (debug) {
+                        log.debug("Authenticating with " + name);
+                    }
+                    bValue = this.bindAsUser(name, (String) credential);
                     if (bValue) {
                         userCache.put(userName, name);
                     }
-				}
-			} catch (NamingException e) {
-				log.debug(e.getMessage(), e);
-				throw new UserStoreException(e.getMessage());
-			}
-		}
+                }
+            } catch (NamingException e) {
+                log.debug(e.getMessage(), e);
+                throw new UserStoreException(e.getMessage());
+            }
+        }
 
-		return bValue;
-	}
+        return bValue;
+    }
 
-	/**
-	 * We do not have multiple profile support with LDAP.
-	 */
-	public String[] getAllProfileNames() throws UserStoreException {
-		return new String[] { UserCoreConstants.DEFAULT_PROFILE };
-	}
+    /**
+     * We do not have multiple profile support with LDAP.
+     */
+    public String[] getAllProfileNames() throws UserStoreException {
+        return new String[]{UserCoreConstants.DEFAULT_PROFILE};
+    }
 
-	/**
-	 * We do not have multiple profile support with LDAP.
-	 */
-	public String[] getProfileNames(String userName) throws UserStoreException {
-		return new String[] { UserCoreConstants.DEFAULT_PROFILE };
-	}
+    /**
+     * We do not have multiple profile support with LDAP.
+     */
+    public String[] getProfileNames(String userName) throws UserStoreException {
+        return new String[]{UserCoreConstants.DEFAULT_PROFILE};
+    }
 
-	/**
-	 * 
-	 */
-	public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames,
-	                                                 String profileName) throws UserStoreException {
+    /**
+     *
+     */
+    public Map<String, String> getUserPropertyValues(String userName, String[] propertyNames,
+                                                     String profileName) throws UserStoreException {
 
         String userDN = userCache.get(userName);
 
-        if(userDN == null){
+        if (userDN == null) {
             // read list of patterns from user-mgt.xml
             String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
 
             if (patterns != null && !patterns.isEmpty()) {
 
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("Using User DN Patterns " + patterns);
                 }
 
-                if(patterns.contains("#")){
+                if (patterns.contains("#")) {
                     userDN = getNameInSpaceForUserName(userName);
                 } else {
                     userDN = MessageFormat.format(patterns, userName);
@@ -441,27 +437,26 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         Map<String, String> values = new HashMap<String, String>();
-		String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-		String userNameProperty =
-		                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-		// if user name contains domain name, remove domain name
-		String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
-		if (userNames.length > 1) {
-			userName = userNames[1];
-		}
+        // if user name contains domain name, remove domain name
+        String[] userNames = userName.split(CarbonConstants.DOMAIN_SEPARATOR);
+        if (userNames.length > 1) {
+            userName = userNames[1];
+        }
 
-        searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
-		DirContext dirContext = this.connectionSource.getContext();
-		NamingEnumeration<?> answer = null;
-		NamingEnumeration<?> attrs = null;
-		try {
-			if(userDN != null){
+        DirContext dirContext = this.connectionSource.getContext();
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        String searchFilter = userSearchFilter.replace("?", userName);
+
+        NamingEnumeration<?> answer = null;
+        NamingEnumeration<?> attrs = null;
+        try {
+            if (userDN != null) {
                 SearchControls searchCtls = new SearchControls();
                 searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
                 if (propertyNames != null && propertyNames.length > 0) {
                     searchCtls.setReturningAttributes(propertyNames);
                 }
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     try {
                         log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext.getNameInNamespace());
                     } catch (NamingException e) {
@@ -484,93 +479,93 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             } else {
                 answer = this.searchForUser(searchFilter, propertyNames, dirContext);
             }
-			while (answer.hasMoreElements()) {
-				SearchResult sr = (SearchResult) answer.next();
-				Attributes attributes = sr.getAttributes();
-				if (attributes != null) {
-					for (String name : propertyNames) {
-						if (name != null) {
-							Attribute attribute = attributes.get(name);
-							if (attribute != null) {
-								StringBuffer attrBuffer = new StringBuffer();
-								for (attrs = attribute.getAll(); attrs.hasMore();) {
-                                    Object attObject =  attrs.next();
-                                    String attr=null;
-                                    if(attObject instanceof String){
-                                        attr=(String)attObject;
-                                      }else if (attObject instanceof byte[]){
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.next();
+                Attributes attributes = sr.getAttributes();
+                if (attributes != null) {
+                    for (String name : propertyNames) {
+                        if (name != null) {
+                            Attribute attribute = attributes.get(name);
+                            if (attribute != null) {
+                                StringBuffer attrBuffer = new StringBuffer();
+                                for (attrs = attribute.getAll(); attrs.hasMore(); ) {
+                                    Object attObject = attrs.next();
+                                    String attr = null;
+                                    if (attObject instanceof String) {
+                                        attr = (String) attObject;
+                                    } else if (attObject instanceof byte[]) {
                                         //if the attribute type is binary base64 encoded string will be returned
-                                         attr=new String(Base64.encodeBase64((byte[]) attObject));
-                                      }
+                                        attr = new String(Base64.encodeBase64((byte[]) attObject));
+                                    }
 
-									if (attr != null && attr.trim().length() > 0) {
-										attrBuffer.append(attr + ",");
-									}
-								}
-								String value = attrBuffer.toString();
+                                    if (attr != null && attr.trim().length() > 0) {
+                                        attrBuffer.append(attr + ",");
+                                    }
+                                }
+                                String value = attrBuffer.toString();
 								/*
 								 * Length needs to be more than one for a valid
 								 * attribute, since we
 								 * attach ",".
 								 */
-								if (value != null && value.trim().length() > 1) {
-									value = value.substring(0, value.length() - 1);
-									values.put(name, value);
-								}
-							}
-						}
-					}
-				}
-			}
+                                if (value != null && value.trim().length() > 1) {
+                                    value = value.substring(0, value.length() - 1);
+                                    values.put(name, value);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
-		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
-			// close the naming enumeration and free up resources
-			JNDIUtil.closeNamingEnumeration(attrs);
-			JNDIUtil.closeNamingEnumeration(answer);
-			// close directory context
-			JNDIUtil.closeContext(dirContext);
-		}
-		return values;
-	}
+        } catch (NamingException e) {
+            log.debug(e.getMessage(), e);
+            throw new UserStoreException(e.getMessage());
+        } finally {
+            // close the naming enumeration and free up resources
+            JNDIUtil.closeNamingEnumeration(attrs);
+            JNDIUtil.closeNamingEnumeration(answer);
+            // close directory context
+            JNDIUtil.closeContext(dirContext);
+        }
+        return values;
+    }
 
-	/**
-	 * 
-	 */
-	public boolean doCheckExistingRole(String roleName) throws UserStoreException {
+    /**
+     *
+     */
+    public boolean doCheckExistingRole(String roleName) throws UserStoreException {
 
         RoleContext roleContext = createRoleContext(roleName);  // TODO if role Name with Shared Role?
         return isExistingLDAPRole(roleContext);
 
-	}
+    }
 
-    protected boolean isExistingLDAPRole(RoleContext context) throws UserStoreException{
-        
-    	boolean debug = log.isDebugEnabled();
+    protected boolean isExistingLDAPRole(RoleContext context) throws UserStoreException {
+
+        boolean debug = log.isDebugEnabled();
         boolean isExisting = false;
         String roleName = context.getRoleName();
-        
-        if(debug) {
-        	log.debug("Searching for role: " + roleName);
+
+        if (debug) {
+            log.debug("Searching for role: " + roleName);
         }
-        String searchFilter =   ((LDAPRoleContext) context).getListFilter();
+        String searchFilter = ((LDAPRoleContext) context).getListFilter();
         String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
         searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + roleName + "))";
         String searchBases = ((LDAPRoleContext) context).getSearchBase();
-        
-        if(debug) {
-        	log.debug("Using search filter: " + searchFilter);
+
+        if (debug) {
+            log.debug("Using search filter: " + searchFilter);
         }
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        searchCtls.setReturningAttributes(new String[] { roleNameProperty });
+        searchCtls.setReturningAttributes(new String[]{roleNameProperty});
         NamingEnumeration<SearchResult> answer = null;
         DirContext dirContext = null;
 
         try {
-            dirContext  = connectionSource.getContext();
+            dirContext = connectionSource.getContext();
             // with DN patterns
             if (((LDAPRoleContext) context).getRoleDNPatterns().size() > 0) {
                 for (String pattern : ((LDAPRoleContext) context).getRoleDNPatterns()) {
@@ -593,12 +588,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
             //try out with handle multiple search bases
             String[] roleSearchBaseArray = searchBases.split("#");
-			for (String searchBase : roleSearchBaseArray) {
+            for (String searchBase : roleSearchBaseArray) {
                 // no DN Patterns found
                 if (debug) {
                     log.debug("Searching in " + searchBase);
                 }
-                try{
+                try {
                     answer = dirContext.search(searchBase, searchFilter, searchCtls);
                     if (answer.hasMoreElements()) {
                         isExisting = true;
@@ -610,263 +605,286 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                     // ignore
                 }
-			}
+            }
         } finally {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
         }
-        if(debug) {
+        if (debug) {
             log.debug("Is role: " + roleName + " exist: " + isExisting);
         }
-        return isExisting;        
+        return isExisting;
     }
 
-	/**
-	 * 
-	 */
-	public boolean doCheckExistingUser(String userName) throws UserStoreException {
+    public boolean doCheckExistingUser(String userName) throws UserStoreException {
 
-		boolean bFound = false;
-		boolean debug = log.isDebugEnabled();
-		
-		try {
-			if(debug) {
-				log.debug("Searching for user " + userName);
-			}
-			String name = getNameInSpaceForUserName(userName);
-			if (name != null && name.length() > 0) {
-				bFound = true;
-			}
-		} catch (Exception e) {
-			throw new UserStoreException(e.getMessage(), e);
-		}
-		
-		if(debug) {
-			log.debug("User: " + userName + " exist: " + bFound);
-		}
-		
-		return bFound;
-	}
+        if (log.isDebugEnabled()) {
+            log.debug("Searching for user " + userName);
+        }
+        boolean bFound = false;
+        String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+        userSearchFilter = userSearchFilter.replace("?", userName);
+        try {
+            String searchBase = null;
+            String userDN = userCache.get(userName);
+            if(userDN == null){
+                String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
+                if (userDNPattern != null && userDNPattern.trim().length() > 0) {
+                    String[] patterns = userDNPattern.split("#");
+                    for (String pattern : patterns) {
+                        searchBase = MessageFormat.format(pattern, userName);
+                        userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter);
+                        if (userDN != null && userDN.length() > 0) {
+                            bFound = true;
+                            userCache.put(userName, userDN);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                searchBase = MessageFormat.format(userDN, userName);
+                userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter);
+                if (userDN != null && userDN.length() > 0) {
+                    bFound = true;
+                } else {
+                    userCache.remove(userName);
+                }
+            }
+            if(!bFound){
+                searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+                userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter);
+                if(userDN != null && userDN.length() > 0){
+                    bFound = true;
+                }
+            }
+        } catch (Exception e) {
+            String errorMessage = "Error occurred while checking existence of user : " + userName;
+            throw new UserStoreException(errorMessage, e);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("User: " + userName + " exist: " + bFound);
+        }
+        return bFound;
+    }
 
-	/**
-	 * 
-	 */
-	public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
-		boolean debug = log.isDebugEnabled();
-		String[] userNames = new String[0];
+    /**
+     *
+     */
+    public String[] doListUsers(String filter, int maxItemLimit) throws UserStoreException {
+        boolean debug = log.isDebugEnabled();
+        String[] userNames = new String[0];
 
-		if (maxItemLimit == 0) {
-			return userNames;
-		}
+        if (maxItemLimit == 0) {
+            return userNames;
+        }
 
-		int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-		int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
 
-		try {
-			givenMax =
-			           Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
-		} catch (Exception e) {
-			givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-		}
+        try {
+            givenMax =
+                    Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
 
-		try {
-			searchTime =
-			             Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-		} catch (Exception e) {
-			searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-		}
+        try {
+            searchTime =
+                    Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
 
-		if (maxItemLimit < 0 || maxItemLimit > givenMax) {
-			maxItemLimit = givenMax;
-		}
+        if (maxItemLimit < 0 || maxItemLimit > givenMax) {
+            maxItemLimit = givenMax;
+        }
 
-		SearchControls searchCtls = new SearchControls();
-		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchCtls.setCountLimit(maxItemLimit);
-		searchCtls.setTimeLimit(searchTime);
+        SearchControls searchCtls = new SearchControls();
+        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchCtls.setCountLimit(maxItemLimit);
+        searchCtls.setTimeLimit(searchTime);
 
-		if (filter.contains("?") || filter.contains("**")) {
-			throw new UserStoreException(
-			                             "Invalid character sequence entered for user serch. Please enter valid sequence.");
-		}
+        if (filter.contains("?") || filter.contains("**")) {
+            throw new UserStoreException(
+                    "Invalid character sequence entered for user serch. Please enter valid sequence.");
+        }
 
-		StringBuffer searchFilter =
-		                            new StringBuffer(
-		                                             realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
-		String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        StringBuffer searchFilter =
+                new StringBuffer(
+                        realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER));
+        String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
 
-		String userNameProperty =
-		                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+        String userNameProperty =
+                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-		String serviceNameAttribute = "sn";
+        String serviceNameAttribute = "sn";
 
-		StringBuffer finalFilter = new StringBuffer();
+        StringBuffer finalFilter = new StringBuffer();
 
-		// read the display name attribute - if provided
-		String displayNameAttribute =
-		                              realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
+        // read the display name attribute - if provided
+        String displayNameAttribute =
+                realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
 
-		String[] returnedAtts = null;
+        String[] returnedAtts = null;
 
-		if (displayNameAttribute != null) {
-			returnedAtts =
-			               new String[] { userNameProperty, serviceNameAttribute,
-			                             displayNameAttribute };
-			finalFilter.append("(&").append(searchFilter).append("(").append(displayNameAttribute)
-			    .append("=").append(filter).append("))");
-		} else {
-			returnedAtts = new String[] { userNameProperty, serviceNameAttribute };
-			finalFilter.append("(&").append(searchFilter).append("(").append(userNameProperty).append("=")
-			    .append(filter).append("))");
-		}
-		
-		if(debug) {
-			log.debug("Listing users. SearchBase: " + searchBases + " Constructed-Filter: " + finalFilter.toString() );
-			log.debug("Search controls. Max Limit: " + maxItemLimit + " Max Time: " + searchTime);
-		}
+        if (displayNameAttribute != null) {
+            returnedAtts =
+                    new String[]{userNameProperty, serviceNameAttribute,
+                            displayNameAttribute};
+            finalFilter.append("(&").append(searchFilter).append("(").append(displayNameAttribute)
+                    .append("=").append(filter).append("))");
+        } else {
+            returnedAtts = new String[]{userNameProperty, serviceNameAttribute};
+            finalFilter.append("(&").append(searchFilter).append("(").append(userNameProperty).append("=")
+                    .append(filter).append("))");
+        }
 
-		searchCtls.setReturningAttributes(returnedAtts);
-		DirContext dirContext = null;
-		NamingEnumeration<SearchResult> answer = null;
-		List<String> list = new ArrayList<String>();
+        if (debug) {
+            log.debug("Listing users. SearchBase: " + searchBases + " Constructed-Filter: " + finalFilter.toString());
+            log.debug("Search controls. Max Limit: " + maxItemLimit + " Max Time: " + searchTime);
+        }
 
-		try {
-			dirContext = connectionSource.getContext();
-			// handle multiple search bases
-			String[] searchBaseArray = searchBases.split("#");
-			
-			for (String searchBase : searchBaseArray) {
+        searchCtls.setReturningAttributes(returnedAtts);
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
+        List<String> list = new ArrayList<String>();
 
-				answer = dirContext.search(searchBase, finalFilter.toString(), searchCtls);
+        try {
+            dirContext = connectionSource.getContext();
+            // handle multiple search bases
+            String[] searchBaseArray = searchBases.split("#");
 
-				while (answer.hasMoreElements()) {
-					SearchResult sr = (SearchResult) answer.next();
-					if (sr.getAttributes() != null) {
-						log.debug("Result found ..");
-						Attribute attr = sr.getAttributes().get(userNameProperty);
+            for (String searchBase : searchBaseArray) {
+
+                answer = dirContext.search(searchBase, finalFilter.toString(), searchCtls);
+
+                while (answer.hasMoreElements()) {
+                    SearchResult sr = (SearchResult) answer.next();
+                    if (sr.getAttributes() != null) {
+                        log.debug("Result found ..");
+                        Attribute attr = sr.getAttributes().get(userNameProperty);
 
 						/*
 						 * If this is a service principle, just ignore and
 						 * iterate rest of the array. The entity is a service if
 						 * value of surname is Service
 						 */
-						Attribute attrSurname = sr.getAttributes().get(serviceNameAttribute);
+                        Attribute attrSurname = sr.getAttributes().get(serviceNameAttribute);
 
-						if (attrSurname != null) {
-							if (debug) {
-								log.debug(serviceNameAttribute + " : " + attrSurname);
-							}
-							String serviceName = (String) attrSurname.get();
-							if (serviceName != null
-									&& serviceName
-											.equals(LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
-								continue;
-							}
-						}
+                        if (attrSurname != null) {
+                            if (debug) {
+                                log.debug(serviceNameAttribute + " : " + attrSurname);
+                            }
+                            String serviceName = (String) attrSurname.get();
+                            if (serviceName != null
+                                    && serviceName
+                                    .equals(LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
+                                continue;
+                            }
+                        }
 
 						/*
 						 * if display name is provided, read that attribute
 						 */
-						Attribute displayName = null;
-						if (displayNameAttribute != null) {
-							displayName = sr.getAttributes().get(displayNameAttribute);
-							if (debug) {
-								log.debug(displayNameAttribute + " : " + displayName);
-							}
-						}
+                        Attribute displayName = null;
+                        if (displayNameAttribute != null) {
+                            displayName = sr.getAttributes().get(displayNameAttribute);
+                            if (debug) {
+                                log.debug(displayNameAttribute + " : " + displayName);
+                            }
+                        }
 
-						if (attr != null) {
-							String name = (String) attr.get();
-							String display = null;
-							if (displayName != null) {
-								display = (String) displayName.get();
-							}
-							// append the domain if exist
-							String domain = this.getRealmConfiguration().getUserStoreProperty(
-									UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
-							// get the name in the format of
-							// domainName/userName|domainName/displayName
-							name = UserCoreUtil.getCombinedName(domain, name, display);
-							list.add(name);
-						}
-					}
-				}
-			}
-			userNames = list.toArray(new String[list.size()]);
-			Arrays.sort(userNames);
-			
-			if(debug) {
-				for(String username : userNames) {
-					log.debug("result: " + username);
-				}
-			}
-			
-		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
-			JNDIUtil.closeNamingEnumeration(answer);
-			JNDIUtil.closeContext(dirContext);
-		}
-		return userNames;
-	}
+                        if (attr != null) {
+                            String name = (String) attr.get();
+                            String display = null;
+                            if (displayName != null) {
+                                display = (String) displayName.get();
+                            }
+                            // append the domain if exist
+                            String domain = this.getRealmConfiguration().getUserStoreProperty(
+                                    UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+                            // get the name in the format of
+                            // domainName/userName|domainName/displayName
+                            name = UserCoreUtil.getCombinedName(domain, name, display);
+                            list.add(name);
+                        }
+                    }
+                }
+            }
+            userNames = list.toArray(new String[list.size()]);
+            Arrays.sort(userNames);
 
-	@Override
-	protected String[] doGetDisplayNamesForInternalRole(String[] userNames)
-	                                                                       throws UserStoreException {
-		// search the user with UserNameAttribute, retrieve their
-		// DisplayNameAttribute combine and return
-		String displayNameAttribute =
-		                              this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
-		if (displayNameAttribute != null) {
-			String userNameAttribute =
-			                           this.realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-			String userSearchBase =
-			                        this.realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-			String userNameListFilter =
-			                            this.realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+            if (debug) {
+                for (String username : userNames) {
+                    log.debug("result: " + username);
+                }
+            }
 
-			String[] returningAttributes = { displayNameAttribute };
-			SearchControls searchControls = new SearchControls();
-			searchControls.setReturningAttributes(returningAttributes);
+        } catch (NamingException e) {
+            log.debug(e.getMessage(), e);
+            throw new UserStoreException(e.getMessage());
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+        return userNames;
+    }
 
-			List<String> combinedNames = new ArrayList<String>();
-			if (userNames != null && userNames.length > 0) {
-				for (String userName : userNames) {
-					String searchFilter =
-					                      "(&" + userNameListFilter + "(" + userNameAttribute +
-					                              "=" + userName + "))";
-					List<String> displayNames =
-					                            this.getListOfNames(userSearchBase, searchFilter,
-					                                                searchControls,
-					                                                displayNameAttribute, false);
-					// we expect only one display name
-					String name =
-					              UserCoreUtil.getCombinedName(this.realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME),
-					                                           userName, displayNames.get(0));
-					combinedNames.add(name);
-				}
-				return combinedNames.toArray(new String[combinedNames.size()]);
-			} else {
-				return userNames;
-			}
-		} else {
-			return userNames;
-		}
-	}
+    @Override
+    protected String[] doGetDisplayNamesForInternalRole(String[] userNames)
+            throws UserStoreException {
+        // search the user with UserNameAttribute, retrieve their
+        // DisplayNameAttribute combine and return
+        String displayNameAttribute =
+                this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
+        if (displayNameAttribute != null) {
+            String userNameAttribute =
+                    this.realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+            String userSearchBase =
+                    this.realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+            String userNameListFilter =
+                    this.realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
 
-	/**
-	 * 
-	 * @param dn
-	 * @param credentials
-	 * @return
-	 * @throws NamingException
-	 * @throws UserStoreException
-	 */
-	protected boolean bindAsUser(String dn, String credentials) throws NamingException,
-	                                                           UserStoreException {
-		boolean isAuthed = false;
-		boolean debug = log.isDebugEnabled();
+            String[] returningAttributes = {displayNameAttribute};
+            SearchControls searchControls = new SearchControls();
+            searchControls.setReturningAttributes(returningAttributes);
+
+            List<String> combinedNames = new ArrayList<String>();
+            if (userNames != null && userNames.length > 0) {
+                for (String userName : userNames) {
+                    String searchFilter =
+                            "(&" + userNameListFilter + "(" + userNameAttribute +
+                                    "=" + userName + "))";
+                    List<String> displayNames =
+                            this.getListOfNames(userSearchBase, searchFilter,
+                                    searchControls,
+                                    displayNameAttribute, false);
+                    // we expect only one display name
+                    String name =
+                            UserCoreUtil.getCombinedName(this.realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME),
+                                    userName, displayNames.get(0));
+                    combinedNames.add(name);
+                }
+                return combinedNames.toArray(new String[combinedNames.size()]);
+            } else {
+                return userNames;
+            }
+        } else {
+            return userNames;
+        }
+    }
+
+    /**
+     * @param dn
+     * @param credentials
+     * @return
+     * @throws NamingException
+     * @throws UserStoreException
+     */
+    protected boolean bindAsUser(String dn, String credentials) throws NamingException,
+            UserStoreException {
+        boolean isAuthed = false;
+        boolean debug = log.isDebugEnabled();
 
 		/*
 		 * Hashtable<String, String> env = new Hashtable<String, String>();
@@ -875,12 +893,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		 * env.put(Context.SECURITY_CREDENTIALS, credentials);
 		 * env.put("com.sun.jndi.ldap.connect.pool", "true");
 		 */
-		/**
-		 * In carbon JNDI context we need to by pass specific tenant context and
-		 * we need the base
-		 * context for LDAP operations.
-		 */
-		// env.put(CarbonConstants.REQUEST_BASE_CONTEXT, "true");
+        /**
+         * In carbon JNDI context we need to by pass specific tenant context and
+         * we need the base
+         * context for LDAP operations.
+         */
+        // env.put(CarbonConstants.REQUEST_BASE_CONTEXT, "true");
 
 		/*
 		 * String rawConnectionURL =
@@ -906,323 +924,322 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		 * env.put(Context.SECURITY_AUTHENTICATION, "simple");
 		 */
 
-		LdapContext cxt = null;
-		try {
-			// cxt = new InitialLdapContext(env, null);
-			cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
-			isAuthed = true;
-		} catch (AuthenticationException e) {
+        LdapContext cxt = null;
+        try {
+            // cxt = new InitialLdapContext(env, null);
+            cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
+            isAuthed = true;
+        } catch (AuthenticationException e) {
 			/*
 			 * StringBuilder stringBuilder = new
 			 * StringBuilder("Authentication failed for user ");
 			 * stringBuilder.append(dn).append(" ").append(e.getMessage());
 			 */
 
-			// we avoid throwing an exception here since we throw that exception
-			// in a one level above this.
-			if (debug) {
-				log.debug("Authentication failed " + e);
-			}
+            // we avoid throwing an exception here since we throw that exception
+            // in a one level above this.
+            if (debug) {
+                log.debug("Authentication failed " + e);
+            }
 
-		} finally {
-			JNDIUtil.closeContext(cxt);
-		}
-		
-		if(debug) {
-			log.debug("User: " + dn + " is authnticated: " + isAuthed);
-		}
-		return isAuthed;
-	}
+        } finally {
+            JNDIUtil.closeContext(cxt);
+        }
 
-	/**
-	 * 
-	 * @param searchFilter
-	 * @param returnedAtts
-	 * @param dirContext
-	 * @return
-	 * @throws UserStoreException
-	 */
-	protected NamingEnumeration<SearchResult> searchForUser(String searchFilter,
-	                                                        String[] returnedAtts,
-	                                                        DirContext dirContext)
-	                                                                              throws UserStoreException {
-		SearchControls searchCtls = new SearchControls();
-		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		if (returnedAtts != null && returnedAtts.length > 0) {
-			searchCtls.setReturningAttributes(returnedAtts);
-		}
-		
-		if(log.isDebugEnabled()) {
-			try {
-				log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext.getNameInNamespace());
-			} catch (NamingException e) {
-				log.debug("Error while getting DN of search base", e);
-			}
-			if (returnedAtts == null) {
-				log.debug("No attributes requested");
-			} else {
-				for (String attribute : returnedAtts) {
-					log.debug("Requesting attribute :" + attribute);
-				}
-			}
-		}
-		
-		String[] searchBaseAraay = searchBases.split("#");
-		NamingEnumeration<SearchResult> answer = null;
+        if (debug) {
+            log.debug("User: " + dn + " is authenticated: " + isAuthed);
+        }
+        return isAuthed;
+    }
 
-		try {
-			for (String searchBase : searchBaseAraay) {
-				answer = dirContext.search(searchBase, searchFilter, searchCtls);
-				if (answer.hasMore()) {
-					return answer;
-				}
-			}
-		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage());
-		}
-		return answer;
-	}
-
-
-	/**
-	 * 
-	 */
-	public void doAddRole(String roleName, String[] userList, boolean shared)
-	                                                                        throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
-
-	/**
-	 * 
-	 */
-	public void doUpdateRoleName(String roleName, String newRoleName) throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
-
-	/**
-	 * LDAP user store does not support bulk import.
-	 * 
-	 * @return Always returns <code>false<code>.
-	 */
-	public boolean isBulkImportSupported() {
-		return false;
-	}
-
-	/**
-	 * This method is to check whether multiple profiles are allowed with a
-	 * particular user-store.
-	 * For an example, currently, JDBC user store supports multiple profiles and
-	 * where as ApacheDS
-	 * does not allow. LDAP currently does not allow multiple profiles.
-	 * 
-	 * @return boolean
-	 */
-	public boolean isMultipleProfilesAllowed() {
-		return false;
-	}
-
-	/**
-	 * 
-	 */
-	public void doDeleteRole(String roleName) throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
-
-	/**
-	 * Returns the list of role names for the given search base and other
-	 * parameters
-	 * 
-	 * @param searchTime
-	 * @param filter
-	 * @param maxItemLimit
-	 * @param searchFilter
-	 * @param roleNameProperty
-	 * @param searchBase
-	 * @param appendTenantDomain
+    /**
+     * @param searchFilter
+     * @param returnedAtts
+     * @param dirContext
      * @return
-	 * @throws UserStoreException
-	 */
-	protected List<String> getLDAPRoleNames(int searchTime, String filter, int maxItemLimit,
+     * @throws UserStoreException
+     */
+    protected NamingEnumeration<SearchResult> searchForUser(String searchFilter,
+                                                            String[] returnedAtts,
+                                                            DirContext dirContext)
+            throws UserStoreException {
+        SearchControls searchCtls = new SearchControls();
+        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        if (returnedAtts != null && returnedAtts.length > 0) {
+            searchCtls.setReturningAttributes(returnedAtts);
+        }
+
+        if (log.isDebugEnabled()) {
+            try {
+                log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext.getNameInNamespace());
+            } catch (NamingException e) {
+                log.debug("Error while getting DN of search base", e);
+            }
+            if (returnedAtts == null) {
+                log.debug("No attributes requested");
+            } else {
+                for (String attribute : returnedAtts) {
+                    log.debug("Requesting attribute :" + attribute);
+                }
+            }
+        }
+
+        String[] searchBaseAraay = searchBases.split("#");
+        NamingEnumeration<SearchResult> answer = null;
+
+        try {
+            for (String searchBase : searchBaseAraay) {
+                answer = dirContext.search(searchBase, searchFilter, searchCtls);
+                if (answer.hasMore()) {
+                    return answer;
+                }
+            }
+        } catch (NamingException e) {
+            log.debug(e.getMessage(), e);
+            throw new UserStoreException(e.getMessage());
+        }
+        return answer;
+    }
+
+
+    /**
+     *
+     */
+    public void doAddRole(String roleName, String[] userList, boolean shared)
+            throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    /**
+     *
+     */
+    public void doUpdateRoleName(String roleName, String newRoleName) throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    /**
+     * LDAP user store does not support bulk import.
+     *
+     * @return Always returns <code>false<code>.
+     */
+    public boolean isBulkImportSupported() {
+        return false;
+    }
+
+    /**
+     * This method is to check whether multiple profiles are allowed with a
+     * particular user-store.
+     * For an example, currently, JDBC user store supports multiple profiles and
+     * where as ApacheDS
+     * does not allow. LDAP currently does not allow multiple profiles.
+     *
+     * @return boolean
+     */
+    public boolean isMultipleProfilesAllowed() {
+        return false;
+    }
+
+    /**
+     *
+     */
+    public void doDeleteRole(String roleName) throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
+
+    /**
+     * Returns the list of role names for the given search base and other
+     * parameters
+     *
+     * @param searchTime
+     * @param filter
+     * @param maxItemLimit
+     * @param searchFilter
+     * @param roleNameProperty
+     * @param searchBase
+     * @param appendTenantDomain
+     * @return
+     * @throws UserStoreException
+     */
+    protected List<String> getLDAPRoleNames(int searchTime, String filter, int maxItemLimit,
                                             String searchFilter, String roleNameProperty,
                                             String searchBase, boolean appendTenantDomain)
-	                                                                      throws UserStoreException {
-		boolean debug = log.isDebugEnabled();
-		List<String> roles = new ArrayList<String>();
+            throws UserStoreException {
+        boolean debug = log.isDebugEnabled();
+        List<String> roles = new ArrayList<String>();
 
-		SearchControls searchCtls = new SearchControls();
-		searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-		searchCtls.setCountLimit(maxItemLimit);
-		searchCtls.setTimeLimit(searchTime);
+        SearchControls searchCtls = new SearchControls();
+        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        searchCtls.setCountLimit(maxItemLimit);
+        searchCtls.setTimeLimit(searchTime);
 
-		String returnedAtts[] = { roleNameProperty };
-		searchCtls.setReturningAttributes(returnedAtts);
+        String returnedAtts[] = {roleNameProperty};
+        searchCtls.setReturningAttributes(returnedAtts);
 
-		// / search filter TODO
-		StringBuffer finalFilter = new StringBuffer();
-		finalFilter.append("(&").append(searchFilter).append("(").append(roleNameProperty).append("=")
-		    .append(filter).append("))");
-		
-		if (debug) {
-			log.debug("Listing roles. SearchBase: " + searchBase + " ConstructedFilter: " +
-			          finalFilter.toString());
-		}
+        // / search filter TODO
+        StringBuffer finalFilter = new StringBuffer();
+        finalFilter.append("(&").append(searchFilter).append("(").append(roleNameProperty).append("=")
+                .append(filter).append("))");
 
-		DirContext dirContext = null;
-		NamingEnumeration<SearchResult> answer = null;
+        if (debug) {
+            log.debug("Listing roles. SearchBase: " + searchBase + " ConstructedFilter: " +
+                    finalFilter.toString());
+        }
 
-		try {
-			dirContext = connectionSource.getContext();
-			answer = dirContext.search(searchBase, finalFilter.toString(), searchCtls);
-			// append the domain if exist
-			String domain =
-			                this.getRealmConfiguration()
-			                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
 
-			while (answer.hasMoreElements()) {
-				SearchResult sr = (SearchResult) answer.next();
-				if (sr.getAttributes() != null) {
-					Attribute attr = sr.getAttributes().get(roleNameProperty);
-					if (attr != null) {
-						String name = (String) attr.get();
-						name = UserCoreUtil.addDomainToName(name, domain);
-						if (appendTenantDomain) {
-							String dn = sr.getNameInNamespace();
-							name = UserCoreUtil.addTenantDomainToEntry(name,
-									getTenantDomainFromRoleDN(dn, name));
-						}
-						roles.add(name);
-					}
-				}
-			}
-		} catch (NamingException e) {
+        try {
+            dirContext = connectionSource.getContext();
+            answer = dirContext.search(searchBase, finalFilter.toString(), searchCtls);
+            // append the domain if exist
+            String domain =
+                    this.getRealmConfiguration()
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
+
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.next();
+                if (sr.getAttributes() != null) {
+                    Attribute attr = sr.getAttributes().get(roleNameProperty);
+                    if (attr != null) {
+                        String name = (String) attr.get();
+                        name = UserCoreUtil.addDomainToName(name, domain);
+                        if (appendTenantDomain) {
+                            String dn = sr.getNameInNamespace();
+                            name = UserCoreUtil.addTenantDomainToEntry(name,
+                                    getTenantDomainFromRoleDN(dn, name));
+                        }
+                        roles.add(name);
+                    }
+                }
+            }
+        } catch (NamingException e) {
             log.debug(e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
-			JNDIUtil.closeNamingEnumeration(answer);
-			JNDIUtil.closeContext(dirContext);
-		}
-		
-		if (debug) {
-			Iterator<String> rolesIte = roles.iterator();
-			while (rolesIte.hasNext()) {
-				log.debug("result: " + rolesIte.next());
-			}
-		}
+            throw new UserStoreException(e.getMessage());
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
 
-		return roles;
-	}
-	
-	/**
-	 * Get the tenant domain for the provided distinguished name. If the role is
-	 * not a shared role returns the super tenant domain
-	 * 
-	 * @param dn
-	 * @param roleName
-	 * @return
-	 */
-	private String getTenantDomainFromRoleDN(String dn, String roleName) {
+        if (debug) {
+            Iterator<String> rolesIte = roles.iterator();
+            while (rolesIte.hasNext()) {
+                log.debug("result: " + rolesIte.next());
+            }
+        }
 
-		dn = dn.toLowerCase();
-		roleName = roleName.toLowerCase();
-		String sharedSearchBase = realmConfig.getUserStoreProperties().
-                                                        get(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
-		
-		sharedSearchBase = sharedSearchBase.toLowerCase();
-		if (dn.indexOf(sharedSearchBase) > -1) {
-			dn = dn.replaceAll(sharedSearchBase, "");
-			dn = dn.replace(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_ATTRIBUTE).
+        return roles;
+    }
+
+    /**
+     * Get the tenant domain for the provided distinguished name. If the role is
+     * not a shared role returns the super tenant domain
+     *
+     * @param dn
+     * @param roleName
+     * @return
+     */
+    private String getTenantDomainFromRoleDN(String dn, String roleName) {
+
+        dn = dn.toLowerCase();
+        roleName = roleName.toLowerCase();
+        String sharedSearchBase = realmConfig.getUserStoreProperties().
+                get(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
+
+        sharedSearchBase = sharedSearchBase.toLowerCase();
+        if (dn.indexOf(sharedSearchBase) > -1) {
+            dn = dn.replaceAll(sharedSearchBase, "");
+            dn = dn.replace(realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_ATTRIBUTE).
                     toLowerCase() + "=" + roleName, "");
-			if (dn.indexOf(",") == 0) {
-				dn = dn.substring(1);
-			}
-			int lastIndex = dn.indexOf(",");
-			if (lastIndex > -1 && lastIndex == dn.length() - 1) {
-				dn = dn.substring(0, dn.length() - 1);
-			}
+            if (dn.indexOf(",") == 0) {
+                dn = dn.substring(1);
+            }
+            int lastIndex = dn.indexOf(",");
+            if (lastIndex > -1 && lastIndex == dn.length() - 1) {
+                dn = dn.substring(0, dn.length() - 1);
+            }
 
-			String groupNameAttributeName = realmConfig.
+            String groupNameAttributeName = realmConfig.
                     getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE).toLowerCase();
-			dn = dn.replaceAll(groupNameAttributeName + "=", "");
-			if (dn == null || dn.isEmpty()) {
-				dn = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
-			}
-			return dn;
-		} else {
-			return CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-		}
-	}
-	
-	/**
-	 * Removes the shared roles relevant to the provided tenant domain
-	 * 
-	 * @param sharedRoles
-	 * @param tenantDomain
-	 */
-	protected void filterSharedRoles(List<String> sharedRoles, String tenantDomain) {
-		tenantDomain = tenantDomain.toLowerCase();
-		if (tenantDomain != null) {
-			for (Iterator<String> i = sharedRoles.iterator(); i.hasNext();) {
-				String role = i.next();
-				if (role.toLowerCase().indexOf(tenantDomain) > -1) {
-					i.remove();
-				}
-			}
-		}
-	}
+            dn = dn.replaceAll(groupNameAttributeName + "=", "");
+            if (dn == null || dn.isEmpty()) {
+                dn = MultitenantConstants.SUPER_TENANT_DOMAIN_NAME;
+            }
+            return dn;
+        } else {
+            return CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+        }
+    }
+
+    /**
+     * Removes the shared roles relevant to the provided tenant domain
+     *
+     * @param sharedRoles
+     * @param tenantDomain
+     */
+    protected void filterSharedRoles(List<String> sharedRoles, String tenantDomain) {
+        tenantDomain = tenantDomain.toLowerCase();
+        if (tenantDomain != null) {
+            for (Iterator<String> i = sharedRoles.iterator(); i.hasNext(); ) {
+                String role = i.next();
+                if (role.toLowerCase().indexOf(tenantDomain) > -1) {
+                    i.remove();
+                }
+            }
+        }
+    }
 
 
-	/**
-	 * 
-	 */
-	public String[] doGetRoleNames(String filter, int maxItemLimit) throws UserStoreException {
+    /**
+     *
+     */
+    public String[] doGetRoleNames(String filter, int maxItemLimit) throws UserStoreException {
 
-		if (maxItemLimit == 0) {
-			return new String[0];
-		}
+        if (maxItemLimit == 0) {
+            return new String[0];
+        }
 
-		int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
 
-		int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
 
-		try {
-			givenMax = Integer.parseInt(realmConfig.
-                       getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
-		} catch (Exception e) {
-			givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-		}
+        try {
+            givenMax = Integer.parseInt(realmConfig.
+                    getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
 
-		try {
-			searchTime = Integer.parseInt(realmConfig.
-                         getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-		} catch (Exception e) {
-			searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-		}
+        try {
+            searchTime = Integer.parseInt(realmConfig.
+                    getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
 
-		if (maxItemLimit < 0 || maxItemLimit > givenMax) {
-			maxItemLimit = givenMax;
-		}
+        if (maxItemLimit < 0 || maxItemLimit > givenMax) {
+            maxItemLimit = givenMax;
+        }
 
-		List<String> externalRoles = new ArrayList<String>();
+        List<String> externalRoles = new ArrayList<String>();
 
-		if (readGroupsEnabled) {
-			
-			// handling multiple search bases
-			String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
-			String[] searchBaseArray = searchBases.split("#");
-			for (String searchBase : searchBaseArray) {
-				// get the role list from the group search base
-				externalRoles.addAll(getLDAPRoleNames(searchTime, filter, maxItemLimit,
-						realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER),
-						realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE),
-						searchBase, false));
-			}
+        if (readGroupsEnabled) {
 
-			// get the role list from the shared group search base
+            // handling multiple search bases
+            String searchBases = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+            String[] searchBaseArray = searchBases.split("#");
+            for (String searchBase : searchBaseArray) {
+                // get the role list from the group search base
+                externalRoles.addAll(getLDAPRoleNames(searchTime, filter, maxItemLimit,
+                        realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER),
+                        realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE),
+                        searchBase, false));
+            }
+
+            // get the role list from the shared group search base
 
 //			if (isSharedGroupEnabled()) {
 //				List<String> sharedRoleNames = new ArrayList<String>();
@@ -1232,137 +1249,137 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 //				                                                .getTenantDomain());
 //				externalRoles.addAll(sharedRoleNames);
 //			}
-		}
+        }
 
-		return externalRoles.toArray(new String[externalRoles.size()]);
-	}
-	
+        return externalRoles.toArray(new String[externalRoles.size()]);
+    }
 
-	@Override
-	protected String[] doGetSharedRoleNames(String tenantDomain, String filter, int maxItemLimit)
-	                                                                        throws UserStoreException {
 
-		if (!isSharedGroupEnabled()) {
-			return new String[0];
-		}
+    @Override
+    protected String[] doGetSharedRoleNames(String tenantDomain, String filter, int maxItemLimit)
+            throws UserStoreException {
 
-		if (maxItemLimit == 0) {
-			return new String[0];
-		}
+        if (!isSharedGroupEnabled()) {
+            return new String[0];
+        }
 
-		int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        if (maxItemLimit == 0) {
+            return new String[0];
+        }
 
-		int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
 
-		try {
-			givenMax = Integer.parseInt(realmConfig.
+        int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+
+        try {
+            givenMax = Integer.parseInt(realmConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
-		} catch (Exception e) {
-			givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-		}
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
 
-		try {
-			searchTime = Integer.parseInt(realmConfig.
+        try {
+            searchTime = Integer.parseInt(realmConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-		} catch (Exception e) {
-			searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-		}
+        } catch (Exception e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
 
-		if (maxItemLimit < 0 || maxItemLimit > givenMax) {
-			maxItemLimit = givenMax;
-		}
+        if (maxItemLimit < 0 || maxItemLimit > givenMax) {
+            maxItemLimit = givenMax;
+        }
 
         String searchBase = null;
 
-        if(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain)){
-            searchBase =  realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
+        if (MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain)) {
+            searchBase = realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
         } else {
             String groupNameAttributeName =
                     realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE);
-            if(groupNameAttributeName == null || groupNameAttributeName.trim().length() == 0){
+            if (groupNameAttributeName == null || groupNameAttributeName.trim().length() == 0) {
                 groupNameAttributeName = "ou";
             }
-                searchBase = groupNameAttributeName + "=" + tenantDomain + "," +
-                                realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
+            searchBase = groupNameAttributeName + "=" + tenantDomain + "," +
+                    realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
         }
-        
-		List<String> sharedRoleNames = getLDAPRoleNames(searchTime, filter, maxItemLimit,
+
+        List<String> sharedRoleNames = getLDAPRoleNames(searchTime, filter, maxItemLimit,
                 realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_LIST_FILTER),
                 realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_ATTRIBUTE),
                 searchBase, true);
 
-		filterSharedRoles(sharedRoleNames, CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
-		return sharedRoleNames.toArray(new String[sharedRoleNames.size()]);
+        filterSharedRoles(sharedRoleNames, CarbonContext.getThreadLocalCarbonContext().getTenantDomain());
+        return sharedRoleNames.toArray(new String[sharedRoleNames.size()]);
 
-	}
+    }
 
-	/**
-	 * 
-	 */
-	public RealmConfiguration getRealmConfiguration() {
-		return this.realmConfig;
-	}
+    /**
+     *
+     */
+    public RealmConfiguration getRealmConfiguration() {
+        return this.realmConfig;
+    }
 
 
     /**
      *
      */
     public String[] doGetUserListOfRole(String roleName, String filter) throws UserStoreException {
-        
+
         RoleContext roleContext = createRoleContext(roleName);
         return getUserListOfLDAPRole(roleContext, filter);
     }
 
-	/**
-	 * 
-	 */
-	public String[] getUserListOfLDAPRole(RoleContext context, String filter) throws UserStoreException {
-		
-		boolean debug = log.isDebugEnabled();
-		
-		if(debug) {
-			log.debug("Getting user list of role: " + context.getRoleName()+" with filter: " + filter);
-		}
+    /**
+     *
+     */
+    public String[] getUserListOfLDAPRole(RoleContext context, String filter) throws UserStoreException {
 
-		List<String> userList = new ArrayList<String>();
-		String[] names = new String[0];
-		int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-		int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        boolean debug = log.isDebugEnabled();
 
-		try {
-			givenMax =
-			           Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
-		} catch (Exception e) {
-			givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
-		}
+        if (debug) {
+            log.debug("Getting user list of role: " + context.getRoleName() + " with filter: " + filter);
+        }
 
-		try {
-			searchTime =
-			             Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
-		} catch (Exception e) {
-			searchTime = UserCoreConstants.MAX_SEARCH_TIME;
-		}
+        List<String> userList = new ArrayList<String>();
+        String[] names = new String[0];
+        int givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+
+        try {
+            givenMax =
+                    Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_USER_LIST));
+        } catch (Exception e) {
+            givenMax = UserCoreConstants.MAX_USER_ROLE_LIST;
+        }
+
+        try {
+            searchTime =
+                    Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        }
 
         DirContext dirContext = null;
         NamingEnumeration<SearchResult> answer = null;
         try {
-			SearchControls searchCtls = new SearchControls();
-			searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			searchCtls.setTimeLimit(searchTime);
-			searchCtls.setCountLimit(givenMax);
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            searchCtls.setTimeLimit(searchTime);
+            searchCtls.setCountLimit(givenMax);
 
-			String searchFilter = ((LDAPRoleContext) context).getListFilter();
-			String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
-			searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + context.getRoleName() + "))";
+            String searchFilter = ((LDAPRoleContext) context).getListFilter();
+            String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
+            searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + context.getRoleName() + "))";
 
-			String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-			String returnedAtts[] = { membershipProperty };
-			searchCtls.setReturningAttributes(returnedAtts);
+            String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+            String returnedAtts[] = {membershipProperty};
+            searchCtls.setReturningAttributes(returnedAtts);
 
-			List<String> userDNList = new ArrayList<String>();
-			
-			SearchResult sr = null;
-			dirContext = connectionSource.getContext();
+            List<String> userDNList = new ArrayList<String>();
+
+            SearchResult sr = null;
+            dirContext = connectionSource.getContext();
 
             // with DN patterns
             if (((LDAPRoleContext) context).getRoleDNPatterns().size() > 0) {
@@ -1373,7 +1390,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     pattern = MessageFormat.format(pattern.trim(), context.getRoleName());
                     try {
                         answer = dirContext.search(pattern, searchFilter, searchCtls);
-                        if(answer.hasMore()){
+                        if (answer.hasMore()) {
                             sr = (SearchResult) answer.next();
                             break;
                         }
@@ -1386,7 +1403,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            if(sr == null) {
+            if (sr == null) {
                 // handling multiple search bases
                 String searchBases = ((LDAPRoleContext) context).getSearchBase();
                 String[] roleSearchBaseArray = searchBases.split("#");
@@ -1396,7 +1413,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 + searchBase + " SearchFilter: " + searchFilter);
                     }
 
-                    try{
+                    try {
                         // read the DN of users who are members of the group
                         answer = dirContext.search(searchBase, searchFilter, searchCtls);
                         int count = 0;
@@ -1410,7 +1427,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             }
                             break;
                         }
-                    } catch (NamingException e){
+                    } catch (NamingException e) {
                         // ignore
                         if (log.isDebugEnabled()) {
                             log.debug(e);
@@ -1418,30 +1435,30 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
-			
-			if(debug) {
-				log.debug("Found role: " + sr.getNameInNamespace());
-			}
-			
-			// read the member attribute and get DNs of the users
-			Attributes attributes = sr.getAttributes();
-			if (attributes != null) {
-				NamingEnumeration attributeEntry = null;
-				for (attributeEntry = attributes.getAll(); attributeEntry.hasMore();) {
-					Attribute valAttribute = (Attribute) attributeEntry.next();
-					if (membershipProperty == null || membershipProperty.equals(valAttribute.getID())) {
-						NamingEnumeration values = null;
-						for (values = valAttribute.getAll(); values.hasMore();) {
-							String value = values.next().toString();
-							userDNList.add(value);
-							
-							if(debug) {
-								log.debug("Found attribute: " + membershipProperty + " value: " + value);
-							}
-						}
-					}
-				}
-			}
+
+            if (debug) {
+                log.debug("Found role: " + sr.getNameInNamespace());
+            }
+
+            // read the member attribute and get DNs of the users
+            Attributes attributes = sr.getAttributes();
+            if (attributes != null) {
+                NamingEnumeration attributeEntry = null;
+                for (attributeEntry = attributes.getAll(); attributeEntry.hasMore(); ) {
+                    Attribute valAttribute = (Attribute) attributeEntry.next();
+                    if (membershipProperty == null || membershipProperty.equals(valAttribute.getID())) {
+                        NamingEnumeration values = null;
+                        for (values = valAttribute.getAll(); values.hasMore(); ) {
+                            String value = values.next().toString();
+                            userDNList.add(value);
+
+                            if (debug) {
+                                log.debug("Found attribute: " + membershipProperty + " value: " + value);
+                            }
+                        }
+                    }
+                }
+            }
 
             // iterate over users' DN list and get userName and display name
             // attribute values
@@ -1449,7 +1466,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
             String displayNameAttribute = realmConfig
                     .getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
-            String[] returnedAttributes = { userNameProperty, displayNameAttribute };
+            String[] returnedAttributes = {userNameProperty, displayNameAttribute};
 
             for (String user : userDNList) {
                 if (debug) {
@@ -1529,95 +1546,95 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return names;
     }
 
-	/**
-	 * This method will check whether back link support is enabled and will
-	 * return the effective
-	 * search base. Read http://www.frickelsoft.net/blog/?p=130 for more
-	 * details.
-     * 
-     * @param shared whether share search based or not	
-	 * @return The search base based on back link support. If back link support
-	 *         is enabled this will
-	 *         return user search base, else group search base.
-	 */
-	protected String getEffectiveSearchBase(boolean shared) {
+    /**
+     * This method will check whether back link support is enabled and will
+     * return the effective
+     * search base. Read http://www.frickelsoft.net/blog/?p=130 for more
+     * details.
+     *
+     * @param shared whether share search based or not
+     * @return The search base based on back link support. If back link support
+     * is enabled this will
+     * return user search base, else group search base.
+     */
+    protected String getEffectiveSearchBase(boolean shared) {
 
-		String backLinksEnabled =
-		                          realmConfig.getUserStoreProperty(LDAPConstants.BACK_LINKS_ENABLED);
-		boolean isBackLinkEnabled = false;
+        String backLinksEnabled =
+                realmConfig.getUserStoreProperty(LDAPConstants.BACK_LINKS_ENABLED);
+        boolean isBackLinkEnabled = false;
 
-		if (backLinksEnabled != null && !backLinksEnabled.equals("")) {
-			isBackLinkEnabled = Boolean.parseBoolean(backLinksEnabled);
-		}
+        if (backLinksEnabled != null && !backLinksEnabled.equals("")) {
+            isBackLinkEnabled = Boolean.parseBoolean(backLinksEnabled);
+        }
 
-		if (isBackLinkEnabled) {
-			return realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
-		} else {
-            if(shared){
-                return  realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
+        if (isBackLinkEnabled) {
+            return realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        } else {
+            if (shared) {
+                return realmConfig.getUserStoreProperty(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
             } else {
-			    return realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
+                return realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
             }
-		}
+        }
 
-	}
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	protected String[] getLDAPRoleListOfUser(String userName, String filter, String searchBase,
-                                                        boolean shared) throws UserStoreException {
-		boolean debug = log.isDebugEnabled();
-		List<String> list = new ArrayList<String>();
+    /**
+     * {@inheritDoc}
+     */
+    protected String[] getLDAPRoleListOfUser(String userName, String filter, String searchBase,
+                                             boolean shared) throws UserStoreException {
+        boolean debug = log.isDebugEnabled();
+        List<String> list = new ArrayList<String>();
 		/*
 		 * do not search REGISTRY_ANONNYMOUS_USERNAME or
 		 * REGISTRY_SYSTEM_USERNAME in LDAP because it
 		 * causes warn logs printed from embedded-ldap.
 		 */
-		if (readGroupsEnabled && (!UserCoreUtil.isRegistryAnnonymousUser(userName)) &&
-		    (!UserCoreUtil.isRegistrySystemUser(userName))) {
+        if (readGroupsEnabled && (!UserCoreUtil.isRegistryAnnonymousUser(userName)) &&
+                (!UserCoreUtil.isRegistrySystemUser(userName))) {
 
-			SearchControls searchCtls = new SearchControls();
-			searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            SearchControls searchCtls = new SearchControls();
+            searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			String memberOfProperty =
-			                          realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
-			if (memberOfProperty != null && memberOfProperty.length() > 0) {
-				// TODO Handle active directory shared roles logics here
-				String searchFilter =
-				                      realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-				String userNameProperty =
-				                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-				searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
+            String memberOfProperty =
+                    realmConfig.getUserStoreProperty(LDAPConstants.MEMBEROF_ATTRIBUTE);
+            if (memberOfProperty != null && memberOfProperty.length() > 0) {
+                // TODO Handle active directory shared roles logics here
 
-				String binaryAttribute =
-				                         realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
-				String primaryGroupId =
-				                        realmConfig.getUserStoreProperty(LDAPConstants.PRIMARY_GROUP_ID);
+                String userNameProperty =
+                        realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+                String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+                String searchFilter = userSearchFilter.replace("?", userName);
 
-				String returnedAtts[] = { memberOfProperty };
+                String binaryAttribute =
+                        realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
+                String primaryGroupId =
+                        realmConfig.getUserStoreProperty(LDAPConstants.PRIMARY_GROUP_ID);
 
-				if (binaryAttribute != null && primaryGroupId != null) {
-					returnedAtts =
-					               new String[] { memberOfProperty, binaryAttribute, primaryGroupId };
-				}
+                String returnedAtts[] = {memberOfProperty};
 
-				searchCtls.setReturningAttributes(returnedAtts);
-				
-				if (debug) {
-					log.debug("Reading roles with the memberOfProperty Property: " + memberOfProperty);
-				}
-				
-				if (binaryAttribute != null && primaryGroupId != null) {
-					list =
-					       this.getAttributeListOfOneElementWithPrimarGroup(searchBase,
-					                                                        searchFilter,
-					                                                        searchCtls,
-					                                                        binaryAttribute,
-					                                                        primaryGroupId,
-					                                                        userNameProperty,
-					                                                        memberOfProperty);
-				} else {
+                if (binaryAttribute != null && primaryGroupId != null) {
+                    returnedAtts =
+                            new String[]{memberOfProperty, binaryAttribute, primaryGroupId};
+                }
+
+                searchCtls.setReturningAttributes(returnedAtts);
+
+                if (debug) {
+                    log.debug("Reading roles with the memberOfProperty Property: " + memberOfProperty);
+                }
+
+                if (binaryAttribute != null && primaryGroupId != null) {
+                    list =
+                            this.getAttributeListOfOneElementWithPrimarGroup(searchBase,
+                                    searchFilter,
+                                    searchCtls,
+                                    binaryAttribute,
+                                    primaryGroupId,
+                                    userNameProperty,
+                                    memberOfProperty);
+                } else {
                     // use cache
                     String cachedDN = userCache.get(userName);
                     if (cachedDN != null) {
@@ -1630,9 +1647,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         }
                     }
 
-					// get DNs of the groups to which this user belongs
-					List<String> groupDNs = this.getListOfNames(searchBase, searchFilter,
-					                                            searchCtls, memberOfProperty, false);
+                    // get DNs of the groups to which this user belongs
+                    List<String> groupDNs = this.getListOfNames(searchBase, searchFilter,
+                            searchCtls, memberOfProperty, false);
 					/*
 					 * to be compatible with AD as well, we need to do a search
 					 * over the groups and
@@ -1640,15 +1657,15 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 					 * attribute and
 					 * return
 					 */
-					list = this.getGroupNameAttributeValuesOfGroups(groupDNs);
-				}
-			} else {
+                    list = this.getGroupNameAttributeValuesOfGroups(groupDNs);
+                }
+            } else {
 
                 // Load normal roles with the user
                 String searchFilter;
                 String roleNameProperty;
-                
-                if(shared){
+
+                if (shared) {
                     searchFilter = realmConfig.
                             getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_LIST_FILTER);
                     roleNameProperty =
@@ -1659,8 +1676,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
                 }
 
-				String membershipProperty =
-				                            realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                String membershipProperty =
+                        realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
                 String nameInSpace;
                 if (userDNPattern != null && !userDNPattern.contains("#")) {
@@ -1668,84 +1685,83 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     nameInSpace = this.getNameInSpaceForUserName(userName);
                 }
-				// read the roles with this membership property
+                // read the roles with this membership property
 
-				if (membershipProperty == null || membershipProperty.length() < 1) {
-					throw new UserStoreException(
-					                             "Please set member of attribute or membership attribute");
-				}
+                if (membershipProperty == null || membershipProperty.length() < 1) {
+                    throw new UserStoreException(
+                            "Please set member of attribute or membership attribute");
+                }
 
-				searchFilter =
-				               "(&" + searchFilter + "(" + membershipProperty + "=" + nameInSpace +
-				                       "))";
-				String returnedAtts[] = { roleNameProperty };
-				searchCtls.setReturningAttributes(returnedAtts);
-				
-				if (debug) {
-					log.debug("Reading roles with the membershipProperty Property: " + membershipProperty);
-				}
-				
-				list = this.getListOfNames(searchBase, searchFilter, searchCtls, roleNameProperty, false);
-			}
-		} else if (UserCoreUtil.isRegistryAnnonymousUser(userName)) {
-			// returning a REGISTRY_ANONNYMOUS_ROLE_NAME for
-			// REGISTRY_ANONNYMOUS_USERNAME
-			list.add(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME);
-		}
-		
-		String[] result = list.toArray(new String[list.size()]);
-		
-		if(result != null) {
-			for(String rolename : result) {
-				log.debug("Found role: " + rolename);
-			}
-		}
-		return result;
-	}
+                searchFilter =
+                        "(&" + searchFilter + "(" + membershipProperty + "=" + nameInSpace +
+                                "))";
+                String returnedAtts[] = {roleNameProperty};
+                searchCtls.setReturningAttributes(returnedAtts);
 
-    @Override    
-    protected  String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
+                if (debug) {
+                    log.debug("Reading roles with the membershipProperty Property: " + membershipProperty);
+                }
+
+                list = this.getListOfNames(searchBase, searchFilter, searchCtls, roleNameProperty, false);
+            }
+        } else if (UserCoreUtil.isRegistryAnnonymousUser(userName)) {
+            // returning a REGISTRY_ANONNYMOUS_ROLE_NAME for
+            // REGISTRY_ANONNYMOUS_USERNAME
+            list.add(CarbonConstants.REGISTRY_ANONNYMOUS_ROLE_NAME);
+        }
+
+        String[] result = list.toArray(new String[list.size()]);
+
+        if (result != null) {
+            for (String rolename : result) {
+                log.debug("Found role: " + rolename);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    protected String[] doGetExternalRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         // Get the effective search base
         String searchBase = this.getEffectiveSearchBase(false);
         return getLDAPRoleListOfUser(userName, filter, searchBase, false);
     }
-    
-    
-	@Override
-	protected String[] doGetSharedRoleListOfUser(String userName,
-                                     String tenantDomain, String filter) throws UserStoreException {
+
+
+    @Override
+    protected String[] doGetSharedRoleListOfUser(String userName,
+                                                 String tenantDomain, String filter) throws UserStoreException {
         // Get the effective search base
         String searchBase = this.getEffectiveSearchBase(true);
-        if(tenantDomain != null && tenantDomain.trim().length() > 0){
-            if(!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain.trim())){
+        if (tenantDomain != null && tenantDomain.trim().length() > 0) {
+            if (!MultitenantConstants.SUPER_TENANT_DOMAIN_NAME.equalsIgnoreCase(tenantDomain.trim())) {
                 String groupNameAttributeName =
                         realmConfig.getUserStoreProperty(LDAPConstants.SHARED_TENANT_NAME_ATTRIBUTE);
-                if(groupNameAttributeName == null || groupNameAttributeName.trim().length() == 0){
+                if (groupNameAttributeName == null || groupNameAttributeName.trim().length() == 0) {
                     groupNameAttributeName = "ou";
                 }
                 searchBase = groupNameAttributeName + "=" + tenantDomain + "," + searchBase;
             }
         }
         return getLDAPRoleListOfUser(userName, filter, searchBase, true);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-
-	public boolean isReadOnly() throws UserStoreException {
-		return true;
-	}
+    }
 
     /**
-     *
+     * {@inheritDoc}
+     */
+
+    public boolean isReadOnly() throws UserStoreException {
+        return true;
+    }
+
+    /**
      * @param userName
      * @return
      * @throws UserStoreException
      */
     protected String getNameInSpaceForUserName(String userName) throws UserStoreException {
- 		// check the cache first
+        // check the cache first
         String name = userCache.get(userName);
         if (name != null) {
             return name;
@@ -1755,13 +1771,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
         userSearchFilter = userSearchFilter.replace("?", userName);
         String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-        if(userDNPattern != null && userDNPattern.trim().length() > 0){
-            String[] patterns =  userDNPattern.split("#");
-            for(String pattern : patterns){
-                searchBase =  MessageFormat.format(pattern, userName);
+        if (userDNPattern != null && userDNPattern.trim().length() > 0) {
+            String[] patterns = userDNPattern.split("#");
+            for (String pattern : patterns) {
+                searchBase = MessageFormat.format(pattern, userName);
                 String userDN = getNameInSpaceForUserName(userName, searchBase, userSearchFilter);
                 // check in another DN pattern
-                if(userDN != null){
+                if (userDN != null) {
                     return userDN;
                 }
             }
@@ -1774,7 +1790,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     *
      * @param userName
      * @param searchBase
      * @param searchFilter
@@ -1784,11 +1799,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter) throws UserStoreException {
         boolean debug = log.isDebugEnabled();
 
-        // check the cache first
-        String name = userCache.get(userName);
-        if (name != null) {
-            return name;
-        }
+        String userDN = null;
 
         DirContext dirContext = this.connectionSource.getContext();
         NamingEnumeration<SearchResult> answer = null;
@@ -1796,7 +1807,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             SearchControls searchCtls = new SearchControls();
             searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 try {
                     log.debug("Searching for user with SearchFilter: " + searchFilter + " in SearchBase: " + dirContext.getNameInNamespace());
                 } catch (NamingException e) {
@@ -1810,16 +1821,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (answer.hasMore()) {
                     userObj = (SearchResult) answer.next();
                     if (userObj != null) {
-                        name = userObj.getNameInNamespace();
+                        userDN = userObj.getNameInNamespace();
                         break;
                     }
                 }
             }
-            if (name != null) {
-                userCache.put(userName, name);
+            if (userDN != null) {
+                userCache.put(userName, userDN);
             }
             if (debug) {
-                log.debug("Name in space for " + userName + " is " + name);
+                log.debug("Name in space for " + userName + " is " + userDN);
             }
         } catch (Exception e) {
             log.debug(e.getMessage(), e);
@@ -1827,143 +1838,141 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             JNDIUtil.closeNamingEnumeration(answer);
             JNDIUtil.closeContext(dirContext);
         }
-        return name;
+        return userDN;
     }
 
-	/**
-	 * 
-	 * @param sr
-	 * @param groupAttributeName
-	 * @return
-	 */
-	private List<String> parseSearchResult(SearchResult sr, String groupAttributeName) {
-		List<String> list = new ArrayList<String>();
-		Attributes attrs = sr.getAttributes();
+    /**
+     * @param sr
+     * @param groupAttributeName
+     * @return
+     */
+    private List<String> parseSearchResult(SearchResult sr, String groupAttributeName) {
+        List<String> list = new ArrayList<String>();
+        Attributes attrs = sr.getAttributes();
 
-		if (attrs != null) {
-			try {
-				NamingEnumeration ae = null;
-				for (ae = attrs.getAll(); ae.hasMore();) {
-					Attribute attr = (Attribute) ae.next();
-					if (groupAttributeName == null || groupAttributeName.equals(attr.getID())) {
-						NamingEnumeration e = null;
-						for (e = attr.getAll(); e.hasMore();) {
-							String value = e.next().toString();
-							int begin = value.indexOf("=") + 1;
-							int end = value.indexOf(",");
-							if (begin > -1 && end > -1) {
-								value = value.substring(begin, end);
-							}
-							list.add(value);
-						}
-						JNDIUtil.closeNamingEnumeration(e);
-					}
-				}
-				JNDIUtil.closeNamingEnumeration(ae);
-			} catch (NamingException e) {
-				log.debug(e.getMessage(), e);
-			}
-		}
-		return list;
-	}
+        if (attrs != null) {
+            try {
+                NamingEnumeration ae = null;
+                for (ae = attrs.getAll(); ae.hasMore(); ) {
+                    Attribute attr = (Attribute) ae.next();
+                    if (groupAttributeName == null || groupAttributeName.equals(attr.getID())) {
+                        NamingEnumeration e = null;
+                        for (e = attr.getAll(); e.hasMore(); ) {
+                            String value = e.next().toString();
+                            int begin = value.indexOf("=") + 1;
+                            int end = value.indexOf(",");
+                            if (begin > -1 && end > -1) {
+                                value = value.substring(begin, end);
+                            }
+                            list.add(value);
+                        }
+                        JNDIUtil.closeNamingEnumeration(e);
+                    }
+                }
+                JNDIUtil.closeNamingEnumeration(ae);
+            } catch (NamingException e) {
+                log.debug(e.getMessage(), e);
+            }
+        }
+        return list;
+    }
 
-	/**
-	 * 
-	 * @param searchBase
-	 * @param searchFilter
-	 * @param searchCtls
-	 * @param objectSid
-	 * @param primaryGroupID
-	 * @param userAttributeId
-	 * @param groupAttributeName
-	 * @return
-	 * @throws UserStoreException
-	 */
-	private List<String> getAttributeListOfOneElementWithPrimarGroup(String searchBase,
-	                                                                 String searchFilter,
-	                                                                 SearchControls searchCtls,
-	                                                                 String objectSid,
-	                                                                 String primaryGroupID,
-	                                                                 String userAttributeId,
-	                                                                 String groupAttributeName)
-	                                                                                           throws UserStoreException {
-		boolean debug = log.isDebugEnabled();
-		
-		List<String> list = new ArrayList<String>();
-		DirContext dirContext = null;
-		NamingEnumeration<SearchResult> answer = null;
-		
-		if(debug) {
-			log.debug("GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " + searchBase + " SearchFilter: " + searchFilter);
-		}
-		try {
-			dirContext = connectionSource.getContext();
-			answer = dirContext.search(searchBase, searchFilter, searchCtls);
-			int count = 0;
-			while (answer.hasMore()) {
-				if (count > 0) {
-					log.error("More than element user exist with name");
-					throw new UserStoreException("More than element user exist with name");
-				}
-				SearchResult sr = (SearchResult) answer.next();
-				count++;
+    /**
+     * @param searchBase
+     * @param searchFilter
+     * @param searchCtls
+     * @param objectSid
+     * @param primaryGroupID
+     * @param userAttributeId
+     * @param groupAttributeName
+     * @return
+     * @throws UserStoreException
+     */
+    private List<String> getAttributeListOfOneElementWithPrimarGroup(String searchBase,
+                                                                     String searchFilter,
+                                                                     SearchControls searchCtls,
+                                                                     String objectSid,
+                                                                     String primaryGroupID,
+                                                                     String userAttributeId,
+                                                                     String groupAttributeName)
+            throws UserStoreException {
+        boolean debug = log.isDebugEnabled();
 
-				list = parseSearchResult(sr, groupAttributeName);
+        List<String> list = new ArrayList<String>();
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
 
-				String primaryGroupSID = LDAPUtil.getPrimaryGroupSID(sr, objectSid, primaryGroupID);
-				String primaryGroupName =
-				                          LDAPUtil.findGroupBySID(dirContext, searchBase,
-				                                                  primaryGroupSID, userAttributeId);
-				if (primaryGroupName != null) {
-					list.add(primaryGroupName);
-				}
-			}
+        if (debug) {
+            log.debug("GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " + searchBase + " SearchFilter: " + searchFilter);
+        }
+        try {
+            dirContext = connectionSource.getContext();
+            answer = dirContext.search(searchBase, searchFilter, searchCtls);
+            int count = 0;
+            while (answer.hasMore()) {
+                if (count > 0) {
+                    log.error("More than one user exist with name");
+                    throw new UserStoreException("More than one user exist with name");
+                }
+                SearchResult sr = (SearchResult) answer.next();
+                count++;
 
-		} catch (PartialResultException e) {
-			// can be due to referrals in AD. so just ignore error
-			if (log.isDebugEnabled()) {
-				log.debug("LDAP", e);
-			}
-		} catch (NamingException e) {
-			log.debug(e.getMessage(),e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
-			JNDIUtil.closeNamingEnumeration(answer);
-			JNDIUtil.closeContext(dirContext);
-		}
-		
-		if(debug) {
-			log.debug("GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " + searchBase + " SearchFilter: " + searchFilter);
-			Iterator<String> ite = list.iterator();
-			while(ite.hasNext()) {
-				log.debug("result: " + ite.next());
-			}
-		}
-		return list;
-	}
+                list = parseSearchResult(sr, groupAttributeName);
 
-	// ****************************************************
+                String primaryGroupSID = LDAPUtil.getPrimaryGroupSID(sr, objectSid, primaryGroupID);
+                String primaryGroupName =
+                        LDAPUtil.findGroupBySID(dirContext, searchBase,
+                                primaryGroupSID, userAttributeId);
+                if (primaryGroupName != null) {
+                    list.add(primaryGroupName);
+                }
+            }
 
-	@SuppressWarnings("rawtypes")
-	protected List<String> getAttributeListOfOneElement(String searchBases, String searchFilter,
-	                                                    SearchControls searchCtls)
-	                                                                              throws UserStoreException {
-		List<String> list = new ArrayList<String>();
-		DirContext dirContext = null;
-		NamingEnumeration<SearchResult> answer = null;
-		try {
-			dirContext = connectionSource.getContext();
-			// handle multiple search bases
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            if (log.isDebugEnabled()) {
+                log.debug("LDAP", e);
+            }
+        } catch (NamingException e) {
+            log.debug(e.getMessage(), e);
+            throw new UserStoreException(e.getMessage());
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+
+        if (debug) {
+            log.debug("GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " + searchBase + " SearchFilter: " + searchFilter);
+            Iterator<String> ite = list.iterator();
+            while (ite.hasNext()) {
+                log.debug("result: " + ite.next());
+            }
+        }
+        return list;
+    }
+
+    // ****************************************************
+
+    @SuppressWarnings("rawtypes")
+    protected List<String> getAttributeListOfOneElement(String searchBases, String searchFilter,
+                                                        SearchControls searchCtls)
+            throws UserStoreException {
+        List<String> list = new ArrayList<String>();
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
+        try {
+            dirContext = connectionSource.getContext();
+            // handle multiple search bases
             String[] searchBaseArray = searchBases.split("#");
             for (String searchBase : searchBaseArray) {
-                try{
+                try {
                     answer = dirContext.search(searchBase, searchFilter, searchCtls);
                     int count = 0;
-                    if(answer.hasMore()){
+                    if (answer.hasMore()) {
                         while (answer.hasMore()) {
                             if (count > 0) {
-                                log.error("More than element user exist with name");
-                                throw new UserStoreException("More than element user exist with name");
+                                log.error("More than one user exist with name");
+                                throw new UserStoreException("More than one user exist with name");
                             }
                             SearchResult sr = (SearchResult) answer.next();
                             count++;
@@ -1971,50 +1980,49 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         }
                         break;
                     }
-                } catch (NamingException e){
+                } catch (NamingException e) {
                     //ignore
-                    if(log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug(e);
                     }
                 }
             }
-		} finally {
-			JNDIUtil.closeNamingEnumeration(answer);
-			JNDIUtil.closeContext(dirContext);
-		}
-		return list;
-	}
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+        return list;
+    }
 
-	/**
-	 * 
-	 * @param searchBases
-	 * @param searchFilter
-	 * @param searchCtls
-	 * @param property
-	 * @return
-	 * @throws UserStoreException
-	 */
-	private List<String> getListOfNames(String searchBases, String searchFilter,
-	                                    SearchControls searchCtls, String property, boolean appendDn)
-	                                                                               throws UserStoreException {
-		boolean debug = log.isDebugEnabled();
-		List<String> names = new ArrayList<String>();
-		DirContext dirContext = null;
-		NamingEnumeration<SearchResult> answer = null;
-		
-		if(debug) {
-			log.debug("Result for searchBase: " + searchBases + " searchFilter: " + searchFilter +
-			          " property:" + property + " appendDN: " + appendDn );
-		}
-		
-		try {
-			dirContext = connectionSource.getContext();
+    /**
+     * @param searchBases
+     * @param searchFilter
+     * @param searchCtls
+     * @param property
+     * @return
+     * @throws UserStoreException
+     */
+    private List<String> getListOfNames(String searchBases, String searchFilter,
+                                        SearchControls searchCtls, String property, boolean appendDn)
+            throws UserStoreException {
+        boolean debug = log.isDebugEnabled();
+        List<String> names = new ArrayList<String>();
+        DirContext dirContext = null;
+        NamingEnumeration<SearchResult> answer = null;
 
-			// handle multiple search bases
-			String[] searchBaseArray = searchBases.split("#");
-			for (String searchBase : searchBaseArray) {
+        if (debug) {
+            log.debug("Result for searchBase: " + searchBases + " searchFilter: " + searchFilter +
+                    " property:" + property + " appendDN: " + appendDn);
+        }
 
-                try{
+        try {
+            dirContext = connectionSource.getContext();
+
+            // handle multiple search bases
+            String[] searchBaseArray = searchBases.split("#");
+            for (String searchBase : searchBaseArray) {
+
+                try {
                     answer = dirContext.search(searchBase, searchFilter, searchCtls);
                     String domain = this.getRealmConfiguration().getUserStoreProperty(
                             UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
@@ -2024,7 +2032,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         if (sr.getAttributes() != null) {
                             Attribute attr = sr.getAttributes().get(property);
                             if (attr != null) {
-                                for (Enumeration vals = attr.getAll(); vals.hasMoreElements();) {
+                                for (Enumeration vals = attr.getAll(); vals.hasMoreElements(); ) {
                                     String name = (String) vals.nextElement();
                                     if (debug) {
                                         log.debug("Found user: " + name);
@@ -2036,120 +2044,120 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             }
                         }
                     }
-                } catch (NamingException e){
+                } catch (NamingException e) {
                     // ignore
-                    if(log.isDebugEnabled()) {
+                    if (log.isDebugEnabled()) {
                         log.debug(e);
                     }
                 }
 
-				if (debug) {
+                if (debug) {
                     for (String name : names) {
                         log.debug("Result  :  " + name);
                     }
-				}
+                }
 
-			}
-			
-			return names;
-		} finally {
-			JNDIUtil.closeNamingEnumeration(answer);
-			JNDIUtil.closeContext(dirContext);
-		}
-	}
+            }
 
-	/**
-	 * 
-	 */
-	public Map<String, String> getProperties(org.wso2.carbon.user.api.Tenant tenant)
-	                                                                                throws org.wso2.carbon.user.api.UserStoreException {
-		return getProperties((Tenant) tenant);
-	}
+            return names;
+        } finally {
+            JNDIUtil.closeNamingEnumeration(answer);
+            JNDIUtil.closeContext(dirContext);
+        }
+    }
 
-	/**
-	 * 
-	 */
-	public int getTenantId() throws UserStoreException {
-		return this.tenantId;
-	}
+    /**
+     *
+     */
+    public Map<String, String> getProperties(org.wso2.carbon.user.api.Tenant tenant)
+            throws org.wso2.carbon.user.api.UserStoreException {
+        return getProperties((Tenant) tenant);
+    }
 
-	/* TODO: support for multiple user stores */
-	public String[] getUserListFromProperties(String property, String value, String profileName)
-	                                                                                            throws UserStoreException {
-		boolean debug = log.isDebugEnabled();
-		
-		List<String> values = new ArrayList<String>();
-		String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
-		String userPropertyName =
-		                          realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
+    /**
+     *
+     */
+    public int getTenantId() throws UserStoreException {
+        return this.tenantId;
+    }
 
-		searchFilter = "(&" + searchFilter + "(" + property + "=" + value + "))";
+    /* TODO: support for multiple user stores */
+    public String[] getUserListFromProperties(String property, String value, String profileName)
+            throws UserStoreException {
+        boolean debug = log.isDebugEnabled();
 
-		DirContext dirContext = this.connectionSource.getContext();
-		NamingEnumeration<?> answer = null;
-		NamingEnumeration<?> attrs = null;
-		
-		if(debug) {
-			log.debug("Listing users with Property: " + property + " SearchFilter: " + searchFilter);
-		}
-		
-		try {
-			answer =
-			         this.searchForUser(searchFilter, new String[] { userPropertyName }, dirContext);
-			while (answer.hasMoreElements()) {
-				SearchResult sr = (SearchResult) answer.next();
-				Attributes attributes = sr.getAttributes();
-				if (attributes != null) {
-					Attribute attribute = attributes.get(userPropertyName);
-					if (attribute != null) {
-						StringBuffer attrBuffer = new StringBuffer();
-						for (attrs = attribute.getAll(); attrs.hasMore();) {
-							String attr = (String) attrs.next();
-							if (attr != null && attr.trim().length() > 0) {
-								attrBuffer.append(attr + ",");
-								if(debug) {
-									log.debug(userPropertyName + " : " + attr);
-								}
-							}
-						}
-						String propertyValue = attrBuffer.toString();
-						// Length needs to be more than one for a valid
-						// attribute, since we
-						// attach ",".
-						if (propertyValue != null && propertyValue.trim().length() > 1) {
-							propertyValue = propertyValue.substring(0, propertyValue.length() - 1);
-							values.add(propertyValue);
-						}
-					}
-				}
-			}
+        List<String> values = new ArrayList<String>();
+        String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
+        String userPropertyName =
+                realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-		} catch (NamingException e) {
-			log.debug(e.getMessage(), e);
-			throw new UserStoreException(e.getMessage());
-		} finally {
-			// close the naming enumeration and free up resources
-			JNDIUtil.closeNamingEnumeration(attrs);
-			JNDIUtil.closeNamingEnumeration(answer);
-			// close directory context
-			JNDIUtil.closeContext(dirContext);
-		}
-		
-		if(debug) {
-			String[] results = values.toArray(new String[values.size()]);
-			for(String result : results) {
-				log.debug("result: " + result);
-			}
-		}
+        searchFilter = "(&" + searchFilter + "(" + property + "=" + value + "))";
 
-		return values.toArray(new String[values.size()]);
-	}
+        DirContext dirContext = this.connectionSource.getContext();
+        NamingEnumeration<?> answer = null;
+        NamingEnumeration<?> attrs = null;
+
+        if (debug) {
+            log.debug("Listing users with Property: " + property + " SearchFilter: " + searchFilter);
+        }
+
+        try {
+            answer =
+                    this.searchForUser(searchFilter, new String[]{userPropertyName}, dirContext);
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.next();
+                Attributes attributes = sr.getAttributes();
+                if (attributes != null) {
+                    Attribute attribute = attributes.get(userPropertyName);
+                    if (attribute != null) {
+                        StringBuffer attrBuffer = new StringBuffer();
+                        for (attrs = attribute.getAll(); attrs.hasMore(); ) {
+                            String attr = (String) attrs.next();
+                            if (attr != null && attr.trim().length() > 0) {
+                                attrBuffer.append(attr + ",");
+                                if (debug) {
+                                    log.debug(userPropertyName + " : " + attr);
+                                }
+                            }
+                        }
+                        String propertyValue = attrBuffer.toString();
+                        // Length needs to be more than one for a valid
+                        // attribute, since we
+                        // attach ",".
+                        if (propertyValue != null && propertyValue.trim().length() > 1) {
+                            propertyValue = propertyValue.substring(0, propertyValue.length() - 1);
+                            values.add(propertyValue);
+                        }
+                    }
+                }
+            }
+
+        } catch (NamingException e) {
+            log.debug(e.getMessage(), e);
+            throw new UserStoreException(e.getMessage());
+        } finally {
+            // close the naming enumeration and free up resources
+            JNDIUtil.closeNamingEnumeration(attrs);
+            JNDIUtil.closeNamingEnumeration(answer);
+            // close directory context
+            JNDIUtil.closeContext(dirContext);
+        }
+
+        if (debug) {
+            String[] results = values.toArray(new String[values.size()]);
+            for (String result : results) {
+                log.debug("result: " + result);
+            }
+        }
+
+        return values.toArray(new String[values.size()]);
+    }
 
     @Override
     public boolean doCheckIsUserInRole(String userName, String roleName) throws UserStoreException {
 
-    	boolean debug = log.isDebugEnabled();
-    	
+        boolean debug = log.isDebugEnabled();
+
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         LDAPRoleContext context = (LDAPRoleContext) createRoleContext(roleName);
@@ -2160,24 +2168,24 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         if (memberOfProperty != null && memberOfProperty.length() > 0) {
             List<String> list;
 
-            String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
             String userNameProperty = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-            searchFilter = "(&" + searchFilter + "(" + userNameProperty + "=" + userName + "))";
+            String userSearchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
+            String searchFilter = userSearchFilter.replace("?", userName);
             String binaryAttribute =
-                                     realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
+                    realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
             String primaryGroupId = realmConfig.getUserStoreProperty(LDAPConstants.PRIMARY_GROUP_ID);
 
-            String returnedAtts[] = { memberOfProperty };
+            String returnedAtts[] = {memberOfProperty};
 
             if (binaryAttribute != null && primaryGroupId != null) {
-                returnedAtts = new String[] { memberOfProperty, binaryAttribute, primaryGroupId };
+                returnedAtts = new String[]{memberOfProperty, binaryAttribute, primaryGroupId};
             }
             searchCtls.setReturningAttributes(returnedAtts);
-            
-            if(debug) {
-                log.debug("Do check is user: "+ userName + " in role: " + roleName);
+
+            if (debug) {
+                log.debug("Do check whether the user: " + userName + " is in role: " + roleName);
                 log.debug("Search filter: " + searchFilter);
-                for(String retAttrib : returnedAtts) {
+                for (String retAttrib : returnedAtts) {
                     log.debug("Requesting attribute: " + retAttrib);
                 }
             }
@@ -2185,10 +2193,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             if (binaryAttribute != null && primaryGroupId != null) {
                 list =
-                       this.getAttributeListOfOneElementWithPrimarGroup(searchBases, searchFilter,
-                                                                        searchCtls, binaryAttribute,
-                                                                        primaryGroupId, userNameProperty,
-                                                                        memberOfProperty);
+                        this.getAttributeListOfOneElementWithPrimarGroup(searchBases, searchFilter,
+                                searchCtls, binaryAttribute,
+                                primaryGroupId, userNameProperty,
+                                memberOfProperty);
             } else {
                 // use cache
                 String cachedDN = userCache.get(userName);
@@ -2203,7 +2211,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
 
 
-
                 // get DNs of the groups to which this user belongs
                 List<String> groupDNs = this.getListOfNames(searchBases, searchFilter,
                         searchCtls, memberOfProperty, false);
@@ -2211,27 +2218,27 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 list = this.getAttributeListOfOneElement(searchBases, searchFilter, searchCtls);
             }
 
-            if(debug) {
-                if(list != null) {
-                	boolean isUserInRole = false;
-                    for(String item : list) {
+            if (debug) {
+                if (list != null) {
+                    boolean isUserInRole = false;
+                    for (String item : list) {
                         log.debug("Result: " + item);
-                        if(item.equalsIgnoreCase(roleName)) {
-                        	isUserInRole = true;
+                        if (item.equalsIgnoreCase(roleName)) {
+                            isUserInRole = true;
                         }
                     }
                     log.debug("Is user: " + userName + " in role: " + roleName + " ? " +
-                    		isUserInRole);
+                            isUserInRole);
                 } else {
                     log.debug("No results found !");
                 }
             }
 
             // adding roles list in to the cache
-            if(list != null) {
+            if (list != null) {
                 addAllRolesToUserRolesCache(userName, list);
-                for(String role : list) {
-                    if(role.equalsIgnoreCase(roleName)) {
+                for (String role : list) {
+                    if (role.equalsIgnoreCase(roleName)) {
                         return true;
                     }
                 }
@@ -2241,14 +2248,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             // read the roles with this membership property
             String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER);
             String membershipProperty =
-                                        realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
+                    realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
 
             if (membershipProperty == null || membershipProperty.length() < 1) {
                 throw new UserStoreException("Please set member of attribute or membership attribute");
             }
 
             String roleNameProperty =
-                                      realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+                    realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
             String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
             String nameInSpace;
             if (userDNPattern != null && !userDNPattern.contains("#")) {
@@ -2257,14 +2264,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 nameInSpace = this.getNameInSpaceForUserName(userName);
             }
 
-            searchFilter = "(&" + searchFilter + "(" + membershipProperty + "=" + nameInSpace +"))";
-            String returnedAtts[] = { roleNameProperty };
+            searchFilter = "(&" + searchFilter + "(" + membershipProperty + "=" + nameInSpace + "))";
+            String returnedAtts[] = {roleNameProperty};
             searchCtls.setReturningAttributes(returnedAtts);
-            
-            if(debug) {
-                log.debug("Do check is user : "+ userName + " in role: " + roleName);
+
+            if (debug) {
+                log.debug("Do check whether the user : " + userName + " is in role: " + roleName);
                 log.debug("Search filter : " + searchFilter);
-                for(String retAttrib : returnedAtts) {
+                for (String retAttrib : returnedAtts) {
                     log.debug("Requesting attribute: " + retAttrib);
                 }
             }
@@ -2273,17 +2280,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             NamingEnumeration<SearchResult> answer = null;
             try {
                 dirContext = connectionSource.getContext();
-                if(context.getRoleDNPatterns().size() > 0){
-                    for(String pattern : context.getRoleDNPatterns()){
-                    	
-                    	if(debug) {
-                    		log.debug("Using pattern: " + pattern);
-                    	}
+                if (context.getRoleDNPatterns().size() > 0) {
+                    for (String pattern : context.getRoleDNPatterns()) {
+
+                        if (debug) {
+                            log.debug("Using pattern: " + pattern);
+                        }
                         searchBases = MessageFormat.format(pattern.trim(), roleName);
-                        try{
+                        try {
                             answer = dirContext.search(searchBases, searchFilter, searchCtls);
-                        } catch (NamingException e){
-                            if(log.isDebugEnabled()){
+                        } catch (NamingException e) {
+                            if (log.isDebugEnabled()) {
                                 log.debug(e);
                             }
                             //ignore
@@ -2300,39 +2307,39 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         }
                     }
                 } else {
-                	
-                	if(debug) {
-                        log.debug("Do check is user: "+ userName + " in role: " + roleName);
+
+                    if (debug) {
+                        log.debug("Do check whether the user: " + userName + " is in role: " + roleName);
                         log.debug("Search filter: " + searchFilter);
-                        for(String retAttrib : returnedAtts) {
+                        for (String retAttrib : returnedAtts) {
                             log.debug("Requesting attribute: " + retAttrib);
                         }
                     }
-                	
+
                     searchFilter =
-                                   "(&" + searchFilter + "(" + membershipProperty + "=" + nameInSpace +
-                                           ") (" + roleNameProperty + "=" + roleName + "))";
-                    
+                            "(&" + searchFilter + "(" + membershipProperty + "=" + nameInSpace +
+                                    ") (" + roleNameProperty + "=" + roleName + "))";
+
                     // handle multiple search bases 
                     String[] searchBaseArray = searchBases.split("#");
-                    
-					for (String searchBase : searchBaseArray) {
-						answer = dirContext.search(searchBase, searchFilter, searchCtls);
 
-						if (answer.hasMoreElements()) {
-							if (debug) {
-								log.debug("User: " + userName + " in role: " + roleName);
-							}
-							return true;
-						}
+                    for (String searchBase : searchBaseArray) {
+                        answer = dirContext.search(searchBase, searchFilter, searchCtls);
 
-						if (debug) {
-							log.debug("User: " + userName + " NOT in role: " + roleName);
-						}
-					}
+                        if (answer.hasMoreElements()) {
+                            if (debug) {
+                                log.debug("User: " + userName + " in role: " + roleName);
+                            }
+                            return true;
+                        }
+
+                        if (debug) {
+                            log.debug("User: " + userName + " NOT in role: " + roleName);
+                        }
+                    }
                 }
             } catch (NamingException e) {
-                if(log.isDebugEnabled()){
+                if (log.isDebugEnabled()) {
                     log.debug(e.getMessage(), e);
                 }
             } finally {
@@ -2346,241 +2353,239 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     private void addAllRolesToUserRolesCache(String userName, List<String> roleList) throws UserStoreException {
         String[] internalRoleList = doGetInternalRoleListOfUser(userName, "*");
-	String[] combinedRoleList = UserCoreUtil.combineArrays((roleList.toArray(new String[roleList.size()])), internalRoleList);
+        String[] combinedRoleList = UserCoreUtil.combineArrays((roleList.toArray(new String[roleList.size()])), internalRoleList);
         addToUserRolesCache(getTenantId(), userName, combinedRoleList);
     }
 
     // ************** NOT GOING TO IMPLEMENT ***************
 
-	/**
-	 * 
-	 */
-	public Date getPasswordExpirationTime(String username) throws UserStoreException {
-		return null;
-	}
+    /**
+     *
+     */
+    public Date getPasswordExpirationTime(String username) throws UserStoreException {
+        return null;
+    }
 
-	/**
-	 * 
-	 */
-	public int getTenantId(String username) throws UserStoreException {
-		throw new UserStoreException("Invalid operation");
-	}
+    /**
+     *
+     */
+    public int getTenantId(String username) throws UserStoreException {
+        throw new UserStoreException("Invalid operation");
+    }
 
-	/**
-	 * //TODO:remove this method
-	 * 
-	 * @deprecated
-	 * @param username
-	 * @return
-	 * @throws UserStoreException
-	 */
-	public int getUserId(String username) throws UserStoreException {
-		throw new UserStoreException("Invalid operation");
-	}
+    /**
+     * //TODO:remove this method
+     *
+     * @param username
+     * @return
+     * @throws UserStoreException
+     * @deprecated
+     */
+    public int getUserId(String username) throws UserStoreException {
+        throw new UserStoreException("Invalid operation");
+    }
 
-	/**
-	 * 
-	 */
-	public void doDeleteUserClaimValue(String userName, String claimURI, String profileName)
-	                                                                                        throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
+    /**
+     *
+     */
+    public void doDeleteUserClaimValue(String userName, String claimURI, String profileName)
+            throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
 
-	}
+    }
 
-	/**
-	 * 
-	 */
-	public void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
-	                                                                                         throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
+    /**
+     *
+     */
+    public void doDeleteUserClaimValues(String userName, String[] claims, String profileName)
+            throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
 
-	}
+    }
 
-	/**
-	 * 
-	 * @param userName
-	 * @param credential
-	 * @param roleList
-	 * @param claims
-	 * @param profileName
-	 * @throws UserStoreException
-	 */
-	public void doAddUser(String userName, Object credential, String[] roleList,
-	                      Map<String, String> claims, String profileName) throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
+    /**
+     * @param userName
+     * @param credential
+     * @param roleList
+     * @param claims
+     * @param profileName
+     * @throws UserStoreException
+     */
+    public void doAddUser(String userName, Object credential, String[] roleList,
+                          Map<String, String> claims, String profileName) throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
 
-	/**
-	 * 
-	 */
-	public void doAddUser(String userName, Object credential, String[] roleList,
-	                      Map<String, String> claims, String profileName,
-	                      boolean requirePasswordChange) throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
+    /**
+     *
+     */
+    public void doAddUser(String userName, Object credential, String[] roleList,
+                          Map<String, String> claims, String profileName,
+                          boolean requirePasswordChange) throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
 
-	/**
-	 * 
-	 */
-	public void doDeleteUser(String userName) throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
+    /**
+     *
+     */
+    public void doDeleteUser(String userName) throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
 
-	/**
-	 * 
-	 */
-	public void doSetUserClaimValue(String userName, String claimURI, String claimValue,
-	                                String profileName) throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
+    /**
+     *
+     */
+    public void doSetUserClaimValue(String userName, String claimURI, String claimValue,
+                                    String profileName) throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
 
-	/**
-	 * 
-	 */
-	public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
-	                                                                                                 throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
+    /**
+     *
+     */
+    public void doSetUserClaimValues(String userName, Map<String, String> claims, String profileName)
+            throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
 
-	}
+    }
 
-	/**
-	 * 
-	 */
-	public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
-	                                                                                           throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
+    /**
+     *
+     */
+    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
 
-	/**
-	 * 
-	 */
-	public void doUpdateCredentialByAdmin(String userName, Object newCredential)
-	                                                                            throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
+    /**
+     *
+     */
+    public void doUpdateCredentialByAdmin(String userName, Object newCredential)
+            throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
 
-	}
+    }
 
 	/*
 	 * ****************Unsupported methods list
 	 * over***********************************************
 	 */
 
-	/**
-	 * 
-	 */
-	public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
-	                                                                                             throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
+    /**
+     *
+     */
+    public void doUpdateRoleListOfUser(String userName, String[] deletedRoles, String[] newRoles)
+            throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
 
-	/**
-	 * 
-	 */
-	public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
-	                                                                                             throws UserStoreException {
-		throw new UserStoreException(
-		                             "User store is operating in read only mode. Cannot write into the user store.");
-	}
+    /**
+     *
+     */
+    public void doUpdateUserListOfRole(String roleName, String[] deletedUsers, String[] newUsers)
+            throws UserStoreException {
+        throw new UserStoreException(
+                "User store is operating in read only mode. Cannot write into the user store.");
+    }
 
-	/**
-	 * 
-	 */
-	public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
-		return this.realmConfig.getUserStoreProperties();
-	}
+    /**
+     *
+     */
+    public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
+        return this.realmConfig.getUserStoreProperties();
+    }
 
-	/**
-	 * 
-	 */
-	public void addRememberMe(String userName, String token)
-	                                                        throws org.wso2.carbon.user.api.UserStoreException {
-		JDBCUserStoreManager jdbcUserStore =
-		                                     new JDBCUserStoreManager(dataSource, realmConfig,
-		                                                              realmConfig.getTenantId(),
-		                                                              false);
-		jdbcUserStore.addRememberMe(userName, token);
-	}
+    /**
+     *
+     */
+    public void addRememberMe(String userName, String token)
+            throws org.wso2.carbon.user.api.UserStoreException {
+        JDBCUserStoreManager jdbcUserStore =
+                new JDBCUserStoreManager(dataSource, realmConfig,
+                        realmConfig.getTenantId(),
+                        false);
+        jdbcUserStore.addRememberMe(userName, token);
+    }
 
-	/**
-	 * 
-	 */
-	public boolean isValidRememberMeToken(String userName, String token)
-	                                                                    throws org.wso2.carbon.user.api.UserStoreException {
-		try {
-			if (this.isExistingUser(userName)) {
-				JDBCUserStoreManager jdbcUserStore =
-				                                     new JDBCUserStoreManager(
-				                                                              dataSource,
-				                                                              realmConfig,
-				                                                              realmConfig.getTenantId(),
-				                                                              false);
-				return jdbcUserStore.isExistingRememberMeToken(userName, token);
-			}
-		} catch (Exception e) {
-			log.error("Validating remember me token failed for" + userName);
+    /**
+     *
+     */
+    public boolean isValidRememberMeToken(String userName, String token)
+            throws org.wso2.carbon.user.api.UserStoreException {
+        try {
+            if (this.isExistingUser(userName)) {
+                JDBCUserStoreManager jdbcUserStore =
+                        new JDBCUserStoreManager(
+                                dataSource,
+                                realmConfig,
+                                realmConfig.getTenantId(),
+                                false);
+                return jdbcUserStore.isExistingRememberMeToken(userName, token);
+            }
+        } catch (Exception e) {
+            log.error("Validating remember me token failed for" + userName);
 			/*
 			 * not throwing exception. because we need to seamlessly direct them
 			 * to login uis
 			 */
-		}
-		return false;
-	}
+        }
+        return false;
+    }
 
 
-	/**
-	 * 
-	 * @param groupDNs
-	 * @return
-	 * @throws UserStoreException
-	 */
-	private List<String> getGroupNameAttributeValuesOfGroups(List<String> groupDNs)
-	                                                                               throws UserStoreException {
-		log.debug("GetGroupNameAttributeValuesOfGroups with DN");
-		boolean debug = log.isDebugEnabled();
-		// get the DNs of the groups to which user belongs to, as per the search
-		// parameters
-		String groupNameAttribute =
-		                            realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
-		String[] returnedAttributes = { groupNameAttribute };
-		List<String> groupNameAttributeValues = new ArrayList<String>();
-		try {
-			DirContext dirContext = this.connectionSource.getContext();
+    /**
+     * @param groupDNs
+     * @return
+     * @throws UserStoreException
+     */
+    private List<String> getGroupNameAttributeValuesOfGroups(List<String> groupDNs)
+            throws UserStoreException {
+        log.debug("GetGroupNameAttributeValuesOfGroups with DN");
+        boolean debug = log.isDebugEnabled();
+        // get the DNs of the groups to which user belongs to, as per the search
+        // parameters
+        String groupNameAttribute =
+                realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
+        String[] returnedAttributes = {groupNameAttribute};
+        List<String> groupNameAttributeValues = new ArrayList<String>();
+        try {
+            DirContext dirContext = this.connectionSource.getContext();
 
-			for (String group : groupDNs) {
-				if(debug) {
-					log.debug("Using DN: " + group);
-				}
-				Attributes groupAttributes = dirContext.getAttributes(group, returnedAttributes);
-				if (groupAttributes != null) {
-					Attribute groupAttribute = groupAttributes.get(groupNameAttribute);
-					if (groupAttribute != null) {
-						String groupNameAttributeValue = (String) groupAttribute.get();
-						if(debug) {
-							log.debug(groupNameAttribute + " : " + groupNameAttributeValue);
-						}
-						groupNameAttributeValues.add(groupNameAttributeValue);
-					}
-				}
-			}
-		} catch (UserStoreException e) {
-			log.debug("LDAPError", e);
-			throw new UserStoreException("Error in getting group name attribute values of groups");
-		} catch (NamingException e) {
-			log.debug("LDAPError", e);
-			throw new UserStoreException("Error in getting group name attribute values of groups");
-		}
-		return groupNameAttributeValues;
-	}
+            for (String group : groupDNs) {
+                if (debug) {
+                    log.debug("Using DN: " + group);
+                }
+                Attributes groupAttributes = dirContext.getAttributes(group, returnedAttributes);
+                if (groupAttributes != null) {
+                    Attribute groupAttribute = groupAttributes.get(groupNameAttribute);
+                    if (groupAttribute != null) {
+                        String groupNameAttributeValue = (String) groupAttribute.get();
+                        if (debug) {
+                            log.debug(groupNameAttribute + " : " + groupNameAttributeValue);
+                        }
+                        groupNameAttributeValues.add(groupNameAttributeValue);
+                    }
+                }
+            }
+        } catch (UserStoreException e) {
+            log.debug("LDAPError", e);
+            throw new UserStoreException("Error in getting group name attribute values of groups");
+        } catch (NamingException e) {
+            log.debug("LDAPError", e);
+            throw new UserStoreException("Error in getting group name attribute values of groups");
+        }
+        return groupNameAttributeValues;
+    }
 
     @Override
     public Properties getDefaultUserStoreProperties() {
@@ -2593,37 +2598,36 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
 
-	@Override
-	public boolean isSharedRole(String roleName, String roleNameBase) {
-		if (super.isSharedRole(roleName, roleNameBase) && roleNameBase != null) {
-			String sharedRoleBase =
-			                        realmConfig.getUserStoreProperties()
-			                                   .get(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
-			if (roleNameBase.contains(sharedRoleBase)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	
+    @Override
+    public boolean isSharedRole(String roleName, String roleNameBase) {
+        if (super.isSharedRole(roleName, roleNameBase) && roleNameBase != null) {
+            String sharedRoleBase =
+                    realmConfig.getUserStoreProperties()
+                            .get(LDAPConstants.SHARED_GROUP_SEARCH_BASE);
+            if (roleNameBase.contains(sharedRoleBase)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	protected boolean isOwnRole(String roleName) {
-		String[] nameArray = roleName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
-		if (nameArray.length > 1) {
-			String currentTenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
-			return (currentTenantDomain.equalsIgnoreCase(nameArray[1]));
-		}
-		return super.isOwnRole(roleName);
-	}
+
+    @Override
+    protected boolean isOwnRole(String roleName) {
+        String[] nameArray = roleName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
+        if (nameArray.length > 1) {
+            String currentTenantDomain = CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            return (currentTenantDomain.equalsIgnoreCase(nameArray[1]));
+        }
+        return super.isOwnRole(roleName);
+    }
 
     protected RoleContext createRoleContext(String roleName) { // TODO check whether shared roles enable
 
         LDAPRoleContext roleContext = new LDAPRoleContext();
         String[] rolePortions = roleName.split(UserCoreConstants.TENANT_DOMAIN_COMBINER);
         if (rolePortions.length > 1 && (rolePortions[1] == null || rolePortions[1].equals("null"))) {
-            rolePortions = new String[] { rolePortions[0] };
+            rolePortions = new String[]{rolePortions[0]};
         }
         boolean shared = false;
         if (rolePortions.length == 1) {
@@ -2648,7 +2652,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
 
             String roleDNPattern = realmConfig.
-                getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_ATTRIBUTE) + "={0}," + base;
+                    getUserStoreProperty(LDAPConstants.SHARED_GROUP_NAME_ATTRIBUTE) + "={0}," + base;
             roleContext.setSearchBase(base);
             roleContext.addRoleDNPatterns(roleDNPattern);
             shared = true;
@@ -2665,10 +2669,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             roleContext.setListFilter(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER));
             roleContext.setGroupEntryObjectClass(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS));
             String roleDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.ROLE_DN_PATTERN);
-            if(roleDNPattern != null && roleDNPattern.trim().length() > 0){
-                if(roleDNPattern.contains("#")){
-                    String[] patterns =  roleDNPattern.split("#");
-                    for(String pattern : patterns){
+            if (roleDNPattern != null && roleDNPattern.trim().length() > 0) {
+                if (roleDNPattern.contains("#")) {
+                    String[] patterns = roleDNPattern.split("#");
+                    for (String pattern : patterns) {
                         roleContext.addRoleDNPatterns(pattern);
                     }
                 } else {

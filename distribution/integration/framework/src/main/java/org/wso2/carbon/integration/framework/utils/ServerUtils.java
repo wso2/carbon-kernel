@@ -56,7 +56,8 @@ public class ServerUtils {
         }
         Process tempProcess;
         try {
-            CodeCoverageUtils.instrument(carbonFolder);
+            //disabling coverage reports
+//            CodeCoverageUtils.instrument(carbonFolder);
             FrameworkSettings.init();
             defaultHttpsPort = Integer.parseInt(FrameworkSettings.HTTPS_PORT);
             int defaultHttpPort = Integer.parseInt(FrameworkSettings.HTTP_PORT);
@@ -69,14 +70,14 @@ public class ServerUtils {
                 tempProcess =
                         Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", scriptName + ".bat",
                                                                "-DportOffset=" + String.valueOf(portOffset),
-                                                               "-Demma.properties=" + System.getProperty("emma.properties"),
+//                                                               "-Demma.properties=" + System.getProperty("emma.properties"),
                                                                "-Demma.rt.control.port=" + (47653 + portOffset)},
                                                   null, commandDir);
             } else {
                 tempProcess =
                         Runtime.getRuntime().exec(new String[]{"sh", "bin/" + scriptName + ".sh",
                                                                "-DportOffset=" + String.valueOf(portOffset),
-                                                               "-Demma.properties=" + System.getProperty("emma.properties"),
+//                                                               "-Demma.properties=" + System.getProperty("emma.properties"),
                                                                "-Demma.rt.control.port=" + (47653 + portOffset)},
                                                   null, commandDir);
             }
@@ -122,7 +123,8 @@ public class ServerUtils {
         if (process != null) { // An instance of the server is running
             return carbonHome;
         }
-        CodeCoverageUtils.init();
+        //disabling coverage reports
+//        CodeCoverageUtils.init();
         int indexOfZip = carbonServerZipFile.lastIndexOf(".zip");
         if (indexOfZip == -1) {
             throw new IllegalArgumentException(carbonServerZipFile + " is not a zip file");

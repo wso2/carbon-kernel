@@ -15,20 +15,19 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.4.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    
+
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.core.services</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Services</name>
     <description>org.wso2.carbon.core.services</description>
@@ -46,32 +45,22 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.common</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.authenticator.proxy</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.security.wso2</groupId>
-            <artifactId>wss4j</artifactId>
-            <version>1.5.11.wso2v7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle.wso2</groupId>
@@ -81,18 +70,9 @@
 
     <build>
         <plugins>
-	    <plugin>
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <inherited>true</inherited>
-                <!--configuration>
-                    <excludes>
-                    </excludes>
-                     <property>
-                       <name>log4j.configuration</name>
-                       <value>test-log4j.xml</value>
-                     </property>
-                   </systemProperties>
-                </configuration-->
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -101,7 +81,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -114,9 +93,8 @@
                             org.wso2.carbon.core.services.filedownload.*,
                             org.wso2.carbon.core.services.authentication.*,
                             org.wso2.carbon.core.services.callback.*,
-                            org.wso2.carbon.core.services.util.*,  
-                            org.wso2.carbon.core.services.loggeduserinfo.*,
-			    
+                            org.wso2.carbon.core.services.util.*,
+                            org.wso2.carbon.core.services.loggeduserinfo.*
                         </Export-Package>
                         <Import-Package>
                             org.apache.axis2.*; version="${imp.pkg.version.axis2}",
@@ -129,6 +107,7 @@
                             org.wso2.carbon.utils,
                             org.apache.commons.logging.*,
                             org.wso2.carbon.registry.core.*,
+                            org.bouncycastle.*; version="${imp.pkg.version.bcp}",
                             org.wso2.carbon.core.common.*;version="0.0.0"
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
@@ -137,5 +116,4 @@
             </plugin>
         </plugins>
     </build>
-    
 </project>
