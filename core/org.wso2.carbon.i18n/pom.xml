@@ -26,7 +26,6 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.i18n</artifactId>
-    <version>4.4.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Internationalization</name>
     <description>Component containing i18n bundles for basic carbon framework.</description>

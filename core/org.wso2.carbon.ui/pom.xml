@@ -30,7 +30,6 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - UI</name>
     <description>org.wso2.carbon.ui</description>
-    <version>4.4.0-SNAPSHOT</version>
     <url>http://wso2.org</url>
 
     <dependencies>

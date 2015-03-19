@@ -21,7 +21,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>javax.cache.wso2</artifactId>
     <packaging>bundle</packaging>
-    <version>4.4.0-SNAPSHOT</version>
     <name>WSO2 Carbon - JSR 107 API</name>
     <description>OSGi Bundle for JCache API</description>
     <url>http://wso2.org</url>

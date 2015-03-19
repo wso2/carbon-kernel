@@ -28,7 +28,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.ui.menu.tools</artifactId>
     <packaging>bundle</packaging>
-    <version>4.4.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Tools tree menu structure</name>
     <description>core tree menu structure</description>
 

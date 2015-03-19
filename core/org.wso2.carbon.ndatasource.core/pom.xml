@@ -26,7 +26,6 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.ndatasource.core</artifactId>
-    <version>4.4.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - New Data Sources Core</name>
     <description>This provides the new data sources impl for WSO2 Carbon</description>
