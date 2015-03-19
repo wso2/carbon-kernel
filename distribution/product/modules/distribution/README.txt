@@ -12,9 +12,9 @@ pluggable Carbon components and installed into this base Carbon platform.
 
 What's New In This Release
 ----------------------------
-01. Simplified logging story with pluggable log provider support.
-02. Upgraded versions of Hazelcast, Log4j, BouncyCastle.
-03. Improved Composite application support.
+01. Java7/Java8 support - Starting from kernel 4.4.0 release, the kernel can now be compiled and run on both Java7 and Java8.
+02. Tomcat upgrade - Tomcat is upgraded to version 7.0.59.
+03. Tenant Eager Loading - WSO2 Carbon Kernel can now be configured to load specified set of tenants at server start-up.
 
 Key Features
 ------------
@@ -53,7 +53,6 @@ Carbon Binary Distribution Directory Structure
             |-- README.txt <file>
         |-- samples <directory>
         |-- tmp <directory>
-	    |-- webapp-mode <directory>
         |-- LICENSE.txt <file>
         |-- README.txt <file>
         |-- INSTALL.txt <file>
@@ -97,17 +96,13 @@ Carbon Binary Distribution Directory Structure
         - resources
           Contains additional resources that may be required.
 
-	    - tenants
-	        Directory will contain relevant tenant artifacts
-	        in the case of a multitenant deployment.
+        - tenants
+          Directory will contain relevant tenant artifacts
+          in the case of a multitenant deployment.
 
     - tmp
       Used for storing temporary files, and is pointed to by the
       java.io.tmpdir System property.
-
-    - webapp-mode
-      The user has the option of running WSO2 Carbon in webapp mode (hosted as a web-app in an application server).
-      This directory contains files required to run Carbon in webapp mode. 
 
     - LICENSE.txt
       Apache License 2.0 under which WSO2 Carbon is distributed.
@@ -161,4 +156,4 @@ Apache Santuario : http://santuario.apache.org/
 Bouncycastle     : http://www.bouncycastle.org/
 
 ---------------------------------------------------------------------------
-(c) Copyright 2014 WSO2 Inc.
+(c) Copyright 2015 WSO2 Inc.

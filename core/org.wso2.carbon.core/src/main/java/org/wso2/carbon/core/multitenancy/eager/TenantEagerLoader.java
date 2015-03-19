@@ -88,6 +88,17 @@ public class TenantEagerLoader {
                 PrivilegedCarbonContext.startTenantFlow();
                 TenantAxisUtils
                         .getTenantConfigurationContext(tenantDomain, carbonCoreDataHolder.getMainServerConfigContext());
+            } catch (OutOfMemoryError e) {
+                // If OutOfMemoryError during tenant loading we will throw a RuntimeException to notify server admin
+                String msg = "OutOfMemoryError while Eager loading tenant : " + tenantDomain;
+                throw new RuntimeException(msg, e);
+            } catch (Throwable e) {
+                // During tenant eager loading there can be some cases where RuntimeExceptions can be occurred
+                // In such cases since eager loading logic happens inside completeInitialization() this cause issues to
+                // start the server. In these cases we'll handing Throwable and log the error here and continue the
+                // process : ESBJAVA-3602
+                String msg = "Error while Eager loading tenant : " + tenantDomain;
+                logger.error(msg, e);
             } finally {
                 PrivilegedCarbonContext.endTenantFlow();
             }

@@ -196,7 +196,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         String dnOfUserEntry = createAdminEntry(dnOfUserContext, tenant, initialDirContext);
 
         //create admin group if write ldap group is enabled
-        if (("true").equals(realmConfig.getUserStoreProperty(
+        if ("true".equals(realmConfig.getUserStoreProperty(
                 UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED))) {
             //construct dn of group context: eg:ou=groups,o=cse.org,dc=wso2,dc=com
             String dnOfGroupContextValue = tenantMgtConfig.getTenantStoreProperties().get(
