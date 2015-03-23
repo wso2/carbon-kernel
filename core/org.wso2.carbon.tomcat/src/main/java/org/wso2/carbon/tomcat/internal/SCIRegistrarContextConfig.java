@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2005-2014, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -54,7 +54,10 @@ public class SCIRegistrarContextConfig extends ContextConfig {
                             servletContext, context.getContainerSciFilter());
             detectedScis = loader.load(ServletContainerInitializer.class);
         } catch (IOException e) {
-            log.error(sm.getString("contextConfig.servletContainerInitializerFail", context.getName()), e);//prints the full stack trace
+            log.error(sm.getString(
+                    "contextConfig.servletContainerInitializerFail",
+                    context.getName()),
+                    e);//prints the full stack trace
             ok = false;
             return;
         }
@@ -72,9 +75,12 @@ public class SCIRegistrarContextConfig extends ContextConfig {
             } catch (Exception e) {//class defined in the @HandlesTypes annotation can be missing.Can throw
                 // NullPointerException.
                 if (log.isDebugEnabled()) {
-                    log.debug(sm.getString("contextConfig.sci.debug", sci.getClass().getName()), e);//changed log.info to log.debug.The debug level prints the full stack trace.
+                    log.debug(sm.getString("contextConfig.sci.debug",
+                            sci.getClass().getName()),
+                            e);//changed log.info to log.debug.The debug level prints the full stack trace.
                 } else {
-                    log.info(sm.getString("contextConfig.sci.info", sci.getClass().getName()));
+                    log.info(sm.getString("contextConfig.sci.info",
+                            sci.getClass().getName()));
                 }
                 continue;
             }
