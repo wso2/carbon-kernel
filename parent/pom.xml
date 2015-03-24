@@ -156,8 +156,8 @@
 
         <!-- Carbon Kernel Related Versions-->
         <carbon.kernel.version>4.4.0-SNAPSHOT</carbon.kernel.version>
-        <carbon.kernel.exp.pkg.version>4.4.0-SNAPSHOT</carbon.kernel.exp.pkg.version>
-        <carbon.kernel.imp.pkg.version>[4.4.0-SNAPSHOT, 4.5.0)</carbon.kernel.imp.pkg.version>
+        <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
+        <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.5.0)</carbon.kernel.imp.pkg.version>
 
         <test.framework.version>4.3.1</test.framework.version>
 
