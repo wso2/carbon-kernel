@@ -30,7 +30,6 @@
     <name>WSO2 Carbon - Feature Manager Core</name>
     <description>This bundle provides the component mgt Core functionalities</description>
     <url>http://wso2.org</url>
-    <version>4.4.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

@@ -26,7 +26,6 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.feature.mgt.services</artifactId>
-    <version>4.4.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Feature Manager Web Services</name>
     <description>This bundle provides the component mgt Web Services</description>

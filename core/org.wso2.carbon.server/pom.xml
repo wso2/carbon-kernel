@@ -28,7 +28,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.server</artifactId>
     <packaging>jar</packaging>
-    <version>4.4.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Standalone Server</name>
     <description>The stadalone server code</description>
 

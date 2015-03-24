@@ -31,6 +31,7 @@ import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.core.StandardHost;
 import org.apache.catalina.startup.Catalina;
 import org.apache.catalina.startup.Constants;
+import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -306,17 +307,17 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
             if (lifecycleListener != null) {
                 ctx.addLifecycleListener(lifecycleListener);
             }
-            SCIRegistrarContextConfig sciRegistrarContextConfig = new SCIRegistrarContextConfig();
-            ctx.addLifecycleListener(sciRegistrarContextConfig);
+            ContextConfig ctxCfg = new ContextConfig();
+            ctx.addLifecycleListener(ctxCfg);
             // Set global webXml to this context
             if (new File(globalWebXml).exists()) {
-                sciRegistrarContextConfig.setDefaultWebXml(globalWebXml);
+                ctxCfg.setDefaultWebXml(globalWebXml);
             } else {
-                sciRegistrarContextConfig.setDefaultWebXml("org/apache/catalin/startup/NO_DEFAULT_XML");
+                ctxCfg.setDefaultWebXml("org/apache/catalin/startup/NO_DEFAULT_XML");
             }
 
             if (new File(globalContextXml).exists()) {
-                sciRegistrarContextConfig.setDefaultContextXml(globalContextXml);
+                ctxCfg.setDefaultContextXml(globalContextXml);
             }
 
             File f = new File(webappFilePath);

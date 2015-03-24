@@ -28,7 +28,6 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.user.core</artifactId>
     <packaging>bundle</packaging>
-    <version>4.4.0-SNAPSHOT</version>
     <name>WSO2 Carbon - User Manager Kernel</name>
     <description>A custom wso2 product</description>
     <url>http://wso2.org</url>
