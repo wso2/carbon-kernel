@@ -189,6 +189,7 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty("AddUserPropertySQL-openedge", "Add User Property (OpenEdge)", "INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, UM_ATTR_NAME, " +
                 "UM_ATTR_VALUE, UM_PROFILE_ID, UM_TENANT_ID) SELECT UM_ID, ?, ?, ?, ? FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?", "");
         setProperty("UniqueID", "", "", "");
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false", UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
     }
 
 
