@@ -26,7 +26,6 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <version>4.4.0-SNAPSHOT</version>
     <artifactId>org.wso2.carbon.registry.server</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Registry Server</name>
