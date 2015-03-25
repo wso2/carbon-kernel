@@ -35,6 +35,17 @@
             <Parameter name="ServiceProviderID">carbonServer</Parameter>
             <Parameter name="IdentityProviderSSOServiceURL">https://localhost:9443/samlsso</Parameter>
             <Parameter name="NameIDPolicyFormat">urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</Parameter>
+
+            <!-- <Parameter name="IdPCertAlias">wso2carbon</Parameter> -->
+            <!-- <Parameter name="ResponseSignatureValidationEnabled">false</Parameter> -->
+            <!-- <Parameter name="LoginAttributeName"></Parameter> -->
+            <!-- <Parameter name="RoleClaimAttribute"></Parameter> -->
+            <!-- <Parameter name="AttributeValueSeparator">,</Parameter> -->
+
+            <!-- <Parameter name="JITUserProvisioning">true</Parameter> -->
+            <!-- <Parameter name="ProvisioningDefaultUserstore">PRIMARY</Parameter> -->
+            <!-- <Parameter name="ProvisioningDefaultRole">admin</Parameter> -->
+            <!-- <Parameter name="IsSuperAdminRoleRequired">true</Parameter> -->
 	</Config>
 	
 	<!-- If this authenticator should skip any URI from authentication, specify it under "SkipAuthentication"
@@ -48,5 +59,15 @@
         </SkipSessionValidation> -->
     </Authenticator>
 
+        <!-- Authenticator Configurations for MutualSSLAuthenticator -->
+    <!--Authenticator name="MutualSSLAuthenticator" disabled="false">
+	  <Priority>5</Priority>
+	  <Config>
+	      <Parameter name="UsernameHeader">UserName</Parameter>
+	      <Parameter name="WhiteListEnabled">false</Parameter>
+	      <Parameter name="WhiteList"/>
+	  </Config>
+    </Authenticator-->
+    
 </Authenticators>
 
