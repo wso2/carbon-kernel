@@ -18,6 +18,8 @@
 package org.wso2.carbon.context.internal;
 
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.context.CarbonCoreInitializedEvent;
+import org.wso2.carbon.context.CarbonCoreInitializedEventImpl;
 import org.wso2.carbon.registry.api.RegistryService;
 import org.wso2.carbon.user.api.UserRealmService;
 
@@ -33,6 +35,8 @@ public class CarbonContextServiceComponent {
 
 
     protected void activate(ComponentContext componentContext) {
+        //register a CarbonCoreInitializedEvent (an empty service) to guarantee the activation order
+        componentContext.getBundleContext().registerService(CarbonCoreInitializedEvent.class.getName(), new CarbonCoreInitializedEventImpl(), null);
     }
 
     protected void deactivate(ComponentContext componentContext) {
