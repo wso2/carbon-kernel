@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.common;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -960,9 +961,24 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
-            userStore.getUserStoreManager().setUserClaimValues(userStore.getDomainFreeName(),
-                    claims, profileName);
+            userStore.getUserStoreManager().setUserClaimValues(userStore.getDomainFreeName(), claims, profileName);
             return;
+        }
+
+        Map<String, String> refinedClaims = new HashMap<String, String>();
+        if (claims != null && !claims.isEmpty()) {
+            for (Map.Entry<String, String> entry : claims.entrySet()) {
+                String claimURI = entry.getKey();
+                String claimValue = entry.getValue();
+                if (!(claimURI == null || StringUtils.isEmpty(claimURI.trim()) || claimValue == null)) {
+                    refinedClaims.put(claimURI, claimValue);
+                } else {
+                    if(log.isDebugEnabled()){
+                        log.debug("Illegal claim URI or values; claim URI : " + claimURI + " and claim value : " + claimValue);
+                    }
+                    refinedClaims.put(claimURI, claimValue);
+                }
+            }
         }
 
         if (isReadOnly()) {
@@ -972,7 +988,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPreSetUserClaimValues(userName, claims, profileName, this)) {
+            if (!listener.doPreSetUserClaimValues(userName, refinedClaims, profileName, this)) {
                 return;
             }
         }
@@ -982,12 +998,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("User does not exist. Username : " + userName);
         }
 
-        doSetUserClaimValues(userName, claims, profileName);
+        doSetUserClaimValues(userName, refinedClaims, profileName);
 
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPostSetUserClaimValues(userName, claims, profileName, this)) {
+            if (!listener.doPostSetUserClaimValues(userName, refinedClaims, profileName, this)) {
                 return;
             }
         }
