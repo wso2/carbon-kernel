@@ -154,5 +154,7 @@
         <module>org.wso2.carbon.ndatasource.core</module>
         <module>org.wso2.carbon.ndatasource.rdbms</module>
         <module>org.wso2.carbon.framework.exporter</module>
+        <module>org.wso2.carbon.metrics.manager</module>
+        <module>org.wso2.carbon.metrics.impl</module>
     </modules>
 </project>
