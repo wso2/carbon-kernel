@@ -948,7 +948,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (debug) {
-            log.debug("User: " + dn + " is authnticated: " + isAuthed);
+            log.debug("User: " + dn + " is authenticated: " + isAuthed);
         }
         return isAuthed;
     }
