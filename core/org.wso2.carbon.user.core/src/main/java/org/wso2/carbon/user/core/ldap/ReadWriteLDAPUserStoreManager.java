@@ -1501,7 +1501,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     throw new UserStoreException(errorMessage);
 
                 } else {
-                    Map<String, String> newUserL = new HashMap<String, String>();
+                    Map<String, String> newUserList = new HashMap<String, String>();
                     Map<String, String> delUserList = new HashMap<String, String>();
 
                     if (newUsers != null && newUsers.length != 0) {
@@ -1518,7 +1518,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             } else if (isUserInRole(userNameDN, resultedGroup)) {
                                 existingUserList += userNameDN + ",";
                             } else {
-                                newUserL.put(newUser, userNameDN);
+                                newUserList.put(newUser, userNameDN);
                             }
                         }
                         if (!StringUtils.isEmpty(invalidUserList) || !StringUtils.isEmpty(existingUserList)) {
@@ -1550,7 +1550,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
                     }
 
-                    for (Map.Entry<String, String> newUser : newUserL.entrySet()){
+                    for (Map.Entry<String, String> newUser : newUserList.entrySet()){
                         modifyUserInRole(newUser.getKey(), newUser.getValue(), groupName,
                                 DirContext.ADD_ATTRIBUTE, searchBase);
                     }
