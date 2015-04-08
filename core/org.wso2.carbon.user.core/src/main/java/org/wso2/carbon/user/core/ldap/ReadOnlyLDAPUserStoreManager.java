@@ -66,6 +66,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     private final int MAX_USER_CACHE = 200;
+    private boolean replaceEscapeCharacters = true;
 
     // Todo: use a cache provided by carbon kernel
     Map<String, String> userCache = new ConcurrentHashMap<String, String>(MAX_USER_CACHE);
@@ -302,9 +303,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         userName = userName.trim();
-        // if replace escape characters enabled, modify username by replacing
-        // escape characters.
-        userName = replaceEscapeCharacters(userName);
+
         String password = (String) credential;
         password = password.trim();
 
@@ -324,7 +323,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (debug) {
                     log.debug("Cache hit. Using DN " + name);
                 }
-                bValue = this.bindAsUser(name, (String) credential);
+                bValue = this.bindAsUser(userName,name, (String) credential);
             } catch (NamingException e) {
                 // do nothing if bind fails since we check for other DN
                 // patterns as well.
@@ -359,7 +358,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                     try {
                         if (name != null) {
-                            bValue = this.bindAsUser(name, (String) credential);
+                            bValue = this.bindAsUser(userName, name, (String) credential);
                             if (bValue) {
                                 userCache.put(userName, name);
                                 break;
@@ -382,7 +381,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     if (debug) {
                         log.debug("Authenticating with " + name);
                     }
-                    bValue = this.bindAsUser(name, (String) credential);
+                    bValue = this.bindAsUser(userName, name, (String) credential);
                     if (bValue) {
                         userCache.put(userName, name);
                     }
@@ -471,13 +470,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
                 try {
-                    answer = dirContext.search(userDN, searchFilter, searchCtls);
+                    answer = dirContext.search(replaceEscapeCharacters(userName, userDN, false),
+                            escapeLDAPSearchFilter(userName, searchFilter), searchCtls);
                 } catch (NamingException e) {
                     log.debug(e.getMessage(), e);
                     throw new UserStoreException(e.getMessage());
                 }
             } else {
-                answer = this.searchForUser(searchFilter, propertyNames, dirContext);
+                answer = this.searchForUser(userName, searchFilter, propertyNames, dirContext);
             }
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
@@ -756,7 +756,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             for (String searchBase : searchBaseArray) {
 
-                answer = dirContext.search(searchBase, finalFilter.toString(), searchCtls);
+                answer = dirContext.search(searchBase, escapeLDAPSearchFilter(filter, finalFilter.toString()), searchCtls);
 
                 while (answer.hasMoreElements()) {
                     SearchResult sr = (SearchResult) answer.next();
@@ -856,7 +856,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             "(&" + userNameListFilter + "(" + userNameAttribute +
                                     "=" + userName + "))";
                     List<String> displayNames =
-                            this.getListOfNames(userSearchBase, searchFilter,
+                            this.getListOfNames(userName,userSearchBase, searchFilter,
                                     searchControls,
                                     displayNameAttribute, false);
                     // we expect only one display name
@@ -875,13 +875,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
+     * @param userName
      * @param dn
      * @param credentials
      * @return
      * @throws NamingException
      * @throws UserStoreException
      */
-    protected boolean bindAsUser(String dn, String credentials) throws NamingException,
+    protected boolean bindAsUser(String userName, String dn, String credentials) throws NamingException,
             UserStoreException {
         boolean isAuthed = false;
         boolean debug = log.isDebugEnabled();
@@ -904,7 +905,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		 * String rawConnectionURL =
 		 * realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_URL);
 		 * String portInfo = rawConnectionURL.split(":")[2];
-		 * 
+		 *
 		 * String connectionURL = null;
 		 * String port = null;
 		 * // if the port contains a template string that refers to carbon.xml
@@ -927,7 +928,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         LdapContext cxt = null;
         try {
             // cxt = new InitialLdapContext(env, null);
-            cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
+            cxt = this.connectionSource.getContextWithCredentials(replaceEscapeCharacters(userName, dn, true), credentials);
             isAuthed = true;
         } catch (AuthenticationException e) {
 			/*
@@ -947,19 +948,20 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         if (debug) {
-            log.debug("User: " + dn + " is authenticated: " + isAuthed);
+            log.debug("User: " + dn + " is authnticated: " + isAuthed);
         }
         return isAuthed;
     }
 
     /**
+     * @param value
      * @param searchFilter
      * @param returnedAtts
      * @param dirContext
      * @return
      * @throws UserStoreException
      */
-    protected NamingEnumeration<SearchResult> searchForUser(String searchFilter,
+    protected NamingEnumeration<SearchResult> searchForUser(String value, String searchFilter,
                                                             String[] returnedAtts,
                                                             DirContext dirContext)
             throws UserStoreException {
@@ -990,7 +992,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         try {
             for (String searchBase : searchBaseAraay) {
-                answer = dirContext.search(searchBase, searchFilter, searchCtls);
+                answer = dirContext.search(searchBase, escapeLDAPSearchFilter(value, searchFilter), searchCtls);
                 if (answer.hasMore()) {
                     return answer;
                 }
@@ -1094,7 +1096,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         try {
             dirContext = connectionSource.getContext();
-            answer = dirContext.search(searchBase, finalFilter.toString(), searchCtls);
+            answer = dirContext.search(searchBase, escapeLDAPSearchFilter(filter, finalFilter.toString()), searchCtls);
             // append the domain if exist
             String domain =
                     this.getRealmConfiguration()
@@ -1475,7 +1477,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
                 Attributes userAttributes;
                 try {
-                    userAttributes = dirContext.getAttributes(user, returnedAttributes);
+                    // '\' and '"' characters need another level of escaping before searching
+                    userAttributes = dirContext.getAttributes(user.replace("\\\\", "\\\\\\")
+                            .replace("\\\"", "\\\\\""), returnedAttributes);
 
                     String displayName = null;
                     String userName = null;
@@ -1627,7 +1631,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
                 if (binaryAttribute != null && primaryGroupId != null) {
                     list =
-                            this.getAttributeListOfOneElementWithPrimarGroup(searchBase,
+                            this.getAttributeListOfOneElementWithPrimarGroup(userName,
+                                    searchBase,
                                     searchFilter,
                                     searchCtls,
                                     binaryAttribute,
@@ -1648,7 +1653,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
 
                     // get DNs of the groups to which this user belongs
-                    List<String> groupDNs = this.getListOfNames(searchBase, searchFilter,
+                    List<String> groupDNs = this.getListOfNames(userName,searchBase, searchFilter,
                             searchCtls, memberOfProperty, false);
 					/*
 					 * to be compatible with AD as well, we need to do a search
@@ -1702,7 +1707,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     log.debug("Reading roles with the membershipProperty Property: " + membershipProperty);
                 }
 
-                list = this.getListOfNames(searchBase, searchFilter, searchCtls, roleNameProperty, false);
+                list = this.getListOfNames(userName, searchBase, searchFilter, searchCtls, roleNameProperty, false);
             }
         } else if (UserCoreUtil.isRegistryAnnonymousUser(userName)) {
             // returning a REGISTRY_ANONNYMOUS_ROLE_NAME for
@@ -1817,11 +1822,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             SearchResult userObj = null;
             String[] searchBases = searchBase.split("#");
             for (String base : searchBases) {
-                answer = dirContext.search(base, searchFilter, searchCtls);
+                answer = dirContext.search(replaceEscapeCharacters(userName, base, false),
+                        escapeLDAPSearchFilter(userName, searchFilter), searchCtls);
                 if (answer.hasMore()) {
                     userObj = (SearchResult) answer.next();
                     if (userObj != null) {
-                        userDN = userObj.getNameInNamespace();
+                        userDN = userObj.getNameInNamespace().replace("\\\\", "\\")
+                                .replace("\\+", "+")
+                                .replace("\\,", ",")
+                                .replace("\\;", ";")
+                                .replace("\\>", ">")
+                                .replace("\\<", "<")
+                                .replace("\\\"", "\""); //reverting LDAP escapes before writing the DN to cache
                         break;
                     }
                 }
@@ -1878,6 +1890,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
+     * @param userName
      * @param searchBase
      * @param searchFilter
      * @param searchCtls
@@ -1888,7 +1901,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    private List<String> getAttributeListOfOneElementWithPrimarGroup(String searchBase,
+    private List<String> getAttributeListOfOneElementWithPrimarGroup(String userName,
+                                                                     String searchBase,
                                                                      String searchFilter,
                                                                      SearchControls searchCtls,
                                                                      String objectSid,
@@ -1907,7 +1921,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
         try {
             dirContext = connectionSource.getContext();
-            answer = dirContext.search(searchBase, searchFilter, searchCtls);
+            answer = dirContext.search(replaceEscapeCharacters(userName, searchBase, false),
+                    escapeLDAPSearchFilter(userName, searchFilter), searchCtls);
             int count = 0;
             while (answer.hasMore()) {
                 if (count > 0) {
@@ -1954,8 +1969,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     // ****************************************************
 
     @SuppressWarnings("rawtypes")
-    protected List<String> getAttributeListOfOneElement(String searchBases, String searchFilter,
-                                                        SearchControls searchCtls)
+    protected List<String> getAttributeListOfOneElement(String userName, String searchBases,
+                                                        String searchFilter, SearchControls searchCtls)
             throws UserStoreException {
         List<String> list = new ArrayList<String>();
         DirContext dirContext = null;
@@ -1966,7 +1981,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             String[] searchBaseArray = searchBases.split("#");
             for (String searchBase : searchBaseArray) {
                 try {
-                    answer = dirContext.search(searchBase, searchFilter, searchCtls);
+                    answer = dirContext.search(replaceEscapeCharacters(userName, searchBase, false),
+                            escapeLDAPSearchFilter(userName, searchFilter), searchCtls);
                     int count = 0;
                     if (answer.hasMore()) {
                         while (answer.hasMore()) {
@@ -1995,6 +2011,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
+     * @param userName
      * @param searchBases
      * @param searchFilter
      * @param searchCtls
@@ -2002,7 +2019,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    private List<String> getListOfNames(String searchBases, String searchFilter,
+    private List<String> getListOfNames(String userName, String searchBases, String searchFilter,
                                         SearchControls searchCtls, String property, boolean appendDn)
             throws UserStoreException {
         boolean debug = log.isDebugEnabled();
@@ -2023,7 +2040,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             for (String searchBase : searchBaseArray) {
 
                 try {
-                    answer = dirContext.search(searchBase, searchFilter, searchCtls);
+                    answer = dirContext.search(replaceEscapeCharacters(userName, searchBase, false),
+                            escapeLDAPSearchFilter(userName, searchFilter), searchCtls);
                     String domain = this.getRealmConfiguration().getUserStoreProperty(
                             UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
 
@@ -2102,8 +2120,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
 
         try {
-            answer =
-                    this.searchForUser(searchFilter, new String[]{userPropertyName}, dirContext);
+            answer = this.searchForUser(value, searchFilter, new String[]{userPropertyName}, dirContext);
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
@@ -2193,7 +2210,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             if (binaryAttribute != null && primaryGroupId != null) {
                 list =
-                        this.getAttributeListOfOneElementWithPrimarGroup(searchBases, searchFilter,
+                        this.getAttributeListOfOneElementWithPrimarGroup(userName,searchBases, searchFilter,
                                 searchCtls, binaryAttribute,
                                 primaryGroupId, userNameProperty,
                                 memberOfProperty);
@@ -2212,10 +2229,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
 
                 // get DNs of the groups to which this user belongs
-                List<String> groupDNs = this.getListOfNames(searchBases, searchFilter,
+                List<String> groupDNs = this.getListOfNames(userName, searchBases, searchFilter,
                         searchCtls, memberOfProperty, false);
 
-                list = this.getAttributeListOfOneElement(searchBases, searchFilter, searchCtls);
+                list = this.getAttributeListOfOneElement(userName, searchBases, searchFilter, searchCtls);
             }
 
             if (debug) {
@@ -2288,7 +2305,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         }
                         searchBases = MessageFormat.format(pattern.trim(), roleName);
                         try {
-                            answer = dirContext.search(searchBases, searchFilter, searchCtls);
+                            answer = dirContext.search(searchBases, escapeLDAPSearchFilter(userName,
+                                    searchFilter), searchCtls);
                         } catch (NamingException e) {
                             if (log.isDebugEnabled()) {
                                 log.debug(e);
@@ -2683,5 +2701,153 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         roleContext.setRoleName(rolePortions[0]);
         roleContext.setShared(shared);
         return roleContext;
+    }
+    
+    
+   /**
+     * This is to replace escape characters in user name at user login if replace escape characters
+     * enabled in user-mgt.xml. Some User Stores like ApacheDS stores user names by replacing escape
+     * characters. In that case, we have to parse the username accordingly.
+     *
+     * @param userName
+     * @param dn
+     * @param isDirectBind
+     */
+    protected String replaceEscapeCharacters(String userName, String dn, boolean isDirectBind) {
+
+        if (userName == null || userName.trim().length() == 0) {
+            if (log.isDebugEnabled()){
+                log.debug("Received an empty username to escape characters.");
+            }
+            return null;
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Replacing escape characters in " + userName);
+        }
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        if (replaceEscapeCharacters) {
+            String escapedUN = escapeUsernameSpecialCharacters(userName, isDirectBind);
+            return dn.replace(userName, escapedUN);
+        }
+        return dn;
+    }
+
+    protected String escapeUsernameSpecialCharacters(String userName, boolean isDirectBind) {
+        StringBuilder sb = new StringBuilder();
+        if ((userName.length() > 0) && ((userName.charAt(0) == ' ') || (userName.charAt(0) == '#'))) {
+            sb.append('\\'); // add the leading backslash if needed
+        }
+        for (int i = 0; i < userName.length(); i++) {
+            char currentChar = userName.charAt(i);
+            switch (currentChar) {
+                case '\\':
+                    if (isDirectBind){
+                        sb.append("\\\\");
+                        break;
+                    } else {
+                        sb.append("\\\\\\");
+                        break;
+                    }
+                case ',':
+                    sb.append("\\,");
+                    break;
+                case '+':
+                    sb.append("\\+");
+                    break;
+                case '"':
+                    if (isDirectBind) {
+                        sb.append("\\\"");
+                        break;
+                    } else {
+                        sb.append("\\\\\"");
+                        break;
+                    }
+                case '<':
+                    sb.append("\\<");
+                    break;
+                case '>':
+                    sb.append("\\>");
+                    break;
+                case ';':
+                    sb.append("\\;");
+                    break;
+                default:
+                    sb.append(currentChar);
+            }
+        }
+        if ((userName.length() > 1) && (userName.charAt(userName.length() - 1) == ' ')) {
+            sb.insert(sb.length() - 1, '\\'); // add the trailing backslash if needed
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Replacing special characters in LDAP filter
+     * @param userName
+     * @param filter
+     * @return
+     */
+    protected String escapeLDAPSearchFilter(String userName, String filter) {
+
+        if (userName == null || userName.trim().length() == 0) {
+            if (log.isDebugEnabled()){
+                log.debug("Received an empty username to escape characters.");
+            }
+            return null;
+        }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Replacing excape characters in " + userName);
+        }
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        if (replaceEscapeCharacters) {
+            //TODO: implement character escaping for *
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < userName.length(); i++) {
+                char currentChar = userName.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        sb.append("\\5c");
+                        break;
+//                case '*':
+//                    sb.append("\\2a");
+//                    break;
+                    case '(':
+                        sb.append("\\28");
+                        break;
+                    case ')':
+                        sb.append("\\29");
+                        break;
+                    case '\u0000':
+                        sb.append("\\00");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            return filter.replace(userName, sb.toString());
+        }
+        return filter;
     }
 }
