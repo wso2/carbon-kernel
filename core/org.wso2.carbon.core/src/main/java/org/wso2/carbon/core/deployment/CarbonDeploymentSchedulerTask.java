@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -35,6 +36,7 @@ import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.deployment.GhostMetaArtifactsLoader;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -48,12 +50,16 @@ public class CarbonDeploymentSchedulerTask extends SchedulerTask {
      * Indicates whether a Deployment repo update has to be performed
      */
     public static final String REPO_UPDATE_REQUIRED = "repo.update.required";
+    private static final Integer REPO_UPDATE_MIN_TIME_SECONDS = 300;
+    private static final Integer REPO_UPDATE_MAX_TIME_SECONDS = 900;
+    private static final Integer DEPLOYMENT_INTERVAL = 15;
 
     private static final Log log = LogFactory.getLog(CarbonDeploymentSchedulerTask.class);
     private int tenantId;
     private String tenantDomain;
     private boolean isInitialUpdateDone;
     private boolean isRepoUpdateFailed;
+    private Integer iterationsForNextRepoUpdate;
     private AxisConfiguration axisConfig;
 
     public CarbonDeploymentSchedulerTask(RepositoryListener listener,
@@ -64,6 +70,14 @@ public class CarbonDeploymentSchedulerTask extends SchedulerTask {
         this.tenantId = tenantId;
         this.tenantDomain = tenantDomain;
         this.axisConfig = axisConfig;
+
+        //for mandatory depsync update
+        this.iterationsForNextRepoUpdate = getIterationsNoForNextRepoUpdate();
+        if (log.isDebugEnabled()) {
+            log.debug("Initial artifact repository update is set to " +
+                      iterationsForNextRepoUpdate + " iterations. tenant : " + tenantDomain);
+        }
+
         try {
             axisConfig.addParameter(REPO_UPDATE_REQUIRED, new AtomicBoolean(false));
         } catch (AxisFault axisFault) {
@@ -178,16 +192,93 @@ public class CarbonDeploymentSchedulerTask extends SchedulerTask {
     }
 
     /**
-     * This method checks and returns whether the repo.update.required parameter is set to true.
-     * If the parameter is already set to false, then it will return false.
-     * The parameter is accessed and set in SynchronizeRepositoryRequest class.
-     * @return true or false based on comparing the current value of this parameter
+     * This method checks and returns whether the repo.update.required parameter is set or
+     * whether we need to do the mandatory repository sync in the current iteration of this
+     * periodic task.
+     *
+     * The repo.update.required parameter is accessed and set in SynchronizeRepositoryRequest class.
+     *
+     * Mandatory repo sync is calculated by using a flag that is decreasing in each iteration. When it
+     * reaches zero, it's time to do the update
+     *
+     * @return true if an update is required, false otherwise.
      */
     private boolean isRepoUpdateRequired() {
+        boolean updateRequired;
+
         AtomicBoolean value = (AtomicBoolean) axisConfig.getParameter(REPO_UPDATE_REQUIRED).getValue();
-        return value.compareAndSet(true, false);
+        updateRequired = value.compareAndSet(true, false);
+
+        if (iterationsForNextRepoUpdate-- <= 0) {
+            updateRequired = true;
+            //Randomize the next repo update iteration time
+            iterationsForNextRepoUpdate = getIterationsNoForNextRepoUpdate();
+            if (log.isDebugEnabled()) {
+                log.debug("Triggering the mandatory artifact synchronization. " +
+                          "Next sync is in " + iterationsForNextRepoUpdate + " iterations. " +
+                          "tenant : " + tenantDomain);
+            }
+        }
+
+        return updateRequired;
     }
 
+    /**
+     * This generates the number of iterations this scheduler need to run to do the mandatory
+     * repository sync.
+     * This gets the deployment time interval from carbon.xml, and use that to calculate the
+     * number of runs.
+     * <p/>
+     * Repo update happens in random intervals to reduce the overhead on the repo hosting server.
+     * But this is configuration not exposed to the users. Users can only configure the
+     * max recovery period via the configuration DeploymentSynchronizer.
+     * MandatoryRepositoryUpdateInterval in seconds in carbon.xml.
+     *
+     * @return the number of iterations that needs to run for the next sync.
+     */
+    private int getIterationsNoForNextRepoUpdate() {
+        //get the deployment interval from carbon.xml
+        int deploymentInterval = getParsedServerConfig("Axis2Config.DeploymentUpdateInterval", DEPLOYMENT_INTERVAL);
+        //this should be greater than REPO_UPDATE_MIN_TIME_SECONDS
+        int repoUpdateMaxSeconds = getParsedServerConfig("DeploymentSynchronizer.MandatoryRepositoryUpdateInterval",
+                                                         REPO_UPDATE_MAX_TIME_SECONDS);
+        int repoUpdateMinSeconds = REPO_UPDATE_MIN_TIME_SECONDS;
+
+        if (repoUpdateMaxSeconds <= repoUpdateMinSeconds) {
+            repoUpdateMaxSeconds = REPO_UPDATE_MAX_TIME_SECONDS;
+            log.warn("Artifact synchronization MandatoryRepositoryUpdateInterval should be greater than " +
+                     REPO_UPDATE_MIN_TIME_SECONDS + " seconds." + "Defaulting to "
+                     + REPO_UPDATE_MAX_TIME_SECONDS + " seconds.");
+        }
+
+        int wigglePeriod = repoUpdateMaxSeconds - repoUpdateMinSeconds;
+        double nextUpdateInSeconds = repoUpdateMinSeconds + new Random().nextInt(wigglePeriod);
+
+        //no. of iterationsForNextRepoUpdate
+        return (int) Math.ceil(nextUpdateInSeconds / deploymentInterval);
+    }
+
+
+    /**
+     * Read configurations from carbon.xml, and return
+     * parsed values as integers
+     *
+     * @param key          configuration key
+     * @param defaultValue default for the configuration if the config is missing
+     * @return parsed int values
+     */
+    private int getParsedServerConfig(String key, int defaultValue) {
+        ServerConfigurationService serverConfiguration =
+                CarbonCoreDataHolder.getInstance().getServerConfigurationService();
+        String valueString = serverConfiguration.getFirstProperty(key);
+        int value = defaultValue;
+
+        if (valueString != null) {
+            value = Integer.parseInt(valueString);
+        }
+
+        return value;
+    }
 
     private boolean deploymentSyncCommit() {
         if (log.isDebugEnabled()) {
