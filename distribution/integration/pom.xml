@@ -32,6 +32,7 @@
     <name>WSO2 Carbon - Integration</name>
     <modules>
         <module>security-verifier</module>
+        <module>axis2-sample-service</module>
         <module>core</module>
         <module>framework</module>
         <module>test-common</module>
