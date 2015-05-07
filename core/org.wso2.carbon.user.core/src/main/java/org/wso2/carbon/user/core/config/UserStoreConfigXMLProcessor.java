@@ -121,7 +121,9 @@ public class UserStoreConfigXMLProcessor {
             return buildUserStoreConfiguration(realmElement);
         } catch (Exception e) {
             String message = "Error while building user store manager from file";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new UserStoreException(message, e);
         }
 
@@ -285,6 +287,9 @@ public class UserStoreConfigXMLProcessor {
 
             return documentElement;
         } catch (CarbonException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             inStream.close();
