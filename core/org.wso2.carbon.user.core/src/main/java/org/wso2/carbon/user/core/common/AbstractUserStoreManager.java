@@ -406,8 +406,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException("Error while trying to check Tenant status for Tenant : "
-                    + tenantId, e);
+            String errorMessage = "Error while trying to check Tenant status for Tenant : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
 
         // We are here due to two reason. Either there is no secondary UserStoreManager or no
@@ -724,8 +727,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
             return;
         } else {
-            throw new UserStoreException(
-                    "Old credential does not match with the existing credentials.");
+            String errorMessage = "Old credential does not match with the existing credentials.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
     }
 
@@ -3365,7 +3371,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             this.maxRoleListCount = maxListCount;
             return this.maxRoleListCount;
         } else {
-            throw new UserStoreException("Invalid count parameter");
+            String errorMessage = "Invalid count parameter : " + type;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
     }
 
@@ -3472,7 +3482,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         String className = realmConfig.getUserStoreClass();
         if (className == null) {
             String errmsg = "Unable to add user store. UserStoreManager class name is null.";
-            log.error(errmsg);
+            if (log.isDebugEnabled()) {
+                log.debug(errmsg);
+            }
             throw new UserStoreException(errmsg);
         }
 
@@ -3540,12 +3552,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             } catch (NoSuchMethodException e) {
                 // cannot initialize in any of the methods. Throw exception.
                 String message = "Cannot initialize " + className + ". Error " + e.getMessage();
-                log.error(message);
-                throw new UserStoreException(message);
+                if (log.isDebugEnabled()) {
+                    log.debug(message, e);
+                }
+                throw new UserStoreException(message, e);
             }
 
         } catch (Throwable e) {
-            log.error("Cannot create " + className, e);
+            String errorMessage = "Cannot create " + className;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(e.getMessage() + "Type " + e.getClass(), e);
         }
 
@@ -3621,10 +3638,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public void removeSecondaryUserStoreManager(String userStoreDomainName) throws UserStoreException {
 
         if (userStoreDomainName == null) {
-            throw new UserStoreException("Cannot remove user store. User store domain name is null");
+            String errorMessage =
+                    "Cannot remove user store. User store domain name is null for : " + userStoreDomainName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
         if ("".equals(userStoreDomainName)) {
-            throw new UserStoreException("Cannot remove user store. User store domain name is empty");
+            String errorMessage =
+                    "Cannot remove user store. User store domain name is empty for : " + userStoreDomainName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
 //    	if(!this.userStoreManagerHolder.containsKey(userStoreDomainName.toUpperCase())) {
 //    		throw new UserStoreException("Cannot remove user store. User store domain name does not exists");
@@ -3656,9 +3683,19 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (!isUSMContainsInMap && isUSMConatainsInChain) {
-            throw new UserStoreException("Removed user store manager : " + userStoreDomainName + " didnt exists in userStoreManagerHolder map");
+            String errorMessage = "Removed user store manager : " + userStoreDomainName +
+                                  " didnt exists in userStoreManagerHolder map";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         } else if (isUSMContainsInMap && !isUSMConatainsInChain) {
-            throw new UserStoreException("Removed user store manager : " + userStoreDomainName + " didnt exists in user store manager chain");
+            String errorMessage =
+                    "Removed user store manager : " + userStoreDomainName + " didnt exists in user store manager chain";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
     }
 

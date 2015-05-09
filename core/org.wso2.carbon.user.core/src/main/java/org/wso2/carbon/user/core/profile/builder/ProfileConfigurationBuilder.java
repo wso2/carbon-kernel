@@ -77,7 +77,9 @@ public class ProfileConfigurationBuilder {
             Map<String, ProfileConfiguration> profileConfigs = profileDAO.loadProfileConfigs();
             return profileConfigs;
         } catch (UserStoreException e) {
-            log.error(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             throw new ProfileBuilderException(e.getMessage(), e);
         }
     }
@@ -97,7 +99,9 @@ public class ProfileConfigurationBuilder {
             element = getRootElement();
         } catch (Exception e) {
             message = "Error while reading profile configuration";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new ProfileBuilderException(message, e);
         }
 
@@ -156,7 +160,9 @@ public class ProfileConfigurationBuilder {
                 inStream.close();
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             throw new ProfileBuilderException(e.getMessage(), e);
         }
 

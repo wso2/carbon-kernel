@@ -55,8 +55,11 @@ public class ProfileConfigDAO {
             addProfileConfig(dbConnection, profileConfig);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            String errorMessage = "Database Error - " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeConnection(dbConnection);
         }
@@ -72,8 +75,11 @@ public class ProfileConfigDAO {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            String errorMessage = "Database Error - " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeConnection(dbConnection);
         }
@@ -88,8 +94,11 @@ public class ProfileConfigDAO {
             addProfileConfig(dbConnection, profileConfig);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            String errorMessage = "Database Error - " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeConnection(dbConnection);
 
@@ -104,8 +113,11 @@ public class ProfileConfigDAO {
             deleteProfileConfig(dbConnection, profileConfig.getProfileName(), profileConfig.getDialectName());
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            String errorMessage = "Database Error - " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeConnection(dbConnection);
         }
@@ -148,8 +160,11 @@ public class ProfileConfigDAO {
                 }
             }
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            String errorMessage = "Database Error - " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -206,8 +221,11 @@ public class ProfileConfigDAO {
                     UserCoreConstants.BEHAVIOUR_INHERITED, prepStmt);
             prepStmt.executeBatch();
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            String errorMessage = "Database Error - " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
@@ -245,8 +263,11 @@ public class ProfileConfigDAO {
 
             prepStmt.close();
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            String errorMessage = "Database Error - " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
@@ -265,8 +286,11 @@ public class ProfileConfigDAO {
                 map.put(claimuri, claimid);
             }
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            String errorMessage = "Database Error - " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }

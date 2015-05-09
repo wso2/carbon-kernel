@@ -164,7 +164,11 @@ public class DefaultRealm implements UserRealm {
                             + "Domain name is not defined");
                 }
             } catch (Exception e) {
-                log.error("Could not initialize secondary user store manager", e);
+                String errorMessage = "Could not initialize secondary user store manager";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
             }
         }
     }
@@ -267,10 +271,12 @@ public class DefaultRealm implements UserRealm {
 
                     } catch (Exception e) {
                         if (tmpRealmConfig.isPrimary()) {
-                            log.error(e.getMessage(), e);
-                            throw new UserStoreException(
-                                    "Cannot create connection to the primary user store. Error message "
-                                            + e.getMessage());
+                            String errorMessage = "Cannot create connection to the primary user store. Error message "
+                                                  + e.getMessage();
+                            if (log.isDebugEnabled()) {
+                                log.debug(errorMessage, e);
+                            }
+                            throw new UserStoreException(errorMessage, e);
                         } else {
                             log.warn("Could not initialize secondary user store manager", e);
                             tmpRealmConfig = tmpRealmConfig.getSecondaryRealmConfig();
@@ -292,9 +298,6 @@ public class DefaultRealm implements UserRealm {
             this.authzManager = (AuthorizationManager) createObjectWithOptions(value, realmConfig,
                     properties);
 
-        } catch (UserStoreException e) {
-            // all user store exceptions are logged at the place it is created.
-            throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new UserStoreException(e.getMessage(), e);
@@ -365,12 +368,17 @@ public class DefaultRealm implements UserRealm {
             } catch (NoSuchMethodException e) {
                 // cannot initialize in any of the methods. Throw exception.
                 String message = "Cannot initialize " + className + ". Error " + e.getMessage();
-                log.error(message);
-                throw new UserStoreException(message);
+                if (log.isDebugEnabled()) {
+                    log.debug(message, e);
+                }
+                throw new UserStoreException(message, e);
             }
 
         } catch (Throwable e) {
-            log.error("Cannot create " + className, e);
+            String errorMessage = "Cannot create " + className;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(e.getMessage() + "Type " + e.getClass(), e);
         }
 
@@ -389,8 +397,11 @@ public class DefaultRealm implements UserRealm {
                     .buildClaimMappingsFromConfigFile();
             return claimMapping;
         } catch (ClaimBuilderException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while loading default claim mapping";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 
@@ -402,8 +413,11 @@ public class DefaultRealm implements UserRealm {
                     .buildProfileConfigurationFromConfigFile();
             return profileConfig;
         } catch (ProfileBuilderException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while loading default profile configuration";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 
@@ -430,7 +444,9 @@ public class DefaultRealm implements UserRealm {
                         UserCoreConstants.INTERNAL_USERSTORE));
             } catch (ClaimBuilderException e) {
                 String msg = "Error in building claims.";
-                log.error(msg);
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
                 throw new UserStoreException(msg, e);
             }
 
