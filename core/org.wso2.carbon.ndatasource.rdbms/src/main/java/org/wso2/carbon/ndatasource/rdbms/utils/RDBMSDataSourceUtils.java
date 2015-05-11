@@ -202,8 +202,14 @@ public class RDBMSDataSourceUtils {
 		}
 		props.setDefaultCatalog(config.getDefaultCatalog());
 		props.setDriverClassName(config.getDriverClassName());
-		props.setUsername(config.getUsername());
-	    props.setPassword(config.getPassword());
+		String username = config.getUsername();
+		if (null != username && !("").equals(username)) {
+			props.setUsername(username);
+			String password = config.getPassword();
+			if (null != password && !("").equals(password)) {
+				props.setPassword(password);
+			}
+		}
 		if (config.getMaxActive() != null) {
 		    props.setMaxActive(config.getMaxActive());
 		}
