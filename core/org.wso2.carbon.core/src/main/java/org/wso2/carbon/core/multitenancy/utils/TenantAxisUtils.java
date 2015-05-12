@@ -322,6 +322,18 @@ public final class TenantAxisUtils {
                 httpsOutDescription.setSender(transportSender);
                 tenantAxisConfig.addTransportOut(httpsOutDescription);
 
+                //Adding JMS transport sender
+                TransportOutDescription jmsOutDescription = new TransportOutDescription(Constants.TRANSPORT_JMS);
+                jmsOutDescription.setSender(transportSender);
+                tenantAxisConfig.addTransportOut(jmsOutDescription);
+
+                //Adding VFS transport sender
+                //Can uncomment the following once axis2-kernel is release
+                //TransportOutDescription vfsOutDescription = new TransportOutDescription(Constants.TRANSPORT_VFS);
+                TransportOutDescription vfsOutDescription = new TransportOutDescription("vfs");
+                vfsOutDescription.setSender(transportSender);
+                tenantAxisConfig.addTransportOut(vfsOutDescription);                
+                
                 // Set the work directory
                 tenantConfigCtx.setProperty(ServerConstants.WORK_DIR,
                                             mainConfigCtx.getProperty(ServerConstants.WORK_DIR));
