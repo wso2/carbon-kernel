@@ -333,6 +333,13 @@ public final class TenantAxisUtils {
                 TransportOutDescription vfsOutDescription = new TransportOutDescription("vfs");
                 vfsOutDescription.setSender(transportSender);
                 tenantAxisConfig.addTransportOut(vfsOutDescription);                
+
+                //Adding RebbitMQ transport sender
+                //Can uncomment the following once axis2-kernel is release
+                //TransportOutDescription rabbitmqOutDescription = new TransportOutDescription(Constants.TRANSPORT_RABBITMQ);
+                TransportOutDescription rabbitmqOutDescription = new TransportOutDescription("rabbitmq");
+                rabbitmqOutDescription.setSender(transportSender);
+                tenantAxisConfig.addTransportOut(rabbitmqOutDescription);                 
                 
                 // Set the work directory
                 tenantConfigCtx.setProperty(ServerConstants.WORK_DIR,
