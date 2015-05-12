@@ -66,6 +66,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -311,36 +312,17 @@ public final class TenantAxisUtils {
                 tenantConfigCtx.setContextRoot("local:/");
 
                 TenantTransportSender transportSender = new TenantTransportSender(mainConfigCtx);
-                //adding new transport outs
-                // adding the two tenant specific transport senders
-                TransportOutDescription httpOutDescription = new TransportOutDescription(Constants.TRANSPORT_HTTP);
-                httpOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(httpOutDescription);
-
-                // adding the two tenant specific transport senders
-                TransportOutDescription httpsOutDescription = new TransportOutDescription(Constants.TRANSPORT_HTTPS);
-                httpsOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(httpsOutDescription);
-
-                //Adding JMS transport sender
-                TransportOutDescription jmsOutDescription = new TransportOutDescription(Constants.TRANSPORT_JMS);
-                jmsOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(jmsOutDescription);
-
-                //Adding VFS transport sender
-                //Can uncomment the following once axis2-kernel is release
-                //TransportOutDescription vfsOutDescription = new TransportOutDescription(Constants.TRANSPORT_VFS);
-                TransportOutDescription vfsOutDescription = new TransportOutDescription("vfs");
-                vfsOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(vfsOutDescription);                
-
-                //Adding RebbitMQ transport sender
-                //Can uncomment the following once axis2-kernel is release
-                //TransportOutDescription rabbitmqOutDescription = new TransportOutDescription(Constants.TRANSPORT_RABBITMQ);
-                TransportOutDescription rabbitmqOutDescription = new TransportOutDescription("rabbitmq");
-                rabbitmqOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(rabbitmqOutDescription);                 
                 
+                //Adding transport senders
+                HashMap<String, TransportOutDescription> transportSenders = mainAxisConfig.getTransportsOut();
+                if(transportSenders != null && !transportSenders.isEmpty()){
+               	 for(String strTransport:transportSenders.keySet()){
+                       TransportOutDescription outDescription = new TransportOutDescription(strTransport);
+                       outDescription.setSender(transportSender);
+                       tenantAxisConfig.addTransportOut(outDescription);                    			                   		 
+               	 }
+                }
+                                           
                 // Set the work directory
                 tenantConfigCtx.setProperty(ServerConstants.WORK_DIR,
                                             mainConfigCtx.getProperty(ServerConstants.WORK_DIR));
