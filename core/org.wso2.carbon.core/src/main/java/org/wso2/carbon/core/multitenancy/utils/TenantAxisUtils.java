@@ -318,7 +318,7 @@ public final class TenantAxisUtils {
                 if (transportSenders != null && !transportSenders.isEmpty()) {
                     for (String strTransport : transportSenders.keySet()) {
                         TransportOutDescription outDescription =
-						              new TransportOutDescription(strTransport);
+                                new TransportOutDescription(strTransport);
                         outDescription.setSender(transportSender);
                         tenantAxisConfig.addTransportOut(outDescription);
                     }
