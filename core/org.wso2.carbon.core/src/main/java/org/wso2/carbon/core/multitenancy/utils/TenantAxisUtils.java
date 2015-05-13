@@ -313,8 +313,8 @@ public final class TenantAxisUtils {
 
                 TenantTransportSender transportSender = new TenantTransportSender(mainConfigCtx);
                 // Adding transport senders
-				    HashMap<String, TransportOutDescription> transportSenders =
-				            mainAxisConfig.getTransportsOut();
+                HashMap<String, TransportOutDescription> transportSenders =
+                        mainAxisConfig.getTransportsOut();
                 if (transportSenders != null && !transportSenders.isEmpty()) {
                     for (String strTransport : transportSenders.keySet()) {
                         TransportOutDescription outDescription =
