@@ -312,17 +312,18 @@ public final class TenantAxisUtils {
                 tenantConfigCtx.setContextRoot("local:/");
 
                 TenantTransportSender transportSender = new TenantTransportSender(mainConfigCtx);
-                
-                //Adding transport senders
-                HashMap<String, TransportOutDescription> transportSenders = mainAxisConfig.getTransportsOut();
-                if(transportSenders != null && !transportSenders.isEmpty()){
-               	 for(String strTransport:transportSenders.keySet()){
-                       TransportOutDescription outDescription = new TransportOutDescription(strTransport);
-                       outDescription.setSender(transportSender);
-                       tenantAxisConfig.addTransportOut(outDescription);                    			                   		 
-               	 }
+                // Adding transport senders
+				    HashMap<String, TransportOutDescription> transportSenders =
+				            mainAxisConfig.getTransportsOut();
+                if (transportSenders != null && !transportSenders.isEmpty()) {
+                    for (String strTransport : transportSenders.keySet()) {
+                        TransportOutDescription outDescription =
+						              new TransportOutDescription(strTransport);
+                        outDescription.setSender(transportSender);
+                        tenantAxisConfig.addTransportOut(outDescription);
+                    }
                 }
-                                           
+
                 // Set the work directory
                 tenantConfigCtx.setProperty(ServerConstants.WORK_DIR,
                                             mainConfigCtx.getProperty(ServerConstants.WORK_DIR));
