@@ -1216,7 +1216,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throw new UserStoreException(errorMessage, e);
         }
         try {
-            dbConnection = getDBConnection();
             String sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER);
 
             String saltValue = null;
