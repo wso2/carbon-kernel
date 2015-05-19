@@ -195,8 +195,8 @@ public final class RegistryUtils {
             // The connection URL is unique enough to be used as an identifier since one thread
             // makes one connection to the given URL according to our model.
             DatabaseMetaData connectionMetaData = connection.getMetaData();
-            String productName = connectionMetaData.getDatabaseProductName();
             if (connectionMetaData != null) {
+                String productName = connectionMetaData.getDatabaseProductName();
                 if (MY_SQL_PRODUCT_NAME.equals(productName)) {
                     /*
                      For MySQL getUserName() method executes 'SELECT USER()' query on DB via mysql connector
@@ -205,10 +205,10 @@ public final class RegistryUtils {
                      */
                     connectionId = connectionMetaData.getURL();
                 } else {
-                    connectionId = connectionMetaData.getUserName() + "@" + connectionMetaData.getURL();
+                    connectionId =
+                            (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
+                                    connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
                 }
-                return (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
-                        connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
             }
         } catch (SQLException e) {
             log.error("Failed to construct the connectionId.", e);
