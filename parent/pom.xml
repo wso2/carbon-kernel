@@ -307,7 +307,7 @@
 
         <!-- Apache Axis2 -->
         <version.axis2>1.6.1-wso2v12</version.axis2>
-        <orbit.version.axis2>1.6.1.wso2v12</orbit.version.axis2>
+        <orbit.version.axis2>1.6.2.wso2v13-SNAPSHOT</orbit.version.axis2>
         <axis2.client.osgi.version>1.6.1.wso2v12</axis2.client.osgi.version>
         <axis2.osgi.version>1.6.1.wso2v12</axis2.osgi.version>
         <axis2.osgi.version.range>[1.6.1.wso2v12, 1.7.0)</axis2.osgi.version.range>
