@@ -16,24 +16,6 @@
  *  under the License.
  *
  */
-/*
- *  Copyright (c) 2005-2009, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
- */
 package org.wso2.carbon.core.multitenancy.utils;
 
 import org.apache.axis2.AxisFault;
@@ -51,6 +33,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.multitenancy.TenantAxisConfigurator;
+import org.wso2.carbon.core.multitenancy.eager.TenantEagerLoader;
 import org.wso2.carbon.core.multitenancy.transports.DummyTransportListener;
 import org.wso2.carbon.core.multitenancy.transports.TenantTransportInDescription;
 import org.wso2.carbon.core.multitenancy.transports.TenantTransportSender;
@@ -425,34 +408,38 @@ public final class TenantAxisUtils {
         }
         Map<String, ConfigurationContext> tenantConfigContexts =
                 getTenantConfigurationContexts(mainServerConfigContext);
+        ArrayList<String> eagerLoadedTenants = TenantEagerLoader.getEagerLoadingTenantList();
         for (Map.Entry<String, ConfigurationContext> entry : tenantConfigContexts.entrySet()) {
             String tenantDomain = entry.getKey();
-            synchronized (tenantDomain.intern()) {
-                ConfigurationContext tenantCfgCtx = entry.getValue();
-                Long lastAccessed =
-                        (Long) tenantCfgCtx.getProperty(MultitenantConstants.LAST_ACCESSED);
-                if (System.currentTimeMillis() - lastAccessed >= tenantIdleTimeMillis) {
-                    // Get the write lock.
-                    Lock tenantWriteLock = tenantReadWriteLocks.get(tenantDomain).writeLock();
-                    tenantWriteLock.lock();
-                    try {
-                        lastAccessed = (Long) tenantCfgCtx.getProperty(MultitenantConstants.LAST_ACCESSED);
-                        if (System.currentTimeMillis() - lastAccessed >= tenantIdleTimeMillis) {
-                            try {
-                                PrivilegedCarbonContext.startTenantFlow();
-                                // Creating CarbonContext object for these threads.
-                                PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
-                                carbonContext.setTenantDomain(tenantDomain, true);
+            // Only unload the tenant if it's not in EagerLoading tenant list
+            if (!eagerLoadedTenants.contains(tenantDomain)) {
+                synchronized (tenantDomain.intern()) {
+                    ConfigurationContext tenantCfgCtx = entry.getValue();
+                    Long lastAccessed =
+                            (Long) tenantCfgCtx.getProperty(MultitenantConstants.LAST_ACCESSED);
+                    if (System.currentTimeMillis() - lastAccessed >= tenantIdleTimeMillis) {
+                        // Get the write lock.
+                        Lock tenantWriteLock = tenantReadWriteLocks.get(tenantDomain).writeLock();
+                        tenantWriteLock.lock();
+                        try {
+                            lastAccessed = (Long) tenantCfgCtx.getProperty(MultitenantConstants.LAST_ACCESSED);
+                            if (System.currentTimeMillis() - lastAccessed >= tenantIdleTimeMillis) {
+                                try {
+                                    PrivilegedCarbonContext.startTenantFlow();
+                                    // Creating CarbonContext object for these threads.
+                                    PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                                    carbonContext.setTenantDomain(tenantDomain, true);
 
-                                // Terminating idle tenant configuration contexts.
-                                terminateTenantConfigContext(tenantCfgCtx);
-                                tenantConfigContexts.remove(tenantDomain);
-                            } finally {
-                                PrivilegedCarbonContext.endTenantFlow();
+                                    // Terminating idle tenant configuration contexts.
+                                    terminateTenantConfigContext(tenantCfgCtx);
+                                    tenantConfigContexts.remove(tenantDomain);
+                                } finally {
+                                    PrivilegedCarbonContext.endTenantFlow();
+                                }
                             }
+                        } finally {
+                            tenantWriteLock.unlock();
                         }
-                    } finally {
-                        tenantWriteLock.unlock();
                     }
                 }
             }
