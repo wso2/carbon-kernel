@@ -2977,37 +2977,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         return m2.matches();
     }
 
-    /**
-     * This is to replace escape characters in user name at user login if replace escape characters
-     * enabled in user-mgt.xml. Some User Stores like ApacheDS stores user names by replacing escape
-     * characters. In that case, we have to parse the username accordingly.
-     *
-     * @param userName
-     */
-    protected String replaceEscapeCharacters(String userName) {
-
-        if (log.isDebugEnabled()) {
-            log.debug("Replacing escape characters in " + userName);
-        }
-        String replaceEscapeCharactersAtUserLoginString = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
-
-        if (replaceEscapeCharactersAtUserLoginString != null) {
-            replaceEscapeCharactersAtUserLogin = Boolean
-                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
-            if (log.isDebugEnabled()) {
-                log.debug("Replace escape characters at userlogin is configured to: "
-                        + replaceEscapeCharactersAtUserLoginString);
-            }
-            if (replaceEscapeCharactersAtUserLogin) {
-                // Currently only '\' & '\\' are identified as escape characters
-                // that needs to be
-                // replaced.
-                return userName.replaceAll("\\\\", "\\\\\\\\");
-            }
-        }
-        return userName;
-    }
 
     /**
      * TODO: Remove this method. We should not use DTOs

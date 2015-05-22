@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 /**
  * This class is capable of get connected to an external or internal LDAP based user store in
@@ -77,6 +78,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     protected static final String KRB5_PRINCIPAL_NAME_ATTRIBUTE = "krb5PrincipalName";
     protected static final String KRB5_KEY_VERSION_NUMBER_ATTRIBUTE = "krb5KeyVersionNumber";
     protected static final String EMPTY_ATTRIBUTE_STRING = "";
+    protected static final String MULTIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
+    protected static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     /* To track whether this is the first time startup of the server. */
     protected static boolean isFirstStartup = true;
     private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
@@ -84,6 +87,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     protected Random random = new Random();
 
     protected boolean kdcEnabled = false;
+
+    protected String userAttributeSeparator = ",";
 
     public ReadWriteLDAPUserStoreManager() {
 
@@ -247,7 +252,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             NameParser ldapParser = dirContext.getNameParser("");
             Name compoundName = ldapParser.parse(realmConfig
-                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + userName);
+                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + escapeUsernameSpecialCharacters(userName, true));
 
             if (log.isDebugEnabled()) {
                 log.debug("Binding user: " + compoundName);
@@ -483,7 +488,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         DirContext mainDirContext = this.connectionSource.getContext();
 
-        NamingEnumeration<SearchResult> userResults = searchInUserBase(searchFilter,
+        NamingEnumeration<SearchResult> userResults = searchInUserBase(userName, searchFilter,
                 returningUserAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext);
         NamingEnumeration<SearchResult> groupResults = null;
 
@@ -595,7 +600,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         NamingEnumeration passwords = null;
 
         try {
-            namingEnumeration = dirContext.search(searchBase, searchFilter, searchControls);
+            namingEnumeration = dirContext.search(searchBase,
+                    escapeLDAPSearchFilter(userName, searchFilter), searchControls);
             // here we assume only one user
             // TODO: what to do if there are more than one user
             SearchResult searchResult = null;
@@ -661,7 +667,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         NamingEnumeration passwords = null;
 
         try {
-            namingEnumeration = dirContext.search(searchBase, searchFilter, searchControls);
+            namingEnumeration = dirContext.search(searchBase,
+                    escapeLDAPSearchFilter(userName, searchFilter), searchControls);
             // here we assume only one user
             // TODO: what to do if there are more than one user
             // there can be only only on user
@@ -810,8 +817,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String returnedUserEntry = null;
 
         try {
-            returnedResultList = dirContext
-                    .search(userSearchBase, userSearchFilter, searchControls);
+            returnedResultList = dirContext.search(userSearchBase,
+                    escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
@@ -869,12 +876,22 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
                     currentUpdatedAttribute.clear();
                 } else {
-                    if (claimEntry.getValue() != null && claimEntry.getValue().contains(",")) {
-                        String[] values = claimEntry.getValue().split(",");
-                        for (String newValue : values) {
-                            if (newValue != null && newValue.trim().length() > 0) {
-                                currentUpdatedAttribute.add(newValue.trim());
+                    if (claimEntry.getValue() != null && !attributeName.equals("uid") && !attributeName.equals("sn")) {
+                        String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                        if (claimSeparator != null || claimSeparator.length() == 0) {
+                            userAttributeSeparator = claimSeparator;
+                        }
+                        if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULTIPLE_ATTRIBUTE_ENABLE))
+                                && claimEntry.getValue().contains(userAttributeSeparator)) {
+                            StringTokenizer st = new StringTokenizer(claimEntry.getValue(), userAttributeSeparator);
+                            while (st.hasMoreElements()) {
+                                String newVal = st.nextElement().toString();
+                                if (newVal != null && newVal.trim().length() > 0) {
+                                    currentUpdatedAttribute.add(newVal.trim());
+                                }
                             }
+                        } else {
+                            currentUpdatedAttribute.add(claimEntry.getValue());
                         }
                     } else {
                         currentUpdatedAttribute.add(claimEntry.getValue());
@@ -926,7 +943,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         try {
 
             returnedResultList = dirContext
-                    .search(userSearchBase, userSearchFilter, searchControls);
+                    .search(userSearchBase, escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
@@ -954,15 +971,26 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
-                if (value.contains(",")) {
-                    String[] values = value.split(",");
-                    for (String newValue : values) {
-                        if (newValue != null && newValue.trim().length() > 0) {
-                            currentUpdatedAttribute.add(newValue.trim());
-                        }
-                    }
-                } else {
+                if (attributeName.equals("uid") || attributeName.equals("sn")) {
                     currentUpdatedAttribute.add(value);
+                } else {
+                    String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                    if (claimSeparator != null || claimSeparator.length() == 0) {
+                        userAttributeSeparator = claimSeparator;
+                    }
+
+                    if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULTIPLE_ATTRIBUTE_ENABLE))
+                            && value.contains(userAttributeSeparator)) {
+                        StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
+                        while (st.hasMoreElements()) {
+                            String newVal = st.nextElement().toString();
+                            if (newVal != null && newVal.trim().length() > 0) {
+                                currentUpdatedAttribute.add(newVal.trim());
+                            }
+                        }
+                    } else {
+                        currentUpdatedAttribute.add(value);
+                    }
                 }
             }
             updatedAttributes.put(currentUpdatedAttribute);
@@ -1006,7 +1034,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         try {
 
             returnedResultList = dirContext
-                    .search(userSearchBase, userSearchFilter, searchControls);
+                    .search(userSearchBase, escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
@@ -1066,7 +1094,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         try {
 
             returnedResultList = dirContext
-                    .search(userSearchBase, userSearchFilter, searchControls);
+                    .search(userSearchBase, escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
@@ -1177,7 +1205,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         String searchFilter = realmConfig
                                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
                         searchFilter = searchFilter.replace("?", userName);
-                        results = searchInUserBase(searchFilter, new String[]{},
+                        results = searchInUserBase(userName, searchFilter, new String[]{},
                                 SearchControls.SUBTREE_SCOPE, mainDirContext);
                         // we assume only one user with the given user
                         // name under user search base.
@@ -1314,7 +1342,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             resultedGroup = groupResults.next();
                             groupDN = resultedGroup.getName();
                         }
-                        this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
+                        this.modifyUserInRole(userName, userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
                                 searchBase);
 
                         JNDIUtil.closeNamingEnumeration(groupResults);
@@ -1356,7 +1384,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             groupDN = resultedGroup.getName();
                         }
                         if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
-                            modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
+                            modifyUserInRole(userName, userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
                                     searchBase);
                         } else {
                             errorMessage =
@@ -1442,8 +1470,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     throw new UserStoreException(errorMessage);
 
                 } else {
-                    List<String> newUserList = new ArrayList<String>();
-                    List<String> deleteUserList = new ArrayList<String>();
+                    Map<String, String> newUserList = new HashMap<String, String>();
+                    Map<String, String> delUserList = new HashMap<String, String>();
 
                     if (newUsers != null && newUsers.length != 0) {
                         String invalidUserList = "";
@@ -1459,7 +1487,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             } else if (isUserInRole(userNameDN, resultedGroup)) {
                                 existingUserList += userNameDN + ",";
                             } else {
-                                newUserList.add(userNameDN);
+                                newUserList.put(newUser, userNameDN);
                             }
                         }
                         if (!StringUtils.isEmpty(invalidUserList) || !StringUtils.isEmpty(existingUserList)) {
@@ -1481,7 +1509,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             if (userNameDN == null) {
                                 invalidUserList += deletedUser + ",";
                             } else {
-                                deleteUserList.add(userNameDN);
+                                delUserList.put(deletedUser, userNameDN);
                             }
                         }
                         if (!StringUtils.isEmpty(invalidUserList)) {
@@ -1491,14 +1519,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
                     }
 
-                    for (String userNameDN : newUserList) {
-                        modifyUserInRole(userNameDN, groupName, DirContext.ADD_ATTRIBUTE, searchBase);
+                    for (Map.Entry<String, String> newUser : newUserList.entrySet()){
+                        modifyUserInRole(newUser.getKey(), newUser.getValue(), groupName,
+                                DirContext.ADD_ATTRIBUTE, searchBase);
                     }
 
-                    for (String userNameDN : deleteUserList) {
-                        modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE, searchBase);
+                    for (Map.Entry<String, String> deletedUser : delUserList.entrySet()){
+                        modifyUserInRole(deletedUser.getKey(), deletedUser.getValue(), groupName, DirContext.REMOVE_ATTRIBUTE, searchBase);
                         // needs to clear authz cache for deleted users
-                        userRealm.getAuthorizationManager().clearUserAuthorization(userNameDN);
+                        userRealm.getAuthorizationManager().clearUserAuthorization(deletedUser.getValue());
                     }
                 }
             } catch (NamingException e) {
@@ -1523,12 +1552,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     /**
      * Either delete or add user from/to group.
      *
+     * @param userName
      * @param userNameDN : distinguish name of user entry.
      * @param groupRDN   : relative distinguish name of group entry
      * @param modifyType : modify attribute type in DirCOntext.
      * @throws UserStoreException
      */
-    protected void modifyUserInRole(String userNameDN, String groupRDN, int modifyType, String searchBase)
+    protected void modifyUserInRole(String userName, String userNameDN, String groupRDN, int modifyType, String searchBase)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -1544,7 +1574,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
             Attributes modifyingAttributes = new BasicAttributes(true);
             Attribute memberAttribute = new BasicAttribute(memberAttributeName);
-            memberAttribute.add(userNameDN);
+            memberAttribute.add(replaceEscapeCharacters(userName, userNameDN, true));
             modifyingAttributes.put(memberAttribute);
 
             groupContext.modifyAttributes(groupRDN, modifyType, modifyingAttributes);
@@ -1791,7 +1821,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
      * @param searchScope
      * @return
      */
-    private NamingEnumeration<SearchResult> searchInUserBase(String searchFilter,
+    private NamingEnumeration<SearchResult> searchInUserBase(String userName, String searchFilter,
                                                              String[] returningAttributes, int searchScope, DirContext rootContext)
             throws UserStoreException {
 
@@ -1805,7 +1835,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         NamingEnumeration<SearchResult> userSearchResults = null;
 
         try {
-            userSearchResults = rootContext.search(userBase, searchFilter, userSearchControl);
+            userSearchResults = rootContext.search(userBase,
+                    escapeLDAPSearchFilter(userName, searchFilter), userSearchControl);
         } catch (NamingException e) {
             String errorMessage = "Error occurred while searching in user base.";
             if (log.isDebugEnabled()) {

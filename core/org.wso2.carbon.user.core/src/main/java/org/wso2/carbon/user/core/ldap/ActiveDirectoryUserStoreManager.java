@@ -48,6 +48,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * This class is responsible for manipulating Microsoft Active Directory(AD)and Active Directory
@@ -534,12 +535,22 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
                     currentUpdatedAttribute.clear();
                 } else {
-                    if (claimEntry.getValue() != null && claimEntry.getValue().contains(",")) {
-                        String[] values = claimEntry.getValue().split(",");
-                        for (String newValue : values) {
-                            if (newValue != null && newValue.trim().length() > 0) {
-                                currentUpdatedAttribute.add(newValue.trim());
+                    if (claimEntry.getValue() != null) {
+                        String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                        if (claimSeparator != null || claimSeparator.length() == 0) {
+                            userAttributeSeparator = claimSeparator;
+                        }
+                        if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULTIPLE_ATTRIBUTE_ENABLE))
+                                && claimEntry.getValue().contains(userAttributeSeparator)) {
+                            StringTokenizer st = new StringTokenizer(claimEntry.getValue(), userAttributeSeparator);
+                            while (st.hasMoreElements()) {
+                                String newVal = st.nextElement().toString();
+                                if (newVal != null && newVal.trim().length() > 0) {
+                                    currentUpdatedAttribute.add(newVal.trim());
+                                }
                             }
+                        } else {
+                            currentUpdatedAttribute.add(claimEntry.getValue());
                         }
                     } else {
                         currentUpdatedAttribute.add(claimEntry.getValue());
@@ -621,11 +632,17 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
-                if (value.contains(",")) {
-                    String[] values = value.split(",");
-                    for (String newValue : values) {
-                        if (newValue != null && newValue.trim().length() > 0) {
-                            currentUpdatedAttribute.add(newValue.trim());
+                String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                if (claimSeparator != null || claimSeparator.length() == 0) {
+                    userAttributeSeparator = claimSeparator;
+                }
+                if (Boolean.parseBoolean(realmConfig.getUserStoreProperty(MULTIPLE_ATTRIBUTE_ENABLE))
+                        && value.contains(userAttributeSeparator)) {
+                    StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
+                    while (st.hasMoreElements()) {
+                        String newVal = st.nextElement().toString();
+                        if (newVal != null && newVal.trim().length() > 0) {
+                            currentUpdatedAttribute.add(newVal.trim());
                         }
                     }
                 } else {
