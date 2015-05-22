@@ -40,6 +40,7 @@ public class CARBON15203GSONBuilderOrderTestCase extends CarbonIntegrationBaseTe
 
     private static final Log log = LogFactory.getLog(CARBON15203GSONBuilderOrderTestCase.class);
     private static int portOffset = 28;
+    private static final long TIMEOUT = 5 * 60000;
     private CarbonTestServerManager serverManager;
     private AutomationContext context;
     private String carbonHome;
@@ -98,6 +99,7 @@ public class CARBON15203GSONBuilderOrderTestCase extends CarbonIntegrationBaseTe
     }
 
     private void restartServer() throws Exception {
+        Thread.sleep(5000);
         ClientConnectionUtil.waitForPort(Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset,
                                          context.getInstance().getHosts().get("default"));
         ServerAdminClient serverAdminClient = new ServerAdminClient(
@@ -105,7 +107,12 @@ public class CARBON15203GSONBuilderOrderTestCase extends CarbonIntegrationBaseTe
                 (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset) +
                 "/services/ServerAdmin/", context.getSuperTenant().getTenantAdmin().getUserName(),
                 context.getSuperTenant().getTenantAdmin().getPassword());
-        serverAdminClient.restart();
+        serverAdminClient.restartGracefully();
+        Thread.sleep(5000);
+        ClientConnectionUtil
+                .waitForPort(Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset, TIMEOUT, true,
+                             context.getInstance().getHosts().get("default"));
+        Thread.sleep(5000);
     }
 
     private void uploadApp() throws Exception {
