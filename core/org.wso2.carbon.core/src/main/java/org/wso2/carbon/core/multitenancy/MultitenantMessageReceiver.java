@@ -421,9 +421,11 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             MessageContext mainOutMsgContext =
                     MessageContextBuilder.createOutMessageContext(mainInMsgContext);
             mainOutMsgContext.getOperationContext().addMessageContext(mainOutMsgContext);
+            mainOutMsgContext.setAxisOperation(tenantOutMsgContext.getAxisOperation());
+            mainOutMsgContext.getOperationContext().addMessageContext(tenantOutMsgContext);
             mainOutMsgContext.setEnvelope(tenantOutMsgContext.getEnvelope());
-	    mainOutMsgContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
-                  tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
+            mainOutMsgContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
+                                          tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
             AxisEngine.send(mainOutMsgContext);
         }
     }
