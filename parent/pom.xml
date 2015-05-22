@@ -459,6 +459,7 @@
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
 
+        <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
 
     </properties>
 
@@ -1509,6 +1510,11 @@
                 <version>${woden.api.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${version.com.google.code.gson}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
