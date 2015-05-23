@@ -868,6 +868,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         uidName = uidNames[1];
                         claimEntry.setValue(uidName);
                     }
+//                    claimEntry.setValue(escapeISSpecialCharacters(uidName));
                 }
                 Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
 				/* if updated attribute value is null, remove its values. */
@@ -989,6 +990,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     } else {
                         currentUpdatedAttribute.add(value);
                     }
+
                 }
             }
             updatedAttributes.put(currentUpdatedAttribute);
@@ -1582,7 +1584,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } catch (NamingException e) {
             String errorMessage = "Error occurred while modifying user entry: " + userNameDN
                     + " in LDAP role: " + groupRDN;
-            log.error("LDAP Error", e);
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage);
         } finally {
             JNDIUtil.closeContext(groupContext);
@@ -1621,9 +1625,14 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             groupContext.modifyAttributes(groupRDN, modifyType, modifyingAttributes);
             if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
+                logger.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: "
+                        + groupRDN);
             }
-            throw new UserStoreException(errorMessage, e);
+        } catch (NamingException e) {
+            String errorMessage = "Error occurred while modifying user entry: " + userNameDN
+                    + " in LDAP role: " + groupRDN;
+            log.error("LDAP Error", e);
+            throw new UserStoreException(errorMessage);
         } finally {
             JNDIUtil.closeContext(groupContext);
             JNDIUtil.closeContext(mainDirContext);
@@ -1847,6 +1856,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             deleteLDAPRole(roleContext);
         }
     }
+
 
     /**
      * Reused methods to search users with various filters
@@ -2213,5 +2223,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
         return filter;
     }
+
 
 }
