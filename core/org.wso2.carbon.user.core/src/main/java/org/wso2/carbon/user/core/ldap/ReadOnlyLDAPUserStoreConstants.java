@@ -28,6 +28,10 @@ public class ReadOnlyLDAPUserStoreConstants {
     public static final ArrayList<Property> ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTIONAL_ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
 
+    //For multiple attribute separation
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+
     static {
         setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "uid=," +
                 "ou=", UserStoreConfigConstants.connectionNameDescription, false);
@@ -77,6 +81,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member", UserStoreConfigConstants.membershipAttributeDescription);
         setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "", UserStoreConfigConstants.memberOfAttribute);
+        setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
 
 //      LDAP Specific Properties

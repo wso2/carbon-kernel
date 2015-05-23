@@ -28,6 +28,11 @@ public class ActiveDirectoryUserStoreConstants {
     public static final ArrayList<Property> ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
 
+    //For multiple attribute separation
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+
+
     static {
         setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "CN=," +
                 "DC=", UserStoreConfigConstants.connectionNameDescription, false);
@@ -54,6 +59,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
         setProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants.SCIMEnabledDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
+        setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
         Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "true", "Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription, null);
         //Mandatory only if readGroups is enabled
