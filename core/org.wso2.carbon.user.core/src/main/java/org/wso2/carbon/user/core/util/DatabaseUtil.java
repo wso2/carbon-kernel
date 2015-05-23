@@ -262,9 +262,11 @@ public class DatabaseUtil {
             }
             return values;
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
@@ -305,9 +307,11 @@ public class DatabaseUtil {
             }
             return values;
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
@@ -338,9 +342,11 @@ public class DatabaseUtil {
             }
             return value;
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, rs, prepStmt);
         }
@@ -397,9 +403,11 @@ public class DatabaseUtil {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);
@@ -441,9 +449,11 @@ public class DatabaseUtil {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);
@@ -490,9 +500,11 @@ public class DatabaseUtil {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             if (localConnection) {
                 DatabaseUtil.closeAllConnections(dbConnection);
@@ -532,9 +544,11 @@ public class DatabaseUtil {
                         + count);
             }*/
         } catch (SQLException e) {
-            log.error("Error! " + e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException("Error! " + e.getMessage(), e);
+            String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
