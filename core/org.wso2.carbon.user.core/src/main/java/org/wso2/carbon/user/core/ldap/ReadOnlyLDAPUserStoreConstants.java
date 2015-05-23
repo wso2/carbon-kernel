@@ -85,8 +85,6 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "", "", "");
-        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
-                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
 
     }
 

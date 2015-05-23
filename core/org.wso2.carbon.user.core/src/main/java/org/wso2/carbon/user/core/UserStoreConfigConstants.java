@@ -37,9 +37,6 @@ public class UserStoreConfigConstants {
     public static final String SCIMEnabled = "SCIMEnabled";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
 
-    // JDBC User Store Specific Properties
-    public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
-    public static final String CASE_INSENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case insensitive or not";
 
     //Mandatory to LDAP user stores
     public static final String connectionURL = "ConnectionURL";

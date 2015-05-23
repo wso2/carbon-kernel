@@ -56,8 +56,6 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
         setProperty(UserStoreConfigConstants.SCIMEnabled, "SCIM Enabled", "false", UserStoreConfigConstants.SCIMEnabledDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
-        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
-                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
 
         Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "true", "Enable Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription, null);
         //Mandatory only if readGroups is enabled

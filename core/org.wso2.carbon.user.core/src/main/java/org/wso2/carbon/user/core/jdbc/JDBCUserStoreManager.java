@@ -871,8 +871,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 String value = rs.getString(2);
                 if (Arrays.binarySearch(propertyNamesSorted, name) < 0) {
                     continue;
-                } else if(value == null || value.isEmpty()){
-                    continue;
                 }
                 map.put(name, value);
             }
@@ -2206,9 +2204,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 value = rs.getString(1);
-                if(value == null){ // all DBs store empty String except Oracle which stores NULL
-                    value = "";
-                }
             }
             return value;
         } catch (SQLException e) {
