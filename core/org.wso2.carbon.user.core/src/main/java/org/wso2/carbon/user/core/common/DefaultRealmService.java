@@ -161,7 +161,7 @@ public class DefaultRealmService implements RealmService {
                             bootstrapRealmConfig, tenantRealmConfig, tenantId);
                 }
 
-                synchronized (this) {
+                synchronized (tenant.getDomain().intern()) {
                     userRealm = initializeRealm(tenantRealmConfig, tenantId);
                     realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
                 }
@@ -201,7 +201,16 @@ public class DefaultRealmService implements RealmService {
                 tenantRealmConfig = realmConfigBuilder.getRealmConfigForTenantToCreateRealm(
                         bootstrapRealmConfig, tenantRealmConfig, tenantId);
             }
-            synchronized (this) {
+
+            String tenantDomain = null;
+            try {
+                tenantDomain = tenantManager.getDomain(tenantId);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Error occurred while retrieving tenant domain from tenant Id " +
+                        tenantId);
+            }
+
+            synchronized (tenantDomain.intern()) {
                 userRealm = initializeRealm(tenantRealmConfig, tenantId);
                 realmCache.addToCache(tenantId, PRIMARY_TENANT_REALM, userRealm);
             }

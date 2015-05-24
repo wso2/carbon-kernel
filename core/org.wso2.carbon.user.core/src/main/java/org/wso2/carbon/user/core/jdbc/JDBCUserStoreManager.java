@@ -910,6 +910,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 String value = rs.getString(2);
                 if (Arrays.binarySearch(propertyNamesSorted, name) < 0) {
                     continue;
+                } else if(value == null || value.isEmpty()){
+                    continue;
                 }
                 map.put(name, value);
             }
@@ -2087,13 +2089,13 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String password = this.preparePassword((String) newCredential, saltValue);
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue == null) {
-            updateStringValuesToDatabase(null, sqlStmt, password, false, new Date(), userName,
+            updateStringValuesToDatabase(null, sqlStmt, password, "", false, new Date(), userName,
                     tenantId);
         } else if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue != null) {
             updateStringValuesToDatabase(null, sqlStmt, password, saltValue, false, new Date(),
                     userName, tenantId);
         } else if (!sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue == null) {
-            updateStringValuesToDatabase(null, sqlStmt, password, false, new Date(), userName);
+            updateStringValuesToDatabase(null, sqlStmt, password, "", false, new Date(), userName);
         } else {
             updateStringValuesToDatabase(null, sqlStmt, password, saltValue, false, new Date(),
                     userName);
@@ -2329,6 +2331,9 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             rs = prepStmt.executeQuery();
             while (rs.next()) {
                 value = rs.getString(1);
+                if(value == null){ // all DBs store empty String except Oracle which stores NULL
+                    value = "";
+                }
             }
             return value;
         } catch (SQLException e) {
