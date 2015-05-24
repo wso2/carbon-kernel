@@ -36,6 +36,8 @@ public class UserStoreConfigConstants {
     public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the role list of a user";
     public static final String SCIMEnabled = "SCIMEnabled";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
+    public static final String DisplayNameAttribute = "DisplayNameAttribute";
+    public static final String DisplayNameAttributeDescription = "Attribute name to display as the Display Name";
     public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     public static final String CASE_INSENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case insensitive or not";
 
