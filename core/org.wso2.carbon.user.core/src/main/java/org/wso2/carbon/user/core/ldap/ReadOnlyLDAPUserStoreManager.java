@@ -356,7 +356,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             String[] userDNPatternList = patterns.split("#");
             if (userDNPatternList.length > 0) {
                 for (String userDNPattern : userDNPatternList) {
-                    name = MessageFormat.format(userDNPattern, userName);
+                    name = MessageFormat.format(userDNPattern,
+                                                escapeUsernameSpecialCharacters(userName,true));
                     if (debug) {
                         log.debug("Authenticating with " + name);
                     }
@@ -478,7 +479,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
                 try {
-                    answer = dirContext.search(replaceEscapeCharacters(userName, userDN, false),
+                    answer = dirContext.search(userDN,
                             escapeLDAPSearchFilter(userName, searchFilter), searchCtls);
                 } catch (NamingException e) {
                     String errorMessage = "Error occurred while searching directory context for user : " + userName;
@@ -1033,7 +1034,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         LdapContext cxt = null;
         try {
             // cxt = new InitialLdapContext(env, null);
-            cxt = this.connectionSource.getContextWithCredentials(replaceEscapeCharacters(userName, dn, true), credentials);
+            cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
             isAuthed = true;
         } catch (AuthenticationException e) {
 			/*
@@ -1997,14 +1998,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (answer.hasMore()) {
                     userObj = (SearchResult) answer.next();
                     if (userObj != null) {
-                        userDN = userObj.getNameInNamespace().replace("\\\\", "\\")
-                                .replace("\\+", "+")
-                                .replace("\\,", ",")
-                                .replace("\\;", ";")
-                                .replace("\\>", ">")
-                                .replace("\\<", "<")
-                                .replace("\\\"", "\""); //reverting LDAP escapes before writing the DN to cache
-//                        userDN = decodeEscapedCharacters(userDN); //reverting IS special character encoding before writing the DN to cache
+                        //no need to decode since , if decoded the whole string, can't be encoded again
+                        //eg CN=Hello\,Ok=test\,test, OU=Industry
+                        userDN = userObj.getNameInNamespace();
                         break;
                     }
                 }
