@@ -3,9 +3,9 @@
 <suite name="carbon-server-features-test-suite">
     <parameter name="useDefaultListeners" value="false"/>
 
-    <test name="" preserve-order="true" parallel="false">
-
+    <test name="Jira-Issues-Test" preserve-order="false" verbose="2">
+        <packages>
+            <package name="org.wso2.carbon.integration.jira.issues.test"/>
+        </packages>
     </test>
-
-
 </suite>
