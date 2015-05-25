@@ -48,6 +48,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * This class is responsible for manipulating Microsoft Active Directory(AD)and Active Directory
@@ -60,7 +61,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     private boolean isADLDSRole = false;
     private boolean isSSLConnection = false;
     private String userAccountControl = "512";
-
+    private String userAttributeSeparator = ",";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
     public ActiveDirectoryUserStoreManager() {
 
@@ -137,7 +139,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         Name compoundName = null;
         try {
             NameParser ldapParser = dirContext.getNameParser("");
-            compoundName = ldapParser.parse("cn=" + userName);
+            compoundName = ldapParser.parse("cn=" + escapeUsernameSpecialCharacters(userName, true));
 
 			/* bind the user. A disabled user account with no password */
             dirContext.bind(compoundName, null, basicAttributes);
@@ -165,15 +167,16 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             dirContext.modifyAttributes(compoundName, mods);
 
         } catch (NamingException e) {
-            String errorMessage = "Error while adding the user to the Active Directory";
+            String errorMessage = "Error while adding the user to the Active Directory for user : " + userName;
             if (isUserBinded) {
                 try {
                     dirContext.unbind(compoundName);
                 } catch (NamingException e1) {
-                    errorMessage = "Error while accessing the Active Directory";
+                    errorMessage = "Error while accessing the Active Directory for user : " + userName;
                     throw new UserStoreException(errorMessage, e);
                 }
-                errorMessage = "Error while enabling the user account. Please check password policy at DC";
+                errorMessage = "Error while enabling the user account. Please check password policy at DC for user : " +
+                               userName;
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
@@ -253,7 +256,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
             NamingEnumeration<SearchResult> searchResults = dirContext.search(searchBase,
-                    searchFilter, searchControl);
+                    escapeLDAPSearchFilter(userName, searchFilter), searchControl);
             SearchResult user = null;
             int count = 0;
             while (searchResults.hasMore()) {
@@ -293,10 +296,13 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 				 */
             }
             subDirContext = (DirContext) dirContext.lookup(searchBase);
-            subDirContext.modifyAttributes("CN" + "=" + userCNValue, mods);
+            subDirContext.modifyAttributes("CN" + "=" + escapeUsernameSpecialCharacters(userCNValue, true), mods);
 
         } catch (NamingException e) {
-            String error = "Can not access the directory service";
+            String error = "Can not access the directory service for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(error, e);
+            }
             throw new UserStoreException(error, e);
         } finally {
             JNDIUtil.closeContext(subDirContext);
@@ -328,7 +334,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
             NamingEnumeration<SearchResult> searchResults = dirContext.search(searchBase,
-                    searchFilter, searchControl);
+                    escapeLDAPSearchFilter(userName, searchFilter), searchControl);
             SearchResult user = null;
             int count = 0;
             while (searchResults.hasMore()) {
@@ -359,11 +365,14 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                         createUnicodePassword((String) newCredential)));
 
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
-                subDirContext.modifyAttributes("CN" + "=" + userCNValue, mods);
+                subDirContext.modifyAttributes("CN" + "=" + escapeUsernameSpecialCharacters(userCNValue, true), mods);
             }
 
         } catch (NamingException e) {
-            String error = "Can not access the directory service";
+            String error = "Can not access the directory service for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(error, e);
+            }
             throw new UserStoreException(error, e);
         } finally {
             JNDIUtil.closeContext(subDirContext);
@@ -469,14 +478,17 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
 
             returnedResultList = dirContext
-                    .search(userSearchBase, userSearchFilter, searchControls);
+                    .search(userSearchBase, escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
-            throw new UserStoreException("Results could not be retrieved from the directory "
-                    + "context", e);
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
         }
@@ -524,12 +536,21 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
                     currentUpdatedAttribute.clear();
                 } else {
-                    if (claimEntry.getValue() != null && claimEntry.getValue().contains(",")) {
-                        String[] values = claimEntry.getValue().split(",");
-                        for (String newValue : values) {
-                            if (newValue != null && newValue.trim().length() > 0) {
-                                currentUpdatedAttribute.add(newValue.trim());
+                    if (claimEntry.getValue() != null) {
+                        String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                        if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                            userAttributeSeparator = claimSeparator;
+                        }
+                        if (claimEntry.getValue().contains(userAttributeSeparator)) {
+                            StringTokenizer st = new StringTokenizer(claimEntry.getValue(), userAttributeSeparator);
+                            while (st.hasMoreElements()) {
+                                String newVal = st.nextElement().toString();
+                                if (newVal != null && newVal.trim().length() > 0) {
+                                    currentUpdatedAttribute.add(newVal.trim());
+                                }
                             }
+                        } else {
+                            currentUpdatedAttribute.add(claimEntry.getValue());
                         }
                     } else {
                         currentUpdatedAttribute.add(claimEntry.getValue());
@@ -545,28 +566,11 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     updatedAttributes);
 
             if (cnModified && cnValue != null) {
-                subDirContext.rename(returnedUserEntry, "CN=" + cnValue);
+                subDirContext.rename(returnedUserEntry, "CN=" + escapeUsernameSpecialCharacters(cnValue, true));
             }
 
-        } catch (InvalidAttributeValueException e) {
-            String errorMessage = "One or more attribute values provided are incompatible. "
-                    + "Please check and try again.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (InvalidAttributeIdentifierException e) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                    + "supported by underlying LDAP.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (NoSuchAttributeException e) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                    + "supported by underlying LDAP.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (NamingException e) {
-            String errorMessage = "Profile information could not be updated in ApacheDS "
-                    + "LDAP user store";
-            throw new UserStoreException(errorMessage, e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String errorMessage = "Error in obtaining claim mapping.";
-            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            handleException(e, userName);
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
@@ -596,13 +600,16 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         try {
 
             returnedResultList = dirContext
-                    .search(userSearchBase, userSearchFilter, searchControls);
+                    .search(userSearchBase, escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
         } catch (NamingException e) {
-            throw new UserStoreException("Results could not be retrieved from the directory "
-                    + "context", e);
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
         }
@@ -625,11 +632,16 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
-                if (value.contains(",")) {
-                    String[] values = value.split(",");
-                    for (String newValue : values) {
-                        if (newValue != null && newValue.trim().length() > 0) {
-                            currentUpdatedAttribute.add(newValue.trim());
+                String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                    userAttributeSeparator = claimSeparator;
+                }
+                if (value.contains(userAttributeSeparator)) {
+                    StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
+                    while (st.hasMoreElements()) {
+                        String newVal = st.nextElement().toString();
+                        if (newVal != null && newVal.trim().length() > 0) {
+                            currentUpdatedAttribute.add(newVal.trim());
                         }
                     }
                 } else {
@@ -645,25 +657,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
 
-        } catch (InvalidAttributeValueException e) {
-            String errorMessage = "One or more attribute values provided are incompatible. "
-                    + "Please check and try again.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (InvalidAttributeIdentifierException e) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                    + "supported by underlying LDAP.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (NoSuchAttributeException e) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                    + "supported by underlying LDAP.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (NamingException e) {
-            String errorMessage = "Profile information could not be updated in ApacheDS "
-                    + "LDAP user store";
-            throw new UserStoreException(errorMessage, e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String errorMessage = "Error in obtaining claim mapping.";
-            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            handleException(e, userName);
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
@@ -681,4 +676,187 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         return properties;
     }
 
+    private void handleException(Exception e, String userName) throws UserStoreException{
+        if (e instanceof InvalidAttributeValueException) {
+            String errorMessage = "One or more attribute values provided are incompatible for user : " + userName
+                                  + "Please check and try again.";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof InvalidAttributeIdentifierException) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                                  + "supported by underlying LDAP for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof NoSuchAttributeException) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                                  + "supported by underlying LDAP for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof NamingException) {
+            String errorMessage = "Profile information could not be updated in LDAP user store for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof org.wso2.carbon.user.api.UserStoreException) {
+            String errorMessage = "Error in obtaining claim mapping for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
+    }
+
+	/**
+     * This is to replace escape characters in user name at user login if replace escape characters
+     * enabled in user-mgt.xml. Some User Stores like ApacheDS stores user names by replacing escape
+     * characters. In that case, we have to parse the username accordingly.
+     *
+     * @param userName
+     * @param dn
+     * @param isDirectBind
+     */
+    private String replaceEscapeCharacters(String userName, String dn, boolean isDirectBind) {
+        boolean replaceEscapeCharacters = true;
+        if (userName == null || userName.trim().length() == 0) {
+            if (logger.isDebugEnabled()){
+                logger.debug("Received an empty username to escape characters.");
+            }
+            return null;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Replacing escape characters in " + userName);
+        }
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        if (replaceEscapeCharacters) {
+            String escapedUN = escapeUsernameSpecialCharacters(userName, isDirectBind);
+            return dn.replace(userName, escapedUN);
+        }
+        return dn;
+    }
+
+    private String escapeUsernameSpecialCharacters(String userName, boolean isDirectBind) {
+        StringBuilder sb = new StringBuilder();
+        if ((userName.length() > 0) && ((userName.charAt(0) == ' ') || (userName.charAt(0) == '#'))) {
+            sb.append('\\'); // add the leading backslash if needed
+        }
+        for (int i = 0; i < userName.length(); i++) {
+            char currentChar = userName.charAt(i);
+            switch (currentChar) {
+                case '\\':
+                    if (isDirectBind){
+                        sb.append("\\\\");
+                        break;
+                    } else {
+                        sb.append("\\\\\\");
+                        break;
+                    }
+                case ',':
+                    sb.append("\\,");
+                    break;
+                case '+':
+                    sb.append("\\+");
+                    break;
+                case '"':
+                    if (isDirectBind) {
+                        sb.append("\\\"");
+                        break;
+                    } else {
+                        sb.append("\\\\\"");
+                        break;
+                    }
+                case '<':
+                    sb.append("\\<");
+                    break;
+                case '>':
+                    sb.append("\\>");
+                    break;
+                case ';':
+                    sb.append("\\;");
+                    break;
+                default:
+                    sb.append(currentChar);
+            }
+        }
+        if ((userName.length() > 1) && (userName.charAt(userName.length() - 1) == ' ')) {
+            sb.insert(sb.length() - 1, '\\'); // add the trailing backslash if needed
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Replacing special characters in LDAP filter
+     * @param userName
+     * @param filter
+     * @return
+     */
+    private String escapeLDAPSearchFilter(String userName, String filter) {
+        boolean replaceEscapeCharacters = true;
+        if (userName == null || userName.trim().length() == 0) {
+            if (logger.isDebugEnabled()){
+                logger.debug("Received an empty username to escape characters.");
+            }
+            return null;
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Replacing escape characters in " + userName);
+        }
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        if (replaceEscapeCharacters) {
+            //TODO: implement character escaping for *
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < userName.length(); i++) {
+                char currentChar = userName.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        sb.append("\\5c");
+                        break;
+//                case '*':
+//                    sb.append("\\2a");
+//                    break;
+                    case '(':
+                        sb.append("\\28");
+                        break;
+                    case ')':
+                        sb.append("\\29");
+                        break;
+                    case '\u0000':
+                        sb.append("\\00");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            return filter.replace(userName, sb.toString());
+        }
+        return filter;
+    }
 }

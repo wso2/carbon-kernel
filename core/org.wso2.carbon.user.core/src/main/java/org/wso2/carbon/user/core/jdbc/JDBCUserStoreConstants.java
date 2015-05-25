@@ -30,6 +30,10 @@ public class JDBCUserStoreConstants {
     public static final ArrayList<Property> JDBC_UM_ADVANCED_PROPERTIES = new ArrayList<Property>();
 
 
+    //For multiple attribute separation
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+
     static {
 
         setMandatoryProperty(JDBCRealmConstants.DRIVER_NAME, "Driver Name", "",
@@ -66,7 +70,7 @@ public class JDBCUserStoreConstants {
 //        setProperty("RolenameJavaRegEx","^[^~!#$;%^*+={}\\\\|\\\\\\\\&lt;&gt;,\\\'\\\"]{3,30}$","A regular expression to validate role names");
         setProperty("RolenameJavaScriptRegEx", "Role Name RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for role name validation");
         setProperty(UserStoreConfigConstants.SCIMEnabled, "", "false", UserStoreConfigConstants.SCIMEnabledDescription);
-
+        setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty("SelectUserSQL", "Select User SQL", "SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?", "");
@@ -189,6 +193,7 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty("AddUserPropertySQL-openedge", "Add User Property (OpenEdge)", "INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, UM_ATTR_NAME, " +
                 "UM_ATTR_VALUE, UM_PROFILE_ID, UM_TENANT_ID) SELECT UM_ID, ?, ?, ?, ? FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?", "");
         setProperty("UniqueID", "", "", "");
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false", UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
     }
 
 

@@ -66,6 +66,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected static final String FALSE_VALUE = "false";
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
+    private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -406,8 +407,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
             }
         } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException("Error while trying to check Tenant status for Tenant : "
-                    + tenantId, e);
+            String errorMessage = "Error while trying to check Tenant status for Tenant : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
 
         // We are here due to two reason. Either there is no secondary UserStoreManager or no
@@ -724,8 +728,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
             return;
         } else {
-            throw new UserStoreException(
-                    "Old credential does not match with the existing credentials.");
+            String errorMessage = "Old credential does not match with the existing credentials.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
     }
 
@@ -816,6 +823,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (attributeName == null) {
             if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimURI)) {
                 attributeName = claimURI;
+            } else if (DISAPLAY_NAME_CLAIM.equals(claimURI)) {
+                attributeName = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
             } else {
                 throw new UserStoreException("Mapped attribute cannot be found for claim : " + claimURI + " in user " +
                         "store : " + getMyDomainName());
@@ -960,11 +969,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
-            userStore.getUserStoreManager().setUserClaimValues(userStore.getDomainFreeName(),
-                    claims, profileName);
+            userStore.getUserStoreManager().setUserClaimValues(userStore.getDomainFreeName(), claims, profileName);
             return;
         }
-
+        Map<String, String> refinedClaims = new HashMap<String, String>();
+        if (claims != null && !claims.isEmpty()) {
+            for (Map.Entry<String, String> entry : claims.entrySet()) {
+                String claimURI = entry.getKey();
+                String claimValue = entry.getValue();
+                if (!(claimURI == null || claimURI.trim().isEmpty()) || claimValue == null) {
+                    refinedClaims.put(claimURI, claimValue);
+                } else {
+                    if(log.isDebugEnabled()){
+                        log.debug("Illegal claim URI or values; claim URI : " + claimURI + " and claim value : " + claimValue);
+                    }
+                }
+            }
+        }
         if (isReadOnly()) {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
@@ -972,7 +993,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPreSetUserClaimValues(userName, claims, profileName, this)) {
+            if (!listener.doPreSetUserClaimValues(userName, refinedClaims, profileName, this)) {
                 return;
             }
         }
@@ -982,12 +1003,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("User does not exist. Username : " + userName);
         }
 
-        doSetUserClaimValues(userName, claims, profileName);
+        doSetUserClaimValues(userName, refinedClaims, profileName);
 
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPostSetUserClaimValues(userName, claims, profileName, this)) {
+            if (!listener.doPostSetUserClaimValues(userName, refinedClaims, profileName, this)) {
                 return;
             }
         }
@@ -2687,9 +2708,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
+            String property = null;
+            String value = null;
             if (mapping != null) {
-                String property = null;
-
                 if (domainName != null) {
                     Map<String, String> attrMap = mapping.getMappedAttributes();
                     if (attrMap != null) {
@@ -2704,7 +2725,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     property = mapping.getMappedAttribute();
                 }
 
-                String value = uerProperties.get(property);
+                value = uerProperties.get(property);
 
                 if (profileName.equals(UserCoreConstants.DEFAULT_PROFILE)) {
                     // Check whether we have a value for the requested attribute
@@ -2715,6 +2736,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     if (value != null && value.trim().length() > 0) {
                         finalValues.put(claim, value);
                     }
+                }
+            } else {
+                if (property == null && claim.equals(DISAPLAY_NAME_CLAIM)) {
+                    property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
+                }
+
+                value = uerProperties.get(property);
+                if (value != null && value.trim().length() > 0) {
+                    finalValues.put(claim, value);
                 }
             }
         }
@@ -3396,7 +3426,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             this.maxRoleListCount = maxListCount;
             return this.maxRoleListCount;
         } else {
-            throw new UserStoreException("Invalid count parameter");
+            String errorMessage = "Invalid count parameter : " + type;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
     }
 
@@ -3503,7 +3537,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         String className = realmConfig.getUserStoreClass();
         if (className == null) {
             String errmsg = "Unable to add user store. UserStoreManager class name is null.";
-            log.error(errmsg);
+            if (log.isDebugEnabled()) {
+                log.debug(errmsg);
+            }
             throw new UserStoreException(errmsg);
         }
 
@@ -3571,12 +3607,17 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             } catch (NoSuchMethodException e) {
                 // cannot initialize in any of the methods. Throw exception.
                 String message = "Cannot initialize " + className + ". Error " + e.getMessage();
-                log.error(message);
-                throw new UserStoreException(message);
+                if (log.isDebugEnabled()) {
+                    log.debug(message, e);
+                }
+                throw new UserStoreException(message, e);
             }
 
         } catch (Throwable e) {
-            log.error("Cannot create " + className, e);
+            String errorMessage = "Cannot create " + className;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
             throw new UserStoreException(e.getMessage() + "Type " + e.getClass(), e);
         }
 
@@ -3652,10 +3693,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public void removeSecondaryUserStoreManager(String userStoreDomainName) throws UserStoreException {
 
         if (userStoreDomainName == null) {
-            throw new UserStoreException("Cannot remove user store. User store domain name is null");
+            String errorMessage =
+                    "Cannot remove user store. User store domain name is null for : " + userStoreDomainName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
         if ("".equals(userStoreDomainName)) {
-            throw new UserStoreException("Cannot remove user store. User store domain name is empty");
+            String errorMessage =
+                    "Cannot remove user store. User store domain name is empty for : " + userStoreDomainName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
 //    	if(!this.userStoreManagerHolder.containsKey(userStoreDomainName.toUpperCase())) {
 //    		throw new UserStoreException("Cannot remove user store. User store domain name does not exists");
@@ -3687,9 +3738,19 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (!isUSMContainsInMap && isUSMConatainsInChain) {
-            throw new UserStoreException("Removed user store manager : " + userStoreDomainName + " didnt exists in userStoreManagerHolder map");
+            String errorMessage = "Removed user store manager : " + userStoreDomainName +
+                                  " didnt exists in userStoreManagerHolder map";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         } else if (isUSMContainsInMap && !isUSMConatainsInChain) {
-            throw new UserStoreException("Removed user store manager : " + userStoreDomainName + " didnt exists in user store manager chain");
+            String errorMessage =
+                    "Removed user store manager : " + userStoreDomainName + " didnt exists in user store manager chain";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage);
+            }
+            throw new UserStoreException(errorMessage);
         }
     }
 

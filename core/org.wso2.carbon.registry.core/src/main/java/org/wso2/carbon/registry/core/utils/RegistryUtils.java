@@ -17,6 +17,7 @@
 package org.wso2.carbon.registry.core.utils;
 
 import javax.cache.Cache;
+import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 
@@ -79,6 +80,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
@@ -91,6 +93,7 @@ public final class RegistryUtils {
     private static final Log log = LogFactory.getLog(RegistryUtils.class);
     private static final String ENCODING = System.getProperty("carbon.registry.character.encoding");
     private static final String MY_SQL_PRODUCT_NAME = "MySQL";
+    private static boolean resouceCacheInit = false;
 
     private RegistryUtils() {
     }
@@ -192,8 +195,8 @@ public final class RegistryUtils {
             // The connection URL is unique enough to be used as an identifier since one thread
             // makes one connection to the given URL according to our model.
             DatabaseMetaData connectionMetaData = connection.getMetaData();
-            String productName = connectionMetaData.getDatabaseProductName();
             if (connectionMetaData != null) {
+                String productName = connectionMetaData.getDatabaseProductName();
                 if (MY_SQL_PRODUCT_NAME.equals(productName)) {
                     /*
                      For MySQL getUserName() method executes 'SELECT USER()' query on DB via mysql connector
@@ -202,10 +205,10 @@ public final class RegistryUtils {
                      */
                     connectionId = connectionMetaData.getURL();
                 } else {
-                    connectionId = connectionMetaData.getUserName() + "@" + connectionMetaData.getURL();
+                    connectionId =
+                            (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
+                                    connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
                 }
-                return (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
-                        connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
             }
         } catch (SQLException e) {
             log.error("Failed to construct the connectionId.", e);
@@ -294,8 +297,31 @@ public final class RegistryUtils {
      */
     public static Cache<RegistryCacheKey, GhostResource> getResourceCache(String name){
         CacheManager manager = getCacheManager();
-        return (manager != null) ? manager.<RegistryCacheKey, GhostResource>getCache(name) :
-                Caching.getCacheManager().<RegistryCacheKey, GhostResource>getCache(name);
+        if (resouceCacheInit) {
+            return manager.getCache(name);
+        } else {
+            resouceCacheInit = true;
+            RegistryContext registryContext = RegistryContext.getBaseInstance();
+            if (manager != null) {
+                return manager.<RegistryCacheKey, GhostResource>createCacheBuilder(name)
+                        .setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                new CacheConfiguration.Duration(TimeUnit.MILLISECONDS,
+                                        registryContext.getLastAccessedExpirationMillis())).
+                                setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                        new CacheConfiguration.Duration(TimeUnit.MILLISECONDS,
+                                                registryContext.getLastModifiedExpirationMillis())).
+                                setStoreByValue(false).build();
+            } else {
+                return Caching.getCacheManager().<RegistryCacheKey, GhostResource>createCacheBuilder(name)
+                        .setExpiry(CacheConfiguration.ExpiryType.ACCESSED,
+                                new CacheConfiguration.Duration(TimeUnit.SECONDS,
+                                        registryContext.getLastAccessedExpirationMillis())).
+                                setExpiry(CacheConfiguration.ExpiryType.MODIFIED,
+                                        new CacheConfiguration.Duration(TimeUnit.SECONDS,
+                                                registryContext.getLastModifiedExpirationMillis())).
+                                setStoreByValue(false).build();
+            }
+        }
     }
 
     /**
