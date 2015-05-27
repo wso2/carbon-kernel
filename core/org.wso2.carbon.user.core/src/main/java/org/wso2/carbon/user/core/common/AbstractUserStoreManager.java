@@ -612,7 +612,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         claimValue = UserCoreUtil.removeDomainFromName(claimValue);
         //if domain is present, then we search within that domain only
         if (extractedDomain != null && !extractedDomain.isEmpty()) {
-            try{
+            try {
                 property = claimManager.getAttributeName(extractedDomain, claim);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException("Error occurred while retrieving attribute name for domain : " +
@@ -980,7 +980,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 if (!(claimURI == null || claimURI.trim().isEmpty()) || claimValue == null) {
                     refinedClaims.put(claimURI, claimValue);
                 } else {
-                    if(log.isDebugEnabled()){
+                    if (log.isDebugEnabled()) {
                         log.debug("Illegal claim URI or values; claim URI : " + claimURI + " and claim value : " + claimValue);
                     }
                 }
@@ -1011,6 +1011,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             if (!listener.doPostSetUserClaimValues(userName, refinedClaims, profileName, this)) {
                 return;
             }
+        }
+        String newUserName = claims.get("http://wso2.org/claims/identity/userName");
+
+        for (UserOperationEventListener listener : UMListenerServiceComponent
+                .getUserOperationEventListeners()) {
+
+                if (!listener.doPostSetUserClaimValues(userName, claims, profileName, this)) {
+                    if (!listener.doPostSetUserClaimValues(newUserName, claims, profileName, this)) {
+                        return;
+                    }
+                }
+
         }
         // #################### </Listeners> #####################################################
 
@@ -3739,7 +3751,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!isUSMContainsInMap && isUSMConatainsInChain) {
             String errorMessage = "Removed user store manager : " + userStoreDomainName +
-                                  " didnt exists in userStoreManagerHolder map";
+                    " didnt exists in userStoreManagerHolder map";
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage);
             }
