@@ -1949,6 +1949,21 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 String property = getClaimAtrribute(claimURI, userName, null);
                 String value = entry.getValue();
                 String existingValue = getProperty(dbConnection, userName, property, profileName);
+                String newUserName = null;
+                if(property.equals("uid")){
+                    //update user name in the internal database mapping of the unique id and the user
+                    newUserName=entry.getValue();
+                    PreparedStatement renameStatement = dbConnection.prepareStatement("UPDATE UM_USER" +
+                            " SET UM_USER_NAME=?" +
+                            " WHERE UM_USER_NAME=? AND UM_TENANT_ID=?;");
+                    renameStatement.setString(1,newUserName);
+                    renameStatement.setString(2, userName);
+                    renameStatement.setString(3, "" + tenantId);
+
+                    renameStatement.execute();
+
+                }
+
                 if (existingValue == null) {
                     addProperty(dbConnection, userName, property, value, profileName);
                 } else {

@@ -218,19 +218,16 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         return builder.toString().toUpperCase(Locale.ENGLISH);
     }
 
-    @Override
-    public void doAddUser(String userName, Object credential, String[] roleList,
-                          Map<String, String> claims, String profileName) throws UserStoreException {
-        this.doAddUser(userName, credential, roleList, claims, profileName, false);
-    }
-
-    @Override
-    public void doAddUser(String userName, Object credential, String[] roleList,
-                          Map<String, String> claims, String profileName, boolean requirePasswordChange)
-            throws UserStoreException {
-
-		/* validity checks */
-        doAddUserValidityChecks(userName, credential); // TODO bring abstract
+    private void doAddUserOnlyToDirectory(String userName, Object credential, String[] roleList,
+                                          Map<String, String> claims, String profileName, boolean requirePasswordChange)
+            throws UserStoreException{
+        /*previously this was implemented in doAddUser*/
+        /* validity checks */
+        String cred=credential.toString();
+        if(credential instanceof byte[]) {
+            cred = new String((byte[])credential);
+        }
+        doAddUserValidityChecks(userName, cred); // TODO bring abstract
 
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
@@ -239,7 +236,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         BasicAttributes basicAttributes = getAddUserBasicAttributes(userName);
 
         BasicAttribute userPassword = new BasicAttribute("userPassword");
-        userPassword.add(UserCoreUtil.getPasswordToStore((String) credential,
+        userPassword.add(UserCoreUtil.getPasswordToStore((String) cred,
                 this.realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD), kdcEnabled));
         basicAttributes.put(userPassword);
 
@@ -250,7 +247,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             NameParser ldapParser = dirContext.getNameParser("");
             Name compoundName = ldapParser.parse(realmConfig
-                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + escapeUsernameSpecialCharacters(userName, true));
+                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + userName);
 
             if (log.isDebugEnabled()) {
                 log.debug("Binding user: " + compoundName);
@@ -258,7 +255,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             dirContext.bind(compoundName, null, basicAttributes);
         } catch (NamingException e) {
             String errorMessage = "Cannot access the directory context or "
-                                  + "user already exists in the system for user :" + userName;
+                    + "user already exists in the system for user :" + userName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -280,6 +277,34 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
             throw new UserStoreException(errorMessage, e);
         }
+
+
+    }
+
+    private void doRenameUser(String newUserName, String userName, Object credential, String[] roleList,
+                              Map<String, String> claims, String profileName, boolean requirePasswordChange)
+            throws UserStoreException{
+
+        this.doAddUserOnlyToDirectory(newUserName,credential,roleList,claims,profileName,requirePasswordChange);
+        deleteUser(userName);
+
+    }
+
+    @Override
+    public void doAddUser(String userName, Object credential, String[] roleList,
+                          Map<String, String> claims, String profileName) throws UserStoreException {
+        this.doAddUser(userName, credential, roleList, claims, profileName, false);
+    }
+
+
+
+    @Override
+    public void doAddUser(String userName, Object credential, String[] roleList,
+                          Map<String, String> claims, String profileName, boolean requirePasswordChange)
+            throws UserStoreException {
+
+        this.doAddUserOnlyToDirectory(userName,credential,roleList,claims,profileName,requirePasswordChange);
+
     }
 
     /**
@@ -814,12 +839,24 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         NamingEnumeration<SearchResult> returnedResultList = null;
         String returnedUserEntry = null;
 
+        SearchResult matchedResult=null;
+
+        boolean rename=false;
+        String newName=null;
+
+        Object cred=null;
+
         try {
             returnedResultList = dirContext.search(userSearchBase,
                     escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
-            returnedUserEntry = returnedResultList.next().getName();
+            matchedResult = returnedResultList.next();
+            returnedUserEntry = matchedResult.getName();
+
+            Attributes allAttrs= matchedResult.getAttributes();
+
+            cred = allAttrs.get("userPassword").get();
 
         } catch (NamingException e) {
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
@@ -869,6 +906,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         claimEntry.setValue(uidName);
                     }
 //                    claimEntry.setValue(escapeISSpecialCharacters(uidName));
+
+                    // if there is a renaming going on, set variables :
+                    String oldUid=matchedResult.getAttributes().get("uid").get().toString();
+                    if(!claimEntry.getValue().equals(oldUid)){
+                        newName=claimEntry.getValue();
+                        rename=true;
+                    }
+
+                    continue;
                 }
                 Attribute currentUpdatedAttribute = new BasicAttribute(attributeName);
 				/* if updated attribute value is null, remove its values. */
@@ -904,6 +950,20 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             subDirContext = (DirContext) dirContext.lookup(userSearchBase);
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
+
+            if(rename){
+
+                String[] roles = getRoleListOfUser(userName);
+
+                if (roles.length==1){
+                    roles=null;
+                }
+                //TODO try to add user roles : For now, limitation of no roles being transferred!
+                doRenameUser(newName,userName,cred,null,claims,profileName,false);
+
+                log.info("User renamed successfully!");
+
+            }
 
         } catch (Exception e) {
             handleException(e, userName);
