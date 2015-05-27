@@ -30,7 +30,9 @@ import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tracker.UserStoreManagerRegistry;
+import org.wso2.carbon.user.core.common.UserRenameEventListener;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+
 
 /**
  * @scr.component name="user.store.mgt.dscomponent" immediate=true
@@ -85,6 +87,11 @@ public class UserStoreMgtDSComponent {
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), activeDirectoryUserStoreManager, null);
 
             UserStoreManagerRegistry.init(ctxt.getBundleContext());
+
+            //register the user rename event listener as an OSGI service here...
+
+            UMListenerServiceComponent.setUserOperationEventListenerService(new UserRenameEventListener());
+
 
             log.info("Carbon UserStoreMgtDSComponent activated successfully.");
         } catch (Exception e) {
