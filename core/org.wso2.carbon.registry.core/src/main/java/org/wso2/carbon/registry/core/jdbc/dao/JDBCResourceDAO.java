@@ -1,4 +1,4 @@
-/*
+adi/*
  *  Copyright (c) 2005-2009, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
@@ -303,36 +303,33 @@ public class JDBCResourceDAO implements ResourceDAO {
                         SELECT_NAME_VALUE_PROP_P +
                                 "REG_RESOURCE_PROPERTY RP " +
                                 "WHERE P.REG_ID=RP.REG_PROPERTY_ID AND RP.REG_VERSION=? AND " +
-                                "P.REG_TENANT_ID=? AND RP.REG_TENANT_ID=?";
+                                "P.REG_TENANT_ID=RP.REG_TENANT_ID AND RP.REG_TENANT_ID=?";
                 ps = conn.prepareStatement(propSQL);
                 ps.setLong(1, resourceImpl.getVersionNumber());
                 ps.setInt(2, CurrentSession.getTenantId());
-                ps.setInt(3, CurrentSession.getTenantId());
                 results = ps.executeQuery();
             } else if (resourceImpl instanceof CollectionImpl) {
                 String propSQL =
                         SELECT_NAME_VALUE_PROP_P +
                                 "REG_RESOURCE_PROPERTY RP WHERE P.REG_ID=RP.REG_PROPERTY_ID " +
                                 "AND RP.REG_PATH_ID=? AND RP.REG_RESOURCE_NAME IS NULL " +
-                                "AND P.REG_TENANT_ID=? AND RP.REG_TENANT_ID=?";
+                                "AND P.REG_TENANT_ID=RP.REG_TENANT_ID AND RP.REG_TENANT_ID=?";
                 ps = conn.prepareStatement(propSQL);
                 ResourceIDImpl resourceID = resourceImpl.getResourceIDImpl();
                 ps.setLong(1, resourceID.getPathID());
                 ps.setInt(2, CurrentSession.getTenantId());
-                ps.setInt(3, CurrentSession.getTenantId());
                 results = ps.executeQuery();
             } else {
                 String propSQL =
                         SELECT_NAME_VALUE_PROP_P +
                                 "REG_RESOURCE_PROPERTY RP WHERE P.REG_ID=RP.REG_PROPERTY_ID " +
                                 "AND RP.REG_PATH_ID=? AND RP.REG_RESOURCE_NAME=? " +
-                                "AND P.REG_TENANT_ID=? AND RP.REG_TENANT_ID=?";
+                                "AND P.REG_TENANT_ID=RP.REG_TENANT_ID AND RP.REG_TENANT_ID=?";
                 ps = conn.prepareStatement(propSQL);
                 ResourceIDImpl resourceID = resourceImpl.getResourceIDImpl();
                 ps.setLong(1, resourceID.getPathID());
                 ps.setString(2, resourceID.getName());
                 ps.setInt(3, CurrentSession.getTenantId());
-                ps.setInt(4, CurrentSession.getTenantId());
                 results = ps.executeQuery();
             }
 
@@ -375,36 +372,33 @@ public class JDBCResourceDAO implements ResourceDAO {
                         SELECT_NAME_VALUE_PROP_P +
                                 "REG_RESOURCE_PROPERTY RP " +
                                 "WHERE P.REG_ID=RP.REG_PROPERTY_ID AND RP.REG_VERSION=? AND " +
-                                "P.REG_TENANT_ID=? AND RP.REG_TENANT_ID=?";
+                                "P.REG_TENANT_ID=RP.REG_TENANT_ID AND RP.REG_TENANT_ID=?";
                 ps = conn.prepareStatement(propSQL);
                 ps.setLong(1, resourceImpl.getVersionNumber());
                 ps.setInt(2, CurrentSession.getTenantId());
-                ps.setInt(3, CurrentSession.getTenantId());
                 results = ps.executeQuery();
             } else if (resourceImpl instanceof CollectionImpl) {
                 String propSQL =
                         SELECT_NAME_VALUE_PROP_P +
                                 "REG_RESOURCE_PROPERTY RP WHERE P.REG_ID=RP.REG_PROPERTY_ID " +
                                 "AND RP.REG_PATH_ID=? AND RP.REG_RESOURCE_NAME IS NULL " +
-                                "AND P.REG_TENANT_ID=? AND RP.REG_TENANT_ID=?";
+                                "AND P.REG_TENANT_ID=RP.REG_TENANT_ID AND RP.REG_TENANT_ID=?";
                 ps = conn.prepareStatement(propSQL);
                 ResourceIDImpl resourceID = resourceImpl.getResourceIDImpl();
                 ps.setLong(1, resourceID.getPathID());
                 ps.setInt(2, CurrentSession.getTenantId());
-                ps.setInt(3, CurrentSession.getTenantId());
                 results = ps.executeQuery();
             } else {
                 String propSQL =
                         SELECT_NAME_VALUE_PROP_P +
                                 "REG_RESOURCE_PROPERTY RP WHERE P.REG_ID=RP.REG_PROPERTY_ID " +
                                 "AND RP.REG_PATH_ID=? AND RP.REG_RESOURCE_NAME=? " +
-                                "AND P.REG_TENANT_ID=? AND RP.REG_TENANT_ID=?";
+                                "AND P.REG_TENANT_ID=RP.REG_TENANT_ID AND RP.REG_TENANT_ID=?";
                 ps = conn.prepareStatement(propSQL);
                 ResourceIDImpl resourceID = resourceImpl.getResourceIDImpl();
                 ps.setLong(1, resourceID.getPathID());
                 ps.setString(2, resourceID.getName());
                 ps.setInt(3, CurrentSession.getTenantId());
-                ps.setInt(4, CurrentSession.getTenantId());
                 results = ps.executeQuery();
             }
 
