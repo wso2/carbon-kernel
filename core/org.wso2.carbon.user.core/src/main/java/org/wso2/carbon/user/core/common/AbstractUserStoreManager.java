@@ -449,12 +449,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
 
-        if (log.isDebugEnabled()) {
-            if (!authenticated) {
-                log.debug("Authentication failure. Wrong username or password is provided.");
-            }
-        }
-
         return authenticated;
     }
 
