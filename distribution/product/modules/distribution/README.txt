@@ -12,9 +12,9 @@ pluggable Carbon components and installed into this base Carbon platform.
 
 What's New In This Release
 ----------------------------
-01. Simplified logging story with pluggable log provider support.
-02. Upgraded versions of Hazelcast, Log4j, BouncyCastle.
-03. Improved Composite application support.
+01. Java7/Java8 support - Starting from kernel 4.4.0 release, the kernel can now be compiled and run on both Java7 and Java8.
+02. Tomcat upgrade - Tomcat is upgraded to version 7.0.59.
+03. Tenant Eager Loading - WSO2 Carbon Kernel can now be configured to load specified set of tenants at server start-up.
 
 Key Features
 ------------
@@ -53,7 +53,6 @@ Carbon Binary Distribution Directory Structure
             |-- README.txt <file>
         |-- samples <directory>
         |-- tmp <directory>
-	    |-- webapp-mode <directory>
         |-- LICENSE.txt <file>
         |-- README.txt <file>
         |-- INSTALL.txt <file>
@@ -97,17 +96,13 @@ Carbon Binary Distribution Directory Structure
         - resources
           Contains additional resources that may be required.
 
-	    - tenants
-	        Directory will contain relevant tenant artifacts
-	        in the case of a multitenant deployment.
+        - tenants
+          Directory will contain relevant tenant artifacts
+          in the case of a multitenant deployment.
 
     - tmp
       Used for storing temporary files, and is pointed to by the
       java.io.tmpdir System property.
-
-    - webapp-mode
-      The user has the option of running WSO2 Carbon in webapp mode (hosted as a web-app in an application server).
-      This directory contains files required to run Carbon in webapp mode. 
 
     - LICENSE.txt
       Apache License 2.0 under which WSO2 Carbon is distributed.
@@ -120,42 +115,6 @@ Carbon Binary Distribution Directory Structure
 
     - release-notes.html
       Release information for WSO2 Carbon ${carbon.version}.
-
-Secure sensitive information in carbon configuration files
-----------------------------------------------------------
-
-There are sensitive information such as passwords in the carbon configuration. 
-You can secure them by using secure vault. Please go through following steps to 
-secure them with default mode. 
-
-1. Configure secure vault with default configurations by running ciphertool 
-	script from bin directory.  
-
-> ciphertool.sh -Dconfigure   (in UNIX)  
-
-This script would do following configurations that you need to do by manually 
-
-(i) Replaces sensitive elements in configuration files,  that have been defined in
-		 cipher-tool.properties, with alias token values.  
-(ii) Encrypts plain text password which is defined in cipher-text.properties file.
-(iii) Updates secret-conf.properties file with default keystore and callback class. 
-
-cipher-tool.properties, cipher-text.properties and secret-conf.properties files 
-			can be found at repository/conf/security directory. 
-
-2. Start server by running wso2server sciprt from bin directory
-
-> wso2server.sh   (in UNIX)
-
-By default mode, it would ask you to enter the master password 
-(By default, master password is the password of carbon keystore and private key) 
-
-3. Change any password by running ciphertool script from bin directory.  
-
-> ciphertool -Dchange  (in UNIX)
-
-For more details see
-http://docs.wso2.org/wiki/display/Carbon420/WSO2+Carbon+Secure+Vault
 
 Support
 -------
@@ -193,10 +152,8 @@ code and source code.
 The following provides more details on the included cryptographic
 software:
 
-Apache Rampart   : http://ws.apache.org/rampart/
-Apache WSS4J     : http://ws.apache.org/wss4j/
 Apache Santuario : http://santuario.apache.org/
 Bouncycastle     : http://www.bouncycastle.org/
 
 ---------------------------------------------------------------------------
-(c) Copyright 2014 WSO2 Inc.
+(c) Copyright 2015 WSO2 Inc.

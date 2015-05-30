@@ -66,6 +66,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -304,7 +305,6 @@ public final class TenantAxisUtils {
                 doPreConfigContextCreation(tenantId);
                 tenantConfigCtx =
                         ConfigurationContextFactory.createConfigurationContext(tenantAxisConfigurator);
-                tenantConfigContexts.put(tenantDomain, tenantConfigCtx);
 
                 AxisConfiguration tenantAxisConfig = tenantConfigCtx.getAxisConfiguration();
 
@@ -312,16 +312,17 @@ public final class TenantAxisUtils {
                 tenantConfigCtx.setContextRoot("local:/");
 
                 TenantTransportSender transportSender = new TenantTransportSender(mainConfigCtx);
-                //adding new transport outs
-                // adding the two tenant specific transport senders
-                TransportOutDescription httpOutDescription = new TransportOutDescription(Constants.TRANSPORT_HTTP);
-                httpOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(httpOutDescription);
-
-                // adding the two tenant specific transport senders
-                TransportOutDescription httpsOutDescription = new TransportOutDescription(Constants.TRANSPORT_HTTPS);
-                httpsOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(httpsOutDescription);
+                // Adding transport senders
+                HashMap<String, TransportOutDescription> transportSenders =
+                        mainAxisConfig.getTransportsOut();
+                if (transportSenders != null && !transportSenders.isEmpty()) {
+                    for (String strTransport : transportSenders.keySet()) {
+                        TransportOutDescription outDescription =
+                                new TransportOutDescription(strTransport);
+                        outDescription.setSender(transportSender);
+                        tenantAxisConfig.addTransportOut(outDescription);
+                    }
+                }
 
                 // Set the work directory
                 tenantConfigCtx.setProperty(ServerConstants.WORK_DIR,
@@ -352,8 +353,17 @@ public final class TenantAxisUtils {
                 // Register Capp deployer for this tenant
                 Utils.addCAppDeployer(tenantAxisConfig);
 
+                //deploy the services since all the deployers are initialized by now.
+                tenantAxisConfigurator.deployServices();
+
+                //tenant config context must only be made after the tenant is fully loaded, and all its artifacts
+                //are deployed.
+                // -- THIS SHOULD BE THE LAST OPERATION OF THIS METHOD --
+                tenantConfigContexts.put(tenantDomain, tenantConfigCtx);
+
                 log.info("Loaded tenant " + tenantDomain + " in " +
                          (System.currentTimeMillis() - tenantLoadingStartTime) + " ms");
+
                 return tenantConfigCtx;
             } catch (Exception e) {
                 String msg = "Error occurred while running deployment for tenant ";

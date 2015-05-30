@@ -67,7 +67,7 @@ public class ClaimMapping {
                 String domainName = mappedAttribute.substring(0, index);
                 if (domainName != null && mappedAttribute != null) {
                     mappedAttributes.put(domainName.toUpperCase(),
-                    mappedAttribute);
+                            mappedAttribute);
                 }
             } else {
                 this.mappedAttribute = mappedAttribute;
@@ -75,11 +75,11 @@ public class ClaimMapping {
         }
     }
 
-    public void setMappedAttribute(String domainName,String mappedAttribute) {
-        if (domainName!=null && mappedAttribute !=null){
+    public void setMappedAttribute(String domainName, String mappedAttribute) {
+        if (domainName != null && mappedAttribute != null) {
             mappedAttributes.put(domainName.toUpperCase(), mappedAttribute);
         }
-        if (domainName==null){
+        if (domainName == null) {
             this.mappedAttribute = mappedAttribute;
         }
     }
@@ -92,17 +92,17 @@ public class ClaimMapping {
         }
     }
 
-    public Map<String, String> getMappedAttributes(){
+    public Map<String, String> getMappedAttributes() {
         return mappedAttributes;
 
     }
 
-    public void setMappedAttributeWithNoDomain(String mappedAttribute) {
-        this.mappedAttribute = mappedAttribute;
-    }
-
     public void setMappedAttributes(Map<String, String> attrMap) {
         mappedAttributes = attrMap;
+    }
+
+    public void setMappedAttributeWithNoDomain(String mappedAttribute) {
+        this.mappedAttribute = mappedAttribute;
     }
 
 }

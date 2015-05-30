@@ -161,10 +161,9 @@ public class BasicAuthUIAuthenticator extends AbstractCarbonUIAuthenticator {
         try {
             getAuthenticationAdminCient(((HttpServletRequest) object)).logout();
         } catch (AxisFault axisFault) {
-            String msg = "Configuration context is null.";
-            log.error(msg);
-            axisFault.printStackTrace();
-            throw new AxisFault(axisFault.getMessage());
+            String msg = "Failed to authenticate ";
+            log.error(msg, axisFault);
+            throw new Exception(msg, axisFault);
         }
     }
 

@@ -42,8 +42,8 @@ public interface UserRealm extends org.wso2.carbon.user.api.UserRealm {
      * @throws UserStoreException
      */
     void init(RealmConfiguration configBean, Map<String, ClaimMapping> claimMapping,
-                     Map<String, ProfileConfiguration> profileConfigs,
-                     int tenantId) throws UserStoreException;
+              Map<String, ProfileConfiguration> profileConfigs,
+              int tenantId) throws UserStoreException;
 
     /**
      * Initialize the realm.

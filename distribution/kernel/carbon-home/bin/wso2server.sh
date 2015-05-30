@@ -180,8 +180,8 @@ elif [ "$CMD" = "start" ]; then
     fi
   fi
   export CARBON_HOME=$CARBON_HOME
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
+# using nohup sh to avoid erros in solaris OS.TODO
+  nohup sh $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "stop" ]; then
   export CARBON_HOME=$CARBON_HOME
@@ -199,8 +199,8 @@ elif [ "$CMD" = "restart" ]; then
         process_status=$?
   done
 
-# using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
+# using nohup sh to avoid erros in solaris OS.TODO
+  nohup sh $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""
@@ -211,10 +211,10 @@ elif [ "$CMD" = "version" ]; then
 fi
 
 # ---------- Handle the SSL Issue with proper JDK version --------------------
-jdk_16=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[6|7]"`
-if [ "$jdk_16" = "" ]; then
+jdk_17=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[7|8]"`
+if [ "$jdk_17" = "" ]; then
    echo " Starting WSO2 Carbon (in unsupported JDK)"
-   echo " [ERROR] CARBON is supported only on JDK 1.6 and 1.7"
+   echo " [ERROR] CARBON is supported only on JDK 1.7 and 1.8"
 fi
 
 CARBON_XBOOTCLASSPATH=""
@@ -301,6 +301,8 @@ do
     -Dorg.terracotta.quartz.skipUpdateCheck=true \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
+    -Djava.net.preferIPv4Stack=true \
+    -Dcom.ibm.cacheLocalHost=true \
     org.wso2.carbon.bootstrap.Bootstrap $*
     status=$?
 done

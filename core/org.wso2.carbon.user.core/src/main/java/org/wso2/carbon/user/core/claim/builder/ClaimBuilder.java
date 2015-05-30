@@ -64,11 +64,9 @@ public class ClaimBuilder {
 
 
     public static final String ATTR_DIALECT_URI = "dialectURI";
-
-    private static Log log = LogFactory.getLog(ClaimBuilder.class);
-
     private static final String CLAIM_CONFIG = "claim-config.xml";
-    
+    private static Log log = LogFactory.getLog(ClaimBuilder.class);
+    private static BundleContext bundleContext;
     InputStream inStream = null;
     int tenantId;
 
@@ -80,15 +78,13 @@ public class ClaimBuilder {
         ClaimBuilder.bundleContext = bundleContext;
     }
 
-    private static BundleContext bundleContext;
-
     public Map<String, ClaimMapping> buildClaimMappingsFromDatabase(DataSource ds, String realmName)
             throws ClaimBuilderException {
         Map<String, ClaimMapping> claims = new HashMap<String, ClaimMapping>();
         try {
             ClaimDAO claimDAO = new ClaimDAO(ds, tenantId);
             List<ClaimMapping> lst = claimDAO.loadClaimMappings();
-            for (Iterator<ClaimMapping> ite = lst.iterator(); ite.hasNext();) {
+            for (Iterator<ClaimMapping> ite = lst.iterator(); ite.hasNext(); ) {
                 ClaimMapping cm = ite.next();
                 String uri = cm.getClaim().getClaimUri();
                 claims.put(uri, cm);
@@ -100,7 +96,6 @@ public class ClaimBuilder {
     }
 
     /**
-     * 
      * @return
      * @throws ClaimBuilderException
      */
@@ -116,7 +111,9 @@ public class ClaimBuilder {
             element = getRootElement();
         } catch (Exception e) {
             message = "Error while reading claim configuration";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new ClaimBuilderException(message, e);
         }
 
@@ -193,11 +190,11 @@ public class ClaimBuilder {
                             new QName(LOCAL_NAME_DISPLAY_OREDR)).getText());
                     claim.setDisplayOrder(displayOrder);
                 }
-                
+
                 if (claimElement.getFirstChildWithName(new QName(LOCAL_NAME_READ_ONLY)) != null) {
                     claim.setReadOnly(true);
                 }
-                
+
                 if (claimElement.getFirstChildWithName(new QName(LOCAL_NAME_CHECKED_ATTR)) != null) {
                     claim.setReadOnly(true);
                 }
@@ -209,22 +206,23 @@ public class ClaimBuilder {
                 claims.put(claimUri, claimMapping);
             }
         }
-        
-        
+
+
         try {
             if (inStream != null) {
                 inStream.close();
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.error(e.getMessage(), e);
+            }
             throw new ClaimBuilderException(e.getMessage(), e);
         }
-        
+
         return claims;
     }
 
     /**
-     * 
      * @param claimElement
      * @throws ClaimBuilderException
      */
@@ -257,7 +255,6 @@ public class ClaimBuilder {
     }
 
     /**
-     * 
      * @return
      * @throws XMLStreamException
      * @throws IOException
@@ -280,7 +277,7 @@ public class ClaimBuilder {
                     inStream = url.openStream();
                 } else {
                     warningMessage = "Bundle context could not find resource " + CLAIM_CONFIG +
-                        " or user does not have sufficient permission to access the resource.";
+                            " or user does not have sufficient permission to access the resource.";
                 }
 
             } else {
@@ -289,7 +286,7 @@ public class ClaimBuilder {
                     inStream = url.openStream();
                 } else {
                     warningMessage = "ClaimBuilder could not find resource " + CLAIM_CONFIG +
-                        " or user does not have sufficient permission to access the resource.";
+                            " or user does not have sufficient permission to access the resource.";
                 }
             }
         }

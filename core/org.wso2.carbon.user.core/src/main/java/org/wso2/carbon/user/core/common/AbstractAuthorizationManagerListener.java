@@ -27,7 +27,7 @@ public abstract class AbstractAuthorizationManagerListener implements Authorizat
     public boolean isUserAuthorized(String userName, String resourceId, String action, AuthorizationManager authorizationManager) throws UserStoreException {
         return true;
     }
-    
+
     public boolean isRoleAuthorized(String userName, String resourceId, String action, AuthorizationManager authorizationManager) throws UserStoreException {
         return true;
     }
@@ -71,6 +71,7 @@ public abstract class AbstractAuthorizationManagerListener implements Authorizat
     public boolean clearResourceAuthorizations(String resourceId, AuthorizationManager authorizationManager) throws UserStoreException {
         return true;
     }
+
     public boolean resetPermissionOnUpdateRole(String roleName, String newRoleName, AuthorizationManager authorizationManager) throws UserStoreException {
         return true;
     }

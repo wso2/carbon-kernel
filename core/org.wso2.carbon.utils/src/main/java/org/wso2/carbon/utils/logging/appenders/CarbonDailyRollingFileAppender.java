@@ -20,10 +20,12 @@ package org.wso2.carbon.utils.logging.appenders;
 import org.apache.log4j.*;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.bootstrap.logging.LoggingBridge;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.logging.LoggingUtils;
 import org.wso2.carbon.utils.logging.TenantAwareLoggingEvent;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.logging.*;
 
 
@@ -47,14 +49,25 @@ public class CarbonDailyRollingFileAppender extends DailyRollingFileAppender imp
      */
     @Override
     protected void subAppend(LoggingEvent loggingEvent) {
-        PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext
-                .getThreadLocalCarbonContext();
-        int tenantId = privilegedCarbonContext.getTenantId();
-        String serviceName = privilegedCarbonContext.getApplicationName();
+
+        int tenantId = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
+            public Integer run() {
+                return CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            }
+        });
+
+        String serviceName = CarbonContext.getThreadLocalCarbonContext().getApplicationName();
 
         // acquire the tenant aware logging event from the logging event
-        TenantAwareLoggingEvent tenantAwareLoggingEvent = LoggingUtils
+        final TenantAwareLoggingEvent tenantAwareLoggingEvent = LoggingUtils
                 .getTenantAwareLogEvent(loggingEvent, tenantId, serviceName);
-        super.subAppend(tenantAwareLoggingEvent);
+
+        AccessController.doPrivileged(new PrivilegedAction<Void>() {
+            public Void run() {
+                CarbonDailyRollingFileAppender.super.subAppend(tenantAwareLoggingEvent);
+                return null; // nothing to return
+            }
+        });
+
     }
 }

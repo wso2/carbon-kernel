@@ -15,12 +15,13 @@
  */
 package org.wso2.carbon.user.core.util;
 
-import java.util.Map;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
+
+import java.util.Map;
 
 /**
  * Map default JDBC User store properties if they are not configured in user-mgt.xml
- **/
+ */
 
 public class JDBCRealmUtil {
 
@@ -29,22 +30,22 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.SELECT_USER)) {
             properties.put(JDBCRealmConstants.SELECT_USER, JDBCRealmConstants.SELECT_USER_SQL);
         }
-        
+
         if (!properties.containsKey(JDBCRealmConstants.GET_ROLE_LIST)) {
             properties.put(JDBCRealmConstants.GET_ROLE_LIST, JDBCRealmConstants.GET_ROLE_LIST_SQL);
-		}
-        
+        }
+
         if (!properties.containsKey(JDBCRealmConstants.GET_SHARED_ROLE_LIST)) {
             properties.put(JDBCRealmConstants.GET_SHARED_ROLE_LIST, JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL);
-		}
+        }
 
-		if (!properties.containsKey(JDBCRealmConstants.GET_USER_ROLE)) {
-			properties.put(JDBCRealmConstants.GET_USER_ROLE, JDBCRealmConstants.GET_USER_ROLE_SQL);
-		}
-		if (!properties.containsKey(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER)) {
-			properties.put(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER,
-			               JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER_SQL);
-		}
+        if (!properties.containsKey(JDBCRealmConstants.GET_USER_ROLE)) {
+            properties.put(JDBCRealmConstants.GET_USER_ROLE, JDBCRealmConstants.GET_USER_ROLE_SQL);
+        }
+        if (!properties.containsKey(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER)) {
+            properties.put(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER,
+                    JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.GET_USER_FILTER)) {
             properties.put(JDBCRealmConstants.GET_USER_FILTER,
                     JDBCRealmConstants.GET_USER_FILTER_SQL);
@@ -103,20 +104,20 @@ public class JDBCRealmUtil {
         if (!properties.containsKey(JDBCRealmConstants.ADD_ROLE)) {
             properties.put(JDBCRealmConstants.ADD_ROLE, JDBCRealmConstants.ADD_ROLE_SQL);
         }
-		if (!properties.containsKey(JDBCRealmConstants.ADD_SHARED_ROLE)) {
-			properties.put(JDBCRealmConstants.ADD_SHARED_ROLE,
-			               JDBCRealmConstants.ADD_SHARED_ROLE_SQL);
-		}
+        if (!properties.containsKey(JDBCRealmConstants.ADD_SHARED_ROLE)) {
+            properties.put(JDBCRealmConstants.ADD_SHARED_ROLE,
+                    JDBCRealmConstants.ADD_SHARED_ROLE_SQL);
+        }
         if (!properties.containsKey(JDBCRealmConstants.ADD_ROLE_TO_USER)) {
             properties.put(JDBCRealmConstants.ADD_ROLE_TO_USER,
                     JDBCRealmConstants.ADD_ROLE_TO_USER_SQL);
         }
-        
+
         if (!properties.containsKey(JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER)) {
             properties.put(JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER,
                     JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER_SQL);
         }
-        
+
         if (!properties.containsKey(JDBCRealmConstants.ADD_ROLE_PERMISSION)) {
             properties.put(JDBCRealmConstants.ADD_ROLE_PERMISSION,
                     JDBCRealmConstants.ADD_ROLE_PERMISSION_SQL);
@@ -125,10 +126,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.REMOVE_USER_FROM_ROLE,
                     JDBCRealmConstants.REMOVE_USER_FROM_ROLE_SQL);
         }
-		if (!properties.containsKey(JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE)) {
-			properties.put(JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE,
-			               JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE_SQL);
-		}
+        if (!properties.containsKey(JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE)) {
+            properties.put(JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE,
+                    JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE_SQL);
+        }
 
         if (!properties.containsKey(JDBCRealmConstants.REMOVE_ROLE_FROM_USER)) {
             properties.put(JDBCRealmConstants.REMOVE_ROLE_FROM_USER,
@@ -196,10 +197,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.ADD_USER_PROPERTY_MSSQL,
                     JDBCRealmConstants.ADD_USER_PROPERTY_MSSQL_SQL);
         }
-		if (!properties.containsKey(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE)) {
-			properties.put(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE,
-			               JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_SQL);
-		}
+        if (!properties.containsKey(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE)) {
+            properties.put(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE,
+                    JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_SQL);
+        }
 
         //openedge
         if (!properties.containsKey(JDBCRealmConstants.ADD_USER_TO_ROLE_OPENEDGE)) {
@@ -210,10 +211,10 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.ADD_ROLE_TO_USER_OPENEDGE,
                     JDBCRealmConstants.ADD_ROLE_TO_USER_OPENEDGE_SQL);
         }
-		if (!properties.containsKey(JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE)) {
-			properties.put(JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE,
-			               JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE_SQL);
-		}
+        if (!properties.containsKey(JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE)) {
+            properties.put(JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE,
+                    JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE_SQL);
+        }
         return properties;
-    } 
+    }
 }

@@ -13,20 +13,192 @@ below is and where the actual text of the license can be found.
 
 Name                                                                            Type           License   
 ---------------------------------------------------------------------------------------------------------
-[TODO]
+abdera_1.0.0.wso2v3.jar                                                         bundle         apache2   907       
+addressing-1.6.1-wso2v12.mar                                                    bundle         apache2   3877      
+ajaxtags_1.3.0.beta-rc7-wso2v1.jar                                              bundle         apache2   905       
+annogen_0.1.0.wso2v1.jar                                                        bundle         apache2   942       
+ant-contrib-1.0b3.jar                                                           jar            apache2   549       
+antlr_3.2.0.wso2v1.jar                                                          bundle         bsd       838       
+ant_1.7.0.wso2v1.jar                                                            bundle         apache2   1012      
+authenticator_0.7.0.wso2v1.jar                                                  bundle         apache2   700       
+axiom_1.2.11.wso2v6.jar                                                         bundle         apache2   3876      
+axis2-json_1.6.1.wso2v12.jar                                                    bundle         apache2   3875      
+axis2_1.6.1.wso2v12.jar                                                         bundle         apache2   3874      
+backport-util-concurrent_3.1.0.wso2v1.jar                                       bundle         apache2   1007      
+bcprov-jdk15on-1.49.jar                                                         jarinbundle    bouncy    1069      
+bcprov-jdk15on_1.49.0.wso2v2.jar                                                bundle         bouncy    3640      
+commons-beanutils-1.7.0.jar                                                     jarinbundle    apache2   383       
+commons-codec_1.4.0.wso2v1.jar                                                  bundle         apache2   980       
+commons-collections-3.2.0.wso2v1.jar                                            bundle         apache2   779       
+commons-collections_3.2.0.wso2v1.jar                                            bundle         apache2   824       
+commons-dbcp_1.4.0.wso2v1.jar                                                   bundle         apache2   962       
+commons-digester-1.8.jar                                                        jarinbundle    apache2   384       
+commons-fileupload_1.2.2.wso2v1.jar                                             bundle         apache2   830       
+commons-httpclient_3.1.0.wso2v2.jar                                             bundle         apache2   760       
+commons-io_2.0.0.wso2v2.jar                                                     bundle         apache2   678       
+commons-lang-2.6.0.wso2v1.jar                                                   bundle         apache2   664       
+commons-lang_2.6.0.wso2v1.jar                                                   bundle         apache2   940       
+commons-pool_1.5.6.wso2v1.jar                                                   bundle         apache2   1009      
+compass_2.0.1.wso2v2.jar                                                        bundle         apache2   897       
+geronimo-jaxws_2.2_spec-1.0.jar                                                 bundle         apache2   395       
+geronimo-jms_1.1_spec-1.1.0.wso2v1.jar                                          bundle         apache2   661       
+geronimo-jta_1.1_spec-1.1.jar                                                   jar            apache2   1066      
+geronimo-saaj_1.3_spec_1.0.0.wso2v3.jar                                         bundle         apache2   893       
+h2-1.2.140-wso2v3.jar															bundle         epl1 
+h2-database-engine_1.2.140.wso2v3.jar                                           bundle         epl1      697       
+hazelcast_3.2.6.wso2v3.jar                                                      bundle         apache2   3639      
+httpcore_4.3.3.wso2v1.jar                                                       bundle         apache2   3638      
+javasysmon_0.3.3.wso2v1.jar                                                     bundle         bsd       721       
+javax.cache.wso2_4.4.0.jar                                             			bundle         apache2   1135      
+jaxb_2.2.5.wso2v1.jar                                                           bundle         cddl1     883       
+jdbc-pool_7.0.34.wso2v2.jar                                                     bundle         apache2   3637      
+jericho-html-2.4.jar                                                            jarinbundle    epl1      363       
+jettison_1.3.4.wso2v1.jar                                                       bundle         apache2   2162      
+jstl_1.2.1.wso2v2.jar                                                           bundle         cddl1     2204      
+neethi_2.0.4.wso2v4.jar                                                         bundle         apache2   937       
+opencsv-1.8.jar                                                                 jarinbundle    apache2   368       
+opencsv_1.8.0.wso2v1.jar                                                        bundle         apache2   928       
+opensaml-1.1.406.jar                                                            jarinbundle    apache2   351       
+opensaml-2.4.1.jar                                                              jarinbundle    apache2   349       
+opensaml2_2.4.1.wso2v1.jar                                                      bundle         apache2   864       
+openws-1.4.1.jar                                                                jarinbundle    apache2   350       
+org.apache.felix.gogo.command_0.10.0.v201209301215.jar                          bundle         apache2   1134      
+org.apache.felix.gogo.runtime_0.10.0.v201209301036.jar                          bundle         apache2   1133      
+org.apache.felix.gogo.shell_0.10.0.v201212101605.jar                            bundle         apache2   1132      
+org.eclipse.core.contenttype_3.4.200.v20130326-1255.jar                         bundle         epl1      1131      
+org.eclipse.core.expressions_3.4.500.v20130515-1343.jar                         bundle         epl1      1130      
+org.eclipse.core.jobs_3.5.300.v20130429-1813.jar                                bundle         epl1      1129      
+org.eclipse.core.runtime_3.9.0.v20130326-1255.jar                               bundle         epl1      1128      
+org.eclipse.ecf.filetransfer_5.0.0.v20130604-1622.jar                           bundle         epl1      1127      
+org.eclipse.ecf.identity_3.2.0.v20130604-1622.jar                               bundle         epl1      1126      
+org.eclipse.ecf.provider.filetransfer.httpclient_4.0.200.v20120319-0616.jar     bundle         epl1      289       
+org.eclipse.ecf.provider.filetransfer_3.2.0.v20130604-1622.jar                  bundle         epl1      1125      
+org.eclipse.ecf_3.2.0.v20130604-1622.jar                                        bundle         epl1      1124      
+org.eclipse.equinox.app_1.3.100.v20130327-1442.jar                              bundle         epl1      1123      
+org.eclipse.equinox.common_3.6.200.v20130402-1505.jar                           bundle         epl1      1122      
+org.eclipse.equinox.concurrent_1.1.0.v20130327-1442.jar                         bundle         epl1      1121      
+org.eclipse.equinox.console_1.0.100.v20130429-0953.jar                          bundle         epl1      1120      
+org.eclipse.equinox.ds_1.4.101.v20130813-1853.jar                               bundle         epl1      1119      
+org.eclipse.equinox.frameworkadmin.equinox_1.0.500.v20130327-2119.jar           bundle         epl1      1118      
+org.eclipse.equinox.frameworkadmin_2.0.100.v20130327-2119.jar                   bundle         epl1      1117      
+org.eclipse.equinox.http.helper_1.1.0.wso2v1.jar                                bundle         epl1      839       
+org.eclipse.equinox.http.servlet_1.1.400.v20130418-1354.jar                     bundle         epl1      1116      
+org.eclipse.equinox.jsp.jasper_1.0.400.v20120522-2049.jar                       bundle         epl1      388       
+org.eclipse.equinox.launcher_1.3.0.v20130327-1440.jar                           bundle         epl1      1115      
+org.eclipse.equinox.p2.artifact.repository_1.1.100.v20110519.jar                bundle         epl1      337       
+org.eclipse.equinox.p2.console_1.0.300.v20130327-2119.jar                       bundle         epl1      1114      
+org.eclipse.equinox.p2.core_2.3.0.v20130327-2119.jar                            bundle         epl1      1113      
+org.eclipse.equinox.p2.director.app_1.0.300.v20130819-1621.jar                  bundle         epl1      1112      
+org.eclipse.equinox.p2.directorywatcher_1.0.300.v20130327-2119.jar              bundle         epl1      1110      
+org.eclipse.equinox.p2.director_2.3.0.v20130526-0335.jar                        bundle         epl1      1111      
+org.eclipse.equinox.p2.engine_2.3.0.v20130526-2122-wso2v1.jar                   bundle         epl1      3873      
+org.eclipse.equinox.p2.extensionlocation_1.2.100.v20130327-2119.jar             bundle         epl1      1109      
+org.eclipse.equinox.p2.garbagecollector_1.0.200.v20130327-2119.jar              bundle         epl1      1108      
+org.eclipse.equinox.p2.jarprocessor_1.0.300.v20130327-2119.jar                  bundle         epl1      1107      
+org.eclipse.equinox.p2.metadata.repository_1.2.100.v20130327-2119.jar           bundle         epl1      1106      
+org.eclipse.equinox.p2.metadata_2.2.0.v20130523-1557.jar                        bundle         epl1      1105      
+org.eclipse.equinox.p2.publisher_1.2.0.v20110511.jar                            bundle         epl1      306       
+org.eclipse.equinox.p2.repository.tools_2.1.0.v20130327-2119.jar                bundle         epl1      1104      
+org.eclipse.equinox.p2.repository_2.3.0.v20130412-2032.jar                      bundle         epl1      1103      
+org.eclipse.equinox.p2.touchpoint.eclipse_2.1.0.v20110511-wso2v1.jar            bundle         epl1      703       
+org.eclipse.equinox.p2.touchpoint.natives_1.1.100.v20130327-2119.jar            bundle         epl1      1102      
+org.eclipse.equinox.p2.transport.ecf_1.0.100.v20110902-0807.jar                 bundle         epl1      369       
+org.eclipse.equinox.p2.updatechecker_1.1.200.v20130327-2119.jar                 bundle         epl1      1101      
+org.eclipse.equinox.p2.updatesite_1.0.400.v20130515-2028.jar                    bundle         epl1      1100      
+org.eclipse.equinox.preferences_3.5.100.v20130422-1538.jar                      bundle         epl1      1099      
+org.eclipse.equinox.registry_3.5.301.v20130717-1549.jar                         bundle         epl1      1098      
+org.eclipse.equinox.security_1.2.0.v20130424-1801.jar                           bundle         epl1      1097      
+org.eclipse.equinox.simpleconfigurator.manipulator_2.0.0.v20130327-2119.jar     bundle         epl1      1096      
+org.eclipse.equinox.simpleconfigurator_1.0.400.v20130327-2119.jar               bundle         epl1      1095      
+org.eclipse.equinox.util_1.0.500.v20130404-1337.jar                             bundle         epl1      1094      
+org.eclipse.jdt.core.compiler.batch_3.9.1.v20130905-0837.jar                    bundle         epl1      1067      
+org.eclipse.osgi.services_3.3.100.v20130513-1956.jar                            bundle         epl1      1093      
+org.eclipse.osgi_3.9.1.v20130814-1242.jar                                       bundle         epl1      1092      
+org.sat4j.core_2.3.5.v201308161310.jar                                          bundle         epl1+lgpl21091      
+org.sat4j.pb_2.3.5.v201308161310.jar                                            bundle         epl1+lgpl21090      
+org.wso2.carbon.addressing_4.4.0.jar                                   			bundle         apache2   3872      
+org.wso2.carbon.application.deployer_4.4.0.jar                         			bundle         apache2   3871      
+org.wso2.carbon.authenticator.proxy_4.4.0.jar                          			bundle         apache2   3870      
+org.wso2.carbon.authenticator.stub_4.4.0.jar                           			bundle         apache2   3869      
+org.wso2.carbon.base_4.4.0.jar                                         			bundle         apache2   3868      
+org.wso2.carbon.bootstrap-4.4.0.jar                                    bundle         apache2   3822      
+org.wso2.carbon.bridge-4.4.0.jar                                       bundle         apache2   3880      
+org.wso2.carbon.cluster.mgt.core_4.4.0.jar                             			bundle         apache2   3867      
+org.wso2.carbon.core.bootup.validator_4.4.0.jar                        			bundle         apache2   3866      
+org.wso2.carbon.core.commons.stub_4.4.0.jar                            			bundle         apache2   3864      
+org.wso2.carbon.core.common_4.4.0.jar                                  			bundle         apache2   3865      
+org.wso2.carbon.core.services_4.4.0.jar                                			bundle         apache2   3863      
+org.wso2.carbon.core_4.4.0.jar                                         			bundle         apache2   3862      
+org.wso2.carbon.feature.mgt.core_4.4.0.jar                             			bundle         apache2   3861      
+org.wso2.carbon.feature.mgt.services_4.4.0.jar                         			bundle         apache2   3860      
+org.wso2.carbon.feature.mgt.stub_4.4.0.jar                             			bundle         apache2   3859      
+org.wso2.carbon.feature.mgt.ui_4.4.0.jar                               			bundle         apache2   3858      
+org.wso2.carbon.framework.exporter_4.4.0.jar                           			bundle         apache2   3857      
+org.wso2.carbon.http.bridge-4.4.0.jar                                  bundle         apache2   3879      
+org.wso2.carbon.i18n_4.4.0.jar                                         			bundle         apache2   3856      
+org.wso2.carbon.logging_4.4.0.jar                                      			bundle         apache2   3855      
+org.wso2.carbon.ndatasource.common_4.4.0.jar                           			bundle         apache2   3854      
+org.wso2.carbon.ndatasource.core_4.4.0.jar                             			bundle         apache2   3853      
+org.wso2.carbon.ndatasource.rdbms_4.4.0.jar                            			bundle         apache2   3852      
+org.wso2.carbon.osgi.security_4.4.0.jar                                			bundle         apache2   3851      
+org.wso2.carbon.p2.touchpoint_4.4.0.jar                                			bundle         apache2   3850      
+org.wso2.carbon.queuing_4.4.0.jar                                      			bundle         apache2   3849      
+org.wso2.carbon.registry.api_4.4.0.jar                                 			bundle         apache2   3848      
+org.wso2.carbon.registry.core_4.4.0.jar                                			bundle         apache2   3847      
+org.wso2.carbon.registry.server_4.4.0.jar                              			bundle         apache2   3846      
+org.wso2.carbon.roles.mgt.stub_4.4.0.jar                               			bundle         apache2   3845      
+org.wso2.carbon.roles.mgt.ui_4.4.0.jar                                 			bundle         apache2   3844      
+org.wso2.carbon.roles.mgt_4.4.0.jar                                    			bundle         apache2   3843      
+org.wso2.carbon.securevault_4.4.0.jar                                  			bundle         apache2   3842      
+org.wso2.carbon.server-4.4.0.jar                                       bundle         apache2   3823      
+org.wso2.carbon.server.admin.common_4.4.0.jar                          			bundle         apache2   3841      
+org.wso2.carbon.server.admin.stub_4.4.0.jar                            			bundle         apache2   3840      
+org.wso2.carbon.server.admin.ui_4.4.0.jar                              			bundle         apache2   3839      
+org.wso2.carbon.server.admin_4.4.0.jar                                 			bundle         apache2   3838      
+org.wso2.carbon.servletbridge-4.4.0.jar                                bundle         apache2   3878      
+org.wso2.carbon.styles_4.4.0.jar                                       			bundle         apache2   3837      
+org.wso2.carbon.tomcat.ext_4.4.0.jar                                   			bundle         apache2   3836      
+org.wso2.carbon.tomcat_4.4.0.jar                                       			bundle         apache2   3835      
+org.wso2.carbon.ui.menu.general_4.4.0.jar                              			bundle         apache2   3834      
+org.wso2.carbon.ui_4.4.0.jar                                           			bundle         apache2   3833      
+org.wso2.carbon.user.api_4.4.0.jar                                     			bundle         apache2   3832      
+org.wso2.carbon.user.core_4.4.0.jar                                    			bundle         apache2   3831      
+org.wso2.carbon.utils_4.4.0.jar                                        			bundle         apache2   3830      
+org.wso2.securevault_1.0.0.wso2v2.jar                                           bundle         apache2   768       
+pdepublishing-ant.jar                                                           jar            epl1      524       
+pdepublishing.jar                                                               jar            epl1      525       
+poi-ooxml_3.9.0.wso2v3.jar                                                      bundle         apache2   3592      
+poi-scratchpad_3.9.0.wso2v1.jar                                                 bundle         apache2   2205      
+poi_3.9.0.wso2v1.jar                                                            bundle         apache2   2017      
+stax2-api-3.1.4.jar                                                             bundle         bsd       1089      
+tcpmon-1.0.jar                                                                  jar            bsd       255       
+tiles-jsp_2.0.5.wso2v1.jar                                                      bundle         apache2   989       
+tomcat-annotations-api-7.0.59.jar                                               jar            apache2   1088      
+tomcat-catalina-ha_7.0.59.wso2v1.jar                                            bundle         apache2   3829      
+tomcat-el-api_7.0.59.wso2v1.jar                                                 bundle         apache2   3828      
+tomcat-jsp-api_7.0.59.wso2v1.jar                                                bundle         apache2   3827      
+tomcat-juli-7.0.59.jar                                                          jar            apache2   1086      
+tomcat-servlet-api_7.0.59.wso2v1.jar                                            bundle         apache2   3826      
+tomcat_7.0.59.wso2v2.jar                                                        bundle         apache2   3825      
+woden_1.0.0.M9-wso2v1.jar                                                       bundle         apache2   3755      
+woodstox-core-asl-4.4.1.jar                                                     bundle         apache2   1087      
+wsdl4j_1.6.2.wso2v4.jar                                                         bundle         apache2   745       
+xalan-2.7.1.wso2v1.jar                                                          bundle         apache2   659       
+xercesImpl-2.8.1.wso2v2.jar                                                     bundle         apache2   663       
+xml-apis-1.3.04.wso2v2.jar                                                      bundle         apache2   662       
+xmlbeans-2.3.0.jar                                                              jarinbundle    apache2   344       
+xmlbeans_2.3.0.wso2v1.jar                                                       bundle         apache2   749       
+XmlSchema_1.4.7.wso2v3.jar                                                      bundle         apache2   3585      
+xmltooling-1.3.1.jar                                                            jarinbundle    apache2   348       
 
 
 
 The license types used by the above libraries and their information is given below:
 
-cpl1           Common Public License 1.0
-               http://www.eclipse.org/legal/cpl-v10.html
+epl1+lgpl2     EPL1 + LGPL2
+               http://www.eclipse.org/legal/epl-v10.html + http://www.gnu.org/licenses/licenses.html
 epl1           Eclipse Public License
                http://www.eclipse.org/legal/epl-v10.html
-jsmon          ThoughtWorks Javasysmon License
-               https://github.com/jezhumble/javasysmon/blob/master/LICENSE
-lgpl2          Lesser GPL v2.1
-               http://www.opensource.org/licenses/lgpl-2.1.php
 apache2        Apache License Version 2.0
                http://www.apache.org/licenses/LICENSE-2.0.html
 bsd            Berkeley License
@@ -35,5 +207,3 @@ cddl1          Common Development and Distribution License
                http://www.opensource.org/licenses/cddl1.php
 bouncy         Bouncy Castle License
                http://www.bouncycastle.org/licence.html
-public         Public Domain
-               http://creativecommons.org/licenses/publicdomain/

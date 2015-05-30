@@ -12,36 +12,76 @@ Installing  WSO2 Carbon ${carbon.version}
       i)  ./wso2server.sh {start|stop|restart|version}
      ii)  wso2server.bat {start|stop|version}
 
-     Usage: wso2server.sh [command] [system-properties]
+        Usage: wso2server.sh [commands] [system-properties]
 
-     command:
-        --debug <port> 	Start the server in remote debugging mode.
-                port: The remote debugging port.
-        --start		Start Carbon using nohup in the background
-        --stop		Stop the Carbon server process
-        --restart	Restart the Carbon server process
-        --version			What version of the product are you running?
+            commands:
+                --start		Start Carbon using nohup
+                --stop		Stop the Carbon server process
+                --restart	Restart the Carbon server process
+                --cleanRegistry Clean registry space.
+                                [CAUTION] All Registry data will be lost..
+                --debug <port>  Start the server in remote debugging mode.
+                                port: The remote debugging port.
+                --help      List all the available commands and system properties
+                --version   The version of the product you are running.
 
-     system-properties:
-        -DhttpPort=<httpPort>		Overrides the HTTP port defined in the mgt-transports.xml file
-        -DhttpsPort=<httpsPort>		Overrides the HTTPS port defined in the mgt-transports.xml file
-        -DosgiConsole=[port]		Start Carbon with Equinox OSGi console.
-                                    If the optional 'port' parameter is provided, a telnet port will be opened
-        -DosgiDebugOptions=[options-file]
-                                    Start Carbon with OSGi debugging enabled.
-                                    If the optional 'options-file is provided, the OSGi debug options will be loaded from it.
-        -Dsetup				        Clean the Registry & other configuration, recreate DB, re-populate the configuration, and start Carbon
-        -DserverRoles=<roles>		A comma separated list of roles. Used in deploying cApps
-        -Dcarbon.use.registry.repo	Use registry based repository.
-        -DdisableHttpLog		    Disable HTTP access logging
-        -DworkerNode			    Set this system property when starting as a worker node.
-                                    This is required in clustered setups with master and worker nodes.
+            system-properties:
 
+                -DosgiConsole=[port]
+                                Start Carbon with Equinox OSGi console.
+                                If the optional 'port' parameter is provided, a
+                                telnet port will be opened.
+
+                -DosgiDebugOptions
+                                Start Carbon with OSGi debugging enabled.
+                                Debug options are loaded from the file
+                                repository/conf/etc/osgi-debug.options
+
+                -Dsetup         Clean the Registry and other configuration,
+                                recreate DB, re-populate the configuration,
+                                and start Carbon.
+
+                -DhttpPort=<httpPort>
+                                Overrides the HTTP port defined in the carbon.xml file
+
+                -DhttpsPort=<httpsPort>
+                                Overrides the HTTPS port defined in the carbon.xml file
+
+                -DportOffset=<offset>
+                                The number by which all ports defined in the runtime ports will be offset
+
+                -DserverRoles<roles>
+                                A comma separated list of roles. Used in deploying cApps
+ 
+                -DworkerNode
+                                Set this system property when starting as a worker node.
+		
+                -Dprofile=<profileName>
+				Starts the server as the specified profile. e.g. worker profile.
+
+                -Dtenant.idle.time=<timeInMinutes>
+                                If a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.
+
+                -Dcarbon.registry.root
+                                The root of the Registry used by
+                                this Carbon instance.
+
+                -Dweb.location=<path>
+                                The directory into which the UI artifacts
+                                included in an Axis2 AAR file are extracted to.
+
+                -Dcarbon.config.dir.path=<path>
+                        Overwrite the conf directory path where we keep all
+                        configuration files like carbon.xml, axis2.xml etc.
+
+                -Dcarbon.logs.path=>path>
+                        Define the path to keep Log files. If you want to change the logs directory, you need to update
+                        repository/conf/log4j.properties file also.
 
 Hardware and Software Requirements
 -------------------
 For more details see
-http://docs.wso2.org/wiki/display/Carbon430/Installing+the+Product
+http://docs.wso2.org/wiki/display/Carbon440/Installing+the+Product
 
 
 

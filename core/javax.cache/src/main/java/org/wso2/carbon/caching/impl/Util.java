@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.caching.impl;
 
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -57,8 +58,36 @@ public final class Util {
         return carbonContext;
     }
 
+    /**
+     * Get map name of a cache in the distributed map provider
+     * @param cacheName name of the cache
+     * @param ownerTenantDomain owner tenant domain of the cache manager
+     * @param cacheManagerName name of the cache manager
+     * @return the distributed map name
+     */
+    public static String getDistributedMapNameOfCache(String cacheName, String ownerTenantDomain,
+                                                      String cacheManagerName) {
+        return "$cache.$domain[" + ownerTenantDomain + "]" +
+                cacheManagerName + "#" + cacheName;
+    }
+
     public static String getTenantDomain() {
         return getCarbonContext().getTenantDomain();
+    }
+
+    /**
+     * Return the default cache timeout value (Mins) specified in Carbon.xml
+     *
+     * @return long
+     */
+    public static long getDefaultCacheTimeout() {
+        ServerConfigurationService serverConfigService = DataHolder.getInstance().getServerConfigurationService();
+        if (serverConfigService != null) {
+            String defaultCacheTimeoutValue = serverConfigService.getFirstProperty("Cache.DefaultCacheTimeout");
+            return defaultCacheTimeoutValue == null ? CachingConstants.DEFAULT_CACHE_EXPIRY_MINS :
+                    Long.parseLong(defaultCacheTimeoutValue);
+        }
+        return CachingConstants.DEFAULT_CACHE_EXPIRY_MINS;
     }
 
     private Util() {

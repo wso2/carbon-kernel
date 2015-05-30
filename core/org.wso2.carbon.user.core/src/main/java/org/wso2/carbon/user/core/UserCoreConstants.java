@@ -63,18 +63,40 @@ public class UserCoreConstants {
     public static final String IS_USER_IN_ROLE_CACHE_IDENTIFIER = "@__isUserHasTheRole__@";
 
     public static final String DOMAIN_SEPARATOR = "/";
-    
+
     public static final String PRINCIPAL_USERNAME_SEPARATOR = "_";
-    
+
     public static final String SHARED_ROLE_TENANT_SEPERATOR = "@SharedRoleSeperator@";
 
     public static final String NAME_COMBINER = "|";
-    
+
     public static final String TENANT_DOMAIN_COMBINER = "@";
-    
+
     public static final String SHARED_ROLE_TENANT_COMBINER = "~";
 
     public static final int USER_ROLE_CACHE_DEFAULT_TIME_OUT = 5;
+    public static final String INVOKE_SERVICE_PERMISSION = "invoke-service";
+    public static final String AUTHZ_CACHE = "AuthzCache";
+    public static final String ROLE_CACHE = "RoleCache";
+    public static final int MAX_OBJECTS_IN_CACHE = 5000;
+    public static final int TTL_CACHE = 30;
+    public static final int IDLE_TIME_IN_CACHE = 0;
+    public static final String DEFAULT_PROFILE = "default";
+    public static final String DEFAULT_PROFILE_CONFIGURATION = "default";
+    public static final String PROFILE_CONFIGURATION = "profileConfiguration";
+    public static final String PICTURE_CLAIM = "picture";
+    public static final String ROLE_CLAIM = "http://wso2.org/claims/role";
+    public static final String INT_ROLE_CLAIM = "http://wso2.org/claims/role/internal";
+    public static final String EXT_ROLE_CLAIM = "http://wso2.org/claims/role/external";
+    public static final String CLAIM_HIDDEN = "Hidden";
+    public static final String CLAIM_OVERRIDEN = "Overridden";
+    public static final String CLAIM_INHERITED = "Inherited";
+    public static final String AUTHORIZATION_ACTION_LOGIN = "login";
+    public static final String AUTHORIZATION_ACTION_MANAGE_CONFIGURATION = "manage-configuration";
+    public static final String AUTHORIZATION_ACTION_MANAGE_SECURITY = "manage-security";
+    public static final String LOCAL_NAME_PROPERTY = "Property";
+    public static final String USER_LOCKED = "true";
+    public static final String USER_UNLOCKED = "false";
 
     public static final class RealmConfig {
         public static final String LOCAL_NAME_USER_MANAGER = "UserManager";
@@ -106,19 +128,19 @@ public class UserCoreConstants {
         public static final String PROPERTY_IS_USERS_OF_ROLE_LISTING = "IsUsersOfRoleListing";
         public static final String PROPERTY_READ_ONLY = "ReadOnly";
         public static final String CLASS_DESCRIPTION = "Description";
-        
+
         public static final String EMAIL_VALIDATION_REGEX = "^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$";
-        
+
         @Deprecated
         public static final String PROPERTY_INTERNAL_ROLES_ONLY = "InternalJDBCRolesOnly";
-        public static final String PROPERTY_MAX_USER_LIST = "MaxUserNameListLength";        
+        public static final String PROPERTY_MAX_USER_LIST = "MaxUserNameListLength";
         public static final String PROPERTY_MAX_ROLE_LIST = "MaxRoleNameListLength";
         public static final String PROPERTY_MAX_SEARCH_TIME = "MaxSearchQueryTime";
 
         public static final String READ_GROUPS_ENABLED = "ReadGroups";
 
         public static final String WRITE_GROUPS_ENABLED = "WriteGroups";
-        
+
         public static final String USER_STORE_DISABLED = "Disabled";
 
         public static final String PROPERTY_VALUE_DOMAIN_CALCULATION_DEFAULT = "default";
@@ -136,7 +158,7 @@ public class UserCoreConstants {
 
         public static final String PROPERTY_ROLE_NAME_JAVA_REG_EX = "RolenameJavaRegEx";
         public static final String PROPERTY_ROLE_NAME_JS_REG_EX = "RolenameJavaScriptRegEx";
-        
+
         public static final String PROPERTY_EXTERNAL_IDP = "ExternalIdP";
 
         public static final String PROPERTY_KDC_ENABLED = "kdcEnabled";
@@ -162,11 +184,11 @@ public class UserCoreConstants {
         public static final String PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN = "ReplaceEscapeCharactersAtUserLogin";
 
         public static final String PASSWORD_HASH_METHOD_PLAIN_TEXT = "PLAIN_TEXT";
-        
+
         public static final String PROPERTY_DOMAIN_NAME = "DomainName";
-        
+
         //Internal Properties
-        public static final String STATIC_USER_STORE = "StaticUserStore" ;
+        public static final String STATIC_USER_STORE = "StaticUserStore";
 
         public static final String PROPERTY_GROUP_SEARCH_DOMAINS = "GroupSearchDomains";
 
@@ -177,39 +199,6 @@ public class UserCoreConstants {
         public static final String SHARED_GROUPS_ENABLED = "SharedGroupEnabled";
         public static final String DOMAIN_NAME_XPATH = "//UserStoreManager/Property[@name='DomainName']";
     }
-
-
-    public static final String INVOKE_SERVICE_PERMISSION = "invoke-service";
-
-    public static final String AUTHZ_CACHE = "AuthzCache";
-    public static final String ROLE_CACHE = "RoleCache";
-
-    public static final int MAX_OBJECTS_IN_CACHE = 5000;
-    public static final int TTL_CACHE = 30;
-    public static final int IDLE_TIME_IN_CACHE = 0;
-
-    public static final String DEFAULT_PROFILE = "default";
-    public static final String DEFAULT_PROFILE_CONFIGURATION = "default";
-    public static final String PROFILE_CONFIGURATION = "profileConfiguration";
-    public static final String PICTURE_CLAIM = "picture";
-    
-    public static final String ROLE_CLAIM = "http://wso2.org/claims/role";
-    public static final String INT_ROLE_CLAIM = "http://wso2.org/claims/role/internal";
-    public static final String EXT_ROLE_CLAIM = "http://wso2.org/claims/role/external";
-
-    public static final String CLAIM_HIDDEN = "Hidden";
-    public static final String CLAIM_OVERRIDEN = "Overridden";
-    public static final String CLAIM_INHERITED = "Inherited";
-
-    public static final String AUTHORIZATION_ACTION_LOGIN = "login";
-    public static final String AUTHORIZATION_ACTION_MANAGE_CONFIGURATION = "manage-configuration";
-    public static final String AUTHORIZATION_ACTION_MANAGE_SECURITY = "manage-security";
-
-    public static final String LOCAL_NAME_PROPERTY = "Property";
-
-    public static final String USER_LOCKED = "true";
-
-    public static final String USER_UNLOCKED = "false";
 
     public static final class ClaimTypeURIs {
         public static final String GIVEN_NAME = DEFAULT_CARBON_DIALECT + "/givenname";
@@ -230,9 +219,9 @@ public class UserCoreConstants {
         public static final String NICKNAME = DEFAULT_CARBON_DIALECT + "/nickname";
         public static final String DATE_OF_BIRTH = DEFAULT_CARBON_DIALECT + "/dob";
         public static final String GENDER = DEFAULT_CARBON_DIALECT + "/gender";
-        public static final String ACCOUNT_STATUS = DEFAULT_CARBON_DIALECT + "/accountLock";
-        public static final String CHALLENGE_QUESTION_URI = DEFAULT_CARBON_DIALECT + "/challengeQuestion";
         public static final String IDENTITY_CLAIM_URI = DEFAULT_CARBON_DIALECT + "/identity";
+        public static final String ACCOUNT_STATUS = IDENTITY_CLAIM_URI + "/accountLock";
+        public static final String CHALLENGE_QUESTION_URI = IDENTITY_CLAIM_URI + "/challengeQuestion";
         public static final String TEMPORARY_EMAIL_ADDRESS = DEFAULT_CARBON_DIALECT + "/temporaryemailaddress";
     }
 
@@ -253,7 +242,7 @@ public class UserCoreConstants {
         public static final String PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE =
                 "OrganizationalSubContextGroupContextName";
         public static final String PROPERTY_MULTI_TENANT_REALM_CONFIG_BUILDER =
-        		"MultiTenantRealmConfigBuilder";
+                "MultiTenantRealmConfigBuilder";
 
     }
 

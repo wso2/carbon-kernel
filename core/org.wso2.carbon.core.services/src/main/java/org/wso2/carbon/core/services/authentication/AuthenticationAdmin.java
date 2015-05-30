@@ -35,7 +35,6 @@ import org.wso2.carbon.user.api.UserRealm;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.AuthenticationObserver;
-import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -221,20 +220,34 @@ public class AuthenticationAdmin implements CarbonServerAuthenticator {
                 throw new AuthenticationException(e);
             }
             if (delegatedBy == null && loggedInUser != null) {
-            	String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime);
+                String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime);
                 log.info(logMsg);
                 audit.info(logMsg);
             } else if (loggedInUser != null) {
-            	String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime)
+                String logMsg = "'" + loggedInUser + "@" + tenantDomain + " [" + tenantId + "]' logged out at " + date.format(currentTime)
                         + " delegated by " + delegatedBy;
                 log.info(logMsg);
                 audit.info(logMsg);
             }
             //We should not invalidate the session if the system is running on local transport
-            if(!CarbonUtils.isRunningOnLocalTransportMode()){
+            if (!isRequestedFromLocalTransport()) {
                 session.invalidate();
             }
         }
+    }
+
+    /**
+     * Checks the incoming request transport
+     *
+     * @return true if the incoming request is from a local transport
+     */
+    private boolean isRequestedFromLocalTransport() {
+        MessageContext msgCtx = MessageContext.getCurrentMessageContext();
+        if (msgCtx != null) {
+            String incomingTransportName = msgCtx.getIncomingTransportName();
+            return incomingTransportName.equals(ServerConstants.LOCAL_TRANSPORT);
+        }
+        return false;
     }
 
     public String getAuthenticatorName() {

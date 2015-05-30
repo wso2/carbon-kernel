@@ -32,7 +32,11 @@ import org.wso2.carbon.user.core.ldap.LDAPConnectionContext;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,26 +45,23 @@ import java.util.concurrent.ConcurrentHashMap;
  * Store the realm configuration of tenant to file system and rest in database
  */
 public class FileSystemTenantManager extends CommonHybridLDAPTenantManager {
-    DataSource dataSource;
     private static Log log = LogFactory.getLog(TenantManager.class);
-    protected BundleContext bundleContext;
     private final String CarbonHome = CarbonUtils.getCarbonHome();
     private String filePath = CarbonHome + "/repository/tenants/";
     private final String userMgtXml = "user-mgt.xml";
-
+    protected BundleContext bundleContext;
+    protected TenantCache tenantCacheManager = TenantCache.getInstance();
+    DataSource dataSource;
     /**
      * Map which maps tenant domains to tenant IDs
      * <p/>
      * Key - tenant domain, value - tenantId
      */
     private Map tenantDomainIdMap = new ConcurrentHashMap<String, Integer>();
-
     /**
      * This is the reverse of the tenantDomainIdMap. Key - tenantId, value - tenant domain
      */
     private Map tenantIdDomainMap = new ConcurrentHashMap<Integer, String>();
-
-    protected TenantCache tenantCacheManager = TenantCache.getInstance();
     private LDAPConnectionContext ldapConnectionSource;
     private TenantMgtConfiguration tenantMgtConfig = null;
     private RealmConfiguration realmConfig = null;
@@ -134,7 +135,7 @@ public class FileSystemTenantManager extends CommonHybridLDAPTenantManager {
             //Set tenant id for all user stores
             realmConfig.setTenantId(tenantId);
             RealmConfiguration secondary = realmConfig.getSecondaryRealmConfig();
-            while(secondary!=null){
+            while (secondary != null) {
                 secondary.setTenantId(tenantId);
                 secondary = secondary.getSecondaryRealmConfig();
             }
@@ -144,7 +145,11 @@ public class FileSystemTenantManager extends CommonHybridLDAPTenantManager {
             tenantCacheManager.addToCache(new TenantIdKey(tenantId), new TenantCacheEntry<Tenant>(tenant));
 
         } catch (CarbonException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting tenant from tenant id : " + tenant;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (FileNotFoundException e) {
             log.error("Realm configuration file 'user-mgt.xml',does not exist for tenant:" + tenantId);
         }

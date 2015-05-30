@@ -53,9 +53,10 @@ import java.lang.reflect.InvocationTargetException;
 * cardinality="0..1" policy="dynamic"  bind="setConfigurationContextService" unbind="unsetConfigurationContextService" 
 */
 public class DataSourceServiceComponent {
+
 	private static final Log log = LogFactory.getLog(DataSourceServiceComponent.class);
 
-    private static final String DATA_SOURCE_REPO_CLASS_TAG="CarbonDataSourceRepositoryClass";
+    private static final String DATA_SOURCE_REPO_CLASS_TAG = "CarbonDataSourceRepositoryClass";
 	
 	private static RegistryService registryService;
 	
@@ -81,7 +82,7 @@ public class DataSourceServiceComponent {
 			log.debug("DataSourceServiceComponent activated");
 		}
         /** Attempting to load the DatasourceRepository implementation class defined in carbon.xml
-        .*If it is not there it will use default implementation
+        .* If it is not there it will use default implementation
          */
         String carbonDataSourceRepositoryClassName =
                 CarbonUtils.getServerConfiguration().getFirstProperty(

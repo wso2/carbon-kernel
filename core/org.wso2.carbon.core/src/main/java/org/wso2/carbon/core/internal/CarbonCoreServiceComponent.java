@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.context.CarbonCoreInitializedEvent;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
@@ -58,6 +59,8 @@ import java.util.List;
  * cardinality="0..n" policy="dynamic" bind="addCoordinatedActivity" unbind="removeCoordinatedActivity"
  * @scr.reference name="serverStartupObserver" interface="org.wso2.carbon.core.ServerStartupObserver"
  * cardinality="0..n" policy="dynamic"  bind="addServerStartupObserver" unbind="removeServerStartupObserver"
+ * @scr.reference name="carbonCoreInitializedEventService" interface="org.wso2.carbon.context.CarbonCoreInitializedEvent"
+ * cardinality="1..1" policy="dynamic"  bind="setCarbonCoreInitializedEventService" unbind="unsetCarbonCoreInitializedEventService"
   */
 public class CarbonCoreServiceComponent {
 
@@ -84,7 +87,6 @@ public class CarbonCoreServiceComponent {
             carbonContext.setTenantDomain(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID);
             ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null) ;
-            ctxt.getBundleContext().registerService(Axis2ConfigurationContextObserver.class.getName(), new DeploymentAxis2ConfigurationContextObserver(), null);
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(ctxt.getBundleContext());
         } catch (Throwable e) {
@@ -242,4 +244,8 @@ public class CarbonCoreServiceComponent {
         startupHandlers.clear();
 
     }
+
+    protected void unsetCarbonCoreInitializedEventService(CarbonCoreInitializedEvent carbonCoreInitializedEvent){}
+
+    protected void setCarbonCoreInitializedEventService(CarbonCoreInitializedEvent carbonCoreInitializedEventService){}
 }

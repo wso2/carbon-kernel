@@ -15,14 +15,12 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
@@ -67,33 +65,24 @@
         </mailingList>
     </mailingLists>
 
-    <!--<scm>-->
-        <!--<connection>scm:svn:http://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/</connection>-->
-        <!--<developerConnection>scm:svn:https://svn.wso2.org/repos/wso2/branches/carbon/3.1.0/core/-->
-        <!--</developerConnection>-->
-    <!--</scm>-->
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
-                <version>1.7.4</version>
             </plugin>
         </plugins>
         <testResources>
@@ -131,13 +120,11 @@
         <module>org.wso2.carbon.registry.xboot</module>
         <module>org.wso2.carbon.logging</module>
         <module>org.wso2.carbon.queuing</module>
-        <!--module>org.wso2.carbon.caching.core</module-->
         <module>org.wso2.carbon.utils</module>
         <module>org.wso2.carbon.securevault</module>
         <module>org.wso2.carbon.registry.core</module>
         <module>org.wso2.carbon.registry.server</module>
         <module>org.wso2.carbon.application.deployer</module>
-        <!--module>org.wso2.carbon.context</module-->
         <module>org.wso2.carbon.core</module>
         <module>org.wso2.carbon.bridge</module>
         <module>org.wso2.carbon.http.bridge</module>
@@ -166,7 +153,5 @@
         <module>org.wso2.carbon.ndatasource.core</module>
         <module>org.wso2.carbon.ndatasource.rdbms</module>
         <module>org.wso2.carbon.framework.exporter</module>
-        <module>org.wso2.carbon.jasper.fragment</module>
-        <module>org.wso2.carbon.jasper.patch</module>
     </modules>
 </project>

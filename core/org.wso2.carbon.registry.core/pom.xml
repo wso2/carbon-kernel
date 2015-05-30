@@ -15,25 +15,63 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
-	<relativePath>../pom.xml</relativePath>
+        <version>4.4.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.registry.core</artifactId>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Registry Kernel</name>
-    <version>4.3.0-SNAPSHOT</version>
     <description>OSGi Bundle for Carbon WSO2 Registry Impl</description>
 
+    <profiles>
+        <profile>
+            <id>doclint-java8-disable</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-site-plugin</artifactId>
+                        <version>3.3</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                                <configuration>
+                                    <reportPlugins>
+                                        <plugin>
+                                            <groupId>org.apache.maven.plugins</groupId>
+                                            <artifactId>maven-javadoc-plugin</artifactId>
+                                            <version>2.9</version>
+                                            <configuration>
+                                                <additionalparam>-Xdoclint:none</additionalparam>
+                                                <links>
+                                                    <link>http://java.sun.com/j2se/1.5/docs/api/</link>
+                                                </links>
+                                            </configuration>
+                                            <reports>
+                                                <report>javadoc</report>
+                                            </reports>
+                                        </plugin>
+                                    </reportPlugins>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
@@ -43,7 +81,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -73,7 +110,7 @@
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             org.apache.lucene.*,
                             org.apache.commons.io.*; version="0.0.0",
-							org.wso2.carbon.caching.impl.*,
+                            org.wso2.carbon.caching.impl.*,
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
@@ -93,7 +130,7 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
-                 <executions>
+                <executions>
                     <execution>
                         <id>test-set0</id>
                         <phase>integration-test</phase>
@@ -304,7 +341,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.3</version>
@@ -319,7 +355,7 @@
                                 <plugin>
                                     <groupId>org.apache.maven.plugins</groupId>
                                     <artifactId>maven-javadoc-plugin</artifactId>
-                                    <version>2.8</version>
+                                    <version>2.9</version>
                                     <configuration>
                                         <links>
                                             <link>http://java.sun.com/j2se/1.5/docs/api/</link>
@@ -335,25 +371,23 @@
                 </executions>
             </plugin>
             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-assembly-plugin</artifactId>
-               <version>2.2-beta-2</version>
-               <executions>
-                   <execution>
-                       <id>dist</id>
-                       <phase>package</phase>
-                       <goals>
-                           <goal>attached</goal>
-                       </goals>
-                       <configuration>
-                           <descriptors>
-                               <descriptor>src/main/assembly/docs.xml</descriptor>
-                           </descriptors>
-                       </configuration>
-                   </execution>
-               </executions>
-           </plugin>
-
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/docs.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -423,22 +457,18 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.api</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.utils</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>javax.cache.wso2</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.registry.xboot</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.securevault</groupId>
@@ -453,7 +483,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.user.core</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.compass-project.wso2</groupId>
@@ -466,52 +495,33 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.ndatasource.rdbms</artifactId>
-            <version>4.3.0-SNAPSHOT</version>
+            <groupId>org.apache.tomcat.wso2</groupId>
+            <artifactId>jdbc-pool</artifactId>
+            <version>${jdbc-pool.version}</version>
         </dependency>
-        <!--
-          <dependency>
-              <groupId>org.wso2.pwprovider</groupId>
-              <artifactId>org.wso2.pwprovider</artifactId>
-              <version>1.6.4</version>
-          </dependency>
-          -->
         <dependency>
             <groupId>org.apache.poi.wso2</groupId>
             <artifactId>poi-scratchpad</artifactId>
-            <version>${orbit.version.poi}</version>
         </dependency>
         <dependency>
             <groupId>commons-httpclient.wso2</groupId>
             <artifactId>commons-httpclient</artifactId>
-            <version>${orbit.version.commons.httpclient}</version>
         </dependency>
         <dependency>
             <groupId>commons-pool.wso2</groupId>
             <artifactId>commons-pool</artifactId>
-            <version>${orbit.version.commons.pool}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.infinispan.wso2</groupId>
-            <artifactId>infinispan-core</artifactId>
-            <version>${orbit.version.infinispan}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache.wso2</groupId>
             <artifactId>ehcache</artifactId>
-            <version>${version.ehcache}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>backport-util-concurrent.wso2</groupId>
             <artifactId>backport-util-concurrent</artifactId>
-            <version>${version.backport.util.concurrent}</version>
-  	   <scope>test</scope>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

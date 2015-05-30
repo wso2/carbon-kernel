@@ -17,9 +17,7 @@
 */
 package org.wso2.carbon.user.core.profile;
 
-import org.wso2.carbon.user.core.UserStoreException;
-
 public interface ProfileConfigurationManager extends
-                                             org.wso2.carbon.user.api.ProfileConfigurationManager {
+        org.wso2.carbon.user.api.ProfileConfigurationManager {
 
 }

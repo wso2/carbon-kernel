@@ -31,6 +31,7 @@ import org.wso2.carbon.utils.CarbonUtils;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -105,10 +106,22 @@ public class ProvisioningAdminClient {
         return featureInfo;
     }
 
-    public LicenseInfo[] getLicensingInformation() throws Exception {
-        LicenseInfo[] licenseInfo = null;
+    public LicenseFeatureHolder[] getLicensingInformation() throws Exception {
+        LicenseFeatureHolder[] licenseFeatureHolders = null;
         try {
-            licenseInfo = provAdminStub.getLicensingInformation();
+	        licenseFeatureHolders = provAdminStub.getFeatureLicenseInfo();
+	        Arrays.sort(licenseFeatureHolders, new Comparator<LicenseFeatureHolder>() {
+		        @Override
+		        public int compare(LicenseFeatureHolder o1, LicenseFeatureHolder o2) {
+			        if (o1.getLicenseInfo() == null && o2.getLicenseInfo() == null) {
+				        return 0;
+			        } else if (o2.getLicenseInfo() == null) {
+				        return 1;
+			        } else {
+				        return -1;
+			        }
+		        }
+	        });
         } catch (AxisFault e) {
             if (e.getFaultCode() != null) {
                 handleException(bundle.getString(e.getFaultCode().getLocalPart()), e);
@@ -116,7 +129,7 @@ public class ProvisioningAdminClient {
                 handleException(bundle.getString("failed.get.license.info"), e);
             }
         }
-        return licenseInfo;
+        return licenseFeatureHolders;
     }
 
     public void performInstallation(String actionType) throws Exception {

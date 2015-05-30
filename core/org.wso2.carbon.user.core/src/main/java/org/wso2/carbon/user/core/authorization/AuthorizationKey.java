@@ -16,12 +16,13 @@
 
 package org.wso2.carbon.user.core.authorization;
 
+import org.wso2.carbon.base.MultitenantConstants;
+
 import java.io.Serializable;
+
 /**
  * Date: Oct 7, 2010 Time: 11:13:54 AM
  */
-
-import org.wso2.carbon.base.MultitenantConstants;
 
 /**
  * A key class which wraps a cache key used by Authorization manager.
@@ -51,22 +52,22 @@ public class AuthorizationKey implements Serializable {
     @Override
     public boolean equals(Object otherObject) {
 
-        if (!(otherObject instanceof AuthorizationKey)) {
+        if ((otherObject==null) || !(otherObject instanceof AuthorizationKey)) {
             return false;
         }
 
-        AuthorizationKey secondObject = (AuthorizationKey)otherObject;
+        AuthorizationKey secondObject = (AuthorizationKey) otherObject;
 
         // serverId can be null. We assume other parameters are not null.
         return checkAttributesAreEqual(this.serverId, this.tenantId, this.userName, this.resourceId,
-                                                                        this.action, secondObject);
+                this.action, secondObject);
     }
 
     @Override
     public int hashCode() {
 
         return getHashCodeForAttributes(this.serverId, this.tenantId, this.userName,
-                                                                    this.resourceId, this.action);
+                this.resourceId, this.action);
     }
 
     public String getUserName() {
@@ -98,27 +99,27 @@ public class AuthorizationKey implements Serializable {
 
         if ((tenantId != MultitenantConstants.INVALID_TENANT_ID) && userName != null &&
                 severId != null) {
-        	if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
-        		tenantId = 0;
-        	}
-            return tenantId +  userName.toLowerCase().hashCode() * 5 + severId.hashCode() * 7 +
+            if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
+                tenantId = 0;
+            }
+            return tenantId + userName.toLowerCase().hashCode() * 5 + severId.hashCode() * 7 +
                     resourceId.hashCode() * 11 + action.hashCode() * 13;
-        } else if(severId != null){
+        } else if (severId != null) {
             return severId.hashCode() * 7 + resourceId.hashCode() * 11 + action.hashCode() * 11;
         } else {
-            return resourceId.hashCode() * 11 + action.hashCode() * 13;    
+            return resourceId.hashCode() * 11 + action.hashCode() * 13;
         }
     }
 
     private boolean checkAttributesAreEqual(String serverId, int tenantId, String userName,
                                             String resourceIdentifier, String actionName,
                                             AuthorizationKey authorizationKey) {
-        boolean equality = tenantId==authorizationKey.getTenantId() &&
+        boolean equality = tenantId == authorizationKey.getTenantId() &&
                 userName.equalsIgnoreCase(authorizationKey.getUserName()) &&
                 resourceIdentifier.equals(authorizationKey.getResourceId()) &&
                 actionName.equals(authorizationKey.getAction());
         //as server id can be null, then we skip the equality of it.
-        if(serverId != null){
+        if (serverId != null) {
             equality = equality && serverId.equals(authorizationKey.getServerId());
         }
         return equality;

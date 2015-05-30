@@ -22,21 +22,10 @@ import org.apache.axis2.clustering.ClusteringFault;
 import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.description.Parameter;
-import org.apache.axis2.engine.AxisConfigurator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.wso2.carbon.context.PrivilegedCarbonContext;
-import org.wso2.carbon.core.CarbonAxisConfigurator;
-import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.core.multitenancy.TenantAxisConfigurator;
 import org.wso2.carbon.core.multitenancy.utils.TenantAxisUtils;
-import org.wso2.carbon.utils.CarbonUtils;
-import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -74,7 +63,7 @@ public class SynchronizeRepositoryRequest extends ClusteringMessage {
                     get(tenantDomain).getAxisConfiguration().
                     getParameter(CarbonDeploymentSchedulerTask.REPO_UPDATE_REQUIRED);
         }
-        log.info("Updating repo update required parameter");
+        log.debug("Updating repo update required parameter");
         if (parameter != null) {
             ((AtomicBoolean) parameter.getValue()).compareAndSet(false, true);
         }

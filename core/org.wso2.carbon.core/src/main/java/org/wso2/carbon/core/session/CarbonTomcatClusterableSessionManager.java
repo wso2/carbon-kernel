@@ -291,27 +291,25 @@ public class CarbonTomcatClusterableSessionManager extends DeltaManager {
     @Override
     protected void sendCreateSession(String sessionId, DeltaSession session) {
         // Send create session evt to all backup node
-        if (cluster.getMembers().length > 0) {
-            CarbonTomcatSessionMessage msg =
-                    new CarbonTomcatSessionMessage(getName(),
-                                             SessionMessage.EVT_SESSION_CREATED,
-                                             null,
-                                             sessionId,
-                                             sessionId + "-" + System.currentTimeMillis());
-            if (log.isDebugEnabled()) {
-                log.debug(sm.getString("deltaManager.sendMessage.newSession", name, sessionId));
+        CarbonTomcatSessionMessage msg =
+                new CarbonTomcatSessionMessage(getName(),
+                                         SessionMessage.EVT_SESSION_CREATED,
+                                         null,
+                                         sessionId,
+                                         sessionId + "-" + System.currentTimeMillis());
+        if (log.isDebugEnabled()) {
+            log.debug(sm.getString("deltaManager.sendMessage.newSession", name, sessionId));
+        }
+        msg.setTimestamp(session.getCreationTime());
+        try {
+            ClusteringAgent clusteringAgent =
+                    CarbonCoreDataHolder.getInstance().getMainServerConfigContext().
+                            getAxisConfiguration().getClusteringAgent();
+            if (clusteringAgent != null) {
+                clusteringAgent.sendMessage(msg, true);
             }
-            msg.setTimestamp(session.getCreationTime());
-            try {
-                ClusteringAgent clusteringAgent =
-                        CarbonCoreDataHolder.getInstance().getMainServerConfigContext().
-                                getAxisConfiguration().getClusteringAgent();
-                if (clusteringAgent != null) {
-                    clusteringAgent.sendMessage(msg, true);
-                }
-            } catch (ClusteringFault clusteringFault) {
-                log.error("Clustering Fault :", clusteringFault);
-            }
+        } catch (ClusteringFault clusteringFault) {
+            log.error("Clustering Fault :", clusteringFault);
         }
     }
 
@@ -348,28 +346,32 @@ public class CarbonTomcatClusterableSessionManager extends DeltaManager {
 
     @Override
     public synchronized void getAllClusterSessions() {
-        if (cluster != null && cluster.getMembers().length > 0) {
-            Member mbr = findSessionMasterMember();
-            if (mbr == null) { // No domain member found
-                return;
-            }
-            CarbonTomcatSessionMessage msg =
-                    new CarbonTomcatSessionMessage(this.getName(), SessionMessage.EVT_GET_ALL_SESSIONS,
-                                                   null, "GET-ALL", "GET-ALL-" + getName());
+        CarbonTomcatSessionMessage msg =
+                new CarbonTomcatSessionMessage(this.getName(), SessionMessage.EVT_GET_ALL_SESSIONS,
+                        null, "GET-ALL", "GET-ALL-" + getName());
 
-            synchronized (receivedMessageQueue) {
-                receiverQueue = true;
-            }
-            // Save this message so that it can be sent to the cluster nodes later, because at
-            // the this method gets called, the cluster is not initialized
-            messageMap.put(mbr.getName(), msg);
+        synchronized (receivedMessageQueue) {
+            receiverQueue = true;
+        }
 
-        } else {
-            if (log.isInfoEnabled()) {
-                log.info(sm.getString("deltaManager.noMembers", getName()));
+        /*
+        * When this method is called cluster is already set up, so we can get the clusteringAgent
+        * and send the messages to the cluster nodes directly.
+        * More info : https://wso2.org/jira/browse/CARBON-15068
+        */
+        ClusteringAgent clusteringAgent =
+                CarbonCoreDataHolder.getInstance().getMainServerConfigContext().
+                        getAxisConfiguration().getClusteringAgent();
+        if (clusteringAgent != null) {
+            try {
+                clusteringAgent.sendMessage(msg, true);
+            } catch (ClusteringFault clusteringFault) {
+                log.error("Error while sending message : " + msg +
+                          " to clustering agent : " + clusteringAgent.toString(), clusteringFault);
             }
         }
     }
+
 
     @Override
     public ClusterManager cloneFromTemplate() {

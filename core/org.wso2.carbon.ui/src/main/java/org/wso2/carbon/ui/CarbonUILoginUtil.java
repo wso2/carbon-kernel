@@ -18,12 +18,14 @@
 
 package org.wso2.carbon.ui;
 
+import org.apache.axis2.context.MessageContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.core.common.AuthenticationException;
 import org.wso2.carbon.ui.tracker.AuthenticatorRegistry;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
@@ -233,7 +235,7 @@ public final class CarbonUILoginUtil {
         try {
             authenticator = (CarbonUIAuthenticator) session
                     .getAttribute(CarbonSecuredHttpContext.CARBON_AUTHNETICATOR);
-            if (authenticator != null) {
+            if (authenticator != null && authenticated) {
                 authenticator.unauthenticate(request);
                 log.debug("Backend session invalidated");
             }
@@ -252,32 +254,36 @@ public final class CarbonUILoginUtil {
                 session.removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
                 session.getServletContext().removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
                 try {
-                    session.invalidate();
+                    invalidateSession(session);
                 } catch (Exception ignored) { // Ignore exception when
                     // invalidating and
                     // invalidated session
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error in invalidating frontend session ", ignored);
+                    }
                 }
-                log.debug("Frontend session invalidated");
             }
             response.sendRedirect("../../carbon/admin/login.jsp");
             return false;
         }
-        
-		if (request.getAttribute("ExternalLogoutPage") != null) {
-			HttpSession currentSession = request.getSession(false);
-			if (currentSession != null) {
-				session.removeAttribute("logged-user");
-				session.getServletContext().removeAttribute("logged-user");
-				try {
-					session.invalidate();
-				} catch (Exception ignored) {
-				}
-				log.debug("Frontend session invalidated");
-			}
 
-			response.sendRedirect((String) request.getAttribute("ExternalLogoutPage"));
-			return false;
-		}
+        if (request.getAttribute("ExternalLogoutPage") != null) {
+            HttpSession currentSession = request.getSession(false);
+            if (currentSession != null) {
+                session.removeAttribute("logged-user");
+                session.getServletContext().removeAttribute("logged-user");
+                try {
+                    invalidateSession(session);
+                } catch (Exception ignored) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Error in invalidating frontend session ", ignored);
+                    }
+                }
+            }
+
+            response.sendRedirect((String) request.getAttribute("ExternalLogoutPage"));
+            return false;
+        }
 
         CarbonSSOSessionManager ssoSessionManager = CarbonSSOSessionManager.getInstance();
 
@@ -289,12 +295,12 @@ public final class CarbonUILoginUtil {
                 session.removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
                 session.getServletContext().removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
                 try {
-                    session.invalidate();
+                    invalidateSession(session);
                     log.debug("SSO session session invalidated ");
                 } catch (Exception ignored) { // Ignore exception when
                     // Invalidating and invalidated session
                     if (log.isDebugEnabled()) {
-                        log.debug("Ignore exception when invalidating session", ignored);
+                        log.debug("Error in invalidating frontend session ", ignored);
                     }
                 }
             }
@@ -312,16 +318,17 @@ public final class CarbonUILoginUtil {
             return false;
         }
 
-        HttpSession currentSession = request.getSession(false);
-        if (currentSession != null) {
+        if (request.isRequestedSessionIdValid()) {
             // Check if current session has expired
             session.removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
             session.getServletContext().removeAttribute(CarbonSecuredHttpContext.LOGGED_USER);
             try {
-                session.invalidate();
-                log.debug("Frontend session invalidated");
+                invalidateSession(session);
             } catch (Exception ignored) {
                 // Ignore exception when invalidating and invalidated session
+                if (log.isDebugEnabled()) {
+                    log.debug("Error in invalidating frontend session ", ignored);
+                }
             }
         }
 
@@ -414,6 +421,11 @@ public final class CarbonUILoginUtil {
 				if (log.isDebugEnabled()) {
 					log.debug("Security check failed for login request for " + userName);
 				}
+                return false;
+            }
+            String relayState = request.getParameter("RelayState");
+            if(relayState!= null && relayState.endsWith("-logout")){
+                response.sendRedirect("/carbon/admin/logout_action.jsp");
                 return false;
             }
             if (contextPath != null) {
@@ -607,5 +619,34 @@ public final class CarbonUILoginUtil {
             relativeURI=relativeURI+"/..";
         }
         return relativeURI;
+    }
+
+    /**
+     * Invalidates the frontend session. In the case of local transports (in local transport there's only one session
+     * for both backend and frontend), the session is invalidated from the backend.
+     *
+     * @param session
+     */
+    private static void invalidateSession(HttpSession session) {
+        if (!isRequestedFromLocalTransport()) {
+            session.invalidate();
+            if (log.isDebugEnabled()) {
+                log.debug("Frontend session invalidated");
+            }
+        }
+    }
+
+    /**
+     * Checks the incoming request transport
+     *
+     * @return true if the incoming request is from a local transport
+     */
+    private static boolean isRequestedFromLocalTransport() {
+        MessageContext msgCtx = MessageContext.getCurrentMessageContext();
+        if (msgCtx != null) {
+            String incomingTransportName = msgCtx.getIncomingTransportName();
+            return incomingTransportName.equals(ServerConstants.LOCAL_TRANSPORT);
+        }
+        return false;
     }
 }

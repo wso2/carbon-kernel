@@ -158,6 +158,8 @@ public class ProvWSUtils {
                 IQuery<IInstallableUnit> query = QueryUtil.createMatchQuery(IInstallableUnit.class, matchExpression, new Object[0]);
                 IInstallableUnit[] requiredInstallableUnits = queryable.query(query,
                         new NullProgressMonitor()).toArray(IInstallableUnit.class);
+                //sorting here to get the first element from the search
+                Arrays.sort(requiredInstallableUnits);
                 for (IInstallableUnit installableUnit : requiredInstallableUnits) {
                     if (installableUnit.getId().endsWith("feature.group") &&
                             !installableUnit.getId().startsWith("org.eclipse.equinox") &&
@@ -170,6 +172,14 @@ public class ProvWSUtils {
                                 iuStack.push(requiredIU);
                                 featureStack.add(requiredFeature);
                                 requiredFeaturesList.add(requiredFeature);
+                            }
+                            // Break the loop if we are processing a nested.category because we only need the element
+                            // from the search for a nested category. This is due to having multiple features in
+                            // requiredInstallableUnits, when they are defined without any "match" at importFeatureDef.
+                            // This check can be removed once all the features for a nested.category is properly
+                            // configured using "perfect" match. See : CARBON-15127
+                            if (popedIU.getId().contains("nested.category.feature")) {
+                                break;
                             }
                         }
                     }
@@ -364,13 +374,43 @@ public class ProvWSUtils {
 
         LicenseInfo[] licenses = new LicenseInfo[p2Licenses.length];
         for (int index = 0; index < licenses.length; index++) {
-            	LicenseInfo license = new LicenseInfo();
-                license.setBody((p2Licenses[index].getBody() == null) ? "" : p2Licenses[index].getBody());
-                license.setURL((p2Licenses[index].getLocation() == null) ? "" : p2Licenses[index].getLocation().toString());
-                licenses[index] = license;
+            LicenseInfo license = wrapP2LicenseAsLicense(p2Licenses[index]);
+            licenses[index] = license;
         }
         return licenses;
     }
+
+    public static LicenseInfo wrapP2LicenseAsLicense(ILicense p2License) {
+        if (p2License == null) {
+            return new LicenseInfo();
+        }
+        LicenseInfo licenseInfo = new LicenseInfo();
+        licenseInfo.setBody((p2License.getBody() == null) ? "" : p2License.getBody());
+        licenseInfo.setURL((p2License.getLocation() == null) ? "" : p2License.getLocation().toString());
+        return licenseInfo;
+    }
+
+	public static LicenseFeatureHolder[] wrapP2LicensesAsLicenses(
+			Map<ILicense, List<IInstallableUnit>> licenseFeatureMap) {
+		if (licenseFeatureMap == null) {
+			return new LicenseFeatureHolder[0];
+		}
+		List<LicenseFeatureHolder> licenseFeatureHolders = new ArrayList<LicenseFeatureHolder>();
+		List<IInstallableUnit> iInstallableUnits = null;
+		for (ILicense iLicense : licenseFeatureMap.keySet()) {
+			LicenseFeatureHolder licenseFeatureHolder = new LicenseFeatureHolder();
+			if (iLicense == null) {
+				licenseFeatureHolder.setLicenseInfo(null);
+			} else {
+				licenseFeatureHolder.setLicenseInfo(wrapP2LicenseAsLicense(iLicense));
+			}
+			iInstallableUnits = licenseFeatureMap.get(iLicense);
+			licenseFeatureHolder.setFeatureInfo(
+					wrapIUsAsFeatures(iInstallableUnits.toArray(new IInstallableUnit[iInstallableUnits.size()])));
+			licenseFeatureHolders.add(licenseFeatureHolder);
+		}
+		return licenseFeatureHolders.toArray(new LicenseFeatureHolder[licenseFeatureHolders.size()]);
+	}
 
     public static CopyrightInfo wrapICopyrightAsCopyrightInfo(ICopyright iCopyright) {
         if (iCopyright == null) {

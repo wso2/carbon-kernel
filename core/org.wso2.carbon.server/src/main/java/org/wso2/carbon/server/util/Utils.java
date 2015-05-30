@@ -66,41 +66,43 @@ public class Utils {
 
     public static void printUsages() {
         String osName = System.getProperty("os.name");
-
-        System.out.println("Usage: wso2server." + ((osName.toLowerCase().indexOf("win") == -1) ? "sh" : "bat ") +
+        System.out.println();
+        System.out.println("Usage: wso2server." + ((!osName.toLowerCase().contains("win")) ? "sh" : "bat ") +
                 " [command] [system-properties]");
         System.out.println();
-        System.out.println("command:");
-        System.out.println("\t--debug <port> \tStart the server in remote debugging mode." +
-                "\n\t\t\tport: The remote debugging port.");
-        if (osName.toLowerCase().indexOf("win") == -1) {
+        System.out.println("commands:");
+        if (!osName.toLowerCase().contains("win")) {
             System.out.println("\t--start\t\tStart Carbon using nohup in the background");
             System.out.println("\t--stop\t\tStop the Carbon server process");
             System.out.println("\t--restart\tRestart the Carbon server process");
 
         }
         System.out.println("\t--cleanRegistry\t\t\tClean registry space. [CAUTION] All Registry data will be lost.");
+        System.out.println("\t--debug <port> \tStart the server in remote debugging mode." +
+                "\n\t\t\tport: The remote debugging port.");
+        System.out.println("\t--help\t\t\tList all the available commands and system properties");
         System.out.println("\t--version\t\t\tWhat version of the product are you running?");
         System.out.println();
+
         System.out.println("system-properties:");
-        System.out.println("\t-DhttpPort=<httpPort>\t\tOverrides the HTTP port defined in the mgt-transports.xml file");
-        System.out.println("\t-DhttpsPort=<httpsPort>\t\tOverrides the HTTPS port defined in the mgt-transports.xml file");
-        System.out.println("\t-DportOffset=<offset>\t\tThe number by which all ports defined in the runtime ports will be offset");
         System.out.println("\t-DosgiConsole=[port]\t\tStart Carbon with Equinox OSGi console. " +
                 "\n\t\t\t\t\tIf the optional 'port' parameter is provided, a telnet port will be opened");
         System.out.println("\t-DosgiDebugOptions=[options-file]" +
                 "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
-                "\n\t\t\t\t\tIf the optional 'options-file is provided, the OSGi debug options will be loaded from it.");
+                "\n\t\t\t\t\tDebug options are loaded from the file repository/conf/etc/osgi-debug.options.");
         System.out.println("\t-Dsetup\t\t\t\tClean the Registry & other configuration, recreate DB, re-populate the configuration, and start Carbon");
-        System.out.println("\t-Dwso2.transports.xml=<transportXmlPath>\tLocation of the mgt-transports.xml file.");
+        System.out.println("\t-DhttpPort=<httpPort>\t\tOverrides the HTTP port defined in the carbon.xml file");
+        System.out.println("\t-DhttpsPort=<httpsPort>\t\tOverrides the HTTPS port defined in the carbon.xml file");
+        System.out.println("\t-DportOffset=<offset>\t\tThe number by which all ports defined in the runtime ports will be offset");
         System.out.println("\t-DserverRoles=<roles>\t\tA comma separated list of roles. Used in deploying cApps");
-        System.out.println("\t-Dcarbon.use.registry.repo\tUse registry based repository.");
-        System.out.println("\t-DdisableHttpLog\t\tDisable HTTP access logging");
-        System.out.println("\t-DapplyPatches\t\t\tUse this system property when there are patches to be applied/reverted to/from the system. ");
-        System.out.println("\t\t\t\t\tDrop the patches to $CARBON_HOME/repository/componenets/patches directory and restart the system with this property. ");
-        System.out.println("\t\t\t\t\tWhen you want to revert a patch, delete it from the patches directory and restart the system with this property");
         System.out.println("\t-DworkerNode\t\t\tSet this system property when starting as a worker node.");
+        System.out.println("\t-Dprofile=<profileName>\t\tStarts the server as the specified profile. e.g. worker profile.");
+        System.out.println("\t-Dtenant.idle.time=<time>\tIf a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.");
         System.out.println("\t\t\t\t\tThis is required in clustered setups with master and worker nodes.");
+        System.out.println("\t-Dcarbon.registry.root\t\tThe root of the Registry used by this Carbon instance.");
+        System.out.println("\t-Dweb.location=<path>\t\tThe directory into which the UI artifacts included in an Axis2 AAR file are extracted to.");
+        System.out.println("\t-Dcarbon.config.dir.path=<path>\tOverwrite the conf directory path where we keep all configuration files like carbon.xml, axis2.xml etc.");
+        System.out.println("\t-Dcarbon.logs.path=<path>\tDefine the path to keep Log files. If you want to change the logs directory, you need to update.");
         System.out.println();
     }
 
@@ -276,7 +278,6 @@ public class Utils {
      * @return The bundle directory
      */
     public static File getBundleDirectory(String bundleDir) {
-        //TODO The name of this utils class is incorrect - Refactor - Sameera
         String carbonHome = System.getProperty("carbon.home");
 
         if (carbonHome == null) {

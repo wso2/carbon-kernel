@@ -39,11 +39,13 @@ public class UserStoreManagerRegistry extends UserStoreMgtDSComponent {
         try {
             userStoreManagerTracker = new ServiceTracker(bc, UserStoreManager.class.getName(), null);
             userStoreManagerTracker.open();
-            if(log.isDebugEnabled()) {
-            	log.debug(userStoreManagerTracker.getServices().length + " User Store Managers registered.");
+            if (log.isDebugEnabled()) {
+                log.debug(userStoreManagerTracker.getServices().length + " User Store Managers registered.");
             }
         } catch (Exception e) {
-            log.error("Error" + e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.error("Error" + e.getMessage(), e);
+            }
             throw e;
         }
     }

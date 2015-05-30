@@ -47,6 +47,11 @@ public class SecureTheWorldValve extends ValveBase {
 
     private static final Log log = LogFactory.getLog(SecureTheWorldValve.class);
 
+    public SecureTheWorldValve() {
+        //enable async support
+        super(true);
+    }
+
     @Override
     public void invoke(Request req, Response res) throws IOException, ServletException {
         // Skip carbon auth calls

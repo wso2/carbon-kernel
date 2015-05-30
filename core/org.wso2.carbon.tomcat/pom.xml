@@ -15,20 +15,18 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.3.0-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.tomcat</artifactId>
-    <version>4.3.0-SNAPSHOT</version>
+    <version>4.4.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - carbon tomcat bundle</name>
     <description>Carbon tomcat bundle</description>
@@ -41,7 +39,6 @@
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.http.servlet</artifactId>
-            <version>1.0.200.v20090520-1800</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
@@ -52,25 +49,21 @@
             <artifactId>javax.servlet</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.tomcat.wso2</groupId>
+            <groupId>org.wso2.tomcat</groupId>
             <artifactId>tomcat</artifactId>
-            <version>${orbit.version.tomcat}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
-             <groupId>org.wso2.carbon</groupId>
-             <artifactId>org.wso2.carbon.utils</artifactId>
-             <version>${project.version}</version>
-         </dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.wso2.securevault</groupId>
             <artifactId>org.wso2.securevault</artifactId>
-            <version>${securevault.version}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -83,7 +76,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>

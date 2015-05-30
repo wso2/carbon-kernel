@@ -37,7 +37,7 @@ public class UserStoreException extends org.wso2.carbon.user.api.UserStoreExcept
         super(message);
     }
 
-    
+
     public UserStoreException(String message) {
         super(message);
     }

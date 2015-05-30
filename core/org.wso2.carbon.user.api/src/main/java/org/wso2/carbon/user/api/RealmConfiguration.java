@@ -18,13 +18,18 @@ package org.wso2.carbon.user.api;
 
 import org.wso2.carbon.base.MultitenantConstants;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The object representing the realm configuration.
  */
 public class RealmConfiguration {
-    
+
     protected String userStoreClass = null;
     protected String authorizationManagerClass = null;
     protected String addAdmin = null;
@@ -35,7 +40,8 @@ public class RealmConfiguration {
     protected String realmClassName = null;
     protected String description = null;
     protected List<String> restrictedDomainsForSelfSignUp = new ArrayList<String>();
-    protected List<String> reservedRoleNames = new ArrayList<String>();;
+    protected List<String> reservedRoleNames = new ArrayList<String>();
+    ;
     protected Map<String, String> userStoreProperties = new HashMap<String, String>();
     protected Map<String, String> authzProperties = new HashMap<String, String>();
     protected Map<String, String> realmProperties = new HashMap<String, String>();
@@ -45,6 +51,10 @@ public class RealmConfiguration {
     protected boolean isPrimary = false;
     protected RealmConfiguration secondaryRealmConfig;
     protected Map<String, Map<String, String>> multipleCredentialProps = new HashMap<String, Map<String, String>>();
+
+    public RealmConfiguration() {
+        tenantId = MultitenantConstants.SUPER_TENANT_ID;
+    }
 
     public boolean isRestrictedDomainForSlefSignUp(String domain) {
         if (restrictedDomainsForSelfSignUp.contains(domain.toUpperCase())) {
@@ -60,15 +70,15 @@ public class RealmConfiguration {
         return false;
     }
 
-    public void addRestrictedDomainForSelfSignUp(String domain){
-        if (domain != null){
+    public void addRestrictedDomainForSelfSignUp(String domain) {
+        if (domain != null) {
             restrictedDomainsForSelfSignUp.add(domain.toUpperCase());
         }
     }
 
-    public void addReservedRoleName(String roleName){
-        if (roleName != null){
-           reservedRoleNames.add(roleName.toUpperCase());
+    public void addReservedRoleName(String roleName) {
+        if (roleName != null) {
+            reservedRoleNames.add(roleName.toUpperCase());
         }
     }
 
@@ -88,10 +98,6 @@ public class RealmConfiguration {
         this.passwordsExternallyManaged = passwordsExternallyManaged;
     }
 
-    public RealmConfiguration() {
-        tenantId = MultitenantConstants.SUPER_TENANT_ID;
-    }
-
     public RealmConfiguration cloneRealmConfigurationWithoutSecondary() throws Exception {
         return cloneRealmConfiguration(false);
     }
@@ -99,9 +105,10 @@ public class RealmConfiguration {
     public RealmConfiguration cloneRealmConfiguration() throws Exception {
         return cloneRealmConfiguration(true);
     }
+
     private RealmConfiguration cloneRealmConfiguration(boolean needSecondary) throws Exception {
         RealmConfiguration realmConfig = new RealmConfiguration();
-                
+
         realmConfig.setRealmClassName(realmClassName);
         realmConfig.setUserStoreClass(userStoreClass);
         realmConfig.setAuthorizationManagerClass(authorizationManagerClass);
@@ -112,46 +119,42 @@ public class RealmConfiguration {
         realmConfig.setEveryOneRoleName(everyOneRoleName);
         realmConfig.setPrimary(isPrimary);
 
-        if(needSecondary){
+        if (needSecondary) {
             if (secondaryRealmConfig != null) {
                 realmConfig.setSecondaryRealmConfig(secondaryRealmConfig
                         .cloneRealmConfiguration());
             }
         }
 
-        for (Iterator<String> domainNameItr = restrictedDomainsForSelfSignUp.iterator(); domainNameItr.hasNext();) {
+        for (Iterator<String> domainNameItr = restrictedDomainsForSelfSignUp.iterator(); domainNameItr.hasNext(); ) {
             realmConfig.addRestrictedDomainForSelfSignUp(domainNameItr.next());
         }
 
-        for (Iterator<String> roleNameIts = reservedRoleNames.iterator(); roleNameIts.hasNext();) {
+        for (Iterator<String> roleNameIts = reservedRoleNames.iterator(); roleNameIts.hasNext(); ) {
             realmConfig.addReservedRoleName(roleNameIts.next());
         }
 
         Map<String, String> mapUserstore = new HashMap<String, String>();
         mapUserstore.putAll(userStoreProperties);
         realmConfig.setUserStoreProperties(mapUserstore);
-        
+
         Map<String, String> mapAuthz = new HashMap<String, String>();
         mapAuthz.putAll(authzProperties);
         realmConfig.setAuthzProperties(mapAuthz);
-        
+
         Map<String, String> mapRealm = new HashMap<String, String>();
         mapRealm.putAll(realmProperties);
         realmConfig.setRealmProperties(mapRealm);
-        
+
         return realmConfig;
-    }	
-	
-	public RealmConfiguration getSecondaryRealmConfig() {
-		return secondaryRealmConfig;
-	}
+    }
 
-	public void setSecondaryRealmConfig(RealmConfiguration secondaryRealm) {
-		this.secondaryRealmConfig = secondaryRealm;
-	}
+    public RealmConfiguration getSecondaryRealmConfig() {
+        return secondaryRealmConfig;
+    }
 
-	public void setRealmClassName(String realmClassName) {
-        this.realmClassName = realmClassName;
+    public void setSecondaryRealmConfig(RealmConfiguration secondaryRealm) {
+        this.secondaryRealmConfig = secondaryRealm;
     }
 
     public String getAuthorizationPropertyValue(String propertyName) {
@@ -162,7 +165,7 @@ public class RealmConfiguration {
         return realmProperties.get(propertyName);
     }
 
-    public String getUserStoreProperty(String propertyName){
+    public String getUserStoreProperty(String propertyName) {
         return userStoreProperties.get(propertyName);
     }
 
@@ -170,82 +173,20 @@ public class RealmConfiguration {
         return addAdmin;
     }
 
-    public String getAdminRoleName() {
-        return adminRoleName;
-    }
-
-    public String getAdminUserName() {
-        return adminUserName;
-    }
-
-    public String getAdminPassword() {
-        return adminPassword;
-    }
-    
-    public String getEveryOneRoleName() {
-        return everyOneRoleName;
-    }
-   
-    public String getAuthorizationManagerClass() {
-        return authorizationManagerClass;
-    }
-        
-      
-    public String getAuthorizationManagerProperty(String key){
-        return authzProperties.get(key); 
-    }
-    
-    public String getUserStoreClass() {
-        return userStoreClass;
-    }
-
-
-    public Map<String, String> getUserStoreProperties() {
-        return userStoreProperties;
-    }
-
-
-    public Map<String, String> getAuthzProperties() {
-        return authzProperties;
-    }
-
-
-    public Map<String, String> getRealmProperties() {
-        return realmProperties;
-    }
-
     public void setAddAdmin(String addAdmin) {
         this.addAdmin = addAdmin;
+    }
+
+    public String getAdminRoleName() {
+        return adminRoleName;
     }
 
     public void setAdminRoleName(String adminRoleName) {
         this.adminRoleName = adminRoleName;
     }
 
-    public void setEveryOneRoleName(String everyOneRoleName) {
-        this.everyOneRoleName = everyOneRoleName;
-    }
-
-    public void setAuthzProperties(Map<String, String> authzProperties) {
-        this.authzProperties = authzProperties;
-    }
-
-    public void setRealmProperties(Map<String, String> realmProperties) {
-        this.realmProperties = realmProperties;
-    }
-
-    public void setAuthorizationManagerClass(String authorizationManagerClass) {
-        this.authorizationManagerClass = authorizationManagerClass;
-    }
-
-
-    public void setUserStoreClass(String userStoreClass) {
-        this.userStoreClass = userStoreClass;
-    }
-
-
-    public void setUserStoreProperties(Map<String, String> userStoreProperties) {
-        this.userStoreProperties = userStoreProperties;
+    public String getAdminUserName() {
+        return adminUserName;
     }
 
     // two public setter methods used for external editing
@@ -253,8 +194,64 @@ public class RealmConfiguration {
         this.adminUserName = adminUserName;
     }
 
+    public String getAdminPassword() {
+        return adminPassword;
+    }
+
     public void setAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
+    }
+
+    public String getEveryOneRoleName() {
+        return everyOneRoleName;
+    }
+
+    public void setEveryOneRoleName(String everyOneRoleName) {
+        this.everyOneRoleName = everyOneRoleName;
+    }
+
+    public String getAuthorizationManagerClass() {
+        return authorizationManagerClass;
+    }
+
+    public void setAuthorizationManagerClass(String authorizationManagerClass) {
+        this.authorizationManagerClass = authorizationManagerClass;
+    }
+
+    public String getAuthorizationManagerProperty(String key) {
+        return authzProperties.get(key);
+    }
+
+    public String getUserStoreClass() {
+        return userStoreClass;
+    }
+
+    public void setUserStoreClass(String userStoreClass) {
+        this.userStoreClass = userStoreClass;
+    }
+
+    public Map<String, String> getUserStoreProperties() {
+        return userStoreProperties;
+    }
+
+    public void setUserStoreProperties(Map<String, String> userStoreProperties) {
+        this.userStoreProperties = userStoreProperties;
+    }
+
+    public Map<String, String> getAuthzProperties() {
+        return authzProperties;
+    }
+
+    public void setAuthzProperties(Map<String, String> authzProperties) {
+        this.authzProperties = authzProperties;
+    }
+
+    public Map<String, String> getRealmProperties() {
+        return realmProperties;
+    }
+
+    public void setRealmProperties(Map<String, String> realmProperties) {
+        this.realmProperties = realmProperties;
     }
 
     public int getTenantId() {
@@ -267,26 +264,30 @@ public class RealmConfiguration {
 
     public Date getPersistedTimestamp() {
         if (null != persistedTimestamp) {
-            return (Date)persistedTimestamp.clone();
+            return (Date) persistedTimestamp.clone();
         } else {
             return null;
-        }        
+        }
     }
 
     public void setPersistedTimestamp(Date persistedTimestamp) {
         if (null != persistedTimestamp) {
-            this.persistedTimestamp = (Date)persistedTimestamp.clone();
+            this.persistedTimestamp = (Date) persistedTimestamp.clone();
         } else {
             this.persistedTimestamp = null;
         }
 
     }
-    
+
     public String getRealmClassName() {
-        if(this.realmClassName == null) {
+        if (this.realmClassName == null) {
             return "org.wso2.carbon.user.core.common.DefaultRealm";
         }
         return realmClassName;
+    }
+
+    public void setRealmClassName(String realmClassName) {
+        this.realmClassName = realmClassName;
     }
 
     public void addMultipleCredentialProperties(String userStoreClass,

@@ -21,6 +21,7 @@ package org.wso2.carbon.user.core.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
@@ -37,11 +38,31 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
  * interface="org.wso2.carbon.user.core.service.RealmService" cardinality="1..1"
  * policy="dynamic" bind="setRealmService"
  * unbind="unsetRealmService"
+ * @scr.reference name="server.configuration.service"
+ * interface="org.wso2.carbon.base.api.ServerConfigurationService" cardinality="1..1"
+ * policy="dynamic"  bind="setServerConfigurationService"
+ * unbind="unsetServerConfigurationService"
  */
 public class UserStoreMgtDSComponent {
     private static Log log = LogFactory.getLog(UserStoreMgtDSComponent.class);
     private static RealmService realmService;
+    private static ServerConfigurationService serverConfigurationService = null;
 
+    public static RealmService getRealmService() {
+        return realmService;
+    }
+
+    protected void setRealmService(RealmService rlmService) {
+        realmService = rlmService;
+    }
+
+    public static ServerConfigurationService getServerConfigurationService() {
+        return UserStoreMgtDSComponent.serverConfigurationService;
+    }
+
+    protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        UserStoreMgtDSComponent.serverConfigurationService = serverConfigurationService;
+    }
 
     protected void activate(ComponentContext ctxt) {
         try {
@@ -55,7 +76,7 @@ public class UserStoreMgtDSComponent {
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), jdbcUserStoreManager, null);
 
             UserStoreManager readWriteLDAPUserStoreManager = new ReadWriteLDAPUserStoreManager();
-            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readWriteLDAPUserStoreManager,null);
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readWriteLDAPUserStoreManager, null);
 
             UserStoreManager readOnlyLDAPUserStoreManager = new ReadOnlyLDAPUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), readOnlyLDAPUserStoreManager, null);
@@ -71,23 +92,21 @@ public class UserStoreMgtDSComponent {
         }
     }
 
-
     protected void deactivate(ComponentContext ctxt) {
         if (log.isDebugEnabled()) {
             log.debug("Carbon UserStoreMgtDSComponent is deactivated ");
         }
     }
 
-    public static RealmService getRealmService() {
-        return realmService;
-    }
-
-    protected void setRealmService(RealmService rlmService) {
-        realmService = rlmService;
-    }
-
     protected void unsetRealmService(RealmService realmService) {
         realmService = null;
+    }
+
+    protected void unsetServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        if (log.isDebugEnabled()) {
+            log.debug("Unsetting the ServerConfigurationService");
+        }
+        UserStoreMgtDSComponent.serverConfigurationService = null;
     }
 
 }

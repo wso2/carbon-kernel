@@ -218,8 +218,15 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
 
         @Override
         public void entryRemoved(EntryEvent<String, Member> entryEvent) {
-            connectedMembers.remove(entryEvent.getValue());
-            applicationMemberRemoved(entryEvent.getValue());
+            // With the hazelcast 3.2.6 upgrade there has been an implementation change in the
+            // EntryEvent which is received to the EntryListener when an entry is removed from
+            // the IMap.
+            // Now a null value is returned from the EntryEvent#getValue method where the removed
+            // member is available in the EntryEvent#getOldValue method.
+            // More info : https://wso2.org/jira/browse/CARBON-15057
+            Member memberToRemove = entryEvent.getOldValue();
+            connectedMembers.remove(memberToRemove);
+            applicationMemberRemoved(memberToRemove);
         }
 
         @Override

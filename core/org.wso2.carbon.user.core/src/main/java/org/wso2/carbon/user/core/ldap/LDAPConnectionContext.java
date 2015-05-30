@@ -17,11 +17,13 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Hashtable;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -33,23 +35,15 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
-
-import org.apache.axiom.om.util.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
-import org.wso2.carbon.user.api.RealmConfiguration;
-import org.wso2.carbon.user.core.UserCoreConstants;
-import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.utils.CarbonUtils;
+import java.util.Hashtable;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class LDAPConnectionContext {
 
+    private static Log log = LogFactory.getLog(LDAPConnectionContext.class);
     @SuppressWarnings("rawtypes")
     private Hashtable environment;
-
-    private static Log log = LogFactory.getLog(LDAPConnectionContext.class);
-
     private SortedMap<Integer, SRVRecord> dcMap;
 
     private Hashtable environmentForDNS;
@@ -58,12 +52,14 @@ public class LDAPConnectionContext {
 
     private boolean readOnly = false;
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static final String CONNECTION_TIME_OUT = "LDAPConnectionTimeout";
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public LDAPConnectionContext(RealmConfiguration realmConfig) throws UserStoreException {
 
         //if DNS is enabled, populate DC Map
         String DNSUrl = realmConfig.getUserStoreProperty(LDAPConstants.DNS_URL);
-        if (DNSUrl != null){
+        if (DNSUrl != null) {
             DNSDomainName = realmConfig.getUserStoreProperty(LDAPConstants.DNS_DOMAIN_NAME);
             if (DNSDomainName == null) {
                 throw new UserStoreException("DNS is enabled, but DNS domain name not provided.");
@@ -106,7 +102,7 @@ public class LDAPConnectionContext {
                 .getUserStoreProperty(LDAPConstants.CONNECTION_PASSWORD);
 
         if (log.isDebugEnabled()) {
-	        log.debug("Connection Name :: " + connectionName + ", Connection URL :: " + connectionURL);
+            log.debug("Connection Name :: " + connectionName + ", Connection URL :: " + connectionURL);
         }
 
         environment = new Hashtable();
@@ -132,19 +128,34 @@ public class LDAPConnectionContext {
             environment.put(Context.PROVIDER_URL, connectionURL);
         }
 
-        // Enable connection pooling
-        environment.put("com.sun.jndi.ldap.connect.pool", "true");
+        // Enable connection pooling if property is set in user-mgt.xml
+        boolean isLDAPConnectionPoolingEnabled = false;
+        String value = realmConfig.getUserStoreProperty(LDAPConstants.CONNECTION_POOLING_ENABLED);
+
+        if (value != null && !value.trim().isEmpty()) {
+            isLDAPConnectionPoolingEnabled = Boolean.parseBoolean(value);
+        }
+
+        environment.put("com.sun.jndi.ldap.connect.pool", isLDAPConnectionPoolingEnabled ? "true" : "false");
 
         // set referral status if provided in configuration.
         if (realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL) != null) {
             environment.put("java.naming.referral",
                     realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL));
         }
-        
+
         String binaryAttribute = realmConfig.getUserStoreProperty(LDAPConstants.LDAP_ATTRIBUTES_BINARY);
-        
+
         if (binaryAttribute != null) {
             environment.put(LDAPConstants.LDAP_ATTRIBUTES_BINARY, binaryAttribute);
+        }
+
+        //Set connect timeout if provided in configuration. Otherwise set default value
+        String connectTimeout = realmConfig.getUserStoreProperty(CONNECTION_TIME_OUT);
+        if (connectTimeout != null && !connectTimeout.trim().isEmpty()) {
+            environment.put("com.sun.jndi.ldap.connect.timeout", connectTimeout);
+        } else {
+            environment.put("com.sun.jndi.ldap.connect.timeout", "5000");
         }
     }
 
@@ -175,7 +186,7 @@ public class LDAPConnectionContext {
                 //compose the connection URL
                 environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(firstRecord));
                 context = new InitialDirContext(environment);
-                
+
             } catch (NamingException e) {
                 log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
                 log.info("Trying to connect with other Domain Controllers");
@@ -187,10 +198,10 @@ public class LDAPConnectionContext {
                         context = new InitialDirContext(environment);
                         break;
                     } catch (NamingException e1) {
-                        if(integer == (dcMap.lastKey())){
+                        if (integer == (dcMap.lastKey())) {
                             log.error("Error obtaining connection for all " + integer + " Domain Controllers."
-                                      + e.getMessage(), e);
-                            throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);        
+                                    + e.getMessage(), e);
+                            throw new UserStoreException("Error obtaining connection. " + e.getMessage(), e);
                         }
                     }
                 }
@@ -270,12 +281,12 @@ public class LDAPConnectionContext {
         }
     }
 
-    private String getLDAPURLFromSRVRecord(SRVRecord srvRecord){
+    private String getLDAPURLFromSRVRecord(SRVRecord srvRecord) {
         String ldapURL = null;
-        if(readOnly){
+        if (readOnly) {
             ldapURL = "ldap://" + srvRecord.getHostIP() + ":" + srvRecord.getPort();
         } else {
-            ldapURL = "ldaps://"+ srvRecord.getHostIP() + ":" + srvRecord.getPort();
+            ldapURL = "ldaps://" + srvRecord.getHostIP() + ":" + srvRecord.getPort();
         }
         return ldapURL;
     }
@@ -292,7 +303,7 @@ public class LDAPConnectionContext {
         //replace connection name and password with the passed credentials to this method
         tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
         tempEnv.put(Context.SECURITY_CREDENTIALS, password);
-        
+
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
 
@@ -324,11 +335,10 @@ public class LDAPConnectionContext {
                         break;
                     } catch (AuthenticationException e2) {
                         throw e2;
-                    }
-                    catch (NamingException e1) {
+                    } catch (NamingException e1) {
                         if (integer == (dcMap.lastKey())) {
                             log.error("Error obtaining connection for all " + integer + " Domain Controllers."
-                                      + e1.getMessage(), e1);
+                                    + e1.getMessage(), e1);
                             throw new UserStoreException("Error obtaining connection. " + e1.getMessage(), e1);
                         }
                     }

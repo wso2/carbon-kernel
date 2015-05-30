@@ -280,6 +280,17 @@ public class RegistryConfigurationProcessor {
                     registryContext.addDBConfig(dbName, dataBaseConfiguration);
                 }
 
+                // reading the cache configurations, if the config element is not present default values will be used
+                OMElement cacheConfig = configElement.getFirstChildWithName(new QName("cacheConfig"));
+                if (cacheConfig != null) {
+                    String lastAccessedExpirationMillis = cacheConfig
+                            .getFirstChildWithName(new QName("lastAccessedExpirationMillis")).getText();
+                    String lastModifiedExpirationMillis = cacheConfig
+                            .getFirstChildWithName(new QName("lastModifiedExpirationMillis")).getText();
+                    registryContext.setLastAccessedExpirationMillis(Long.parseLong(lastAccessedExpirationMillis));
+                    registryContext.setLastModifiedExpirationMillis(Long.parseLong(lastModifiedExpirationMillis));
+                }
+
                 // loading one-time start-up configurations
                 OMElement staticConfigElement =
                         configElement.getFirstChildWithName(new QName("staticConfiguration"));
@@ -778,6 +789,13 @@ public class RegistryConfigurationProcessor {
                         virtual = "virtual".equalsIgnoreCase(overwriteStr);
                     }
                 }
+
+                String resolveLinksElement = mountElement.getAttributeValue(new QName("resolveLinks"));
+                boolean isExecuteQueryAllowed = true;
+                if (resolveLinksElement != null && Boolean.toString(false).equalsIgnoreCase(resolveLinksElement)) {
+                    isExecuteQueryAllowed = false;
+                }
+
                 String instanceId = instanceIdElement.getText();
                 String targetPath = targetPathElement.getText();
 
@@ -787,6 +805,7 @@ public class RegistryConfigurationProcessor {
                 mount.setVirtual(virtual);
                 mount.setInstanceId(instanceId);
                 mount.setTargetPath(targetPath);
+                mount.setExecuteQueryAllowed(isExecuteQueryAllowed);
 
                 registryContext.getMounts().add(mount);
 
