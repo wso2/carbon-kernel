@@ -17,17 +17,8 @@ package org.wso2.carbon.utils.xml;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
-import org.w3c.dom.ls.LSSerializer;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
-import java.io.Writer;
 /*
  * 
  */
@@ -186,43 +177,6 @@ public class XMLPrettyPrinter {
             log.error("XML Pretty Printer failed. ", e);
         }
         return out.toString();
-    }
-
-
-    /**
-     * XML Pretty Print method with XML Comments support.
-     *
-     * @return XML formatted String
-     */
-    public String xmlFormatWithComments() {
-        String xmlOutput = null;
-        Document doc;
-        LSSerializer lsSerializer;
-
-        try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            doc = documentBuilderFactory.newDocumentBuilder().parse(in);
-
-            DOMImplementationLS domImplementation = (DOMImplementationLS) doc.getImplementation();
-            lsSerializer = domImplementation.createLSSerializer();
-            lsSerializer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
-
-            LSOutput lsOutput = domImplementation.createLSOutput();
-            lsOutput.setEncoding(encoding);
-            Writer stringWriter = new StringWriter();
-            lsOutput.setCharacterStream(stringWriter);
-            lsSerializer.write(doc, lsOutput);
-
-            xmlOutput = stringWriter.toString();
-
-        } catch (IOException e) {
-            log.error("XML Pretty Printer Error reading data from given InputStream ", e);
-        } catch (SAXException e) {
-            log.error("XML Pretty Printer Error parsing the given InputStream ", e);
-        } catch (Exception e) {
-            log.error("XML Pretty Printer failed. ", e);
-        }
-        return xmlOutput;
     }
 
 }
