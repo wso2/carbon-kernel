@@ -66,7 +66,6 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -312,17 +311,16 @@ public final class TenantAxisUtils {
                 tenantConfigCtx.setContextRoot("local:/");
 
                 TenantTransportSender transportSender = new TenantTransportSender(mainConfigCtx);
-                // Adding transport senders
-                HashMap<String, TransportOutDescription> transportSenders =
-                        mainAxisConfig.getTransportsOut();
-                if (transportSenders != null && !transportSenders.isEmpty()) {
-                    for (String strTransport : transportSenders.keySet()) {
-                        TransportOutDescription outDescription =
-                                new TransportOutDescription(strTransport);
-                        outDescription.setSender(transportSender);
-                        tenantAxisConfig.addTransportOut(outDescription);
-                    }
-                }
+                //adding new transport outs
+                // adding the two tenant specific transport senders
+                TransportOutDescription httpOutDescription = new TransportOutDescription(Constants.TRANSPORT_HTTP);
+                httpOutDescription.setSender(transportSender);
+                tenantAxisConfig.addTransportOut(httpOutDescription);
+
+                // adding the two tenant specific transport senders
+                TransportOutDescription httpsOutDescription = new TransportOutDescription(Constants.TRANSPORT_HTTPS);
+                httpsOutDescription.setSender(transportSender);
+                tenantAxisConfig.addTransportOut(httpsOutDescription);
 
                 // Set the work directory
                 tenantConfigCtx.setProperty(ServerConstants.WORK_DIR,
