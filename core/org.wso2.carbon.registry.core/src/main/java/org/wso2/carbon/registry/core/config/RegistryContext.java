@@ -137,13 +137,6 @@ public class RegistryContext {
     private QueryProcessorManager queryProcessorManager;
     private EmbeddedRegistryService embeddedRegistryService;
 
-    ////////////////////////////////////////////////////////
-    // Items that are specific to registry cache configurations
-    // This is an optional configuration
-    ////////////////////////////////////////////////////////
-    private long lastAccessedExpirationMillis = 900000L;
-    private long lastModifiedExpirationMillis = 900000L;
-
     /**
      * Determines whether to setup the Registry on start up. Setup actions: Create Registry database
      * tables
@@ -1138,35 +1131,4 @@ public class RegistryContext {
         statisticsCollectors.remove(statisticsCollector);
     }
 
-    /**
-     * Method to get the last accessed timeout of the resource cache
-     * @return lastAccessedExpirationMillis in milliseconds.
-     */
-    public long getLastAccessedExpirationMillis() {
-        return lastAccessedExpirationMillis;
-    }
-
-    /**
-     * Method to set the lastAccessedExpirationMillis
-     * @param lastAccessedExpirationMillis
-     */
-    public void setLastAccessedExpirationMillis(long lastAccessedExpirationMillis) {
-        this.lastAccessedExpirationMillis = lastAccessedExpirationMillis;
-    }
-
-    /**
-     * Method to get the last modified timeout of the resource cache
-     * @return lastModifiedExpirationMillis in milliseconds.
-     */
-    public long getLastModifiedExpirationMillis() {
-        return lastModifiedExpirationMillis;
-    }
-
-    /**
-     * Method to set the lastModifiedExpirationMillis
-     * @param lastModifiedExpirationMillis
-     */
-    public void setLastModifiedExpirationMillis(long lastModifiedExpirationMillis) {
-        this.lastModifiedExpirationMillis = lastModifiedExpirationMillis;
-    }
 }
