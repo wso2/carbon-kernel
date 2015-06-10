@@ -1151,4 +1151,9 @@ public final class RegistryConstants {
      * Defines the media type used for symlink and remote link resources.
      * */
     public static final String LINK_MEDIA_TYPE = "application/vnd.wso2-link";
+
+    /**
+     * Media type of the governance archive (.zip or .gar file)
+     */
+    public static final String GOVERNANCE_ARCHIVE = "application/vnd.wso2.governance-archive";
 }
