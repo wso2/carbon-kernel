@@ -1163,7 +1163,7 @@ public class MountHandler extends Handler {
             try {
                 boolean connectionExists = false;
                 List<String> conList = getQueriedConnectionList();
-                if (conList == null) {
+                if (conList == null  || !paramMap.containsKey("remote")) {
                     conList = new LinkedList<String>();
                 }
                 for (String con: conList) {
