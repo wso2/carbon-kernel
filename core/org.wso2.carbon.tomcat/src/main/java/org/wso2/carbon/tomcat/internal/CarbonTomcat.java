@@ -307,17 +307,17 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
             if (lifecycleListener != null) {
                 ctx.addLifecycleListener(lifecycleListener);
             }
-            ContextConfig ctxCfg = new ContextConfig();
-            ctx.addLifecycleListener(ctxCfg);
+            SCIRegistrarContextConfig sciRegistrarContextConfig =new SCIRegistrarContextConfig();
+            ctx.addLifecycleListener(sciRegistrarContextConfig);
             // Set global webXml to this context
             if (new File(globalWebXml).exists()) {
-                ctxCfg.setDefaultWebXml(globalWebXml);
+                sciRegistrarContextConfig.setDefaultWebXml(globalWebXml);
             } else {
-                ctxCfg.setDefaultWebXml("org/apache/catalin/startup/NO_DEFAULT_XML");
+                sciRegistrarContextConfig.setDefaultWebXml("org/apache/catalin/startup/NO_DEFAULT_XML");
             }
 
             if (new File(globalContextXml).exists()) {
-                ctxCfg.setDefaultContextXml(globalContextXml);
+                sciRegistrarContextConfig.setDefaultContextXml(globalContextXml);
             }
 
             File f = new File(webappFilePath);
