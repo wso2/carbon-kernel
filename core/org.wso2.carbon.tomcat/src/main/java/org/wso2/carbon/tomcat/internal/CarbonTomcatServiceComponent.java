@@ -21,7 +21,6 @@ import javax.servlet.ServletContainerInitializer;
 
 /**
  * @scr.component name="org.wso2.carbon.tomcat.internal.CarbonTomcatServiceComponent" immediate="true"
- *
  * @scr.reference name="sci" interface="javax.servlet.ServletContainerInitializer"
  * cardinality="0..n" policy="dynamic" bind="setServletContainerInitializer" unbind="unsetServletContainerInitializer"
  */
