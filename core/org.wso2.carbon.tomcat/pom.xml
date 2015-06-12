@@ -26,6 +26,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.tomcat</artifactId>
+    <version>4.4.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - carbon tomcat bundle</name>
     <description>Carbon tomcat bundle</description>
