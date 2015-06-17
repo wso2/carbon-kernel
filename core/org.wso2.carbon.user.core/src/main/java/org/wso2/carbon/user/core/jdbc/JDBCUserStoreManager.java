@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
@@ -34,6 +35,7 @@ import org.wso2.carbon.user.core.common.RoleContext;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridJDBCConstants;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.user.core.tenant.JDBCTenantManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JDBCRealmUtil;
@@ -2711,6 +2713,116 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
         searchCtx.setRoleName(roleNameParts[0]);
         return searchCtx;
+    }
+
+    @Override protected void doDeleteUMTenantData(int tenantId) throws UserStoreException {
+        Connection dbConnection = null;
+        try {
+            dbConnection = getDBConnection();
+            dbConnection.setAutoCommit(false);
+
+            // Every execution of a query added a info log, if failed to delete data from a specific table its easy to
+            // find from which table data deletion corrupted.
+            log.info("Deleting user management related data for tenant id " + tenantId);
+            //Delete user attribute details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_USER_ATTRIBUTE_SQL, tenantId);
+            log.debug("Data deleted from UM_USER_ATTRIBUTE table for tenant id " + tenantId);
+
+            //Delete user permission details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_USER_PERMISSION_SQL, tenantId);
+            log.debug("Data deleted from UM_USER_PERMISSION table for tenant id " + tenantId);
+
+            //Delete role permission details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_ROLE_PERMISSION_SQL, tenantId);
+            log.debug("Data deleted from UM_ROLE_PERMISSION table for tenant id " + tenantId);
+
+            //Delete user resource permission details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_PERMISSION_SQL, tenantId);
+            log.debug("Data deleted from UM_PERMISSION table for tenant id " + tenantId);
+
+            //Delete user role details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_USER_ROLE_SQL, tenantId);
+            log.debug("Data deleted from UM_USER_ROLE table for tenant id " + tenantId);
+
+            //Delete role details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_ROLE_SQL, tenantId);
+            log.debug("Data deleted from UM_ROLE table for tenant id " + tenantId);
+
+            //Delete user profile configuration details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_PROFILE_CONFIG_SQL, tenantId);
+            log.debug("Data deleted from UM_PROFILE_CONFIG table for tenant id " + tenantId);
+
+            //Delete user details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_USER_SQL, tenantId);
+            log.debug("Data deleted from UM_USER table for tenant id " + tenantId);
+
+            //Delete claim URI details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_CLAIM_SQL, tenantId);
+            log.debug("Data deleted from UM_CLAIM table for tenant id " + tenantId);
+
+            //Delete dialect URI details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_DIALECT_SQL, tenantId);
+            log.debug("Data deleted from UM_DIALECT table for tenant id " + tenantId);
+
+            //Delete hybrid user role details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_HYBRID_USER_ROLE_SQL, tenantId);
+            log.debug("Data deleted from UM_HYBRID_USER_ROLE table for tenant id " + tenantId);
+
+            //Delete hybrid role details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_HYBRID_ROLE_SQL, tenantId);
+            log.debug("Data deleted from UM_HYBRID_ROLE table for tenant id " + tenantId);
+
+            //Delete hybrid remember me details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_HYBRID_REMEMBER_ME_SQL, tenantId);
+            log.debug("Data deleted from UM_HYBRID_REMEMBER_ME table for tenant id " + tenantId);
+
+            //Delete domain details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_DOMAIN_SQL, tenantId);
+            log.debug("Data deleted from UM_DOMAIN table for the tenant id " + tenantId);
+
+            //Delete system user role details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_SYSTEM_USER_ROLE_SQL, tenantId);
+            log.debug("Data deleted from UM_SYSTEM_USER_ROLE table for tenant id " + tenantId);
+
+            //Delete system role details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_SYSTEM_ROLE_SQL, tenantId);
+            log.debug("Data deleted from UM_SYSTEM_ROLE table for tenant id " + tenantId);
+
+            //Delete system user details of the tenant
+            executeDeleteQuery(dbConnection, JDBCTenantUMDataDeletionConstants.DELETE_SYSTEM_USER_SQL, tenantId);
+            log.debug("Data deleted from UM_SYSTEM_USER table for tenant id " + tenantId);
+
+            dbConnection.commit();
+            log.info("User management data successfully deleted for tenant id " + tenantId);
+        } catch (SQLException e) {
+            String dbErrorMsg = "Error while executing transaction.";
+            log.error(dbErrorMsg, e);
+            try {
+                log.info("Rollback transaction for user manager data deletion for tenant id : " + tenantId);
+                dbConnection.rollback();
+            } catch (SQLException e1) {
+                String rollBackErrorMsg = "Error while transaction rollback for tenant id : " + tenantId;
+                log.error(rollBackErrorMsg, e);
+                throw new UserStoreException(rollBackErrorMsg, e1);
+            }
+            throw new UserStoreException(dbErrorMsg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection);
+        }
+    }
+
+    private static void executeDeleteQuery(Connection conn, String query, int tenantId) throws UserStoreException {
+        PreparedStatement prepStmt = null;
+        try {
+            prepStmt = conn.prepareStatement(query);
+            prepStmt.setInt(1, tenantId);
+            prepStmt.executeUpdate();
+        } catch (SQLException e) {
+            String errMsg = "Error executing query " + query + " for tenant: " + tenantId;
+            throw new UserStoreException(errMsg, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(null, prepStmt);
+        }
     }
 
     public class RoleBreakdown {

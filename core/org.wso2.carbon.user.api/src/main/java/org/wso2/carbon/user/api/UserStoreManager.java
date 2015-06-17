@@ -325,6 +325,13 @@ public interface UserStoreManager {
             throws UserStoreException;
 
     /**
+     * Delete all the user management related data of the tenant
+     *
+     * @throws UserStoreException
+     */
+    void deleteUMTenantData(int tenantId) throws UserStoreException;
+
+    /**
      * Gets a list of hybrid roles
      * Hybrid role contains a set of user names in a read only user store.
      *

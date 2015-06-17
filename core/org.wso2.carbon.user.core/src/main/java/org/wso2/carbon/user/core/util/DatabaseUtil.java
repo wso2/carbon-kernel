@@ -565,7 +565,7 @@ public class DatabaseUtil {
             try {
                 dbConnection.close();
             } catch (SQLException e) {
-                log.error("Database error. Could not close statement. Continuing with others. - " + e.getMessage(), e);
+                log.error("Database error. Could not close connection. Continuing with others. - " + e.getMessage(), e);
             }
         }
     }

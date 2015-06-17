@@ -25,6 +25,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.caching.impl.CacheInvalidator;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.app.RemoteRegistryService;
 import org.wso2.carbon.registry.app.Utils;
@@ -867,6 +868,19 @@ public class RegistryCoreServiceComponent {
             }
         }
 
+        public void unloadTenantRegistry(int tenantId) throws RegistryException {
+            //Need to check whether super tenant is going to delete the data.
+            int loggedInTenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            if (loggedInTenantID != MultitenantConstants.INVALID_TENANT_ID
+                    && loggedInTenantID == MultitenantConstants.SUPER_TENANT_ID) {
+                RegistryUtils.deleteAllTenantData(service, tenantId);
+            } else {
+                //TODO need to change the message and add audit log
+                log.error("Security Alert! Non super tenant trying to delete a tenant.");
+                throw new RegistryException("Non super tenant trying to delete a tenant.");
+            }
+
+        }
         public void completedAuthentication(int tenantId, boolean isSuccessful) {
             // Do nothing here.
         }

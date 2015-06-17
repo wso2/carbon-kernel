@@ -159,6 +159,15 @@ public class RegistryUserStoreManager implements UserStoreManager {
 
     }
 
+    /**
+     * Delete all the user management related data of the tenant
+     *
+     * @throws UserStoreException
+     */
+    public void deleteUMTenantData(int tenantId) throws UserStoreException {
+
+    }
+
     public void addRole(String roleName, String[] userList,
                         org.wso2.carbon.user.api.Permission[] permissions)
             throws org.wso2.carbon.user.api.UserStoreException {

@@ -1906,6 +1906,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
 
     @Override
+    public void doDeleteUMTenantData(int tenantId) throws UserStoreException {
+        //Implement this method when deleting all tenant related data
+    }
+
+    @Override
     protected String[] doGetSharedRoleListOfUser(String userName,
                                                  String tenantDomain, String filter) throws UserStoreException {
         // Get the effective search base

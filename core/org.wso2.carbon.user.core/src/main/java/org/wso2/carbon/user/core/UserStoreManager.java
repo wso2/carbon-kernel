@@ -262,6 +262,13 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     void deleteUserClaimValues(String userName, String[] claims, String profileName)
             throws UserStoreException;
 
+    /**
+     * Delete all the user management related data of the tenant
+     *
+     * @throws UserStoreException
+     */
+    void deleteUMTenantData(int tenantId) throws UserStoreException;
+
     String[] getHybridRoles() throws UserStoreException;
 
     String[] getAllSecondaryRoles() throws UserStoreException;

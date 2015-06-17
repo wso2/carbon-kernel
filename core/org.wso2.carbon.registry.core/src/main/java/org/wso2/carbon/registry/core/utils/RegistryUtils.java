@@ -39,13 +39,11 @@ import org.wso2.carbon.registry.core.ResourceImpl;
 import org.wso2.carbon.registry.core.ResourcePath;
 import org.wso2.carbon.registry.core.caching.RegistryCacheEntry;
 import org.wso2.carbon.registry.core.caching.RegistryCacheKey;
-import org.wso2.carbon.registry.core.config.Mount;
-import org.wso2.carbon.registry.core.config.RegistryContext;
-import org.wso2.carbon.registry.core.config.RemoteConfiguration;
-import org.wso2.carbon.registry.core.config.StaticConfiguration;
+import org.wso2.carbon.registry.core.config.*;
 import org.wso2.carbon.registry.core.dao.ResourceDAO;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.internal.RegistryCoreServiceComponent;
+import org.wso2.carbon.registry.core.jdbc.dataaccess.JDBCDataAccessManager;
 import org.wso2.carbon.registry.core.jdbc.handlers.HandlerLifecycleManager;
 import org.wso2.carbon.registry.core.jdbc.handlers.HandlerManager;
 import org.wso2.carbon.registry.core.jdbc.handlers.RequestContext;
@@ -1994,6 +1992,40 @@ public final class RegistryUtils {
             throw new RegistryException(msg, e);
         }
         return bytes;
+    }
+
+    public static void deleteAllTenantData(RegistryService registryService, int tenantId) throws RegistryException {
+        TenantRegistryDataDeletionUtil tenantRegistryDataDeletionUtil = new TenantRegistryDataDeletionUtil(tenantId);
+        try {
+            RegistryContext registryContext = registryService.getGovernanceSystemRegistry().getRegistryContext();
+            // delete the data from the local registry DB
+            registryContext.selectDBConfig(registryContext.getDefaultDataBaseConfiguration().getConfigName());
+            log.info("Deleting local database registry data from " + registryContext.getDefaultDataBaseConfiguration()
+                    .getConfigName());
+            tenantRegistryDataDeletionUtil
+                    .deleteAllDataFromRegistryDB(((JDBCDataAccessManager) registryContext.getDataAccessManager()));
+            log.info("Local database registry data deleted successfull for " + registryContext
+                    .getDefaultDataBaseConfiguration().getConfigName());
+            // get the list of mounted DB configuration instance and check with remote instance
+            // to get the connection of the mounted DB
+            for (Mount mount : registryContext.getMounts()) {
+                for (RemoteConfiguration configuration : registryContext.getRemoteInstances()) {
+                    if (configuration.getDbConfig() != null && mount.getInstanceId().equals(configuration.getId())) {
+                        DataBaseConfiguration dbConfig = registryContext.getDBConfig(configuration.getDbConfig());
+                        registryContext.selectDBConfig(dbConfig.getConfigName());
+                        log.info("Deleting mounted database registry data from " + dbConfig.getConfigName());
+                        tenantRegistryDataDeletionUtil.deleteAllDataFromRegistryDB(
+                                ((JDBCDataAccessManager) registryContext.getDataAccessManager()));
+                        log.info("Local database registry data deleted successfull for " + registryContext
+                                .getDefaultDataBaseConfiguration().getConfigName());
+                        break;
+                    }
+                }
+            }
+        } catch (RegistryException e) {
+            String msg = "There was issue when deleting data from the database on : " + e.getMessage();
+            throw new RegistryException(msg, e);
+        }
     }
 }
 

@@ -44,4 +44,11 @@ public interface TenantRegistryLoader {
      */
     void loadTenantRegistry(int tenantId) throws RegistryException;
 
+    /**
+     * Unload the Registry for the given tenant. This method will delete all the data of
+     * the mounted tenant
+     *
+     * @param tenantId the tenant id of the unloading tenant
+     */
+    void unloadTenantRegistry(int tenantId) throws RegistryException;
 }

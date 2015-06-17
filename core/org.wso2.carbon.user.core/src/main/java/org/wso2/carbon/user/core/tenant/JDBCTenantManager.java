@@ -23,12 +23,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.api.UserStoreManager;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.common.RealmCache;
 import org.wso2.carbon.user.core.common.UserStoreDeploymentManager;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -648,15 +651,16 @@ public class JDBCTenantManager implements TenantManager {
      */
     public void deleteTenant(int tenantId, boolean removeFromPersistentStorage)
             throws org.wso2.carbon.user.api.UserStoreException {
-        // Remove tenant information from the cache.
-        getDomain(tenantId); //fill the tenantIdDomainMap
-        String tenantDomain = (String) tenantIdDomainMap.remove(tenantId);
+        String tenantDomain = getDomain(tenantId); //fill the tenantIdDomainMap
+        tenantIdDomainMap.remove(tenantId);
         if (tenantDomain != null) {
             tenantDomainIdMap.remove(tenantDomain);
         }
+        // Remove tenant information from the cache.
         tenantCacheManager.clearCacheEntry(new TenantIdKey(tenantId));
 
         if (removeFromPersistentStorage) {
+            deleteTenantUMData(tenantId);
             Connection dbConnection = null;
             PreparedStatement prepStmt = null;
             try {
@@ -678,6 +682,23 @@ public class JDBCTenantManager implements TenantManager {
             } finally {
                 DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
             }
+        }
+    }
+
+
+    /**
+     * This method will delete all the tenant related user data
+     *
+     * @param tenantId deleting tenant Id
+     * @throws UserStoreException
+     */
+    private void deleteTenantUMData(int tenantId) throws UserStoreException {
+        try {
+            RealmService realmService = UserCoreUtil.getRealmService();
+            UserStoreManager userStoreManager = realmService.getTenantUserRealm(tenantId).getUserStoreManager();
+            userStoreManager.deleteUMTenantData(tenantId);
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            throw new UserStoreException(e.getMessage(), e);
         }
     }
 

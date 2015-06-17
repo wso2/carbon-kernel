@@ -43,6 +43,7 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.sql.DataSource;
@@ -309,6 +310,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @throws UserStoreException
      */
     protected abstract void doDeleteRole(String roleName) throws UserStoreException;
+
+    /**
+     * This method delete all the user management data of the tenant
+     *
+     * @param tenantId tenant id of the deleting tenant
+     * @throws UserStoreException
+     */
+    protected abstract void doDeleteUMTenantData(int tenantId) throws UserStoreException;
 
     /**
      * update the role name with the new name
@@ -910,6 +919,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
+    }
+
+    public void deleteUMTenantData(int tenantId) throws UserStoreException {
+        //Need to check whether super tenant is going to delete the data
+        int loggedInTenantID = CarbonContext.getThreadLocalCarbonContext().getTenantId();
+        if (loggedInTenantID == MultitenantConstants.SUPER_TENANT_ID) {
+            doDeleteUMTenantData(tenantId);
+        } else {
+            throw new UserStoreException("Cannot delete tenant data");
+        }
     }
 
     /**
