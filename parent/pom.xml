@@ -158,9 +158,7 @@
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.5.0)</carbon.kernel.imp.pkg.version>
 
-        <test.framework.version>4.3.1</test.framework.version>
-
-	<!-- Equinox dependency versions -->
+        <!-- Equinox dependency versions -->
         <version.equinox.simpleconfigurator>1.0.400.v20130327-2119</version.equinox.simpleconfigurator>
         <version.equinox.common>3.6.200.v20130402-1505</version.equinox.common>
         <version.equinox.ds>1.4.101.v20130813-1853</version.equinox.ds>
@@ -373,7 +371,6 @@
 
         <!--Apache Derby-->
         <version.wso2.derby>10.3.2.1wso2v1</version.wso2.derby>
-        <emma.version>2.1.5320</emma.version>
 
         <!-- slf4j -->
         <slf4j.version>1.5.10</slf4j.version>
@@ -448,15 +445,16 @@
         <securevault.version>1.0.0-wso2v2</securevault.version>
 
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
-        <testng.version>6.8.5</testng.version>
         
         <!-- Test integration -->
-        <automation.framework.version>4.3.1</automation.framework.version>
         <slf4j.version>1.5.10</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
-
         <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
+
+        <test.framework.version>4.4.1</test.framework.version>
+        <jacoco.agent.version>0.7.4.201502262128</jacoco.agent.version>
+
 
     </properties>
 
@@ -1239,16 +1237,6 @@
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.testng</groupId>
-                <artifactId>testng</artifactId>
-                <version>${testng.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>emma</groupId>
-                <artifactId>emma</artifactId>
-                <version>${emma.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.zookeeper.wso2</groupId>
                 <artifactId>apache-zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
@@ -1484,17 +1472,17 @@
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.engine</artifactId>
-                <version>${automation.framework.version}</version>
+                <version>${test.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.extensions</artifactId>
-                <version>${automation.framework.version}</version>
+                <version>${test.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
-                <version>${automation.framework.version}</version>
+                <version>${test.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -1512,6 +1500,12 @@
                 <artifactId>gson</artifactId>
                 <version>${version.com.google.code.gson}</version>
             </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <version>${jacoco.agent.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 </project>
