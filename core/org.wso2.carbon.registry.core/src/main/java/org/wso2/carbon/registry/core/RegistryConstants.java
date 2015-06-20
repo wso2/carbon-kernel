@@ -1152,8 +1152,4 @@ public final class RegistryConstants {
      * */
     public static final String LINK_MEDIA_TYPE = "application/vnd.wso2-link";
 
-    /**
-     * Media type of the governance archive (.zip or .gar file)
-     */
-    public static final String GOVERNANCE_ARCHIVE = "application/vnd.wso2.governance-archive";
 }

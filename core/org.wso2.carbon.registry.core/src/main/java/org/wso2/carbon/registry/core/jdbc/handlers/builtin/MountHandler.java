@@ -280,8 +280,8 @@ public class MountHandler extends Handler {
             if( RegistryConstants.XSD_MEDIA_TYPE.equals(resource.getMediaType())
                 || RegistryConstants.WSDL_MEDIA_TYPE.equals(resource.getMediaType() )) {
                 resource.addProperty(RegistryConstants.REMOTE_MOUNT_OPERATION, "true");
-            //This is to fix the zip or gar file upload on mount.
-            } else if (RegistryConstants.GOVERNANCE_ARCHIVE.equals(resource.getMediaType())) {
+            //This is to fix the zip or gar file upload on mount. constant added to avoid API changes.
+            } else if ("application/vnd.wso2.governance-archive".equals(resource.getMediaType())) {
                 return;
             }
             // sets the actual path of the resource
