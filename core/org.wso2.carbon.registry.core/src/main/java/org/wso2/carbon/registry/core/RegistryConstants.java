@@ -1151,4 +1151,5 @@ public final class RegistryConstants {
      * Defines the media type used for symlink and remote link resources.
      * */
     public static final String LINK_MEDIA_TYPE = "application/vnd.wso2-link";
+
 }
