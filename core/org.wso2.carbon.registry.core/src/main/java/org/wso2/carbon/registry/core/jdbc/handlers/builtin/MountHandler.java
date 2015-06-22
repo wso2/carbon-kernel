@@ -51,7 +51,7 @@ import java.util.*;
  */
 public class MountHandler extends Handler {
 
-    private static final Log log = LogFactory.getLog(ResourceImpl.class);
+    private static final Log log = LogFactory.getLog(MountHandler.class);
 
     private static final String EXECUTE_QUERY_CONNECTION_LIST_KEY = "execute.query.conn.key";
     private static final String CAUSED_BY_MSG = "Caused by: ";
@@ -280,6 +280,9 @@ public class MountHandler extends Handler {
             if( RegistryConstants.XSD_MEDIA_TYPE.equals(resource.getMediaType())
                 || RegistryConstants.WSDL_MEDIA_TYPE.equals(resource.getMediaType() )) {
                 resource.addProperty(RegistryConstants.REMOTE_MOUNT_OPERATION, "true");
+            //This is to fix the zip or gar file upload on mount. constant added to avoid API changes.
+            } else if ("application/vnd.wso2.governance-archive".equals(resource.getMediaType())) {
+                return;
             }
             // sets the actual path of the resource
 
@@ -1163,7 +1166,7 @@ public class MountHandler extends Handler {
             try {
                 boolean connectionExists = false;
                 List<String> conList = getQueriedConnectionList();
-                if (conList == null) {
+                if (conList == null  || !paramMap.containsKey("remote")) {
                     conList = new LinkedList<String>();
                 }
                 for (String con: conList) {

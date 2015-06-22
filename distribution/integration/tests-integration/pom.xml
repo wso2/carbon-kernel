@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>integration</artifactId>
-        <version>4.4.0-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -72,6 +72,7 @@
                         <filters.file>${basedir}/src/test/resources/filters.txt</filters.file>
                         <emma.output>${basedir}/target/emma</emma.output>
                         <sec.verifier.dir>${basedir}/target/security-verifier/</sec.verifier.dir>
+                        <axis2.sample.service.dir>${basedir}/target/axis2-sample-service/</axis2.sample.service.dir>
                     </systemProperties>
                     <workingDirectory>${basedir}/target</workingDirectory>
                 </configuration>
@@ -104,6 +105,20 @@
                             <outputDirectory>${basedir}/target/security-verifier</outputDirectory>
                             <includeTypes>aar</includeTypes>
                             <includeArtifactIds>SecVerifier</includeArtifactIds>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>copy-axis2SampleService</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/axis2-sample-service</outputDirectory>
+                            <includeTypes>aar</includeTypes>
+                            <includeArtifactIds>Axis2SampleService</includeArtifactIds>
                             <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
@@ -268,7 +283,11 @@
             <artifactId>SecVerifier</artifactId>
             <type>aar</type>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>Axis2SampleService</artifactId>
+            <type>aar</type>
+        </dependency>
     </dependencies>
 
-    
 </project>

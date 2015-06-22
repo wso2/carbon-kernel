@@ -124,8 +124,8 @@ public class AdvancedClaimManagerTest extends BaseTestCase {
 
         //lists all the claims asked at the registration
         ClaimMapping[] CM1 = (ClaimMapping[]) claimMan.getAllSupportClaimMappingsByDefault();
-        Claim C1 = CM1[0].getClaim();
         Arrays.sort(CM1,new ClaimSorter());//sorting C1 array
+	Claim C1 = CM1[0].getClaim();
         assertEquals("Given Name",C1.getDisplayTag());
         
 

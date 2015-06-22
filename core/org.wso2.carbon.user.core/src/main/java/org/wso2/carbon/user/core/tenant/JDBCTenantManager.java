@@ -124,8 +124,10 @@ public class JDBCTenantManager implements TenantManager {
 
             String msg = "Error in adding tenant with " + "tenant domain: " + tenant.getDomain().toLowerCase()
                     + ".";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
         }
@@ -186,8 +188,10 @@ public class JDBCTenantManager implements TenantManager {
 
             String msg = "Error in adding tenant with " + "tenant domain: " + tenant.getDomain().toLowerCase()
                     + ".";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
         }
@@ -224,8 +228,10 @@ public class JDBCTenantManager implements TenantManager {
 
             String msg = "Error in updating tenant with " + "tenant domain: "
                     + tenant.getDomain().toLowerCase() + ".";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -274,8 +280,10 @@ public class JDBCTenantManager implements TenantManager {
 
             String msg = "Error in updating tenant realm configuration with " + "tenant domain: "
                     + tenant.getDomain().toLowerCase() + ".";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -330,8 +338,10 @@ public class JDBCTenantManager implements TenantManager {
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
             String msg = "Error in getting the tenant with " + "tenant id: " + tenantId + ".";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
         }
@@ -375,8 +385,10 @@ public class JDBCTenantManager implements TenantManager {
             DatabaseUtil.rollBack(dbConnection);
 
             String msg = "Error in getting the tenants.";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
         }
@@ -416,8 +428,10 @@ public class JDBCTenantManager implements TenantManager {
 
             String msg = "Error in getting the tenant with " + "tenant id: "
                     + tenantId + ".";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
         }
@@ -465,8 +479,10 @@ public class JDBCTenantManager implements TenantManager {
             DatabaseUtil.rollBack(dbConnection);
 
             String msg = "Error in getting the tenants.";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
         }
@@ -511,7 +527,9 @@ public class JDBCTenantManager implements TenantManager {
         } catch (SQLException e) {
             DatabaseUtil.rollBack(dbConnection);
             String msg = "Error in getting the tenant id with tenant domain: " + tenantDomain + ".";
-            log.error(msg, e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
             throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, result, prepStmt);
@@ -536,7 +554,9 @@ public class JDBCTenantManager implements TenantManager {
             DatabaseUtil.rollBack(dbConnection);
             String msg = "Error in activating the tenant with " + "tenant id: "
                     + tenantId + ".";
-            log.error(msg, e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
             throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
@@ -564,8 +584,10 @@ public class JDBCTenantManager implements TenantManager {
 
             String msg = "Error in deactivating the tenant with " + "tenant id: "
                     + tenantId + ".";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -593,8 +615,10 @@ public class JDBCTenantManager implements TenantManager {
 
             String msg = "Error in getting the tenant status with " + "tenant id: "
                     + tenantId + ".";
-            log.error(msg);
-            throw new UserStoreException(e);
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -647,7 +671,9 @@ public class JDBCTenantManager implements TenantManager {
                 DatabaseUtil.rollBack(dbConnection);
                 String msg = "Error in deleting the tenant with "
                         + "tenant id: " + tenantId + ".";
-                log.error(msg, e);
+                if (log.isDebugEnabled()) {
+                    log.debug(msg, e);
+                }
                 throw new UserStoreException(msg, e);
             } finally {
                 DatabaseUtil.closeAllConnections(dbConnection, prepStmt);

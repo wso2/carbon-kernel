@@ -82,7 +82,9 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration" +
                     "when creating tenant's realm.";
-            logger.error(errorMessage, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
         return realmConfig;
@@ -153,7 +155,7 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
             }
 
             //if read ldap group is enabled, set the tenant specific group search base
-            if (("true").equals(bootStrapConfig.
+            if ("true".equals(bootStrapConfig.
                     getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED))) {
                 String groupContextRDNValue = tenantMgtConfig.getTenantStoreProperties().
                         get(UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
@@ -195,7 +197,9 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration " +
                     "to be persisted.";
-            logger.error(errorMessage, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
     }

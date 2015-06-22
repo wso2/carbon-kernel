@@ -84,7 +84,9 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration" +
                     "when creating tenant's realm.";
-            logger.error(errorMessage, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
         return realmConfig;
@@ -134,7 +136,7 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
             userStoreProperties.put(LDAPConstants.USER_SEARCH_BASE, userSearchBase);
 
             //if read ldap group is enabled, set the tenant specific group search base
-            if (("true").equals(bootStrapConfig.getUserStoreProperty(LDAPConstants.READ_LDAP_GROUPS))) {
+            if ("true".equals(bootStrapConfig.getUserStoreProperty(LDAPConstants.READ_LDAP_GROUPS))) {
                 //eg: ou=groups
                 String groupContextRDNValue = tenantMgtConfig.getTenantStoreProperties().get(
                         UserCoreConstants.TenantMgtConfig.PROPERTY_ORG_SUB_CONTEXT_GROUP_CONTEXT_VALUE);
@@ -166,7 +168,9 @@ public class FileSystemRealmConfigBuilder implements MultiTenantRealmConfigBuild
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration " +
                     "to be persisted.";
-            logger.error(errorMessage, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
     }

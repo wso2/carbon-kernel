@@ -39,6 +39,7 @@ import org.wso2.carbon.registry.core.ResourceImpl;
 import org.wso2.carbon.registry.core.ResourcePath;
 import org.wso2.carbon.registry.core.caching.RegistryCacheEntry;
 import org.wso2.carbon.registry.core.caching.RegistryCacheKey;
+import org.wso2.carbon.registry.core.config.Mount;
 import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.config.RemoteConfiguration;
 import org.wso2.carbon.registry.core.config.StaticConfiguration;
@@ -89,6 +90,7 @@ public final class RegistryUtils {
 
     private static final Log log = LogFactory.getLog(RegistryUtils.class);
     private static final String ENCODING = System.getProperty("carbon.registry.character.encoding");
+    private static final String MY_SQL_PRODUCT_NAME = "MySQL";
 
     private RegistryUtils() {
     }
@@ -185,18 +187,30 @@ public final class RegistryUtils {
      * @return the unique identifier.
      */
     public static String getConnectionId(Connection connection) {
+        String connectionId = null;
         try {
             // The connection URL is unique enough to be used as an identifier since one thread
             // makes one connection to the given URL according to our model.
             DatabaseMetaData connectionMetaData = connection.getMetaData();
             if (connectionMetaData != null) {
-                return (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
-                        connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
+                String productName = connectionMetaData.getDatabaseProductName();
+                if (MY_SQL_PRODUCT_NAME.equals(productName)) {
+                    /*
+                     For MySQL getUserName() method executes 'SELECT USER()' query on DB via mysql connector
+                     causing a huge number of 'SELECT USER()' queries to be executed.
+                     Hence removing username when the DB in use is MySQL.
+                     */
+                    connectionId = connectionMetaData.getURL();
+                } else {
+                    connectionId =
+                            (connectionMetaData.getUserName() != null ? connectionMetaData.getUserName().split("@")[0] :
+                                    connectionMetaData.getUserName()) + "@" + connectionMetaData.getURL();
+                }
             }
-        } catch (SQLException ignore) {
-            log.debug("Failed to construct the connectionId ." + ignore.getMessage());
+        } catch (SQLException e) {
+            log.error("Failed to construct the connectionId.", e);
         }
-        return null;
+        return connectionId;
     }
 
     /**
@@ -1117,7 +1131,7 @@ public final class RegistryUtils {
      * @return the built filter instance.
      */
     public static URLMatcher getMountingMatcher(String path) {
-        URLMatcher matcher = new MountingMatcher();
+        URLMatcher matcher = new MountingMatcher(path);
         String matchedWith = Pattern.quote(path) + "($|" + RegistryConstants.PATH_SEPARATOR +
                 ".*|" + RegistryConstants.URL_SEPARATOR + ".*)";
         matcher.setPattern(matchedWith);
@@ -1184,10 +1198,24 @@ public final class RegistryUtils {
     // This class is used to implement a URL Matcher that could be used for Mounting related
     // handlers.
     private static class MountingMatcher extends URLMatcher {
+
+        private boolean isExecuteQueryAllowed;
+
+        public MountingMatcher(String path) {
+            RegistryContext registryContext = RegistryContext.getBaseInstance();
+            for (Mount mount : registryContext.getMounts()) {
+                if (path.equals(mount.getPath())) {
+                    isExecuteQueryAllowed = mount.isExecuteQueryAllowed();
+                    break;
+                }
+            }
+
+        }
+
         // Mounting related handlers support execute query for any path.
         public boolean handleExecuteQuery(RequestContext requestContext)
                 throws RegistryException {
-            return true;
+            return isExecuteQueryAllowed;
         }
 
         // Mounting related handlers support get resource paths with tag for any path.
