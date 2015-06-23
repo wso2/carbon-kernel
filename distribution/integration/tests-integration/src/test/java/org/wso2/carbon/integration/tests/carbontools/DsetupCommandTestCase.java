@@ -103,8 +103,17 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     @AfterClass(alwaysRun = true)
-    public void cleanResources() throws CarbonToolsIntegrationTestException {
-        CarbonCommandToolsUtil.serverShutdown(portOffset);
-        process.destroy();
+    public void cleanResources() {
+        try {
+            if (CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002, portOffset)) {
+                CarbonCommandToolsUtil.serverShutdown(portOffset);
+            }
+        } catch (CarbonToolsIntegrationTestException e) {
+            log.info("Server already Shutdown");
+        }
+
+        if (process != null) {
+            process.destroy();
+        }
     }
 }

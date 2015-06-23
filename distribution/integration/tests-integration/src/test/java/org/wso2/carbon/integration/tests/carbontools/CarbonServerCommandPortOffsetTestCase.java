@@ -56,18 +56,15 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
     public void testCommandPortOffset() throws Exception {
         serverPropertyMap = new HashMap<String, String>();
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
+        CarbonTestServerManager carbonServer =
+                new CarbonTestServerManager(automationContext, System.getProperty("carbon.zip"), serverPropertyMap);
 
         try {
-            CarbonTestServerManager carbonServer =
-                    new CarbonTestServerManager(automationContext,
-                                                System.getProperty("carbon.zip"), serverPropertyMap);
             carbonServer.startServer();
-
             assertTrue(CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002,
                                                                 portOffset), "Unsuccessful login");
         } finally {
-            CarbonCommandToolsUtil.serverShutdown(portOffset);
-
+            carbonServer.stopServer();
         }
     }
 
