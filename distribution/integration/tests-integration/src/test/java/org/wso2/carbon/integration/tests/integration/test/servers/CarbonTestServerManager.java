@@ -20,9 +20,11 @@ package org.wso2.carbon.integration.tests.integration.test.servers;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 
 import javax.xml.xpath.XPathExpressionException;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -36,9 +38,8 @@ public class CarbonTestServerManager extends TestServerManager {
         super(context);
     }
 
-    public CarbonTestServerManager(AutomationContext context, String carbonZip,
-                                   Map<String, String> startupParameterMap) {
-        super(context, carbonZip, startupParameterMap);
+    public CarbonTestServerManager(AutomationContext context, String carbonZip, Map<String, String> startupParameterMap) {
+        super(context,carbonZip, startupParameterMap);
     }
 
     public CarbonTestServerManager(AutomationContext context, int portOffset) {
@@ -47,8 +48,8 @@ public class CarbonTestServerManager extends TestServerManager {
 
     @Override
     @BeforeSuite(timeOut = 300000,
-            description = "Starts up a Carbon core server")
-    public String startServer() throws Exception {
+                 description = "Starts up a Carbon core server")
+    public String startServer() throws IOException, AutomationFrameworkException {
         String carbonHome = super.startServer();
         System.setProperty("carbon.home", carbonHome);
         return carbonHome;
@@ -56,8 +57,8 @@ public class CarbonTestServerManager extends TestServerManager {
 
     @Override
     @AfterSuite(timeOut = 60000,
-            description = "Stops the Carbon core server")
-    public void stopServer() throws Exception {
+                description = "Stops the Carbon core server")
+    public void stopServer() throws AutomationFrameworkException {
         super.stopServer();
     }
 
