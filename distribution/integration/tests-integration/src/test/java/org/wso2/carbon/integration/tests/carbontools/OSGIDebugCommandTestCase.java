@@ -112,8 +112,14 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     @AfterClass(alwaysRun = true)
-    public void serverShutDown() throws CarbonToolsIntegrationTestException {
-        CarbonCommandToolsUtil.serverShutdown(portOffset);
+    public void serverShutDown() {
+        try {
+            if (CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002, portOffset)) {
+                CarbonCommandToolsUtil.serverShutdown(portOffset);
+            }
+        } catch (CarbonToolsIntegrationTestException e) {
+            log.info("Server already Shutdown");
+        }
         if (process != null) {
             process.destroy();
         }

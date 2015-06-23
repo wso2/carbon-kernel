@@ -21,6 +21,7 @@ package org.wso2.carbon.integration.tests.carbontools;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
@@ -231,6 +232,17 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             }
         }
         return isFoundDumpFolder;
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void shutDownServer() {
+        try {
+            if (CarbonCommandToolsUtil.isServerStartedUp(automationContext, portOffset)) {
+                CarbonCommandToolsUtil.serverShutdown(portOffset);
+            }
+        } catch (CarbonToolsIntegrationTestException e) {
+            log.info("Server already Shutdown");
+        }
     }
 
 }
