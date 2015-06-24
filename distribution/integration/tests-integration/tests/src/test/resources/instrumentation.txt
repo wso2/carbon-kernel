@@ -21,12 +21,9 @@ org.wso2.carbon.p2.touchpoint*
 org.wso2.carbon.tomcat*
 org.wso2.carbon.queuing*
 org.wso2.carbon.core.services*
-org.wso2.carbon.registry.api*
 org.wso2.carbon.core*
-org.wso2.carbon.registry.core*
 org.wso2.carbon.user.api*
 org.wso2.carbon.feature.mgt.core*
-org.wso2.carbon.registry.server*
 org.wso2.carbon.user.core*
 org.wso2.carbon.feature.mgt.services*
 org.wso2.carbon.utils*
