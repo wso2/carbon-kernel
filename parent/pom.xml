@@ -440,6 +440,9 @@
         <maven.build.helper.plugin.version>1.7</maven.build.helper.plugin.version>
         <maven.build.number.plugin.version>0.9.4</maven.build.number.plugin.version>
         <maven.jar.plugin.version>2.4</maven.jar.plugin.version>
+        <carbon.test.component100>1.0.0</carbon.test.component100>
+        <carbon.test.component200>1.0.0</carbon.test.component200>
+        <carbon.test.component300>1.0.0</carbon.test.component300>
 
         <!--Qpid -->
         <orbit.version.qpid-client>0.12.wso2v1</orbit.version.qpid-client>
@@ -1392,6 +1395,21 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component100</artifactId>
+                <version>${carbon.test.component100}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component200</artifactId>
+                <version>${carbon.test.component200}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component300</artifactId>
+                <version>${carbon.test.component300}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.integration.framework</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
@@ -1467,6 +1485,24 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.student.mgt.ui.feature</artifactId>
                 <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>feature1-100</artifactId>
+                <version>${carbon.test.component100}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>feature2-100</artifactId>
+                <version>${carbon.test.component200}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>feature3-100</artifactId>
+                <version>${carbon.test.component300}</version>
                 <type>zip</type>
             </dependency>
 

@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright (c) 2015. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+  ~ Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+  ~ Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+  ~ Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+  ~ Vestibulum commodo. Ut rhoncus gravida arcu. sdfasuygfwshfdLF'WEFW
+  ~ EFD
+  ~ WEFWE
+  ~ F
+  ~ W	EF2
+  -->
+
+<serviceGroup>
+    <service name="Component3" scope="transportsession">
+        <transports>
+            <transport>https</transport>
+            <transport>http</transport>
+        </transports>
+        <parameter name="ServiceClass">org.wso2.carbon.test.component3.Component3</parameter>
+    </service>
+    
+    <parameter name="adminService" locked="true">true</parameter>
+    <parameter name="hiddenService" locked="true">true</parameter>
+    <parameter name="AuthorizationAction" locked="true">/permission/protected/manage</parameter>
+</serviceGroup>
