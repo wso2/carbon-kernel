@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>sample-feature-repo</artifactId>
+        <artifactId>sample-feature-repo1</artifactId>
         <groupId>org.wso2.carbon</groupId>
         <version>4.4.1-SNAPSHOT</version>
     </parent>
@@ -31,13 +31,22 @@
                             <publishArtifactRepository>true</publishArtifactRepository>
                             <featureArtifacts>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.test.feature1-100:${carbon.test.component100}
+                                    org.wso2.carbon:org.wso2.carbon.test.feature1:${carbon.test.component100}
                                 </featureArtifactDef>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.test.feature2-100:${carbon.test.component200}
+                                    org.wso2.carbon:org.wso2.carbon.test.feature1:${carbon.test.component101}
                                 </featureArtifactDef>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.test.feature3-100:${carbon.test.component300}
+                                    org.wso2.carbon:org.wso2.carbon.test.feature2:${carbon.test.component200}
+                                </featureArtifactDef>
+                                <featureArtifactDef>
+                                    org.wso2.carbon:org.wso2.carbon.test.feature2:${carbon.test.component201}
+                                </featureArtifactDef>
+                                <featureArtifactDef>
+                                    org.wso2.carbon:org.wso2.carbon.test.feature3:${carbon.test.component300}
+                                </featureArtifactDef>
+                                <featureArtifactDef>
+                                    org.wso2.carbon:org.wso2.carbon.test.feature3:${carbon.test.component301}
                                 </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>

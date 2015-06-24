@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>sample-feature-repo</artifactId>
+        <artifactId>sample-feature-repo1</artifactId>
         <groupId>org.wso2.carbon</groupId>
         <version>4.4.1-SNAPSHOT</version>
     </parent>
@@ -12,9 +12,9 @@
     <artifactId>components</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>component1-100</module>
-        <module>component2-100</module>
-        <module>component3-100</module>
+        <module>component1</module>
+        <module>component2</module>
+        <module>component3</module>
     </modules>
 
 

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>sample-feature-repo</artifactId>
+    <artifactId>sample-feature-repo1</artifactId>
     <packaging>pom</packaging>
     <modules>
         <module>components</module>
