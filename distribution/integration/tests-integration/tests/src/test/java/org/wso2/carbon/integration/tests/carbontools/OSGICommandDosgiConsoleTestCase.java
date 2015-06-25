@@ -26,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
+import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
 import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 
 import java.io.BufferedReader;
@@ -75,7 +76,7 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
             throws CarbonToolsIntegrationTestException, IOException {
 
         telnet.connect(InetAddress.getLocalHost().getHostAddress(), telnetPort);
-        telnet.setSoTimeout(telnetTimeOutMS);
+        telnet.setSoTimeout((int) CarbonIntegrationConstants.DEFAULT_WAIT_MS);
         ArrayList<String> arr = retrieveActiveComponentsList("ls");//run ls command to list bundles
         for (int x = 0; x < arr.size(); x++) {
             activeList.add(arrList.get(x).split("\t")[3]);

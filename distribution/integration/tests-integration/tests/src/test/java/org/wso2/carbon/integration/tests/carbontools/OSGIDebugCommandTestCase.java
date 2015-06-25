@@ -68,7 +68,6 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
         String expectedString = "OSGi debugging has been enabled with options:";
         boolean isFoundTheMessage = false;
         InputStream is = null;
-        int timeout = 1000 * 30;
 
         BufferedReader br = null;
         if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
@@ -87,7 +86,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
             process = CarbonCommandToolsUtil.runScript(commandDirectory, cmdArray);
             String line;
             long startTime = System.currentTimeMillis();
-            while ((System.currentTimeMillis() - startTime) < timeout) {
+            while ((System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
                 is = process.getInputStream();
                 br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                 if (br != null) {
