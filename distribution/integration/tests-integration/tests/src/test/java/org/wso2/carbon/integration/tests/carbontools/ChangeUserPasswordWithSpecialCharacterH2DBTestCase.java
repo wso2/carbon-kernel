@@ -27,6 +27,7 @@ import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
 import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.integration.tests.common.bean.DataSourceBean;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
@@ -74,8 +75,8 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
 
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
         AutomationContext autoCtx = new AutomationContext();
-        CarbonTestServerManager carbonServer =
-                new CarbonTestServerManager(autoCtx, System.getProperty("carbon.zip"),
+        TestServerManager carbonServer =
+                new TestServerManager(autoCtx, System.getProperty("carbon.zip"),
                                             serverPropertyMap);
 
         String carbonHome = carbonServer.startServer();
