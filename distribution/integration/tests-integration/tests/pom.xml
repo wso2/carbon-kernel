@@ -202,6 +202,69 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>copy-p2-repo</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>src/test/resources/artifacts/CARBON/sample-p2-repo1
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>
+                                        ${basedir}/../../test-common/common-artifacts/sample-feature-repo1/repository/target/p2-repo/
+                                    </directory>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-p2-repo-copy1</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>src/test/resources/artifacts/CARBON/sample-p2-repo1-copy1
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>
+                                        ${basedir}/../../test-common/common-artifacts/sample-feature-repo1/repository/target/p2-repo/
+                                    </directory>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-p2-repo-copy2</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>src/test/resources/artifacts/CARBON/sample-p2-repo1-copy2
+                            </outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>
+                                        ${basedir}/../../test-common/common-artifacts/sample-feature-repo1/repository/target/p2-repo/
+                                    </directory>
+                                    <includes>
+                                        <include>**/*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>copy-resources-mar</id>
                         <phase>compile</phase>
                         <goals>
@@ -271,6 +334,10 @@
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.agent</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.feature.mgt.ui</artifactId>
         </dependency>
     </dependencies>
 
