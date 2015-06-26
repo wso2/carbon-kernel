@@ -24,6 +24,7 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
@@ -53,7 +54,7 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
     private ArrayList<String> activeList = new ArrayList<String>();
     private HashMap<String, String> serverPropertyMap = new HashMap<String, String>();
     private PrintStream out;
-    private CarbonTestServerManager carbonTestServerManager;
+    private TestServerManager carbonTestServerManager;
     private int telnetTimeOutMS = 1000 * 10 ;
 
     @BeforeClass(alwaysRun = true)
@@ -66,7 +67,7 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
         serverPropertyMap.put("-DosgiConsole", Integer.toString(telnetPort));
 
         carbonTestServerManager =
-                new CarbonTestServerManager(automationContext, System.getProperty("carbon.zip"), serverPropertyMap);
+                new TestServerManager(automationContext, System.getProperty("carbon.zip"), serverPropertyMap);
 
         carbonTestServerManager.startServer();
     }

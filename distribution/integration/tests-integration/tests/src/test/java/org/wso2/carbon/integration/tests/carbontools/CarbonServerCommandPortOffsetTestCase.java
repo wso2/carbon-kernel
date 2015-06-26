@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.MultipleServersManager;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
@@ -56,8 +57,8 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
     public void testCommandPortOffset() throws Exception {
         serverPropertyMap = new HashMap<String, String>();
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
-        CarbonTestServerManager carbonServer =
-                new CarbonTestServerManager(automationContext, System.getProperty("carbon.zip"), serverPropertyMap);
+        TestServerManager carbonServer =
+                new TestServerManager(automationContext, System.getProperty("carbon.zip"), serverPropertyMap);
 
         try {
             carbonServer.startServer();
@@ -83,7 +84,7 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
         serverPropertyMap.put("-DhttpPort", httpPort);
 
         try {
-            CarbonTestServerManager carbonServer = new CarbonTestServerManager(
+            TestServerManager carbonServer = new TestServerManager(
                     automationContext, System.getProperty("carbon.zip"), serverPropertyMap);
             carbonServer.startServer();
 

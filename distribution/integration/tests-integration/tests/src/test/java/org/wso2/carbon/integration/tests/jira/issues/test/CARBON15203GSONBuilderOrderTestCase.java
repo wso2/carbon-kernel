@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.*;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
@@ -41,7 +42,7 @@ public class CARBON15203GSONBuilderOrderTestCase extends CarbonIntegrationBaseTe
     private static final Log log = LogFactory.getLog(CARBON15203GSONBuilderOrderTestCase.class);
     private static int portOffset = 28;
     private static final long TIMEOUT = 5 * 60000;
-    private CarbonTestServerManager serverManager;
+    private TestServerManager serverManager;
     private AutomationContext context;
     private String carbonHome;
 
@@ -50,7 +51,7 @@ public class CARBON15203GSONBuilderOrderTestCase extends CarbonIntegrationBaseTe
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
         context = new AutomationContext();
-        serverManager = new CarbonTestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
+        serverManager = new TestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
         serverManager.startServer();
         carbonHome = serverManager.getCarbonHome();
         changeConfigFiles();

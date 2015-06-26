@@ -24,6 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.MultipleServersManager;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 
 import java.util.HashMap;
@@ -46,10 +47,10 @@ public class MultipleCarbonInstancesTestCase {
         AutomationContext context = new AutomationContext();
 
         startupParameterMapOne.put("-DportOffset", "10");
-        CarbonTestServerManager server1 = new CarbonTestServerManager(context, System.getProperty("carbon.zip"),
+        TestServerManager server1 = new TestServerManager(context, System.getProperty("carbon.zip"),
                 startupParameterMapOne);
         startupParameterMapTwo.put("-DportOffset", "20");
-        CarbonTestServerManager server2 = new CarbonTestServerManager(context, System.getProperty("carbon.zip"),
+        TestServerManager server2 = new TestServerManager(context, System.getProperty("carbon.zip"),
                 startupParameterMapTwo);
         manager.startServers(server1, server2);
     }
