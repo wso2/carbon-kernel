@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
 import org.wso2.carbon.automation.extensions.ExtensionConstants;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerManager;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
@@ -271,6 +272,10 @@ public class CarbonCommandToolsUtil {
             log.error("Extracting the pack and getting the carbon home failed", ex);
             throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
                                                           "carbon home failed", ex);
+        } catch (AutomationFrameworkException e) {
+            log.error("Extracting the pack and getting the carbon home failed", e);
+            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
+                                                          "carbon home failed", e);
         }
     }
 

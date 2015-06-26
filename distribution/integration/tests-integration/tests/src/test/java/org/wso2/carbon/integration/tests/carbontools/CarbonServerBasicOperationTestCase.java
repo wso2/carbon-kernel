@@ -212,9 +212,8 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         boolean isFoundDumpFolder = false;
         File folder = new File(carbonHome);
         long startTime = System.currentTimeMillis();
-        long timeout = 10000;
 
-        while (!isFoundDumpFolder && (System.currentTimeMillis() - startTime) < timeout) {
+        while (!isFoundDumpFolder && (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
             if (folder.exists() && folder.isDirectory()) {
                 File[] listOfFiles = folder.listFiles();
                 if (listOfFiles != null) {
