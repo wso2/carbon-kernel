@@ -299,6 +299,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX));
         }
         if (!checkUserPasswordValid(credential)) {
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
             throw new UserStoreException(
                     "Credential not valid. Credential must be a non null string with following format, "
                             + realmConfig
@@ -742,6 +749,14 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         }
 
         if (!checkUserPasswordValid(newCredential)) {
+
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
             throw new UserStoreException(
                     "Credential not valid. Credential must be a non null string with following format, "
                             + realmConfig

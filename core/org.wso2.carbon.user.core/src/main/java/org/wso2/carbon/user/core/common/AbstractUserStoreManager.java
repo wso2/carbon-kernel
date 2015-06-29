@@ -1163,6 +1163,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!checkUserPasswordValid(credential)) {
             String message = "Credential not valid. Credential must be a non null string with following format, ";
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
             throw new UserStoreException(message + regEx);
@@ -2848,14 +2854,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String regularExpression = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-
-        if (MultitenantUtils.isEmailUserName()) {
-            regularExpression = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX);
-            if (regularExpression == null) {
-                regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
-            }
-        }
 
         if (regularExpression != null) {
             regularExpression = regularExpression.trim();

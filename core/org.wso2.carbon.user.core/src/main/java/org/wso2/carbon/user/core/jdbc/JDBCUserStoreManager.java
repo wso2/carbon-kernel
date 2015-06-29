@@ -2071,6 +2071,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throws UserStoreException {
 
         if (!checkUserPasswordValid(newCredential)) {
+
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
             throw new UserStoreException(
                     "Credential not valid. Credential must be a non null string with following format, "
                             + realmConfig
