@@ -347,11 +347,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (bValue) {
                 return bValue;
             }
-
+            // we need not check binding for this name again, so store this and check
             failedUserDN = name;
 
         }
-
+        // read DN patterns from user-mgt.xml
         String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
 
         if (patterns != null && !patterns.isEmpty()) {
@@ -366,7 +366,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (userDNPatternList.length > 0) {
                 for (String userDNPattern : userDNPatternList) {
                     name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
-
+                    // check if the same name is found and checked from cache
                     if(failedUserDN!=null && failedUserDN.equals(name)){
                         continue;
                     }
