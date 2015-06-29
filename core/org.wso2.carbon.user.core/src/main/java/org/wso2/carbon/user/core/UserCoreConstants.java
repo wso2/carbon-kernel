@@ -198,6 +198,7 @@ public class UserCoreConstants {
 
         public static final String SHARED_GROUPS_ENABLED = "SharedGroupEnabled";
         public static final String DOMAIN_NAME_XPATH = "//UserStoreManager/Property[@name='DomainName']";
+        public static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
     }
 
     public static final class ClaimTypeURIs {
