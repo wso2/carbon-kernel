@@ -26,6 +26,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
@@ -49,6 +51,7 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     private AutomationContext automationContextOfInstance002;
     private int portOffset = 1;
     private Process process;
+    TestServerManager testServerManager;
 
     @BeforeClass(alwaysRun = true)
     public void copyMasterDataSourceFile() throws Exception {
@@ -79,9 +82,13 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     @Test(groups = "carbon.core", description = "Test -Dsetup recreate the database")
     public void testDsetupCommand() throws Exception {
 
-        String[] cmdArrayToRecreateDB = new String[]{"-Dsetup"};
-            process = CarbonCommandToolsUtil.
-                    startServerUsingCarbonHome(carbonHome, portOffset, cmdArrayToRecreateDB);
+        AutomationContext autoCtx = new AutomationContext();
+        testServerManager = new TestServerManager(autoCtx, portOffset) {
+            public void configureServer() throws AutomationFrameworkException {
+                testServerManager.getCommands().put("-Dsetup", "");
+            }
+        };
+        testServerManager.startServer();
 
         boolean startupStatus =
                 CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002, portOffset);
@@ -92,7 +99,7 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
                         carbonHome + File.separator + "repository" + File.separator +
                         "database" + File.separator + "DsetupCommandTEST_DB.h2.db");
 
-        Assert.assertTrue(fileCreated, "Java file not created successfully");
+        Assert.assertTrue(fileCreated, "DB file not created successfully");
 
         String loginStatusString =
                 loginLogoutUtil.login(
@@ -103,10 +110,10 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     @AfterClass(alwaysRun = true)
-    public void cleanResources() {
+    public void cleanResources() throws AutomationFrameworkException {
         try {
             if (CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002, portOffset)) {
-                CarbonCommandToolsUtil.serverShutdown(portOffset);
+                testServerManager.stopServer();
             }
         } catch (CarbonToolsIntegrationTestException e) {
             log.info("Server already Shutdown");
