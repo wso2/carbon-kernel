@@ -139,7 +139,6 @@
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             javax.sql.*,
                             org.apache.commons.logging.*,
-                            org.apache.commons.lang.*;
                             javax.naming.*,
                             javax.xml.stream.*; version="1.0.1",
                             javax.xml.namespace; version=0.0.0,
