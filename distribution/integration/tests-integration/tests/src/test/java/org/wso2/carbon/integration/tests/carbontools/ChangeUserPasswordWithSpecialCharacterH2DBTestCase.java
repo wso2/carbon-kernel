@@ -117,6 +117,8 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
                     throw new AutomationFrameworkException("Error when starting the carbon server",e);
                 } catch (CarbonToolsIntegrationTestException e) {
                     throw new AutomationFrameworkException("Error when running the chpasswd script",e);
+                } catch (XPathExpressionException e) {
+                    throw new AutomationFrameworkException("Error when starting the carbon server",e);
                 }
             }
         };
