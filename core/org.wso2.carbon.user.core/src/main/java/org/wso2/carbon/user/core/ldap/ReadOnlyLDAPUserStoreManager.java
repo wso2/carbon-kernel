@@ -341,9 +341,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            if (bValue) {
-                return bValue;
-            }
+            return bValue;
+
         }
 
         // read list of patterns from user-mgt.xml
