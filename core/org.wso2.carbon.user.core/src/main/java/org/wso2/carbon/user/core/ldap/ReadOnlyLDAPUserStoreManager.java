@@ -350,7 +350,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             failedUserDN = name;
 
-            
         }
 
         String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
@@ -395,9 +394,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
         }
-
-
-        else {
+        else
+        {
             name = getNameInSpaceForUserName(userName);
             try {
                 if (name != null) {
