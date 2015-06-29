@@ -54,28 +54,32 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         int portOffset = 35;
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
-        startServerForShutdownTest(startUpParameterMap);
+        try {
+            CarbonTestServerManager.start(startUpParameterMap);
 
-        int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
-        ClientConnectionUtil.waitForPort(httpsPort, automationContext.getInstance().getHosts().get("default"));
+            int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
+            ClientConnectionUtil.waitForPort(httpsPort, automationContext.getInstance().getHosts().get("default"));
 
-        ServerAdminClient serverAdmin = new ServerAdminClient("https://" +
-                automationContext.getInstance().getHosts().get("default") + ":" +
-                (httpsPort) + "/services/ServerAdmin/",
-                automationContext.getContextTenant().getContextUser().getUserName(),
-                automationContext.getContextTenant().getContextUser().getPassword());
+            ServerAdminClient serverAdmin = new ServerAdminClient("https://" +
+                                                                  automationContext.getInstance().getHosts().get("default") + ":" +
+                                                                  (httpsPort) + "/services/ServerAdmin/",
+                                                                  automationContext.getContextTenant().getContextUser().getUserName(),
+                                                                  automationContext.getContextTenant().getContextUser().getPassword());
 
-        serverAdmin.shutdownGracefully();
+            serverAdmin.shutdownGracefully();
 
-        Thread.sleep(5000);
+            Thread.sleep(10000);
 
-        assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
-                "Port " + httpsPort + " shouldn't be open when the server is gracefully shutting down");
+            assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
+                        "Port " + httpsPort + " shouldn't be open when the server is gracefully shutting down");
 
-        int httpPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset;
+            int httpPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset;
 
-        assertFalse(ClientConnectionUtil.isPortOpen(httpPort),
-                "Port " + httpPort + " shouldn't be open when the server is gracefully shutting down");
+            assertFalse(ClientConnectionUtil.isPortOpen(httpPort),
+                        "Port " + httpPort + " shouldn't be open when the server is gracefully shutting down");
+        }finally {
+            CarbonTestServerManager.stop();
+        }
     }
 
     @Test(groups = {"carbon.core.shutdown.test"})
@@ -86,28 +90,28 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         int portOffset = 37;
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
-        startServerForShutdownTest(startUpParameterMap);
 
-        int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
-        ClientConnectionUtil.waitForPort(httpsPort, automationContext.getInstance().getHosts().get("default"));
-        ServerAdminClient serverAdmin = new ServerAdminClient("https://"
-                + automationContext.getInstance().getHosts().get("default") + ":" +
-                (httpsPort) + "/services/ServerAdmin/",
-                automationContext.getContextTenant().getContextUser().getUserName(),
-                automationContext.getContextTenant().getContextUser().getPassword());
+        try {
+            CarbonTestServerManager.start(startUpParameterMap);
 
-        assertTrue(serverAdmin.shutdown(), "Server shout down failure");
-        Thread.sleep(5000);
-        assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
-                "Port " + httpsPort + " shouldn't be open when the server is shutting down");
-        int httpPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset;
-        assertFalse(ClientConnectionUtil.isPortOpen(httpPort),
-                "Port " + httpPort + " shouldn't be open when the server is shutting down");
+            int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
+            ClientConnectionUtil.waitForPort(httpsPort, automationContext.getInstance().getHosts().get("default"));
+            ServerAdminClient serverAdmin = new ServerAdminClient("https://"
+                                                                  + automationContext.getInstance().getHosts().get("default") + ":" +
+                                                                  (httpsPort) + "/services/ServerAdmin/",
+                                                                  automationContext.getContextTenant().getContextUser().getUserName(),
+                                                                  automationContext.getContextTenant().getContextUser().getPassword());
+
+            assertTrue(serverAdmin.shutdown(), "Server shout down failure");
+            Thread.sleep(10000);
+            assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
+                        "Port " + httpsPort + " shouldn't be open when the server is shutting down");
+            int httpPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset;
+            assertFalse(ClientConnectionUtil.isPortOpen(httpPort),
+                        "Port " + httpPort + " shouldn't be open when the server is shutting down");
+        }finally {
+            CarbonTestServerManager.stop();
+        }
     }
 
-    private void startServerForShutdownTest(HashMap<String, String> startUpParameterMap) throws Exception {
-        CarbonTestServerManager server = new CarbonTestServerManager(automationContext, System.getProperty("carbon.zip"),
-                startUpParameterMap);
-        server.startServer();
-    }
 }

@@ -26,14 +26,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
-import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
 import org.wso2.carbon.integration.tests.common.utils.LoginLogoutUtil;
+import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 
 import java.io.File;
+import java.util.HashMap;
 
 import static org.testng.Assert.assertTrue;
 
@@ -48,7 +51,8 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     private String carbonHome;
     private AutomationContext automationContextOfInstance002;
     private int portOffset = 1;
-    private Process process;
+    private HashMap<String, String> serverPropertyMap = new HashMap<String, String>();
+
 
     @BeforeClass(alwaysRun = true)
     public void copyMasterDataSourceFile() throws Exception {
@@ -60,9 +64,16 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
                                       ContextXpathConstants.ADMIN);
 
         loginLogoutUtil = new LoginLogoutUtil();
-        carbonHome = CarbonCommandToolsUtil.getCarbonHome(automationContextOfInstance002);
         log.info("replacing the master-datasources.xml file");
 
+        if (CarbonTestServerManager.isServerRunning()) {
+            carbonHome = CarbonTestServerManager.getCarbonHome();
+            CarbonTestServerManager.stop();
+        } else {
+            CarbonTestServerManager.start(portOffset);
+            carbonHome = CarbonTestServerManager.getCarbonHome();
+            CarbonTestServerManager.stop();
+        }
         File sourceFile =
                 new File(TestConfigurationProvider.getResourceLocation() + File.separator +
                          "artifacts" + File.separator + "CARBON" + File.separator + "carbontools" +
@@ -79,9 +90,12 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     @Test(groups = "carbon.core", description = "Test -Dsetup recreate the database")
     public void testDsetupCommand() throws Exception {
 
-        String[] cmdArrayToRecreateDB = new String[]{"-Dsetup"};
-            process = CarbonCommandToolsUtil.
-                    startServerUsingCarbonHome(carbonHome, portOffset, cmdArrayToRecreateDB);
+
+        serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
+        // start with -Dsetup command
+        serverPropertyMap.put("-Dsetup", "");
+
+        CarbonTestServerManager.start(serverPropertyMap);
 
         boolean startupStatus =
                 CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002, portOffset);
@@ -92,7 +106,7 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
                         carbonHome + File.separator + "repository" + File.separator +
                         "database" + File.separator + "DsetupCommandTEST_DB.h2.db");
 
-        Assert.assertTrue(fileCreated, "Java file not created successfully");
+        Assert.assertTrue(fileCreated, "DB file not created successfully");
 
         String loginStatusString =
                 loginLogoutUtil.login(
@@ -103,17 +117,7 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
     }
 
     @AfterClass(alwaysRun = true)
-    public void cleanResources() {
-        try {
-            if (CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002, portOffset)) {
-                CarbonCommandToolsUtil.serverShutdown(portOffset);
-            }
-        } catch (CarbonToolsIntegrationTestException e) {
-            log.info("Server already Shutdown");
-        }
-
-        if (process != null) {
-            process.destroy();
-        }
+    public void cleanResources() throws AutomationFrameworkException {
+        CarbonTestServerManager.stop();
     }
 }

@@ -25,10 +25,10 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
 import org.wso2.carbon.automation.extensions.ExtensionConstants;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerManager;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
-import org.wso2.carbon.automation.extensions.servers.utils.InputStreamHandler;
 import org.wso2.carbon.automation.extensions.servers.utils.ServerLogReader;
 import org.wso2.carbon.integration.tests.common.bean.DataSourceBean;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
@@ -271,6 +271,10 @@ public class CarbonCommandToolsUtil {
             log.error("Extracting the pack and getting the carbon home failed", ex);
             throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
                                                           "carbon home failed", ex);
+        } catch (AutomationFrameworkException e) {
+            log.error("Extracting the pack and getting the carbon home failed", e);
+            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
+                                                          "carbon home failed", e);
         }
     }
 
@@ -313,77 +317,6 @@ public class CarbonCommandToolsUtil {
                                                           "default credentials ", ex);
         }
 
-    }
-
-    /**
-     * This method is to start a carbon server with a port offset and startup arguments
-     *
-     * @param carbonHome - carbon home
-     * @param portOffset - port offset
-     * @param parameters - startup arguments
-     * @return Process - process of the started carbon
-     * @throws CarbonToolsIntegrationTestException - Throws if server startup fails
-     */
-    public static Process startServerUsingCarbonHome(
-            String carbonHome, int portOffset, String[] parameters)
-            throws CarbonToolsIntegrationTestException {
-        Process tempProcess;
-        String scriptName = "wso2server";
-        final int serverStartUpPortOffset = portOffset;
-        try {
-            AutomationContext automationContext = new AutomationContext();
-            File commandDir = new File(carbonHome);
-            String[] cmdArray;
-            log.info("Starting server............. ");
-
-            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                commandDir = new File(carbonHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "-DportOffset=" + serverStartUpPortOffset};
-                cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
-                tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
-            } else {
-                cmdArray = new String[]{"sh", "bin/" + scriptName + ".sh", "-DportOffset=" + serverStartUpPortOffset};
-                cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
-                tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
-            }
-
-            int defaultHttpPort = Integer.parseInt(automationContext.getInstance().getPorts().get("http"));
-
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    try {
-                        CarbonCommandToolsUtil.serverShutdown(serverStartUpPortOffset);
-                    } catch (Exception e) {
-                        log.error("Error while server shutdown ..", e);
-                    }
-                }
-            });
-
-            InputStreamHandler errorStreamHandler =
-                    new InputStreamHandler("errorStream", tempProcess.getErrorStream());
-            serverLogStreamHandler = new ServerLogReader("inputStream", tempProcess.getInputStream());
-
-            // start the stream readers
-            serverLogStreamHandler.start();
-            errorStreamHandler.start();
-            ClientConnectionUtil.waitForPort(defaultHttpPort, CarbonIntegrationConstants.DEFAULT_WAIT_MS, false,
-                                             automationContext.getInstance().getHosts().get("default"));
-
-            //wait until Mgt console url printed
-            long time = System.currentTimeMillis() + CarbonIntegrationConstants.DEFAULT_WAIT_MS;
-            while (!serverLogStreamHandler.getOutput().contains(CarbonIntegrationConstants.SERVER_STARTUP_MESSAGE) &&
-                   System.currentTimeMillis() < time) {
-                // wait until server startup is completed
-            }
-            log.info("Server started successfully.");
-            return tempProcess;
-        } catch (XPathExpressionException ex) {
-            log.error("Error while starting the server using carbon home", ex);
-            throw new CarbonToolsIntegrationTestException("Error while starting the server using carbon home", ex);
-        } catch (IOException e) {
-            log.error("Server startup folder not found", e);
-            throw new CarbonToolsIntegrationTestException("Server startup folder not found", e);
-        }
     }
 
     /**

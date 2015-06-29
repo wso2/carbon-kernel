@@ -55,17 +55,18 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
 
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
-        CarbonTestServerManager serverManager = startServerForRestartTest(startUpParameterMap);
+
 
         try {
+            CarbonTestServerManager.start(startUpParameterMap);
             int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT)
-                    + portOffset;
+                            + portOffset;
             ClientConnectionUtil.waitForPort(httpsPort, automationContext.getDefaultInstance().
                     getHosts().get("default"));
             ServerAdminClient serverAdmin = new ServerAdminClient("https://" +
-                    automationContext.getInstance().getHosts().get("default") + ":" +
-                    httpsPort + "/services/ServerAdmin/",
-                    automationContext.getSuperTenant().getTenantAdmin().getUserName(), automationContext.
+                                                                  automationContext.getInstance().getHosts().get("default") + ":" +
+                                                                  httpsPort + "/services/ServerAdmin/",
+                                                                  automationContext.getSuperTenant().getTenantAdmin().getUserName(), automationContext.
                     getSuperTenant().getTenantAdmin().getPassword());
             assertTrue(serverAdmin.restartGracefully(), "Server gracefully restart failure");
             Thread.sleep(5000); //This sleep should be there, since we have to give some time for
@@ -75,9 +76,9 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
                     getHosts().get("default"));
             Thread.sleep(5000);
         } finally {
-            if (serverManager != null) {
-                serverManager.stopServer();
-            }
+            CarbonTestServerManager.stop();
+
+
         }
     }
 
@@ -90,33 +91,28 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
 
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
-        CarbonTestServerManager serverManager = startServerForRestartTest(startUpParameterMap);
 
         try {
+            CarbonTestServerManager.start(startUpParameterMap);
+
+
             int httpsPort = 9443 + portOffset;
             ClientConnectionUtil.waitForPort(httpsPort, automationContext.getDefaultInstance().
                     getHosts().get("default"));
             ServerAdminClient serverAdmin = new ServerAdminClient("https://" + automationContext.getDefaultInstance().
                     getHosts().get("default") + ":" + httpsPort + "/services/ServerAdmin/",
-                    automationContext.getSuperTenant().getTenantAdmin().getUserName(),
-                    automationContext.getSuperTenant().getTenantAdmin().getPassword());
+                                                                  automationContext.getSuperTenant().getTenantAdmin().getUserName(),
+                                                                  automationContext.getSuperTenant().getTenantAdmin().getPassword());
             assertTrue(serverAdmin.restart(), "Server restart failure");
             Thread.sleep(5000);
             ClientConnectionUtil.waitForPort(httpsPort, TIMEOUT, true, automationContext.getInstance().
                     getHosts().get("default"));
             Thread.sleep(5000);
         } finally {
-            if (serverManager != null) {
-                serverManager.stopServer();
-            }
+
+            CarbonTestServerManager.stop();
+
         }
     }
 
-    private CarbonTestServerManager startServerForRestartTest(HashMap<String, String> startUpParameterMap)
-            throws Exception {
-        CarbonTestServerManager server = new CarbonTestServerManager(automationContext, System.getProperty("carbon.zip"),
-                startUpParameterMap);
-        server.startServer();
-        return server;
-    }
 }

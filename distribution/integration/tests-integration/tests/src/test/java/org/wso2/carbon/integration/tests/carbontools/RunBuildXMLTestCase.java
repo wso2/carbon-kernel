@@ -27,6 +27,8 @@ import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
+import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
+import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -41,12 +43,18 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory.getLog(RunBuildXMLTestCase.class);
     private String carbonHome;
-    private long FILE_CREATION_TIMEOUT_MS = 1000 * 20;
+    private int portOffset = 1;
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
         super.init();
-        carbonHome = CarbonCommandToolsUtil.getCarbonHome(automationContext);
+        if(CarbonTestServerManager.getCarbonHome() != null){
+            CarbonTestServerManager.start(portOffset);
+            carbonHome = CarbonTestServerManager.getCarbonHome();
+            CarbonTestServerManager.stop();
+        }else{
+            carbonHome = CarbonTestServerManager.getCarbonHome();
+        }
     }
 
     @Test(groups = {"carbon.core"}, description = "Running the ant command and verifying the jar copying")
@@ -74,7 +82,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
             process = CarbonCommandToolsUtil.runScript(carbonHome + File.separator + "bin", cmdArray);
             long startTime = System.currentTimeMillis();
 
-            while ((System.currentTimeMillis() - startTime) < FILE_CREATION_TIMEOUT_MS) {
+            while ((System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
                 File[] listOfFilesAfterRunAntCommand = folder.listFiles(new FilenameFilter() {
                     public boolean accept(File directory, String fileName) {
                         return fileName.toLowerCase().endsWith(".jar");
@@ -131,7 +139,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                                    "components" + File.separator + "dropins");
 
             long startTime = System.currentTimeMillis();
-            while (!isJarCreated && (System.currentTimeMillis() - startTime) < FILE_CREATION_TIMEOUT_MS) {
+            while (!isJarCreated && (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
                 if (folder.exists() && folder.isDirectory()) {
                     File[] listOfFiles = folder.listFiles();
                     if (listOfFiles != null) {
