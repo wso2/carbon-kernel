@@ -250,7 +250,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             NameParser ldapParser = dirContext.getNameParser("");
             Name compoundName = ldapParser.parse(realmConfig
-                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + escapeUsernameSpecialCharacters(userName, true));
+                    .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE) + "=" + escapeSpecialCharactersForDN(userName));
 
             if (log.isDebugEnabled()) {
                 log.debug("Binding user: " + compoundName);
@@ -481,12 +481,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         String searchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        searchFilter = searchFilter.replace("?", userName);
+        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
         String[] returningUserAttributes = new String[]{userNameAttribute};
 
         DirContext mainDirContext = this.connectionSource.getContext();
 
-        NamingEnumeration<SearchResult> userResults = searchInUserBase(userName, searchFilter,
+        NamingEnumeration<SearchResult> userResults = searchInUserBase(searchFilter,
                 returningUserAttributes, SearchControls.SUBTREE_SCOPE, mainDirContext);
         NamingEnumeration<SearchResult> groupResults = null;
 
@@ -588,7 +588,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         // first search the existing user entry.
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        searchFilter = searchFilter.replace("?", userName);
+        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -598,8 +598,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         NamingEnumeration passwords = null;
 
         try {
-            namingEnumeration = dirContext.search(searchBase,
-                    escapeLDAPSearchFilter(userName, searchFilter), searchControls);
+            namingEnumeration = dirContext.search(escapeDNForSearch(searchBase),searchFilter, searchControls);
             // here we assume only one user
             // TODO: what to do if there are more than one user
             SearchResult searchResult = null;
@@ -655,7 +654,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String searchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        searchFilter = searchFilter.replace("?", userName);
+        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -665,8 +664,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         NamingEnumeration passwords = null;
 
         try {
-            namingEnumeration = dirContext.search(searchBase,
-                    escapeLDAPSearchFilter(userName, searchFilter), searchControls);
+            namingEnumeration = dirContext.search(escapeDNForSearch(searchBase), searchFilter, searchControls);
             // here we assume only one user
             // TODO: what to do if there are more than one user
             // there can be only only on user
@@ -805,7 +803,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         if (userNames.length > 1) {
             userName = userNames[1];
         }
-        userSearchFilter = userSearchFilter.replace("?", userName);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -815,8 +813,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String returnedUserEntry = "";
 
         try {
-            returnedResultList = dirContext.search(userSearchBase,
-                    escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
+            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             if(returnedResultList.hasMore()){
@@ -932,7 +929,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         if (userNames.length > 1) {
             userName = userNames[1];
         }
-        userSearchFilter = userSearchFilter.replace("?", userName);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -943,8 +940,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         try {
 
-            returnedResultList = dirContext
-                    .search(userSearchBase, escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
+            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
@@ -1024,7 +1020,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        userSearchFilter = userSearchFilter.replace("?", userName);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -1035,8 +1031,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         try {
 
-            returnedResultList = dirContext
-                    .search(userSearchBase, escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
+            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
@@ -1084,7 +1079,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        userSearchFilter = userSearchFilter.replace("?", userName);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -1095,8 +1090,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         try {
 
-            returnedResultList = dirContext
-                    .search(userSearchBase, escapeLDAPSearchFilter(userName, userSearchFilter), searchControls);
+            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
@@ -1206,8 +1200,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         // search the user in user search base
                         String searchFilter = realmConfig
                                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-                        searchFilter = searchFilter.replace("?", userName);
-                        results = searchInUserBase(userName, searchFilter, new String[]{},
+                        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+                        results = searchInUserBase(searchFilter, new String[]{},
                                 SearchControls.SUBTREE_SCOPE, mainDirContext);
                         // we assume only one user with the given user
                         // name under user search base.
@@ -1344,7 +1338,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             resultedGroup = groupResults.next();
                             groupDN = resultedGroup.getName();
                         }
-                        this.modifyUserInRole(userName, userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
+                        this.modifyUserInRole(userNameDN, groupDN, DirContext.REMOVE_ATTRIBUTE,
                                 searchBase);
 
                         JNDIUtil.closeNamingEnumeration(groupResults);
@@ -1386,7 +1380,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             groupDN = resultedGroup.getName();
                         }
                         if (resultedGroup != null && !isUserInRole(userNameDN, resultedGroup)) {
-                            modifyUserInRole(userName, userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
+                            modifyUserInRole(userNameDN, groupDN, DirContext.ADD_ATTRIBUTE,
                                     searchBase);
                         } else {
                             errorMessage =
@@ -1472,8 +1466,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     throw new UserStoreException(errorMessage);
 
                 } else {
-                    Map<String, String> newUserL = new HashMap<String, String>();
-                    Map<String, String> delUserList = new HashMap<String, String>();
+                    List<String> newUserList = new ArrayList<String>();
+                    List<String> deleteUserList = new ArrayList<String>();
 
                     if (newUsers != null && newUsers.length != 0) {
                         String invalidUserList = "";
@@ -1489,7 +1483,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             } else if (isUserInRole(userNameDN, resultedGroup)) {
                                 existingUserList += userNameDN + ",";
                             } else {
-                                newUserL.put(newUser, userNameDN);
+                                newUserList.add(userNameDN);
                             }
                         }
                         if (!StringUtils.isEmpty(invalidUserList) || !StringUtils.isEmpty(existingUserList)) {
@@ -1511,7 +1505,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                             if (userNameDN == null) {
                                 invalidUserList += deletedUser + ",";
                             } else {
-                                delUserList.put(deletedUser, userNameDN);
+                                deleteUserList.add(userNameDN);
                             }
                         }
                         if (!StringUtils.isEmpty(invalidUserList)) {
@@ -1521,15 +1515,14 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
                     }
 
-                    for (Map.Entry<String, String> newUser : newUserL.entrySet()){
-                        modifyUserInRole(newUser.getKey(), newUser.getValue(), groupName,
-                                DirContext.ADD_ATTRIBUTE, searchBase);
+                    for (String userNameDN : newUserList) {
+                        modifyUserInRole(userNameDN, groupName, DirContext.ADD_ATTRIBUTE, searchBase);
                     }
 
-                    for (Map.Entry<String, String> deletedUser : delUserList.entrySet()){
-                        modifyUserInRole(deletedUser.getKey(), deletedUser.getValue(), groupName, DirContext.REMOVE_ATTRIBUTE, searchBase);
+                    for (String userNameDN : deleteUserList) {
+                        modifyUserInRole(userNameDN, groupName, DirContext.REMOVE_ATTRIBUTE, searchBase);
                         // needs to clear authz cache for deleted users
-                        userRealm.getAuthorizationManager().clearUserAuthorization(deletedUser.getValue());
+                        userRealm.getAuthorizationManager().clearUserAuthorization(userNameDN);
                     }
                 }
             } catch (NamingException e) {
@@ -1597,49 +1590,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
 
-    /**
-     * Either delete or add user from/to group.
-     *
-     * @param userName
-     * @param userNameDN : distinguish name of user entry.
-     * @param groupRDN   : relative distinguish name of group entry
-     * @param modifyType : modify attribute type in DirCOntext.
-     * @throws UserStoreException
-     */
-    private void modifyUserInRole(String userName, String userNameDN, String groupRDN, int modifyType, String searchBase)
-            throws UserStoreException {
 
-        if (log.isDebugEnabled()) {
-            logger.debug("Modifying role: " + groupRDN + " with type: " + modifyType + " user: " + userNameDN
-                    + " in search base: " + searchBase);
-        }
-
-        DirContext mainDirContext = null;
-        DirContext groupContext = null;
-        try {
-            mainDirContext = this.connectionSource.getContext();
-            groupContext = (DirContext) mainDirContext.lookup(searchBase);
-            String memberAttributeName = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
-            Attributes modifyingAttributes = new BasicAttributes(true);
-            Attribute memberAttribute = new BasicAttribute(memberAttributeName);
-            memberAttribute.add(replaceEscapeCharacters(userName, userNameDN, true));
-            modifyingAttributes.put(memberAttribute);
-
-            groupContext.modifyAttributes(groupRDN, modifyType, modifyingAttributes);
-            if (log.isDebugEnabled()) {
-                logger.debug("User: " + userNameDN + " was successfully " + "modified in LDAP group: "
-                        + groupRDN);
-            }
-        } catch (NamingException e) {
-            String errorMessage = "Error occurred while modifying user entry: " + userNameDN
-                    + " in LDAP role: " + groupRDN;
-            log.error("LDAP Error", e);
-            throw new UserStoreException(errorMessage);
-        } finally {
-            JNDIUtil.closeContext(groupContext);
-            JNDIUtil.closeContext(mainDirContext);
-        }
-    }
 
     /**
      * Check whether user is in the group by searching through its member attributes.
@@ -1863,14 +1814,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     /**
      * Reused methods to search users with various filters
      *
-     * @param userName
      * @param searchFilter
      * @param returningAttributes
      * @param searchScope
      * @return
      */
-    private NamingEnumeration<SearchResult> searchInUserBase(String userName, String searchFilter,
-                                                             String[] returningAttributes, int searchScope, DirContext rootContext)
+    private NamingEnumeration<SearchResult> searchInUserBase(String searchFilter, String[] returningAttributes,
+                                                             int searchScope, DirContext rootContext)
             throws UserStoreException {
 
         if (log.isDebugEnabled()) {
@@ -1883,8 +1833,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         NamingEnumeration<SearchResult> userSearchResults = null;
 
         try {
-            userSearchResults = rootContext.search(userBase,
-                    escapeLDAPSearchFilter(userName, searchFilter), userSearchControl);
+            userSearchResults = rootContext.search(escapeDNForSearch(userBase), searchFilter, userSearchControl);
         } catch (NamingException e) {
             String errorMessage = "Error occurred while searching in user base.";
             if (log.isDebugEnabled()) {
@@ -1916,7 +1865,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         userSearchControl.setSearchScope(searchScope);
         NamingEnumeration<SearchResult> groupSearchResults = null;
         try {
-            groupSearchResults = rootContext.search(searchBase, searchFilter, userSearchControl);
+            groupSearchResults = rootContext.search(escapeDNForSearch(searchBase), searchFilter, userSearchControl);
         } catch (NamingException e) {
             String errorMessage = "Error occurred while searching in group base.";
             if (log.isDebugEnabled()) {
@@ -2076,115 +2025,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     /**
-     * This is to replace escape characters in user name at user login if replace escape characters
-     * enabled in user-mgt.xml. Some User Stores like ApacheDS stores user names by replacing escape
-     * characters. In that case, we have to parse the username accordingly.
-     *
-     * @param userName
-     * @param dn
-     * @param isDirectBind
-     */
-    private String replaceEscapeCharacters(String userName, String dn, boolean isDirectBind) {
-
-        boolean replaceEscapeCharacters = true;
-
-        if (userName == null || userName.trim().length() == 0) {
-            if (log.isDebugEnabled()){
-                log.debug("Received an empty username to escape characters.");
-            }
-            return null;
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Replacing escape characters in " + userName);
-        }
-        String replaceEscapeCharactersAtUserLoginString = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
-
-        if (replaceEscapeCharactersAtUserLoginString != null) {
-            replaceEscapeCharacters = Boolean
-                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
-            if (log.isDebugEnabled()) {
-                log.debug("Replace escape characters configured to: "
-                        + replaceEscapeCharactersAtUserLoginString);
-            }
-        }
-        if (replaceEscapeCharacters) {
-            String escapedUN = escapeUsernameSpecialCharacters(userName, isDirectBind);
-            return dn.replace(userName, escapedUN);
-        }
-        return dn;
-    }
-
-    private String escapeUsernameSpecialCharacters(String userName, boolean isDirectBind) {
-        StringBuilder sb = new StringBuilder();
-        if ((userName.length() > 0) && ((userName.charAt(0) == ' ') || (userName.charAt(0) == '#'))) {
-            sb.append('\\'); // add the leading backslash if needed
-        }
-        for (int i = 0; i < userName.length(); i++) {
-            char currentChar = userName.charAt(i);
-            switch (currentChar) {
-                case '\\':
-                    if (isDirectBind){
-                        sb.append("\\\\");
-                        break;
-                    } else {
-                        sb.append("\\\\\\");
-                        break;
-                    }
-                case ',':
-                    sb.append("\\,");
-                    break;
-                case '+':
-                    sb.append("\\+");
-                    break;
-                case '"':
-                    if (isDirectBind) {
-                        sb.append("\\\"");
-                        break;
-                    } else {
-                        sb.append("\\\\\"");
-                        break;
-                    }
-                case '<':
-                    sb.append("\\<");
-                    break;
-                case '>':
-                    sb.append("\\>");
-                    break;
-                case ';':
-                    sb.append("\\;");
-                    break;
-                default:
-                    sb.append(currentChar);
-            }
-        }
-        if ((userName.length() > 1) && (userName.charAt(userName.length() - 1) == ' ')) {
-            sb.insert(sb.length() - 1, '\\'); // add the trailing backslash if needed
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Replacing special characters in LDAP filter
-     * @param userName
-     * @param filter
+     * Escaping ldap search filter special characters in a string
+     * @param dnPartial
      * @return
      */
-    private String escapeLDAPSearchFilter(String userName, String filter) {
-
+    private String escapeSpecialCharactersForFilter(String dnPartial){
         boolean replaceEscapeCharacters = true;
 
-        if (userName == null || userName.trim().length() == 0) {
-            if (log.isDebugEnabled()){
-                log.debug("Received an empty username to escape characters.");
-            }
-            return null;
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("Replacing excape characters in " + userName);
-        }
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
 
@@ -2196,11 +2043,12 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         + replaceEscapeCharactersAtUserLoginString);
             }
         }
+        //TODO: implement character escaping for *
+
         if (replaceEscapeCharacters) {
-            //TODO: implement character escaping for *
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < userName.length(); i++) {
-                char currentChar = userName.charAt(i);
+            for (int i = 0; i < dnPartial.length(); i++) {
+                char currentChar = dnPartial.charAt(i);
                 switch (currentChar) {
                     case '\\':
                         sb.append("\\5c");
@@ -2221,10 +2069,102 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         sb.append(currentChar);
                 }
             }
-            return filter.replace(userName, sb.toString());
+            return sb.toString();
+        } else {
+            return dnPartial;
         }
-        return filter;
     }
 
+    /**
+     * Escaping ldap DN special characters in a String value
+     * @param text
+     * @return
+     */
+    private String escapeSpecialCharactersForDN(String text){
+        boolean replaceEscapeCharacters = true;
 
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+
+        if(replaceEscapeCharacters) {
+            StringBuilder sb = new StringBuilder();
+            if ((text.length() > 0) && ((text.charAt(0) == ' ') || (text.charAt(0) == '#'))) {
+                sb.append('\\'); // add the leading backslash if needed
+            }
+            for (int i = 0; i < text.length(); i++) {
+                char currentChar = text.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        sb.append("\\\\");
+                        break;
+                    case ',':
+                        sb.append("\\,");
+                        break;
+                    case '+':
+                        sb.append("\\+");
+                        break;
+                    case '"':
+                        sb.append("\\\"");
+                        break;
+                    case '<':
+                        sb.append("\\<");
+                        break;
+                    case '>':
+                        sb.append("\\>");
+                        break;
+                    case ';':
+                        sb.append("\\;");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            if ((text.length() > 1) && (text.charAt(text.length() - 1) == ' ')) {
+                sb.insert(sb.length() - 1, '\\'); // add the trailing backslash if needed
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("value after escaping special characters in " + text + " : " + sb.toString());
+            }
+            return sb.toString();
+        } else {
+            return text;
+        }
+
+    }
+
+    /**
+     * This method performs the additional level escaping for ldap search. In ldap search / and " characters
+     * have to be escaped again
+     * @param dn
+     * @return
+     */
+    private String escapeDNForSearch(String dn){
+        boolean replaceEscapeCharacters = true;
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        if (replaceEscapeCharacters) {
+            return dn.replace("\\\\", "\\\\\\").replace("\\\"", "\\\\\"");
+        } else {
+            return dn;
+        }
+    }
 }
