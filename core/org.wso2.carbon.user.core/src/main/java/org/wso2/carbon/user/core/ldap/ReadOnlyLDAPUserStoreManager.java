@@ -344,45 +344,48 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (bValue) {
                 return bValue;
             }
-        }
 
-        // read list of patterns from user-mgt.xml
-        String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
+            String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
 
-        if (patterns != null && !patterns.isEmpty()) {
+            if (patterns != null && !patterns.isEmpty()) {
 
-            if (debug) {
-                log.debug("Using UserDNPatterns " + patterns);
-            }
+                if (debug) {
+                    log.debug("Using UserDNPatterns " + patterns);
+                }
 
-            // if the property is present, split it using # to see if there are
-            // multiple patterns specified.
-            String[] userDNPatternList = patterns.split("#");
-            if (userDNPatternList.length > 0) {
-                for (String userDNPattern : userDNPatternList) {
-                    name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
-                    if (debug) {
-                        log.debug("Authenticating with " + name);
-                    }
-                    try {
-                        if (name != null) {
-                            bValue = this.bindAsUser(userName, name, (String) credential);
-                            if (bValue) {
-                                LdapName ldapName = new LdapName(name);
-                                userCache.put(userName, ldapName);
-                                break;
-                            }
+                // if the property is present, split it using # to see if there are
+                // multiple patterns specified.
+                String[] userDNPatternList = patterns.split("#");
+                if (userDNPatternList.length > 0) {
+                    for (String userDNPattern : userDNPatternList) {
+                        name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
+                        if (debug) {
+                            log.debug("Authenticating with " + name);
                         }
-                    } catch (NamingException e) {
-                        // do nothing if bind fails since we check for other DN
-                        // patterns as well.
-                        if (log.isDebugEnabled()) {
-                            log.debug("Checking authentication with UserDN " + userDNPattern +
-                                    "failed " + e.getMessage(), e);
+                        try {
+                            if (name != null) {
+                                bValue = this.bindAsUser(userName, name, (String) credential);
+                                if (bValue) {
+                                    LdapName ldapName = new LdapName(name);
+                                    userCache.put(userName, ldapName);
+                                    break;
+                                }
+                            }
+                        } catch (NamingException e) {
+                            // do nothing if bind fails since we check for other DN
+                            // patterns as well.
+                            if (log.isDebugEnabled()) {
+                                log.debug("Checking authentication with UserDN " + userDNPattern +
+                                        "failed " + e.getMessage(), e);
+                            }
                         }
                     }
                 }
             }
+
+            return bValue;
+
+            
         } else {
             name = getNameInSpaceForUserName(userName);
             try {
