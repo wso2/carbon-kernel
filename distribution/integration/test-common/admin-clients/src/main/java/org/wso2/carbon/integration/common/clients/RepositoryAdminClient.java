@@ -28,6 +28,7 @@ import org.wso2.carbon.integration.framework.utils.AuthenticateStubUtil;
 import javax.xml.xpath.XPathExpressionException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.rmi.RemoteException;
 
 public class RepositoryAdminClient {
 
@@ -36,27 +37,19 @@ public class RepositoryAdminClient {
     private String serviceName = "RepositoryAdminService";
     private RepositoryAdminServiceStub repositoryAdminServiceStub;
 
-    public RepositoryAdminClient(String backendURL, AutomationContext automationContext) throws AxisFault,
-            XPathExpressionException {
+    public RepositoryAdminClient(String backendURL, AutomationContext automationContext)
+            throws AxisFault,
+                   XPathExpressionException {
         String endPoint = backendURL + serviceName;
         repositoryAdminServiceStub = new RepositoryAdminServiceStub(endPoint);
         AuthenticateStubUtil.authenticateStub(automationContext.getContextTenant().getContextUser().getUserName(),
-                automationContext.getContextTenant().getContextUser().getPassword(), repositoryAdminServiceStub);
+                                              automationContext.getContextTenant().getContextUser().getPassword(), repositoryAdminServiceStub);
     }
 
-    public void addRepository(String repoURL, String nickName, boolean localRepo) throws Exception {
-        //validating inputs
-        if (nickName == null || nickName.length() == 0) {
+    public void addRepository(String repoURL, String nickName, boolean localRepo)
+            throws RemoteException, URISyntaxException {
 
-
-            throw new Exception("missing.repo.name");
-        }
-
-        if (repoURL == null || repoURL.length() == 0) {
-            throw new Exception("missing.repo.location");
-        } else {
-            repoURL = repoURL.trim();
-        }
+        repoURL = repoURL.trim();
 
         URI uri = null;
         if (localRepo) {
@@ -72,76 +65,37 @@ public class RepositoryAdminClient {
                 repoURL = "file:///" + repoURL;
             }
         } else {
-            try {
-                uri = new URI(repoURL);
-                String scheme = uri.getScheme();
-                if (!scheme.equals("http") && !scheme.equals("https") && !scheme.equals("file")) {
-                    throw new Exception("invalid.url.prot" +
-                            "ocol");
-                }
-            } catch (URISyntaxException e) {
-                handleException("invalid.repo.location", e);
-            }
-        }
+            uri = new URI(repoURL);
+            String scheme = uri.getScheme();
 
-        try {
-            repositoryAdminServiceStub.addRepository(repoURL, nickName);
-        } catch (AxisFault e) {
-            handleException("failed.add.repository", e);
         }
+        repositoryAdminServiceStub.addRepository(repoURL, nickName);
+
     }
 
     public RepositoryInfo[] getAllRepositories() throws Exception {
-        RepositoryInfo[] repositoryInfo = null;
-        try {
-            repositoryInfo = repositoryAdminServiceStub.getAllRepositories();
-        } catch (AxisFault e) {
-            handleException("failed.get.repositories", e);
-        }
-        return repositoryInfo;
+        return repositoryAdminServiceStub.getAllRepositories();
     }
 
     public RepositoryInfo[] getEnabledRepositories() throws Exception {
-        RepositoryInfo[] repositoryInfo = null;
-        try {
-            return repositoryAdminServiceStub.getEnabledRepositories();
-        } catch (AxisFault e) {
-            handleException("failed.get.repositories", e);
+        return repositoryAdminServiceStub.getEnabledRepositories();
+    }
+
+    public void updateRepository(String prevLocation, String prevNickName, String updatedLocation,
+                                 String updatedNickName)
+            throws RemoteException {
+        repositoryAdminServiceStub.updateRepository(prevLocation, prevNickName, updatedLocation, updatedNickName);
+    }
+
+    public void removeRepository(String location) throws RemoteException {
+        repositoryAdminServiceStub.removeRepository(location);
+    }
+
+    public void enableRepository(String location, String enabled) throws RemoteException {
+        boolean isEnabled = false;
+        if (Boolean.parseBoolean(enabled)) {
+            isEnabled = true;
         }
-        return repositoryInfo;
+        repositoryAdminServiceStub.enableRepository(location, isEnabled);
     }
-
-    public void updateRepository(String prevLocation, String prevNickName, String updatedLocation, String updatedNickName) throws Exception {
-        try {
-            repositoryAdminServiceStub.updateRepository(prevLocation, prevNickName, updatedLocation, updatedNickName);
-        } catch (AxisFault e) {
-            handleException("failed.update.repository", e);
-        }
-    }
-
-    public void removeRepository(String location) throws Exception {
-        try {
-            repositoryAdminServiceStub.removeRepository(location);
-        } catch (AxisFault e) {
-            handleException("failed.remove.repository", e);
-        }
-    }
-
-    public void enableRepository(String location, String enabled) throws Exception {
-        try {
-            boolean isEnabled = false;
-            if (Boolean.parseBoolean(enabled)) {
-                isEnabled = true;
-            }
-            repositoryAdminServiceStub.enableRepository(location, isEnabled);
-        } catch (AxisFault e) {
-            handleException("failed.enable.repository", e);
-        }
-    }
-
-    private void handleException(String msg, Exception e) throws Exception {
-        log.error(msg, e);
-        throw new Exception(msg, e);
-    }
-
 }
