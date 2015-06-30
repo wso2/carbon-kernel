@@ -53,36 +53,25 @@ public class FeatureInstallationTestCase extends CarbonIntegrationBaseTest {
 
     @Test(groups = {"carbon.core.graceful.restart.test"})
     public void testGracefulServerRestart() throws Exception {
-        try {
-            FeatureManagementUtil featureManager = new FeatureManagementUtil(featureList, automationContext);
-            featureManager.addFeatureRepo();
-            featureManager.reviewInstallFeatures();
-            featureManager.getLicensingInformation();
-            featureManager.installFeatures();
-            serverAdminClient = new ServerAdminClient(automationContext);
-            serverAdminClient.restartGracefully();
+        FeatureManagementUtil featureManager = new FeatureManagementUtil(featureList, automationContext);
+        featureManager.addFeatureRepo();
+        featureManager.reviewInstallFeatures();
+        featureManager.getLicensingInformation();
+        featureManager.installFeatures();
+        serverAdminClient = new ServerAdminClient(automationContext);
+        serverAdminClient.restartGracefully();
 
-            featureManager = new FeatureManagementUtil(featureList, automationContext);
-            super.init();
-            Assert.assertTrue(featureManager.isFeatureInstalled(), "Feature not installed successfully");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        featureManager = new FeatureManagementUtil(featureList, automationContext);
+        super.init();
+        Assert.assertTrue(featureManager.isFeatureInstalled(), "Feature not installed successfully");
     }
-
 
     // Remove the populated users on execution finish of the test
     @AfterClass(alwaysRun = true)
-    public void onExecutionFinish() {
-        FeatureManagementUtil featureManager = null;
-        try {
-            featureManager = new FeatureManagementUtil(featureList, automationContext);
+    public void onExecutionFinish() throws Exception {
+        FeatureManagementUtil featureManager = new FeatureManagementUtil(featureList, automationContext);
+        featureManager.removeFeatures();
 
-            featureManager.removeFeatures();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
-
 
 }

@@ -64,7 +64,7 @@ public class FeatureManagementUtil {
                 automationContext.getContextTenant().getContextUser().getPassword().toCharArray(), backendURL);
 
         repositoryAdminClient = new RepositoryAdminClient(backendURL, automationContext);
-        featureAdminClient = new FeatureAdminClient(backendURL, automationContext, sessionCookie);
+        featureAdminClient = new FeatureAdminClient(backendURL, sessionCookie);
     }
 
     public void addFeatureRepo() throws Exception {
@@ -96,7 +96,7 @@ public class FeatureManagementUtil {
         sessionCookie = loginLogoutUtil.login(
                 automationContext.getContextTenant().getContextUser().getUserName(),
                 automationContext.getContextTenant().getContextUser().getPassword().toCharArray(), backendURL);
-        featureAdminClient = new FeatureAdminClient(backendURL, automationContext, sessionCookie);
+        featureAdminClient = new FeatureAdminClient(backendURL, sessionCookie);
         FeatureWrapper[] featuresWrappers = featureAdminClient.getInstalledFeatures();
 
         boolean isInstalledFeatureFound = false;
