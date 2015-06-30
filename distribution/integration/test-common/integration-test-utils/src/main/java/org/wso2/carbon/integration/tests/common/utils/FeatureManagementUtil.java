@@ -87,9 +87,9 @@ public class FeatureManagementUtil {
 
     public void removeFeatures() throws Exception {
         log.info("remove all server features ");
-        featureAdminClient.removeAllFeaturesWithProperty("org.wso2.carbon.p2.category.type", "server");
+//        featureAdminClient.removeAllFeaturesWithProperty("org.wso2.carbon.p2.category.type", "server");
         log.info("remove all console features ");
-        featureAdminClient.removeAllFeaturesWithProperty("org.wso2.carbon.p2.category.type", "console");
+//        featureAdminClient.removeAllFeaturesWithProperty("org.wso2.carbon.p2.category.type", "console");
     }
 
     public boolean isFeatureInstalled() throws Exception {
