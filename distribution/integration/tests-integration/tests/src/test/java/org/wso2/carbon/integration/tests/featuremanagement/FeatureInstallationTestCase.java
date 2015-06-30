@@ -23,7 +23,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.w3c.dom.Node;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.integration.common.clients.ServerAdminClient;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
