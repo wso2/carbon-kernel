@@ -65,9 +65,6 @@ public class CarbonCommandToolsUtil {
         boolean isFoundTheMessage = false;
         BufferedReader br = null;
         Process process = null;
-        for (String cmd : cmdArray) {
-            System.out.print(cmd + " ");
-        }
         try {
             File commandDir = new File(directory);
             process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
