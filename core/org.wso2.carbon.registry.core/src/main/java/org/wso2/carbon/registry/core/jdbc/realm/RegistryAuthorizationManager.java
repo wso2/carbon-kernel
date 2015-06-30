@@ -16,13 +16,18 @@
 
 package org.wso2.carbon.registry.core.jdbc.realm;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.config.Mount;
 import org.wso2.carbon.registry.core.config.RegistryContext;
+import org.wso2.carbon.registry.core.internal.RegistryDataHolder;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +36,8 @@ import java.util.Map;
  * The Registry wrapper for the authorization manager.
  */
 public class RegistryAuthorizationManager implements AuthorizationManager {
+
+    private static final Log log = LogFactory.getLog(RegistryAuthorizationManager.class);
 
     private UserRealm coreRealm;
     private Map<String, String> pathMap;
@@ -401,7 +408,26 @@ public class RegistryAuthorizationManager implements AuthorizationManager {
      *             throws if the operation failed.
      */
     private AuthorizationManager getAuthorizationManager() throws UserStoreException {
-        return coreRealm.getAuthorizationManager();
+        int tenantId = coreRealm.getAuthorizationManager().getTenantId();
+        RealmService realmService = RegistryDataHolder.getInstance().getRealmService();
+        if (realmService != null) {
+            try {
+                UserRealm userRealm = (UserRealm) realmService.getTenantUserRealm(tenantId);
+                if (userRealm != null) {
+                    return userRealm.getAuthorizationManager();
+                } else {
+                    throw new UserStoreException("Retrieving Authorization Manager for tenant '"
+                                                 + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
+                                                 + "' failed. User realm is null.");
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e.getMessage(), e);
+            }
+        } else {
+            throw new UserStoreException("Retrieving Authorization Manager for tenant '"
+                                         + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
+                                         + "' failed. Realm service is null.");
+        }
     }
 
 

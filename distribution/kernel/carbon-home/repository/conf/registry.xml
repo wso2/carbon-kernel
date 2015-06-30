@@ -27,11 +27,6 @@
     <enableCache>true</enableCache>
     <registryRoot>/</registryRoot>
 
-    <cacheConfig>
-        <lastAccessedExpirationMillis>900000</lastAccessedExpirationMillis>
-        <lastModifiedExpirationMillis>900000</lastModifiedExpirationMillis>
-    </cacheConfig>
-
     <dbConfig name="wso2registry">
         <dataSource>jdbc/WSO2CarbonDB</dataSource>
     </dbConfig>

@@ -43,6 +43,7 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
 
     private ConfigurationContext superTenantConfigurationContext;
     private static final String SERVICE_PREFIX = "SERVICE_PREFIX";
+    private static final String REQUEST_HOST_HEADER = "REQUEST_HOST_HEADER";
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
@@ -191,6 +192,11 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
 
         if (msgContext.getProperty(SERVICE_PREFIX) != null) {
             superTenantOutMessageContext.setProperty(SERVICE_PREFIX, msgContext.getProperty(SERVICE_PREFIX));
+        }
+
+        if (msgContext.getProperty(REQUEST_HOST_HEADER) != null) {
+            superTenantOutMessageContext.setProperty(REQUEST_HOST_HEADER,
+                                                     msgContext.getProperty(REQUEST_HOST_HEADER));
         }
 
         EndpointReference epr = getDestinationEPR(msgContext);
