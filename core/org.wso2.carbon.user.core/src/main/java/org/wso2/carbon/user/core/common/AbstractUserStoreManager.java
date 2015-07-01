@@ -2581,15 +2581,22 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             if (secManager != null) {
                 // We have a secondary UserStoreManager registered for this domain.
                 filter = filter.substring(index + 1);
-                if (secManager instanceof AbstractUserStoreManager) {
-                    if (readGroupsEnabled) {
-                        String[] externalRoles = ((AbstractUserStoreManager) secManager)
-                                .doGetRoleNames(filter, maxItemLimit);
+                boolean secReadGroupsEnabled = Boolean.parseBoolean(
+                        secManager.getRealmConfiguration().getUserStoreProperty(
+                                UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED)
+                );
+                if (secReadGroupsEnabled) {
+                    if (secManager instanceof AbstractUserStoreManager) {
+
+                        if (secReadGroupsEnabled) {
+                            String[] externalRoles = ((AbstractUserStoreManager) secManager)
+                                    .doGetRoleNames(filter, maxItemLimit);
+                            return UserCoreUtil.combineArrays(roleList, externalRoles);
+                        }
+                    } else {
+                        String[] externalRoles = secManager.getRoleNames();
                         return UserCoreUtil.combineArrays(roleList, externalRoles);
                     }
-                } else {
-                    String[] externalRoles = secManager.getRoleNames();
-                    return UserCoreUtil.combineArrays(roleList, externalRoles);
                 }
             } else {
                 throw new UserStoreException("Invalid Domain Name");
@@ -2616,7 +2623,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 UserStoreManager storeManager = entry.getValue();
                 if (storeManager instanceof AbstractUserStoreManager) {
                     try {
-                        if (readGroupsEnabled) {
+                        boolean secReadGroupsEnabled = Boolean.parseBoolean(
+                                storeManager.getRealmConfiguration().getUserStoreProperty(
+                                        UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED)
+                        );
+                        if (secReadGroupsEnabled) {
                             String[] secondRoleList = ((AbstractUserStoreManager) storeManager)
                                     .doGetRoleNames(filter, maxItemLimit);
                             roleList = UserCoreUtil.combineArrays(roleList, secondRoleList);

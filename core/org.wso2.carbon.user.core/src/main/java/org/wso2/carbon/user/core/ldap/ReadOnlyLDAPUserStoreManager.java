@@ -262,6 +262,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
         }
 
+        if (log.isDebugEnabled()) {
+            if (readGroupsEnabled) {
+                log.debug("ReadGroups is enabled for " + getMyDomainName());
+            } else {
+                log.debug("ReadGroups is disabled for " + getMyDomainName());
+            }
+        }
+
         if (readGroupsEnabled) {
             groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
             if (groupSearchBase == null || groupSearchBase.trim().length() == 0) {
