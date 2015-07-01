@@ -1508,6 +1508,12 @@
                 <version>${carbon.test.component300}</version>
                 <type>zip</type>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.unlicensed-feature1</artifactId>
+                <version>${carbon.test.component100}</version>
+                <type>zip</type>
+            </dependency>
 
 
             <!-- Test integration dependencies -->
@@ -1524,6 +1530,16 @@
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
+                <version>${test.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automationutils</groupId>
+                <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
+                <version>${test.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automationutils</groupId>
+                <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
                 <version>${test.framework.version}</version>
             </dependency>
             <dependency>
