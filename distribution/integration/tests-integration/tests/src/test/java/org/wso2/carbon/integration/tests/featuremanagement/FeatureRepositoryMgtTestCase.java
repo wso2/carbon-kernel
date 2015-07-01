@@ -17,23 +17,17 @@
 */
 package org.wso2.carbon.integration.tests.featuremanagement;
 
-import org.apache.axis2.context.ConfigurationContext;
-import org.apache.axis2.context.ConfigurationContextFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
-import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
+import org.wso2.carbon.feature.mgt.stub.prov.data.Feature;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.RepositoryInfo;
-import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
-import org.wso2.carbon.feature.mgt.ui.ProvisioningAdminClient;
-import org.wso2.carbon.feature.mgt.ui.RepositoryAdminServiceClient;
+import org.wso2.carbon.integration.common.clients.RepositoryAdminClient;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.integration.tests.common.utils.LoginLogoutUtil;
 
 import java.io.File;
-import java.util.Locale;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -42,10 +36,7 @@ import static org.testng.Assert.assertTrue;
  * Test case which tests Feature Management functionality
  */
 public class FeatureRepositoryMgtTestCase extends CarbonIntegrationBaseTest {
-    private LoginLogoutUtil loginLogoutUtil;
-    private String backEndURL;
-    private RepositoryAdminServiceClient repositoryAdminServiceClient;
-    private ProvisioningAdminClient provisioningAdminClient;
+    private RepositoryAdminClient repositoryAdminClient;
 
     String[] repoNickNames = {"testRepo101", "testRepo102", "testRepo103"};
     String sampleP2RepoPath;
@@ -61,34 +52,23 @@ public class FeatureRepositoryMgtTestCase extends CarbonIntegrationBaseTest {
         sampleP2RepoCopy1Path = resourcePath + File.separator + "sample-p2-repo1-copy1";
         sampleP2RepoCopy2Path = resourcePath + File.separator + "sample-p2-repo1-copy2";
 
-        loginLogoutUtil  = new LoginLogoutUtil();
-        backEndURL = contextUrls.getBackEndUrl();
-
-        ConfigurationContext configurationContext = ConfigurationContextFactory.
-                createConfigurationContextFromFileSystem(FrameworkPathUtil.getSystemResourceLocation() + File.separator + "client", null);
-        String sessionCookie = loginLogoutUtil.login(automationContext.getContextTenant().getContextUser().getUserName(),
-                automationContext.getContextTenant().getContextUser().getPassword().toCharArray(), backEndURL);
-        repositoryAdminServiceClient = new RepositoryAdminServiceClient(sessionCookie,
-                backEndURL, configurationContext, new Locale("en"));
-        provisioningAdminClient = new ProvisioningAdminClient(sessionCookie,
-                backEndURL, configurationContext, new Locale("en"));
-        repositoryAdminServiceClient.repositoryAdminServiceStub._getServiceClient().engageModule("addressing");
+        repositoryAdminClient = new RepositoryAdminClient(backendURL, automationContext);
     }
 
     @Test(groups = {"carbon.core"}, description = "Add 3 different repositories with different nick names")
     public void testAddDifferentRepositoriesWithDifferentNickNames() throws Exception {
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
-        repositoryAdminServiceClient.addRepository(sampleP2RepoCopy1Path, repoNickNames[1], true);
-        repositoryAdminServiceClient.addRepository(sampleP2RepoCopy2Path, repoNickNames[2], true);
-        RepositoryInfo[] repositoryInfos = repositoryAdminServiceClient.getAllRepositories();
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
+        repositoryAdminClient.addRepository(sampleP2RepoCopy1Path, repoNickNames[1], true);
+        repositoryAdminClient.addRepository(sampleP2RepoCopy2Path, repoNickNames[2], true);
+        RepositoryInfo[] repositoryInfos = repositoryAdminClient.getAllRepositories();
 
-        assertEquals(repositoryInfos.length, repoNickNames.length);
+        assertEquals(repositoryInfos.length, 3);
 
         int count = 0;
         for (String repoNickName : repoNickNames) {
             for (RepositoryInfo repositoryInfo : repositoryInfos) {
                 if (repositoryInfo != null && repositoryInfo.getNickName().equals(repoNickName) &&
-                        repositoryInfo.getEnabled() == true){
+                        repositoryInfo.getEnabled() == true) {
                     count++;
                     break;
                 }
@@ -96,147 +76,147 @@ public class FeatureRepositoryMgtTestCase extends CarbonIntegrationBaseTest {
         }
         assertEquals(count, 3);
 
-        removeRepositories(new String[] {sampleP2RepoPath, sampleP2RepoCopy1Path, sampleP2RepoCopy2Path});
+        removeRepositories(new String[]{sampleP2RepoPath, sampleP2RepoCopy1Path, sampleP2RepoCopy2Path});
     }
 
     @Test(groups = {"carbon.core"}, description = "Add 3 different repositories with same nick name",
             dependsOnMethods = {"testAddDifferentRepositoriesWithDifferentNickNames"})
     public void testAddDifferentRepositoriesWithSameNickName() throws Exception {
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
-        repositoryAdminServiceClient.addRepository(sampleP2RepoCopy1Path, repoNickNames[0], true);
-        repositoryAdminServiceClient.addRepository(sampleP2RepoCopy2Path, repoNickNames[0], true);
-        RepositoryInfo[] repositoryInfos = repositoryAdminServiceClient.getAllRepositories();
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
+        repositoryAdminClient.addRepository(sampleP2RepoCopy1Path, repoNickNames[0], true);
+        repositoryAdminClient.addRepository(sampleP2RepoCopy2Path, repoNickNames[0], true);
+        RepositoryInfo[] repositoryInfos = repositoryAdminClient.getAllRepositories();
 
         int count = 0;
         for (RepositoryInfo repositoryInfo : repositoryInfos) {
             if (repositoryInfo != null && repositoryInfo.getNickName().equals(repoNickNames[0]) &&
-                    repositoryInfo.getEnabled() == true){
+                    repositoryInfo.getEnabled() == true) {
                 count++;
             }
         }
         assertEquals(count, 3);
 
-        removeRepositories(new String[] {sampleP2RepoPath, sampleP2RepoCopy1Path, sampleP2RepoCopy2Path});
+        removeRepositories(new String[]{sampleP2RepoPath, sampleP2RepoCopy1Path, sampleP2RepoCopy2Path});
     }
 
     @Test(groups = {"carbon.core"}, description = "Add same repositories with 3 different nick names",
             dependsOnMethods = {"testAddDifferentRepositoriesWithSameNickName"})
     public void testAddSameRepositoryWithDifferentNickNames() throws Exception {
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[1], true);
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[2], true);
-        RepositoryInfo[] repositoryInfos = repositoryAdminServiceClient.getAllRepositories();
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[1], true);
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[2], true);
+        RepositoryInfo[] repositoryInfos = repositoryAdminClient.getAllRepositories();
 
         assertEquals(repositoryInfos.length, 1);
         assertTrue(repositoryInfos[0] != null && repositoryInfos[0].getNickName().equals(repoNickNames[0]) &&
                 repositoryInfos[0].getEnabled() == true);
 
-        removeRepositories(new String[] {sampleP2RepoPath});
+        removeRepositories(new String[]{sampleP2RepoPath});
     }
 
     @Test(groups = {"carbon.core"}, description = "Test remove repositories",
             dependsOnMethods = {"testAddSameRepositoryWithDifferentNickNames"})
     public void testRemoveRepository() throws Exception {
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
-        RepositoryInfo[] repositoryInfos = repositoryAdminServiceClient.getAllRepositories();
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
+        RepositoryInfo[] repositoryInfos = repositoryAdminClient.getAllRepositories();
         assertEquals(repositoryInfos.length, 1);
 
-        removeRepositories(new String[] {sampleP2RepoPath});
-        repositoryInfos = repositoryAdminServiceClient.getAllRepositories();
+        removeRepositories(new String[]{sampleP2RepoPath});
+        repositoryInfos = repositoryAdminClient.getAllRepositories();
         assertTrue(repositoryInfos == null);
     }
 
     @Test(groups = {"carbon.core"}, description = "Enables and Disables a repository",
             dependsOnMethods = {"testRemoveRepository"})
     public void testDisableAndEnableRepository() throws Exception {
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
-        repositoryAdminServiceClient.addRepository(sampleP2RepoCopy1Path, repoNickNames[1], true);
-        repositoryAdminServiceClient.addRepository(sampleP2RepoCopy2Path, repoNickNames[2], true);
-        RepositoryInfo[] repositoryInfos = repositoryAdminServiceClient.getAllRepositories();
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
+        repositoryAdminClient.addRepository(sampleP2RepoCopy1Path, repoNickNames[1], true);
+        repositoryAdminClient.addRepository(sampleP2RepoCopy2Path, repoNickNames[2], true);
+        RepositoryInfo[] repositoryInfos = repositoryAdminClient.getAllRepositories();
 
-        assertEquals(repositoryInfos.length, repoNickNames.length);
+        assertEquals(repositoryInfos.length, 3);
 
-        repositoryAdminServiceClient.enableRepository("file://" + sampleP2RepoCopy1Path, RepositoryAdminServiceClient.DISABLED);
-        repositoryInfos = repositoryAdminServiceClient.getEnabledRepositories();
-        assertEquals(repositoryInfos.length, repoNickNames.length - 1);
+        repositoryAdminClient.enableRepository("file://" + sampleP2RepoCopy1Path, Boolean.FALSE.toString());
+        repositoryInfos = repositoryAdminClient.getEnabledRepositories();
+        assertEquals(repositoryInfos.length, 3 - 1);
 
         int count = 0;
         for (RepositoryInfo repositoryInfo : repositoryInfos) {
-            if (repositoryInfo != null && repositoryInfo.getEnabled() == true){
+            if (repositoryInfo != null && repositoryInfo.getEnabled() == true) {
                 count++;
             }
         }
         assertEquals(count, 2);
 
-        repositoryAdminServiceClient.enableRepository("file://" + sampleP2RepoCopy1Path, RepositoryAdminServiceClient.ENABLED);
-        repositoryInfos = repositoryAdminServiceClient.getEnabledRepositories();
-        assertEquals(repositoryInfos.length, repoNickNames.length);
+        repositoryAdminClient.enableRepository("file://" + sampleP2RepoCopy1Path, Boolean.TRUE.toString());
+        repositoryInfos = repositoryAdminClient.getEnabledRepositories();
+        assertEquals(repositoryInfos.length, 3);
 
         count = 0;
         for (RepositoryInfo repositoryInfo : repositoryInfos) {
-            if (repositoryInfo != null && repositoryInfo.getEnabled() == true){
+            if (repositoryInfo != null && repositoryInfo.getEnabled() == true) {
                 count++;
             }
         }
-        assertEquals(count, repoNickNames.length);
+        assertEquals(count, 3);
 
-        removeRepositories(new String[] {sampleP2RepoPath, sampleP2RepoCopy1Path, sampleP2RepoCopy2Path});
+        removeRepositories(new String[]{sampleP2RepoPath, sampleP2RepoCopy1Path, sampleP2RepoCopy2Path});
     }
 
     @Test(groups = {"carbon.core"}, description = "Update repository path and name",
             dependsOnMethods = {"testDisableAndEnableRepository"})
     public void testUpdateRepository() throws Exception {
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
-        RepositoryInfo[] repositoryInfos = repositoryAdminServiceClient.getAllRepositories();
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
+        RepositoryInfo[] repositoryInfos = repositoryAdminClient.getAllRepositories();
         assertTrue(repositoryInfos[0] != null && repositoryInfos[0].getNickName().equals(repoNickNames[0]) &&
                 repositoryInfos[0].getEnabled() == true);
 
-        repositoryAdminServiceClient.updateRepository("file://" + sampleP2RepoPath, repoNickNames[0],
+        repositoryAdminClient.updateRepository("file://" + sampleP2RepoPath, repoNickNames[0],
                 "file://" + sampleP2RepoCopy1Path, repoNickNames[1]);
 
         Thread.sleep(5 * 1000);
 
-        repositoryInfos = repositoryAdminServiceClient.getAllRepositories();
+        repositoryInfos = repositoryAdminClient.getAllRepositories();
         assertTrue(repositoryInfos[0] != null && repositoryInfos[0].getNickName().equals(repoNickNames[1]) &&
                 repositoryInfos[0].getEnabled() == true);
 
-        removeRepositories(new String[] {sampleP2RepoCopy1Path});
+        removeRepositories(new String[]{sampleP2RepoCopy1Path});
     }
 
     @Test(groups = {"carbon.core"}, description = "Retrieve installable features from the repo",
             dependsOnMethods = {"testUpdateRepository"})
     public void testGetInstallableFeatures() throws Exception {
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
-        FeatureWrapper[] featureWrappers = repositoryAdminServiceClient.
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
+        Feature[] features = repositoryAdminClient.
                 getInstallableFeatures("file://" + sampleP2RepoPath, false, true, false);
 
-        assertTrue(featureWrappers.length > 0);
+        assertTrue(features.length > 0);
 
-        removeRepositories(new String[] {sampleP2RepoPath});
+        removeRepositories(new String[]{sampleP2RepoPath});
     }
 
     @Test(groups = {"carbon.core"}, description = "Retrieve installable feature details from the repo",
             dependsOnMethods = {"testGetInstallableFeatures"})
     public void testGetInstallableFeatureDetails() throws Exception {
-        repositoryAdminServiceClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
-        FeatureWrapper[] featureWrappers = repositoryAdminServiceClient.
+        repositoryAdminClient.addRepository(sampleP2RepoPath, repoNickNames[0], true);
+        Feature[] features = repositoryAdminClient.
                 getInstallableFeatures("file://" + sampleP2RepoPath, false, true, false);
-        assertTrue(featureWrappers.length > 0);
+        assertTrue(features.length > 0);
 
-        FeatureInfo featureInfo = repositoryAdminServiceClient.getInstallableFeatureDetails(
-                featureWrappers[0].getWrappedFeature().getFeatureID(),
-                featureWrappers[0].getWrappedFeature().getFeatureVersion());
+        FeatureInfo featureInfo = repositoryAdminClient.getInstallableFeatureInfo(
+                features[0].getFeatureID(),
+                features[0].getFeatureVersion());
 
         assertTrue(featureInfo != null);
-        assertEquals(featureInfo.getFeatureID(), featureWrappers[0].getWrappedFeature().getFeatureID());
-        assertEquals(featureInfo.getFeatureVersion(), featureWrappers[0].getWrappedFeature().getFeatureVersion());
+        assertEquals(featureInfo.getFeatureID(), features[0].getFeatureID());
+        assertEquals(featureInfo.getFeatureVersion(), features[0].getFeatureVersion());
 
         removeRepositories(new String[]{sampleP2RepoPath});
     }
 
     private void removeRepositories(String[] repoPaths) throws Exception {
         for (String repoPath : repoPaths) {
-            repositoryAdminServiceClient.removeRepository("file://" + repoPath);
+            repositoryAdminClient.removeRepository("file://" + repoPath);
         }
     }
 }
