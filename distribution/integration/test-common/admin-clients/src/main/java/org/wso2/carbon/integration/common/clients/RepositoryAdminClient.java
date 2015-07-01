@@ -22,6 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.feature.mgt.stub.RepositoryAdminServiceStub;
+import org.wso2.carbon.feature.mgt.stub.prov.data.Feature;
+import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.RepositoryInfo;
 import org.wso2.carbon.integration.framework.utils.AuthenticateStubUtil;
 
@@ -97,5 +99,14 @@ public class RepositoryAdminClient {
             isEnabled = true;
         }
         repositoryAdminServiceStub.enableRepository(location, isEnabled);
+    }
+
+    public Feature[] getInstallableFeatures(String location, boolean groupByCategory, boolean hideInstalledFeatures,
+                                            boolean showOnlyTheLatestFeatures) throws RemoteException {
+        return repositoryAdminServiceStub.getInstallableFeatures(location, groupByCategory, hideInstalledFeatures, showOnlyTheLatestFeatures);
+    }
+
+    public FeatureInfo getInstallableFeatureInfo(String featureId, String featureVersion) throws RemoteException {
+        return repositoryAdminServiceStub.getInstallableFeatureInfo(featureId, featureVersion);
     }
 }
