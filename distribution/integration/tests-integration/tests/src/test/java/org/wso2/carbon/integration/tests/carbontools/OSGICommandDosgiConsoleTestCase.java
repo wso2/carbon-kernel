@@ -55,7 +55,7 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
     private HashMap<String, String> serverPropertyMap = new HashMap<String, String>();
     private PrintStream out;
     private TestServerManager carbonTestServerManager;
-    private int telnetTimeOutMS = 1000 * 10 ;
+    private int telnetTimeOutMS = 1000 * 10;
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
@@ -66,10 +66,12 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
         // start with OSGI component service
         serverPropertyMap.put("-DosgiConsole", Integer.toString(telnetPort));
 
-        carbonTestServerManager =
-                new TestServerManager(automationContext, System.getProperty("carbon.zip"), serverPropertyMap);
-
-        carbonTestServerManager.startServer();
+        if (!CarbonTestServerManager.isServerRunning()) {
+            CarbonTestServerManager.start(serverPropertyMap);
+        }else{
+            CarbonTestServerManager.stop();
+            CarbonTestServerManager.start(serverPropertyMap);
+        }
     }
 
     @Test(groups = "carbon.core", description = "Identifying active OSGI components")
@@ -149,6 +151,6 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
             out.close();
         }
         disconnect();  // telnet disconnection
-        carbonTestServerManager.stopServer();
+        CarbonTestServerManager.stop();
     }
 }

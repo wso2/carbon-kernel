@@ -16,7 +16,7 @@
 *under the License.
 */
 
-package org.wso2.carbon.integration.featuremgt;
+package org.wso2.carbon.integration.tests.common.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,23 +27,20 @@ import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.LicenseInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.ProvisioningActionResultInfo;
 import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
-import org.wso2.carbon.integration.clients.FeatureAdminClient;
-import org.wso2.carbon.integration.clients.RepositoryAdminClient;
-import org.wso2.carbon.integration.framework.LoginLogoutUtil;
+import org.wso2.carbon.integration.common.clients.FeatureAdminClient;
+import org.wso2.carbon.integration.common.clients.RepositoryAdminClient;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * This class is responsible for adding tenants and users
- * defined under userManagement entry in automation.xml to servers.
  */
-public class FeatureManager {
+public class FeatureManagementUtil {
 
-    private static final Log log = LogFactory.getLog(FeatureManager.class);
+    private static final Log log = LogFactory.getLog(FeatureManagementUtil.class);
     String sessionCookie;
     String backendURL;
-    List<String> tenantsList;
     RepositoryAdminClient repositoryAdminClient;
     FeatureAdminClient featureAdminClient;
     String p2RepoPath;
@@ -53,23 +50,24 @@ public class FeatureManager {
     LoginLogoutUtil loginLogoutUtil;
     AutomationContext automationContext;
 
-    public FeatureManager(List<FeatureInfo> featureList, AutomationContext automationContext) throws Exception {
-        
+    public FeatureManagementUtil(List<FeatureInfo> featureList, AutomationContext automationContext)
+            throws Exception {
+
         this.automationContext = automationContext;
         featureInfos = featureList.toArray(new FeatureInfo[featureList.size()]);
 
         backendURL = automationContext.getContextUrls().getBackEndUrl();
 
         loginLogoutUtil = new LoginLogoutUtil();
-        String sessionCookie = loginLogoutUtil.login(automationContext.getDefaultInstance().getHosts().get("default"),
+        String sessionCookie = loginLogoutUtil.login(
                 automationContext.getContextTenant().getContextUser().getUserName(),
-                automationContext.getContextTenant().getContextUser().getPassword(), backendURL);
+                automationContext.getContextTenant().getContextUser().getPassword().toCharArray(), backendURL);
 
         repositoryAdminClient = new RepositoryAdminClient(backendURL, automationContext);
-        featureAdminClient = new FeatureAdminClient(backendURL, automationContext, sessionCookie);
+        featureAdminClient = new FeatureAdminClient(backendURL, sessionCookie);
     }
 
-    public void addfeatureRepo() throws Exception {
+    public void addFeatureRepo() throws Exception {
         p2RepoPath = System.getProperty(FEATURE_REPO_PATH_KEY);
         repositoryAdminClient.addRepository(p2RepoPath, P2_REPO_NAME, true);
     }
@@ -88,32 +86,34 @@ public class FeatureManager {
     }
 
     public void removeFeatures() throws Exception {
-        //todo
-//        featureAdminClient.removeAllFeaturesWithProperty(featureInfos[0].getFeatureID());
+        log.info("remove all server features ");
+//        featureAdminClient.removeAllFeaturesWithProperty("org.wso2.carbon.p2.category.type", "server");
+        log.info("remove all console features ");
+//        featureAdminClient.removeAllFeaturesWithProperty("org.wso2.carbon.p2.category.type", "console");
     }
 
-    public void checkInstalledFeatures(boolean afterRestart) throws Exception {
-        if (afterRestart) {
-            sessionCookie = loginLogoutUtil.login(automationContext.getDefaultInstance().getHosts().get("default"),
-                    automationContext.getContextTenant().getContextUser().getUserName(),
-                    automationContext.getContextTenant().getContextUser().getPassword(), backendURL);
-            featureAdminClient = new FeatureAdminClient(backendURL, automationContext, sessionCookie);
-        }
+    public boolean isFeatureInstalled() throws Exception {
+        sessionCookie = loginLogoutUtil.login(
+                automationContext.getContextTenant().getContextUser().getUserName(),
+                automationContext.getContextTenant().getContextUser().getPassword().toCharArray(), backendURL);
+        featureAdminClient = new FeatureAdminClient(backendURL, sessionCookie);
         FeatureWrapper[] featuresWrappers = featureAdminClient.getInstalledFeatures();
 
-        int counter = 0;
+        boolean isInstalledFeatureFound = false;
         Arrays.asList(featuresWrappers);
         int length = featuresWrappers.length;
         for (FeatureWrapper featureWrapper : featuresWrappers) {
             Feature feature = featureWrapper.getWrappedFeature();
             for (FeatureInfo featureInfo : featureInfos) {
                 if (featureInfo.getFeatureID().equals(feature.getFeatureID()) &&
-                        featureInfo.getFeatureVersion().equals(feature.getFeatureVersion())) {
-                    counter++;
+                    featureInfo.getFeatureVersion().equals(feature.getFeatureVersion())) {
+                    log.info("installed feature found " + feature.getFeatureID());
+                    isInstalledFeatureFound = true;
+                    break;
                 }
             }
         }
-        assert counter == featureInfos.length;
+        return isInstalledFeatureFound;
     }
 }
 

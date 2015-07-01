@@ -1549,6 +1549,11 @@
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.integration.test.common.admin.clients</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.woden</groupId>
                 <artifactId>woden-api</artifactId>
                 <version>${woden.api.version}</version>

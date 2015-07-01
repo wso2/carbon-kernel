@@ -28,6 +28,7 @@ import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegration
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
+import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -42,11 +43,18 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory.getLog(RunBuildXMLTestCase.class);
     private String carbonHome;
+    private int portOffset = 1;
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
         super.init();
-        carbonHome = CarbonCommandToolsUtil.getCarbonHome(automationContext);
+        if(CarbonTestServerManager.getCarbonHome() != null){
+            CarbonTestServerManager.start(portOffset);
+            carbonHome = CarbonTestServerManager.getCarbonHome();
+            CarbonTestServerManager.stop();
+        }else{
+            carbonHome = CarbonTestServerManager.getCarbonHome();
+        }
     }
 
     @Test(groups = {"carbon.core"}, description = "Running the ant command and verifying the jar copying")

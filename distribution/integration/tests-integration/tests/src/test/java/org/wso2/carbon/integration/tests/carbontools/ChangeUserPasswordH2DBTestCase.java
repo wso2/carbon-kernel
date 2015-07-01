@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
 import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.integration.tests.common.bean.DataSourceBean;
@@ -33,10 +34,10 @@ import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
 import org.wso2.carbon.integration.tests.common.utils.LoginLogoutUtil;
-import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertTrue;
@@ -55,6 +56,7 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
     private DataSourceBean dataSourceBean;
     private char[] userNewPassword = {'a', 'd', 'm', 'i', 'n', '1', '2', '3'};
     private String userName;
+    TestServerManager testServerManager;
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
@@ -71,48 +73,67 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
 
     @Test(groups = "carbon.core", description = "H2DB Password changing script test on windows and linux")
     public void testScriptRun() throws Exception {
-        serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
         AutomationContext autoCtx = new AutomationContext();
 
-        TestServerManager carbonServer =
-                new TestServerManager(autoCtx, System.getProperty("carbon.zip"),
-                                            serverPropertyMap);
 
-        String carbonHome = carbonServer.startServer();
-        carbonServer.stopServer();//need to start and stop the server to get generate H2 embedded DB
 
-        String[] cmdArray;
-        String commandDirectory = carbonHome + File.separator + "bin";
 
-        if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().contains(
-                OperatingSystems.WINDOWS.name().toLowerCase()))) {
+//        CarbonTestServerManager carbonServer =
+//                new CarbonTestServerManager(autoCtx, System.getProperty("carbon.zip"),
+//                                            serverPropertyMap);
+//
+//        String carbonHome = carbonServer.startServer();
+//        carbonServer.stopServer();//need to start and stop the server to get generate H2 embedded DB
 
-            cmdArray =
-                    new String[]{
-                            "cmd.exe", "/c", "chpasswd.bat",
-                            "--db-url", "jdbc:h2:" + carbonHome + dataSourceBean.getUrl(),
-                            "--db-driver", dataSourceBean.getDriverClassName(), "--db-username",
-                            dataSourceBean.getUserName(), "--db-password",
-                            String.valueOf(dataSourceBean.getPassWord()), "--username",
-                            userName, "--new-password", String.valueOf(userNewPassword)};
-        } else {
+        testServerManager = new TestServerManager(autoCtx, portOffset) {
+            public void configureServer() throws AutomationFrameworkException {
+                try {
+                    testServerManager.startServer();
+                    testServerManager.stopServer();
+                    carbonHome = testServerManager.getCarbonHome();
+                    String commandDirectory = carbonHome + File.separator + "bin";
+                    String[] cmdArray;
 
-            cmdArray =
-                    new String[]{
-                            "sh", "chpasswd.sh", "--db-url",
-                            "jdbc:h2:" + carbonHome + dataSourceBean.getUrl(), "--db-driver",
-                            "org.h2.Driver", "--db-username", "wso2carbon",
-                            "--db-password", String.valueOf(dataSourceBean.getPassWord()),
-                            "--username", userName, "--new-password", String.valueOf(userNewPassword)};
-        }
+                    if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().contains(
+                            OperatingSystems.WINDOWS.name().toLowerCase()))) {
 
-        boolean scriptRunStatus =
-                CarbonCommandToolsUtil.isScriptRunSuccessfully(commandDirectory, cmdArray,
-                                                               "Password updated successfully");
-        log.info("Script running status : " + scriptRunStatus);
-        assertTrue(scriptRunStatus, "Script executed unsuccessfully");
+                        cmdArray =
+                                new String[]{
+                                        "cmd.exe", "/c", "chpasswd.bat",
+                                        "--db-url", "jdbc:h2:" + carbonHome + dataSourceBean.getUrl(),
+                                        "--db-driver", dataSourceBean.getDriverClassName(), "--db-username",
+                                        dataSourceBean.getUserName(), "--db-password",
+                                        String.valueOf(dataSourceBean.getPassWord()), "--username",
+                                        userName, "--new-password", String.valueOf(userNewPassword)};
+                    } else {
+
+                        cmdArray =
+                                new String[]{
+                                        "sh", "chpasswd.sh", "--db-url",
+                                        "jdbc:h2:" + carbonHome + dataSourceBean.getUrl(), "--db-driver",
+                                        "org.h2.Driver", "--db-username", "wso2carbon",
+                                        "--db-password", String.valueOf(dataSourceBean.getPassWord()),
+                                        "--username", userName, "--new-password", String.valueOf(userNewPassword)};
+                    }
+
+                    boolean scriptRunStatus =
+                            CarbonCommandToolsUtil.isScriptRunSuccessfully(commandDirectory, cmdArray,
+                                                                           "Password updated successfully");
+                    log.info("Script running status : " + scriptRunStatus);
+                    assertTrue(scriptRunStatus, "Script executed unsuccessfully");
+
+                } catch (IOException e) {
+                    throw new AutomationFrameworkException("Error when starting the carbon server",e);
+                } catch (CarbonToolsIntegrationTestException e) {
+                    throw new AutomationFrameworkException("Error when running the chpasswd script",e);
+                } catch (XPathExpressionException e) {
+                    throw new AutomationFrameworkException("Error when starting the carbon server",e);
+                }
+            }
+        };
+        testServerManager.startServer();
         //Start the server after changing user password
-        CarbonCommandToolsUtil.startServerUsingCarbonHome(carbonHome, portOffset, null);
+//        CarbonCommandToolsUtil.startServerUsingCarbonHome(carbonHome, portOffset, null);
     }
 
     @Test(groups = "carbon.core", description = "H2DB password change test",
@@ -130,7 +151,8 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
 
     @AfterClass(alwaysRun = true)
     public void serverShutDown()
-            throws XPathExpressionException, CarbonToolsIntegrationTestException {
+            throws XPathExpressionException, CarbonToolsIntegrationTestException,
+                   AutomationFrameworkException {
         int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
         String url = automationContextOfInstance002.getContextUrls().getBackEndUrl();
         String backendURL = url.replaceAll("(:\\d+)", ":" + httpsPort);

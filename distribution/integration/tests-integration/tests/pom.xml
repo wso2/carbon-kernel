@@ -50,6 +50,12 @@
                             </value>
                         </property>
                         <property>
+                            <name>p2-repo-path</name>
+                            <value>
+                                ${basedir}/../../../../samples/student-manager/repository/target/p2-repo/
+                            </value>
+                        </property>
+                        <property>
                             <name>usedefaultlisteners</name>
                             <value>false</value>
                         </property>
