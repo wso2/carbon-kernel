@@ -4,10 +4,6 @@
             <transport>https</transport>
             <transport>http</transport>
         </transports>
-        <parameter name="ServiceClass">org.wso2.carbon.test.component3.Component3</parameter>
+        <parameter name="ServiceClass" locked="false">org.wso2.carbon.test.component3.Component3</parameter>
     </service>
-    
-    <parameter name="adminService" locked="true">true</parameter>
-    <parameter name="hiddenService" locked="true">true</parameter>
-    <parameter name="AuthorizationAction" locked="true">/permission/protected/manage</parameter>
 </serviceGroup>
