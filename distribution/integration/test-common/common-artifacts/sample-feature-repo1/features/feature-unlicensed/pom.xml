@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.wso2.carbon.test.unlicensed-feature1</artifactId>
+    <artifactId>org.wso2.carbon.test.unlicensed.feature</artifactId>
     <packaging>pom</packaging>
     <version>${carbon.test.component100}</version>
 
@@ -33,7 +33,7 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.test.unlicensed-feature1</id>
+                            <id>org.wso2.carbon.test.unlicensed</id>
                             <!--
                             ********** DO NOT UNCOMMENT **********
                             This feature should not contain a license file.

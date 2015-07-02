@@ -49,10 +49,13 @@
                                     org.wso2.carbon:org.wso2.carbon.test.feature3:${carbon.test.component301}
                                 </featureArtifactDef>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.test.unlicensed-feature1:${carbon.test.component100}
+                                    org.wso2.carbon:org.wso2.carbon.test.licensed.feature:${carbon.test.component200}
                                 </featureArtifactDef>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.test.licensed-unlicensed-features:${carbon.test.component100}
+                                    org.wso2.carbon:org.wso2.carbon.test.unlicensed.feature:${carbon.test.component100}
+                                </featureArtifactDef>
+                                <featureArtifactDef>
+                                    org.wso2.carbon:org.wso2.carbon.test.licensed.unlicensed.feature:${carbon.test.component100}
                                 </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>

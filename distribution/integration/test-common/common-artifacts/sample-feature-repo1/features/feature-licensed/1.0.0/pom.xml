@@ -3,26 +3,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>features</artifactId>
+        <artifactId>feature-licensed</artifactId>
         <groupId>org.wso2.carbon</groupId>
         <version>4.4.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.wso2.carbon.test.licensed.unlicensed.feature</artifactId>
+    <artifactId>org.wso2.carbon.test.licensed.feature</artifactId>
     <packaging>pom</packaging>
-    <version>${carbon.test.component100}</version>
+    <version>${carbon.test.component200}</version>
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.test.licensed.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.test.unlicensed.feature</artifactId>
-            <type>zip</type>
+            <artifactId>org.wso2.carbon.test.component2</artifactId>
         </dependency>
     </dependencies>
 
@@ -39,17 +33,17 @@
                             <goal>p2-feature-gen</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.test.licensed.unlicensed.feature</id>
-                            <propertiesFile>../etc/feature.properties</propertiesFile>
+                            <id>org.wso2.carbon.test.licensed</id>
+                            <propertiesFile>../../etc/feature.properties</propertiesFile>
                             <adviceFile>
                                 <properties>
+                                    <propertyDef>org.wso2.carbon.p2.category.type:server</propertyDef>
                                     <propertyDef>org.eclipse.equinox.p2.type.group:true</propertyDef>
                                 </properties>
                             </adviceFile>
-                            <includedFeatures>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.test.licensed.feature</includedFeatureDef>
-                                <includedFeatureDef>org.wso2.carbon:org.wso2.carbon.test.unlicensed.feature</includedFeatureDef>
-                            </includedFeatures>
+                            <bundles>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.test.component2:${carbon.test.component200}</bundleDef>
+                            </bundles>
                         </configuration>
                     </execution>
                 </executions>
