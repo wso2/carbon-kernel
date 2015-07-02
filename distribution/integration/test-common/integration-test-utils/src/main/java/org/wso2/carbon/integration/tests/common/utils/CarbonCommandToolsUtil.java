@@ -112,19 +112,8 @@ public class CarbonCommandToolsUtil {
     public static Process runScript(String directory, String[] cmdArray)
             throws CarbonToolsIntegrationTestException {
         try {
-            final int portOffset = getPortOffsetFromStringArray(cmdArray);
-
             File commandDir = new File(directory);
             Process process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    try {
-                        CarbonCommandToolsUtil.serverShutdown(portOffset);
-                    } catch (Exception e) {
-                        log.warn("Error while server shutdown ..", e);
-                    }
-                }
-            });
             return process;
 
         } catch (IOException ex) {
