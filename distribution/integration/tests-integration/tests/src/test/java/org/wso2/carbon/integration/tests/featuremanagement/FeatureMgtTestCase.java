@@ -31,6 +31,7 @@ import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.LicenseFeatureHolder;
 import org.wso2.carbon.feature.mgt.stub.prov.data.ProfileHistory;
+import org.wso2.carbon.feature.mgt.stub.prov.data.ProvisioningActionResultInfo;
 import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
 import org.wso2.carbon.integration.common.clients.FeatureAdminClient;
 import org.wso2.carbon.integration.common.clients.RepositoryAdminClient;
@@ -242,7 +243,8 @@ public class FeatureMgtTestCase extends CarbonIntegrationBaseTest {
         assertTrue(response.toString().contains("<ns:return>org.wso2.carbon.test.component3.Component3-v1.0.1</ns:return>"));
     }
 
-    @Test(groups = {"carbon.core"}, description = "Install a feature without license", dependsOnMethods = {"testInstallAndUpdateFeature"})
+    @Test(groups = {"carbon.core"}, description = "Install a feature without license",
+            dependsOnMethods = {"testInstallAndUpdateFeature"}, enabled = false)
     public void testInstallAFeatureWithoutLicense() throws Exception {
         FeatureInfo featureInfo = getFeatureInfo("org.wso2.carbon.test.unlicensed-feature1.feature.group", featureVersions[0]);
         featureAdminClient.reviewInstallFeaturesAction(new FeatureInfo[]{featureInfo});
@@ -254,6 +256,17 @@ public class FeatureMgtTestCase extends CarbonIntegrationBaseTest {
 
         // TODO: This should not get installed
         //featureAdminClient.performInstallation(featureAdminClient.getInstallActionType());
+    }
+
+    @Test(groups = {"carbon.core"}, description = "Install a features with and without license",
+            dependsOnMethods = {"testInstallAFeatureWithoutLicense"}, enabled = false)
+    public void testInstallAFeatureHavingManyComponentsWithAndWithoutLicense() throws Exception {
+        FeatureInfo featureInfo = getFeatureInfo("org.wso2.carbon.test.licensed.unlicensed.feature.feature.group", featureVersions[0]);
+        featureAdminClient.reviewInstallFeaturesAction(new FeatureInfo[]{featureInfo});
+        LicenseFeatureHolder[] licenseFeatureHolders = featureAdminClient.getFeatureLicenseInfo();
+
+        // TODO: This should be null, as one of the features doesn't have license
+        assertNull(licenseFeatureHolders);
     }
 
     private FeatureInfo getFeatureInfo(String featureId, String version) {
