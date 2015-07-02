@@ -24,9 +24,12 @@ import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
 import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerManager;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
@@ -36,6 +39,7 @@ import sun.management.VMManagement;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
@@ -64,7 +68,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
                                       ContextXpathConstants.SUPER_TENANT,
                                       ContextXpathConstants.ADMIN);
 
-        carbonHome = CarbonCommandToolsUtil.getCarbonHome(automationContext);
+        carbonHome = getCarbonHome(automationContext);
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing server startup argument --start")
@@ -241,6 +245,35 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             }
         } catch (CarbonToolsIntegrationTestException e) {
             log.info("Server already Shutdown");
+        }
+    }
+
+
+    /**
+     * provides carbon home after extracting the pack.
+     *
+     * @param context - AutomationContext
+     * @return - carbon home
+     * @throws CarbonToolsIntegrationTestException - Error while setup carbon home from carbon zip file
+     */
+    private String getCarbonHome(AutomationContext context)
+            throws CarbonToolsIntegrationTestException {
+        try {
+
+
+            String carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
+            CarbonServerManager carbonServerManager = new CarbonServerManager(context);
+            String carbonHomePath = carbonServerManager.setUpCarbonHome(carbonZip);
+            return carbonHomePath;
+
+        } catch (IOException ex) {
+            log.error("Extracting the pack and getting the carbon home failed", ex);
+            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
+                                                          "carbon home failed", ex);
+        } catch (AutomationFrameworkException e) {
+            log.error("Extracting the pack and getting the carbon home failed", e);
+            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
+                                                          "carbon home failed", e);
         }
     }
 

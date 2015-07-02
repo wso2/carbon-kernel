@@ -21,7 +21,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
-import org.wso2.carbon.automation.extensions.servers.carbonserver.MultipleServersManager;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
@@ -38,7 +37,6 @@ import static org.testng.Assert.assertTrue;
 public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBaseTest {
 
     private HashMap<String, String> serverPropertyMap;
-    private MultipleServersManager manager = new MultipleServersManager();
     private int portOffset = 1;
     private AutomationContext automationContextOfInstance002;
 
@@ -88,15 +86,6 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
                                   automationContext.getSuperTenant().getTenantAdmin().getPassword().toCharArray(),
                                   automationContext.getContextUrls().getBackEndUrl());
 
-            boolean isFoundHttpPort = CarbonCommandToolsUtil.
-                    findMultipleStringsInLog(new String[]{"HTTP port", httpPort});
-
-            boolean isFoundHttpsPort = CarbonCommandToolsUtil.
-                    findMultipleStringsInLog(new String[]{"HTTPS port", httpsPort});
-
-            if (isFoundHttpPort && isFoundHttpsPort) {
-                isPortsOccupied = true;
-            }
             assertTrue(isPortsOccupied, "Couldn't start the server on specified http & https ports");
         } finally {
             CarbonTestServerManager.stop();

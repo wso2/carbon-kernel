@@ -24,9 +24,12 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
 import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerManager;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
@@ -78,8 +81,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
             cmdArray = new String[]
                     {"sh", "wso2server.sh", "-DosgiDebugOptions", "-DportOffset=1"};
         }
-        commandDirectory =
-                CarbonCommandToolsUtil.getCarbonHome(automationContextOfInstance002) +
+        commandDirectory = getCarbonHome(automationContextOfInstance002) +
                 File.separator + "bin";
 
         try {
@@ -121,6 +123,28 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
         }
         if (process != null) {
             process.destroy();
+        }
+    }
+
+
+    private String getCarbonHome(AutomationContext context)
+            throws CarbonToolsIntegrationTestException {
+        try {
+
+
+            String carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
+            CarbonServerManager carbonServerManager = new CarbonServerManager(context);
+            String carbonHomePath = carbonServerManager.setUpCarbonHome(carbonZip);
+            return carbonHomePath;
+
+        } catch (IOException ex) {
+            log.error("Extracting the pack and getting the carbon home failed", ex);
+            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
+                                                          "carbon home failed", ex);
+        } catch (AutomationFrameworkException e) {
+            log.error("Extracting the pack and getting the carbon home failed", e);
+            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
+                                                          "carbon home failed", e);
         }
     }
 
