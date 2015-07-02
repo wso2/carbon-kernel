@@ -50,7 +50,7 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
     private DataSourceBean dataSourceBean;
     private char[] userNewPassword = {'a', 'd', 'm', 'i', 'n', '!', '*'};
     private String userName;
-    TestServerManager testServerManager;
+    private TestServerManager testServerManager;
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
@@ -64,10 +64,12 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
         loginLogoutUtil = new LoginLogoutUtil();
         userName = automationContext.getContextTenant().getContextUser().getUserName();
         dataSourceBean = CarbonCommandToolsUtil.getDataSourceInformation("default");
-        AutomationContext autoCtx = new AutomationContext();
-        testServerManager = new TestServerManager(autoCtx, portOffset);
+        testServerManager = new TestServerManager(automationContextOfInstance002, portOffset);
         testServerManager.startServer();
+        //let server to deploy admin services
+        Thread.sleep(3000);
         testServerManager.stopServer();
+
     }
 
     @Test(groups = "carbon.core", description = "H2DB Password changing script run test")
@@ -105,7 +107,7 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
                                                                "Password updated successfully");
         log.info("Script running status : " + scriptRunStatus);
         assertTrue(scriptRunStatus, "Script executed unsuccessfully");
-
+        automationContextOfInstance002.getSuperTenant().getTenantAdmin().setPassword(new String(userNewPassword));
 
     }
 

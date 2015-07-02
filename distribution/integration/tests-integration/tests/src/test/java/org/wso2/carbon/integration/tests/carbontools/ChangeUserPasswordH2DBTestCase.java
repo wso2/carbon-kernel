@@ -51,7 +51,6 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
     private static final Log log = LogFactory.getLog(ChangeUserPasswordH2DBTestCase.class);
     private AutomationContext automationContextOfInstance002;
     private int portOffset = 1;
-    private HashMap<String, String> serverPropertyMap = new HashMap<String, String>();
     private LoginLogoutUtil loginLogoutUtil;
     private DataSourceBean dataSourceBean;
     private char[] userNewPassword = {'a', 'd', 'm', 'i', 'n', '1', '2', '3'};
@@ -69,9 +68,12 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
         userName = automationContextOfInstance002.getContextTenant().getContextUser().getUserName();
         loginLogoutUtil = new LoginLogoutUtil();
         dataSourceBean = CarbonCommandToolsUtil.getDataSourceInformation("default");
-        testServerManager = new TestServerManager(new AutomationContext(), portOffset);
+        testServerManager = new TestServerManager(automationContextOfInstance002, portOffset);
         testServerManager.startServer();
+        //let server to deploy admin services
+        Thread.sleep(3000);
         testServerManager.stopServer();
+
     }
 
     @Test(groups = "carbon.core", description = "H2DB Password changing script test on windows and linux")
@@ -108,6 +110,8 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
                                                                "Password updated successfully");
         log.info("Script running status : " + scriptRunStatus);
         assertTrue(scriptRunStatus, "Script executed unsuccessfully");
+        automationContextOfInstance002.getSuperTenant().getTenantAdmin().setPassword(new String(userNewPassword));
+
     }
 
     @Test(groups = "carbon.core", description = "H2DB password change test",
