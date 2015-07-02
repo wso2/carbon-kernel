@@ -269,6 +269,24 @@ public class FeatureMgtTestCase extends CarbonIntegrationBaseTest {
         assertNull(licenseFeatureHolders);
     }
 
+    @Test(groups = {"carbon.core"}, description = "Install a features with invalid name",
+            dependsOnMethods = {"testInstallAFeatureHavingManyComponentsWithAndWithoutLicense"}, enabled = false)
+    public void testInstallNonExistingFeature() throws Exception {
+        FeatureInfo featureInfo = getFeatureInfo("org.wso2.carbon.test.non.existing.feature.group", featureVersions[0]);
+        featureAdminClient.reviewInstallFeaturesAction(new FeatureInfo[]{featureInfo});
+
+        // TODO: Need to implement this test case once the issue is fixed
+    }
+
+    @Test(groups = {"carbon.core"}, description = "Install a features invalid version",
+            dependsOnMethods = {"testInstallNonExistingFeature"}, enabled = false)
+    public void testInstallAFeatureWithInvalidVersion() throws Exception {
+        FeatureInfo featureInfo = getFeatureInfo(featureIds[0], "99.99.99");
+        featureAdminClient.reviewInstallFeaturesAction(new FeatureInfo[]{featureInfo});
+
+        // TODO: Need to implement this test case once the issue is fixed
+    }
+
     private FeatureInfo getFeatureInfo(String featureId, String version) {
         FeatureInfo featureInfo = new FeatureInfo();
         featureInfo.setFeatureID(featureId);
