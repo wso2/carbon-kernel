@@ -117,6 +117,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 }
                 if (tenantRequestMsgCtx.getProperty(MultitenantConstants.TENANT_DOMAIN) != null) {
                     String tenant = (String)tenantRequestMsgCtx.getProperty(MultitenantConstants.TENANT_DOMAIN);
+                    //Fix ESBJAVA-3445
+                    PrivilegedCarbonContext.destroyCurrentContext();
                     PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant, true);
                     tenantResponseMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
                 }else{
