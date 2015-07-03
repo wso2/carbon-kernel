@@ -110,9 +110,9 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
 
         String loginStatusString =
                 loginLogoutUtil.login(
-                        automationContext.getSuperTenant().getTenantAdmin().getUserName(),
-                        automationContext.getSuperTenant().getTenantAdmin().getPassword().toCharArray(),
-                        automationContext.getContextUrls().getBackEndUrl());
+                        automationContextOfInstance002.getSuperTenant().getTenantAdmin().getUserName(),
+                        automationContextOfInstance002.getSuperTenant().getTenantAdmin().getPassword().toCharArray(),
+                        automationContextOfInstance002.getContextUrls().getBackEndUrl());
         assertTrue(loginStatusString.contains("JSESSIONID"), "Unsuccessful login");
     }
 

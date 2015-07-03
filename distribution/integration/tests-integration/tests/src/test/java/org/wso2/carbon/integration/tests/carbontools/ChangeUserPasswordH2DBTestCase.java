@@ -70,9 +70,8 @@ public class ChangeUserPasswordH2DBTestCase extends CarbonIntegrationBaseTest {
         dataSourceBean = CarbonCommandToolsUtil.getDataSourceInformation("default");
         testServerManager = new TestServerManager(automationContextOfInstance002, portOffset);
         testServerManager.startServer();
-        //let server to deploy admin services
-        Thread.sleep(3000);
         testServerManager.stopServer();
+
 
     }
 

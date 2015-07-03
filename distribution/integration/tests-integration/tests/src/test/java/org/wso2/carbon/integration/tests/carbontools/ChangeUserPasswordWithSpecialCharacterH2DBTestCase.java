@@ -66,8 +66,6 @@ public class ChangeUserPasswordWithSpecialCharacterH2DBTestCase extends CarbonIn
         dataSourceBean = CarbonCommandToolsUtil.getDataSourceInformation("default");
         testServerManager = new TestServerManager(automationContextOfInstance002, portOffset);
         testServerManager.startServer();
-        //let server to deploy admin services
-        Thread.sleep(3000);
         testServerManager.stopServer();
 
     }
