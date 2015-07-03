@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.integration.common.clients.ServerAdminClient;
+import org.wso2.carbon.integration.common.utils.exceptions.AutomationUtilException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.FeatureManagementUtil;
 
@@ -44,7 +45,7 @@ public class FeatureInstallationTestCase extends CarbonIntegrationBaseTest {
     private ServerAdminClient serverAdminClient;
 
     @BeforeClass(alwaysRun = true)
-    public void initiate() throws XPathExpressionException {
+    public void initiate() throws XPathExpressionException, AutomationUtilException {
         if(isP2RepoAvailable()) {
             throw new SkipException("p2-repo system variable(p2-repo-path) not found to refer p2-repo");
         }
