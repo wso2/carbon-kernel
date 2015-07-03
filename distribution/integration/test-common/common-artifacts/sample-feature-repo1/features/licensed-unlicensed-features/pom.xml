@@ -17,11 +17,13 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.test.licensed.feature</artifactId>
+            <version>${carbon.test.component200}</version>
             <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.test.unlicensed.feature</artifactId>
+            <version>${carbon.test.component100}</version>
             <type>zip</type>
         </dependency>
     </dependencies>
