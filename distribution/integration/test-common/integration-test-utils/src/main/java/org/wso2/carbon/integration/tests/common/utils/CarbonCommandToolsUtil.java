@@ -46,8 +46,6 @@ import java.io.InputStreamReader;
 public class CarbonCommandToolsUtil {
 
     private static final Log log = LogFactory.getLog(CarbonCommandToolsUtil.class);
-    private static String carbonHomePath = null;
-    private static ServerLogReader serverLogStreamHandler;
 
     /**
      * This method is to execute commands and reading the logs to find the expected string.
@@ -112,19 +110,8 @@ public class CarbonCommandToolsUtil {
     public static Process runScript(String directory, String[] cmdArray)
             throws CarbonToolsIntegrationTestException {
         try {
-            final int portOffset = getPortOffsetFromStringArray(cmdArray);
-
             File commandDir = new File(directory);
             Process process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    try {
-                        CarbonCommandToolsUtil.serverShutdown(portOffset);
-                    } catch (Exception e) {
-                        log.warn("Error while server shutdown ..", e);
-                    }
-                }
-            });
             return process;
 
         } catch (IOException ex) {
@@ -132,35 +119,6 @@ public class CarbonCommandToolsUtil {
             throw new CarbonToolsIntegrationTestException("Error when reading the InputStream when " +
                                                           "running shell script ", ex);
         }
-    }
-
-    /**
-     * This method to find multiple strings in same line in log
-     *
-     * @param stringArrayToFind - String array to find all the elements
-     * @return boolean - true if found all the strings , false if not
-     */
-    public static boolean findMultipleStringsInLog(String[] stringArrayToFind) {
-        boolean expectedStringFound = false;
-
-        long startTime = System.currentTimeMillis();
-        while (!expectedStringFound && (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
-            String message = serverLogStreamHandler.getOutput();
-            for (String stringToFind : stringArrayToFind) {
-                if (message.contains(stringToFind)) {
-                    expectedStringFound = true; // Continue until find all the strings in this line
-                } else {
-                    expectedStringFound = false;
-                    break; // break the loop and search the stringToFind in new line
-                }
-            }
-            try {
-                Thread.sleep(500); // wait for 0.5 second to check the log again.
-            } catch (InterruptedException e) {
-                log.warn("Exception while waiting for log message");
-            }
-        }
-        return expectedStringFound;
     }
 
     /**
@@ -245,35 +203,7 @@ public class CarbonCommandToolsUtil {
         return System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_OS_NAME).toLowerCase();
     }
 
-    /**
-     * provides carbon home after extracting the pack.
-     *
-     * @param context - AutomationContext
-     * @return - carbon home
-     * @throws CarbonToolsIntegrationTestException - Error while setup carbon home from carbon zip file
-     */
-    public static String getCarbonHome(AutomationContext context)
-            throws CarbonToolsIntegrationTestException {
-        try {
-            if (carbonHomePath != null) {
-                return carbonHomePath;
-            }
 
-            String carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
-            CarbonServerManager carbonServerManager = new CarbonServerManager(context);
-            carbonHomePath = carbonServerManager.setUpCarbonHome(carbonZip);
-            return carbonHomePath;
-
-        } catch (IOException ex) {
-            log.error("Extracting the pack and getting the carbon home failed", ex);
-            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
-                                                          "carbon home failed", ex);
-        } catch (AutomationFrameworkException e) {
-            log.error("Extracting the pack and getting the carbon home failed", e);
-            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
-                                                          "carbon home failed", e);
-        }
-    }
 
     /**
      * This method is to shutdown carbon server
