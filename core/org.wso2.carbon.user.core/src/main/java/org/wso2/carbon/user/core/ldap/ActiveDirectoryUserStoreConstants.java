@@ -72,6 +72,7 @@ public class ActiveDirectoryUserStoreConstants {
         readLDAPGroups.setChildProperties(new Property[]{groupSearchBase, groupNameListFilter, groupNameAttribute, membershipAttribute, groupNameSearchFilter});
         OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.add(readLDAPGroups);
 
+        setProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT, "Bulk Import Support","true","Bulk Import Supported");
         setProperty(UserStoreConfigConstants.groupSearchBase, "Group Search Base", "CN=Users,DC=WSO2,DC=Com", UserStoreConfigConstants.groupSearchBaseDescription);
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group Object Class", "(objectcategory=group)", UserStoreConfigConstants.groupNameListFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
