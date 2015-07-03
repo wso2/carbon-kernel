@@ -1,27 +1,26 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+* Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* WSO2 Inc. licenses this file to you under the Apache License,
+* Version 2.0 (the "License"); you may not use this file except
+* in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.wso2.carbon.integration.tests.carbontools;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
-import org.wso2.carbon.automation.extensions.servers.carbonserver.MultipleServersManager;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
@@ -33,12 +32,11 @@ import java.util.HashMap;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Provides test commands -DportOffset, -DhttpsPort and -DhttpPort when starting the carbon server
- */
+* Provides test commands -DportOffset, -DhttpsPort and -DhttpPort when starting the carbon server
+*/
 public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBaseTest {
 
     private HashMap<String, String> serverPropertyMap;
-    private MultipleServersManager manager = new MultipleServersManager();
     private int portOffset = 1;
     private AutomationContext automationContextOfInstance002;
 
@@ -88,15 +86,6 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
                                   automationContext.getSuperTenant().getTenantAdmin().getPassword().toCharArray(),
                                   automationContext.getContextUrls().getBackEndUrl());
 
-            boolean isFoundHttpPort = CarbonCommandToolsUtil.
-                    findMultipleStringsInLog(new String[]{"HTTP port", httpPort});
-
-            boolean isFoundHttpsPort = CarbonCommandToolsUtil.
-                    findMultipleStringsInLog(new String[]{"HTTPS port", httpsPort});
-
-            if (isFoundHttpPort && isFoundHttpsPort) {
-                isPortsOccupied = true;
-            }
             assertTrue(isPortsOccupied, "Couldn't start the server on specified http & https ports");
         } finally {
             CarbonTestServerManager.stop();

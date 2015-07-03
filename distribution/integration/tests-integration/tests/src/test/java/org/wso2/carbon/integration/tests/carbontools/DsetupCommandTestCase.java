@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+* Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* WSO2 Inc. licenses this file to you under the Apache License,
+* Version 2.0 (the "License"); you may not use this file except
+* in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.integration.tests.carbontools;
 
@@ -42,8 +42,8 @@ import static org.testng.Assert.assertTrue;
 
 
 /**
- * Check -Dsetup command by populating some users to DB and delete them using this command
- */
+* Check -Dsetup command by populating some users to DB and delete them using this command
+*/
 public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory.getLog(DsetupCommandTestCase.class);
@@ -110,9 +110,9 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
 
         String loginStatusString =
                 loginLogoutUtil.login(
-                        automationContext.getSuperTenant().getTenantAdmin().getUserName(),
-                        automationContext.getSuperTenant().getTenantAdmin().getPassword().toCharArray(),
-                        automationContext.getContextUrls().getBackEndUrl());
+                        automationContextOfInstance002.getSuperTenant().getTenantAdmin().getUserName(),
+                        automationContextOfInstance002.getSuperTenant().getTenantAdmin().getPassword().toCharArray(),
+                        automationContextOfInstance002.getContextUrls().getBackEndUrl());
         assertTrue(loginStatusString.contains("JSESSIONID"), "Unsuccessful login");
     }
 
