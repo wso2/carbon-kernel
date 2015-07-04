@@ -660,15 +660,12 @@ public class PermissionTree {
             throw new UserStoreException("Invalid Permission root path provided");
         }
 
-        TreeNode permissionNode = node.getChild(CarbonConstants.UI_PERMISSION_NAME);
+        TreeNode permissionNode = root.getChild(CarbonConstants.UI_PERMISSION_NAME);
 
         if (permissionNode == null) {
             throw new UserStoreException("Invalid Permission root path provided");
         }
 
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
-        }
 
         getUIResourcesForRoles(roles,
                 resources,
@@ -687,7 +684,7 @@ public class PermissionTree {
             for (String role : roles) {
                 BitSet bs = bsAllowed.get(role);
                 if (bs != null && bs.get(permission.ordinal())) {
-                    resources.add(currentPath);
+                    addCurrentPermissions(currentPath,node,resources);
                     return;
                 }
             }
@@ -703,6 +700,22 @@ public class PermissionTree {
         }
     }
 
+    private void addCurrentPermissions(String currentPath, TreeNode node, List<String> resources){
+
+        Map<String, TreeNode> children = node.getChildren();
+
+        if(children!=null || !children.isEmpty()){
+            for (TreeNode child : children.values()){
+
+                addCurrentPermissions(currentPath+"/"+child.getName(), child, resources);
+
+            }
+        }
+
+        resources.add(currentPath);
+
+
+    }
 
     void clearResourceAuthorizations(String resourceId) throws UserStoreException {
         write.lock();
