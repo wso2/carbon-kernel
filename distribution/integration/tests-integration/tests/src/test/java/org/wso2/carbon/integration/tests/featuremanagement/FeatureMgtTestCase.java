@@ -51,7 +51,7 @@ public class FeatureMgtTestCase extends CarbonIntegrationBaseTest {
     protected String[] featureIds = new String[]{"org.wso2.carbon.test.feature1.feature.group",
             "org.wso2.carbon.test.feature2.feature.group",
             "org.wso2.carbon.test.feature3.feature.group"};
-    protected String[] featureVersions = new String[]{"1.0.0", "1.0.1"};
+    protected String[] featureVersions = new String[]{"1.0.0.SNAPSHOT", "1.0.1.SNAPSHOT"};
     protected String[] namespaces = new String[]{"http://component1.test.carbon.wso2.org",
             "http://component2.test.carbon.wso2.org",
             "http://component3.test.carbon.wso2.org"};
