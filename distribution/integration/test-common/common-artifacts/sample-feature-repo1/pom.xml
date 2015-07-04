@@ -18,12 +18,12 @@
     </modules>
 
     <properties>
-        <carbon.test.component100>1.0.0</carbon.test.component100>
-        <carbon.test.component101>1.0.1</carbon.test.component101>
-        <carbon.test.component200>1.0.0</carbon.test.component200>
-        <carbon.test.component201>1.0.1</carbon.test.component201>
-        <carbon.test.component300>1.0.0</carbon.test.component300>
-        <carbon.test.component301>1.0.1</carbon.test.component301>
+        <carbon.test.component100>1.0.0-SNAPSHOT</carbon.test.component100>
+        <carbon.test.component101>1.0.1-SNAPSHOT</carbon.test.component101>
+        <carbon.test.component200>1.0.0-SNAPSHOT</carbon.test.component200>
+        <carbon.test.component201>1.0.1-SNAPSHOT</carbon.test.component201>
+        <carbon.test.component300>1.0.0-SNAPSHOT</carbon.test.component300>
+        <carbon.test.component301>1.0.1-SNAPSHOT</carbon.test.component301>
     </properties>
 
 
