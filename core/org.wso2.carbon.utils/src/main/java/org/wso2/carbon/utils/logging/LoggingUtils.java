@@ -76,6 +76,41 @@ public class LoggingUtils {
     }
 
     /**
+     * Returns a LoggingEvent sanitized for CR and LF characters if present.
+     *
+     * @param loggingEvent LoggingEvent with the log content
+     * @return a sanitized LoggingEvent
+     */
+    public static LoggingEvent getSanitizedLoggingEvent(LoggingEvent loggingEvent) {
+
+        String sanitizedMessage = loggingEvent.getMessage().toString();
+        boolean sanitized = false;
+
+        int index = sanitizedMessage.indexOf('\r');
+        if (index >= 0) {
+            sanitizedMessage = sanitizedMessage.replace('\r', '_');
+            sanitized = true;
+        }
+
+        index = sanitizedMessage.indexOf('\n');
+        if (index >= 0) {
+            sanitizedMessage = sanitizedMessage.replace('\n', '_');
+            sanitized = true;
+        }
+
+        if (sanitized) {
+            sanitizedMessage = sanitizedMessage.concat(" (Sanitized)");
+            return new LoggingEvent(loggingEvent.getFQNOfLoggerClass(), loggingEvent.getLogger(),
+                                    loggingEvent.getTimeStamp(), loggingEvent.getLevel(), sanitizedMessage,
+                                    loggingEvent.getThreadName(), loggingEvent.getThrowableInformation(),
+                                    loggingEvent.getNDC(), loggingEvent.getLocationInformation(),
+                                    loggingEvent.getProperties());
+        }
+
+        return loggingEvent;
+    }
+
+    /**
      * Return the <code>org.apache.log4j.Level</code> from the given
      * <code>java.util.logging.Level</code>
      *
