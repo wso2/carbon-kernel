@@ -17,6 +17,8 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -72,7 +74,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
     // Todo: use a cache provided by carbon kernel
-    Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
+    //Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
+
+    HazelcastInstance instance = Hazelcast.newHazelcastInstance();
+
+    Map<String, Object> userCache = instance.getMap("users");
+
     protected LDAPConnectionContext connectionSource = null;
     protected String userSearchBase = null;
     protected String groupSearchBase = null;

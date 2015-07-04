@@ -85,6 +85,11 @@
             <groupId>commons-collections.wso2</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
