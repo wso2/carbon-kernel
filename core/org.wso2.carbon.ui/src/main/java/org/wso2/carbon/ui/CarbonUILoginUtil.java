@@ -235,7 +235,7 @@ public final class CarbonUILoginUtil {
         try {
             authenticator = (CarbonUIAuthenticator) session
                     .getAttribute(CarbonSecuredHttpContext.CARBON_AUTHNETICATOR);
-            if (authenticator != null) {
+            if (authenticator != null && authenticated) {
                 authenticator.unauthenticate(request);
                 log.debug("Backend session invalidated");
             }

@@ -219,9 +219,9 @@ public class UserCoreConstants {
         public static final String NICKNAME = DEFAULT_CARBON_DIALECT + "/nickname";
         public static final String DATE_OF_BIRTH = DEFAULT_CARBON_DIALECT + "/dob";
         public static final String GENDER = DEFAULT_CARBON_DIALECT + "/gender";
-        public static final String ACCOUNT_STATUS = DEFAULT_CARBON_DIALECT + "/accountLock";
-        public static final String CHALLENGE_QUESTION_URI = DEFAULT_CARBON_DIALECT + "/challengeQuestion";
         public static final String IDENTITY_CLAIM_URI = DEFAULT_CARBON_DIALECT + "/identity";
+        public static final String ACCOUNT_STATUS = IDENTITY_CLAIM_URI + "/accountLock";
+        public static final String CHALLENGE_QUESTION_URI = IDENTITY_CLAIM_URI + "/challengeQuestion";
         public static final String TEMPORARY_EMAIL_ADDRESS = DEFAULT_CARBON_DIALECT + "/temporaryemailaddress";
     }
 

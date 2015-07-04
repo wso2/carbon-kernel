@@ -67,11 +67,15 @@ public class TenantMgtXMLProcessor {
             return buildTenantMgtConfiguration(tenantMgtConfigElement, tenantManagerClass);
         } catch (XMLStreamException e) {
             String error_Message = "Error in reading tenant-mgt.xml";
-            log.error(error_Message);
+            if (log.isDebugEnabled()) {
+                log.debug(error_Message, e);
+            }
             throw new UserStoreException(error_Message);
         } catch (IOException e) {
             String error_Message = "Error in reading tenant-mgt.xml file.";
-            log.error(error_Message);
+            if (log.isDebugEnabled()) {
+                log.debug(error_Message, e);
+            }
             throw new UserStoreException(error_Message);
         }
     }
@@ -107,6 +111,9 @@ public class TenantMgtXMLProcessor {
         }
         String errorMessage = "Error in locating TenantManager compatible with PrimaryUserStore."
                 + " Required a TenantManager using " + tenantManagerClass + " in tenant-mgt.xml.";
+        if (log.isDebugEnabled()) {
+            log.debug(errorMessage);
+        }
         throw new UserStoreException(errorMessage);
     }
 

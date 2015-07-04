@@ -28,6 +28,10 @@ public class ReadWriteLDAPUserStoreConstants {
     public static final ArrayList<Property> RWLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTINAL_RWLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
 
+    //For multiple attribute separation
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+
     static {
         setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "uid=," +
                 "ou=", UserStoreConfigConstants.connectionNameDescription, false);
@@ -55,7 +59,9 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
         setProperty(UserStoreConfigConstants.SCIMEnabled, "SCIM Enabled", "false", UserStoreConfigConstants.SCIMEnabledDescription);
+        setProperty(UserStoreConfigConstants.DisplayNameAttribute, "Display name attribute", "uid", UserStoreConfigConstants.DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
+        setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
         Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "true", "Enable Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription, null);
         //Mandatory only if readGroups is enabled
@@ -89,6 +95,7 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "", "", "");
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false", UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,

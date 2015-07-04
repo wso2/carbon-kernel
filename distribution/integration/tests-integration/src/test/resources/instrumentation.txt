@@ -1,2 +1,0 @@
-org.wso2.carbon.caching.core_
-org.wso2.carbon.core_

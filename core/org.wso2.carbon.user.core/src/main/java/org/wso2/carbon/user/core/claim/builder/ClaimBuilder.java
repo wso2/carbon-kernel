@@ -111,7 +111,9 @@ public class ClaimBuilder {
             element = getRootElement();
         } catch (Exception e) {
             message = "Error while reading claim configuration";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new ClaimBuilderException(message, e);
         }
 
@@ -211,7 +213,9 @@ public class ClaimBuilder {
                 inStream.close();
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.error(e.getMessage(), e);
+            }
             throw new ClaimBuilderException(e.getMessage(), e);
         }
 
