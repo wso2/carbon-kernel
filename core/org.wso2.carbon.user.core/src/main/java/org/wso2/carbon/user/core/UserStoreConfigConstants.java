@@ -38,8 +38,8 @@ public class UserStoreConfigConstants {
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
     public static final String DisplayNameAttribute = "DisplayNameAttribute";
     public static final String DisplayNameAttributeDescription = "Attribute name to display as the Display Name";
-    public static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
-    public static final String CASE_INSENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case insensitive or not";
+    public static final String CASE_SENSITIVE_USERNAME = "CaseSensitiveUsername";
+    public static final String CASE_SENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
 
 
     //Mandatory to LDAP user stores

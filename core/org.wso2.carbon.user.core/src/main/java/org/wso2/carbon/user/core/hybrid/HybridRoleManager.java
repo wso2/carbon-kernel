@@ -24,7 +24,9 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -372,7 +374,22 @@ public class HybridRoleManager {
     public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
-        String sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
+//        String sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
+        String sqlStmt;
+        if (userName.equals(userRealm.getRealmConfiguration().getAdminUserName())) {
+            sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
+        }else{
+            UserStoreManager userStoreManager = userRealm.getUserStoreManager();
+            if (userStoreManager instanceof AbstractUserStoreManager) {
+                if (((AbstractUserStoreManager)userRealm.getUserStoreManager()).isCaseSensitiveUsername()) {
+                    sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
+                } else {
+                    sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE;
+                }
+            }else {
+                sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
+            }
+        }
 
         if (getRoleListOfUserSQLConfig != null && !getRoleListOfUserSQLConfig.equals("")) {
             sqlStmt = getRoleListOfUserSQLConfig;
