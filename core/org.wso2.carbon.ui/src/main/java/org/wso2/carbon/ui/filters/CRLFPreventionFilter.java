@@ -51,15 +51,6 @@ public class CRLFPreventionFilter implements Filter {
 
     protected static class CRLFResponseWrapper extends HttpServletResponseWrapper {
 
-        private static final char CR = '\r';
-        private static final char LF = '\n';
-        private static final String URL_ENCODED_CR_UPPER = "%0D";
-        private static final String URL_ENCODED_LF_UPPER = "%0A";
-        private static final String URL_ENCODED_CR_LOWER = URL_ENCODED_CR_UPPER.toLowerCase();
-        private static final String URL_ENCODED_LF_LOWER = URL_ENCODED_LF_UPPER.toLowerCase();
-        private static final char REPLACEMENT_CHAR = '_';
-        private static final String REPLACEMENT_STRING = "_";
-
         public CRLFResponseWrapper(HttpServletResponse response) {
             super(response);
         }
@@ -91,34 +82,7 @@ public class CRLFPreventionFilter implements Filter {
                 return input;
             }
 
-            String clean = input;
-
-            int index = input.indexOf(CR);
-            if (index >= 0) {
-                clean = clean.replace(CR, REPLACEMENT_CHAR);
-            }
-            index = input.indexOf(LF);
-            if (index >= 0) {
-                clean = clean.replace(LF, REPLACEMENT_CHAR);
-            }
-            index = input.indexOf(URL_ENCODED_CR_UPPER);
-            if (index >= 0) {
-                clean = clean.replace(URL_ENCODED_CR_UPPER, REPLACEMENT_STRING);
-            }
-            index = input.indexOf(URL_ENCODED_CR_LOWER);
-            if (index >= 0) {
-                clean = clean.replace(URL_ENCODED_CR_LOWER, REPLACEMENT_STRING);
-            }
-            index = input.indexOf(URL_ENCODED_LF_UPPER);
-            if (index >= 0) {
-                clean = clean.replace(URL_ENCODED_LF_UPPER, REPLACEMENT_STRING);
-            }
-            index = input.indexOf(URL_ENCODED_LF_UPPER);
-            if (index >= 0) {
-                clean = clean.replace(URL_ENCODED_LF_LOWER, REPLACEMENT_STRING);
-            }
-
-            return clean;
+            return input.replaceAll("(\\r|\\n|%0D|%0A|%0a|%0d)", "");
         }
     }
 
