@@ -24,9 +24,11 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.*;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
+import org.wso2.securevault.SecurityConstants;
 import org.wso2.securevault.secret.SecretManager;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,6 +47,7 @@ public class ServerManager {
     private InputStream inputStream;
     private SecretResolver resolver;
     static ClassLoader bundleCtxtClassLoader;
+    private static final String SVNS = "svns";
 
 
     /**
@@ -79,6 +82,8 @@ public class ServerManager {
             resolver = SecretResolverFactory.create(config, true);
             //resolves protected passwords
             resolveSecuredConfig(config, null);
+            config.getAttributes()
+                  .removeNamedItem(XMLConstants.XMLNS_ATTRIBUTE + SecurityConstants.NS_SEPARATOR + SVNS);
             // creates new input stream from processed DOM element
             InputStream newStream = domToInputStream(config);
             
@@ -153,6 +158,8 @@ public class ServerManager {
                     token = tempToken + "." + attributeName;
                     if(resolver.isTokenProtected(token)){
                         node.setNodeValue(resolver.resolve(token));
+                        nodeMap.removeNamedItem(
+                                SVNS + SecurityConstants.NS_SEPARATOR + SecurityConstants.SECURE_VAULT_ALIAS);
                     }
                 }
             }

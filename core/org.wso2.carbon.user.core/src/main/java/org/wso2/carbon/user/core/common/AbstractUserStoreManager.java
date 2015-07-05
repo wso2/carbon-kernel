@@ -66,6 +66,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected static final String FALSE_VALUE = "false";
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
+    private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -816,6 +817,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (attributeName == null) {
             if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimURI)) {
                 attributeName = claimURI;
+            } else if (DISAPLAY_NAME_CLAIM.equals(claimURI)) {
+                attributeName = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
             } else {
                 throw new UserStoreException("Mapped attribute cannot be found for claim : " + claimURI + " in user " +
                         "store : " + getMyDomainName());
@@ -1236,20 +1239,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        try {
-            roleList = UserCoreUtil
-                    .combine(doGetInternalRoleListOfUser(userName, "*"), Arrays.asList(roleList));
-            // If the newly created user has internal roles assigned from the UI wizard those internal roles
-            // will be duplicated in the roles list. Duplcated roles are eliminated here.
-            Set<String> rolesSet = new HashSet<String>(Arrays.asList(roleList));
-            roleList = new String[rolesSet.size()];
-            rolesSet.toArray(roleList);
-            addToUserRolesCache(tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()),
-                    roleList);
-        } catch (Exception e) {
-            //if adding newly created user's roles to the user roles cache fails, do nothing. It will read
-            //from the database upon updating user.
+        String[] internalRoleListOfUser = doGetInternalRoleListOfUser(userName, "*");
+        if(internalRoleListOfUser == null) {
+            internalRoleListOfUser = new String[0];
         }
+        if(roleList == null){
+            roleList = new String[0];
+        }
+        roleList = UserCoreUtil.combine(internalRoleListOfUser, Arrays.asList(roleList));
+        addToUserRolesCache(tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()),roleList);
     }
 
     /**
@@ -2450,7 +2448,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}
      */
-    public final String[] getAllSecondaryRoles() throws UserStoreException {
+    public String[] getAllSecondaryRoles() throws UserStoreException {
         UserStoreManager secondary = this.getSecondaryUserStoreManager();
         List<String> roleList = new ArrayList<String>();
         while (secondary != null) {
@@ -2479,7 +2477,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}                  doAddInternalRole
      */
-    public final String[] getHybridRoles() throws UserStoreException {
+    public String[] getHybridRoles() throws UserStoreException {
         return hybridRoleManager.getHybridRoles("*");
     }
 
@@ -2583,15 +2581,22 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             if (secManager != null) {
                 // We have a secondary UserStoreManager registered for this domain.
                 filter = filter.substring(index + 1);
-                if (secManager instanceof AbstractUserStoreManager) {
-                    if (readGroupsEnabled) {
-                        String[] externalRoles = ((AbstractUserStoreManager) secManager)
-                                .doGetRoleNames(filter, maxItemLimit);
+                boolean secReadGroupsEnabled = Boolean.parseBoolean(
+                        secManager.getRealmConfiguration().getUserStoreProperty(
+                                UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED)
+                );
+                if (secReadGroupsEnabled) {
+                    if (secManager instanceof AbstractUserStoreManager) {
+
+                        if (secReadGroupsEnabled) {
+                            String[] externalRoles = ((AbstractUserStoreManager) secManager)
+                                    .doGetRoleNames(filter, maxItemLimit);
+                            return UserCoreUtil.combineArrays(roleList, externalRoles);
+                        }
+                    } else {
+                        String[] externalRoles = secManager.getRoleNames();
                         return UserCoreUtil.combineArrays(roleList, externalRoles);
                     }
-                } else {
-                    String[] externalRoles = secManager.getRoleNames();
-                    return UserCoreUtil.combineArrays(roleList, externalRoles);
                 }
             } else {
                 throw new UserStoreException("Invalid Domain Name");
@@ -2618,7 +2623,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 UserStoreManager storeManager = entry.getValue();
                 if (storeManager instanceof AbstractUserStoreManager) {
                     try {
-                        if (readGroupsEnabled) {
+                        boolean secReadGroupsEnabled = Boolean.parseBoolean(
+                                storeManager.getRealmConfiguration().getUserStoreProperty(
+                                        UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED)
+                        );
+                        if (secReadGroupsEnabled) {
                             String[] secondRoleList = ((AbstractUserStoreManager) storeManager)
                                     .doGetRoleNames(filter, maxItemLimit);
                             roleList = UserCoreUtil.combineArrays(roleList, secondRoleList);
@@ -2642,7 +2651,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    private Map<String, String> doGetUserClaimValues(String userName, String[] claims,
+    protected Map<String, String> doGetUserClaimValues(String userName, String[] claims,
                                                      String domainName, String profileName) throws UserStoreException {
 
         // Here the user name should be domain-less.
@@ -2699,9 +2708,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
+            String property = null;
+            String value = null;
             if (mapping != null) {
-                String property = null;
-
                 if (domainName != null) {
                     Map<String, String> attrMap = mapping.getMappedAttributes();
                     if (attrMap != null) {
@@ -2716,7 +2725,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     property = mapping.getMappedAttribute();
                 }
 
-                String value = uerProperties.get(property);
+                value = uerProperties.get(property);
 
                 if (profileName.equals(UserCoreConstants.DEFAULT_PROFILE)) {
                     // Check whether we have a value for the requested attribute
@@ -2727,6 +2736,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     if (value != null && value.trim().length() > 0) {
                         finalValues.put(claim, value);
                     }
+                }
+            } else {
+                if (property == null && claim.equals(DISAPLAY_NAME_CLAIM)) {
+                    property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
+                }
+
+                value = uerProperties.get(property);
+                if (value != null && value.trim().length() > 0) {
+                    finalValues.put(claim, value);
                 }
             }
         }
@@ -3100,10 +3118,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                             getMyDomainName());
         }
 
+        if(internalRoles == null){
+            internalRoles = new String[0];
+        }
+        if(modifiedExternalRoleList == null){
+            modifiedExternalRoleList = new String[0];
+        }
         roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
-
-        addToUserRolesCache(this.tenantId,
-                UserCoreUtil.addDomainToName(userName, getMyDomainName()), roleList);
+        addToUserRolesCache(this.tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()), roleList);
 
         return roleList;
     }

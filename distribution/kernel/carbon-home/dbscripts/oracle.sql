@@ -403,7 +403,7 @@ CREATE TABLE UM_USER_ATTRIBUTE (
                     UM_ATTR_NAME VARCHAR2(255) NOT NULL,
                     UM_ATTR_VALUE VARCHAR2(255),
                     UM_PROFILE_ID VARCHAR(255),
-                    UM_USER_ID INTEGER,
+                    UM_USER_ID INTEGER NOT NULL,
                     UM_TENANT_ID INTEGER DEFAULT 0,
                     FOREIGN KEY (UM_USER_ID, UM_TENANT_ID) REFERENCES UM_USER(UM_ID, UM_TENANT_ID) ON DELETE CASCADE,
                     PRIMARY KEY (UM_ID, UM_TENANT_ID))

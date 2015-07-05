@@ -280,17 +280,6 @@ public class RegistryConfigurationProcessor {
                     registryContext.addDBConfig(dbName, dataBaseConfiguration);
                 }
 
-                // reading the cache configurations, if the config element is not present default values will be used
-                OMElement cacheConfig = configElement.getFirstChildWithName(new QName("cacheConfig"));
-                if (cacheConfig != null) {
-                    String lastAccessedExpirationMillis = cacheConfig
-                            .getFirstChildWithName(new QName("lastAccessedExpirationMillis")).getText();
-                    String lastModifiedExpirationMillis = cacheConfig
-                            .getFirstChildWithName(new QName("lastModifiedExpirationMillis")).getText();
-                    registryContext.setLastAccessedExpirationMillis(Long.parseLong(lastAccessedExpirationMillis));
-                    registryContext.setLastModifiedExpirationMillis(Long.parseLong(lastModifiedExpirationMillis));
-                }
-
                 // loading one-time start-up configurations
                 OMElement staticConfigElement =
                         configElement.getFirstChildWithName(new QName("staticConfiguration"));

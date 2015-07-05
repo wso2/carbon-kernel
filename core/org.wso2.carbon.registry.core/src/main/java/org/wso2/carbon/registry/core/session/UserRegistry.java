@@ -25,6 +25,7 @@ import org.wso2.carbon.registry.core.config.RegistryContext;
 import org.wso2.carbon.registry.core.dao.ResourceDAO;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.internal.RegistryCoreServiceComponent;
+import org.wso2.carbon.registry.core.internal.RegistryDataHolder;
 import org.wso2.carbon.registry.core.jdbc.EmbeddedRegistry;
 import org.wso2.carbon.registry.core.jdbc.realm.RegistryRealm;
 import org.wso2.carbon.registry.core.secure.AuthorizationFailedException;
@@ -295,7 +296,7 @@ public class UserRegistry implements Registry {
                 }else{
                     //if the realm service is null, I am getting it from the service component
                     // and set it here
-                    realmService = RegistryCoreServiceComponent.getRealmService();
+                    realmService = RegistryDataHolder.getInstance().getRealmService();
                     realm = (UserRealm) realmService.getTenantUserRealm(tenantId);
                 }
                 if (realm == null) {
