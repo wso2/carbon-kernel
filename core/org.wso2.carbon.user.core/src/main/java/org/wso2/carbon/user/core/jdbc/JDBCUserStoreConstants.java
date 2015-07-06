@@ -53,12 +53,12 @@ public class JDBCUserStoreConstants {
 
 
 //      LDAP Specific Properties
-        setProperty("PasswordDigest", "Password Hashing Algorithm", "SHA-256", UserStoreConfigConstants.passwordHashMethodDescription);
+        setProperty(JDBCRealmConstants.DIGEST_FUNCTION, "Password Hashing Algorithm", "SHA-256", UserStoreConfigConstants.passwordHashMethodDescription);
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true", UserStoreConfigConstants.readLDAPGroupsDescription);
         setProperty("ReadOnly", "Read-only", "false", "Indicates whether the user store of this realm operates in the user read only mode or not");
         setProperty("IsEmailUserName", "Is Email Username", "false", "Indicates whether Email is used as user name (apply when realm operates in read only mode).");
         setProperty("DomainCalculation", "Domain Calculation", "default", "Can be either default or custom (apply when realm operates in read only mode)");
-        setProperty("StoreSaltedPassword", "Enable Salted Passwords", "true", "Indicates whether to salt the password");
+        setProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS, "Enable Salted Passwords", "true", "Indicates whether to salt the password");
         setProperty(UserStoreConfigConstants.writeGroups, "Enable Write Groups", "true", UserStoreConfigConstants.writeGroupsDescription);
         setProperty("UserNameUniqueAcrossTenants", "Make Username Unique Across Tenants", "false", "An attribute used for multi-tenancy");
         setProperty("PasswordJavaRegEx", "Password RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate passwords");
@@ -73,125 +73,69 @@ public class JDBCUserStoreConstants {
         setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
         //Advanced Properties (No descriptions added for each property)
-        setAdvancedProperty("SelectUserSQL", "Select User SQL", "SELECT * FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetRoleListSQL", "Get Role List SQL", "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE " +
-                "UM_ROLE_NAME LIKE ? AND UM_TENANT_ID=? AND UM_SHARED_ROLE ='0' ORDER BY UM_ROLE_NAME", "");
-        setAdvancedProperty("GetSharedRoleListSQL", "Get Shared Role List SQP", "SELECT UM_ROLE_NAME, UM_TENANT_ID, UM_SHARED_ROLE FROM UM_ROLE WHERE " +
-                "UM_ROLE_NAME LIKE ? AND UM_SHARED_ROLE ='1' ORDER BY UM_ROLE_NAME", "");
-        setAdvancedProperty("UserFilterSQL", "User Filter SQL", "SELECT UM_USER_NAME FROM UM_USER WHERE UM_USER_NAME LIKE ? " +
-                "AND UM_TENANT_ID=? ORDER BY UM_USER_NAME", "");
-        setAdvancedProperty("UserRoleSQL ", "User Role SQL", "SELECT UM_ROLE_NAME FROM UM_USER_ROLE, UM_ROLE, UM_USER WHERE " +
-                "UM_USER.UM_USER_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID " +
-                "AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?", "");
-        setAdvancedProperty("UserSharedRoleSQL", "User Shared Role SQL",
-                "SELECT UM_ROLE_NAME, UM_ROLE.UM_TENANT_ID, UM_SHARED_ROLE FROM UM_SHARED_USER_ROLE INNER JOIN UM_USER ON "
-                        + "UM_SHARED_USER_ROLE.UM_USER_ID = UM_USER.UM_ID INNER JOIN UM_ROLE ON "
-                        + "UM_SHARED_USER_ROLE.UM_ROLE_ID = UM_ROLE.UM_ID WHERE UM_USER.UM_USER_NAME = ? "
-                        + "AND UM_SHARED_USER_ROLE.UM_USER_TENANT_ID = UM_USER.UM_TENANT_ID AND "
-                        + "UM_SHARED_USER_ROLE.UM_ROLE_TENANT_ID = UM_ROLE.UM_TENANT_ID AND UM_SHARED_USER_ROLE.UM_USER_TENANT_ID = ? ", "");
+        setAdvancedProperty(JDBCRealmConstants.SELECT_USER_SQL, "Select User SQL",JDBCRealmConstants.SELECT_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_ROLE_LIST, "Get Role List SQL", JDBCRealmConstants.GET_ROLE_LIST_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLE_LIST, "Get Shared Role List SQP", JDBCRealmConstants.GET_SHARED_ROLE_LIST_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USER_FILTER, "User Filter SQL", JDBCRealmConstants.GET_USER_FILTER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USER_ROLE, "User Role SQL", JDBCRealmConstants.GET_USER_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER, "User Shared Role SQL",
+                JDBCRealmConstants.GET_SHARED_ROLES_FOR_USER_SQL, "");
 
 
-        setAdvancedProperty("IsRoleExistingSQL", "Is Role Existing SQL", "SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetUserListOfRoleSQL", "Get User List Of Role SQL", "SELECT UM_USER_NAME FROM UM_USER_ROLE, UM_ROLE, UM_USER WHERE " +
-                "UM_ROLE.UM_ROLE_NAME=? AND UM_USER.UM_ID=UM_USER_ROLE.UM_USER_ID AND UM_ROLE.UM_ID=UM_USER_ROLE.UM_ROLE_ID " +
-                "AND UM_USER_ROLE.UM_TENANT_ID=? AND UM_ROLE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetUserListOfSharedRoleSQL", "Get User List Of Shared Role SQL",
-                "SELECT UM_USER_NAME FROM UM_SHARED_USER_ROLE INNER JOIN UM_USER ON "
-                        + "UM_SHARED_USER_ROLE.UM_USER_ID = UM_USER.UM_ID INNER JOIN UM_ROLE ON "
-                        + "UM_SHARED_USER_ROLE.UM_ROLE_ID = UM_ROLE.UM_ID WHERE UM_ROLE.UM_ROLE_NAME= ? "
-                        + "AND UM_SHARED_USER_ROLE.UM_USER_TENANT_ID = UM_USER.UM_TENANT_ID AND "
-                        + "UM_SHARED_USER_ROLE.UM_ROLE_TENANT_ID = UM_ROLE.UM_TENANT_ID", "");
+        setAdvancedProperty(JDBCRealmConstants.GET_IS_ROLE_EXISTING, "Is Role Existing SQL", JDBCRealmConstants.GET_IS_ROLE_EXISTING_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_ROLE, "Get User List Of Role SQL", JDBCRealmConstants.GET_USERS_IN_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE, "Get User List Of Shared Role SQL",
+                JDBCRealmConstants.GET_USERS_IN_SHARED_ROLE_SQL, "");
 
-        setAdvancedProperty("IsUserExistingSQL", "Is User Existing SQL", "SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetUserPropertiesForProfileSQL", "Get User Properties for Profile SQL", "SELECT UM_ATTR_NAME, UM_ATTR_VALUE FROM UM_USER_ATTRIBUTE, UM_USER WHERE " +
-                "UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND UM_USER.UM_USER_NAME=? AND UM_PROFILE_ID=? " +
-                "AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetUserPropertyForProfileSQL", "Get User Property for Profile SQL", "SELECT UM_ATTR_VALUE FROM UM_USER_ATTRIBUTE, UM_USER WHERE " +
-                "UM_USER.UM_ID = UM_USER_ATTRIBUTE.UM_USER_ID AND UM_USER.UM_USER_NAME=? AND UM_ATTR_NAME=? " +
-                "AND UM_PROFILE_ID=? AND UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetUserLisForPropertySQL", "Get User List for Property SQL", "SELECT UM_USER_NAME FROM UM_USER, UM_USER_ATTRIBUTE WHERE " +
-                "UM_USER_ATTRIBUTE.UM_USER_ID = UM_USER.UM_ID AND UM_USER_ATTRIBUTE.UM_ATTR_NAME =? AND " +
-                "UM_USER_ATTRIBUTE.UM_ATTR_VALUE =? AND UM_USER_ATTRIBUTE.UM_PROFILE_ID=? AND " +
-                "UM_USER_ATTRIBUTE.UM_TENANT_ID=? AND UM_USER.UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetProfileNamesSQL ", "Get Profile Names SQL", "SELECT DISTINCT UM_PROFILE_ID FROM UM_USER_ATTRIBUTE WHERE UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetUserProfileNamesSQL", "Get User Profile Names SQL", "SELECT DISTINCT UM_PROFILE_ID FROM UM_USER_ATTRIBUTE WHERE " +
-                "UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetUserIDFromUserNameSQL", "Get User ID From Username SQL", "SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetUserNameFromTenantIDSQL", "Get Username From Tenant ID SQL", "SELECT UM_USER_NAME FROM UM_USER WHERE UM_TENANT_ID=?", "");
-        setAdvancedProperty("GetTenantIDFromUserNameSQL", "Get Tenant ID From Username SQL", "SELECT UM_TENANT_ID FROM UM_USER WHERE UM_USER_NAME=?", "");
+        setAdvancedProperty(JDBCRealmConstants.GET_IS_USER_EXISTING, "Is User Existing SQL", JDBCRealmConstants.GET_IS_USER_EXISTING_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_PROPS_FOR_PROFILE, "Get User Properties for Profile SQL", JDBCRealmConstants.GET_PROPS_FOR_PROFILE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_PROP_FOR_PROFILE, "Get User Property for Profile SQL", JDBCRealmConstants.GET_PROP_FOR_PROFILE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERS_FOR_PROP, "Get User List for Property SQL", JDBCRealmConstants.GET_USERS_FOR_PROP_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES, "Get Profile Names SQL", JDBCRealmConstants.GET_PROFILE_NAMES_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER, "Get User Profile Names SQL", JDBCRealmConstants.GET_PROFILE_NAMES_FOR_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERID_FROM_USERNAME, "Get User ID From Username SQL", JDBCRealmConstants.GET_USERID_FROM_USERNAME_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_USERNAME_FROM_TENANT_ID, "Get Username From Tenant ID SQL", JDBCRealmConstants.GET_USERNAME_FROM_TENANT_ID_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME, "Get Tenant ID From Username SQL", JDBCRealmConstants.GET_TENANT_ID_FROM_USERNAME_SQL, "");
 
-        setAdvancedProperty("AddUserSQL", "Add User SQL", "INSERT INTO UM_USER (UM_USER_NAME, UM_USER_PASSWORD, UM_SALT_VALUE, UM_REQUIRE_CHANGE, " +
-                "UM_CHANGED_TIME, UM_TENANT_ID) VALUES (?, ?, ?, ?, ?, ?)", "");
-        setAdvancedProperty("AddUserToRoleSQL", "Add User To Role SQL", "INSERT INTO UM_USER_ROLE (UM_USER_ID, UM_ROLE_ID, UM_TENANT_ID) VALUES " +
-                "((SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?),(SELECT UM_ID FROM UM_ROLE WHERE " +
-                "UM_ROLE_NAME=? AND UM_TENANT_ID=?), ?)", "");
-        setAdvancedProperty("AddRoleSQL", "Add Role SQL", "INSERT INTO UM_ROLE (UM_ROLE_NAME, UM_TENANT_ID) VALUES (?, ?)", "");
-        setAdvancedProperty("AddSharedRoleSQL", "Add Shared Role SQL", "UPDATE UM_ROLE SET UM_SHARED_ROLE = ? WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID = ?", "");
-        setAdvancedProperty("AddRoleToUserSQL", "Add Role To User SQL", "INSERT INTO UM_USER_ROLE (UM_ROLE_ID, UM_USER_ID, UM_TENANT_ID) VALUES " +
-                "((SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?),(SELECT UM_ID FROM UM_USER WHERE " +
-                "UM_USER_NAME=? AND UM_TENANT_ID=?), ?)", "");
-        setAdvancedProperty("AddSharedRoleToUserSQL", "Add Shared Role To User SQL",
-                "INSERT INTO UM_SHARED_USER_ROLE (UM_ROLE_ID, UM_USER_ID, UM_USER_TENANT_ID, UM_ROLE_TENANT_ID) "
-                        + "VALUES ((SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?),"
-                        + "(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?), ?, ?)", "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER, "Add User SQL", JDBCRealmConstants.ADD_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_TO_ROLE, "Add User To Role SQL", JDBCRealmConstants.ADD_USER_TO_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_ROLE, "Add Role SQL", JDBCRealmConstants.ADD_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_SHARED_ROLE, "Add Shared Role SQL",JDBCRealmConstants.ADD_SHARED_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER, "Add Shared Role To User SQL",
+                JDBCRealmConstants.ADD_SHARED_ROLE_TO_USER_SQL, "");
 
-        setAdvancedProperty("RemoveUserFromSharedRoleSQL", "Remove User From Shared Roles SQL",
-                "DELETE FROM UM_SHARED_USER_ROLE WHERE   UM_ROLE_ID=(SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?) "
-                        + "AND UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) "
-                        + "AND UM_USER_TENANT_ID=? AND UM_ROLE_TENANT_ID = ?", "");
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE, "Remove User From Shared Roles SQL",
+                JDBCRealmConstants.REMOVE_USER_FROM_SHARED_ROLE_SQL, "");
 
-        setAdvancedProperty("RemoveUserFromRoleSQL", "Remove User From Role SQL", "DELETE FROM UM_USER_ROLE WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE " +
-                "UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_ROLE_ID=(SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND " +
-                "UM_TENANT_ID=?) AND UM_TENANT_ID=?", "");
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_USER_FROM_ROLE, "Remove User From Role SQL", JDBCRealmConstants.REMOVE_USER_FROM_ROLE_SQL, "");
 
-        setAdvancedProperty("RemoveRoleFromUserSQL", "Remove Role From User SQL", "DELETE FROM UM_USER_ROLE WHERE UM_ROLE_ID=(SELECT UM_ID FROM UM_ROLE WHERE " +
-                "UM_ROLE_NAME=? AND UM_TENANT_ID=?) AND UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? " +
-                "AND UM_TENANT_ID=?) AND UM_TENANT_ID=?", "");
+        setAdvancedProperty(JDBCRealmConstants.REMOVE_ROLE_FROM_USER, "Remove Role From User SQL",JDBCRealmConstants.REMOVE_ROLE_FROM_USER_SQL, "");
 
-        setAdvancedProperty("DeleteRoleSQL ", "Delete Roles SQL", "DELETE FROM UM_ROLE WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("OnDeleteRoleRemoveUserRoleMappingSQL ", "On Delete Role Remove User Role Mapping SQL", "DELETE FROM UM_USER_ROLE WHERE UM_ROLE_ID=(SELECT UM_ID FROM " +
-                "UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?) AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("DeleteUserSQL", "Delete User SQL", "DELETE FROM UM_USER WHERE UM_USER_NAME = ? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("OnDeleteUserRemoveUserRoleMappingSQL", "On Delete User Remove User Role Mapping SQL", "DELETE FROM UM_USER_ROLE WHERE UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE " +
-                "UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("OnDeleteUserRemoveUserAttributeSQL ", "On Delete User Remove User Attribute SQL", "DELETE FROM UM_USER_ATTRIBUTE WHERE " +
-                "UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_TENANT_ID=?", "");
+        setAdvancedProperty(JDBCRealmConstants.DELETE_ROLE, "Delete Roles SQL", JDBCRealmConstants.DELETE_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE, "On Delete Role Remove User Role Mapping SQL",JDBCRealmConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.DELETE_USER, "Delete User SQL", JDBCRealmConstants.DELETE_USER_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE, "On Delete User Remove User Role Mapping SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_USER_ROLE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE, "On Delete User Remove User Attribute SQL", JDBCRealmConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL, "");
 
-        setAdvancedProperty("UpdateUserPasswordSQL", "Update User Password SQL", "UPDATE UM_USER SET UM_USER_PASSWORD= ?, UM_SALT_VALUE=?, " +
-                "UM_REQUIRE_CHANGE=?, UM_CHANGED_TIME=? WHERE UM_USER_NAME= ? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("UpdateRoleNameSQL", "Update Role Name SQL", "UPDATE UM_ROLE set UM_ROLE_NAME=? WHERE UM_ROLE_NAME = ? AND UM_TENANT_ID=?", "");
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD, "Update User Password SQL", JDBCRealmConstants.UPDATE_USER_PASSWORD_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_ROLE_NAME, "Update Role Name SQL", JDBCRealmConstants.UPDATE_ROLE_NAME_SQL, "");
 
-        setAdvancedProperty("AddUserPropertySQL ", "Add User Property SQL", "INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, UM_ATTR_NAME, UM_ATTR_VALUE, " +
-                "UM_PROFILE_ID, UM_TENANT_ID) VALUES ((SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?), ?, ?, ?, ?)", "");
-        setAdvancedProperty("UpdateUserPropertySQL ", "Update User Property SQL", "UPDATE UM_USER_ATTRIBUTE SET UM_ATTR_VALUE=? WHERE " +
-                "UM_USER_ID=(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND" +
-                " UM_PROFILE_ID=? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("DeleteUserPropertySQL ", "Delete User Property SQL", "DELETE FROM UM_USER_ATTRIBUTE WHERE UM_USER_ID=(SELECT UM_ID FROM " +
-                "UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?) AND UM_ATTR_NAME=? AND UM_PROFILE_ID=? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("UserNameUniqueAcrossTenantsSQL", "User Name Unique Across Tenant SQL", "SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=?", "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_PROPERTY, "Add User Property SQL", JDBCRealmConstants.ADD_USER_PROPERTY_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.UPDATE_USER_PROPERTY, "Update User Property SQL", JDBCRealmConstants.UPDATE_USER_PROPERTY_SQL , "");
+        setAdvancedProperty(JDBCRealmConstants.DELETE_USER_PROPERTY, "Delete User Property SQL", JDBCRealmConstants.DELETE_USER_PROPERTY_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.USER_NAME_UNIQUE, "User Name Unique Across Tenant SQL", JDBCRealmConstants.USER_NAME_UNIQUE_SQL, "");
 
-        setAdvancedProperty("IsDomainExistingSQL", "Is Domain Existing SQL", "SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE UM_DOMAIN_NAME=? AND UM_TENANT_ID=?", "");
-        setAdvancedProperty("AddDomainSQL", "Add Domain SQL", "INSERT INTO UM_DOMAIN (UM_DOMAIN_NAME, UM_TENANT_ID) VALUES (?, ?)", "");
+        setAdvancedProperty(JDBCRealmConstants.IS_DOMAIN_EXISTING, "Is Domain Existing SQL", JDBCRealmConstants.IS_DOMAIN_EXISTING_SQL, "");
 
         // mssql
-        setAdvancedProperty("AddUserToRoleSQL-mssql", "Add User To Role SQL (MSSQL)", "INSERT INTO UM_USER_ROLE (UM_USER_ID, UM_ROLE_ID, UM_TENANT_ID) SELECT " +
-                "(SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?),(SELECT UM_ID FROM UM_ROLE WHERE " +
-                "UM_ROLE_NAME=? AND UM_TENANT_ID=?),(?)", "");
-        setAdvancedProperty("AddRoleToUserSQL-mssql", "Add Role To User SQL (MSSQL)", "INSERT INTO UM_USER_ROLE (UM_ROLE_ID, UM_USER_ID, UM_TENANT_ID) SELECT " +
-                "(SELECT UM_ID FROM UM_ROLE WHERE UM_ROLE_NAME=? AND UM_TENANT_ID=?),(SELECT UM_ID FROM UM_USER WHERE " +
-                "UM_USER_NAME=? AND UM_TENANT_ID=?), (?)", "");
-        setAdvancedProperty("AddUserPropertySQL-mssql", "Add User Property (MSSQL)", "INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, UM_ATTR_NAME, UM_ATTR_VALUE, " +
-                "UM_PROFILE_ID, UM_TENANT_ID) SELECT (SELECT UM_ID FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?), (?), (?), (?), (?)", "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_MSSQL, "Add User To Role SQL (MSSQL)", JDBCRealmConstants.ADD_USER_TO_ROLE_MSSQL_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_ROLE_TO_USER_MSSQL, "Add Role To User SQL (MSSQL)",JDBCRealmConstants.ADD_ROLE_TO_USER_MSSQL_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_PROPERTY_MSSQL, "Add User Property (MSSQL)", JDBCRealmConstants.ADD_USER_PROPERTY_MSSQL_SQL, "");
 
         //openedge
-        setAdvancedProperty("AddUserToRoleSQL-openedge", "Add User To Role SQL (OpenEdge)", "INSERT INTO UM_USER_ROLE (UM_USER_ID, UM_ROLE_ID, UM_TENANT_ID) SELECT " +
-                "UU.UM_ID, UR.UM_ID, ? FROM UM_USER UU, UM_ROLE UR WHERE UU.UM_USER_NAME=? AND UU.UM_TENANT_ID=? AND " +
-                "UR.UM_ROLE_NAME=? AND UR.UM_TENANT_ID=?", "");
-        setAdvancedProperty("AddRoleToUserSQL-openedge", "Add Role To User SQL (OpenEdge)", "INSERT INTO UM_USER_ROLE (UM_ROLE_ID, UM_USER_ID, UM_TENANT_ID) SELECT " +
-                "UR.UM_ID, UU.UM_ID, ? FROM UM_ROLE UR, UM_USER UU WHERE UR.UM_ROLE_NAME=? AND UR.UM_TENANT_ID=? AND " +
-                "UU.UM_USER_NAME=? AND UU.UM_TENANT_ID=?", "");
-        setAdvancedProperty("AddUserPropertySQL-openedge", "Add User Property (OpenEdge)", "INSERT INTO UM_USER_ATTRIBUTE (UM_USER_ID, UM_ATTR_NAME, " +
-                "UM_ATTR_VALUE, UM_PROFILE_ID, UM_TENANT_ID) SELECT UM_ID, ?, ?, ?, ? FROM UM_USER WHERE UM_USER_NAME=? AND UM_TENANT_ID=?", "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_TO_ROLE_OPENEDGE, "Add User To Role SQL (OpenEdge)", JDBCRealmConstants.ADD_USER_TO_ROLE_OPENEDGE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_ROLE_TO_USER_OPENEDGE, "Add Role To User SQL (OpenEdge)", JDBCRealmConstants.ADD_ROLE_TO_USER_OPENEDGE_SQL, "");
+        setAdvancedProperty(JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE, "Add User Property (OpenEdge)", JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE_SQL, "");
         setProperty("UniqueID", "", "", "");
         setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
                 UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);

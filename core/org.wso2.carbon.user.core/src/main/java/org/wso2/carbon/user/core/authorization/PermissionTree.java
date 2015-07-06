@@ -679,7 +679,7 @@ public class PermissionTree {
             throw new UserStoreException("Invalid Permission root path provided");
         }
 
-        TreeNode permissionNode = node.getChild(CarbonConstants.UI_PERMISSION_NAME);
+        TreeNode permissionNode = root.getChild(CarbonConstants.UI_PERMISSION_NAME);
 
         if (permissionNode == null) {
             throw new UserStoreException("Invalid Permission root path provided");
@@ -707,7 +707,7 @@ public class PermissionTree {
                 BitSet bs = bsAllowed.get(role);
                 if (bs != null && bs.get(permission.ordinal())) {
                     resources.add(currentPath);
-                    return;
+                    break;
                 }
             }
 
