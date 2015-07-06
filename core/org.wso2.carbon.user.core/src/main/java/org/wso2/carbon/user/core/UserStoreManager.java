@@ -347,12 +347,6 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     RealmConfiguration getRealmConfiguration();
 
     /**
-     * Check the case sensitivity of user name in user store
-     *
-     * @return
-     */
-
-    /**
      * Notify the listeners about a change in user store manager
      * @param domainName
      */
