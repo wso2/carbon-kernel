@@ -229,9 +229,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
 
-		/* validity checks */
-        doAddUserValidityChecks(userName, credential); // TODO bring abstract
-
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
 
@@ -279,40 +276,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        }
-    }
-
-    /**
-     * Does required checks before adding the user
-     *
-     * @param userName
-     * @param credential
-     * @throws UserStoreException
-     */
-    protected void doAddUserValidityChecks(String userName, Object credential)
-            throws UserStoreException {
-
-        if (!checkUserNameValid(userName)) {
-            throw new UserStoreException(
-                    "User name not valid. User name must be a non null string with following format, "
-                            + realmConfig
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX));
-        }
-        if (!checkUserPasswordValid(credential)) {
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-
-            throw new UserStoreException(
-                    "Credential not valid. Credential must be a non null string with following format, "
-                            + realmConfig
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-        }
-        if (isExistingUser(userName)) {
-            throw new UserStoreException("User " + userName + " already exist in the LDAP");
         }
     }
 

@@ -116,9 +116,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         boolean isUserBinded = false;
 
-		/* validity checks */
-        doAddUserValidityChecks(userName, credential); // / TODO
-
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
 
