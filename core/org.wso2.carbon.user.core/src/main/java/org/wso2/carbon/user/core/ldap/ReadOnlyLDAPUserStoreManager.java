@@ -71,7 +71,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private final int MAX_USER_CACHE = 200;
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    public static final String PROPERTY_REFERRAL_IGNORE ="ignore";
+    private static final String PROPERTY_REFERRAL_IGNORE ="ignore";
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
     protected LDAPConnectionContext connectionSource = null;
@@ -1161,7 +1161,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
                 } else {
-                    throw new UserStoreException(errorMessage), e);
+                    throw new UserStoreException(errorMessage, e);
                 }
             }
         } catch (NamingException e) {
