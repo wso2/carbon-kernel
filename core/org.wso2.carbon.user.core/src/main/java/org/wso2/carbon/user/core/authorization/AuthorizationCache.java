@@ -330,8 +330,7 @@ public class AuthorizationCache {
             //as an example when running the unit tests.
             try {
                 UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
-                        .getTenantUserRealm
-                                (tenantId).getUserStoreManager();
+                        .getTenantUserRealm(tenantId).getUserStoreManager();
                 UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
                         (getDomainFromName(username));
                 if (userAvailableUserStoreManager instanceof AbstractUserStoreManager) {
