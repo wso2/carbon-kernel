@@ -32,7 +32,6 @@ public class LDAPConstants {
     public static final String ROLE_DN_PATTERN = "RoleDNPattern";
     //Property that defines the status of the referral to be used:
     public static final String PROPERTY_REFERRAL = "Referral";
-    public static final String PROPERTY_REFERRAL_IGNORE ="ignore";
 
     public static final String LDAP_ATTRIBUTES_BINARY = "java.naming.ldap.attributes.binary";
     public static final String PRIMARY_GROUP_ID = "PrimaryGroupId";
