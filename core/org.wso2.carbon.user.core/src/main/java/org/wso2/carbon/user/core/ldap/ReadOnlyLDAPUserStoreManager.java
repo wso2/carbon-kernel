@@ -1156,7 +1156,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
-            String errorMessage = "Error occurred while search user for filter : " + searchFilter;
+            String errorMessage ="Error occurred while search user for filter : " + searchFilter;
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
