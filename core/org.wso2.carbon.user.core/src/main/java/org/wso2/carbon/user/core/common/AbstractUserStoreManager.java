@@ -724,10 +724,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
             }
 
-            if (!this.doCheckExistingUser(userStore.getDomainFreeName())) {
-                throw new UserStoreException("User " + userName + " does not exisit in the user store");
-            }
-
             this.doUpdateCredential(userName, newCredential, oldCredential);
 
             // #################### <Listeners> ##################################################
