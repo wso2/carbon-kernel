@@ -76,7 +76,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group Object Class", "(objectcategory=group)", UserStoreConfigConstants.groupNameListFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member", UserStoreConfigConstants.membershipAttributeDescription);
-        setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "", UserStoreConfigConstants.memberOfAttribute);
+        setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "memberOf", UserStoreConfigConstants.memberOfAttribute);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=group)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false", UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
 
