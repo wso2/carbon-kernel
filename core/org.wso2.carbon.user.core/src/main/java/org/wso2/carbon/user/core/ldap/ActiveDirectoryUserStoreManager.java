@@ -231,8 +231,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-		/* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
+        if (!isSSLConnection) {
+            logger.warn("Unsecured connection is being used. Password operations will fail");
+        }
 
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
@@ -311,8 +312,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-		/* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
+
+        if (!isSSLConnection) {
+            logger.warn("Unsecured connection is being used. Password operations will fail");
+        }
 
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
@@ -374,17 +377,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
-        }
-    }
-
-    /**
-     *
-     */
-    protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
-            throws UserStoreException {
-        super.doUpdateCredentialsValidityChecks(userName, newCredential);
-        if (!isSSLConnection) {
-            logger.warn("Unsecured connection is being used. Password operations will fail");
         }
     }
 

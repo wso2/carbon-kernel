@@ -708,6 +708,25 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         boolean isAuth = this.doAuthenticate(userName, oldCredential);
 
         if (isAuth) {
+            if (!checkUserPasswordValid(newCredential)) {
+
+                String errorMsg = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+                if (errorMsg != null) {
+                    throw new UserStoreException(errorMsg);
+                }
+
+                throw new UserStoreException(
+                        "Credential not valid. Credential must be a non null string with following format, "
+                                + realmConfig
+                                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
+            }
+
+            if (!this.doCheckExistingUser(userStore.getDomainFreeName())) {
+                throw new UserStoreException("User " + userName + " does not exisit in the user store");
+            }
 
             this.doUpdateCredential(userName, newCredential, oldCredential);
 
@@ -774,6 +793,26 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
         // #################### </Listeners> #####################################################
+
+
+        if (!checkUserPasswordValid(newCredential)) {
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
+            throw new UserStoreException(
+                    "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
+        }
+
+        if (!doCheckExistingUser(userStore.getDomainFreeName())) {
+            throw new UserStoreException("User " + userName + " does not exisit in the user store");
+        }
 
         doUpdateCredentialByAdmin(userName, newCredential);
 

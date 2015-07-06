@@ -550,9 +550,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-        /* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
-
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
         // first search the existing user entry.
@@ -612,8 +609,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-        /* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
 
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -689,33 +684,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
-        }
-    }
-
-    /**
-     * @param userName
-     * @param newCredential
-     * @throws UserStoreException
-     */
-    protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
-            throws UserStoreException {
-        if (!isExistingUser(userName)) {
-            throw new UserStoreException("User " + userName + " does not exisit in the user store");
-        }
-
-        if (!checkUserPasswordValid(newCredential)) {
-
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-
-            throw new UserStoreException(
-                    "Credential not valid. Credential must be a non null string with following format, "
-                            + realmConfig
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
         }
     }
 
