@@ -62,9 +62,9 @@ public class UserStoreConfigConstants {
     public static final String userEntryObjectClassDescription = "Object Class used to construct user entries";
     public static final String passwordJavaScriptRegEx = "PasswordJavaScriptRegEx";
     public static final String passwordJavaScriptRegExDescription = "Policy that defines the password format";
-    public static final String usernameJavaScriptRegEx = "UserNameJavaScriptRegEx";
+    public static final String usernameJavaScriptRegEx = "UsernameJavaScriptRegEx";
     public static final String usernameJavaScriptRegExDescription = "The regular expression used by the front-end components for username validation";
-    public static final String usernameJavaRegEx = "UserNameJavaRegEx";
+    public static final String usernameJavaRegEx = "UsernameJavaRegEx";
     public static final String usernameJavaRegExDescription = "A regular expression to validate user names";
     public static final String roleNameJavaScriptRegEx = "RoleNameJavaScriptRegEx";
     public static final String roleNameJavaScriptRegExDescription = "The regular expression used by the front-end components for role name validation";
