@@ -17,7 +17,7 @@
 <serviceGroup>
     <service name="DssVerifierService">
         <parameter name="ServiceClass" locked="true">
-            org.wso2.carbon.integration.axis2.sample.service.DssVerifierService
+            org.wso2.carbon.integration.tests.axis2.sample.service.DssVerifierService
         </parameter>
     </service>
 </serviceGroup>

@@ -18,7 +18,9 @@ package org.wso2.carbon.registry.core.jdbc.realm;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.registry.core.exceptions.RegistryException;
+import org.wso2.carbon.registry.core.internal.RegistryDataHolder;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.AuthorizationManager;
 import org.wso2.carbon.user.core.UserRealm;
@@ -28,6 +30,7 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.user.core.service.RealmService;
 
 import java.util.Map;
 
@@ -132,7 +135,7 @@ public class RegistryRealm implements UserRealm {
      * @throws UserStoreException throws if the user store manager failed.
      */
     public UserStoreManager getUserStoreManager() throws UserStoreException {
-        return coreRealm.getUserStoreManager();
+        return getRealm().getUserStoreManager();
     }
 
     /**
@@ -142,6 +145,19 @@ public class RegistryRealm implements UserRealm {
      * @throws UserStoreException throws if the operation failed.
      */
     public UserRealm getRealm() throws UserStoreException {
+        int tenantId = coreRealm.getAuthorizationManager().getTenantId();
+        RealmService realmService = RegistryDataHolder.getInstance().getRealmService();
+        if (realmService != null) {
+            try {
+                coreRealm = (UserRealm) realmService.getTenantUserRealm(tenantId);
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException(e.getMessage(), e);
+            }
+        } else {
+            throw new UserStoreException("Retrieving User Realm for tenant '"
+                                         + PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain()
+                                         + "' failed. Realm service is null.");
+        }
         if (this.coreRealm == null) {
             String msg = "Realm service is not available. Make sure that the required "
                     + "version of the User Manager component is properly installed.";
