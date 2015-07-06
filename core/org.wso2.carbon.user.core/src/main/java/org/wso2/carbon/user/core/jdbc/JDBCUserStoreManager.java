@@ -27,7 +27,6 @@ import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
-import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -2192,15 +2191,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-
-        if (!checkUserPasswordValid(newCredential)) {
-            throw new UserStoreException(
-                    "Credential not valid. Credential must be a non null string with following format, "
-                            + realmConfig
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-
-        }
-
+        
         String sqlStmt;
         if (isCaseSensitiveUsername()) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD);
