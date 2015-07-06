@@ -32,6 +32,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.RoleContext;
+import org.wso2.carbon.user.core.common.UserStore;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -70,7 +71,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private final int MAX_USER_CACHE = 200;
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
+    private static final String PROPERTY_REFERRAL_IGNORE ="ignore";
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
     protected LDAPConnectionContext connectionSource = null;
@@ -508,8 +509,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
                 try {
                     answer = dirContext.search(escapeDNForSearch(userDN), searchFilter, searchCtls);
+                } catch (PartialResultException e) {
+                    // can be due to referrals in AD. so just ignore error
+                    String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
+                    if (isIgnorePartialResultException()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug(errorMessage, e);
+                        }
+                    } else {
+                        throw new UserStoreException(errorMessage, e);
+                    }
                 } catch (NamingException e) {
-                    String errorMessage = "Error occurred while searching directory context for user : " + userName;
+                    String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
                     if (log.isDebugEnabled()) {
                         log.debug(errorMessage, e);
                     }
@@ -873,7 +884,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     log.debug("result: " + username);
                 }
             }
-
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage =
+                    "Error occurred while getting user list for filter : " + filter + "max limit : " + maxItemLimit;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage =
                     "Error occurred while getting user list for filter : " + filter + "max limit : " + maxItemLimit;
@@ -1133,6 +1154,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     return answer;
                 }
             }
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage ="Error occurred while search user for filter : " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage ="Error occurred while search user for filter : " + searchFilter;
             if (log.isDebugEnabled()) {
@@ -1257,8 +1288,20 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage = "Error occurred while getting LDAP role names. SearchBase: " + searchBase + " ConstructedFilter: " +
+            finalFilter.toString();
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
-            String errorMessage = "Error occurred while getting LDAP role names";
+            String errorMessage = "Error occurred while getting LDAP role names. SearchBase: " + searchBase + " ConstructedFilter: " +
+                                  finalFilter.toString();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -1678,8 +1721,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
+            String errorMessage = "Error in reading user information in the user store for filter : " + filter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             String errorMessage = "Error in reading user information in the user store for filter : " + filter;
@@ -2097,8 +2145,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
-            if (log.isDebugEnabled()) {
-                log.debug("LDAP", e);
+            String errorMessage = "Error occurred while GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " +
+                                  searchBase + " SearchFilter: " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             if (log.isDebugEnabled()) {
@@ -3072,5 +3126,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         } else {
             return dn;
         }
+    }
+
+    private boolean isIgnorePartialResultException() {
+
+        if (PROPERTY_REFERRAL_IGNORE.equals(realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL))) {
+            return true;
+        }
+        return false;
     }
 }
