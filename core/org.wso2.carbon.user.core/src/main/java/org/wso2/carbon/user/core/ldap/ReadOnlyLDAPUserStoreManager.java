@@ -515,9 +515,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     if (isIgnorePartialResultException()) {
                         if (log.isDebugEnabled()) {
                             log.debug(errorMessage, e);
-                        } else {
-                            throw new UserStoreException(errorMessage, e);
                         }
+                    } else {
+                        throw new UserStoreException(errorMessage, e);
                     }
                 } catch (NamingException e) {
                     String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
@@ -891,9 +891,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
-                } else {
-                    throw new UserStoreException(errorMessage, e);
                 }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             String errorMessage =
@@ -1160,9 +1160,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
-                } else {
-                    throw new UserStoreException(errorMessage, e);
                 }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             String errorMessage ="Error occurred while search user for filter : " + searchFilter;
@@ -1295,9 +1295,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
-                } else {
-                    throw new UserStoreException(errorMessage, e);
                 }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             String errorMessage = "Error occurred while getting LDAP role names. SearchBase: " + searchBase + " ConstructedFilter: " +
@@ -1725,9 +1725,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
-                } else {
-                    throw new UserStoreException(e.getMessage(), e);
                 }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             String errorMessage = "Error in reading user information in the user store for filter : " + filter;
@@ -2150,9 +2150,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (isIgnorePartialResultException()) {
                 if (log.isDebugEnabled()) {
                     log.debug(errorMessage, e);
-                } else {
-                    throw new UserStoreException(errorMessage, e);
                 }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             if (log.isDebugEnabled()) {
