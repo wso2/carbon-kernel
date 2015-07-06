@@ -325,20 +325,24 @@ public class AuthorizationCache {
     }
 
     private boolean isUsernameCaseSensitive(String username, int tenantId){
-        try {
-            UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
-                    .getTenantUserRealm
-                            (tenantId).getUserStoreManager();
-            UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                    (getDomainFromName(username));
-            if (userAvailableUserStoreManager instanceof AbstractUserStoreManager) {
-                return ((AbstractUserStoreManager) userAvailableUserStoreManager).isCaseSensitiveUsername();
-            }else {
-                return false;
-            }
-        } catch (UserStoreException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("Error while reading user store property CaseSensitiveUsername. Considering as false.");
+        if (UserStoreMgtDSComponent.getRealmService()!= null) {
+            //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
+            //as an example when running the unit tests.
+            try {
+                UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
+                        .getTenantUserRealm
+                                (tenantId).getUserStoreManager();
+                UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                        (getDomainFromName(username));
+                if (userAvailableUserStoreManager instanceof AbstractUserStoreManager) {
+                    return ((AbstractUserStoreManager) userAvailableUserStoreManager).isCaseSensitiveUsername();
+                } else {
+                    return false;
+                }
+            } catch (UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while reading user store property CaseSensitiveUsername. Considering as false.");
+                }
             }
         }
         return false;
