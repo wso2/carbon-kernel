@@ -376,7 +376,8 @@ public class HybridRoleManager {
         String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
 //        String sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
         String sqlStmt;
-        if (userName.equals(userRealm.getRealmConfiguration().getAdminUserName())) {
+        if (userRealm.getUserStoreManager() == null) {
+            //At the time of admin user creation, user store manager is not added to user realm
             sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
         }else{
             UserStoreManager userStoreManager = userRealm.getUserStoreManager();

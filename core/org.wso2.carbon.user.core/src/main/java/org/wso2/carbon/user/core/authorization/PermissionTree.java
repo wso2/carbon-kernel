@@ -23,6 +23,9 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.registry.api.GhostResource;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
@@ -89,6 +92,9 @@ public class PermissionTree {
     }
 
     void authorizeUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
+        if (!isUsernameCaseSensitive(userName, tenantId)){
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -113,6 +119,9 @@ public class PermissionTree {
     }
 
     void denyUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
+        if (!isUsernameCaseSensitive(userName, tenantId)){
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -249,6 +258,10 @@ public class PermissionTree {
      */
     SearchResult getUserPermission(String user, TreeNode.Permission permission, SearchResult sr,
                                    TreeNode node, List<String> pathParts) {
+
+        if (!isUsernameCaseSensitive(user, tenantId)){
+            user = user.toLowerCase();
+        }
         read.lock();
         try {
             if (node == null) {
@@ -602,11 +615,17 @@ public class PermissionTree {
     }
 
     void clearUserAuthorization(String userName) throws UserStoreException {
+        if (!isUsernameCaseSensitive(userName, tenantId)){
+            userName = userName.toLowerCase();
+        }
         clearUserAuthorization(userName, root);
         invalidateCache(root);
     }
 
     void clearUserAuthorization(String userName, String resourceId, String action) throws UserStoreException {
+        if (!isUsernameCaseSensitive(userName, tenantId)){
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -1038,6 +1057,39 @@ public class PermissionTree {
         Connection dbConnection = dataSource.getConnection();
         dbConnection.setAutoCommit(false);
         return dbConnection;
+    }
+
+    private boolean isUsernameCaseSensitive(String username, int tenantId){
+        if (UserStoreMgtDSComponent.getRealmService()!= null) {
+            //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
+            //as an example when running the unit tests.
+            try {
+                UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
+                        .getTenantUserRealm
+                                (tenantId).getUserStoreManager();
+                UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                        (getDomainFromName(username));
+                if (userAvailableUserStoreManager instanceof AbstractUserStoreManager) {
+                    return ((AbstractUserStoreManager) userAvailableUserStoreManager).isCaseSensitiveUsername();
+                } else {
+                    return false;
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while reading user store property CaseSensitiveUsername. Considering as false.");
+                }
+            }
+        }
+        return false;
+    }
+
+    private String getDomainFromName(String name) {
+        int index;
+        if ((index = name.indexOf("/")) > 0) {
+            String domain = name.substring(0, index);
+            return domain;
+        }
+        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
 }
