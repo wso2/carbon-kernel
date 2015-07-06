@@ -29,7 +29,6 @@ import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException
 import org.wso2.carbon.automation.extensions.ExtensionConstants;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerManager;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
-import org.wso2.carbon.automation.extensions.servers.utils.InputStreamHandler;
 import org.wso2.carbon.automation.extensions.servers.utils.ServerLogReader;
 import org.wso2.carbon.integration.tests.common.bean.DataSourceBean;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
@@ -47,8 +46,6 @@ import java.io.InputStreamReader;
 public class CarbonCommandToolsUtil {
 
     private static final Log log = LogFactory.getLog(CarbonCommandToolsUtil.class);
-    private static String carbonHomePath = null;
-    private static ServerLogReader serverLogStreamHandler;
 
     /**
      * This method is to execute commands and reading the logs to find the expected string.
@@ -66,9 +63,6 @@ public class CarbonCommandToolsUtil {
         boolean isFoundTheMessage = false;
         BufferedReader br = null;
         Process process = null;
-        for (String cmd : cmdArray) {
-            System.out.print(cmd + " ");
-        }
         try {
             File commandDir = new File(directory);
             process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
@@ -116,19 +110,8 @@ public class CarbonCommandToolsUtil {
     public static Process runScript(String directory, String[] cmdArray)
             throws CarbonToolsIntegrationTestException {
         try {
-            final int portOffset = getPortOffsetFromStringArray(cmdArray);
-
             File commandDir = new File(directory);
             Process process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    try {
-                        CarbonCommandToolsUtil.serverShutdown(portOffset);
-                    } catch (Exception e) {
-                        log.warn("Error while server shutdown ..", e);
-                    }
-                }
-            });
             return process;
 
         } catch (IOException ex) {
@@ -136,35 +119,6 @@ public class CarbonCommandToolsUtil {
             throw new CarbonToolsIntegrationTestException("Error when reading the InputStream when " +
                                                           "running shell script ", ex);
         }
-    }
-
-    /**
-     * This method to find multiple strings in same line in log
-     *
-     * @param stringArrayToFind - String array to find all the elements
-     * @return boolean - true if found all the strings , false if not
-     */
-    public static boolean findMultipleStringsInLog(String[] stringArrayToFind) {
-        boolean expectedStringFound = false;
-
-        long startTime = System.currentTimeMillis();
-        while (!expectedStringFound && (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
-            String message = serverLogStreamHandler.getOutput();
-            for (String stringToFind : stringArrayToFind) {
-                if (message.contains(stringToFind)) {
-                    expectedStringFound = true; // Continue until find all the strings in this line
-                } else {
-                    expectedStringFound = false;
-                    break; // break the loop and search the stringToFind in new line
-                }
-            }
-            try {
-                Thread.sleep(500); // wait for 0.5 second to check the log again.
-            } catch (InterruptedException e) {
-                log.warn("Exception while waiting for log message");
-            }
-        }
-        return expectedStringFound;
     }
 
     /**
@@ -249,35 +203,7 @@ public class CarbonCommandToolsUtil {
         return System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_OS_NAME).toLowerCase();
     }
 
-    /**
-     * provides carbon home after extracting the pack.
-     *
-     * @param context - AutomationContext
-     * @return - carbon home
-     * @throws CarbonToolsIntegrationTestException - Error while setup carbon home from carbon zip file
-     */
-    public static String getCarbonHome(AutomationContext context)
-            throws CarbonToolsIntegrationTestException {
-        try {
-            if (carbonHomePath != null) {
-                return carbonHomePath;
-            }
 
-            String carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
-            CarbonServerManager carbonServerManager = new CarbonServerManager(context);
-            carbonHomePath = carbonServerManager.setUpCarbonHome(carbonZip);
-            return carbonHomePath;
-
-        } catch (IOException ex) {
-            log.error("Extracting the pack and getting the carbon home failed", ex);
-            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
-                                                          "carbon home failed", ex);
-        } catch (AutomationFrameworkException e) {
-            log.error("Extracting the pack and getting the carbon home failed", e);
-            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
-                                                          "carbon home failed", e);
-        }
-    }
 
     /**
      * This method is to shutdown carbon server
@@ -318,77 +244,6 @@ public class CarbonCommandToolsUtil {
                                                           "default credentials ", ex);
         }
 
-    }
-
-    /**
-     * This method is to start a carbon server with a port offset and startup arguments
-     *
-     * @param carbonHome - carbon home
-     * @param portOffset - port offset
-     * @param parameters - startup arguments
-     * @return Process - process of the started carbon
-     * @throws CarbonToolsIntegrationTestException - Throws if server startup fails
-     */
-    public static Process startServerUsingCarbonHome(
-            String carbonHome, int portOffset, String[] parameters)
-            throws CarbonToolsIntegrationTestException {
-        Process tempProcess;
-        String scriptName = "wso2server";
-        final int serverStartUpPortOffset = portOffset;
-        try {
-            AutomationContext automationContext = new AutomationContext();
-            File commandDir = new File(carbonHome);
-            String[] cmdArray;
-            log.info("Starting server............. ");
-
-            if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                commandDir = new File(carbonHome + File.separator + "bin");
-                cmdArray = new String[]{"cmd.exe", "/c", scriptName + ".bat", "-DportOffset=" + serverStartUpPortOffset};
-                cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
-                tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
-            } else {
-                cmdArray = new String[]{"sh", "bin/" + scriptName + ".sh", "-DportOffset=" + serverStartUpPortOffset};
-                cmdArray = mergePropertiesToCommandArray(parameters, cmdArray);
-                tempProcess = Runtime.getRuntime().exec(cmdArray, null, commandDir);
-            }
-
-            int defaultHttpPort = Integer.parseInt(automationContext.getInstance().getPorts().get("http"));
-
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                public void run() {
-                    try {
-                        CarbonCommandToolsUtil.serverShutdown(serverStartUpPortOffset);
-                    } catch (Exception e) {
-                        log.error("Error while server shutdown ..", e);
-                    }
-                }
-            });
-
-            InputStreamHandler errorStreamHandler =
-                    new InputStreamHandler("errorStream", tempProcess.getErrorStream());
-            serverLogStreamHandler = new ServerLogReader("inputStream", tempProcess.getInputStream());
-
-            // start the stream readers
-            serverLogStreamHandler.start();
-            errorStreamHandler.start();
-            ClientConnectionUtil.waitForPort(defaultHttpPort, CarbonIntegrationConstants.DEFAULT_WAIT_MS, false,
-                                             automationContext.getInstance().getHosts().get("default"));
-
-            //wait until Mgt console url printed
-            long time = System.currentTimeMillis() + CarbonIntegrationConstants.DEFAULT_WAIT_MS;
-            while (!serverLogStreamHandler.getOutput().contains(CarbonIntegrationConstants.SERVER_STARTUP_MESSAGE) &&
-                   System.currentTimeMillis() < time) {
-                // wait until server startup is completed
-            }
-            log.info("Server started successfully.");
-            return tempProcess;
-        } catch (XPathExpressionException ex) {
-            log.error("Error while starting the server using carbon home", ex);
-            throw new CarbonToolsIntegrationTestException("Error while starting the server using carbon home", ex);
-        } catch (IOException e) {
-            log.error("Server startup folder not found", e);
-            throw new CarbonToolsIntegrationTestException("Server startup folder not found", e);
-        }
     }
 
     /**

@@ -95,12 +95,28 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
         }
 
+        if (log.isDebugEnabled()) {
+            if (readGroupsEnabled) {
+                log.debug("ReadGroups is enabled for " + getMyDomainName());
+            } else {
+                log.debug("ReadGroups is disabled for " + getMyDomainName());
+            }
+        }
+
         if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED) != null) {
             writeGroupsEnabled = Boolean.parseBoolean(realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.WRITE_GROUPS_ENABLED));
         } else {
             if (!isReadOnly()) {
                 writeGroupsEnabled = true;
+            }
+        }
+
+        if (log.isDebugEnabled()) {
+            if (writeGroupsEnabled) {
+                log.debug("WriteGroups is enabled for " + getMyDomainName());
+            } else {
+                log.debug("WriteGroups is disabled for " + getMyDomainName());
             }
         }
 

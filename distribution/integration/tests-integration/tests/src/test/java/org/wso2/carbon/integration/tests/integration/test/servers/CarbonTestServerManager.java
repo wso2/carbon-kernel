@@ -56,7 +56,6 @@ public class CarbonTestServerManager {
         testServerInstance.getCommands().put("-DportOffset", String.valueOf(portOffset));
         testServerInstance.startServer();
         isServerRunning = true;
-        Thread.sleep(5000);
     }
 
     public static void start(HashMap<String, String> serverPropertyMap) throws Exception {
@@ -69,7 +68,6 @@ public class CarbonTestServerManager {
         testServerInstance.getCommands().putAll(serverPropertyMap);
         testServerInstance.startServer();
         isServerRunning = true;
-        Thread.sleep(5000);
     }
 
     public static void stop() throws AutomationFrameworkException {
