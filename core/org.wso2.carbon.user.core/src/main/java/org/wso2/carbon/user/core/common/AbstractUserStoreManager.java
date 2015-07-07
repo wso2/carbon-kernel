@@ -2667,19 +2667,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         Set<String> propertySet = new HashSet<String>();
         for (String claim : claims) {
 
-            // There can be cases some claim values being requested for claims
-            // we don't have.
-            String property = null;
-            try {
-                property = getClaimAtrribute(claim, userName, domainName);
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException(e);
-            }
-            if (property != null
-                    && (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
-                    || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) ||
-                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim))) {
-                propertySet.add(property);
+            if (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
+                    && !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) &&
+                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
+                // There can be cases some claim values being requested for claims
+                // we don't have.
+                String property = null;
+                try {
+                    property = getClaimAtrribute(claim, userName, domainName);
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException(e);
+                }
+                if (property != null) {
+                    propertySet.add(property);
+                }
             }
 
             if (UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)) {
