@@ -3499,7 +3499,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     @Override
     public boolean isBulkImportSupported(){
 
-        return new Boolean(UserStoreConfigConstants.BULK_IMPORT_SUPPORT);
+        return new Boolean(realmConfig.getUserStoreProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT));
 
     }
 
