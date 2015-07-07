@@ -172,8 +172,6 @@ public class UserCoreConstants {
         //configuration to enable or disable authorization caching
         public static final String PROPERTY_AUTHORIZATION_CACHE_ENABLED = "AuthorizationCacheEnabled";
 
-        public static final String PROPERTY_CASE_SENSITIVITY = "CaseSensitiveAuthorizationRules";
-
         //configuration to identify the cache uniquely
         public static final String PROPERTY_USER_CORE_CACHE_IDENTIFIER = "UserCoreCacheIdentifier";
 
