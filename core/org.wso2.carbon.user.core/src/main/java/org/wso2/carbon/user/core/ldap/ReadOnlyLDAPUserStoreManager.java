@@ -1192,16 +1192,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     * LDAP user store does not support bulk import.
-     *
-     * @return Always returns <code>false<code>.
-     */
-    public boolean isBulkImportSupported() {
-        return false;
-    }
-
-    /**
+     /**
      * This method is to check whether multiple profiles are allowed with a
      * particular user-store.
      * For an example, currently, JDBC user store supports multiple profiles and

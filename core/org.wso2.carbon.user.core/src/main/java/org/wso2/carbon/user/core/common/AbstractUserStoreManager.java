@@ -3541,6 +3541,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     @Override
+    public boolean isBulkImportSupported(){
+
+        return new Boolean(realmConfig.getUserStoreProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT));
+
+    }
+
+    @Override
     public void addRole(String roleName, String[] userList,
                         org.wso2.carbon.user.api.Permission[] permissions)
             throws org.wso2.carbon.user.api.UserStoreException {

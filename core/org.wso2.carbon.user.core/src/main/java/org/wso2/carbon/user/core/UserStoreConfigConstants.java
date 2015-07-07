@@ -104,4 +104,5 @@ public class UserStoreConfigConstants {
     public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
             "pooling.";
 
+    public static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
 }

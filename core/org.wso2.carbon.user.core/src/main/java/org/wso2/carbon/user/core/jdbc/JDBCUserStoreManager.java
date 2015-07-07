@@ -1532,15 +1532,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return tenantId;
     }
 
-    /**
-     * JDBC User store supports bulk import.
-     *
-     * @return Always <code>true<code>.
-     */
-    public boolean isBulkImportSupported() {
-        return true;
-    }
-
+   
     public RealmConfiguration getRealmConfiguration() {
         return this.realmConfig;
     }
