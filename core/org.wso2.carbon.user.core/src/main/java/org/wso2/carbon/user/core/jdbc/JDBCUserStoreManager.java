@@ -27,6 +27,7 @@ import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
+import org.wso2.carbon.user.core.UserStoreConfigConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
@@ -2870,7 +2871,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     @Override
     public boolean isCaseSensitiveUsername(){
-        String isUsernameCaseSensitiveString = realmConfig.getUserStoreProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME);
+        String isUsernameCaseSensitiveString = realmConfig.getUserStoreProperty(UserStoreConfigConstants
+                .CASE_SENSITIVE_USERNAME);
         if (isUsernameCaseSensitiveString != null) {
             return Boolean.parseBoolean(isUsernameCaseSensitiveString);
         }else {
