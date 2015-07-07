@@ -2667,8 +2667,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         Set<String> propertySet = new HashSet<String>();
         for (String claim : claims) {
 
-            if (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
-                    && !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) &&
+            if (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim) &&
+                    !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) &&
                     !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
                 // There can be cases some claim values being requested for claims
                 // we don't have.
