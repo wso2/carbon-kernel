@@ -1287,7 +1287,7 @@ public final class CarbonContextDataHolder {
      */
     public void endTenantFlow() {
         Stack<CarbonContextDataHolder> carbonContextDataHolders = parentContextHolderStack.get();
-        if (carbonContextDataHolders != null) {
+        if (carbonContextDataHolders != null && !carbonContextDataHolders.isEmpty()) {
             currentContextHolder.set(carbonContextDataHolders.pop());
         }
     }
