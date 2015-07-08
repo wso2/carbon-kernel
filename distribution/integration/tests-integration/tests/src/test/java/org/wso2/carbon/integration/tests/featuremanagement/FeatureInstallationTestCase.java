@@ -27,11 +27,9 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.integration.common.clients.ServerAdminClient;
-import org.wso2.carbon.integration.common.utils.exceptions.AutomationUtilException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.FeatureManagementUtil;
 
-import javax.xml.xpath.XPathExpressionException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +43,8 @@ public class FeatureInstallationTestCase extends CarbonIntegrationBaseTest {
     private ServerAdminClient serverAdminClient;
 
     @BeforeClass(alwaysRun = true)
-    public void initiate() throws XPathExpressionException, AutomationUtilException {
-        if(isP2RepoAvailable()) {
+    public void initiate() throws Exception {
+        if (isP2RepoAvailable()) {
             throw new SkipException("p2-repo system variable(p2-repo-path) not found to refer p2-repo");
         }
         super.init();
@@ -64,11 +62,15 @@ public class FeatureInstallationTestCase extends CarbonIntegrationBaseTest {
         featureManager.reviewInstallFeatures();
         featureManager.getLicensingInformation();
         featureManager.installFeatures();
+        log.info("Feature :" + featureList.get(0).getFeatureID() + " installed successfully");
         serverAdminClient = new ServerAdminClient(automationContext);
+        log.info("Going to restart the server");
         serverAdminClient.restartGracefully();
-        ClientConnectionUtil.waitForPort(Integer.parseInt(automationContext.getDefaultInstance()
-                                                                  .getPorts().get("https")), 240000
-                , true, "localhost");
+        Thread.sleep(10000);
+        ClientConnectionUtil.waitForPort(Integer.parseInt(
+                automationContext.getDefaultInstance().getPorts().get("https")), 300000
+                , true, automationContext.getDefaultInstance().getHosts().get("https"));
+
         ClientConnectionUtil.waitForLogin(automationContext);
 
         featureManager = new FeatureManagementUtil(featureList, automationContext);
@@ -78,23 +80,25 @@ public class FeatureInstallationTestCase extends CarbonIntegrationBaseTest {
 
     // Remove the populated users on execution finish of the test
     @AfterClass(alwaysRun = true)
-    public void onExecutionFinish() throws Exception {
-        if(isP2RepoAvailable()) {
+    public void testTearDown() throws Exception {
+        if (isP2RepoAvailable()) {
             throw new SkipException("p2-repo system variable(p2-repo-path) not found to refer p2-repo");
         }
         FeatureManagementUtil featureManager = new FeatureManagementUtil(featureList, automationContext);
         featureManager.removeFeatures();
+        serverAdminClient = new ServerAdminClient(automationContext);
+        log.info("Going to restart the server");
         serverAdminClient.restartGracefully();
-        ClientConnectionUtil.waitForPort(Integer.parseInt(automationContext.getDefaultInstance()
-                                                                  .getPorts().get("https")), 240000
-                , true, "localhost");
+        Thread.sleep(10000);
+        ClientConnectionUtil.waitForPort(Integer.parseInt(
+                automationContext.getDefaultInstance().getPorts().get("https")), 240000, true, "localhost");
         ClientConnectionUtil.waitForLogin(automationContext);
 
     }
 
     private boolean isP2RepoAvailable() {
         return (System.getProperty(FeatureManagementUtil.FEATURE_REPO_PATH_KEY) == null ||
-               System.getProperty(FeatureManagementUtil.FEATURE_REPO_PATH_KEY).isEmpty());
+                System.getProperty(FeatureManagementUtil.FEATURE_REPO_PATH_KEY).isEmpty());
     }
 
 }
