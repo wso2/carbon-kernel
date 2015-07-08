@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+* Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* WSO2 Inc. licenses this file to you under the Apache License,
+* Version 2.0 (the "License"); you may not use this file except
+* in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.integration.tests.carbontools;
 
@@ -24,9 +24,12 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
 import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerManager;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
@@ -39,9 +42,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Test -DosgiDebugOptions
- * This test cases is not testing it's all features since: https://wso2.org/jira/browse/CARBON-15170
- */
+* Test -DosgiDebugOptions
+* This test cases is not testing it's all features since: https://wso2.org/jira/browse/CARBON-15170
+*/
 
 public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
 
@@ -78,8 +81,7 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
             cmdArray = new String[]
                     {"sh", "wso2server.sh", "-DosgiDebugOptions", "-DportOffset=1"};
         }
-        commandDirectory =
-                CarbonCommandToolsUtil.getCarbonHome(automationContextOfInstance002) +
+        commandDirectory = getCarbonHome(automationContextOfInstance002) +
                 File.separator + "bin";
 
         try {
@@ -121,6 +123,28 @@ public class OSGIDebugCommandTestCase extends CarbonIntegrationBaseTest {
         }
         if (process != null) {
             process.destroy();
+        }
+    }
+
+
+    private String getCarbonHome(AutomationContext context)
+            throws CarbonToolsIntegrationTestException {
+        try {
+
+
+            String carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
+            CarbonServerManager carbonServerManager = new CarbonServerManager(context);
+            String carbonHomePath = carbonServerManager.setUpCarbonHome(carbonZip);
+            return carbonHomePath;
+
+        } catch (IOException ex) {
+            log.error("Extracting the pack and getting the carbon home failed", ex);
+            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
+                                                          "carbon home failed", ex);
+        } catch (AutomationFrameworkException e) {
+            log.error("Extracting the pack and getting the carbon home failed", e);
+            throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
+                                                          "carbon home failed", e);
         }
     }
 

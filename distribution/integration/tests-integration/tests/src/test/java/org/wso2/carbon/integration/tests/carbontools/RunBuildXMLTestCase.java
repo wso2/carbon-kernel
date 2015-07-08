@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+* Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+* WSO2 Inc. licenses this file to you under the Apache License,
+* Version 2.0 (the "License"); you may not use this file except
+* in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 
 package org.wso2.carbon.integration.tests.carbontools;
 
@@ -36,9 +36,9 @@ import java.io.FilenameFilter;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test build.xml by running ant check repository lib folder for jars and
- * run ant localize and check repository/components/dropins for language bundle
- */
+* Test build.xml by running ant check repository lib folder for jars and
+* run ant localize and check repository/components/dropins for language bundle
+*/
 public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory.getLog(RunBuildXMLTestCase.class);
@@ -48,11 +48,11 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
         super.init();
-        if(CarbonTestServerManager.getCarbonHome() != null){
+        if (CarbonTestServerManager.getCarbonHome() == null) {
             CarbonTestServerManager.start(portOffset);
             carbonHome = CarbonTestServerManager.getCarbonHome();
             CarbonTestServerManager.stop();
-        }else{
+        } else {
             carbonHome = CarbonTestServerManager.getCarbonHome();
         }
     }

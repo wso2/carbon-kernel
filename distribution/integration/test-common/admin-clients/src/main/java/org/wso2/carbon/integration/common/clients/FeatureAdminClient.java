@@ -18,16 +18,13 @@
 package org.wso2.carbon.integration.common.clients;
 
 import org.apache.axis2.AxisFault;
+import org.apache.axis2.context.ConfigurationContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.feature.mgt.core.operations.OperationFactory;
 import org.wso2.carbon.feature.mgt.stub.ProvisioningAdminServiceStub;
-import org.wso2.carbon.feature.mgt.stub.prov.data.Feature;
-import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
-import org.wso2.carbon.feature.mgt.stub.prov.data.LicenseInfo;
-import org.wso2.carbon.feature.mgt.stub.prov.data.ProfileHistory;
-import org.wso2.carbon.feature.mgt.stub.prov.data.ProvisioningActionInfo;
-import org.wso2.carbon.feature.mgt.stub.prov.data.ProvisioningActionResultInfo;
+import org.wso2.carbon.feature.mgt.stub.prov.data.*;
 import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
 import org.wso2.carbon.feature.mgt.ui.util.Utils;
 import org.wso2.carbon.integration.framework.utils.AuthenticateStubUtil;
@@ -89,6 +86,10 @@ public class FeatureAdminClient {
         return provAdminStub.getInstalledFeaturesWithProperty(key, value);
     }
 
+    public LicenseFeatureHolder[] getFeatureLicenseInfo() throws RemoteException {
+        return provAdminStub.getFeatureLicenseInfo();
+    }
+
     public ProvisioningActionResultInfo reviewUninstallFeaturesAction(FeatureInfo[] features)
             throws RemoteException {
         ProvisioningActionInfo provisioningActionInfo = new ProvisioningActionInfo();
@@ -98,10 +99,7 @@ public class FeatureAdminClient {
     }
 
     public ProfileHistory[] getProfileHistory() throws Exception {
-            if (CarbonUtils.isRunningOnLocalTransportMode()) {
-                profileHistories = provAdminStub.getProfileHistory();
-            }
-        return profileHistories;
+        return profileHistories = provAdminStub.getProfileHistory();
     }
 
     public ProvisioningActionResultInfo reviewRevertPlan(String timestampString) throws Exception {

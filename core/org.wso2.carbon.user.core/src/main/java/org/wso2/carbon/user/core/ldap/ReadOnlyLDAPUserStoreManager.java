@@ -32,6 +32,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.RoleContext;
+import org.wso2.carbon.user.core.common.UserStore;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.tenant.Tenant;
@@ -70,7 +71,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private final int MAX_USER_CACHE = 200;
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
+    private static final String PROPERTY_REFERRAL_IGNORE ="ignore";
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
     protected LDAPConnectionContext connectionSource = null;
@@ -262,6 +263,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     getUserStoreProperty(UserCoreConstants.RealmConfig.READ_GROUPS_ENABLED));
         }
 
+        if (log.isDebugEnabled()) {
+            if (readGroupsEnabled) {
+                log.debug("ReadGroups is enabled for " + getMyDomainName());
+            } else {
+                log.debug("ReadGroups is disabled for " + getMyDomainName());
+            }
+        }
+
         if (readGroupsEnabled) {
             groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
             if (groupSearchBase == null || groupSearchBase.trim().length() == 0) {
@@ -304,6 +313,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         boolean debug = log.isDebugEnabled();
 
+
+        String failedUserDN = null;
+
         if (userName == null || credential == null) {
             return false;
         }
@@ -344,9 +356,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (bValue) {
                 return bValue;
             }
-        }
+            // we need not check binding for this name again, so store this and check
+            failedUserDN = name;
 
-        // read list of patterns from user-mgt.xml
+        }
+        // read DN patterns from user-mgt.xml
         String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
 
         if (patterns != null && !patterns.isEmpty()) {
@@ -361,6 +375,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             if (userDNPatternList.length > 0) {
                 for (String userDNPattern : userDNPatternList) {
                     name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
+                    // check if the same name is found and checked from cache
+                    if(failedUserDN!=null && failedUserDN.equals(name)){
+                        continue;
+                    }
+
                     if (debug) {
                         log.debug("Authenticating with " + name);
                     }
@@ -383,7 +402,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
-        } else {
+        }
+        else
+        {
             name = getNameInSpaceForUserName(userName);
             try {
                 if (name != null) {
@@ -488,8 +509,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
                 try {
                     answer = dirContext.search(escapeDNForSearch(userDN), searchFilter, searchCtls);
+                } catch (PartialResultException e) {
+                    // can be due to referrals in AD. so just ignore error
+                    String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
+                    if (isIgnorePartialResultException()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug(errorMessage, e);
+                        }
+                    } else {
+                        throw new UserStoreException(errorMessage, e);
+                    }
                 } catch (NamingException e) {
-                    String errorMessage = "Error occurred while searching directory context for user : " + userName;
+                    String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
                     if (log.isDebugEnabled()) {
                         log.debug(errorMessage, e);
                     }
@@ -853,7 +884,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     log.debug("result: " + username);
                 }
             }
-
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage =
+                    "Error occurred while getting user list for filter : " + filter + "max limit : " + maxItemLimit;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage =
                     "Error occurred while getting user list for filter : " + filter + "max limit : " + maxItemLimit;
@@ -1113,6 +1154,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     return answer;
                 }
             }
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage ="Error occurred while search user for filter : " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage ="Error occurred while search user for filter : " + searchFilter;
             if (log.isDebugEnabled()) {
@@ -1141,16 +1192,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     * LDAP user store does not support bulk import.
-     *
-     * @return Always returns <code>false<code>.
-     */
-    public boolean isBulkImportSupported() {
-        return false;
-    }
-
-    /**
+     /**
      * This method is to check whether multiple profiles are allowed with a
      * particular user-store.
      * For an example, currently, JDBC user store supports multiple profiles and
@@ -1237,8 +1279,20 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage = "Error occurred while getting LDAP role names. SearchBase: " + searchBase + " ConstructedFilter: " +
+            finalFilter.toString();
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
-            String errorMessage = "Error occurred while getting LDAP role names";
+            String errorMessage = "Error occurred while getting LDAP role names. SearchBase: " + searchBase + " ConstructedFilter: " +
+                                  finalFilter.toString();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -1658,8 +1712,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
+            String errorMessage = "Error in reading user information in the user store for filter : " + filter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             String errorMessage = "Error in reading user information in the user store for filter : " + filter;
@@ -1772,7 +1831,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     } else {
                         // create DN directly   but there is no way when multiple DNs are used. Need to improve letter
                         String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-                        if (userDNPattern != null && !userDNPattern.contains("#")) {
+                        if (userDNPattern != null & !"".equals(userDNPattern) && !userDNPattern.contains("#")) {
+
                             searchBase = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                         }
                     }
@@ -1810,7 +1870,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
                 String nameInSpace;
-                if (userDNPattern != null && !userDNPattern.contains("#")) {
+                if (userDNPattern != null && !"".equals(userDNPattern) && !userDNPattern.contains("#")) {
+
                     nameInSpace = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                 } else {
                     nameInSpace = this.getNameInSpaceForUserName(userName);
@@ -2075,8 +2136,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
-            if (log.isDebugEnabled()) {
-                log.debug("LDAP", e);
+            String errorMessage = "Error occurred while GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " +
+                                  searchBase + " SearchFilter: " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             if (log.isDebugEnabled()) {
@@ -3050,5 +3117,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         } else {
             return dn;
         }
+    }
+
+    private boolean isIgnorePartialResultException() {
+
+        if (PROPERTY_REFERRAL_IGNORE.equals(realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL))) {
+            return true;
+        }
+        return false;
     }
 }
