@@ -28,27 +28,27 @@
 
     <test name="carbon-integration-tests-server-mgt" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.carbon.integration.tests.integration.SecurityVerificationTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.integration.AccessNonExistentServiceTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.integration.LoginLogoutTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.integration.MaintenanceModeTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.integration.MultipleCarbonInstancesTestCase"/>
+            <!--<class name="org.wso2.carbon.integration.tests.integration.SecurityVerificationTestCase"/>-->
+            <!--<class name="org.wso2.carbon.integration.tests.integration.AccessNonExistentServiceTestCase"/>-->
+            <!--<class name="org.wso2.carbon.integration.tests.integration.LoginLogoutTestCase"/>-->
+            <!--<class name="org.wso2.carbon.integration.tests.integration.MaintenanceModeTestCase"/>-->
+            <!--<class name="org.wso2.carbon.integration.tests.integration.MultipleCarbonInstancesTestCase"/>-->
 
-            <class name="org.wso2.carbon.integration.tests.integration.ServerAdminTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.integration.ServerRestartTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.integration.ServerShutdownTestCase"/>
+            <!--<class name="org.wso2.carbon.integration.tests.integration.ServerAdminTestCase"/>-->
+            <!--<class name="org.wso2.carbon.integration.tests.integration.ServerRestartTestCase"/>-->
+            <class name="org.wso2.carbon.integration.tests.carbontools.CarbonServerBasicOperationTestCase"/>
         </classes>
     </test>
 
     <test name="carbon-tools-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.carbon.integration.tests.carbontools"/>
+            <!--<package name="org.wso2.carbon.integration.tests.carbontools"/>-->
         </packages>
     </test>
 
     <test name="feature-management-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="org.wso2.carbon.integration.tests.featuremanagement"/>
+            <!--<package name="org.wso2.carbon.integration.tests.featuremanagement"/>-->
         </packages>
     </test>
 
