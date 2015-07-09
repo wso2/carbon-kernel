@@ -68,6 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
+    public static final String MEMBER_UID = "memberUid";
     private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     private final int MAX_USER_CACHE = 200;
 
@@ -1639,9 +1640,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            if ("memberUid".equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
+            if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
                 //when the GroupEntryObjectClass is posixGroup, membership attribute is memberUid.
                 //we have to retrieve the DN using the memberUid
+                //this procedure has to make an extra call to ldap. alternatively this can be done with a single
+                // ldap search using the memberUid and retrieving the display name and username.
                 List<String> userDNListNew = new ArrayList<>();
 
                 for (String user : userDNList) {
@@ -1901,7 +1904,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (nameInSpace != null) {
                     try {
                         LdapName ldn = new LdapName(nameInSpace);
-                        if ("memberUid".equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
+                        if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
                             //membership value of posixGroup is not DN of the user
                             List rdns = ldn.getRdns();
                             membershipValue = ((Rdn) rdns.get(rdns.size() - 1)).getValue().toString();
