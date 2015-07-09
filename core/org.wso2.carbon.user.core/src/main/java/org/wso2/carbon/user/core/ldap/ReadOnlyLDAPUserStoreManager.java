@@ -52,6 +52,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.sql.DataSource;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -1592,6 +1593,19 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
+            if ("posixGroup".equals(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS))) {
+                //when the GroupEntryObjectClass is posixGroup, membership attribute is memberUid.
+                //we have to retrieve the DN using the memberUid which is the uid of the user
+                List<String> userDNListNew = new ArrayList<>();
+
+                for (String user : userDNList) {
+                    String userDN = getNameInSpaceForUserName(user);
+                    userDNListNew.add(userDN);
+                }
+
+                userDNList = userDNListNew;
+            }
+
             // iterate over users' DN list and get userName and display name
             // attribute values
 
@@ -1834,7 +1848,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (nameInSpace != null) {
                     try {
                         LdapName ldn = new LdapName(nameInSpace);
-                        membershipValue = escapeLdapNameForFilter(ldn);
+                        if ("posixGroup".equals(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS))) {
+                            List rdns = ldn.getRdns();
+                            membershipValue = ((Rdn)rdns.get(rdns.size()-1)).getValue().toString();
+                        }else {
+                            membershipValue = escapeLdapNameForFilter(ldn);
+                        }
                     } catch (InvalidNameException e) {
                         log.error("Error while creating LDAP name from: " + nameInSpace);
                         throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
