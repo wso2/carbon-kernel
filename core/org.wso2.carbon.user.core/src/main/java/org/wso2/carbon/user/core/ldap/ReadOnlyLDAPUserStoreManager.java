@@ -53,6 +53,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.sql.DataSource;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -67,6 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
+    public static final String MEMBER_UID = "memberUid";
     private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     private final int MAX_USER_CACHE = 200;
 
@@ -1638,6 +1640,21 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
+            if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
+                /* when the GroupEntryObjectClass is posixGroup, membership attribute is memberUid. We have to
+                   retrieve the DN using the memberUid.
+                   This procedure has to make an extra call to ldap. alternatively this can be done with a single ldap
+                   search using the memberUid and retrieving the display name and username. */
+                List<String> userDNListNew = new ArrayList<>();
+
+                for (String user : userDNList) {
+                    String userDN = getNameInSpaceForUserName(user);
+                    userDNListNew.add(userDN);
+                }
+
+                userDNList = userDNListNew;
+            }
+
             // iterate over users' DN list and get userName and display name
             // attribute values
 
@@ -1887,7 +1904,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (nameInSpace != null) {
                     try {
                         LdapName ldn = new LdapName(nameInSpace);
-                        membershipValue = escapeLdapNameForFilter(ldn);
+                        if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
+                            // membership value of posixGroup is not DN of the user
+                            List rdns = ldn.getRdns();
+                            membershipValue = ((Rdn) rdns.get(rdns.size() - 1)).getValue().toString();
+                        } else {
+                            membershipValue = escapeLdapNameForFilter(ldn);
+                        }
                     } catch (InvalidNameException e) {
                         log.error("Error while creating LDAP name from: " + nameInSpace);
                         throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
