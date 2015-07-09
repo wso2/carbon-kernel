@@ -1641,10 +1641,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             }
 
             if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
-                //when the GroupEntryObjectClass is posixGroup, membership attribute is memberUid.
-                //we have to retrieve the DN using the memberUid
-                //this procedure has to make an extra call to ldap. alternatively this can be done with a single
-                // ldap search using the memberUid and retrieving the display name and username.
+                /* when the GroupEntryObjectClass is posixGroup, membership attribute is memberUid. We have to
+                   retrieve the DN using the memberUid.
+                   This procedure has to make an extra call to ldap. alternatively this can be done with a single ldap
+                   search using the memberUid and retrieving the display name and username. */
                 List<String> userDNListNew = new ArrayList<>();
 
                 for (String user : userDNList) {
@@ -1905,7 +1905,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     try {
                         LdapName ldn = new LdapName(nameInSpace);
                         if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
-                            //membership value of posixGroup is not DN of the user
+                            // membership value of posixGroup is not DN of the user
                             List rdns = ldn.getRdns();
                             membershipValue = ((Rdn) rdns.get(rdns.size() - 1)).getValue().toString();
                         } else {
