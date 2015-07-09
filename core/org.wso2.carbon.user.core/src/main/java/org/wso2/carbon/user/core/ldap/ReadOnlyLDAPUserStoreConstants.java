@@ -41,7 +41,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "", UserStoreConfigConstants.connectionPasswordDescription, true);
         setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
                 "ou=system", UserStoreConfigConstants.userSearchBaseDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User Object Class",
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute",
                 "uid", UserStoreConfigConstants.userNameAttributeDescription, false);
@@ -77,7 +77,8 @@ public class ReadOnlyLDAPUserStoreConstants {
         OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.add(readLDAPGroups);
 
         setProperty(UserStoreConfigConstants.groupSearchBase, "Group Search Base", "ou=system", UserStoreConfigConstants.groupSearchBaseDescription);
-        setProperty(UserStoreConfigConstants.groupNameListFilter, "Group Object Class", "(objectClass=groupOfNames)", UserStoreConfigConstants.groupNameListFilterDescription);
+        setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
+                UserStoreConfigConstants.groupNameListFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=groupOfNames)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member", UserStoreConfigConstants.membershipAttributeDescription);

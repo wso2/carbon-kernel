@@ -1593,9 +1593,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
             }
 
-            if ("posixGroup".equals(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS))) {
+            if (realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER) != null &&
+                    realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER).contains("posixGroup")) {
                 //when the GroupEntryObjectClass is posixGroup, membership attribute is memberUid.
-                //we have to retrieve the DN using the memberUid which is the uid of the user
+                //we have to retrieve the DN using the memberUid
                 List<String> userDNListNew = new ArrayList<>();
 
                 for (String user : userDNList) {
@@ -1848,10 +1849,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (nameInSpace != null) {
                     try {
                         LdapName ldn = new LdapName(nameInSpace);
-                        if ("posixGroup".equals(realmConfig.getUserStoreProperty(LDAPConstants.GROUP_ENTRY_OBJECT_CLASS))) {
+                        if (realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER) != null &&
+                                realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_LIST_FILTER).contains
+                                        ("posixGroup")) {
+                            //membership value of posixGroup is not DN of the user
                             List rdns = ldn.getRdns();
-                            membershipValue = ((Rdn)rdns.get(rdns.size()-1)).getValue().toString();
-                        }else {
+                            membershipValue = ((Rdn) rdns.get(rdns.size() - 1)).getValue().toString();
+                        } else {
                             membershipValue = escapeLdapNameForFilter(ldn);
                         }
                     } catch (InvalidNameException e) {
