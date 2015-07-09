@@ -708,6 +708,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         boolean isAuth = this.doAuthenticate(userName, oldCredential);
 
         if (isAuth) {
+            if (!checkUserPasswordValid(newCredential)) {
+
+                String errorMsg = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+                if (errorMsg != null) {
+                    throw new UserStoreException(errorMsg);
+                }
+
+                throw new UserStoreException(
+                        "Credential not valid. Credential must be a non null string with following format, "
+                                + realmConfig
+                                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
+            }
 
             this.doUpdateCredential(userName, newCredential, oldCredential);
 
@@ -774,6 +789,26 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
         // #################### </Listeners> #####################################################
+
+
+        if (!checkUserPasswordValid(newCredential)) {
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
+            throw new UserStoreException(
+                    "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
+        }
+
+        if (!doCheckExistingUser(userStore.getDomainFreeName())) {
+            throw new UserStoreException("User " + userName + " does not exisit in the user store");
+        }
 
         doUpdateCredentialByAdmin(userName, newCredential);
 
@@ -1163,6 +1198,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!checkUserPasswordValid(credential)) {
             String message = "Credential not valid. Credential must be a non null string with following format, ";
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
             throw new UserStoreException(message + regEx);
@@ -2667,19 +2708,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         Set<String> propertySet = new HashSet<String>();
         for (String claim : claims) {
 
-            // There can be cases some claim values being requested for claims
-            // we don't have.
-            String property = null;
-            try {
-                property = getClaimAtrribute(claim, userName, domainName);
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException(e);
-            }
-            if (property != null
-                    && (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
-                    || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) ||
-                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim))) {
-                propertySet.add(property);
+            if (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim) &&
+                    !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) &&
+                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
+                // There can be cases some claim values being requested for claims
+                // we don't have.
+                String property = null;
+                try {
+                    property = getClaimAtrribute(claim, userName, domainName);
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException(e);
+                }
+                if (property != null) {
+                    propertySet.add(property);
+                }
             }
 
             if (UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)) {
@@ -2859,14 +2901,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String regularExpression = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-
-        if (MultitenantUtils.isEmailUserName()) {
-            regularExpression = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX);
-            if (regularExpression == null) {
-                regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
-            }
-        }
 
         if (regularExpression != null) {
             regularExpression = regularExpression.trim();
@@ -3508,6 +3542,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     @Override
+    public boolean isBulkImportSupported(){
+
+        return new Boolean(realmConfig.getUserStoreProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT));
+
+    }
+
+    @Override
     public void addRole(String roleName, String[] userList,
                         org.wso2.carbon.user.api.Permission[] permissions)
             throws org.wso2.carbon.user.api.UserStoreException {
@@ -3760,5 +3801,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
     public HybridRoleManager getInternalRoleManager() {
         return hybridRoleManager;
+    }
+
+    public boolean isCaseSensitiveUsername(){
+        return false;
     }
 }

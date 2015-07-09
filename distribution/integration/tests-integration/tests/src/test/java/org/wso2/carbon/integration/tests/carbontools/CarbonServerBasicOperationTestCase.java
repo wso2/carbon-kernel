@@ -49,8 +49,8 @@ import java.lang.reflect.Method;
 import static org.testng.Assert.assertTrue;
 
 /**
-* Provides test methods for start, stop, restart, dump and run build.xml test cases
-*/
+ * Provides test methods for start, stop, restart, dump and run build.xml test cases
+ */
 public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory.getLog(CarbonServerBasicOperationTestCase.class);
@@ -101,7 +101,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
 
     @Test(groups = {"carbon.core"}, description = "Testing carbondump.sh execution",
             dependsOnMethods = "testServerStartCommand")
-    public void testCarbonDumpCommandOnLinux() throws CarbonToolsIntegrationTestException {
+    public void testCarbonDumpCommandOnLinux() throws Exception {
         String[] cmdArray;
         Process carbonDumpProcess = null;
         try {
@@ -173,7 +173,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
 
     @Test(groups = {"carbon.core"}, description = "Testing carbondump.bat execution", dependsOnMethods = {"testStopCommand"})
     public void testCarbonDumpCommandOnWindows()
-            throws CarbonToolsIntegrationTestException, NoSuchFieldException,
+            throws Exception,
                    IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         Process processDump = null;
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
@@ -212,12 +212,12 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
      * @param carbonHome - carbon Home
      * @return boolean - true if found the zip file, else false
      */
-    private boolean isDumpFileFound(String carbonHome) {
+    private boolean isDumpFileFound(String carbonHome) throws InterruptedException {
         boolean isFoundDumpFolder = false;
         File folder = new File(carbonHome);
         long startTime = System.currentTimeMillis();
 
-        while (!isFoundDumpFolder && (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
+        while (!isFoundDumpFolder && (System.currentTimeMillis() - startTime) < (CarbonIntegrationConstants.DEFAULT_WAIT_MS * 2)) {
             if (folder.exists() && folder.isDirectory()) {
                 File[] listOfFiles = folder.listFiles();
                 if (listOfFiles != null) {
@@ -226,9 +226,13 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
                             double bytes = file.length();
                             double kilobytes = (bytes / 1024);
                             if (kilobytes > 0) {
-                                log.info("carbon bump file name " + file.getName());
+                                log.info("carbon dump file name " + file.getName());
                                 isFoundDumpFolder = true;
+                                break;
                             }
+                        } else {
+                            Thread.sleep(2000);
+                            log.info("carbon dump zip file not created yet time " + (System.currentTimeMillis() - startTime) + " milliseconds");
                         }
                     }
                 }
