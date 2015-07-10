@@ -38,8 +38,10 @@ import org.wso2.carbon.utils.ServerConstants;
 import sun.management.VMManagement;
 
 import javax.xml.xpath.XPathExpressionException;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
@@ -104,6 +106,29 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     public void testCarbonDumpCommandOnLinux() throws Exception {
         String[] cmdArray;
         Process carbonDumpProcess = null;
+        String expectedString ="Copyright";
+        boolean isFoundTheMessage = false;
+        BufferedReader br = null;
+        String[] zipCmdArray = {"zip","--help"};
+        Process process = Runtime.getRuntime().exec(zipCmdArray, null, new File("/"));
+        String line;
+        long startTime = System.currentTimeMillis();
+        while (!isFoundTheMessage && (System.currentTimeMillis() - startTime) < 200) {
+
+            br = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
+            while ((line = br.readLine()) != null) {
+                log.info(line);
+                if (line.contains(expectedString)) {
+                    log.info("found the string expected string " + expectedString + ", in line =>" + line);
+                    isFoundTheMessage = true;
+                    break;
+                }
+            }
+        }
+        if(!isFoundTheMessage){
+            throw new SkipException(" This test method need zip command to run");
+        }
+
         try {
             if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
                     contains(OperatingSystems.WINDOWS.name().toLowerCase()))) {
@@ -121,6 +146,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             if (carbonDumpProcess != null) {
                 carbonDumpProcess.destroy();
             }
+            br.close();
         }
 
     }
