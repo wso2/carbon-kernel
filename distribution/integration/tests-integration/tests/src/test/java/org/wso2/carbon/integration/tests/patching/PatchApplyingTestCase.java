@@ -207,13 +207,11 @@ public class PatchApplyingTestCase extends CarbonIntegrationBaseTest {
 	 * @param filePath - Path of the jar file
 	 * @return md5Sum - md5Sum of the given file
 	 */
-	private String getMd5Sum(String filePath) {
+	private String getMd5Sum(String filePath) throws IOException {
 		String md5Sum = "";
 		//Try with resources. Will auto close file input stream
 		try (FileInputStream fileInputStream = new FileInputStream(filePath)) {
 			md5Sum = DigestUtils.md5Hex(fileInputStream);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		return md5Sum;
 	}
@@ -223,17 +221,11 @@ public class PatchApplyingTestCase extends CarbonIntegrationBaseTest {
 	 *
 	 * @param patch - A patch to be deleted
 	 */
-	private void deletePatch(String patch) {
+	private void deletePatch(String patch) throws IOException {
 
 		File file =
 				new File(CARBON_HOME + File.separator + "repository" + File.separator + "components" + File.separator +
 				         "patches" + File.separator + patch);
-		try {
-			FileUtils.deleteDirectory(file);
-			log.debug(patch + " deleted successfully.");
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		FileUtils.deleteDirectory(file);
 	}
 }
