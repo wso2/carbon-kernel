@@ -43,7 +43,7 @@
 
             <class name="org.wso2.carbon.integration.tests.integration.ServerAdminTestCase"/>
             <class name="org.wso2.carbon.integration.tests.integration.ServerRestartTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.carbontools.CarbonServerBasicOperationTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.ServerShutdownTestCase"/>
         </classes>
     </test>
 
