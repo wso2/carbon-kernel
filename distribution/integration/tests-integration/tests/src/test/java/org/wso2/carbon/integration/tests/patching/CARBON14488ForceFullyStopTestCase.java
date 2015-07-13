@@ -31,7 +31,6 @@ import org.wso2.carbon.integration.tests.common.utils.PatchApplyingUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
@@ -153,19 +152,13 @@ public class CARBON14488ForceFullyStopTestCase extends CarbonIntegrationBaseTest
 	/**
 	 * This method kills the process of running AS instance by finding process id from wso2carbon.pid
 	 */
-	private void killProcess() {
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(carbonHome + File.separator + "wso2carbon.pid"));
-			String pid = reader.readLine();
-			if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-				Runtime.getRuntime().exec("taskkill /pid " + pid);
-			} else {
-				Runtime.getRuntime().exec("kill -15 " + pid);
-			}
-		} catch (FileNotFoundException e) {
-			log.error("File not found in: " + carbonHome + File.separator + "wso2carbon.pid", e);
-		} catch (IOException e) {
-			log.error("Error reading file", e);
+	private void killProcess() throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(carbonHome + File.separator + "wso2carbon.pid"));
+		String pid = reader.readLine();
+		if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+			Runtime.getRuntime().exec("taskkill /pid " + pid);
+		} else {
+			Runtime.getRuntime().exec("kill -15 " + pid);
 		}
 	}
 
@@ -174,18 +167,12 @@ public class CARBON14488ForceFullyStopTestCase extends CarbonIntegrationBaseTest
 	 *
 	 * @param patch - A patch to be deleted
 	 */
-	private void deletePatch(String patch) {
+	private void deletePatch(String patch) throws IOException {
 
 		File file =
 				new File(carbonHome + File.separator + "repository" + File.separator + "components" + File.separator +
 				         "patches" + File.separator + patch);
-		try {
-			FileUtils.deleteDirectory(file);
-			log.info(patch + " deleted successfully.");
-
-		} catch (IOException e) {
-			log.info(patch + " deleting failed " + e);
-		}
+		FileUtils.deleteDirectory(file);
 	}
 
 }
