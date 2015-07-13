@@ -40,6 +40,7 @@ import sun.management.VMManagement;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
@@ -101,8 +102,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         assertTrue(startupStatus, "Unsuccessful login");
     }
 
-    @Test(groups = {"carbon.core"}, description = "Testing carbondump.sh execution",
-            dependsOnMethods = "testServerStartCommand")
+    @Test(groups = {"carbon.core"}, description = "Testing carbondump.sh execution",dependsOnMethods = {"testStopCommand"})
     public void testCarbonDumpCommandOnLinux() throws Exception {
         String[] cmdArray;
         Process carbonDumpProcess = null;
@@ -110,7 +110,13 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         boolean isFoundTheMessage = false;
         BufferedReader br = null;
         String[] zipCmdArray = {"zip","--help"};
-        Process process = Runtime.getRuntime().exec(zipCmdArray, null, new File("/"));
+        Process process ;
+
+        try {
+             process = Runtime.getRuntime().exec(zipCmdArray, null);
+        }catch (IOException ex){
+            throw new SkipException(" This test method need zip command to run");
+        }
         String line;
         long startTime = System.currentTimeMillis();
         while (!isFoundTheMessage && (System.currentTimeMillis() - startTime) < 200) {
@@ -136,12 +142,12 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
                 throw new SkipException("--start is not available for windows");
                 // Since we are skipping --start feature it won
             } else {
-                cmdArray = new String[]
-                        {"sh", "carbondump.sh", "-carbonHome", carbonHome, "-pid", processId};
+                cmdArray = new String[]{"sh", "carbondump.sh", "-carbonHome", System.getProperty("carbon.home"),
+                                        "-pid", getProcessId(System.getProperty("carbon.home"))};
 
             }
-            carbonDumpProcess = CarbonCommandToolsUtil.runScript(carbonHome + File.separator + "bin", cmdArray);
-            assertTrue(isDumpFileFound(carbonHome), "Couldn't find the dump file");
+            carbonDumpProcess = CarbonCommandToolsUtil.runScript(System.getProperty("carbon.home") + File.separator + "bin", cmdArray);
+            assertTrue(isDumpFileFound(System.getProperty("carbon.home")), "Couldn't find the dump file");
         } finally {
             if (carbonDumpProcess != null) {
                 carbonDumpProcess.destroy();
@@ -152,7 +158,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing server startup argument --restart",
-            dependsOnMethods = {"testCarbonDumpCommandOnLinux"})
+            dependsOnMethods = {"testServerStartCommand"})
     public void testServerRestartCommand() throws CarbonToolsIntegrationTestException {
         String[] cmdArrayToReStart;
         if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
@@ -305,6 +311,29 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
                                                           "carbon home failed", e);
         }
+    }
+
+    private String getProcessId(String carbonHome){
+        BufferedReader br = null;
+        String processId = "";
+        try {
+            String sCurrentLine;
+            br = new BufferedReader(new FileReader(carbonHome+"/wso2carbon.pid"));
+            while ((sCurrentLine = br.readLine()) != null) {
+                processId = sCurrentLine.trim();
+                break;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null)br.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return processId;
     }
 
 }
