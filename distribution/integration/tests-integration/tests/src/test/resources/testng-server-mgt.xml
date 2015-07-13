@@ -26,6 +26,13 @@
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
     </listeners>
 
+    <test name="patching-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.patching.PatchApplyingTestCase"/>
+        </classes>
+    </test>
+
     <test name="carbon-integration-tests-server-mgt" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.carbon.integration.tests.integration.SecurityVerificationTestCase"/>
