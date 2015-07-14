@@ -59,7 +59,7 @@ public class SystemUserRoleManager {
     public void addSystemRole(String roleName, String[] userList) throws UserStoreException {
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             if (!this.isExistingRole(roleName)) {
                 DatabaseUtil.updateDatabase(dbConnection, SystemJDBCConstants.ADD_ROLE_SQL,
                         roleName, tenantId);
@@ -81,11 +81,17 @@ public class SystemUserRoleManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while adding system role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -98,7 +104,7 @@ public class SystemUserRoleManager {
         ResultSet rs = null;
         boolean isExisting = false;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(SystemJDBCConstants.GET_ROLE_ID);
             prepStmt.setString(1, roleName);
             prepStmt.setInt(2, tenantId);
@@ -111,8 +117,11 @@ public class SystemUserRoleManager {
             }
             return isExisting;
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while checking is existing role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -122,13 +131,16 @@ public class SystemUserRoleManager {
         String sqlStmt = SystemJDBCConstants.GET_ROLES;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String[] roles = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
                     tenantId);
             return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting system roles";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -139,13 +151,16 @@ public class SystemUserRoleManager {
         String sqlStmt = SystemJDBCConstants.GET_USER_LIST_OF_ROLE_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String[] users = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
                     roleName, tenantId, tenantId);
             return UserCoreUtil.addDomainToNames(users, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting user list of system role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -158,7 +173,7 @@ public class SystemUserRoleManager {
         String sqlStmt2 = SystemJDBCConstants.ADD_USER_TO_ROLE_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String type = DatabaseCreator.getDatabaseType(dbConnection);
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
                 sqlStmt2 = SystemJDBCConstants.ADD_USER_TO_ROLE_SQL_MSSQL;
@@ -179,11 +194,17 @@ public class SystemUserRoleManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while updating user list of system role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -193,13 +214,16 @@ public class SystemUserRoleManager {
         String sqlStmt = SystemJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String[] roles = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
                     userName, tenantId, tenantId);
             return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting system role list of user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -212,7 +236,7 @@ public class SystemUserRoleManager {
         String sqlStmt2 = SystemJDBCConstants.ADD_ROLE_TO_USER_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String type = DatabaseCreator.getDatabaseType(dbConnection);
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
                 sqlStmt2 = SystemJDBCConstants.ADD_ROLE_TO_USER_SQL_MSSQL;
@@ -233,11 +257,17 @@ public class SystemUserRoleManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting system role list of user : " + user;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -250,7 +280,7 @@ public class SystemUserRoleManager {
         ResultSet rs = null;
         boolean isUserInRole = false;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(SystemJDBCConstants.IS_USER_IN_ROLE_SQL);
             prepStmt.setString(1, userName);
             prepStmt.setString(2, roleName);
@@ -265,8 +295,11 @@ public class SystemUserRoleManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while checking is user : " + userName + " & in role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -280,7 +313,7 @@ public class SystemUserRoleManager {
         ResultSet rs = null;
         boolean isExisting = false;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(SystemJDBCConstants.GET_USER_ID_SQL);
             prepStmt.setString(1, userName);
             prepStmt.setInt(2, tenantId);
@@ -293,8 +326,11 @@ public class SystemUserRoleManager {
             }
             return isExisting;
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while checking is existing system user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -306,7 +342,7 @@ public class SystemUserRoleManager {
         Connection dbConnection = null;
         String password = (String) credential;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String sqlStmt1 = SystemJDBCConstants.ADD_USER_SQL;
 
             String saltValue = null;
@@ -331,7 +367,9 @@ public class SystemUserRoleManager {
             } catch (SQLException e1) {
                 log.error("Error while rollbacking add system user operation", e1);
             }
-            log.error(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
@@ -360,7 +398,7 @@ public class SystemUserRoleManager {
 
             List<String> lst = new LinkedList<String>();
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 
             if (dbConnection == null) {
                 throw new UserStoreException("null connection");
@@ -395,9 +433,11 @@ public class SystemUserRoleManager {
             Arrays.sort(systemsUsers);
             systemsUsers = UserCoreUtil.addDomainToNames(systemsUsers, UserCoreConstants.SYSTEM_DOMAIN_NAME);
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting system users";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -411,7 +451,7 @@ public class SystemUserRoleManager {
 //        PreparedStatement preparedStatement = null;
 //
 //        try {
-//            dbConnection = getDBConnection();
+//            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 //            preparedStatement = dbConnection.prepareStatement(SystemJDBCConstants.REMOVE_USER_SQL);
 //            preparedStatement.setString(1, userName);
 //            preparedStatement.execute();
@@ -452,7 +492,7 @@ public class SystemUserRoleManager {
 //        String sqlStmt = SystemJDBCConstants.UPDATE_ROLE_NAME_SQL;
 //        Connection dbConnection = null;
 //        try {
-//            dbConnection = getDBConnection();
+//            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 //            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
 //                DatabaseUtil.updateDatabase(dbConnection, sqlStmt, newRoleName, roleName, tenantId);
 //            } else {
@@ -481,8 +521,11 @@ public class SystemUserRoleManager {
             password = Base64.encode(byteValue);
             return password;
         } catch (NoSuchAlgorithmException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while preparing password : " + password;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 
@@ -493,7 +536,7 @@ public class SystemUserRoleManager {
         try {
             if (dbConnection == null) {
                 localConnection = true;
-                dbConnection = getDBConnection();
+                dbConnection = DatabaseUtil.getDBConnection(dataSource);
             }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (params != null && params.length > 0) {
@@ -527,8 +570,9 @@ public class SystemUserRoleManager {
                 dbConnection.commit();
             }
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            log.error("Using sql : " + sqlStmt);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             if (localConnection) {
@@ -536,11 +580,5 @@ public class SystemUserRoleManager {
             }
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
-    }
-
-    private Connection getDBConnection() throws SQLException {
-        Connection dbConnection = dataSource.getConnection();
-        dbConnection.setAutoCommit(false);
-        return dbConnection;
     }
 }

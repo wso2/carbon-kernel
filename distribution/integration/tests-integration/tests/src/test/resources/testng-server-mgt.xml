@@ -1,0 +1,62 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!--
+  ~  Copyright (c) 2015, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+  ~
+  ~  WSO2 Inc. licenses this file to you under the Apache License,
+  ~  Version 2.0 (the "License"); you may not use this file except
+  ~  in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing,
+  ~  software distributed under the License is distributed on an
+  ~  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~  KIND, either express or implied.  See the License for the
+  ~  specific language governing permissions and limitations
+  ~  under the License.
+-->
+<suite name="carbon-server-startup">
+    <parameter name="useDefaultListeners" value="false"/>
+    <listeners>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestExecutionListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestManagerListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestReportListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestSuiteListener"/>
+        <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
+    </listeners>
+
+    <test name="patching-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.patching.PatchApplyingTestCase"/>
+        </classes>
+    </test>
+
+    <test name="carbon-integration-tests-server-mgt" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.carbon.integration.tests.integration.SecurityVerificationTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.AccessNonExistentServiceTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.LoginLogoutTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.MaintenanceModeTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.MultipleCarbonInstancesTestCase"/>
+
+            <class name="org.wso2.carbon.integration.tests.integration.ServerAdminTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.ServerRestartTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.ServerShutdownTestCase"/>
+        </classes>
+    </test>
+
+    <test name="carbon-tools-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.carbon.integration.tests.carbontools"/>
+        </packages>
+    </test>
+
+    <test name="feature-management-tests" preserve-order="true" parallel="false">
+        <packages>
+            <package name="org.wso2.carbon.integration.tests.featuremanagement"/>
+        </packages>
+    </test>
+
+</suite>

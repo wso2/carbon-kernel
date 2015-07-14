@@ -20,9 +20,9 @@ WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the W
 * Multi-tenancy support - The roots of the multi-tenancy in Carbon platform lies in the Carbon kernel. This feature includes tenant level isolation as well as lazy loading of tenants.
 
 ##New Features
-* Simplified logging story with pluggable log provider support.
-* Upgraded versions of Hazelcast, Log4j, BouncyCastle.
-* Improved Composite application support.
+* Java7/Java8 support - Starting from kernel 4.4.0 release, the kernel can now be compiled and run on both Java7 and Java8.
+* Tomcat upgrade - Tomcat is upgraded to version 7.0.59. 
+* Tenant Eager Loading - WSO2 Carbon Kernel can now be configured to load specified set of tenants at server start-up.
 
 
 ##How to Contribute

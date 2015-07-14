@@ -28,6 +28,10 @@ public class ReadOnlyLDAPUserStoreConstants {
     public static final ArrayList<Property> ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
     public static final ArrayList<Property> OPTIONAL_ROLDAP_USERSTORE_PROPERTIES = new ArrayList<Property>();
 
+    //For multiple attribute separation
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+
     static {
         setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "uid=," +
                 "ou=", UserStoreConfigConstants.connectionNameDescription, false);
@@ -37,7 +41,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "", UserStoreConfigConstants.connectionPasswordDescription, true);
         setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
                 "ou=system", UserStoreConfigConstants.userSearchBaseDescription, false);
-        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User Object Class",
+        setMandatoryProperty(UserStoreConfigConstants.usernameListFilter, "User List Filter",
                 "(objectClass=person)", UserStoreConfigConstants.usernameListFilterDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute",
                 "uid", UserStoreConfigConstants.userNameAttributeDescription, false);
@@ -51,6 +55,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
         setProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants.SCIMEnabledDescription);
+        setProperty(UserStoreConfigConstants.DisplayNameAttribute, "Display name attribute", "uid", UserStoreConfigConstants.DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
 
         Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "false", "Enable Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription, null);
@@ -72,11 +77,13 @@ public class ReadOnlyLDAPUserStoreConstants {
         OPTIONAL_ROLDAP_USERSTORE_PROPERTIES.add(readLDAPGroups);
 
         setProperty(UserStoreConfigConstants.groupSearchBase, "Group Search Base", "ou=system", UserStoreConfigConstants.groupSearchBaseDescription);
-        setProperty(UserStoreConfigConstants.groupNameListFilter, "Group Object Class", "(objectClass=groupOfNames)", UserStoreConfigConstants.groupNameListFilterDescription);
+        setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
+                UserStoreConfigConstants.groupNameListFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=groupOfNames)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member", UserStoreConfigConstants.membershipAttributeDescription);
         setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "", UserStoreConfigConstants.memberOfAttribute);
+        setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
 
 //      LDAP Specific Properties
@@ -85,6 +92,8 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "", "", "");
+        setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
+                UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
 
     }
 

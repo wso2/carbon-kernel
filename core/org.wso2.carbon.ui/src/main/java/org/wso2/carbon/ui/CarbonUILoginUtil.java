@@ -106,6 +106,8 @@ public final class CarbonUILoginUtil {
                 // Also setting it in a cookie, for non-remember-me cases
                 Cookie cookie = new Cookie("requestedURI", tmpURI);
                 cookie.setPath("/");
+                cookie.setSecure(true);
+                cookie.setHttpOnly(true);
                 response.addCookie(cookie);
             }
         }
@@ -235,7 +237,7 @@ public final class CarbonUILoginUtil {
         try {
             authenticator = (CarbonUIAuthenticator) session
                     .getAttribute(CarbonSecuredHttpContext.CARBON_AUTHNETICATOR);
-            if (authenticator != null) {
+            if (authenticator != null && authenticated) {
                 authenticator.unauthenticate(request);
                 log.debug("Backend session invalidated");
             }

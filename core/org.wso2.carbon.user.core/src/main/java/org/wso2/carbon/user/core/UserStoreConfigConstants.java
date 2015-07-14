@@ -36,6 +36,10 @@ public class UserStoreConfigConstants {
     public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the role list of a user";
     public static final String SCIMEnabled = "SCIMEnabled";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
+    public static final String DisplayNameAttribute = "DisplayNameAttribute";
+    public static final String DisplayNameAttributeDescription = "Attribute name to display as the Display Name";
+    public static final String CASE_SENSITIVE_USERNAME = "CaseSensitiveUsername";
+    public static final String CASE_SENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
 
 
     //Mandatory to LDAP user stores
@@ -58,9 +62,9 @@ public class UserStoreConfigConstants {
     public static final String userEntryObjectClassDescription = "Object Class used to construct user entries";
     public static final String passwordJavaScriptRegEx = "PasswordJavaScriptRegEx";
     public static final String passwordJavaScriptRegExDescription = "Policy that defines the password format";
-    public static final String usernameJavaScriptRegEx = "UserNameJavaScriptRegEx";
+    public static final String usernameJavaScriptRegEx = "UsernameJavaScriptRegEx";
     public static final String usernameJavaScriptRegExDescription = "The regular expression used by the front-end components for username validation";
-    public static final String usernameJavaRegEx = "UserNameJavaRegEx";
+    public static final String usernameJavaRegEx = "UsernameJavaRegEx";
     public static final String usernameJavaRegExDescription = "A regular expression to validate user names";
     public static final String roleNameJavaScriptRegEx = "RoleNameJavaScriptRegEx";
     public static final String roleNameJavaScriptRegExDescription = "The regular expression used by the front-end components for role name validation";
@@ -100,4 +104,5 @@ public class UserStoreConfigConstants {
     public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
             "pooling.";
 
+    public static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
 }

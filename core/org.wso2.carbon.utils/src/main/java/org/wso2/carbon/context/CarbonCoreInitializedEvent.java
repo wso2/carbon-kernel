@@ -1,0 +1,12 @@
+package org.wso2.carbon.context;
+
+/**
+ * Since both org.wso2.carbon.context.internal.CarbonContextServiceComponent and org.wso2.carbon.core.internal.CarbonCoreServiceComponent
+ * get activate when
+ * org.wso2.carbon.user.core.service.RealmService
+ * org.wso2.carbon.registry.api.RegistryService exist, we can't guarantee the order of activation.
+ *
+ * This empty service is used to guarantee the order
+ */
+public interface CarbonCoreInitializedEvent {
+}
