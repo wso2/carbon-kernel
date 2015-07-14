@@ -32,7 +32,7 @@ public class TenantConstants {
             "UM_CREATED_DATE, UM_ACTIVE FROM UM_TENANT ORDER BY UM_ID";
     public static final String GET_DOMAIN_SQL = "SELECT UM_DOMAIN_NAME FROM UM_TENANT WHERE UM_ID=?";
     public static final String GET_TENANT_ID_SQL = "SELECT UM_ID FROM UM_TENANT WHERE UM_DOMAIN_NAME=?";
-    public static final String ACTIVATE_SQL = "UPDATE UM_TENANT SET UM_ACTIVE='1' WHERE UM_ID=?";
+    public static final String ACTIVATE_SQL = "UPDATE UM_TENANT SET UM_ACTIVE=? WHERE UM_ID=?";
     public static final String DEACTIVATE_SQL = "UPDATE UM_TENANT SET UM_ACTIVE='0' WHERE UM_ID=?";
     public static final String IS_TENANT_ACTIVE_SQL = "SELECT UM_ACTIVE FROM UM_TENANT WHERE UM_ID=?";
     public static final String DELETE_TENANT_SQL = "DELETE FROM UM_TENANT WHERE UM_ID=?";
