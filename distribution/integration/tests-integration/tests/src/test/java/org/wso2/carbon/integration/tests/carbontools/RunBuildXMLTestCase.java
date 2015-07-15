@@ -24,7 +24,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
-import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
@@ -58,8 +57,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
     }
 
     @Test(groups = {"carbon.core"}, description = "Running the ant command and verifying the jar copying")
-    public void testBuildXMLGenerateRemoteRegistryClients()
-            throws CarbonToolsIntegrationTestException {
+    public void testBuildXMLGenerateRemoteRegistryClients() throws Exception {
         boolean isJarCreated = false;
         Process process = null;
         try {
@@ -95,13 +93,14 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                         isJarCreated = true;
                         break;
                     }
-                } else {
-                    if (listOfFilesAfterRunAntCommand != null && listOfFilesAfterRunAntCommand.length > 0) {
+                } else if (listOfFilesAfterRunAntCommand != null && listOfFilesAfterRunAntCommand.length > 0) {
                         log.info("Jars copied successfully");
                         isJarCreated = true;
                         break;
-                    }
+                } else{
+                    Thread.sleep(1000); // Sleeping 1 second
                 }
+
             }
         } finally {
             if (process != null) {
@@ -112,8 +111,7 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
     }
 
     @Test(groups = {"carbon.core"}, description = "Run the ant localize command and verifying the languageBundle")
-    public void testBuildXMLGenerateLanguageBundle()
-            throws CarbonToolsIntegrationTestException {
+    public void testBuildXMLGenerateLanguageBundle() throws Exception {
         boolean isJarCreated = false;
         Process process = null;
         try {
@@ -151,6 +149,9 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                             }
                         }
                     }
+                }else{
+                    log.info("LanguageBundle not created yet time " + (System.currentTimeMillis() - startTime) + " milliseconds");
+                    Thread.sleep(1000);// Sleeping 1 second
                 }
             }
         } finally {

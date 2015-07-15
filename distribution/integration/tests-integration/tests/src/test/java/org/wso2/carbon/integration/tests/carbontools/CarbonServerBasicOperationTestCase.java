@@ -116,8 +116,9 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         }
         String line;
         long startTime = System.currentTimeMillis();
-        while (!isFoundTheMessage && (System.currentTimeMillis() - startTime) < 200) {
 
+        // Wait 1 second to check whether zip command installed or not
+        while (!isFoundTheMessage && (System.currentTimeMillis() - startTime) < 1000) {
             br = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
             while ((line = br.readLine()) != null) {
                 log.info(line);
