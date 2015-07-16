@@ -81,6 +81,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=group)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
                 UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
+        setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
 
 
 //      AD Specific Properties

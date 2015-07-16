@@ -94,6 +94,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty("UniqueID", "", "", "");
         setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
                 UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
+        setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
 
     }
 
