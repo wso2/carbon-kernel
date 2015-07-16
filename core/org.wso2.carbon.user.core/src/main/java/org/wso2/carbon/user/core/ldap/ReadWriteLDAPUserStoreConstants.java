@@ -54,6 +54,8 @@ public class ReadWriteLDAPUserStoreConstants {
         setMandatoryProperty(UserStoreConfigConstants.groupEntryObjectClass,
                 "Group Entry Object Class", "groupOfNames", UserStoreConfigConstants
                         .groupEntryObjectClassDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
+                UserStoreConfigConstants.userDNPatternDescription, false);
 
         setProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
         setProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
@@ -84,7 +86,6 @@ public class ReadWriteLDAPUserStoreConstants {
 
 //      LDAP Specific Properties
         setProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "SHA", UserStoreConfigConstants.passwordHashMethodDescription);
-        setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "uid={0},ou=Users,dc=wso2,dc=org", UserStoreConfigConstants.userDNPatternDescription);
         setProperty(UserStoreConfigConstants.passwordJavaScriptRegEx, "Password RegEx (Javascript)", "^[\\S]{5,30}$", UserStoreConfigConstants.passwordJavaScriptRegExDescription);
         setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
