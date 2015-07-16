@@ -132,8 +132,6 @@
                             org.eclipse.osgi.framework.console;version="${org.eclipse.osgi.framework.console.import.version.range}",
                             com.hazelcast.core.*;version="${hazelcast.core.import.version.range}",
                             com.hazelcast.config.*;version="${hazelcast.config.import.version.range}",
-                            <!--javax.servlet.http.*;version="${javax.servlet.import.version.range}",-->
-                            <!--javax.servlet.*;version="${javax.servlet.import.version.range}",-->
                             javax.xml.bind.*;version="${osgi.framework.packages.import.version.range}",
                             javax.xml.validation.*;version="${osgi.framework.packages.import.version.range}",
                             javax.xml.transform.*;version="${osgi.framework.packages.import.version.range}",
