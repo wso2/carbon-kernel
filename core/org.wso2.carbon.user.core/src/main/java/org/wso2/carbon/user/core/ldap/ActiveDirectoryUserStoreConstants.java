@@ -52,6 +52,9 @@ public class ActiveDirectoryUserStoreConstants {
         setMandatoryProperty(UserStoreConfigConstants.userEntryObjectClass,
                 "User Entry Object Class", "user", UserStoreConfigConstants
                         .userEntryObjectClassDescription, false);
+        setMandatoryProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
+                UserStoreConfigConstants.userDNPatternDescription, false);
+
         setProperty(UserStoreConfigConstants.groupEntryObjectClass, "Group Entry Object Class", "group", UserStoreConfigConstants.groupEntryObjectClassDescription);
 
         setProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);

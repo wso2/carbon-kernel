@@ -50,6 +50,8 @@ public class ReadOnlyLDAPUserStoreConstants {
                         .usernameSearchFilterDescription, false);
         setMandatoryProperty("ReadOnly", "Read-only", "true", "Indicates whether the user store " +
                 "is in read only mode or not", false);
+        setMandatoryProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
+                UserStoreConfigConstants.userDNPatternDescription, false);
 
         setProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
         setProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
