@@ -94,6 +94,7 @@
                             org.slf4j.*;version="${slf4j.logging.import.version.range}",
                             org.eclipse.jetty.server.*;version="${equinox.jetty.import.version.range}",
                             org.eclipse.jetty.servlet.*;version="${equinox.jetty.import.version.range}",
+                            org.eclipse.jetty.osgi.boot.*;version="${equinox.jetty.import.version.range}",
                             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
                             org.osgi.service.http.*;version="${osgi.service.http.import.version.range}",
                             org.eclipse.equinox.http.servlet.*;version="${eclipse.equinox.http.servlet.import.version.range}",
