@@ -233,7 +233,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         DirContext dirContext = getSearchBaseDirectoryContext();
 
 		/* getting add user basic attributes */
-        BasicAttributes basicAttributes = getAddUserBasicAttributes(userName);
+        BasicAttributes basicAttributes = getAddUserBasicAttributes(escapeSpecialCharactersForDN(userName));
 
         BasicAttribute userPassword = new BasicAttribute("userPassword");
         userPassword.add(UserCoreUtil.getPasswordToStore((String) credential,
@@ -426,13 +426,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         if (!isCNExists) {
             BasicAttribute cn = new BasicAttribute("cn");
-            cn.add(userName);
+            cn.add(escapeSpecialCharactersForDNWithStar(userName));
             basicAttributes.put(cn);
         }
 
         if (!isSNExists) {
             BasicAttribute sn = new BasicAttribute("sn");
-            sn.add(userName);
+            sn.add(escapeSpecialCharactersForDNWithStar(userName));
             basicAttributes.put(sn);
         }
     }
@@ -451,7 +451,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         String searchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilterWithStar(userName));
         String[] returningUserAttributes = new String[]{userNameAttribute};
 
         DirContext mainDirContext = this.connectionSource.getContext();
@@ -555,7 +555,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         // first search the existing user entry.
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilterWithStar(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -616,7 +616,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String searchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilterWithStar(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -743,7 +743,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         if (userNames.length > 1) {
             userName = userNames[1];
         }
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilterWithStar(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -869,7 +869,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         if (userNames.length > 1) {
             userName = userNames[1];
         }
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilterWithStar(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -960,7 +960,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilterWithStar(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -1019,7 +1019,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilterWithStar(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -1140,7 +1140,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         // search the user in user search base
                         String searchFilter = realmConfig
                                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-                        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
+                        searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilterWithStar(userName));
                         results = searchInUserBase(searchFilter, new String[]{},
                                 SearchControls.SUBTREE_SCOPE, mainDirContext);
                         // we assume only one user with the given user
@@ -1998,6 +1998,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 char currentChar = dnPartial.charAt(i);
                 switch (currentChar) {
                     case '\\':
+                        if(dnPartial.charAt(i+1) == '*'){
+                            sb.append("*");
+                            i++;
+                            break;
+                        }
                         sb.append("\\5c");
                         break;
 //                case '*':
@@ -2051,6 +2056,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 char currentChar = text.charAt(i);
                 switch (currentChar) {
                     case '\\':
+                        if(text.charAt(i+1) == '*'){
+                            sb.append("*");
+                            i++;
+                            break;
+                        }
                         sb.append("\\\\");
                         break;
                     case ',':
@@ -2070,6 +2080,131 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         break;
                     case ';':
                         sb.append("\\;");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            if ((text.length() > 1) && (text.charAt(text.length() - 1) == ' ')) {
+                sb.insert(sb.length() - 1, '\\'); // add the trailing backslash if needed
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("value after escaping special characters in " + text + " : " + sb.toString());
+            }
+            return sb.toString();
+        } else {
+            return text;
+        }
+
+    }
+
+
+
+    /**
+     * Escaping ldap search filter special characters in a string
+     * @param dnPartial
+     * @return
+     */
+    private String escapeSpecialCharactersForFilterWithStar(String dnPartial){
+        boolean replaceEscapeCharacters = true;
+
+        dnPartial.replace("\\*","*");
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        //TODO: implement character escaping for *
+
+        if (replaceEscapeCharacters) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < dnPartial.length(); i++) {
+                char currentChar = dnPartial.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        sb.append("\\5c");
+                        break;
+                    case '*':
+                        sb.append("\\2a");
+                        break;
+                    case '(':
+                        sb.append("\\28");
+                        break;
+                    case ')':
+                        sb.append("\\29");
+                        break;
+                    case '\u0000':
+                        sb.append("\\00");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            return sb.toString();
+        } else {
+            return dnPartial;
+        }
+    }
+
+    /**
+     * Escaping ldap DN special characters in a String value
+     * @param text
+     * @return
+     */
+    private String escapeSpecialCharactersForDNWithStar(String text){
+        boolean replaceEscapeCharacters = true;
+        text.replace("\\*","*");
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+
+        if(replaceEscapeCharacters) {
+            StringBuilder sb = new StringBuilder();
+            if ((text.length() > 0) && ((text.charAt(0) == ' ') || (text.charAt(0) == '#'))) {
+                sb.append('\\'); // add the leading backslash if needed
+            }
+            for (int i = 0; i < text.length(); i++) {
+                char currentChar = text.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        sb.append("\\\\");
+                        break;
+                    case ',':
+                        sb.append("\\,");
+                        break;
+                    case '+':
+                        sb.append("\\+");
+                        break;
+                    case '"':
+                        sb.append("\\\"");
+                        break;
+                    case '<':
+                        sb.append("\\<");
+                        break;
+                    case '>':
+                        sb.append("\\>");
+                        break;
+                    case ';':
+                        sb.append("\\;");
+                        break;
+                    case '*':
+                        sb.append("\\2a");
                         break;
                     default:
                         sb.append(currentChar);
