@@ -18,15 +18,19 @@
 package org.wso2.carbon.integration.tests.patching;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
-import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerManager;
-import org.wso2.carbon.automation.extensions.servers.utils.InputStreamHandler;
+import org.wso2.carbon.automation.engine.context.ContextXpathConstants;
+import org.wso2.carbon.automation.engine.frameworkutils.enums.OperatingSystems;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
+import org.wso2.carbon.automation.extensions.servers.utils.ServerLogReader;
+import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
+import org.wso2.carbon.integration.tests.common.utils.CarbonCommandToolsUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
+import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
 import org.wso2.carbon.integration.tests.common.utils.PatchApplyingUtil;
 
 import java.io.BufferedReader;
@@ -36,46 +40,46 @@ import java.io.IOException;
 import java.util.Scanner;
 
 /**
- * When patch is being processing if server is forcefully shut down there can be a situation
- * where errors can occur. This class tests for this.
+ * This test is for the fix given in issue CARBON-14488
+ * Server gives a IOException when server stopped forcefully while patches are being process
  */
 public class CARBON14488ForceFullyStopTestCase extends CarbonIntegrationBaseTest {
 
-	private static final Log log = LogFactory.getLog(CARBON14488ForceFullyStopTestCase.class);
-	private final int PORT_OFFSET = 10;
+	private final int PORT_OFFSET = 1;
 	private final String PATCH_VERIFICATION_MESSAGE = "Backed up plugins to patch0000";
 	private String carbonHome;
 	private AutomationContext context;
 	private Process process;
+	private AutomationContext automationContextOfInstance002;
+	private TestServerManager testServerManager;
 
 	@BeforeClass(alwaysRun = true)
 	public void initTests() throws Exception {
 		super.init();
-		context = new AutomationContext();
 
-		//Create CarbonServerManager instance to start new AS instance
-		CarbonServerManager carbonServerManager = new CarbonServerManager(context);
+		//Crete new Server pack
+		automationContextOfInstance002 =
+				new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP, CarbonIntegrationConstants.INSTANCE,
+				                      ContextXpathConstants.SUPER_TENANT, ContextXpathConstants.SUPER_ADMIN);
+		testServerManager = new TestServerManager(automationContextOfInstance002, PORT_OFFSET);
+		//Start and stop new Server
+		testServerManager.startServer();
+		testServerManager.stopServer();
+		carbonHome = testServerManager.getCarbonHome();
 
-		//Get AS zip file location
-		String carbonZipLocation = System.getProperty("carbon.zip");
-		//Extract Carbon pack in to temp directory
-		carbonHome = carbonServerManager.setUpCarbonHome(carbonZipLocation);
-
+		//Build a dummy patch
 		PatchApplyingUtil.buildPatch("patch9000", "org.wso2.carbon.utils_", carbonHome);
 
 		process = startServer(PORT_OFFSET);
 
-		readInputStream(process);
+		interruptPatchApply(process);
 
-		//Delete patch0000 directory and check
+		//Delete patch0000 directory and again do a check
 		deletePatch("patch0000");
 
 		process = startServer(PORT_OFFSET);
 
-		readInputStream(process);
-
-		//Kill process if not terminated properly earlier
-		killProcess();
+		interruptPatchApply(process);
 
 	}
 
@@ -87,26 +91,30 @@ public class CARBON14488ForceFullyStopTestCase extends CarbonIntegrationBaseTest
 		                  "Error occurred while stopping server when patch applying process is in progress");
 	}
 
+	@AfterClass(alwaysRun = true)
+	public void stopServer() throws Exception {
+		if (process != null) {
+			killProcess();
+		}
+	}
+
 	/**
-	 * This method create a process to run new AS instance in new port
+	 * This method create a process to run new Server instance in new port
 	 *
 	 * @param portOffset - Patch to be copied
-	 * @return process -    Process which executes the AS
+	 * @return process -   Process which executes the Server
 	 */
-	private Process startServer(int portOffset) throws IOException {
+	private Process startServer(int portOffset) throws CarbonToolsIntegrationTestException {
 		Process process;
-		File commandDir = new File(carbonHome + File.separator + "bin");
-		if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-			String[] cmdArray;
+		String[] cmdArray;
+
+		if ((CarbonCommandToolsUtil.getCurrentOperatingSystem()
+		                           .contains(OperatingSystems.WINDOWS.name().toLowerCase()))) {
 			cmdArray = new String[] { "cmd.exe", "wso2server.bat", "-DportOffset=" + portOffset };
-
-			process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
 		} else {
-			String[] cmdArray;
 			cmdArray = new String[] { "sh", "wso2server.sh", "-DportOffset=" + portOffset };
-
-			process = Runtime.getRuntime().exec(cmdArray, null, commandDir);
 		}
+		process = CarbonCommandToolsUtil.runScript(carbonHome + File.separator + "bin", cmdArray);
 		return process;
 	}
 
@@ -121,14 +129,14 @@ public class CARBON14488ForceFullyStopTestCase extends CarbonIntegrationBaseTest
 	}
 
 	/**
-	 * This method reads logs of running AS and when patch verification starts this will kill the process
-	 * of running AS
+	 * This method reads logs of running Server and when patch verification starts this will kill the process
+	 * of running Server
 	 *
-	 * @param process - Process which executes AS
+	 * @param process - Process which executes the Server
 	 */
-	private void readInputStream(Process process) throws Exception {
-		InputStreamHandler errorStreamHandler = new InputStreamHandler("errorStream", process.getErrorStream());
-		InputStreamHandler inputStreamHandler = new InputStreamHandler("inputStream", process.getInputStream());
+	private void interruptPatchApply(Process process) throws IOException {
+		ServerLogReader errorStreamHandler = new ServerLogReader("errorStream", process.getErrorStream());
+		ServerLogReader inputStreamHandler = new ServerLogReader("inputStream", process.getInputStream());
 
 		// start the stream readers
 		inputStreamHandler.start();
@@ -143,14 +151,20 @@ public class CARBON14488ForceFullyStopTestCase extends CarbonIntegrationBaseTest
 			output = inputStreamHandler.getOutput();
 		}
 
-		if (output.contains(PATCH_VERIFICATION_MESSAGE)) {
-			killProcess();
+		try {
+			//Kill the process in the middle of the patch applying process
+			if (output.contains(PATCH_VERIFICATION_MESSAGE)) {
+				killProcess();
+			}
+		} finally {
+			process.destroy();
+			inputStreamHandler.stop();
+			errorStreamHandler.stop();
 		}
-		process.destroy();
 	}
 
 	/**
-	 * This method kills the process of running AS instance by finding process id from wso2carbon.pid
+	 * This method kills the process of running Server instance by finding process id from wso2carbon.pid
 	 */
 	private void killProcess() throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(carbonHome + File.separator + "wso2carbon.pid"));
@@ -163,7 +177,7 @@ public class CARBON14488ForceFullyStopTestCase extends CarbonIntegrationBaseTest
 	}
 
 	/**
-	 * This method deletes a given patch from repository/components/patches directory inside AS.
+	 * This method deletes a given patch from repository/components/patches directory.
 	 *
 	 * @param patch - A patch to be deleted
 	 */
