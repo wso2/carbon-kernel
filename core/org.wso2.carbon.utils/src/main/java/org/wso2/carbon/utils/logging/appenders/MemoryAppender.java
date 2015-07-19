@@ -18,6 +18,7 @@ package org.wso2.carbon.utils.logging.appenders;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.wso2.carbon.utils.logging.CircularBuffer;
+import org.wso2.carbon.utils.logging.LoggingUtils;
 
 /**
  * This appender will be used to capture the logs and later send to clients, if requested via the
@@ -39,7 +40,7 @@ public class MemoryAppender extends AppenderSkeleton {
 
     protected void append(LoggingEvent loggingEvent) {
         if (circularBuffer != null) {
-            circularBuffer.append(loggingEvent);
+            circularBuffer.append(LoggingUtils.getSanitizedLoggingEvent(loggingEvent));
         }
     }
 

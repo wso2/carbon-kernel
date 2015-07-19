@@ -69,45 +69,11 @@ public class LoggingUtils {
         tenantAwareLoggingEvent = new TenantAwareLoggingEvent(loggingEvent.fqnOfCategoryClass,
                                                               logger, loggingEvent.timeStamp,
                                                               loggingEvent.getLevel(),
-                                                              loggingEvent.getMessage(), throwable);
+                                                              getSanitizedLoggingMessage(loggingEvent.getMessage()),
+                                                              throwable);
         tenantAwareLoggingEvent.setTenantId(Integer.toString(tenantId));
         tenantAwareLoggingEvent.setServiceName(serviceName);
         return tenantAwareLoggingEvent;
-    }
-
-    /**
-     * Returns a LoggingEvent sanitized for CR and LF characters if present.
-     *
-     * @param loggingEvent LoggingEvent with the log content
-     * @return a sanitized LoggingEvent
-     */
-    public static LoggingEvent getSanitizedLoggingEvent(LoggingEvent loggingEvent) {
-
-        String sanitizedMessage = loggingEvent.getMessage().toString();
-        boolean sanitized = false;
-
-        int index = sanitizedMessage.indexOf('\r');
-        if (index >= 0) {
-            sanitizedMessage = sanitizedMessage.replace('\r', '_');
-            sanitized = true;
-        }
-
-        index = sanitizedMessage.indexOf('\n');
-        if (index >= 0) {
-            sanitizedMessage = sanitizedMessage.replace('\n', '_');
-            sanitized = true;
-        }
-
-        if (sanitized) {
-            sanitizedMessage = sanitizedMessage.concat(" (Sanitized)");
-            return new LoggingEvent(loggingEvent.getFQNOfLoggerClass(), loggingEvent.getLogger(),
-                                    loggingEvent.getTimeStamp(), loggingEvent.getLevel(), sanitizedMessage,
-                                    loggingEvent.getThreadName(), loggingEvent.getThrowableInformation(),
-                                    loggingEvent.getNDC(), loggingEvent.getLocationInformation(),
-                                    loggingEvent.getProperties());
-        }
-
-        return loggingEvent;
     }
 
     /**
@@ -133,5 +99,52 @@ public class LoggingUtils {
         } else {
             return Level.TRACE;
         }
+    }
+
+    /**
+     * Returns a LoggingEvent sanitized for CR and LF characters if present.
+     *
+     * @param loggingEvent LoggingEvent with the log content
+     * @return a sanitized LoggingEvent
+     */
+    public static LoggingEvent getSanitizedLoggingEvent(LoggingEvent loggingEvent) {
+
+        return new LoggingEvent(loggingEvent.getFQNOfLoggerClass(), loggingEvent.getLogger(),
+                                loggingEvent.getTimeStamp(), loggingEvent.getLevel(),
+                                getSanitizedLoggingMessage(loggingEvent.getMessage()),
+                                loggingEvent.getThreadName(), loggingEvent.getThrowableInformation(),
+                                loggingEvent.getNDC(), loggingEvent.getLocationInformation(),
+                                loggingEvent.getProperties());
+    }
+
+    /**
+     * Returns a String instance sanitized for CR and LF characters if present in the original message
+     *
+     * @param message original message
+     * @return a sanitized String
+     */
+    private static String getSanitizedLoggingMessage(Object message) {
+
+        String sanitizedMessage = message == null ? null : message.toString();
+        if (sanitizedMessage != null && !sanitizedMessage.isEmpty()) {
+            boolean sanitized = false;
+            int index = sanitizedMessage.indexOf('\r');
+            if (index >= 0) {
+                sanitizedMessage = sanitizedMessage.replace('\r', '_');
+                sanitized = true;
+            }
+
+            index = sanitizedMessage.indexOf('\n');
+            if (index >= 0) {
+                sanitizedMessage = sanitizedMessage.replace('\n', '_');
+                sanitized = true;
+            }
+
+            if (sanitized){
+                sanitizedMessage = sanitizedMessage.concat(" (Sanitized)");
+            }
+        }
+
+        return sanitizedMessage;
     }
 }
