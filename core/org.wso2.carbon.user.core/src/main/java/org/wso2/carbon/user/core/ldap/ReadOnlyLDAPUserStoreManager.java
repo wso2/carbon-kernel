@@ -2579,7 +2579,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
                     searchFilter =
                             "(&" + searchFilter + "(" + membershipProperty + "=" + membershipValue +
-                                    ") (" + roleNameProperty + "=" + roleName + "))";
+                                    ") (" + roleNameProperty + "=" + escapeSpecialCharactersForFilter(roleName) + "))";
 
                     // handle multiple search bases 
                     String[] searchBaseArray = searchBases.split("#");
