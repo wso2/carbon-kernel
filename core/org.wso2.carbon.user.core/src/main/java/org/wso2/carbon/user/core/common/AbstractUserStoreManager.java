@@ -43,7 +43,6 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
@@ -3544,7 +3543,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     @Override
     public boolean isBulkImportSupported(){
 
-        return new Boolean(realmConfig.getUserStoreProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT));
+        return new Boolean(realmConfig.getUserStoreProperty(UserStoreConfigConstants.bulkImportSupported));
 
     }
 
