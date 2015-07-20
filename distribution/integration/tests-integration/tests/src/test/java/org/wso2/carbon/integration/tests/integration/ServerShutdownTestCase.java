@@ -55,7 +55,12 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
         try {
-            CarbonTestServerManager.start(startUpParameterMap);
+            if (!CarbonTestServerManager.isServerRunning()) {
+                CarbonTestServerManager.start(startUpParameterMap);
+            } else {
+                CarbonTestServerManager.stop();
+                CarbonTestServerManager.start(startUpParameterMap);
+            }
 
             int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
             ClientConnectionUtil.waitForPort(httpsPort, automationContext.getInstance().getHosts().get("default"));
