@@ -105,16 +105,6 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
                 int tenantId = tenantManager.getTenantId(tenantDomain);
                 carbonContext.setTenantId(tenantId);
                 carbonContext.setTenantDomain(tenantDomain);
-                
-                //read the domain name of the user store that the user belongs to and set it to the user name,
-                //a domain name is not already appended
-                String domain = UserCoreUtil.getDomainFromThreadLocal();
-                int index = userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                if (index < 0) {
-                    if (domain != null) {
-                        userName = domain + CarbonConstants.DOMAIN_SEPARATOR + userName;
-                    }
-                }
 
                 audit.info("User " + userName + " successfully authenticated to perform JMX operations.");
 
