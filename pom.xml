@@ -7,6 +7,9 @@
     <artifactId>carbon</artifactId>
     <packaging>pom</packaging>
     <version>5.0.0-SNAPSHOT</version>
+    <modules>
+        <module>core</module>
+    </modules>
     <name>WSO2 Carbon Kernel - Parent Pom</name>
     <description>WSO2 Carbon Kernel with all its dependents, components, features
     </description>
@@ -25,17 +28,18 @@
             </activation>
             <modules>
                 <module>dependencies</module>
-                <module>modules/launcher</module>
-                <module>modules/kernel</module>
-                <module>modules/server-config</module>
-                <module>modules/deployment-engine</module>
-                <module>modules/samples/hello-world-bundle</module>
-                <module>modules/samples/webapp-bundle</module>
-                <module>modules/runtime-manager</module>
-                <module>modules/clustering</module>
-                <module>modules/transport</module>
-                <module>modules/utils</module>
-                <module>modules/extensions</module>
+                <module>launcher</module>
+                <module>core</module>
+                <!--<module>modules/kernel</module>-->
+                <!--<module>modules/server-config</module>-->
+                <!--<module>modules/deployment-engine</module>-->
+                <!--<module>modules/samples/hello-world-bundle</module>-->
+                <!--<module>modules/samples/webapp-bundle</module>-->
+                <!--<module>modules/runtime-manager</module>-->
+                <!--<module>modules/clustering</module>-->
+                <!--<module>modules/transport</module>-->
+                <!--<module>modules/utils</module>-->
+                <!--<module>modules/extensions</module>-->
                 <module>features</module>
                 <module>distribution</module>
             </modules>

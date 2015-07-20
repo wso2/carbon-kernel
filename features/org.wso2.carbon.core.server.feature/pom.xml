@@ -35,40 +35,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.deployment</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.kernel</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.clustering</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.transport</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.hazelcast.wso2</groupId>
             <artifactId>hazelcast</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.utils</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.extensions</artifactId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+            <version>5.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>
@@ -80,7 +53,6 @@
                 <executions>
                     <execution>
                         <id>1-p2-feature-generation</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>p2-feature-gen</goal>
                         </goals>
@@ -96,14 +68,8 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.deployment</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.base</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.runtime</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.kernel</bundleDef>
                                 <bundleDef>com.hazelcast.wso2:hazelcast</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.clustering</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.utils</bundleDef>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.extensions</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
