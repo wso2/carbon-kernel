@@ -84,8 +84,13 @@ public class ActiveDirectoryUserStoreConstants {
 //      AD Specific Properties
         setProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT", UserStoreConfigConstants.passwordHashMethodDescription);
         setProperty(UserStoreConfigConstants.passwordJavaScriptRegEx, "Password RegEx (Javascript)", "^[\\S]{5,30}$", UserStoreConfigConstants.passwordJavaScriptRegExDescription);
+        setProperty("PasswordJavaRegExViolationErrorMsg", "Password RegEx Violation Error Message", "Password length should be within 5 to 30 characters",
+                "Error message when the password is not matched with PasswordJavaRegEx ");
         setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.usernameJavaScriptRegExDescription);
-        setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
+            setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
+        setProperty("UsernameJavaRegExViolationErrorMsg", "Username RegEx Violation Error Message",
+                "Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30",
+                "Error message when the Username is not matched with UsernameJavaRegEx ");
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
         setProperty(UserStoreConfigConstants.roleNameJavaRegEx, "Role Name RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.roleNameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.writeGroups, "Enable Write Groups", "true", UserStoreConfigConstants.writeGroupsDescription);
