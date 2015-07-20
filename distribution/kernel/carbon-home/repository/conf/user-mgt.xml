@@ -155,9 +155,9 @@
 	-->
 	<!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
-            <Property name="defaultRealmName">WSO2.ORG</Property>
+            <Property name="DefaultRealmName">WSO2.ORG</Property>
             <Property name="Disabled">false</Property>                                   
-            <Property name="kdcEnabled">false</Property>
+            <Property name="KDCEnabled">false</Property>
             <Property name="ConnectionURL">ldaps://10.100.1.100:636</Property> 
             <Property name="ConnectionName">CN=admin,CN=Users,DC=WSO2,DC=Com</Property>
             <Property name="ConnectionPassword">A1b2c3d4</Property>
@@ -257,14 +257,14 @@
 
 	<!-- Following user manager is used by Identity Server (IS) as its default user manager. 
 	     IS will do token replacement when building the product. Therefore do not change the syntax. 
-	     If "kdcEnabled" parameter is true, IS will allow service principle management. Thus "ServicePasswordJavaRegEx", "ServiceNameJavaRegEx"
+	     If "KDCEnabled" parameter is true, IS will allow service principle management. Thus "ServicePasswordJavaRegEx", "ServiceNameJavaRegEx"
 	     properties control the service name format and service password formats.
 	     In case if user core cache domain is needed to identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>
 	-->
 	<!--ISUserStoreManager class="org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
-            <Property name="defaultRealmName">WSO2.ORG</Property>
-            <Property name="kdcEnabled">false</Property>
+            <Property name="DefaultRealmName">WSO2.ORG</Property>
+            <Property name="KDCEnabled">false</Property>
             <Property name="Disabled">false</Property>                                   
             <Property name="ConnectionURL">ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}</Property>
             <Property name="ConnectionName">uid=admin,ou=system</Property>

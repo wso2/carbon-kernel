@@ -94,8 +94,8 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.writeGroups, "Enable Write Groups", "true", UserStoreConfigConstants.writeGroupsDescription);
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "uid={0},ou=Users,dc=wso2,dc=org", UserStoreConfigConstants.userDNPatternDescription);
         setProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true", UserStoreConfigConstants.emptyRolesAllowedDescription);
-        setProperty("defaultRealmName", "Default Realm Name", "WSO2.ORG", "Default name for the realm");
-        setProperty("kdcEnabled", "Enable KDC", "false", "Whether key distribution center enabled");
+        setProperty("DefaultRealmName", "Default Realm Name", "WSO2.ORG", "Default name for the realm");
+        setProperty("KDCEnabled", "Enable KDC", "false", "Whether key distribution center enabled");
         setProperty("DisplayNameAttribute", "Display Name Attribute", "cn", "The display name which usually is the combination of the users first name, middle initial, and last name");
         setProperty("isADLDSRole", "Is ADLDS Role", "false", "Whether an Active Directory Lightweight Directory Services role");
         setProperty("userAccountControl", "User Account Control", "512", "Flags that control the behavior of the user account");

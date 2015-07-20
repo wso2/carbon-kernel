@@ -161,8 +161,8 @@ public class UserCoreConstants {
 
         public static final String PROPERTY_EXTERNAL_IDP = "ExternalIdP";
 
-        public static final String PROPERTY_KDC_ENABLED = "kdcEnabled";
-        public static final String DEFAULT_REALM_NAME = "defaultRealmName";
+        public static final String PROPERTY_KDC_ENABLED = "KDCEnabled";
+        public static final String DEFAULT_REALM_NAME = "DefaultRealmName";
 
         public static final String PROPERTY_SCIM_ENABLED = "SCIMEnabled";
 
