@@ -66,6 +66,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
+    private static final char SQL_FILTER_CHAR_ESCAPE = '\\';
 
     protected DataSource jdbcds = null;
     protected Random random = new Random();
@@ -2672,7 +2673,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             // filters. if the query has multiple '*' s the filter will ignore all.
                 if ((value.startsWith(QUERY_FILTER_STRING_ANY) && !value.substring(1).contains(QUERY_FILTER_STRING_ANY)) ||
                         value.endsWith(QUERY_FILTER_STRING_ANY) && !value.substring(0, value.length() - 1).contains(
-                                QUERY_FILTER_STRING_ANY)) {
+                                QUERY_FILTER_STRING_ANY) && value.charAt(value.length()-2) != SQL_FILTER_CHAR_ESCAPE) {
                     value = value.replace(QUERY_FILTER_STRING_ANY, SQL_FILTER_STRING_ANY);
                 }
         }
