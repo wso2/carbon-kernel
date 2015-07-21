@@ -58,7 +58,12 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
 
 
         try {
-            CarbonTestServerManager.start(startUpParameterMap);
+            if (!CarbonTestServerManager.isServerRunning()) {
+                CarbonTestServerManager.start(startUpParameterMap);
+            } else {
+                CarbonTestServerManager.stop();
+                CarbonTestServerManager.start(startUpParameterMap);
+            }
             int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT)
                             + portOffset;
             ClientConnectionUtil.waitForPort(httpsPort, automationContext.getDefaultInstance().
@@ -93,7 +98,12 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
 
         try {
-            CarbonTestServerManager.start(startUpParameterMap);
+            if (!CarbonTestServerManager.isServerRunning()) {
+                CarbonTestServerManager.start(startUpParameterMap);
+            } else {
+                CarbonTestServerManager.stop();
+                CarbonTestServerManager.start(startUpParameterMap);
+            }
 
 
             int httpsPort = 9443 + portOffset;
