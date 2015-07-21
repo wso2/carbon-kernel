@@ -106,7 +106,7 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while adding hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -347,7 +347,7 @@ public class HybridRoleManager {
             }
 
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while updating user list of hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -472,7 +472,7 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while updating hybrid role list of user : " + user;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
