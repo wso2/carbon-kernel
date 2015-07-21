@@ -70,7 +70,6 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </UserStoreManager-->
 
 	<!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC. In case if application needs to manage 		     passwords externally set property <Property name="PasswordsExternallyManaged">true</Property>. In case if user core cache domain is needed to 			identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>. Furthermore properties, IsEmailUserName and 	     			DomainCalculation are readonly properties. 
@@ -99,7 +98,6 @@
             <Property name="SCIMEnabled">false</Property>
             <Property name="CaseInsensitiveUsername">true</Property>
             <Property name="MultiAttributeSeparator">,</Property>
-            <Property name="BulkImportSupported">true</Property>
         </UserStoreManager>
 	
 	<!-- If product is using an external LDAP as the user store in READ ONLY mode, use following user manager.
@@ -138,7 +136,6 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </UserStoreManager-->
 	
 	<!-- Active directory configuration is as follows.
@@ -195,7 +192,6 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </UserStoreManager-->
 	
 	<!-- If product is using an external LDAP as the user store in read/write mode, use following user manager 
@@ -243,7 +239,6 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </UserStoreManager-->
 
 	<!-- Following user manager is used by Identity Server (IS) as its default user manager. 
@@ -299,7 +294,6 @@
             <Property name="MaxUserNameListLength">100</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </ISUserStoreManager-->
 
 	<!--	Following configuration is for the CassandraUserStoreManager. The CassandraUserStoreManager is capable of using a Cassandra
@@ -318,7 +312,6 @@
 	    <Property name="StoreSaltedPassword">true</Property>
 	    <Property name="AuthenticateWithAnyCredential">true</Property>
 	    <Property name="DomainName">multipleCredentialUserStoreDomain</Property>
-	    <Property name="BulkImportSupported">true</Property>
 	        <MultipleCredentials>
 		    <Credential type="Default">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
 		    <Credential type="Email">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
