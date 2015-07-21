@@ -497,6 +497,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 "org.apache.synapse.transport.passthru.PassThroughHttpListener".equals(transportInClassName) ||
                 "org.apache.synapse.transport.passthru.PassThroughHttpSSLListener".equals(transportInClassName)){
             PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant, true);
+            tenantInMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
         }
 
        /* // extract the part of the user after the actual service and set it as
