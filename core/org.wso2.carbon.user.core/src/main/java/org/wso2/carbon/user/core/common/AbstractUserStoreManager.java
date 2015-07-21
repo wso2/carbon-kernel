@@ -3769,8 +3769,4 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public HybridRoleManager getInternalRoleManager() {
         return hybridRoleManager;
     }
-
-    public boolean isCaseSensitiveUsername(){
-        return false;
-    }
 }

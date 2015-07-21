@@ -97,7 +97,7 @@
             <Property name="MaxUserNameListLength">100</Property>
 	    <Property name="SharedGroupEnabled">false</Property>
             <Property name="SCIMEnabled">false</Property>
-            <Property name="CaseSensitiveUsername">true</Property>
+            <Property name="CaseInsensitiveUsername">true</Property>
             <Property name="MultiAttributeSeparator">,</Property>
             <Property name="BulkImportSupported">true</Property>
         </UserStoreManager>

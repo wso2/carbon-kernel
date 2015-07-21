@@ -207,8 +207,7 @@ public class JDBCUserStoreConstants {
                 "Case Insensitive Username (OpenEdge)", JDBCRealmConstants
                 .ADD_USER_PROPERTY_OPENEDGE_SQL_CASE_INSENSITIVE, "");
         setProperty("UniqueID", "", "", "");
-        setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
-                UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false", UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
     }
 
 
