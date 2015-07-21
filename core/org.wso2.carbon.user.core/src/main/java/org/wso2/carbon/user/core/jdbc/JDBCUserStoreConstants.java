@@ -72,6 +72,9 @@ public class JDBCUserStoreConstants {
         setProperty(UserStoreConfigConstants.SCIMEnabled, "", "false", UserStoreConfigConstants.SCIMEnabledDescription);
         setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
+                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
+
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER_SQL, "Select User SQL",JDBCRealmConstants.SELECT_USER_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.GET_ROLE_LIST, "Get Role List SQL", JDBCRealmConstants.GET_ROLE_LIST_SQL, "");
