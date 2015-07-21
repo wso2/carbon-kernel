@@ -142,36 +142,4 @@ public class UserRolesCache {
             cache.remove(userRolesCacheKey);
         }
     }
-
-    private boolean isUsernameCaseSensitive(String username, int tenantId){
-        if (UserStoreMgtDSComponent.getRealmService()!= null) {
-            //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
-            //as an example when running the unit tests.
-            try {
-                UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
-                        .getTenantUserRealm(tenantId).getUserStoreManager();
-                UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                        (getDomainFromName(username));
-                if (userAvailableUserStoreManager instanceof AbstractUserStoreManager) {
-                    return ((AbstractUserStoreManager) userAvailableUserStoreManager).isCaseSensitiveUsername();
-                } else {
-                    return false;
-                }
-            } catch (UserStoreException e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Error while reading user store property CaseSensitiveUsername. Considering as false.");
-                }
-            }
-        }
-        return false;
-    }
-
-    private String getDomainFromName(String name) {
-        int index;
-        if ((index = name.indexOf("/")) > 0) {
-            String domain = name.substring(0, index);
-            return domain;
-        }
-        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
-    }
 }
