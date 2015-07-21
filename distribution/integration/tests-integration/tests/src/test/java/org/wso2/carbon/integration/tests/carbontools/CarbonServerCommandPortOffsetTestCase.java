@@ -50,7 +50,7 @@ public class CarbonServerCommandPortOffsetTestCase extends CarbonIntegrationBase
                                       ContextXpathConstants.ADMIN);
     }
 
-    @Test(groups = {"carbon.core"}, description = "Server portOffset test")
+    @Test(groups = {"carbon.core"}, description = "Server portOffset test",enabled = false)
     public void testCommandPortOffset() throws Exception {
         serverPropertyMap = new HashMap<String, String>();
         serverPropertyMap.put("-DportOffset", Integer.toString(portOffset));
