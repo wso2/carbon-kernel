@@ -55,7 +55,6 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
         setProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants.SCIMEnabledDescription);
-        setProperty(UserStoreConfigConstants.DisplayNameAttribute, "Display name attribute", "uid", UserStoreConfigConstants.DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
 
         Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "false", "Enable Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription, null);

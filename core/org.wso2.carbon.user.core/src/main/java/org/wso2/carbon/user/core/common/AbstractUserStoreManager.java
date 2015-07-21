@@ -66,7 +66,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected static final String FALSE_VALUE = "false";
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
-    private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -817,8 +816,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (attributeName == null) {
             if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimURI)) {
                 attributeName = claimURI;
-            } else if (DISAPLAY_NAME_CLAIM.equals(claimURI)) {
-                attributeName = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
             } else {
                 throw new UserStoreException("Mapped attribute cannot be found for claim : " + claimURI + " in user " +
                         "store : " + getMyDomainName());
@@ -2709,9 +2706,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
-            String property = null;
-            String value = null;
             if (mapping != null) {
+                String property = null;
+
                 if (domainName != null) {
                     Map<String, String> attrMap = mapping.getMappedAttributes();
                     if (attrMap != null) {
@@ -2726,7 +2723,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     property = mapping.getMappedAttribute();
                 }
 
-                value = uerProperties.get(property);
+                String value = uerProperties.get(property);
 
                 if (profileName.equals(UserCoreConstants.DEFAULT_PROFILE)) {
                     // Check whether we have a value for the requested attribute
@@ -2737,15 +2734,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     if (value != null && value.trim().length() > 0) {
                         finalValues.put(claim, value);
                     }
-                }
-            } else {
-                if (property == null && claim.equals(DISAPLAY_NAME_CLAIM)) {
-                    property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
-                }
-
-                value = uerProperties.get(property);
-                if (value != null && value.trim().length() > 0) {
-                    finalValues.put(claim, value);
                 }
             }
         }
