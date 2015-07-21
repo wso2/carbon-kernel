@@ -55,7 +55,6 @@ public class JDBCUserStoreConstants {
 //      LDAP Specific Properties
         setProperty(JDBCRealmConstants.DIGEST_FUNCTION, "Password Hashing Algorithm", "SHA-256", UserStoreConfigConstants.passwordHashMethodDescription);
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true", UserStoreConfigConstants.readLDAPGroupsDescription);
-        setProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT, "Bulk Import Support","true","Bulk Import Supported");
         setProperty("ReadOnly", "Read-only", "false", "Indicates whether the user store of this realm operates in the user read only mode or not");
         setProperty("IsEmailUserName", "Is Email Username", "false", "Indicates whether Email is used as user name (apply when realm operates in read only mode).");
         setProperty("DomainCalculation", "Domain Calculation", "default", "Can be either default or custom (apply when realm operates in read only mode)");
