@@ -229,7 +229,6 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.CONNECTION_PASSWORD);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.CONNECTION_URL);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.PASSWORD_HASH_METHOD);
-        tenantRealmConfiguration.getUserStoreProperties().remove("passwordHashMethod");
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.USER_SEARCH_BASE);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.GROUP_SEARCH_BASE);
         tenantRealmConfiguration.getUserStoreProperties().put(tenantManagerKey, tenantManagerValue);
