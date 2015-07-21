@@ -2184,7 +2184,15 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      */
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-        
+
+        if (!checkUserPasswordValid(newCredential)) {
+            throw new UserStoreException(
+                    "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
+        }
+
         String sqlStmt;
         if (isCaseSensitiveUsername()) {
             sqlStmt = realmConfig.getUserStoreProperty(JDBCRealmConstants.UPDATE_USER_PASSWORD);
