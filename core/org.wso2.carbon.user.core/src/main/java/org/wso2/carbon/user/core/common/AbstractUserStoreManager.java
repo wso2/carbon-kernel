@@ -2448,7 +2448,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}
      */
-    public String[] getAllSecondaryRoles() throws UserStoreException {
+    public final String[] getAllSecondaryRoles() throws UserStoreException {
         UserStoreManager secondary = this.getSecondaryUserStoreManager();
         List<String> roleList = new ArrayList<String>();
         while (secondary != null) {
@@ -2477,7 +2477,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}                  doAddInternalRole
      */
-    public String[] getHybridRoles() throws UserStoreException {
+    public final String[] getHybridRoles() throws UserStoreException {
         return hybridRoleManager.getHybridRoles("*");
     }
 
@@ -2651,7 +2651,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    protected Map<String, String> doGetUserClaimValues(String userName, String[] claims,
+    private Map<String, String> doGetUserClaimValues(String userName, String[] claims,
                                                      String domainName, String profileName) throws UserStoreException {
 
         // Here the user name should be domain-less.
