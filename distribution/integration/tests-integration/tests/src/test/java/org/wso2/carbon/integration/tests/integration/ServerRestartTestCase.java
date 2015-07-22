@@ -74,12 +74,12 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
                                                                   automationContext.getSuperTenant().getTenantAdmin().getUserName(), automationContext.
                     getSuperTenant().getTenantAdmin().getPassword());
             assertTrue(serverAdmin.restartGracefully(), "Server gracefully restart failure");
-            Thread.sleep(5000); //This sleep should be there, since we have to give some time for
+            Thread.sleep(15000); //This sleep should be there, since we have to give some time for
             //the server to initiate restart. Otherwise, "waitForPort" call
             //might happen before server initiate restart.
             ClientConnectionUtil.waitForPort(httpsPort, TIMEOUT, true, automationContext.getInstance().
                     getHosts().get("default"));
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } finally {
             CarbonTestServerManager.stop();
 
@@ -114,10 +114,10 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
                                                                   automationContext.getSuperTenant().getTenantAdmin().getUserName(),
                                                                   automationContext.getSuperTenant().getTenantAdmin().getPassword());
             assertTrue(serverAdmin.restart(), "Server restart failure");
-            Thread.sleep(5000);
+            Thread.sleep(15000);
             ClientConnectionUtil.waitForPort(httpsPort, TIMEOUT, true, automationContext.getInstance().
                     getHosts().get("default"));
-            Thread.sleep(5000);
+            Thread.sleep(10000);
         } finally {
 
             CarbonTestServerManager.stop();
