@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.common;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -66,7 +67,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected static final String FALSE_VALUE = "false";
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
-    private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -708,21 +708,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         boolean isAuth = this.doAuthenticate(userName, oldCredential);
 
         if (isAuth) {
-            if (!checkUserPasswordValid(newCredential)) {
-
-                String errorMsg = realmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-                if (errorMsg != null) {
-                    throw new UserStoreException(errorMsg);
-                }
-
-                throw new UserStoreException(
-                        "Credential not valid. Credential must be a non null string with following format, "
-                                + realmConfig
-                                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-
-            }
 
             this.doUpdateCredential(userName, newCredential, oldCredential);
 
@@ -790,26 +775,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-
-        if (!checkUserPasswordValid(newCredential)) {
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-
-            throw new UserStoreException(
-                    "Credential not valid. Credential must be a non null string with following format, "
-                            + realmConfig
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-
-        }
-
-        if (!doCheckExistingUser(userStore.getDomainFreeName())) {
-            throw new UserStoreException("User " + userName + " does not exisit in the user store");
-        }
-
         doUpdateCredentialByAdmin(userName, newCredential);
 
         // #################### <Listeners> #####################################################
@@ -852,8 +817,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (attributeName == null) {
             if (UserCoreConstants.PROFILE_CONFIGURATION.equals(claimURI)) {
                 attributeName = claimURI;
-            } else if (DISAPLAY_NAME_CLAIM.equals(claimURI)) {
-                attributeName = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
             } else {
                 throw new UserStoreException("Mapped attribute cannot be found for claim : " + claimURI + " in user " +
                         "store : " + getMyDomainName());
@@ -1198,12 +1161,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!checkUserPasswordValid(credential)) {
             String message = "Credential not valid. Credential must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
             throw new UserStoreException(message + regEx);
@@ -2489,7 +2446,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}
      */
-    public String[] getAllSecondaryRoles() throws UserStoreException {
+    public final String[] getAllSecondaryRoles() throws UserStoreException {
         UserStoreManager secondary = this.getSecondaryUserStoreManager();
         List<String> roleList = new ArrayList<String>();
         while (secondary != null) {
@@ -2518,7 +2475,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}                  doAddInternalRole
      */
-    public String[] getHybridRoles() throws UserStoreException {
+    public final String[] getHybridRoles() throws UserStoreException {
         return hybridRoleManager.getHybridRoles("*");
     }
 
@@ -2692,7 +2649,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    protected Map<String, String> doGetUserClaimValues(String userName, String[] claims,
+    private Map<String, String> doGetUserClaimValues(String userName, String[] claims,
                                                      String domainName, String profileName) throws UserStoreException {
 
         // Here the user name should be domain-less.
@@ -2750,9 +2707,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 throw new UserStoreException(e);
             }
-            String property = null;
-            String value = null;
             if (mapping != null) {
+                String property = null;
+
                 if (domainName != null) {
                     Map<String, String> attrMap = mapping.getMappedAttributes();
                     if (attrMap != null) {
@@ -2767,7 +2724,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     property = mapping.getMappedAttribute();
                 }
 
-                value = uerProperties.get(property);
+                String value = uerProperties.get(property);
 
                 if (profileName.equals(UserCoreConstants.DEFAULT_PROFILE)) {
                     // Check whether we have a value for the requested attribute
@@ -2778,15 +2735,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     if (value != null && value.trim().length() > 0) {
                         finalValues.put(claim, value);
                     }
-                }
-            } else {
-                if (property == null && claim.equals(DISAPLAY_NAME_CLAIM)) {
-                    property = this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
-                }
-
-                value = uerProperties.get(property);
-                if (value != null && value.trim().length() > 0) {
-                    finalValues.put(claim, value);
                 }
             }
         }
@@ -2901,6 +2849,14 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String regularExpression = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+
+        if (MultitenantUtils.isEmailUserName()) {
+            regularExpression = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX);
+            if (regularExpression == null) {
+                regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
+            }
+        }
 
         if (regularExpression != null) {
             regularExpression = regularExpression.trim();
@@ -3542,13 +3498,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     @Override
-    public boolean isBulkImportSupported(){
-
-        return new Boolean(realmConfig.getUserStoreProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT));
-
-    }
-
-    @Override
     public void addRole(String roleName, String[] userList,
                         org.wso2.carbon.user.api.Permission[] permissions)
             throws org.wso2.carbon.user.api.UserStoreException {
@@ -3801,9 +3750,5 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
     public HybridRoleManager getInternalRoleManager() {
         return hybridRoleManager;
-    }
-
-    public boolean isCaseSensitiveUsername(){
-        return false;
     }
 }
