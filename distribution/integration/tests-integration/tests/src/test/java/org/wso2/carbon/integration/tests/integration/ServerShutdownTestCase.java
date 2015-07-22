@@ -73,7 +73,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
 
             serverAdmin.shutdownGracefully();
 
-            Thread.sleep(10000);
+            Thread.sleep(20000);
 
             assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
                         "Port " + httpsPort + " shouldn't be open when the server is gracefully shutting down");
@@ -108,7 +108,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
                                                                   automationContext.getContextTenant().getContextUser().getPassword());
 
             assertTrue(serverAdmin.shutdown(), "Server shout down failure");
-            Thread.sleep(10000);
+            Thread.sleep(20000);
             assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
                         "Port " + httpsPort + " shouldn't be open when the server is shutting down");
             int httpPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset;
