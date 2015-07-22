@@ -59,10 +59,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
@@ -105,25 +101,19 @@
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Activator>
-                            org.wso2.carbon.clustering.internal.CarbonClusterBundleActivator
+                            org.wso2.carbon.internal.CarbonCoreBundleActivator
                         </Bundle-Activator>
                         <Private-Package>
-                            org.wso2.carbon.clustering.internal, org.wso2.carbon.deployment.internal, org.wso2.carbon.kernel.internal,
-                            org.wso2.carbon.extensions.internal, org.wso2.carbon.runtime.internal
+                            org.wso2.carbon.internal,
                         </Private-Package>
                         <Export-Package>
-                            !org.wso2.carbon.clustering.internal,
+                            !org.wso2.carbon.internal,
                             org.wso2.carbon.clustering.*;version="${carbon.kernel.package.export.version}",
-                            !org.wso2.carbon.deployment.internal,
                             org.wso2.carbon.deployment.*;version="${carbon.kernel.package.export.version}",
-                            !org.wso2.carbon.kernel.internal,
                             org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
                             org.wso2.carbon.utils.*;version="${carbon.kernel.package.export.version}",
-                            !org.wso2.carbon.extensions.internal,
                             org.wso2.carbon.extensions.*;version="${carbon.kernel.package.export.version}",
-                            !org.wso2.carbon.runtime.internal,
                             org.wso2.carbon.runtime.*;version="${carbon.kernel.package.export.version}",
-                            !org.wso2.carbon.base.internal,
                             org.wso2.carbon.base.*;version="${carbon.kernel.package.export.version}",
                         </Export-Package>
                         <Import-Package>

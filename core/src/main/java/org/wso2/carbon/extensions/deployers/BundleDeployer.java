@@ -26,7 +26,7 @@ import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;
-import org.wso2.carbon.extensions.internal.DataHolder;
+import org.wso2.carbon.internal.DataHolder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

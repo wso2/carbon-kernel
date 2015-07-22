@@ -18,7 +18,7 @@
  */
 package org.wso2.carbon.clustering.spi;
 
-import org.wso2.carbon.clustering.internal.ClusterContext;
+import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
 

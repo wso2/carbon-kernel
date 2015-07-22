@@ -26,8 +26,8 @@ import org.wso2.carbon.deployment.deployers.CustomDeployer;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
-import org.wso2.carbon.deployment.internal.DeploymentEngine;
-import org.wso2.carbon.deployment.internal.RepositoryScanner;
+import org.wso2.carbon.internal.deployment.DeploymentEngine;
+import org.wso2.carbon.internal.deployment.RepositoryScanner;
 
 import java.io.File;
 import java.util.ArrayList;
