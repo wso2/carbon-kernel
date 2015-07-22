@@ -80,9 +80,7 @@ public class CSRFProtector {
             String CSRFRequestToken = request.getParameter(CSRFConstants.CSRF_TOKEN);
             String CSRFSessionToken = getCSRFTokenFromSession(session);
 
-            if (CSRFSessionToken == null) {
-                setCSRFTokenForSession(session);
-            } else if (!CSRFSessionToken.equals(CSRFRequestToken)) {
+            if (CSRFSessionToken == null || !CSRFSessionToken.equals(CSRFRequestToken)) {
                 throw new CSRFException("A potential CSRF attack from " + request.getRequestURI());
             }
         }
