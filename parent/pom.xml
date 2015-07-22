@@ -355,7 +355,7 @@
         <orbit.version.tomcat.ha>${version.tomcat}.wso2v1</orbit.version.tomcat.ha>
         <orbit.version.tribes>7.0.34.wso2v1</orbit.version.tribes>
 
-        <version.eclipse.ecj>4.3.1</version.eclipse.ecj>
+        <version.eclipse.ecj>4.4.2</version.eclipse.ecj>
 
         <orbit.version.hazelcast>3.2.6.wso2v3</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
