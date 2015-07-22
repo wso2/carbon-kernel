@@ -19,18 +19,23 @@ package org.wso2.carbon.integration.tests.jira.issues.test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.*;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.automation.engine.context.AutomationContext;
-import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 import org.wso2.carbon.server.admin.ui.ServerAdminClient;
 import org.wso2.carbon.utils.FileManipulator;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -109,11 +114,11 @@ public class CARBON15203GSONBuilderOrderTestCase extends CarbonIntegrationBaseTe
                 "/services/ServerAdmin/", context.getSuperTenant().getTenantAdmin().getUserName(),
                 context.getSuperTenant().getTenantAdmin().getPassword());
         serverAdminClient.restartGracefully();
-        Thread.sleep(5000);
+        Thread.sleep(15000);
         ClientConnectionUtil
                 .waitForPort(Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset, TIMEOUT, true,
                              context.getInstance().getHosts().get("default"));
-        Thread.sleep(5000);
+        Thread.sleep(10000);
     }
 
     private void uploadApp() throws Exception {
