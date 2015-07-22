@@ -58,7 +58,6 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
         setProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants.SCIMEnabledDescription);
-        setProperty(UserStoreConfigConstants.DisplayNameAttribute, "Display name attribute", "cn", UserStoreConfigConstants.DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
         setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
 
@@ -72,15 +71,13 @@ public class ActiveDirectoryUserStoreConstants {
         readLDAPGroups.setChildProperties(new Property[]{groupSearchBase, groupNameListFilter, groupNameAttribute, membershipAttribute, groupNameSearchFilter});
         OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.add(readLDAPGroups);
 
-        setProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT, "Bulk Import Support","true","Bulk Import Supported");
         setProperty(UserStoreConfigConstants.groupSearchBase, "Group Search Base", "CN=Users,DC=WSO2,DC=Com", UserStoreConfigConstants.groupSearchBaseDescription);
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group Object Class", "(objectcategory=group)", UserStoreConfigConstants.groupNameListFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member", UserStoreConfigConstants.membershipAttributeDescription);
-        setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "memberOf", UserStoreConfigConstants.memberOfAttribute);
+        setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "", UserStoreConfigConstants.memberOfAttribute);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=group)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
-        setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
-                UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
+        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false", UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
 
 
 //      AD Specific Properties

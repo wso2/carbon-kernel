@@ -116,12 +116,6 @@ this directory.
                                 recreate DB, re-populate the configuration,
                                 and start Carbon.
 
-                -DhttpPort=<httpPort>
-                                Overrides the HTTP port defined in the carbon.xml file
-
-                -DhttpsPort=<httpsPort>
-                                Overrides the HTTPS port defined in the carbon.xml file
-
                 -DportOffset=<offset>
                                 The number by which all ports defined in the runtime ports will be offset
 
@@ -136,22 +130,6 @@ this directory.
 
                 -Dtenant.idle.time=<timeInMinutes>
                                 If a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.
-
-                -Dcarbon.registry.root
-                                The root of the Registry used by
-                                this Carbon instance.
-     
-                -Dweb.location=<path>
-                                The directory into which the UI artifacts
-                                included in an Axis2 AAR file are extracted to.
-
-                -Dcarbon.config.dir.path=<path>
-                        Overwrite the conf directory path where we keep all
-                        configuration files like carbon.xml, axis2.xml etc.
-
-                -Dcarbon.logs.path=>path>
-                        Define the path to keep Log files. If you want to change the logs directory, you need to update
-                        repository/conf/log4j.properties file also.
 
 5. wsdl2java.sh & wsdl2java.bat - Tool for generating Java code from WSDLs
 
