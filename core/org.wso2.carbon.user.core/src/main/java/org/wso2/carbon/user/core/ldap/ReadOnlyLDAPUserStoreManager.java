@@ -612,8 +612,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
         String searchFilter = ((LDAPRoleContext) context).getListFilter();
         String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
-        searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilterWithStar
-                (roleName) + "))";
+        searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilterWithStar(
+                roleName) + "))";
         String searchBases = ((LDAPRoleContext) context).getSearchBase();
 
         if (debug) {
@@ -1550,8 +1550,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             String searchFilter = ((LDAPRoleContext) context).getListFilter();
             String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
-            searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilterWithStar
-                    (context.getRoleName()) + "))";
+            searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilterWithStar(
+                    context.getRoleName()) + "))";
 
             String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
             String returnedAtts[] = {membershipProperty};
@@ -1568,8 +1568,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     if (debug) {
                         log.debug("Using pattern: " + pattern);
                     }
-                    pattern = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDNWithStar(context.getRoleName
-                            ()));
+                    pattern = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDNWithStar(
+                            context.getRoleName()));
                     try {
                         answer = dirContext.search(escapeDNForSearch(pattern), searchFilter, searchCtls);
                         if (answer.hasMore()) {
@@ -2550,7 +2550,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         if (debug) {
                             log.debug("Using pattern: " + pattern);
                         }
-                        searchBases = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDNWithStar(roleName));
+                        searchBases = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDNWithStar(
+                                roleName));
                         try {
                             answer = dirContext.search(escapeDNForSearch(searchBases), searchFilter, searchCtls);
                         } catch (NamingException e) {
@@ -2767,6 +2768,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
         return this.realmConfig.getUserStoreProperties();
+    }
+
+    @Override
+    public boolean isBulkImportSupported() throws UserStoreException {
+        return false;
     }
 
     /**
