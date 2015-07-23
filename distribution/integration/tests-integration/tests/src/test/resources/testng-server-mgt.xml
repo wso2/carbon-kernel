@@ -28,8 +28,7 @@
 
     <test name="patching-tests" preserve-order="true" parallel="false">
         <classes>
-            <!-- TODO: https://wso2.org/jira/browse/CARBON-15314 -->
-            <!-- <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/> -->
+             <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/>
             <class name="org.wso2.carbon.integration.tests.patching.PatchApplyingTestCase"/>
         </classes>
     </test>
