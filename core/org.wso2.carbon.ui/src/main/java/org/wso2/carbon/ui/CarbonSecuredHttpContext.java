@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
@@ -318,28 +319,28 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
      * @param resourceURI
      * @return
      */
-    private boolean isCurrentUrlToBePassed(HttpServletRequest request, HttpSession session,
-            String resourceURI) {
-
-        if (!urlsToBeByPassed.isEmpty() && urlsToBeByPassed.containsKey(resourceURI)) {
-            if (log.isDebugEnabled()) {
-                log.debug("By passing authentication check for URI : " + resourceURI);
+    private boolean isCurrentUrlToBePassed(HttpServletRequest request, HttpSession session, String resourceURI) {
+        for (Map.Entry<String, String> urlToBeByPassed : urlsToBeByPassed.entrySet()) {
+            String urlKey = urlToBeByPassed.getKey();
+            if (urlKey.contains(resourceURI) ||
+                (urlKey.endsWith("*") && resourceURI.startsWith(urlKey.substring(0, urlKey.length() - 1)))) {
+                if (log.isDebugEnabled()) {
+                    log.debug("By passing authentication check for URI : " + resourceURI);
+                }
+                // Before bypassing, set the backendURL properly so that it doesn't fail
+                String contextPath = request.getContextPath();
+                String backendServerURL = request.getParameter("backendURL");
+                if (backendServerURL == null) {
+                    backendServerURL = CarbonUIUtil.getServerURL(session.getServletContext(), request.getSession());
+                }
+                if ("/".equals(contextPath)) {
+                    contextPath = "";
+                }
+                backendServerURL = backendServerURL.replace("${carbon.context}", contextPath);
+                session.setAttribute(CarbonConstants.SERVER_URL, backendServerURL);
+                return true;
             }
-            // Before bypassing, set the backendURL properly so that it doesn't fail
-            String contextPath = request.getContextPath();
-            String backendServerURL = request.getParameter("backendURL");
-            if (backendServerURL == null) {
-                backendServerURL = CarbonUIUtil.getServerURL(session.getServletContext(),
-                        request.getSession());
-            }
-            if ("/".equals(contextPath)) {
-                contextPath = "";
-            }
-            backendServerURL = backendServerURL.replace("${carbon.context}", contextPath);
-            session.setAttribute(CarbonConstants.SERVER_URL, backendServerURL);
-            return true;
         }
-
         return false;
     }
 
