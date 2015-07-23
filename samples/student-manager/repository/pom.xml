@@ -34,7 +34,7 @@
                             <publishArtifactRepository>true</publishArtifactRepository>
                             <featureArtifacts>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.student.mgt.feature:${carbon.kernel.version}
+                                    org.wso2.carbon:org.wso2.carbon.student.mgt.feature:${student.manager.version}
                                 </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>
