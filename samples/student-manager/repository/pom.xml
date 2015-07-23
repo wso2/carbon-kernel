@@ -19,6 +19,7 @@
             <plugin>
                 <groupId>org.wso2.maven</groupId>
                 <artifactId>carbon-p2-plugin</artifactId>
+                <version>${carbon.p2.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>2-p2-repo-generation</id>
@@ -33,7 +34,7 @@
                             <publishArtifactRepository>true</publishArtifactRepository>
                             <featureArtifacts>
                                 <featureArtifactDef>
-                                    org.wso2.carbon:org.wso2.carbon.student.mgt.feature:${carbon.kernel.version}
+                                    org.wso2.carbon:org.wso2.carbon.student.mgt.feature:${student.manager.version}
                                 </featureArtifactDef>
                             </featureArtifacts>
                         </configuration>
