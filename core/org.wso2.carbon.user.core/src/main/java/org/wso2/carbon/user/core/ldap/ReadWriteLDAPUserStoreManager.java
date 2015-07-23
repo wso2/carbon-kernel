@@ -229,6 +229,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
 
+		/* validity checks */
+        doAddUserValidityChecks(userName, credential); // TODO bring abstract
+
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
 
@@ -276,6 +279,33 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        }
+    }
+
+    /**
+     * Does required checks before adding the user
+     *
+     * @param userName
+     * @param credential
+     * @throws UserStoreException
+     */
+    protected void doAddUserValidityChecks(String userName, Object credential)
+            throws UserStoreException {
+
+        if (!checkUserNameValid(userName)) {
+            throw new UserStoreException(
+                    "User name not valid. User name must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX));
+        }
+        if (!checkUserPasswordValid(credential)) {
+            throw new UserStoreException(
+                    "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+        }
+        if (isExistingUser(userName)) {
+            throw new UserStoreException("User " + userName + " already exist in the LDAP");
         }
     }
 
@@ -550,6 +580,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
+        /* validity checks */
+        doUpdateCredentialsValidityChecks(userName, newCredential);
+
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
         // first search the existing user entry.
@@ -570,6 +603,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // TODO: what to do if there are more than one user
             SearchResult searchResult = null;
             String passwordHashMethod = realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
+            if (passwordHashMethod == null) {
+                passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
+            }
             while (namingEnumeration.hasMore()) {
                 searchResult = namingEnumeration.next();
 
@@ -609,6 +645,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
+        /* validity checks */
+        doUpdateCredentialsValidityChecks(userName, newCredential);
 
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -635,6 +673,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             while (namingEnumeration.hasMore()) {
                 searchResult = namingEnumeration.next();
                 String passwordHashMethod = realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
+                if (passwordHashMethod == null) {
+                    passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
+                }
                 if (!UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT.
                         equalsIgnoreCase(passwordHashMethod)) {
                     Attributes attributes = searchResult.getAttributes();
@@ -684,6 +725,25 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
+        }
+    }
+
+    /**
+     * @param userName
+     * @param newCredential
+     * @throws UserStoreException
+     */
+    protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
+            throws UserStoreException {
+        if (!isExistingUser(userName)) {
+            throw new UserStoreException("User " + userName + " does not exisit in the user store");
+        }
+
+        if (!checkUserPasswordValid(newCredential)) {
+            throw new UserStoreException(
+                    "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
         }
     }
 

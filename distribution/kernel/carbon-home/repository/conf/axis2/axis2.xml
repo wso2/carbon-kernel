@@ -95,7 +95,9 @@
     <parameter name="manageTransportSession">true</parameter>
 
     <!-- Synapse Configuration file -->
-    <parameter name="SynapseConfig.ConfigurationFile" locked="false">repository/deployment/server/synapse-configs</parameter>
+    <parameter name="SynapseConfig.ConfigurationFile" locked="false">
+        ./repository/deployment/server/synapse-configs
+    </parameter>
 
     <!-- Synapse Home parameter -->
     <parameter name="SynapseConfig.HomeDirectory" locked="false">.</parameter>
