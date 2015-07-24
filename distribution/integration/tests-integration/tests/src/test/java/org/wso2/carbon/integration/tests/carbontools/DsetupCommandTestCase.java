@@ -95,7 +95,12 @@ public class DsetupCommandTestCase extends CarbonIntegrationBaseTest {
         // start with -Dsetup command
         serverPropertyMap.put("-Dsetup", "");
 
-        CarbonTestServerManager.start(serverPropertyMap);
+        if (!CarbonTestServerManager.isServerRunning()) {
+            CarbonTestServerManager.start(serverPropertyMap);
+        } else {
+            CarbonTestServerManager.stop();
+            CarbonTestServerManager.start(serverPropertyMap);
+        }
 
         boolean startupStatus =
                 CarbonCommandToolsUtil.isServerStartedUp(automationContextOfInstance002, portOffset);

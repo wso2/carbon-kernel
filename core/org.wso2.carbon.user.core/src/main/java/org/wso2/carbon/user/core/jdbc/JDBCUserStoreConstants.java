@@ -67,7 +67,10 @@ public class JDBCUserStoreConstants {
         setProperty("PasswordJavaRegExViolationErrorMsg", "Password RegEx Violation(Java) Error Message", "Password length should be within 5 to 30 characters",
                 "Error message when the password is not matched with PasswordJavaRegEx ");
         setProperty("PasswordJavaScriptRegEx", "Password RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for password validation");
-        setProperty("UsernameJavaRegEx", "Username RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate user names");
+        setProperty("UsernameJavaRegEx", "Username RegEx (Java)", "^[\\S]{3,30}$", "A regular expression to validate user names");
+        setProperty("UsernameJavaRegExViolationErrorMsg", "Username RegEx Violation Error Message",
+                "Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30",
+                "Error message when the Username is not matched with UsernameJavaRegEx ");
 //        setProperty("UsernameJavaRegEx","^[^~!#$;%^*+={}\\\\|\\\\\\\\&lt;&gt;,\\\'\\\"]{3,30}$","A regular expression to validate user names");
         setProperty("UsernameJavaScriptRegEx", "Username RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for username validation");
         setProperty("RolenameJavaRegEx", "Role Name RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate role names");
