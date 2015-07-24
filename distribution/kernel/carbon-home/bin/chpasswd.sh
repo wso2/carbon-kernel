@@ -84,20 +84,20 @@ ant -buildfile "$CARBON_HOME"/bin/build.xml
 CARBON_CLASSPATH=""
 for f in "$CARBON_HOME"/lib/*.jar
 do
-  CARBON_CLASSPATH=$CARBON_CLASSPATH:$f
+  CARBON_CLASSPATH="$CARBON_CLASSPATH::$f
 done
 
 for g in "$CARBON_HOME"/repository/lib/*.jar
 do
-  CARBON_CLASSPATH=$CARBON_CLASSPATH:$g
+  CARBON_CLASSPATH="$CARBON_CLASSPATH":$g
 done
 
 for h in "$CARBON_HOME"/lib/api/*.jar
 do
-  CARBON_CLASSPATH=$CARBON_CLASSPATH:$h
+  CARBON_CLASSPATH="$CARBON_CLASSPATH":$h
 done
 
-CARBON_CLASSPATH=$CARBON_CLASSPATH:$CLASSPATH
+CARBON_CLASSPATH="$CARBON_CLASSPATH":$CLASSPATH
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
@@ -110,7 +110,7 @@ fi
 # ----- Execute The Requested Command -----------------------------------------
 cd "$CARBON_HOME"
 
-CARBON_CLASSPATH="$CARBON_HOME/lib/patches":"$CARBON_HOME/conf":$CARBON_CLASSPATH
+CARBON_CLASSPATH="$CARBON_HOME/lib/patches":"$CARBON_HOME/conf":"$CARBON_CLASSPATH"
 
 $JAVA_HOME/bin/java -cp "$CARBON_CLASSPATH" org.wso2.carbon.core.util.PasswordUpdater $*
 

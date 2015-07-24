@@ -151,12 +151,12 @@ fi
 #time stamp that we are going to use for this execution.
 DATE_TIME=`date +%F`_`date +%H-%M-%S`
 
-OUTPUT_ROOT_DIR=$CARBON_DUMP_HOME/carbondump
-OUTPUT_DIR=$OUTPUT_ROOT_DIR/carbondump-$DATE_TIME
-MEMORY_DUMP_DIR=$OUTPUT_DIR/memoryinfo
-OS_INFO=$OUTPUT_DIR/osinfo
-JAVA_INFO=$OUTPUT_DIR/javainfo
-REPO_DIR=$OUTPUT_DIR/repository
+OUTPUT_ROOT_DIR="$CARBON_DUMP_HOME"/carbondump
+OUTPUT_DIR="$OUTPUT_ROOT_DIR"/carbondump-$DATE_TIME
+MEMORY_DUMP_DIR="$OUTPUT_DIR"/memoryinfo
+OS_INFO="$OUTPUT_DIR"/osinfo
+JAVA_INFO="$OUTPUT_DIR"/javainfo
+REPO_DIR="$OUTPUT_DIR"/repository
 
 #Checks whether the output directory exists or not.
 if [ -d "$OUTPUT_ROOT_DIR" ]; 
@@ -164,21 +164,21 @@ then
 	rm -rf $OUTPUT_ROOT_DIR
 fi
 
-mkdir $OUTPUT_ROOT_DIR
-mkdir $OUTPUT_DIR
-mkdir $MEMORY_DUMP_DIR
-mkdir $OS_INFO
-mkdir -p $REPO_DIR/logs
-mkdir $REPO_DIR/conf
-mkdir $REPO_DIR/database
+mkdir "$OUTPUT_ROOT_DIR"
+mkdir "$OUTPUT_DIR"
+mkdir "$MEMORY_DUMP_DIR"
+mkdir "$OS_INFO"
+mkdir -p "$REPO_DIR"/logs
+mkdir "$REPO_DIR"/conf
+mkdir "$REPO_DIR"/database
 
 echo "\ncarbondump.sh##Generating the java memory dump..."
-jmap  $PID > $MEMORY_DUMP_DIR/shared_object_mappings.txt
-jmap -dump:format=b,file=$MEMORY_DUMP_DIR/java_heap_memory_dump.jmap $PID
-jmap -histo $PID > $MEMORY_DUMP_DIR/java_heap_histogram.txt 
-jmap -finalizerinfo $PID > $MEMORY_DUMP_DIR/objects_awaiting_finalization.txt 
-jmap -heap $PID > $MEMORY_DUMP_DIR/java_heap_summary.txt 
-jmap -permstat $PID > $MEMORY_DUMP_DIR/java_permgen_statistics.txt 
+jmap  $PID > "$MEMORY_DUMP_DIR"/shared_object_mappings.txt
+jmap -dump:format=b,file="$MEMORY_DUMP_DIR"/java_heap_memory_dump.jmap $PID
+jmap -histo $PID > "$MEMORY_DUMP_DIR"/java_heap_histogram.txt
+jmap -finalizerinfo $PID > "$MEMORY_DUMP_DIR"/objects_awaiting_finalization.txt
+jmap -heap $PID > "$MEMORY_DUMP_DIR"/java_heap_summary.txt
+jmap -permstat $PID > "$MEMORY_DUMP_DIR"/java_permgen_statistics.txt
 
 echo "\ncarbondump.sh##Generating the thread dump..."
 jstack $PID > $OUTPUT_DIR/thread_dump.txt
@@ -198,41 +198,41 @@ w > $OS_INFO/os_system_up_time.txt
 lsmod | mawk '{print $1}' | xargs modinfo 2>/dev/null > $OS_INFO/os_module_info.txt
 
 echo "\ncarbondump.sh##Capturing the list of running task in the system..."
-top -b -n1 > $OS_INFO/os_running_tasks.txt
+top -b -n1 > "$OS_INFO"/os_running_tasks.txt
 
 echo "\ncarbondump.sh##Capturing OS Environment Variables..."
-env > $OS_INFO/os_env_variables.txt
+env > "$OS_INFO"/os_env_variables.txt
 
 echo "\ncarbondump.sh##Generating the checksums of all the files in the CARBON_HOME directory..."
-find $CARBON_HOME -iname "*" -type f | grep -v ./samples | grep -v ./docs | sort | xargs md5sum > $OUTPUT_DIR/checksum_values.txt
+find "$CARBON_HOME" -iname "*" -type f | grep -v ./samples | grep -v ./docs | sort | xargs md5sum > $OUTPUT_DIR/checksum_values.txt
 
 ##TODO out all the carbon info to a single file, java, vesion, os version, carbon version
-echo "Product"'\t\t\t'": "`cat $CARBON_HOME/bin/version.txt` > $OUTPUT_DIR/carbon_server_info.txt
-echo "WSO2 Carbon Framework"'\t'": "`cat $CARBON_HOME/bin/wso2carbon-version.txt` >> $OUTPUT_DIR/carbon_server_info.txt
-echo "Carbon Home"'\t\t'": "`echo $CARBON_HOME` >> $OUTPUT_DIR/carbon_server_info.txt
-echo "Operating System Info"'\t'": "`uname -a` >> $OUTPUT_DIR/carbon_server_info.txt
-echo "Java Home"'\t\t'": "`echo $JAVA_HOME` >> $OUTPUT_DIR/carbon_server_info.txt
-java -version 2> $OUTPUT_DIR/temp_java_version.txt
-echo "Java Version"'\t\t'": "`cat $OUTPUT_DIR/temp_java_version.txt | grep -h "java version" |  mawk '{print $3}'` >> $OUTPUT_DIR/carbon_server_info.txt
-echo "Java VM"'\t\t\t'": "`cat $OUTPUT_DIR/temp_java_version.txt | grep -h "Java HotSpot"` >> $OUTPUT_DIR/carbon_server_info.txt
-rm -rf $OUTPUT_DIR/temp_java_version.txt
+echo "Product"'\t\t\t'": "`cat "$CARBON_HOME"/bin/version.txt` > $OUTPUT_DIR/carbon_server_info.txt
+echo "WSO2 Carbon Framework"'\t'": "`cat "$CARBON_HOME"/bin/wso2carbon-version.txt` >> $OUTPUT_DIR/carbon_server_info.txt
+echo "Carbon Home"'\t\t'": "`echo "$CARBON_HOME"` >> $OUTPUT_DIR/carbon_server_info.txt
+echo "Operating System Info"'\t'": "`uname -a` >> "$OUTPUT_DIR"/carbon_server_info.txt
+echo "Java Home"'\t\t'": "`echo $JAVA_HOME` >> "$OUTPUT_DIR"/carbon_server_info.txt
+java -version 2> "$OUTPUT_DIR"/temp_java_version.txt
+echo "Java Version"'\t\t'": "`cat "$OUTPUT_DIR"/temp_java_version.txt | grep -h "java version" |  mawk '{print $3}'` >> "$OUTPUT_DIR"/carbon_server_info.txt
+echo "Java VM"'\t\t\t'": "`cat "$OUTPUT_DIR"/temp_java_version.txt | grep -h "Java HotSpot"` >> "$OUTPUT_DIR"/carbon_server_info.txt
+rm -rf "$OUTPUT_DIR"/temp_java_version.txt
 
 echo "\ncarbondump.sh##Copying log files..."
-cp -r $CARBON_HOME/repository/logs/* $REPO_DIR/logs
+cp -r "$CARBON_HOME"/repository/logs/* $REPO_DIR/logs
 
 echo "\ncarbondump.sh##Copying conf files..."
-cp -r $CARBON_HOME/repository/conf/* $REPO_DIR/conf
+cp -r "$CARBON_HOME"/repository/conf/* $REPO_DIR/conf
 
 echo "\ncarbondump.sh##Copying database..."	
-cp -r $CARBON_HOME/repository/database/* $REPO_DIR/database
+cp -r "$CARBON_HOME"/repository/database/* $REPO_DIR/database
 
 echo "\ncarbondump.sh##Getting a directory listing..."	
-find $CARBON_HOME -type d | sort | grep -v ./samples | grep -v ./docs > $OUTPUT_DIR/directory_listing.txt
+find "$CARBON_HOME" -type d | sort | grep -v ./samples | grep -v ./docs > $OUTPUT_DIR/directory_listing.txt
 
 echo "\ncarbondump.sh##Compressing the carbondump..."
-cd $OUTPUT_ROOT_DIR
-zip -r $CARBON_DUMP_HOME/carbondump-$DATE_TIME.zip carbondump-$DATE_TIME
+cd "$OUTPUT_ROOT_DIR"
+zip -r "$CARBON_DUMP_HOME"/carbondump-$DATE_TIME.zip carbondump-$DATE_TIME
 
 echo "\ncarbondump: "$CARBON_DUMP_HOME/carbondump-$DATE_TIME.zip"\n"
-rm -rf $OUTPUT_ROOT_DIR
+rm -rf "$OUTPUT_ROOT_DIR"
 exit

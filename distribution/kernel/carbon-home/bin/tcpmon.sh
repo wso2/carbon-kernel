@@ -82,9 +82,9 @@ fi
 TCPMON_CLASSPATH=""
 for f in "$CARBON_HOME"/bin/*.jar
 do
-  TCPMON_CLASSPATH=$TCPMON_CLASSPATH:$f
+  TCPMON_CLASSPATH="$TCPMON_CLASSPATH":$f
 done
-TCPMON_CLASSPATH=$TCPMON_CLASSPATH:$CLASSPATH
+TCPMON_CLASSPATH="$TCPMON_CLASSPATH":$CLASSPATH
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
