@@ -404,6 +404,8 @@
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
 
+        <orbit.version.encoder>1.2.0.wso2v1</orbit.version.encoder>
+
         <!--Drools-->
         <orbit.version.drools>5.1.1.wso2v1</orbit.version.drools>
         <version.drools>5.1.1</version.drools>
@@ -1140,6 +1142,11 @@
                 <groupId>org.codehaus.jettison.wso2</groupId>
                 <artifactId>jettison</artifactId>
                 <version>${orbit.version.jettison}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+                <artifactId>encoder</artifactId>
+                <version>${orbit.version.encoder}</version>
             </dependency>
             <!--service-stub versions -->
             <dependency>
