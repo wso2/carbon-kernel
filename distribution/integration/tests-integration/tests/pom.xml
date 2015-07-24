@@ -140,6 +140,20 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+
+                    <execution>
+                        <id>copy-spring3-restful</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/resources/artifacts/CARBON/SampleSerlvet</outputDirectory>
+                            <includeTypes>jar</includeTypes>
+                            <includeArtifactIds>SampleServletTest</includeArtifactIds>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -379,6 +393,12 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server.admin</artifactId>
+        </dependency>
+
+        <!-- SampleServlet for Integration Test -->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>SampleServletTest</artifactId>
         </dependency>
     </dependencies>
 
