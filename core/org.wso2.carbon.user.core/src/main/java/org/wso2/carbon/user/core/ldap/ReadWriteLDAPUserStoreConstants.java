@@ -31,6 +31,8 @@ public class ReadWriteLDAPUserStoreConstants {
     //For multiple attribute separation
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String DisplayNameAttributeDescription = "Attribute name to display as the Display Name";
+    private static final String DisplayNameAttribute = "DisplayNameAttribute";
 
     static {
         setMandatoryProperty(UserStoreConfigConstants.connectionName, "Connection Name", "uid=," +
@@ -59,6 +61,7 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
         setProperty(UserStoreConfigConstants.SCIMEnabled, "SCIM Enabled", "false", UserStoreConfigConstants.SCIMEnabledDescription);
+        setProperty(DisplayNameAttribute, "Display name attribute", "uid", DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
         setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
         setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
