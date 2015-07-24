@@ -152,7 +152,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         MapConfig mapConfig = new MapConfig("carbon-map-config");
         mapConfig.setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
         if (licenseKey != null) {
-            mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+            mapConfig.setInMemoryFormat(InMemoryFormat.OFFHEAP);
         }
         primaryHazelcastConfig.addMapConfig(mapConfig);
         loadCustomHazelcastSerializers();

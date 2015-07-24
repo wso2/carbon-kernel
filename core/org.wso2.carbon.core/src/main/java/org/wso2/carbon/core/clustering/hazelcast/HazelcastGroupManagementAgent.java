@@ -29,7 +29,6 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipListener;
@@ -237,16 +236,6 @@ public class HazelcastGroupManagementAgent implements GroupManagementAgent {
 
         @Override
         public void entryEvicted(EntryEvent<String, Member> stringObjectEntryEvent) {
-            // Nothing to do
-        }
-
-        @Override
-        public void mapEvicted(MapEvent mapEvent) {
-            // Nothing to do
-        }
-
-        @Override
-        public void mapCleared(MapEvent mapEvent) {
             // Nothing to do
         }
     }

@@ -33,7 +33,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.orbit.com.hazelcast</groupId>
+            <groupId>com.hazelcast.wso2</groupId>
             <artifactId>hazelcast</artifactId>
             <exclusions>
                 <exclusion>
