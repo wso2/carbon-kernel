@@ -1079,9 +1079,9 @@ public class RegistryAdapter
         try {
             Parser parser = request.getAbdera().getParser();
             ParserOptions options = parser.getDefaultParserOptions();
-            if (request.getAcceptCharset() != null && !request.getAcceptCharset().isEmpty()){
+            if (request.getAcceptCharset() != null && !request.getAcceptCharset().isEmpty()) {
                 options.setCharset(request.getAcceptCharset());
-            }else {
+            } else {
                 options.setCharset("UTF-8");
             }
             document = request.getDocument(parser, options);
