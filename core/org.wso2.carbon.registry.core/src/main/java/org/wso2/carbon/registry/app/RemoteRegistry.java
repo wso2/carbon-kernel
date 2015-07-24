@@ -518,6 +518,7 @@ public class RemoteRegistry implements Registry {
 
         RequestOptions requestOptions = getAuthorization();
         requestOptions.setSlug(relativePath);
+        requestOptions.setAcceptCharset("UTF-8");
 
         ClientResponse resp;
         //TODO: Needs to implement the REST PUT/POST operations properly.

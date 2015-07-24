@@ -24,6 +24,7 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipListener;
@@ -200,6 +201,16 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
 
         @Override
         public void entryEvicted(EntryEvent<String, Member> stringMemberEntryEvent) {
+            // Nothing to do
+        }
+
+        @Override
+        public void mapEvicted(MapEvent mapEvent) {
+            // Nothing to do
+        }
+
+        @Override
+        public void mapCleared(MapEvent mapEvent) {
             // Nothing to do
         }
     }

@@ -357,7 +357,7 @@
 
         <version.eclipse.ecj>4.4.2</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>3.2.6.wso2v3</orbit.version.hazelcast>
+        <orbit.version.hazelcast>3.5.0.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
@@ -464,7 +464,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.hazelcast.wso2</groupId>
+                <groupId>org.wso2.orbit.com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
                 <version>${orbit.version.hazelcast}</version>
             </dependency>

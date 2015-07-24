@@ -60,4 +60,10 @@
         </packages>
     </test>
 
+    <test name="Jira-Fixes" preserve-order="true" parallel="false" >
+        <classes>
+            <class name="org.wso2.carbon.integration.tests.jira.issues.test.CARBON15322SkipLoginPageTestCase" />
+        </classes>
+    </test>
+
 </suite>
