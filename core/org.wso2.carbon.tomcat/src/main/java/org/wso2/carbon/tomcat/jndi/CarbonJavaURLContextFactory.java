@@ -38,7 +38,7 @@ public class CarbonJavaURLContextFactory extends javaURLContextFactory {
 
         // We check wether the intiCtx request is coming from webapps
         if (ContextBindings.isClassLoaderBound()) {
-            return new CarbonSelectorContext(hashtable, true, initialContext);
+            return new CarbonSelectorContext(hashtable, false, initialContext);
         }
 
         if (initialContext == null) {
