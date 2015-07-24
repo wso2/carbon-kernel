@@ -454,7 +454,7 @@
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
 
-        <test.framework.version>4.4.2-SNAPSHOT</test.framework.version>
+        <test.framework.version>4.4.2</test.framework.version>
         <jacoco.agent.version>0.7.4.201502262128</jacoco.agent.version>
         <testng.verson>6.1.1</testng.verson>
     </properties>
@@ -1485,7 +1485,7 @@
                 <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
                 <version>${test.framework.version}</version>
             </dependency>
-            <dependency>
+            <!--<dependency>
                 <groupId>org.wso2.carbon.automationutils</groupId>
                 <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
                 <version>${test.framework.version}</version>
@@ -1494,7 +1494,7 @@
                 <groupId>org.wso2.carbon.automationutils</groupId>
                 <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
                 <version>${test.framework.version}</version>
-            </dependency>
+            </dependency>-->
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils
