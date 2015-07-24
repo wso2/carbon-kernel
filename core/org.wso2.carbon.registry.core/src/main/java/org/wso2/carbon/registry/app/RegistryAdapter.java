@@ -21,6 +21,8 @@ import org.apache.abdera.Abdera;
 import org.apache.abdera.factory.Factory;
 import org.apache.abdera.i18n.iri.IRI;
 import org.apache.abdera.model.*;
+import org.apache.abdera.parser.Parser;
+import org.apache.abdera.parser.ParserOptions;
 import org.apache.abdera.protocol.server.RequestContext;
 import org.apache.abdera.protocol.server.ResponseContext;
 import org.apache.abdera.protocol.server.Target;
@@ -1075,7 +1077,14 @@ public class RegistryAdapter
     public ResponseContext postEntry(RequestContext request) {
         Document<Element> document;
         try {
-            document = request.getDocument(request.getAbdera().getParser());
+            Parser parser = request.getAbdera().getParser();
+            ParserOptions options = parser.getDefaultParserOptions();
+            if (request.getAcceptCharset() != null && !request.getAcceptCharset().isEmpty()) {
+                options.setCharset(request.getAcceptCharset());
+            } else {
+                options.setCharset("UTF-8");
+            }
+            document = request.getDocument(parser, options);
         } catch (IOException e) {
             return new StackTraceResponseContext(e);
         }

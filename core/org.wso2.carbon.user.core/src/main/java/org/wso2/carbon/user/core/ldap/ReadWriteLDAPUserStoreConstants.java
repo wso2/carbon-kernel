@@ -64,9 +64,7 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(DisplayNameAttribute, "Display name attribute", "uid", DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
         setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
-        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false",
-                UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
-
+        
         Property readLDAPGroups = new Property(UserStoreConfigConstants.readGroups, "true", "Enable Read Groups#" + UserStoreConfigConstants.readLDAPGroupsDescription, null);
         //Mandatory only if readGroups is enabled
         Property groupSearchBase = new Property(UserStoreConfigConstants.groupSearchBase, "ou=Groups,dc=wso2,dc=org", "Group Search Base#" + UserStoreConfigConstants.groupSearchBaseDescription, null);
@@ -99,7 +97,6 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "", "", "");
-        setProperty(UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME, "Case Insensitive Username", "false", UserStoreConfigConstants.CASE_INSENSITIVE_USERNAME_DESCRIPTION);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
