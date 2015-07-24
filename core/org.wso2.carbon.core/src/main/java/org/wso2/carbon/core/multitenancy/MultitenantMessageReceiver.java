@@ -71,15 +71,19 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 	private static final Log log = LogFactory.getLog(MultitenantMessageReceiver.class);                      
 
     public void receive(MessageContext mainInMsgContext) throws AxisFault {
-
-        EndpointReference toEpr = getDestinationEPR(mainInMsgContext);
-        if (toEpr != null) {
-            // this is a request coming in to the multitenant environment
-            processRequest(mainInMsgContext);
-        } else {
-            // this is a response coming from a dual channel invocation or a
-            // non blocking transport like esb
-            processResponse(mainInMsgContext);
+        PrivilegedCarbonContext.getThreadLocalCarbonContext().startTenantFlow();
+        try {
+            EndpointReference toEpr = getDestinationEPR(mainInMsgContext);
+            if (toEpr != null) {
+                // this is a request coming in to the multitenant environment
+                processRequest(mainInMsgContext);
+            } else {
+                // this is a response coming from a dual channel invocation or a
+                // non blocking transport like esb
+                processResponse(mainInMsgContext);
+            }
+        } finally {
+            PrivilegedCarbonContext.getThreadLocalCarbonContext().endTenantFlow();
         }
     }
 
@@ -171,19 +175,6 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 
         String tenant;
         String serviceAndOperation;
-
-	//for synapse nhttp transport we need to destroy the existing thread contexts and initialise the new value holders
-        if (mainInMsgContext.getTransportIn() != null){
-            String transportInClassName = mainInMsgContext.getTransportIn().getReceiver().getClass().getName();
-            if ("org.apache.synapse.transport.nhttp.HttpCoreNIOListener".equals(transportInClassName) ||
-                    "org.apache.synapse.transport.nhttp.HttpCoreNIOSSLListener".equals(transportInClassName) ||
-                    "org.apache.synapse.transport.passthru.PassThroughHttpListener".equals(transportInClassName) ||
-                    "org.apache.synapse.transport.passthru.PassThroughHttpSSLListener".equals(transportInClassName)
-                    ){
-                PrivilegedCarbonContext.destroyCurrentContext();
-            }
-        }
-
 
         if (tenantDelimiterIndex != -1) {
             tenant = MultitenantUtils.getTenantDomainFromUrl(to);
