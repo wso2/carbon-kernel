@@ -90,9 +90,9 @@ do
 done
 for f in "$CARBON_HOME"/lib/*.jar
 do
-  CARBON_CLASSPATH=$CARBON_CLASSPATH:$f
+  CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
 done
-CARBON_CLASSPATH=$CARBON_CLASSPATH:$CLASSPATH
+CARBON_CLASSPATH="$CARBON_CLASSPATH":$CLASSPATH
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then

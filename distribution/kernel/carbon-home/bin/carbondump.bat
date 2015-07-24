@@ -36,7 +36,7 @@ if "%JAVA_HOME%" == "" goto noJavaHome
 if not exist "%JAVA_HOME%\bin\java.exe" goto noJavaHome
 
 set CARBON_DUMP_HOME=%~sdp0..
-SET curDirectory=%cd%
+SET curDirectory="%cd%"
 SET curDrive=%cd:~0,1%
 SET wsasDrive=%CARBON_DUMP_HOME:~0,1%
 if not "%curDrive%" == "%wsasDrive%" %wsasDrive%:
@@ -95,52 +95,52 @@ echo Start Collectiong data
 SET DATE_TIME=%date:~-4,4%-%date:~-10,2%-%date:~-7,2%_%time:~0,2%-%time:~3,2%
 echo %DATE_TIME%
 
-set OUTPUT_ROOT_DIR=%CARBON_DUMP_HOME%\carbondump
-set OUTPUT_DIR=%OUTPUT_ROOT_DIR%\carbondump-%DATE_TIME%
-set MEMORY_DUMP_DIR=%OUTPUT_DIR%\memoryinfo
-set OS_INFO=%OUTPUT_DIR%\osinfo
-set JAVA_INFO=%OUTPUT_DIR%\javainfo
-set REPO_DIR=%OUTPUT_DIR%\repository
+set OUTPUT_ROOT_DIR="%CARBON_DUMP_HOME%"\carbondump
+set OUTPUT_DIR="%OUTPUT_ROOT_DIR%"\carbondump-%DATE_TIME%
+set MEMORY_DUMP_DIR="%OUTPUT_DIR%"\memoryinfo
+set OS_INFO="%OUTPUT_DIR%"\osinfo
+set JAVA_INFO="%OUTPUT_DIR%"\javainfo
+set REPO_DIR="%OUTPUT_DIR%"\repository
 
-if exist %OUTPUT_ROOT_DIR% rd /q/s %OUTPUT_ROOT_DIR%
+if exist "%OUTPUT_ROOT_DIR%" rd /q/s "%OUTPUT_ROOT_DIR%"
 
-mkdir %OUTPUT_ROOT_DIR%
-mkdir %OUTPUT_DIR%
-mkdir %MEMORY_DUMP_DIR%
-mkdir %OS_INFO%
-mkdir %REPO_DIR%
-mkdir %REPO_DIR%\logs
-mkdir %REPO_DIR%\conf
-mkdir %REPO_DIR%\database
+mkdir "%OUTPUT_ROOT_DIR%"
+mkdir "%OUTPUT_DIR%"
+mkdir "%MEMORY_DUMP_DIR%"
+mkdir "%OS_INFO%"
+mkdir "%REPO_DIR%"
+mkdir "%REPO_DIR%"\logs
+mkdir "%REPO_DIR%"\conf
+mkdir "%REPO_DIR%"\database
 
 echo carbondump.bat##Generating the java memory dump...
-jmap -dump:format=b,file=%MEMORY_DUMP_DIR%\java_heap_memory_dump.jmap %PID%
-jmap -histo %PID% > %MEMORY_DUMP_DIR%\java_heap_histogram.txt
-REM jmap -finalizerinfo %PID% > %MEMORY_DUMP_DIR%\objects_awaiting_finalization.txt
-REM jmap -heap %PID% >> %MEMORY_DUMP_DIR%\java_heap_summary.txt
-REM jmap -permstat %PID% >> %MEMORY_DUMP_DIR%\java_permgen_statistics.txt
+jmap -dump:format=b,file="%MEMORY_DUMP_DIR%"\java_heap_memory_dump.jmap %PID%
+jmap -histo %PID% > "%MEMORY_DUMP_DIR%"\java_heap_histogram.txt
+REM jmap -finalizerinfo %PID% > "%MEMORY_DUMP_DIR%"\objects_awaiting_finalization.txt
+REM jmap -heap %PID% >> "%MEMORY_DUMP_DIR%"\java_heap_summary.txt
+REM jmap -permstat %PID% >> "%MEMORY_DUMP_DIR%"\java_permgen_statistics.txt
 
 echo carbondump.bat##Generating the thread dump...
-jstack %PID% > %OUTPUT_DIR%\thread_dump.txt
+jstack %PID% > "%OUTPUT_DIR%"\thread_dump.txt
 
 echo carbondump.bat##Capturing system configuration information...
-systeminfo > %OS_INFO%\system_information.txt
+systeminfo > "%OS_INFO%"\system_information.txt
 
 echo carbondump.bat##Capturing information about the network connection and IP information...
-ipconfig /all > %OS_INFO%\network_connection_information.txt
+ipconfig /all > "%OS_INFO%"\network_connection_information.txt
 
 echo carbondump.bat##Capturing information on active TCP connections, ports on which the computer is listening...
-netstat -a -o > %OS_INFO%\activec_connections.txt
+netstat -a -o > "%OS_INFO%"\activec_connections.txt
 
 echo carbondump.bat##Capturing information list of running tasks...
-tasklist /v > %OS_INFO%\running_tasks_list.txt
+tasklist /v > "%OS_INFO%"\running_tasks_list.txt
 
 echo carbondump.bat##Directory structure...
-echo Use the command "type directory_structure.txt" to view the content properly > %OUTPUT_DIR%\directory_structure.txt
-tree >> %OUTPUT_DIR%\directory_structure.txt
+echo Use the command "type directory_structure.txt" to view the content properly > "%OUTPUT_DIR%"\directory_structure.txt
+tree >> "%OUTPUT_DIR%"\directory_structure.txt
 
 echo carbondump.bat##Capturing OS Environment Variables...
-set > %OS_INFO%\os_env_variables.txt
+set > "%OS_INFO%"\os_env_variables.txt
 
 REM echo "\ncarbondump.sh##Generating the checksums of all the files in the CARBON_HOME directory..."
 REM check fciv is exit or not
@@ -148,7 +148,7 @@ where fciv > temp.txt
 if errorlevel==1 goto noFCIV
 set /p _fciv=< temp.txt
 if not exist %_fciv% goto noFCIV
-fciv %CARBON_HOME% -r -md5 > %OUTPUT_DIR%\checksum_values.txt
+fciv "%CARBON_HOME%" -r -md5 > "%OUTPUT_DIR%"\checksum_values.txt
 goto endmd5
 
 :noFCIV
@@ -170,24 +170,24 @@ REM echo "Java VM"'\t\t\t'": "`cat $OUTPUT_DIR/temp_java_version.txt | grep -h "
 REM rm -rf $OUTPUT_DIR/temp_java_version.txt
 
 echo carbondump.bat##Copying log files...
-copy  %CARBON_HOME%\repository\logs\ %REPO_DIR%\logs
+copy  "%CARBON_HOME%"\repository\logs\ "%REPO_DIR%"\logs
 
 echo carbondump.bat##Copying conf files...
-copy  %CARBON_HOME%\repository\conf\ %REPO_DIR%\conf
+copy  "%CARBON_HOME%"\repository\conf\ "%REPO_DIR%"\conf
 
 echo carbondump.bat##Copying database...
-copy  %CARBON_HOME%\repository\database\ %REPO_DIR%\database
+copy  "%CARBON_HOME%"\repository\database\ "%REPO_DIR%"\database
 
 echo carbondump.bat##Compressing the carbondump...
-cd %OUTPUT_ROOT_DIR%
-if exist %CARBON_DUMP_HOME%\carbondump_%DATE_TIME%.zip del %CARBON_DUMP_HOME%\carbondump_%DATE_TIME%.zip
-jar cvf %CARBON_DUMP_HOME%\carbondump_%DATE_TIME%.jar carbondump_%DATE_TIME%
-cd %CARBON_DUMP_HOME%
+cd "%OUTPUT_ROOT_DIR%"
+if exist "%CARBON_DUMP_HOME%"\carbondump_%DATE_TIME%.zip del "%CARBON_DUMP_HOME%"\carbondump_%DATE_TIME%.zip
+jar cvf "%CARBON_DUMP_HOME%"\carbondump_%DATE_TIME%.jar carbondump_%DATE_TIME%
+cd "%CARBON_DUMP_HOME%"
 rename carbondump_%DATE_TIME%.jar carbondump_%DATE_TIME%.zip
 
-echo carbondump: %CARBON_DUMP_HOME%\carbondump_%DATE_TIME%.zip
-rd /q/s %OUTPUT_ROOT_DIR%
-cd %curDirectory%
+echo carbondump: "%CARBON_DUMP_HOME%"\carbondump_%DATE_TIME%.zip
+rd /q/s "%OUTPUT_ROOT_DIR%"
+cd "%curDirectory%"
 
 goto end
 

@@ -10,7 +10,7 @@ rem   JAVA_HOME       Must point at your Java Development Kit installation.
 rem
 rem   JAVA_OPTS       (Optional) Java runtime options
 rem ---------------------------------------------------------------------------
-set CURRENT_DIR=%cd%
+set CURRENT_DIR="%cd%"
 
 rem Make sure prerequisite environment variables are set
 if not "%JAVA_HOME%" == "" goto gotJavaHome
@@ -29,13 +29,13 @@ goto end
 
 rem check the CARBON_HOME environment variable
 if not "%CARBON_HOME%" == "" goto gotHome
-set CARBON_HOME=%CURRENT_DIR%
+set CARBON_HOME="%CURRENT_DIR%"
 if exist "%CARBON_HOME%\bin\WSDL2Java.bat" goto okHome
 
 rem guess the home. Jump one directory up to check if that is the home
 cd ..
-set CARBON_HOME=%cd%
-cd %CARBON_HOME%
+set CARBON_HOME="%cd%"
+cd "%CARBON_HOME%"
 
 :gotHome
 if exist "%CARBON_HOME%\bin\WSDL2Java.bat" goto okHome
@@ -61,11 +61,11 @@ FOR %%C in ("%CARBON_HOME%\lib\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH
 FOR %%C in ("%CARBON_HOME%\repository\lib\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\repository\lib\%%~nC%%~xC"
 
 rem ----- Execute The Requested Command ---------------------------------------
-echo Using CARBON_HOME:   %CARBON_HOME%
-echo Using JAVA_HOME:    %JAVA_HOME%
+echo Using CARBON_HOME:   "%CARBON_HOME%"
+echo Using JAVA_HOME:    "%JAVA_HOME%"
 set _RUNJAVA="%JAVA_HOME%\bin\java"
 
-set CARBON_CLASSPATH=.\lib\patches;%CARBON_CLASSPATH%
+set CARBON_CLASSPATH=.\lib\patches;"%CARBON_CLASSPATH%"
 set JAVA_ENDORSED=".\lib\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 %_RUNJAVA% %JAVA_OPTS% -cp "%CARBON_CLASSPATH%" -Djava.io.tmpdir="%CARBON_HOME%\tmp" -Djava.endorsed.dirs=%JAVA_ENDORSED%  org.apache.axis2.wsdl.WSDL2Java %*
 endlocal
