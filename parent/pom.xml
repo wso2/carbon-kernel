@@ -1536,14 +1536,6 @@
                 <artifactId>testng</artifactId>
                 <version>${testng.verson}</version>
             </dependency>
-
-            <!-- SampleServlet for Integration Test -->
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>SampleServletTest</artifactId>
-                <version>${carbon.kernel.version}</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

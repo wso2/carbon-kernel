@@ -22,6 +22,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
 import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
+import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;*/
@@ -42,9 +43,9 @@ public class CARBON15322SkipLoginPageTestCase extends CarbonIntegrationBaseTest 
         super.init();
         serverConfigurationManager = new ServerConfigurationManager(automationContext);
         File sampleServletTest = new File(
-                System.getProperty("basedir", ".") + File.separator + "target" + File.separator + "resources" +
-                File.separator + "artifacts" + File.separator + "CARBON" + File.separator + "SampleSerlvet" +
-                File.separator + sampleServletJar);
+                FrameworkPathUtil.getSystemResourceLocation() + "artifacts" + File.separator + "CARBON" +
+                File.separator + "jira" + File.separator + "issues" + File.separator + "CARBON15322" + File.separator +
+                sampleServletJar);
         serverConfigurationManager.copyToComponentDropins(sampleServletTest);
         serverConfigurationManager.restartGracefully();
         super.init();
