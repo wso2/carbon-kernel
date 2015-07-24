@@ -31,6 +31,7 @@
     <modules>
         <module>security-verifier</module>
         <module>axis2-sample-service</module>
+        <module>sample-servlet</module>
         <module>test-common</module>
         <module>tests-integration</module>
         <!--<module>tests-ui-integration</module>-->
