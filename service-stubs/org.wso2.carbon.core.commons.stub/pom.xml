@@ -28,7 +28,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.core.commons.stub</artifactId>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon Core - Common Stub</name>
+    <name>WSO2 Carbon - Common Stub</name>
     <url>http://wso2.org</url>
 
     <build>

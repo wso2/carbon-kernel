@@ -28,6 +28,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.integration.tests.integration</artifactId>
     <packaging>pom</packaging>
+    <name>WSO2 Carbon - Integration Tests</name>
+
 
     <modules>
         <module>tests</module>

@@ -24,6 +24,8 @@
     <artifactId>org.wso2.carbon.test.feature3</artifactId>
     <packaging>pom</packaging>
     <version>${carbon.test.component301}</version>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Feature03 101</name>
+
 
     <dependencies>
         <dependency>

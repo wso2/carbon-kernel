@@ -27,7 +27,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>carbon-kernel</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon Kernel - Parent Maven Project</name>
+    <name>WSO2 Carbon - Parent Maven Project</name>
     <description>carbon-parent</description>
     <url>http://wso2.org</url>
 

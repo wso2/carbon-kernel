@@ -8,9 +8,8 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>org.wso2.carbon.integretion.test.common.admin.extensions</artifactId>
     <packaging>jar</packaging>
-
+    <name>WSO2 Carbon - Integration Test Extensions</name>
 
 </project>

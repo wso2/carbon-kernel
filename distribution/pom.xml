@@ -10,8 +10,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>carbon-kernel-distribution</artifactId>
     <packaging>pom</packaging>
-    <name>Distribution-Aggregate</name>
-    <description>WSO2 Carbon Core - Distribution</description>
+    <name>WSO2 Carbon - Distribution</name>
+    <description>WSO2 Carbon - Distribution</description>
     <url>http://wso2.org</url>
 
     <modules>

@@ -12,6 +12,7 @@
     <artifactId>org.wso2.carbon.test.component2</artifactId>
     <version>${carbon.test.component201}</version>
     <packaging>bundle</packaging>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Component02 101</name>
 
     <build>
         <plugins>

@@ -12,6 +12,8 @@
     <artifactId>org.wso2.carbon.test.unlicensed.feature</artifactId>
     <packaging>pom</packaging>
     <version>${carbon.test.component100}</version>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Feature Unlicensed</name>
+
 
     <dependencies>
         <dependency>

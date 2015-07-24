@@ -8,9 +8,10 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils</artifactId>
     <packaging>jar</packaging>
+    <name>WSO2 Carbon - Integration Test Utils</name>
+
 
     <dependencies>
         <dependency>
