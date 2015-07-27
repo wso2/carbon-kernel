@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>org.wso2.carbon.test.component1</artifactId>
-    <version>${carbon.test.component101}</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Test Artifacts - Feature Repo Component01 101</name>
 

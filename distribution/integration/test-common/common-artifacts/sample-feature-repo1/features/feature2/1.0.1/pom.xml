@@ -23,7 +23,7 @@
 
     <artifactId>org.wso2.carbon.test.feature2</artifactId>
     <packaging>pom</packaging>
-    <version>${carbon.test.component201}</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>WSO2 Carbon - Test Artifacts - Feature Repo Feature02 101</name>
 
 
