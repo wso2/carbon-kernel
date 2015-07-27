@@ -307,14 +307,12 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v13-SNAPSHOT</version.axis2>
-        <!--<axis2.osgi.version>1.6.2.wso2v13-SNAPSHOT</axis2.osgi.version>-->
-        <!--<axis2.osgi.version.range>[1.6.1.wso2v13-SNAPSHOT, 1.7.0)</axis2.osgi.version.range>-->
-        <imp.pkg.version.axis2>[1.6.2.wso2v13-SNAPSHOT, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v13-SNAPSHOT</version.addressing>
-        <orbit.version.axis2>1.6.2.wso2v13-SNAPSHOT</orbit.version.axis2>
-        <axis2.client.osgi.version>1.6.2.wso2v13-SNAPSHOT</axis2.client.osgi.version>
-        <version.axis2.json>1.6.2-wso2v13-SNAPSHOT</version.axis2.json>
+        <version.axis2>1.6.1-wso2v14</version.axis2>
+        <imp.pkg.version.axis2>[1.6.1.wso2v14, 1.7.0)</imp.pkg.version.axis2>
+        <version.addressing>1.6.1-wso2v14</version.addressing>
+        <orbit.version.axis2>1.6.1.wso2v14</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1.wso2v14</axis2.client.osgi.version>
+        <version.axis2.json>1.6.1-wso2v14</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
