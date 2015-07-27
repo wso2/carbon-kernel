@@ -19,6 +19,55 @@
         <module>repository</module>
     </modules>
 
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component1</artifactId>
+                <version>${carbon.test.component100}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component1</artifactId>
+                <version>${carbon.test.component101}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component2</artifactId>
+                <version>${carbon.test.component200}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component2</artifactId>
+                <version>${carbon.test.component201}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component3</artifactId>
+                <version>${carbon.test.component300}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.component3</artifactId>
+                <version>${carbon.test.component301}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.licensed.feature</artifactId>
+                <version>${carbon.test.component200}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.test.unlicensed.feature</artifactId>
+                <version>${carbon.test.component100}</version>
+                <type>zip</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
     <properties>
         <carbon.test.component100>1.0.0-SNAPSHOT</carbon.test.component100>
         <carbon.test.component101>1.0.1-SNAPSHOT</carbon.test.component101>
