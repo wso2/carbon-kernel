@@ -17,7 +17,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.test.component1</artifactId>
-            <version>${carbon.test.component100}</version>
         </dependency>
     </dependencies>
 
