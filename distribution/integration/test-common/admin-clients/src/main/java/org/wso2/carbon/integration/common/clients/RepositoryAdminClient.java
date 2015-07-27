@@ -25,7 +25,6 @@ import org.wso2.carbon.feature.mgt.stub.RepositoryAdminServiceStub;
 import org.wso2.carbon.feature.mgt.stub.prov.data.Feature;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.RepositoryInfo;
-import org.wso2.carbon.integration.framework.utils.AuthenticateStubUtil;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.net.URI;
