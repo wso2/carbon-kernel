@@ -19,7 +19,7 @@
         <module>extensions</module>
         <module>integration-test-utils</module>
         <module>ui-pages</module>
-        <module>common-artifacts</module>
+        <!--<module>common-artifacts</module>-->
     </modules>
 
   <dependencies>
