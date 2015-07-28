@@ -148,9 +148,7 @@ public class BasicAccessAuthenticator extends AbstractAuthenticator {
                 return new String[]{username, password};
             }
         }
-        if(log.isDebugEnabled()){
-            log.debug("Error decoding authorization header. Could not retrieve user name and password.");
-        }
+        log.debug("Error decoding authorization header. Could not retrieve user name and password.");
         return new String[]{null, null};
 
     }
