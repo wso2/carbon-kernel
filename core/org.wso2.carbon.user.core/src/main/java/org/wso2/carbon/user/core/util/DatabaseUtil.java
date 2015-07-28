@@ -298,7 +298,7 @@ public class DatabaseUtil {
                 String name = rs.getString(1);
                 String domain = rs.getString(2);
                 if (domain != null) {
-                    UserCoreUtil.addDomainToName(name, domain);
+                    name = UserCoreUtil.addDomainToName(name, domain);
                 }
                 lst.add(name);
             }
