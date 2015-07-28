@@ -141,15 +141,12 @@ public class BasicAccessAuthenticator extends AbstractAuthenticator {
         byte[] decodedBytes = Base64Utils.decode(splitValues[1].trim());
         if (decodedBytes != null) {
             String userNamePassword = new String(decodedBytes);
-            String username = userNamePassword.substring(0, userNamePassword.indexOf(":"));
-            String password = userNamePassword.substring(userNamePassword.indexOf(":") + 1);
-            if(username != null && password != null &&
-                    !"".equals(username.trim()) && !"".equals(password.trim())) {
-                return new String[]{username, password};
-            }
+
+            return userNamePassword.split(":");
+        } else {
+            log.debug("Error decoding authorization header. Could not retrieve user name and password.");
+            return new String[]{null, null};
         }
-        log.debug("Error decoding authorization header. Could not retrieve user name and password.");
-        return new String[]{null, null};
 
     }
 
