@@ -4,7 +4,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.2-SNAPSHOT</version>
+    <version>4.4.1-SNAPSHOT</version>
     <name>WSO2 Carbon - Aggregate Pom</name>
     <description>WSO2 Carbon Platform with all its components, features and products
     </description>
