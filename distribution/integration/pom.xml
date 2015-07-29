@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -31,8 +31,9 @@
     <modules>
         <module>security-verifier</module>
         <module>axis2-sample-service</module>
+        <module>sample-servlet</module>
         <module>test-common</module>
         <module>tests-integration</module>
-        <module>tests-ui-integration</module>
+        <!--<module>tests-ui-integration</module>-->
     </modules>
 </project>

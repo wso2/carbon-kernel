@@ -55,7 +55,12 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
         HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
         startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
         try {
-            CarbonTestServerManager.start(startUpParameterMap);
+            if (!CarbonTestServerManager.isServerRunning()) {
+                CarbonTestServerManager.start(startUpParameterMap);
+            } else {
+                CarbonTestServerManager.stop();
+                CarbonTestServerManager.start(startUpParameterMap);
+            }
 
             int httpsPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset;
             ClientConnectionUtil.waitForPort(httpsPort, automationContext.getInstance().getHosts().get("default"));
@@ -68,7 +73,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
 
             serverAdmin.shutdownGracefully();
 
-            Thread.sleep(10000);
+            Thread.sleep(20000);
 
             assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
                         "Port " + httpsPort + " shouldn't be open when the server is gracefully shutting down");
@@ -103,7 +108,7 @@ public class ServerShutdownTestCase extends CarbonIntegrationBaseTest {
                                                                   automationContext.getContextTenant().getContextUser().getPassword());
 
             assertTrue(serverAdmin.shutdown(), "Server shout down failure");
-            Thread.sleep(10000);
+            Thread.sleep(20000);
             assertFalse(ClientConnectionUtil.isPortOpen(httpsPort),
                         "Port " + httpsPort + " shouldn't be open when the server is shutting down");
             int httpPort = Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset;

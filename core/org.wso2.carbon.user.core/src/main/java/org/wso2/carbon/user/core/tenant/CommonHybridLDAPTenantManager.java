@@ -132,7 +132,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         String searchFilter = "(&(objectClass=" + organizationalObjectClass + ")(" + organizationalAttribute + "=" + orgName + "))";
 
         SearchControls userSearchControl = new SearchControls();
-        userSearchControl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        userSearchControl.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         NamingEnumeration<SearchResult> userSearchResults = null;
 
         try {

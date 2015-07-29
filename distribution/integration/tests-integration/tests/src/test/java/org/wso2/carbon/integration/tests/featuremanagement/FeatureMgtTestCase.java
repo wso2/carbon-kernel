@@ -17,7 +17,7 @@
 */
 package org.wso2.carbon.integration.tests.featuremanagement;
 
-import org.apache.axiom.om.OMAbstractFactory;
+/*import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
@@ -35,15 +35,15 @@ import org.wso2.carbon.feature.mgt.stub.prov.data.ProvisioningActionResultInfo;
 import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
 import org.wso2.carbon.integration.common.clients.FeatureAdminClient;
 import org.wso2.carbon.integration.common.clients.RepositoryAdminClient;
-import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
+import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;*/
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 
-import java.io.File;
+/*import java.io.File;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.*;*/
 
 public class FeatureMgtTestCase extends CarbonIntegrationBaseTest {
-    private static final Log log = LogFactory.getLog(FeatureMgtTestCase.class);
+    /*private static final Log log = LogFactory.getLog(FeatureMgtTestCase.class);
     FeatureAdminClient featureAdminClient;
     RepositoryAdminClient repositoryAdminClient;
     String sampleP2RepoPath;
@@ -299,5 +299,5 @@ public class FeatureMgtTestCase extends CarbonIntegrationBaseTest {
         OMNamespace omNs = fac.createOMNamespace(namespace, "ns");
         OMElement getOme = fac.createOMElement("getName", omNs);
         return getOme;
-    }
+    }*/
 }

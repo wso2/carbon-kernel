@@ -136,7 +136,7 @@ this directory.
 6. java2wsdl.sh & java2wsdl.bat - Tool for generating WSDL from Java code
 
 7. build.xml - Build configuration for the ant command.
-      Default task - Running the ant command in this directory, will copy the libraries that are require to run remote registry clients in to the repo                     sitory/lib directory.
+      Default task - Running the ant command in this directory, will copy the libraries that are require to run remote registry clients in to the repository/lib directory.
       createWorker task - removes the front end components from the server runtime.
       localize task - Generates language bundles in the $CARBON_HOME/repository/components/dropins to be picked at a locale change.
 
