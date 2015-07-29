@@ -323,7 +323,7 @@ public class CarbonSecuredHttpContext extends SecuredComponentEntryHttpContext {
         for (Map.Entry<String, String> urlToBeByPassed : urlsToBeByPassed.entrySet()) {
             String urlKey = urlToBeByPassed.getKey();
             if (urlKey != null) {
-                if (urlKey.equals(resourceURI) ||
+                if (urlKey.contains(resourceURI) ||
                     (urlKey.endsWith("*") && resourceURI.startsWith(urlKey.substring(0, urlKey.length() - 1)))) {
                     if (log.isDebugEnabled()) {
                         log.debug("By passing authentication check for URI : " + resourceURI);
