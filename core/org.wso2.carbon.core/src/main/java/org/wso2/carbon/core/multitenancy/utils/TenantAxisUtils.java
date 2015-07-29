@@ -37,7 +37,6 @@
 package org.wso2.carbon.core.multitenancy.utils;
 
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.Constants;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.description.AxisService;
@@ -118,6 +117,19 @@ public final class TenantAxisUtils {
     public static ConfigurationContext
     getTenantConfigurationContext(String tenantDomain, ConfigurationContext mainConfigCtx) {
         ConfigurationContext tenantConfigCtx;
+
+        Boolean isTenantActive;
+        try {
+            isTenantActive = CarbonCoreDataHolder.getInstance().getRealmService().getTenantManager().
+                    isTenantActive(getTenantId(tenantDomain));
+        } catch (Exception e) {
+            throw new RuntimeException("Error while getting tenant activation status.", e);
+        }
+
+        if (!isTenantActive) {
+            throw new RuntimeException("Trying to access inactive tenant domain : " + tenantDomain);
+        }
+
         if (tenantReadWriteLocks.get(tenantDomain) == null) {
             synchronized (tenantDomain.intern()) {
                 if (tenantReadWriteLocks.get(tenantDomain) == null) {
