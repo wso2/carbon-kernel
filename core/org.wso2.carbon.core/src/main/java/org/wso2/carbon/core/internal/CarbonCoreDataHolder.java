@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.core.internal;
 
+import org.apache.axis2.clustering.MembershipScheme;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.engine.ListenerManager;
 import org.apache.commons.logging.Log;
@@ -29,6 +30,8 @@ import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This singleton data holder contains all the data required by the Carbon core OSGi bundle
@@ -47,6 +50,7 @@ public class CarbonCoreDataHolder {
     private TenantRegistryLoader tenantRegistryLoader;
 
     private List<CoordinatedActivity> coordinatedActivities = new ArrayList<CoordinatedActivity>() ;
+    private Map<String, MembershipScheme> membershipSchemesMap = new ConcurrentHashMap<String, MembershipScheme>();
 
     public  static CarbonCoreDataHolder getInstance() {
         return instance;
@@ -153,5 +157,34 @@ public class CarbonCoreDataHolder {
 
     public List<CoordinatedActivity> getCoordinatedActivities() {
         return coordinatedActivities ;
+    }
+
+    public void addMembershipScheme(String name, MembershipScheme membershipScheme) {
+        membershipSchemesMap.put(name, membershipScheme);
+        log.info("Membership scheme registered: [" + name + "] " + membershipScheme.getClass().getName());
+    }
+
+    public void removeMembershipScheme(String name, MembershipScheme membershipScheme) {
+        membershipSchemesMap.remove(name);
+        log.info("Membership scheme un-registered: [" + name + "] " + membershipScheme.getClass().getName());
+    }
+
+    public MembershipScheme getMembershipScheme(String name) {
+        return membershipSchemesMap.get(name);
+    }
+
+    public String getMembershipSchemeNames() {
+        StringBuffer names = new StringBuffer();
+        for(String name : membershipSchemesMap.keySet()) {
+            if(names.length() > 0) {
+                names.append(", ");
+            }
+            names.append(name);
+        }
+        return names.toString();
+    }
+
+    public boolean membershipSchemeExist(String name) {
+        return getMembershipScheme(name) != null;
     }
 }

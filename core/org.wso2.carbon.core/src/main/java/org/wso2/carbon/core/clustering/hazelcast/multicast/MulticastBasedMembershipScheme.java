@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.core.clustering.hazelcast.multicast;
 
+import com.hazelcast.config.Config;
 import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
@@ -28,37 +29,45 @@ import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.description.Parameter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.core.clustering.api.ClusterMember;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastCarbonClusterImpl;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastUtil;
-import org.wso2.carbon.core.clustering.hazelcast.WrapperClusterMessage;
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
+import org.wso2.carbon.core.clustering.MembershipScheme;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Multicast based membership scheme based on Hazelcast
  */
+@MembershipScheme(name = "multicast")
 public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme {
     private static final Log log = LogFactory.getLog(MulticastBasedMembershipScheme.class);
-    private final Map<String, Parameter> parameters;
+    private Map<String, Parameter> parameters;
     private String primaryDomain;
     private MulticastConfig config;
-    private final List<ClusteringMessage> messageBuffer;
+    private List<ClusteringMessage> messageBuffer;
     private HazelcastCarbonClusterImpl carbonCluster;
     private HazelcastInstance primaryHazelcastInstance;
 
-    public MulticastBasedMembershipScheme(Map<String, Parameter> parameters,
-                                          String primaryDomain,
-                                          MulticastConfig config,
-                                          List<ClusteringMessage> messageBuffer) {
+    public MulticastBasedMembershipScheme() {
+    }
+
+    @Override
+    public void init(Map<String, Parameter> parameters,
+                     String primaryDomain,
+                     List<org.apache.axis2.clustering.Member> wkaMembers,
+                     Config primaryHazelcastConfig,
+                     HazelcastInstance primaryHazelcastInstance,
+                     List<ClusteringMessage> messageBuffer) throws ClusteringFault {
+
         this.parameters = parameters;
         this.primaryDomain = primaryDomain;
-        this.config = config;
+        this.config = primaryHazelcastConfig.getNetworkConfig().getJoin().getMulticastConfig();
         this.messageBuffer = messageBuffer;
+
+        init();
     }
 
     @Override

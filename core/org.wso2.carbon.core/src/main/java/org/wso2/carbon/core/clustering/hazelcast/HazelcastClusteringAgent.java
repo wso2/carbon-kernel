@@ -362,28 +362,11 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
     private void configureMembershipScheme(NetworkConfig nwConfig) throws ClusteringFault {
         String scheme = getMembershipScheme();
+        membershipScheme = (HazelcastMembershipScheme) CarbonCoreDataHolder.getInstance().getMembershipScheme(scheme);
+
         log.info("Using " + scheme + " based membership management scheme");
-        if (scheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
-            membershipScheme = new WKABasedMembershipScheme(parameters, primaryDomain, wkaMembers,
-                                                            primaryHazelcastConfig, sentMsgsBuffer);
-            membershipScheme.init();
-        } else if (scheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)) {
-            membershipScheme = new MulticastBasedMembershipScheme(parameters, primaryDomain,
-                                                                  nwConfig.getJoin().getMulticastConfig(),
-                                                                  sentMsgsBuffer);
-            membershipScheme.init();
-        } else if (scheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME)) {
-            membershipScheme = new AWSBasedMembershipScheme(parameters, primaryDomain,
-                                                           primaryHazelcastConfig,
-                                                           primaryHazelcastInstance,
-                                                           sentMsgsBuffer);
-            membershipScheme.init();
-        } else {
-            String msg = "Invalid membership scheme '" + scheme +
-                         "'. Supported schemes are multicast & wka";
-            log.error(msg);
-            throw new ClusteringFault(msg);
-        } //TODO: AWS membership scheme support
+        membershipScheme.init(parameters, primaryDomain, wkaMembers,
+                primaryHazelcastConfig, primaryHazelcastInstance, sentMsgsBuffer);
     }
 
     /**
@@ -396,18 +379,11 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     private String getMembershipScheme() throws ClusteringFault {
         Parameter membershipSchemeParam =
                 getParameter(ClusteringConstants.Parameters.MEMBERSHIP_SCHEME);
-        String mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
-        if (membershipSchemeParam != null) {
-            mbrScheme = ((String) membershipSchemeParam.getValue()).trim();
-        }
-        if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED) &&
-            !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED) &&
-            !mbrScheme.equals(HazelcastConstants.AWS_MEMBERSHIP_SCHEME)) {
+
+        String mbrScheme = ((String) membershipSchemeParam.getValue()).trim();
+        if(!CarbonCoreDataHolder.getInstance().membershipSchemeExist(mbrScheme)) {
             String msg = "Invalid membership scheme '" + mbrScheme + "'. Supported schemes are " +
-                         ClusteringConstants.MembershipScheme.MULTICAST_BASED + ", " +
-                         ClusteringConstants.MembershipScheme.WKA_BASED + " & " +
-                         HazelcastConstants.AWS_MEMBERSHIP_SCHEME;
-            log.error(msg);
+                    CarbonCoreDataHolder.getInstance().getMembershipSchemeNames();
             throw new ClusteringFault(msg);
         }
         return mbrScheme;

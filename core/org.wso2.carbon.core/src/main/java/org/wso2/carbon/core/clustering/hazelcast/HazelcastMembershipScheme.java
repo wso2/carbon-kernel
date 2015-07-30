@@ -17,14 +17,28 @@
 */
 package org.wso2.carbon.core.clustering.hazelcast;
 
+import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
+import org.apache.axis2.clustering.ClusteringFault;
+import org.apache.axis2.clustering.ClusteringMessage;
 import org.apache.axis2.clustering.MembershipScheme;
+import org.apache.axis2.description.Parameter;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * MembershipScheme which adds some methods for the Hazelcast based clustering implementation
  */
 public interface HazelcastMembershipScheme extends MembershipScheme {
+
+    void init(Map<String, Parameter> parameters,
+              String primaryDomain,
+              List<org.apache.axis2.clustering.Member> wkaMembers,
+              Config primaryHazelcastConfig,
+              HazelcastInstance primaryHazelcastInstance,
+              List<ClusteringMessage> messageBuffer) throws ClusteringFault;
 
     void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance);
 

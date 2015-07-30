@@ -38,6 +38,7 @@ import org.wso2.carbon.core.clustering.hazelcast.HazelcastCarbonClusterImpl;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastUtil;
 import org.wso2.carbon.core.clustering.hazelcast.util.MemberUtils;
+import org.wso2.carbon.core.clustering.MembershipScheme;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -47,18 +48,22 @@ import java.util.Map;
 /**
  * Well-known Address membership scheme based on Hazelcast
  */
+@MembershipScheme(name = "wka")
 public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     private static final Log log = LogFactory.getLog(WKABasedMembershipScheme.class);
     private Map<String, Parameter> parameters;
     private String primaryDomain;
     private List<Member> wkaMembers = new ArrayList<Member>();
-    private final List<ClusteringMessage> messageBuffer;
+    private List<ClusteringMessage> messageBuffer;
     private NetworkConfig nwConfig;
 
     private IMap<String, Member> allMembers;
     private volatile HazelcastInstance primaryHazelcastInstance;
     private com.hazelcast.core.Member localMember;
     private HazelcastCarbonClusterImpl carbonCluster;
+
+    public WKABasedMembershipScheme() {
+    }
 
     public void setPrimaryHazelcastInstance(HazelcastInstance primaryHazelcastInstance) {
         this.primaryHazelcastInstance = primaryHazelcastInstance;
@@ -74,16 +79,20 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
         this.localMember = localMember;
     }
 
-    public WKABasedMembershipScheme(Map<String, Parameter> parameters,
-                                    String primaryDomain,
-                                    List<Member> wkaMembers,
-                                    Config config,
-                                    List<ClusteringMessage> messageBuffer) {
+    @Override
+    public void init(Map<String, Parameter> parameters,
+                     String primaryDomain,
+                     List<Member> wkaMembers,
+                     Config primaryHazelcastConfig,
+                     HazelcastInstance primaryHazelcastInstance,
+                     List<ClusteringMessage> messageBuffer) throws ClusteringFault {
         this.parameters = parameters;
         this.primaryDomain = primaryDomain;
         this.wkaMembers = wkaMembers;
         this.messageBuffer = messageBuffer;
-        this.nwConfig = config.getNetworkConfig();
+        this.nwConfig = primaryHazelcastConfig.getNetworkConfig();
+
+        init();
     }
 
     @Override

@@ -15,8 +15,10 @@
  */
 package org.wso2.carbon.core.internal;
 
+import org.apache.axis2.clustering.MembershipScheme;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpService;
 import org.wso2.carbon.base.api.ServerConfigurationService;
@@ -26,6 +28,9 @@ import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
+import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
+import org.wso2.carbon.core.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
+import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
 import org.wso2.carbon.core.init.CarbonServerManager;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
@@ -86,9 +91,15 @@ public class CarbonCoreServiceComponent {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID);
-            ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null) ;
+
+            BundleContext bundleContext = ctxt.getBundleContext();
+            bundleContext.registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null) ;
+            bundleContext.registerService(MembershipScheme.class.getName(), new AWSBasedMembershipScheme(), null);
+            bundleContext.registerService(MembershipScheme.class.getName(), new MulticastBasedMembershipScheme(), null);
+            bundleContext.registerService(MembershipScheme.class.getName(), new WKABasedMembershipScheme(), null);
+
             carbonServerManager = new CarbonServerManager();
-            carbonServerManager.start(ctxt.getBundleContext());
+            carbonServerManager.start(bundleContext);
         } catch (Throwable e) {
             log.error("Failed to activate Carbon Core bundle ", e);
         }

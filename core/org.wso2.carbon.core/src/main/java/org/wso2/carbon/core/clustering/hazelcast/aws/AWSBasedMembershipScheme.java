@@ -33,33 +33,37 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastCarbonClusterImpl;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.HazelcastUtil;
-import org.wso2.carbon.core.clustering.hazelcast.wka.WKAConstants;
+import org.wso2.carbon.core.clustering.MembershipScheme;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * TODO: class description
+ * AWS based membership scheme service.
  */
+@MembershipScheme(name = "aws")
 public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     private static final Log log = LogFactory.getLog(AWSBasedMembershipScheme.class);
-    private final Map<String, Parameter> parameters;
-    private final String primaryDomain;
-    private final NetworkConfig nwConfig;
+    private Map<String, Parameter> parameters;
+    private NetworkConfig nwConfig;
     private HazelcastInstance primaryHazelcastInstance;
-    private final List<ClusteringMessage> messageBuffer;
+    private List<ClusteringMessage> messageBuffer;
     private HazelcastCarbonClusterImpl carbonCluster;
 
-    public AWSBasedMembershipScheme(Map<String, Parameter> parameters,
-                                    String primaryDomain,
-                                    Config config,
-                                    HazelcastInstance primaryHazelcastInstance,
-                                    List<ClusteringMessage> messageBuffer) {
+    public AWSBasedMembershipScheme() {
+    }
+
+    @Override
+    public void init(Map<String, Parameter> parameters,
+                     String primaryDomain,
+                     List<org.apache.axis2.clustering.Member> wkaMembers,
+                     Config primaryHazelcastConfig,
+                     HazelcastInstance primaryHazelcastInstance,
+                     List<ClusteringMessage> messageBuffer) {
         this.parameters = parameters;
-        this.primaryDomain = primaryDomain;
         this.primaryHazelcastInstance = primaryHazelcastInstance;
         this.messageBuffer = messageBuffer;
-        this.nwConfig = config.getNetworkConfig();
+        this.nwConfig = primaryHazelcastConfig.getNetworkConfig();
     }
 
     @Override
