@@ -20,7 +20,7 @@ package org.wso2.carbon.user.core.util;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.CarbonConstants;;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
@@ -30,6 +30,7 @@ import org.wso2.carbon.user.core.common.UserStore;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.xml.StringUtils;
 
 import javax.sql.DataSource;
@@ -461,19 +462,22 @@ public final class UserCoreUtil {
     }
 
     /**
-     * Append the distinguished name to the entry name
+     * Append the distinguished name to the tenantAwareEntry name
      *
-     * @param entry
+     * @param tenantAwareEntry
      * @param tenantDomain
      * @return
      */
-    public static String addTenantDomainToEntry(String entry, String tenantDomain) {
+    public static String addTenantDomainToEntry(String tenantAwareEntry, String tenantDomain) {
 
-        if (!StringUtils.isEmpty(tenantDomain)) {
-            entry = entry.split(UserCoreConstants.TENANT_DOMAIN_COMBINER)[0];
-            return entry + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+        if (StringUtils.isEmpty(tenantAwareEntry)){
+            throw new IllegalArgumentException();
+        } else if (!StringUtils.isEmpty(tenantDomain)) {
+            return tenantAwareEntry + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+        } else {
+            return tenantAwareEntry + UserCoreConstants.TENANT_DOMAIN_COMBINER + MultitenantConstants
+                    .SUPER_TENANT_DOMAIN_NAME;
         }
-        return entry;
     }
 
     /**
