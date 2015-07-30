@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.core.clustering.MembershipScheme;
 import org.wso2.carbon.core.clustering.exceptions.MembershipSchemeException;
+import org.wso2.carbon.utils.xml.StringUtils;
 
 /**
  * This service component is responsible for managing membership schemes registered
@@ -36,8 +37,12 @@ public class MembershipSchemeManagerServiceComponent {
     private String findMembershipSchemeName(org.apache.axis2.clustering.MembershipScheme membershipScheme) throws MembershipSchemeException {
         MembershipScheme annotation = membershipScheme.getClass().getAnnotation(MembershipScheme.class);
         if(annotation == null) {
-            throw new MembershipSchemeException("MembershipSchemeMeta annotation not found in " +
+            throw new MembershipSchemeException("MembershipScheme annotation not found in class " +
                 membershipScheme.getClass().getName());
+        }
+        if(StringUtils.isEmpty(annotation.name())) {
+            throw new MembershipSchemeException("Membership scheme name not defined in MembershipScheme annotation " +
+                    "in class " + membershipScheme.getClass().getName());
         }
         return annotation.name();
     }
