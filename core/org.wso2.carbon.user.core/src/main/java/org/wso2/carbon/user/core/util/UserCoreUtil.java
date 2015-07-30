@@ -20,7 +20,7 @@ package org.wso2.carbon.user.core.util;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.CarbonConstants;;
+import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
