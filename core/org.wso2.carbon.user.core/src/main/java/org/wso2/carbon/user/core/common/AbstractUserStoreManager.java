@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.Credential;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -43,10 +44,10 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -376,19 +377,30 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     credential, domainProvided);
         }
 
+        Credential credentialObj = Credential.getCredential(credential);
+        boolean isNewCredentialObj = credentialObj.isNew();
+
         // #################### Domain Name Free Zone Starts Here ################################
 
         // #################### <Listeners> #####################################################
         for (UserStoreManagerListener listener : UMListenerServiceComponent
                 .getUserStoreManagerListeners()) {
-            if (!listener.authenticate(userName, credential, this)) {
+            if (!listener.authenticate(userName, credentialObj, this)) {
+                // Clearing credential
+                if (isNewCredentialObj) {
+                    credentialObj.clear();
+                }
                 return true;
             }
         }
 
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPreAuthenticate(userName, credential, this)) {
+            if (!listener.doPreAuthenticate(userName, credentialObj, this)) {
+                // Clearing credential
+                if (isNewCredentialObj) {
+                    credentialObj.clear();
+                }
                 return false;
             }
         }
@@ -403,6 +415,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
                 if (!tenantActive) {
                     log.warn("Tenant has been deactivated. TenantID : " + tenantId);
+
+                    // Clearing credential
+                    if (isNewCredentialObj) {
+                        credentialObj.clear();
+                    }
+
                     return false;
                 }
             }
@@ -419,7 +437,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         try {
             // Let's authenticate with the primary UserStoreManager.
-            authenticated = doAuthenticate(userName, credential);
+            authenticated = doAuthenticate(userName, credentialObj);
         } catch (Exception e) {
             // We can ignore and proceed. Ignore the results from this user store.
             log.error(e);
@@ -438,7 +456,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // domain- then we need to execute chained UserStoreManagers recursively.
         if (!authenticated && !domainProvided && this.getSecondaryUserStoreManager() != null) {
             authenticated = ((AbstractUserStoreManager) this.getSecondaryUserStoreManager())
-                    .authenticate(userName, credential, domainProvided);
+                    .authenticate(userName, credentialObj, domainProvided);
+        }
+
+        // Clearing credential
+        if (isNewCredentialObj) {
+            credentialObj.clear();
         }
 
         // You cannot change authentication decision in post handler to TRUE
@@ -764,34 +787,49 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        Credential credentialObj = Credential.getCredential(newCredential);
+        boolean isNewCredentialObj = credentialObj.isNew();
+
         // #################### <Listeners> #####################################################
         for (UserStoreManagerListener listener : UMListenerServiceComponent
                 .getUserStoreManagerListeners()) {
-            if (!listener.updateCredentialByAdmin(userName, newCredential, this)) {
+            if (!listener.updateCredentialByAdmin(userName, credentialObj, this)) {
+                // Clearing credential
+                if (isNewCredentialObj) {
+                    credentialObj.clear();
+                }
                 return;
             }
         }
         // using string buffers to allow the password to be changed by listener
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (newCredential == null) { // a default password will be set
-                StringBuffer credBuff = new StringBuffer();
-                if (!listener.doPreUpdateCredentialByAdmin(userName, newCredential, this)) {
+            if (credentialObj.isEmpty()) { // a default password will be set
+                Credential newCredentialObj = new Credential();
+                isNewCredentialObj = newCredentialObj.isNew();
+                if (!listener.doPreUpdateCredentialByAdmin(userName, newCredentialObj, this)) {
+                    // Clearing credential
+                    if (isNewCredentialObj) {
+                        credentialObj.clear();
+                    }
                     return;
                 }
-                newCredential = credBuff.toString(); // reading the modified value
-            } else if (newCredential instanceof String) {
-                StringBuffer credBuff = new StringBuffer((String) newCredential);
-                if (!listener.doPreUpdateCredentialByAdmin(userName, credBuff, this)) {
+
+                credentialObj = newCredentialObj; // reading the modified value
+            } else {
+                if (!listener.doPreUpdateCredentialByAdmin(userName, credentialObj, this)) {
+                    // Clearing credential
+                    if (isNewCredentialObj) {
+                        credentialObj.clear();
+                    }
                     return;
                 }
-                newCredential = credBuff.toString(); // reading the modified value
             }
         }
         // #################### </Listeners> #####################################################
 
 
-        if (!checkUserPasswordValid(newCredential)) {
+        if (!checkUserPasswordValid(credentialObj)) {
             String errorMsg = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
 
@@ -810,12 +848,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("User " + userName + " does not exisit in the user store");
         }
 
-        doUpdateCredentialByAdmin(userName, newCredential);
+        doUpdateCredentialByAdmin(userName, credentialObj);
 
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPostUpdateCredentialByAdmin(userName, newCredential, this)) {
+            if (!listener.doPostUpdateCredentialByAdmin(userName, credentialObj, this)) {
+                // Clearing credential
+                if (isNewCredentialObj) {
+                    credentialObj.clear();
+                }
                 return;
             }
         }
@@ -1144,8 +1186,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return;
         }
 
+        Credential credentialObj = Credential.getCredential(credential);
+        boolean isNewCredentialObj = credentialObj.isNew();
+
         if (userStore.isSystemStore()) {
-            systemUserRoleManager.addSystemUser(userName, credential, roleList);
+            systemUserRoleManager.addSystemUser(userName, credentialObj, roleList);
+
+            // Clearing credential
+            if (isNewCredentialObj){
+                credentialObj.clear();
+            }
             return;
         }
 
@@ -1164,27 +1214,37 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### <Listeners> #####################################################
         for (UserStoreManagerListener listener : UMListenerServiceComponent
                 .getUserStoreManagerListeners()) {
-            if (!listener.addUser(userName, credential, roleList, claims, profileName, this)) {
+            if (!listener.addUser(userName, credentialObj, roleList, claims, profileName, this)) {
+                // Clearing credential
+                if (isNewCredentialObj){
+                    credentialObj.clear();
+                }
                 return;
             }
         }
         // String buffers are used to let listeners to modify passwords
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (credential == null) { // a default password will be set
-                StringBuffer credBuff = new StringBuffer();
-                if (!listener.doPreAddUser(userName, credBuff, roleList, claims, profileName,
-                        this)) {
+            if (credentialObj.isEmpty()) { // a default password will be set
+                Credential newCredentialObj = new Credential();
+                isNewCredentialObj = newCredentialObj.isNew();
+                if (!listener.doPreAddUser(userName, newCredentialObj, roleList, claims, profileName, this)) {
+                    // Clearing credential
+                    if (isNewCredentialObj){
+                        newCredentialObj.clear();
+                    }
                     return;
                 }
-                credential = credBuff.toString(); // reading the modified value
-            } else if (credential instanceof String) {
-                StringBuffer credBuff = new StringBuffer((String) credential);
-                if (!listener.doPreAddUser(userName, credBuff, roleList, claims, profileName,
-                        this)) {
+
+                credentialObj = newCredentialObj; // reading the modified value
+            } else {
+                if (!listener.doPreAddUser(userName, credentialObj, roleList, claims, profileName, this)) {
+                    // Clearing credential
+                    if (isNewCredentialObj){
+                        credentialObj.clear();
+                    }
                     return;
                 }
-                credential = credBuff.toString(); // reading the modified value
             }
         }
         // #################### </Listeners> #####################################################
@@ -1203,7 +1263,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException(message + regEx);
         }
 
-        if (!checkUserPasswordValid(credential)) {
+        if (!checkUserPasswordValid(credentialObj)) {
             String message = "Credential not valid. Credential must be a non null string with following format, ";
             String errorMsg = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
@@ -1270,7 +1330,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
 
-        doAddUser(userName, credential, externalRoles.toArray(new String[externalRoles.size()]),
+        doAddUser(userName, credentialObj, externalRoles.toArray(new String[externalRoles.size()]),
                 claims, profileName, requirePasswordChange);
 
         if (internalRoles.size() > 0) {
@@ -1281,11 +1341,19 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
-            if (!listener.doPostAddUser(userName, credential, roleList, claims, profileName, this)) {
+            if (!listener.doPostAddUser(userName, credentialObj, roleList, claims, profileName, this)) {
+                if (isNewCredentialObj) {
+                    credentialObj.clear();
+                }
                 return;
             }
         }
         // #################### </Listeners> #####################################################
+
+        // Clearing credential
+        if (isNewCredentialObj) {
+            credentialObj.clear();
+        }
 
         String[] internalRoleListOfUser = doGetInternalRoleListOfUser(userName, "*");
         if(internalRoleListOfUser == null) {
@@ -2874,19 +2942,21 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return false;
         }
 
-        if (!(credential instanceof String)) {
-            throw new UserStoreException("Can handle only string type credentials");
-        }
+        Credential credentialObj = Credential.getCredential(credential);
+        boolean isNewCredentialObj = credentialObj.isNew();
 
-        String password = ((String) credential).trim();
-
-        if (password.length() < 1) {
+        if (credentialObj.getChars().length < 1) {
             return false;
         }
 
-        String regularExpression = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-        return regularExpression == null || isFormatCorrect(regularExpression, password);
+        String regularExpression = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
+        boolean status = regularExpression == null || isFormatCorrect(regularExpression, credentialObj.getChars());
+
+        if (isNewCredentialObj){
+            credentialObj.clear();
+        }
+
+        return status;
     }
 
     /**
@@ -3040,6 +3110,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         Pattern p2 = Pattern.compile(regularExpression);
         Matcher m2 = p2.matcher(attribute);
         return m2.matches();
+    }
+
+    private boolean isFormatCorrect(String regularExpression, char[] attribute) {
+
+        boolean matches;
+        CharBuffer charBuffer = CharBuffer.wrap(attribute);
+
+        Pattern p2 = Pattern.compile(regularExpression);
+        Matcher m2 = p2.matcher(charBuffer);
+        matches = m2.matches();
+
+        Arrays.fill(charBuffer.array(), '\u0000'); // clear sensitive data
+
+        return matches;
     }
 
     /**

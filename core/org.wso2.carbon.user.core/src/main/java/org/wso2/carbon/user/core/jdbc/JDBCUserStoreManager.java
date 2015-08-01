@@ -25,6 +25,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.Credential;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
@@ -1167,7 +1168,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
         String sqlstmt = null;
-        String password = (String) credential;
+        String password = null;
         boolean isAuthed = false;
 
         try {
@@ -1210,7 +1211,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (requireChange == true && changedTime.before(date)) {
                     isAuthed = false;
                 } else {
-                    password = this.preparePassword(password, saltValue);
+                    password = this.preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
                     }
@@ -1264,7 +1265,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throws UserStoreException {
 
         Connection dbConnection = null;
-        String password = (String) credential;
+
         try{
             dbConnection = getDBConnection();
         }catch (SQLException e){
@@ -1286,7 +1287,10 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 saltValue = Base64.encode(bytes);
             }
 
-            password = this.preparePassword(password, saltValue);
+            Credential credentialObj = Credential.getCredential(credential);
+            boolean isNewCredentialObj = credentialObj.isNew();
+
+            String password = this.preparePassword(credentialObj, saltValue);
 
             // do all 4 possibilities
             if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue == null)) {
@@ -1303,6 +1307,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             } else {
                 this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password, saltValue,
                         requirePasswordChange, new Date());
+            }
+
+            // Clearing credential
+            if (isNewCredentialObj) {
+                credentialObj.clear();
             }
 
             if (roleList != null && roleList.length > 0) {
@@ -2203,7 +2212,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             saltValue = Base64.encode(bytes);
         }
 
-        String password = this.preparePassword((String) newCredential, saltValue);
+        String password = this.preparePassword(newCredential, saltValue);
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue == null) {
             updateStringValuesToDatabase(null, sqlStmt, password, "", false, new Date(), userName,
@@ -2494,26 +2503,46 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    protected String preparePassword(String password, String saltValue) throws UserStoreException {
+    protected String preparePassword(Object password, String saltValue) throws UserStoreException {
         try {
-            String digestInput = password;
+            //TODO : Return char array and check if DB can use CharStream in varchar
+            Credential credentialObj = Credential.getCredential(password);
+            boolean isNewCredentialObj = credentialObj.isNew();
+
+            String passwordString = null;
             if (saltValue != null) {
-                digestInput = password + saltValue;
+                credentialObj.addChars(saltValue.toCharArray());
             }
+
             String digsestFunction = realmConfig.getUserStoreProperties().get(
                     JDBCRealmConstants.DIGEST_FUNCTION);
             if (digsestFunction != null) {
 
                 if (digsestFunction
                         .equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
-                    return password;
+                    passwordString = new String(credentialObj.getChars());
+
+                    // Clearing credential
+                    if (isNewCredentialObj) {
+                        credentialObj.clear();
+                    }
+
+                    return passwordString;
                 }
 
                 MessageDigest dgst = MessageDigest.getInstance(digsestFunction);
-                byte[] byteValue = dgst.digest(digestInput.getBytes());
-                password = Base64.encode(byteValue);
+                byte[] byteValue = dgst.digest(credentialObj.getBytes());
+                passwordString = Base64.encode(byteValue);
+            } else {
+                passwordString = new String(credentialObj.getChars());
             }
-            return password;
+
+            // Clearing credential
+            if (isNewCredentialObj) {
+                credentialObj.clear();
+            }
+
+            return passwordString;
         } catch (NoSuchAlgorithmException e) {
             String msg = "Error occurred while preparing password.";
             if (log.isDebugEnabled()) {

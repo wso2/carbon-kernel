@@ -18,11 +18,13 @@
 package org.wso2.carbon.user.core.util;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.Credential;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.DBConstants;
@@ -43,7 +45,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -172,34 +173,49 @@ public final class UserCoreUtil {
      * @return
      * @throws UserStoreException
      */
-    public static String getPasswordToStore(String password, String passwordHashMethod,
+    public static byte[] getPasswordToStore(Object password, String passwordHashMethod,
                                             boolean isKdcEnabled) throws UserStoreException {
+
+        Credential credentialObj = Credential.getCredential(password);
+        byte[] passwordBytes = credentialObj.getBytes();
+        byte[] passwordToStore = Arrays.copyOf(passwordBytes, passwordBytes.length);
 
         if (isKdcEnabled) {
             // If KDC is enabled we will always use plain text passwords.
             // Cause - KDC cannot operate with hashed passwords.
 
-            return password;
+            if (credentialObj.isNew()) {
+                credentialObj.clear();
+            }
+
+            return passwordToStore;
         }
 
-        String passwordToStore = password;
 
         if (passwordHashMethod != null) {
 
-            if (passwordHashMethod
-                    .equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+            if (passwordHashMethod.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                if (credentialObj.isNew()) {
+                    credentialObj.clear();
+                }
+
                 return passwordToStore;
             }
 
             try {
                 MessageDigest messageDigest = MessageDigest.getInstance(passwordHashMethod);
-                byte[] digestValue = messageDigest.digest(password.getBytes());
-                passwordToStore = "{" + passwordHashMethod + "}" + Base64.encode(digestValue);
-//				passwordToStore = Base64.encode(digestValue);
+                byte[] digestValue = messageDigest.digest(credentialObj.getBytes());
+                String saltedPassword = "{" + passwordHashMethod + "}" + Base64.encode(digestValue);
+                passwordToStore = saltedPassword.getBytes();
             } catch (NoSuchAlgorithmException e) {
                 throw new UserStoreException("Invalid hashMethod", e);
             }
         }
+
+        if (credentialObj.isNew()) {
+            credentialObj.clear();
+        }
+
         return passwordToStore;
     }
 
@@ -256,7 +272,7 @@ public final class UserCoreUtil {
      * @return
      * @throws UserStoreException
      */
-    public static String getPolicyFriendlyRandomPassword(String username) throws UserStoreException {
+    public static char[] getPolicyFriendlyRandomPassword(String username) throws UserStoreException {
         return getPolicyFriendlyRandomPassword(username, 8);
     }
 
@@ -269,7 +285,7 @@ public final class UserCoreUtil {
      * @return password
      * @throws UserStoreException
      */
-    public static String getPolicyFriendlyRandomPassword(String username, int length)
+    public static char[] getPolicyFriendlyRandomPassword(String username, int length)
             throws UserStoreException {
 
         if (length < 8 || length > 50) {
@@ -313,7 +329,7 @@ public final class UserCoreUtil {
             throw new UserStoreException(errorMessage, e);
         }
 
-        return new String(password).concat(randomNum);
+        return ArrayUtils.addAll(password, randomNum.toCharArray());
     }
 
     /**
@@ -961,5 +977,21 @@ public final class UserCoreUtil {
      */
     public static String getTenantShareGroupBase(String tenantOu) {
         return tenantOu + "=" + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+    }
+
+    public static void clearSensitiveChars(char[] chars) {
+        if (chars == null) {
+            return;
+        }
+
+        Arrays.fill(chars, '\u0000');
+    }
+
+    public static void clearSensitiveBytes(byte[] bytes) {
+        if (bytes == null) {
+            return;
+        }
+
+        Arrays.fill(bytes, (byte) 0);
     }
 }

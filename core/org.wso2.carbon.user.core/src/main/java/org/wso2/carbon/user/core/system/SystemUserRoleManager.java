@@ -20,6 +20,7 @@ package org.wso2.carbon.user.core.system;
 import org.apache.axis2.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.core.Credential;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -340,7 +341,8 @@ public class SystemUserRoleManager {
                               String[] roleList) throws UserStoreException {
 
         Connection dbConnection = null;
-        String password = (String) credential;
+        Credential credentialObj = Credential.getCredential(credential);
+        boolean isNewCredentialObj = credentialObj.isNew();
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String sqlStmt1 = SystemJDBCConstants.ADD_USER_SQL;
@@ -350,7 +352,7 @@ public class SystemUserRoleManager {
             random.nextBytes(bytes);
             saltValue = Base64.encode(bytes);
 
-            password = this.preparePassword(password, saltValue);
+            String password = this.preparePassword(credentialObj, saltValue);
 
             this.updateStringValuesToDatabase(dbConnection, sqlStmt1, userName, password,
                     saltValue, false, new Date(), tenantId);
@@ -373,6 +375,10 @@ public class SystemUserRoleManager {
             throw new UserStoreException(e.getMessage(), e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
+            // Clearing credential
+            if (isNewCredentialObj) {
+                credentialObj.clear();
+            }
         }
     }
 
@@ -510,18 +516,17 @@ public class SystemUserRoleManager {
 //        }
 //    }
 
-    private String preparePassword(String password, String saltValue) throws UserStoreException {
+    private String preparePassword(Credential password, String saltValue) throws UserStoreException {
         try {
-            String digestInput = password;
             if (saltValue != null) {
-                digestInput = password + saltValue;
+                password.addChars(saltValue.toCharArray());
             }
-            MessageDigest dgst = MessageDigest.getInstance("SHA-256");
-            byte[] byteValue = dgst.digest(digestInput.getBytes());
-            password = Base64.encode(byteValue);
-            return password;
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] byteValue = digest.digest(password.getBytes());
+            return Base64.encode(byteValue);
         } catch (NoSuchAlgorithmException e) {
-            String errorMessage = "Error occurred while preparing password : " + password;
+            String errorMessage = "Error occurred while preparing password";
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }

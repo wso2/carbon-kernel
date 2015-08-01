@@ -236,8 +236,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         BasicAttributes basicAttributes = getAddUserBasicAttributes(escapeSpecialCharactersForDN(userName));
 
         BasicAttribute userPassword = new BasicAttribute("userPassword");
-        userPassword.add(UserCoreUtil.getPasswordToStore((String) credential,
-                this.realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD), kdcEnabled));
+        byte[] passwordToStore = UserCoreUtil.getPasswordToStore(credential, this.realmConfig.getUserStoreProperty
+                (PASSWORD_HASH_METHOD), kdcEnabled);
+        userPassword.add(passwordToStore);
         basicAttributes.put(userPassword);
 
 		/* setting claims */
@@ -263,6 +264,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } finally {
             JNDIUtil.closeContext(dirContext);
         }
+
+        // Clearing password byte array
+        Arrays.fill(passwordToStore, (byte) 0);
 
         try {
             /* update the user roles */
@@ -577,7 +581,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
 
                 Attribute passwordAttribute = new BasicAttribute("userPassword");
-                passwordAttribute.add(UserCoreUtil.getPasswordToStore((String) newCredential,
+                passwordAttribute.add(UserCoreUtil.getPasswordToStore(newCredential,
                         passwordHashMethod, kdcEnabled));
                 BasicAttributes basicAttributes = new BasicAttributes(true);
                 basicAttributes.put(passwordAttribute);
@@ -658,7 +662,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
 
                 Attribute passwordAttribute = new BasicAttribute("userPassword");
-                passwordAttribute.add(UserCoreUtil.getPasswordToStore((String) newCredential,
+                passwordAttribute.add(UserCoreUtil.getPasswordToStore(newCredential,
                         passwordHashMethod, kdcEnabled));
                 BasicAttributes basicAttributes = new BasicAttributes(true);
                 basicAttributes.put(passwordAttribute);

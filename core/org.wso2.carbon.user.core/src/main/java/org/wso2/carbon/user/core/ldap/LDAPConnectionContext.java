@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.Credential;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
@@ -291,18 +292,21 @@ public class LDAPConnectionContext {
         return ldapURL;
     }
 
-    public LdapContext getContextWithCredentials(String userDN, String password)
+    public LdapContext getContextWithCredentials(String userDN, Object password)
             throws UserStoreException, NamingException, AuthenticationException {
         LdapContext context = null;
 
+        Credential credentialObj = Credential.getCredential(password);
+        boolean isNewCredentialObj = credentialObj.isNew();
+
         //create a temp env for this particular authentication session by copying the original env
-        Hashtable<String, String> tempEnv = new Hashtable<String, String>();
+        Hashtable<String, Object> tempEnv = new Hashtable<String, Object>();
         for (Object key : environment.keySet()) {
-            tempEnv.put((String) key, (String) environment.get(key));
+            tempEnv.put((String) key, environment.get(key));
         }
         //replace connection name and password with the passed credentials to this method
         tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
-        tempEnv.put(Context.SECURITY_CREDENTIALS, password);
+        tempEnv.put(Context.SECURITY_CREDENTIALS, credentialObj.getBytes());
 
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
@@ -345,6 +349,12 @@ public class LDAPConnectionContext {
                 }
             }
         }
+
+        // Clearing credential
+        if (isNewCredentialObj) {
+            credentialObj.clear();
+        }
+
         return (context);
     }
 
