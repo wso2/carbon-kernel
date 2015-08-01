@@ -23,6 +23,7 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.Credential;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
@@ -150,10 +151,19 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 logger.warn("Unsecured connection is being used. Enabling user account operation will fail");
             }
 
+            Credential credentialObj = Credential.getCredential(credential);
+            boolean isNewCredentialObj = credentialObj.isNew();
+
             ModificationItem[] mods = new ModificationItem[2];
             mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
                     LDAPConstants.ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE,
-                    createUnicodePassword((String) credential)));
+                    createUnicodePassword(credentialObj)));
+
+            // Clearing credential
+            if (isNewCredentialObj) {
+                credentialObj.clear();
+            }
+
             if (isADLDSRole) {
                 mods[1] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
                         LDAPConstants.ACTIVE_DIRECTORY_MSDS_USER_ACCOUNT_DISSABLED, "FALSE"));
@@ -280,18 +290,18 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
             // The user tries to change his own password
             if (oldCredential != null && newCredential != null) {
+                Credential credentialObj = Credential.getCredential(newCredential);
+                boolean isNewCredentialObj = credentialObj.isNew();
+
                 mods = new ModificationItem[1];
-                /*
-				 * byte[] oldUnicodePassword = createUnicodePassword((String) oldCredential); byte[]
-				 * newUnicodePassword = createUnicodePassword((String) newCredential);
-				 */
                 mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
                         LDAPConstants.ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE,
-                        createUnicodePassword((String) newCredential)));
-				/*
-				 * mods[1] = new ModificationItem(DirContext.ADD_ATTRIBUTE, new BasicAttribute(
-				 * LDAPConstants.ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE, newUnicodePassword));
-				 */
+                        createUnicodePassword(credentialObj)));
+
+                // Clearing credential
+                if (isNewCredentialObj) {
+                    credentialObj.clear();
+                }
             }
             subDirContext = (DirContext) dirContext.lookup(searchBase);
             subDirContext.modifyAttributes("CN" + "=" + escapeSpecialCharactersForDN(userCNValue), mods);
@@ -359,13 +369,21 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             ModificationItem[] mods = null;
 
             if (newCredential != null) {
+                Credential credentialObj = Credential.getCredential(newCredential);
+                boolean isNewCredentialObj = credentialObj.isNew();
+
                 mods = new ModificationItem[1];
                 mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(
                         LDAPConstants.ACTIVE_DIRECTORY_UNICODE_PASSWORD_ATTRIBUTE,
-                        createUnicodePassword((String) newCredential)));
+                        createUnicodePassword(credentialObj)));
 
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
                 subDirContext.modifyAttributes("CN" + "=" + escapeSpecialCharactersForDN(userCNValue), mods);
+
+                // Clearing credential
+                if (isNewCredentialObj) {
+                    credentialObj.clear();
+                }
             }
 
         } catch (NamingException e) {
@@ -417,11 +435,23 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
      * @param password
      * @return
      */
-    private byte[] createUnicodePassword(String password) {
-        String newQuotedPassword = "\"" + password + "\"";
+    private byte[] createUnicodePassword(Credential password) {
+        char[] passwordChars = password.getChars();
+        char[] quotedPasswordChars = new char[passwordChars.length + 2];
+
+        for (int i =0 ; i < quotedPasswordChars.length ; i++){
+            if (i == 0 || i == quotedPasswordChars.length - 1) {
+                quotedPasswordChars[i] = '"';
+            } else {
+                quotedPasswordChars[i] = passwordChars[i - 1];
+            }
+        }
+
+        password.setChars(quotedPasswordChars);
+
         byte[] encodedPwd = null;
         try {
-            encodedPwd = newQuotedPassword.getBytes("UTF-16LE");
+            encodedPwd = password.getBytes("UTF-16LE");
         } catch (UnsupportedEncodingException e) {
             logger.error("Error while encoding the given password", e);
         }

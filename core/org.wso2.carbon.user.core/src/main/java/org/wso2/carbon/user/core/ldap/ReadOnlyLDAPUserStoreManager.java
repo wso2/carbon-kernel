@@ -26,6 +26,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.Credential;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -323,10 +324,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         userName = userName.trim();
 
-        String password = (String) credential;
-        password = password.trim();
+        Credential credentialObj = Credential.getCredential(credential);
+        boolean isNewCredentialObj = credentialObj.isNew();
 
-        if (userName.equals("") || password.equals("")) {
+        if (userName.equals("") || credentialObj.isEmpty()) {
             return false;
         }
 
@@ -344,7 +345,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (debug) {
                     log.debug("Cache hit. Using DN " + name);
                 }
-                bValue = this.bindAsUser(userName,name, (String) credential);
+                bValue = this.bindAsUser(userName,name, credentialObj);
             } catch (NamingException e) {
                 // do nothing if bind fails since we check for other DN
                 // patterns as well.
@@ -386,7 +387,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                     try {
                         if (name != null) {
-                            bValue = this.bindAsUser(userName, name, (String) credential);
+                            bValue = this.bindAsUser(userName, name, credentialObj);
                             if (bValue) {
                                 LdapName ldapName = new LdapName(name);
                                 userCache.put(userName, ldapName);
@@ -412,7 +413,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     if (debug) {
                         log.debug("Authenticating with " + name);
                     }
-                    bValue = this.bindAsUser(userName, name, (String) credential);
+                    bValue = this.bindAsUser(userName, name, credentialObj);
                     if (bValue) {
                         LdapName ldapName = new LdapName(name);
                         userCache.put(userName, ldapName);
@@ -425,6 +426,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
                 throw new UserStoreException(errorMessage, e);
             }
+        }
+
+        // Clearing credential
+        if (isNewCredentialObj) {
+            credentialObj.clear();
         }
 
         return bValue;
@@ -1041,7 +1047,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @throws NamingException
      * @throws UserStoreException
      */
-    private boolean bindAsUser(String userName, String dn, String credentials) throws NamingException,
+    private boolean bindAsUser(String userName, String dn, Object credentials) throws NamingException,
             UserStoreException {
         boolean isAuthed = false;
         boolean debug = log.isDebugEnabled();

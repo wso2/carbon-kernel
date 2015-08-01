@@ -355,7 +355,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             //create user password attribute
             Attribute password = new BasicAttribute(USER_PASSWORD_ATTRIBUTE_NAME);
             String passwordHashMethod = realmConfig.getUserStoreProperty(LDAPConstants.PASSWORD_HASH_METHOD);
-            String passwordToStore = UserCoreUtil.getPasswordToStore(
+            byte[] passwordToStore = UserCoreUtil.getPasswordToStore(
                     tenant.getAdminPassword(), passwordHashMethod, isKDCEnabled());
             password.add(passwordToStore);
             userAttributes.put(password);
@@ -384,6 +384,8 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             organizationalUsersContext.bind(userRDN, null, userAttributes);
             userDN = userRDN + "," + dnOfUserContext;
             //return (userRDN + dnOfUserContext);
+
+            UserCoreUtil.clearSensitiveBytes(passwordToStore);
         } catch (NamingException e) {
             String errorMsg = "Error occurred while creating Admin entry";
             if (logger.isDebugEnabled()) {
