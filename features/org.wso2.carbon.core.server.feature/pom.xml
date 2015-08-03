@@ -43,6 +43,11 @@
             <artifactId>org.wso2.carbon.core</artifactId>
             <version>5.0.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.transport</artifactId>
+            <version>5.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -70,6 +75,20 @@
                             <bundles>
                                 <bundleDef>com.hazelcast.wso2:hazelcast</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core</bundleDef>
+                                <bundleDef>org.wso2.carbon:org.wso2.carbon.transport</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-server</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-http</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-util</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-io</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-deploy</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-webapp</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-security</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-xml</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-servlet</bundleDef>
+                                <bundleDef>org.eclipse.jetty:jetty-continuation</bundleDef>
+                                <bundleDef>org.eclipse.jetty.osgi:jetty-osgi-boot</bundleDef>
+                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.http.servlet</bundleDef>
+                                <bundleDef>javax.servlet:javax.servlet-api</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>

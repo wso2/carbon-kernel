@@ -19,21 +19,12 @@
 
 package org.wso2.carbon.transport.internal;
 
-import org.eclipse.equinox.http.servlet.HttpServiceServlet;
-import org.eclipse.jetty.osgi.boot.OSGiServerConstants;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Dictionary;
-import java.util.Hashtable;
+import org.wso2.carbon.transports.CarbonTransport;
 
 /**
  * This is the base activator class which will create a Jetty server instance and register it as an
@@ -45,44 +36,22 @@ public class CarbonTransportBundleActivator implements BundleActivator {
     private static final Logger logger = LoggerFactory.
             getLogger(CarbonTransportBundleActivator.class);
 
-    private ServiceRegistration jettyServiceRegistration;
-    private ServiceRegistration contextHandlerRegistration;
+    private ServiceRegistration jettyServerRegistration;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        String jettyHome = System.getProperty("carbon.repository") + File.separator + "conf" +
-                           File.separator + "jetty";
 
-        Server server = new Server();
+        logger.debug("Activating jetty transport bundle..........................................");
+        DataHolder.getInstance().setBundleContext(bundleContext);
 
-        String serverName = "carbon-server";
-        Dictionary<String, String> serverProps = new Hashtable<>();
-        serverProps.put(OSGiServerConstants.MANAGED_JETTY_SERVER_NAME, serverName);
-        serverProps.put(OSGiServerConstants.MANAGED_JETTY_XML_CONFIG_URLS,
-                        "file:" + jettyHome + File.separator + "jetty.xml");
+        JettyCarbonTransport jettyCarbonTransport = new JettyCarbonTransport("jetty-carbon-server");
 
-        //register as an OSGi Service for Jetty to find
-        jettyServiceRegistration = bundleContext.
-                registerService(Server.class.getName(), server, serverProps);
-        logger.info("Jetty server instance is registered as service : {}", server);
-
-        //exposing the OSGi HttpService by registering the HttpServiceServlet with Jetty.
-        ServletHolder holder = new ServletHolder(new HttpServiceServlet());
-        ServletContextHandler httpContext = new ServletContextHandler();
-
-        httpContext.addServlet(holder, "/*");
-        Dictionary<String, String> servletProps = new Hashtable<>();
-        servletProps.put(OSGiServerConstants.MANAGED_JETTY_SERVER_NAME, serverName);
-
-        contextHandlerRegistration = bundleContext.
-                registerService(ContextHandler.class.getName(), httpContext, servletProps);
-
+        jettyServerRegistration = bundleContext.registerService(CarbonTransport.class.getName(), jettyCarbonTransport, null);
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
         logger.info("Unregistering jetty server instance");
-        jettyServiceRegistration.unregister();
-        contextHandlerRegistration.unregister();
+        jettyServerRegistration.unregister();
     }
 }
