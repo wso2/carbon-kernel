@@ -72,6 +72,7 @@ public final class RegistryResources {
         public static final String POLICY_TYPE = "policy.type";
         public static final String POLICY_UUID = "policy.uuid";
         public static final String UNDEFINED = "undefined";
+        public static final String GLOBALLY_ENGAGED_PARAM_NAME = "globallyEngaged";
     }
     
     public static final class ParameterProperties {
