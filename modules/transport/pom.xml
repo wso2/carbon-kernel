@@ -67,9 +67,13 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.http.servlet</artifactId>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.felix</groupId>-->
+            <!--<artifactId>org.apache.felix.scr.ds-annotations</artifactId>-->
+        <!--</dependency>-->
         <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
     </dependencies>
 
@@ -98,8 +102,10 @@
                             org.osgi.framework.*;version="${osgi.framework.import.version.range}",
                             org.osgi.service.http.*;version="${osgi.service.http.import.version.range}",
                             org.eclipse.equinox.http.servlet.*;version="${eclipse.equinox.http.servlet.import.version.range}",
-                            javax.servlet.*;version="${javax.servlet.import.version.range}"
+                            javax.servlet.*;version="${javax.servlet.import.version.range}",
+                            org.wso2.carbon.transports.*;version="${carbon.kernel.package.export.version}",
                         </Import-Package>
+                        <_dsannotations>*</_dsannotations>
                     </instructions>
                 </configuration>
             </plugin>
