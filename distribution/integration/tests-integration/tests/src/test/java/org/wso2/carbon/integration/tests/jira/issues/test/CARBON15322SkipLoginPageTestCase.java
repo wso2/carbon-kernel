@@ -17,7 +17,7 @@
 
 package org.wso2.carbon.integration.tests.jira.issues.test;
 
-import org.testng.annotations.AfterClass;
+/*import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.annotations.ExecutionEnvironment;
@@ -25,16 +25,16 @@ import org.wso2.carbon.automation.engine.annotations.SetEnvironment;
 import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
-import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
+import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;*/
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 
 import java.io.File;
 
-import static org.testng.Assert.assertTrue;
+/*import static org.testng.Assert.assertTrue;*/
 
 public class CARBON15322SkipLoginPageTestCase extends CarbonIntegrationBaseTest {
 
-    private ServerConfigurationManager serverConfigurationManager;
+    /*private ServerConfigurationManager serverConfigurationManager;
     private static String sampleServletJar = "SampleServletTest.jar";
 
     @SetEnvironment(executionEnvironments = ExecutionEnvironment.STANDALONE)
@@ -79,5 +79,5 @@ public class CARBON15322SkipLoginPageTestCase extends CarbonIntegrationBaseTest 
         HttpResponse response = HttpRequestUtil.sendGetRequest(endpoint, null);
         assertTrue(expectedResponse.equalsIgnoreCase(response.getData()),
                    "Expected message did not match actual message");
-    }
+    }*/
 }
