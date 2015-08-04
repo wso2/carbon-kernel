@@ -24,7 +24,6 @@ import org.apache.commons.net.telnet.TelnetClient;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
@@ -72,7 +71,7 @@ public class OSGICommandDosgiConsoleTestCase extends CarbonIntegrationBaseTest {
         }
     }
 
-    @Test(groups = "carbon.core", description = "Identifying active OSGI components")
+    @Test(groups = "carbon.core", description = "Identifying active OSGI components", enabled = false)
     public void testOSGIActiveComponents()
             throws CarbonToolsIntegrationTestException, IOException {
 
