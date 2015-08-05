@@ -436,6 +436,7 @@ public class MultitenantMessageReceiver implements MessageReceiver {
 	    mainOutMsgContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
                   tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
             AxisEngine.send(mainOutMsgContext);
+            mainOutMsgContext.getAxisService().getSchema().removeAll(tenantOutMsgContext.getAxisService().getSchema());
         }
     }
 
