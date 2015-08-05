@@ -460,7 +460,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // If user does not exist, just return
         if (!isExistingUser(userName)) {
-            return null;
+            throw new UserStoreException("User does not exist. Username : " + userName);
         }
 
         UserStore userStore = getUserStore(userName);
@@ -510,7 +510,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // If user does not exist, just return
         if (!isExistingUser(userName)) {
-            return null;
+            throw new UserStoreException("User does not exist. Username : " + userName);
         }
 
         UserStore userStore = getUserStore(userName);
@@ -559,7 +559,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     public final Map<String, String> getUserClaimValues(String userName, String[] claims,
                                                         String profileName) throws UserStoreException {
-
+        if (!isExistingUser(userName)) {
+            throw new UserStoreException("User does not exist. Username : " + userName);
+        }
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getUserClaimValues(
