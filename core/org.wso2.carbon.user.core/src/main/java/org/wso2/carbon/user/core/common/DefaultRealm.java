@@ -26,12 +26,14 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.claim.ClaimManagerFactory;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.claim.DefaultClaimManager;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
 import org.wso2.carbon.user.core.claim.builder.ClaimBuilderException;
 import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.profile.builder.ProfileBuilderException;
@@ -49,6 +51,7 @@ public class DefaultRealm implements UserRealm {
     private static Log log = LogFactory.getLog(DefaultRealm.class);
 
     private ClaimManager claimMan = null;
+    private ClaimManagerFactory claimManagerFactory=null;
     private DataSource dataSource = null;
     private RealmConfiguration realmConfig = null;
     private int tenantId;
@@ -70,10 +73,6 @@ public class DefaultRealm implements UserRealm {
                      Map<String, ProfileConfiguration> profileConfigs, int tenantId)
             throws UserStoreException {
 
-        if (claimMappings == null) {
-            claimMappings = loadDefaultClaimMapping();
-        }
-
         if (profileConfigs == null) {
             profileConfigs = loadDefaultProfileConfiguration();
         }
@@ -83,7 +82,12 @@ public class DefaultRealm implements UserRealm {
         this.tenantId = tenantId;
         dataSource = DatabaseUtil.getRealmDataSource(realmConfig);
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
-        claimMan = new DefaultClaimManager(claimMappings, dataSource, tenantId);
+        if(UserStoreMgtDSComponent.getClaimManagerFactory() == null){
+            claimMan = new DefaultClaimManager();
+        }else{
+            claimManagerFactory = UserStoreMgtDSComponent.getClaimManagerFactory();
+            claimMan = claimManagerFactory.getClaimManager(tenantId);
+        }
         initializeObjects();
     }
 
@@ -102,9 +106,13 @@ public class DefaultRealm implements UserRealm {
 
         Map<String, ClaimMapping> claimMappings = new HashMap<String, ClaimMapping>();
         Map<String, ProfileConfiguration> profileConfigs = new HashMap<String, ProfileConfiguration>();
-        populateProfileAndClaimMaps(claimMappings, profileConfigs);
 
-        claimMan = new DefaultClaimManager(claimMappings, dataSource, tenantId);
+        if(UserStoreMgtDSComponent.getClaimManagerFactory() == null){
+            claimMan = new DefaultClaimManager();
+        }else{
+            claimManagerFactory = UserStoreMgtDSComponent.getClaimManagerFactory();
+            claimMan = claimManagerFactory.getClaimManager(tenantId);
+        }
         initializeObjects();
     }
 
@@ -390,20 +398,6 @@ public class DefaultRealm implements UserRealm {
         return config;
     }
 
-    private Map<String, ClaimMapping> loadDefaultClaimMapping() throws UserStoreException {
-        try {
-            ClaimBuilder claimBuilder = new ClaimBuilder(tenantId);
-            Map<String, ClaimMapping> claimMapping = claimBuilder
-                    .buildClaimMappingsFromConfigFile();
-            return claimMapping;
-        } catch (ClaimBuilderException e) {
-            String errorMessage = "Error occurred while loading default claim mapping";
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        }
-    }
 
     private Map<String, ProfileConfiguration> loadDefaultProfileConfiguration()
             throws UserStoreException {
@@ -421,37 +415,7 @@ public class DefaultRealm implements UserRealm {
         }
     }
 
-    private void populateProfileAndClaimMaps(Map<String, ClaimMapping> claimMappings,
-                                             Map<String, ProfileConfiguration> profileConfigs) throws UserStoreException {
-        ClaimDAO claimDAO = new ClaimDAO(dataSource, tenantId);
-        ClaimBuilder claimBuilder = new ClaimBuilder(tenantId);
 
-        int count = claimDAO.getDialectCount();
-        if (count == 0) {
-            try {
-                claimMappings.putAll(claimBuilder.buildClaimMappingsFromConfigFile());
-            } catch (ClaimBuilderException e) {
-                String msg = "Error in building claims.";
-                log.error(msg);
-                throw new UserStoreException(msg, e);
-            }
-            claimDAO.addCliamMappings(claimMappings.values().toArray(
-                    new ClaimMapping[claimMappings.size()]));
-
-        } else {
-            try {
-                claimMappings.putAll(claimBuilder.buildClaimMappingsFromDatabase(dataSource,
-                        UserCoreConstants.INTERNAL_USERSTORE));
-            } catch (ClaimBuilderException e) {
-                String msg = "Error in building claims.";
-                if (log.isDebugEnabled()) {
-                    log.debug(msg, e);
-                }
-                throw new UserStoreException(msg, e);
-            }
-
-        }
-    }
 
     public Boolean isDuplicateDomain(String domainName) {
         if (this.userStoreManager.getSecondaryUserStoreManager(domainName) != null) {

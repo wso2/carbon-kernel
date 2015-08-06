@@ -221,7 +221,6 @@ public class DefaultRealmService implements RealmService {
     @SuppressWarnings("rawtypes")
     public UserRealm initializeRealm(RealmConfiguration realmConfig, int tenantId)
             throws UserStoreException {
-        ClaimBuilder.setBundleContext(bc);
         ProfileConfigurationBuilder.setBundleContext(bc);
         UserRealm userRealm = null;
         try {

@@ -540,13 +540,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             Claim claim = new Claim();
             claim.setValue(entry.getValue());
             claim.setClaimUri(entry.getKey());
-            String displayTag;
-            try {
-                displayTag = claimManager.getClaim(entry.getKey()).getDisplayTag();
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException(e);
-            }
-            claim.setDisplayTag(displayTag);
             finalValues[i] = claim;
             i++;
         }

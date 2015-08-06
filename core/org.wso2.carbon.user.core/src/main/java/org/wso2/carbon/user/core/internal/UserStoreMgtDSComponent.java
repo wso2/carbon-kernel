@@ -24,6 +24,9 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.user.api.UserStoreManager;
+import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.core.claim.ClaimManagerFactory;
+import org.wso2.carbon.user.core.claim.DefaultClaimManager;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
 import org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager;
@@ -42,11 +45,18 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
  * interface="org.wso2.carbon.base.api.ServerConfigurationService" cardinality="1..1"
  * policy="dynamic"  bind="setServerConfigurationService"
  * unbind="unsetServerConfigurationService"
+ * @scr.reference name="claim.mgt.component"
+ * interface="org.wso2.carbon.user.core.claim.ClaimManagerFactory" cardinality="0..n"
+ * policy="dynamic"  bind="setClaimManagerFactory"
+ * unbind="removeClaimManagerFactory"
  */
 public class UserStoreMgtDSComponent {
     private static Log log = LogFactory.getLog(UserStoreMgtDSComponent.class);
     private static RealmService realmService;
     private static ServerConfigurationService serverConfigurationService = null;
+    private static ClaimManagerFactory claimManagerFactory= null;
+    private static ClaimManager claimManager=null;
+    private static DefaultClaimManager defaultClaimManager = null;
 
     public static RealmService getRealmService() {
         return realmService;
@@ -107,6 +117,17 @@ public class UserStoreMgtDSComponent {
             log.debug("Unsetting the ServerConfigurationService");
         }
         UserStoreMgtDSComponent.serverConfigurationService = null;
+    }
+    public static ClaimManagerFactory getClaimManagerFactory(){
+        return claimManagerFactory;
+    }
+
+    protected void setClaimManagerFactory(ClaimManagerFactory claimManagerFactory){
+        this.claimManagerFactory = claimManagerFactory;
+    }
+
+    protected void removeClaimManagerFactory(ClaimManagerFactory claimManagerFactory){
+        claimManager = defaultClaimManager;
     }
 
 }

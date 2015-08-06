@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2005-2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
- *  You may obtain a copy of the License at
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,16 +22,15 @@ package org.wso2.carbon.user.api;
  * <p/>
  * A claim is a name-value pair
  */
-public interface ClaimManager {
+public interface  ClaimManager {
 
     /**
-     * Retrieves the attribute name of the claim URI.
-     *
-     * @param claimURI The claim URI
+     * @param domainName
+     * @param claimURI
      * @return
      * @throws UserStoreException
      */
-    String getAttributeName(String claimURI) throws UserStoreException;
+    public String getAttributeName(String domainName, String claimURI) throws UserStoreException;
 
     /**
      * The Claim object of the claim URI
@@ -52,37 +51,12 @@ public interface ClaimManager {
     ClaimMapping getClaimMapping(String claimURI) throws UserStoreException;
 
     /**
-     * Gets all supported claims by default in the system.
-     *
-     * @return An array of claim objects supported by default
-     * @throws UserStoreException
-     */
-    ClaimMapping[] getAllSupportClaimMappingsByDefault() throws UserStoreException;
-
-    /**
      * Gets all claim objects
      *
      * @return An array of all claim objects
      * @throws UserStoreException
      */
     ClaimMapping[] getAllClaimMappings() throws UserStoreException;
-
-    /**
-     * Gets all claims in the dialect
-     *
-     * @param dialectUri The dialect URI
-     * @return
-     * @throws UserStoreException
-     */
-    ClaimMapping[] getAllClaimMappings(String dialectUri) throws UserStoreException;
-
-    /**
-     * Gets all mandatory claims
-     *
-     * @return
-     * @throws UserStoreException
-     */
-    ClaimMapping[] getAllRequiredClaimMappings() throws UserStoreException;
 
     /**
      * Gets all claim URIs
@@ -115,13 +89,5 @@ public interface ClaimManager {
      * @throws UserStoreException
      */
     void updateClaimMapping(ClaimMapping mapping) throws UserStoreException;
-
-    /**
-     * @param domainName
-     * @param claimURI
-     * @return
-     * @throws UserStoreException
-     */
-    public String getAttributeName(String domainName, String claimURI) throws UserStoreException;
 
 }
