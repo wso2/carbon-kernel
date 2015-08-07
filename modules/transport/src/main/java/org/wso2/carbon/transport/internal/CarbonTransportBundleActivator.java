@@ -21,15 +21,10 @@ package org.wso2.carbon.transport.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.transports.CarbonTransport;
-import org.wso2.carbon.transports.TransportManager;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * This is the base activator class which will create a Jetty server instance and register it as an
@@ -52,51 +47,11 @@ public class CarbonTransportBundleActivator implements BundleActivator {
         JettyCarbonTransport jettyCarbonTransport = new JettyCarbonTransport("jetty-carbon-server");
 
         jettyServerRegistration = bundleContext.registerService(CarbonTransport.class.getName(), jettyCarbonTransport, null);
-
-        TimerTaskTransport timerTaskTransport = new TimerTaskTransport();
-        Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(timerTaskTransport, 0, 10 * 1000);
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-        logger.debug("Unregistering jetty server instance");
+        logger.info("Unregistering jetty server instance");
         jettyServerRegistration.unregister();
     }
-}
-
-class TimerTaskTransport extends TimerTask {
-
-    boolean started = false;
-    private static final Logger logger = LoggerFactory.getLogger(TimerTaskTransport.class);
-
-    @Override
-    public void run() {
-        logger.debug("Inside timer task..............");
-        ServiceReference serviceReference = DataHolder.getInstance().getBundleContext().getServiceReference(TransportManager.class.getName());
-        TransportManager transportManager = null;
-
-        if (serviceReference != null) {
-            transportManager = (TransportManager) DataHolder.getInstance().getBundleContext().getService(serviceReference);
-        } else {
-            logger.debug("Service reference is null...");
-        }
-
-        if (transportManager != null) {
-            try {
-                if (!started) {
-                    transportManager.startAllTransports();
-                    started = true;
-                } else {
-                    transportManager.stopAllTransports();
-                    started = false;
-                }
-            } catch (IllegalStateException e) {
-                logger.error("Error", e);
-            }
-        } else {
-            logger.debug("TransportManager is null...");
-        }
-    }
-
 }
