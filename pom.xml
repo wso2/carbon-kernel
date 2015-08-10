@@ -2,9 +2,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>1</version>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.wso2.carbon</groupId>
-    <artifactId>carbon</artifactId>
+    <artifactId>carbon-kernel</artifactId>
     <packaging>pom</packaging>
     <version>5.0.0-SNAPSHOT</version>
     <name>WSO2 Carbon Kernel - Parent Pom</name>
@@ -24,40 +30,18 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>dependencies</module>
+                <!--<module>dependencies</module>-->
                 <module>launcher</module>
                 <module>core</module>
-                <!--<module>modules/kernel</module>-->
-                <!--<module>modules/server-config</module>-->
-                <!--<module>modules/deployment-engine</module>-->
-                <!--<module>modules/samples/hello-world-bundle</module>-->
-                <!--<module>modules/samples/webapp-bundle</module>-->
-                <!--<module>modules/runtime-manager</module>-->
-                <!--<module>modules/clustering</module>-->
                 <module>modules/transport</module>
-                <!--<module>modules/utils</module>-->
-                <!--<module>modules/extensions</module>-->
                 <module>features</module>
                 <module>distribution</module>
             </modules>
         </profile>
     </profiles>
 
-    <distributionManagement>
-        <repository>
-            <id>wso2-maven2-repository</id>
-            <name>WSO2 Maven2 Repository</name>
-            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/maven2/</url>
-        </repository>
-        <snapshotRepository>
-            <id>wso2-maven2-snapshot-repository</id>
-            <name>WSO2 Maven2 Snapshot Repository</name>
-            <url>scp://dist.wso2.org/home/httpd/dist.wso2.org/snapshots/maven2/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
+    <pluginRepositories>
+        <pluginRepository>
             <id>wso2-nexus</id>
             <name>WSO2 internal Repository</name>
             <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
@@ -66,17 +50,6 @@
                 <updatePolicy>daily</updatePolicy>
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>wso2-maven2-repository-1</id>
-            <url>http://dist.wso2.org/maven2</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>wso2-maven2-repository-2</id>
-            <url>http://dist.wso2.org/snapshots/maven2</url>
         </pluginRepository>
     </pluginRepositories>
 
@@ -88,16 +61,6 @@
                 <version>${maven.wagon.ssh.version}</version>
             </extension>
         </extensions>
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<groupId>org.jvnet.maven.incrementalbuild</groupId>-->
-                <!--<artifactId>incremental-build-plugin</artifactId>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.felix</groupId>-->
-                <!--<artifactId>maven-scr-plugin</artifactId>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -118,8 +81,8 @@
                     <version>${maven.compilerplugin.version}</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
-                        <source>1.7</source>
-                        <target>1.7</target>
+                        <source>1.8</source>
+                        <target>1.8</target>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -252,7 +215,7 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core</artifactId>
-                <version>${project.version}</version>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -856,7 +819,7 @@
         <maven.compilerplugin.version>3.1</maven.compilerplugin.version>
         <maven.surefireplugin.version>2.12</maven.surefireplugin.version>
         <maven.resourcesplugin.version>2.5</maven.resourcesplugin.version>
-        <maven.scrplugin.version>1.16.0</maven.scrplugin.version>
+        <maven.scrplugin.version>1.21.0</maven.scrplugin.version>
         <maven.bundleplugin.version>2.5.4</maven.bundleplugin.version>
         <maven.assemblyplugin.version>2.4</maven.assemblyplugin.version>
         <maven.sourceplugin.version>2.1.2</maven.sourceplugin.version>
@@ -868,7 +831,7 @@
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
-        <carbon.p2.plugin.version>1.5.4-SNAPSHOT</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>1.5.6-SNAPSHOT</carbon.p2.plugin.version>
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>
         <version.tycho>0.13.0</version.tycho>
@@ -880,7 +843,7 @@
         <version.plexus.utils>3.0.17</version.plexus.utils>
         <version.plexus.archiver>1.2</version.plexus.archiver>
         <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
-        <version.jacoco>0.6.4.201312101107</version.jacoco>
+        <version.jacoco>0.7.5.201505241946</version.jacoco>
         <version.jetty.server>8.1.10.v20130312</version.jetty.server>
         <version.javax.servlet.api>3.0.1</version.javax.servlet.api>
     </properties>

@@ -53,9 +53,9 @@ public class TransportManager {
     }
 
     public void startAllTransports() {
-        for (CarbonTransport transport : transports.values()) {
-            transport.startTransport();
-        }
+        transports.entrySet()
+                .stream()
+                .forEach(entry -> entry.getValue().startTransport());
     }
 
     public void stopAllTransports() {
