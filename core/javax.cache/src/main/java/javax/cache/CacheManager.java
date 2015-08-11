@@ -1,175 +1,368 @@
 /**
- *  Copyright (c) 2011 Terracotta, Inc.
- *  Copyright (c) 2011 Oracle and/or its affiliates.
+ *  Copyright (c) 2011-2013 Terracotta, Inc.
+ *  Copyright (c) 2011-2013 Oracle and/or its affiliates.
  *
  *  All rights reserved. Use is subject to license terms.
  */
 
 package javax.cache;
 
-import javax.transaction.UserTransaction;
+import javax.cache.configuration.Configuration;
+import javax.cache.spi.CachingProvider;
+import java.io.Closeable;
+import java.net.URI;
+import java.util.Properties;
 
 /**
- * A CacheManager is used for looking up Caches and controls their lifecycle. It represents a collection of caches.
- * <p/>
- * To the extent that implementations have configuration at the CacheManager level, it is a way for these caches
- * to share common configuration. For example a CacheManager might be clustered so all caches in that CacheManager
- * will participate in the same cluster.
- * <p/>
- * <p/>
- * <p/>
- * <h2>Creation</h2>
- * Concrete implementations can be created in a number of ways:
+ * A {@link CacheManager} provides a means of establishing, configuring,
+ * acquiring, closing and destroying uniquely named {@link Cache}s.
+ * <p>
+ * {@link Cache}s produced and owned by a {@link CacheManager} typically share
+ * common infrastructure, for example, a common {@link ClassLoader} and
+ * implementation specific {@link java.util.Properties}.
+ * <p>
+ * Implementations of {@link CacheManager} may additionally provide and share
+ * external resources between the {@link Cache}s being managed, for example,
+ * the content of the managed {@link Cache}s may be stored in the same cluster.
+ * <p>
+ * By default {@link CacheManager} instances are typically acquired through the
+ * use of a {@link javax.cache.spi.CachingProvider}.  Implementations however may additionally
+ * provide other mechanisms to create, acquire, manage and configure
+ * {@link CacheManager}s, including:
  * <ul>
- * <li>Through a ServiceLoader using {@link javax.cache.Caching}</li>
- * <li>Simple creation with <code>new</code> of a concrete implementation, if supported by an implementation</li>
+ * <li>making use of {@link java.util.ServiceLoader}s,</li>
+ * <li>permitting the use of the <code>new</code> operator to create a
+ * concrete implementation, </li>
+ * <li>providing the construction through the use of one or more
+ * builders, and</li>
+ * <li>through the use of dependency injection.</li>
  * </ul>
- * <p/>
- * <h2>Lookup</h2>
- * If Caching was used for creation, it will keep track of all CacheManagers created.
- * <p/>
- * The default CacheManager can be obtained using <code>Caching.getCacheManager()</code>. This is a
- * useful idiom if you only want to use one CacheManager.
- * <p/>
- * Named CacheManagers can be obtained using <code>Caching.getCacheManager(name)</code>.
+ * <p>
+ * The default {@link CacheManager} however can always be acquired using the
+ * default configured {@link javax.cache.spi.CachingProvider} obtained by the {@link Caching}
+ * class.  For example:
+ * <pre><code>
+ * CachingProvider provider = Caching.getCachingProvider();
+ * CacheManager manager = provider.getCacheManager();
+ * </code></pre>
+ * <p>
+ * Within a Java process {@link CacheManager}s and the {@link Cache}s they
+ * manage are scoped and uniquely identified by a {@link java.net.URI},  the meaning of
+ * which is implementation specific. To obtain the default {@link java.net.URI},
+ * {@link ClassLoader} and {@link java.util.Properties} for an implementation, consult the
+ * {@link javax.cache.spi.CachingProvider} class.
  *
  * @author Greg Luck
  * @author Yannis Cosmadopoulos
+ * @author Brian Oliver
+ * @see Caching
+ * @see javax.cache.spi.CachingProvider
+ * @see Cache
  * @since 1.0
  */
-public interface CacheManager {
+public interface CacheManager extends Closeable {
 
-    /**
-     * Get the name of this cache manager
-     *
-     * @return the name of this cache manager
-     */
-    String getName();
+  /**
+   * Get the {@link javax.cache.spi.CachingProvider} that created and is responsible for
+   * the {@link CacheManager}.
+   *
+   * @return the CachingProvider or <code>null</code> if the {@link CacheManager}
+   *         was created without using a {@link javax.cache.spi.CachingProvider}
+   */
+  CachingProvider getCachingProvider();
 
-    /**
-     * Returns the status of this CacheManager.
-     * <p/>
-     * Calls to this method will block while the state is changing.
-     *
-     * @return one of {@link javax.cache.Status}
-     */
-    Status getStatus();
+  /**
+   * Get the URI of the {@link CacheManager}.
+   *
+   * @return the URI of the {@link CacheManager}
+   */
+  URI getURI();
+
+  /**
+   * Get the {@link ClassLoader} used by the {@link CacheManager}.
+   *
+   * @return  the {@link ClassLoader} used by the {@link CacheManager}
+   */
+  ClassLoader getClassLoader();
+
+  /**
+   * Get the {@link java.util.Properties} that were used to create this
+   * {@link CacheManager}.
+   * <p>
+   * Implementations are not required to re-configure the
+   * {@link CacheManager} should modifications to the returned
+   * {@link java.util.Properties} be made.
+   *
+   * @return the Properties used to create the {@link CacheManager}
+   */
+  Properties getProperties();
+
+  /**
+   * Creates a named {@link Cache} at runtime.
+   * <p>
+   * If a {@link Cache} with the specified name is known to the {@link
+   * CacheManager}, a CacheException is thrown.
+   * <p>
+   * If a {@link Cache} with the specified name is unknown the {@link
+   * CacheManager}, one is created according to the provided {@link javax.cache.configuration.Configuration}
+   * after which it becomes managed by the {@link CacheManager}.
+   * <p>
+   * Prior to a {@link Cache} being created, the provided {@link javax.cache.configuration.Configuration}s is
+   * validated within the context of the {@link CacheManager} properties and
+   * implementation.
+   * <p>
+   * Implementers should be aware that the {@link javax.cache.configuration.Configuration} may be used to
+   * configure other {@link Cache}s.
+   * <p>
+   * There's no requirement on the part of a developer to call this method for
+   * each {@link Cache} an application may use.  Implementations may support
+   * the use of declarative mechanisms to pre-configure {@link Cache}s, thus
+   * removing the requirement to configure them in an application.  In such
+   * circumstances a developer may simply call either the
+   * {@link #getCache(String)} or {@link #getCache(String, Class, Class)}
+   * methods to acquire a previously established or pre-configured {@link Cache}.
+   *
+   * @param cacheName     the name of the {@link Cache}
+   * @param configuration a {@link javax.cache.configuration.Configuration} for the {@link Cache}
+   * @throws IllegalStateException         if the {@link CacheManager}
+   *                                       {@link #isClosed()}
+   * @throws CacheException                if there was an error configuring the
+   *                                       {@link Cache}, which includes trying
+   *                                       to create a cache that already exists.
+   * @throws IllegalArgumentException      if the configuration is invalid
+   * @throws UnsupportedOperationException if the configuration specifies
+   *                                       an unsupported feature
+   * @throws NullPointerException          if the cache configuration or name
+   *                                       is null
+   * @throws SecurityException             when the operation could not be performed
+   *                                       due to the current security settings
+   */
+  <K, V, C extends Configuration<K, V>> Cache<K, V> createCache(String cacheName,
+                                                                C configuration)
+      throws IllegalArgumentException;
 
 
-    /**
-     * Creates a new {@link javax.cache.CacheBuilder} for the named cache to be managed by this cache manager.
-     * <p/>
-     * An example which creates a cache using default cache configuration is:
-     * <pre>
-     *    Cache&lt;Integer, Date&gt; myCache2 = cacheManager.
-     *           &lt;Integer, Date&gt;createCacheBuilder("myCache2").
-     *           build();
-     * </pre>
-     * <p/>
-     * An example usage which programmatically sets many parameters of {@link javax.cache.CacheConfiguration},
-     * specifies a {@link javax.cache.CacheLoader} and registrs listeners is:
-     * <pre>
-     *    Cache&lt;Integer, String&gt; myCache1 = cacheManager.
-     *           &lt;Integer, String&gt;createCacheBuilder("myCache1").
-     *           setCacheLoader(cl).
-     *           setStoreByValue(true).
-     *           setReadThrough(true).
-     *           setWriteThrough(false).
-     *           setStatisticsEnabled(true).
-     *           setTransactionEnabled(false).
-     *           registerCacheEntryListener(listener1, NotificationScope.LOCAL, false).
-     *           registerCacheEntryListener(listener2, NotificationScope.LOCAL, false).
-     *           build();
-     * </pre>
-     * <p/>
-     * <p/>
-     * The returned CacheBuilder is associated with this CacheManager.
-     * The Cache will be created, added to the caches controlled by this CacheManager and started when
-     * {@link CacheBuilder#build()} is called.
-     * If there is an existing Cache of the same name associated with this CacheManager when build is invoked,
-     * an exception is thrown.
-     *
-     * @param cacheName the name of the cache to build. A cache name must consist of at least one non-whitespace character.
-     * @return the CacheBuilder for the named cache
-     * @throws IllegalStateException    if the CacheManager is not in {@link javax.cache.Status#STARTED} state.
-     * @throws javax.cache.CacheException           if a cache with that name already exists or there was an error adding the cache to the CacheManager
-     * @throws IllegalArgumentException if an illegal cache name is specified
-     * @throws NullPointerException     if the cache name is null
-     */
-    <K, V> CacheBuilder<K, V> createCacheBuilder(String cacheName);
+  /**
+   * Looks up a managed {@link Cache} given its name.
+   * <p>
+   * This method must be used for {@link Cache}s that were configured with
+   * runtime key and value types. Use {@link #getCache(String)} for
+   * {@link Cache}s where these were not specified.
+   * <p>
+   * Implementations must ensure that the key and value types are the same as
+   * those configured for the {@link Cache} prior to returning from this method.
+   * <p>
+   * Implementations may further perform type checking on mutative cache operations
+   * and throw a {@link ClassCastException} if these checks fail.
+   * <p>
+   * Implementations that support declarative mechanisms for pre-configuring
+   * {@link Cache}s may return a pre-configured {@link Cache} instead of
+   * <code>null</code>.
+   *
+   * @param cacheName the name of the managed {@link Cache} to acquire
+   * @param keyType   the expected {@link Class} of the key
+   * @param valueType the expected {@link Class} of the value
+   * @return the Cache or null if it does exist or can't be pre-configured
+   * @throws IllegalStateException    if the {@link CacheManager}
+   *                                  is {@link #isClosed()}
+   * @throws IllegalArgumentException if the specified key and/or value types are
+   *                                  incompatible with the configured cache.
+   * @throws SecurityException        when the operation could not be performed
+   *                                  due to the current security settings
+   */
+  <K, V> Cache<K, V> getCache(String cacheName, Class<K> keyType,
+                              Class<V> valueType);
 
-    /**
-     * Looks up a named cache.
-     *
-     * @param cacheName the name of the cache to look for
-     * @return the Cache or null if it does exist
-     * @throws IllegalStateException if the CacheManager is not {@link javax.cache.Status#STARTED}
-     */
-    <K, V> Cache<K, V> getCache(String cacheName);
+  /**
+   * Looks up a managed {@link Cache} given its name.
+   * <p>
+   * This method may only be used to acquire {@link Cache}s that were
+   * configured without runtime key and value types, or were configured
+   * to use Object.class key and value types.
+   * <p>
+   * Use the {@link #getCache(String, Class, Class)} method to acquire
+   * {@link Cache}s that were configured with specific runtime types.
+   * <p>
+   * Implementations must check if key and value types were configured
+   * for the requested {@link Cache}. If either the keyType or valueType of the
+   * configured {@link Cache} were specified (other than <code>Object.class</code>)
+   * an {@link IllegalArgumentException} will be thrown.
+   * <p>
+   * Implementations that support declarative mechanisms for pre-configuring
+   * {@link Cache}s may return a pre-configured {@link Cache} instead of
+   * <code>null</code>.
+   *
+   * @param cacheName the name of the cache to look for
+   * @return the Cache or null if it does exist or can't be pre-configured
+   * @throws IllegalStateException    if the CacheManager is {@link #isClosed()}
+   * @throws IllegalArgumentException if the {@link Cache} was configured with
+   *                                  specific types, this method cannot be used
+   * @throws SecurityException        when the operation could not be performed
+   *                                  due to the current security settings
+   * @see #getCache(String, Class, Class)
+   */
+  <K, V> Cache<K, V> getCache(String cacheName);
 
-    /**
-     * Returns an Iterable over the caches managed by this CacheManager.
-     * The Iterable is immutable (iterator.remove will throw an IllegalStateException) and independent
-     * of the cache manager; if the caches managed by the cache manager change the Iterable is not affected
-     *
-     * @return an Iterable over the managed Caches
-     * @throws UnsupportedOperationException if an attempt it made to remove an element
-     */
-    Iterable<Cache<?, ?>> getCaches();
+  /**
+   * Obtains an {@link Iterable} over the names of {@link Cache}s managed by the
+   * {@link CacheManager}.
+   * <p>
+   * {@link java.util.Iterator}s returned by the {@link Iterable} are immutable.
+   * Any modification of the {@link java.util.Iterator}, including remove, will
+   * raise an {@link IllegalStateException}.  If the {@link Cache}s managed by
+   * the {@link CacheManager} change, the {@link Iterable} and
+   * associated {@link java.util.Iterator}s are not affected.
+   * <p>
+   * {@link java.util.Iterator}s returned by the {@link Iterable} may not provide
+   * all of the {@link Cache}s managed by the {@link CacheManager}.  For example:
+   * Internally defined or platform specific {@link Cache}s that may be accessible
+   * by a call to {@link #getCache(String)} or {@link #getCache(String, Class,
+   * Class)} may not be present in an iteration.
+   *
+   * @return an {@link Iterable} over the names of managed {@link Cache}s.
+   * @throws IllegalStateException if the {@link CacheManager}
+   *                               is {@link #isClosed()}
+   * @throws SecurityException     when the operation could not be performed
+   *                               due to the current security settings
+   */
+  Iterable<String> getCacheNames();
 
-    /**
-     * Remove a cache from the CacheManager. The cache will be stopped.
-     *
-     * @param cacheName the cache name
-     * @return true if the cache was removed
-     * @throws IllegalStateException if the cache is not {@link javax.cache.Status#STARTED}
-     * @throws NullPointerException  if cacheName is null
-     */
-    boolean removeCache(String cacheName);
+  /**
+   * Destroys a specifically named and managed {@link Cache}.  Once destroyed
+   * a new {@link Cache} of the same name but with a different {@link
+   * javax.cache.configuration.Configuration} may be configured.
+   * <p>
+   * This is equivalent to the following sequence of method calls:
+   * <ol>
+   * <li>{@link Cache#clear()}</li>
+   * <li>{@link Cache#close()}</li>
+   * </ol>
+   * followed by allowing the name of the {@link Cache} to be used for other
+   * {@link Cache} configurations.
+   * <p>
+   * From the time this method is called, the specified {@link Cache} is not
+   * available for operational use. An attempt to call an operational method on
+   * the {@link Cache} will throw an {@link IllegalStateException}.
+   *
+   * @param cacheName the cache to destroy
+   * @throws IllegalStateException if the {@link CacheManager}
+   *                               {@link #isClosed()}
+   * @throws NullPointerException  if cacheName is null
+   * @throws SecurityException     when the operation could not be performed
+   *                               due to the current security settings
+   */
+  void destroyCache(String cacheName);
 
-    /**
-     * This method will return a UserTransaction.
-     *
-     * @return the UserTransaction.
-     * @throws UnsupportedOperationException if JTA is not supported
-     */
-    UserTransaction getUserTransaction();
+  /**
+   * Controls whether management is enabled. If enabled the {@link javax.cache.management.CacheMXBean}
+   * for each cache is registered in the platform MBean server. The platform
+   * MBeanServer is obtained using
+   * {@link java.lang.management.ManagementFactory#getPlatformMBeanServer()}.
+   * <p>
+   * Management information includes the name and configuration information for
+   * the cache.
+   * <p>
+   * Each cache's management object must be registered with an ObjectName that
+   * is unique and has the following type and attributes:
+   * <p>
+   * Type:
+   * <code>javax.cache:type=Cache</code>
+   * <p>
+   * Required Attributes:
+   * <ul>
+   * <li>CacheManager the name of the CacheManager
+   * <li>Cache the name of the Cache
+   * </ul>
+   *
+   * @param cacheName the name of the cache to register
+   * @param enabled   true to enable management, false to disable.
+   * @throws IllegalStateException if the {@link CacheManager} or
+   *                               {@link Cache} {@link #isClosed()}
+   * @throws SecurityException     when the operation could not be performed
+   *                               due to the current security settings
+   */
+  void enableManagement(String cacheName, boolean enabled);
 
-    /**
-     * Indicates whether a optional feature is supported by this CacheManager.
-     *
-     * @param optionalFeature the feature to check for
-     * @return true if the feature is supported
-     */
-    boolean isSupported(OptionalFeature optionalFeature);
+  /**
+   * Enables or disables statistics gathering for a managed {@link Cache} at
+   * runtime.
+   * <p>
+   * Each cache's statistics object must be registered with an ObjectName that
+   * is unique and has the following type and attributes:
+   * <p>
+   * Type:
+   * <code>javax.cache:type=CacheStatistics</code>
+   * <p>
+   * Required Attributes:
+   * <ul>
+   * <li>CacheManager the name of the CacheManager
+   * <li>Cache the name of the Cache
+   * </ul>
+   *
+   * @param cacheName the name of the cache to register
+   * @param enabled   true to enable statistics, false to disable.
+   * @throws IllegalStateException if the {@link CacheManager} or
+   *                               {@link Cache} {@link #isClosed()}
+   * @throws NullPointerException  if cacheName is null
+   * @throws SecurityException when the operation could not be performed
+   *                           due to the current security settings
+   */
+  void enableStatistics(String cacheName, boolean enabled);
 
-    /**
-     * Shuts down the CacheManager.
-     * <p/>
-     * For each cache in the cache manager the {@link Cache#stop()}
-     * method will be invoked, in no guaranteed order.
-     * If the stop throws an exception, the exception is ignored.
-     * <p/>
-     * Calls to {@link #getStatus()} will block until shutdown completes.
-     * <p/>
-     * On completion the CacheManager's status is changed to {@link javax.cache.Status#STOPPED},
-     * and the manager's owned caches will be empty and {@link #getCaches()}
-     * will return an empty collection.
-     * <p/>
-     * A given CacheManager instance cannot be restarted after it has been stopped. A new one must be created.
-     *
-     * @throws IllegalStateException if an operation is performed on CacheManager while stopping or stopped.
-     */
-    void shutdown();
+  /**
+   * Closes the {@link CacheManager}.
+   * <p>
+   * For each {@link Cache} managed by the {@link CacheManager}, the
+   * {@link Cache#close()} method will be invoked, in no guaranteed order.
+   * <p>
+   * If a {@link Cache#close()} call throws an exception, the exception will be
+   * ignored.
+   * <p>
+   * After executing this method, the {@link #isClosed()} method will return
+   * <code>true</code>.
+   * <p>
+   * All attempts to close a previously closed {@link CacheManager} will be
+   * ignored.
+   *
+   * @throws SecurityException when the operation could not be performed due to the
+   *         current security settings
+   */
+  void close();
 
-    /**
-     * Return an object of the specified type to allow access to the provider-specific API. If the provider's
-     * implementation does not support the specified class, the {@link IllegalArgumentException} is thrown.
-     *
-     * @param cls the class of the object to be returned. This is normally either the
-     *            underlying implementation class or an interface that it implements.
-     * @return an instance of the specified class
-     * @throws IllegalArgumentException if the provider doesn't support the specified class.
-     */
-    <T> T unwrap(Class<T> cls);
+  /**
+   * Determines whether the {@link CacheManager} instance has been closed. A
+   * {@link CacheManager} is considered closed if;
+   * <ol>
+   * <li>the {@link #close()} method has been called</li>
+   * <li>the associated {@link #getCachingProvider()} has been closed, or</li>
+   * <li>the {@link CacheManager} has been closed using the associated
+   * {@link #getCachingProvider()}</li>
+   * </ol>
+   * <p>
+   * This method generally cannot be called to determine whether the
+   * {@link CacheManager} is valid or invalid. A typical client can determine
+   * that a {@link CacheManager} is invalid by catching any exceptions that
+   * might be thrown when an operation is attempted.
+   *
+   * @return true if this {@link CacheManager} instance is closed; false if it
+   *         is still open
+   */
+  boolean isClosed();
+
+  /**
+   * Provides a standard mechanism to access the underlying concrete caching
+   * implementation to provide access to further, proprietary features.
+   * <p>
+   * If the provider's implementation does not support the specified class,
+   * the {@link IllegalArgumentException} is thrown.
+   *
+   * @param clazz the proprietary class or interface of the underlying concrete
+   *              {@link CacheManager}. It is this type that is returned.
+   * @return an instance of the underlying concrete {@link CacheManager}
+   * @throws IllegalArgumentException if the caching provider doesn't support the
+   *                                  specified class.
+   * @throws SecurityException        when the operation could not be performed
+   *                                  due to the current security settings
+   */
+  <T> T unwrap(Class<T> clazz);
 }

@@ -1,6 +1,6 @@
 /**
- *  Copyright (c) 2011 Terracotta, Inc.
- *  Copyright (c) 2011 Oracle and/or its affiliates.
+ *  Copyright (c) 2011-2013 Terracotta, Inc.
+ *  Copyright (c) 2011-2013 Oracle and/or its affiliates.
  *
  *  All rights reserved. Use is subject to license terms.
  */
@@ -8,24 +8,28 @@
 package javax.cache.event;
 
 /**
- * Invoked if a cache entry is created,
- * for example through a {@link javax.cache.Cache#put(Object, Object)} operation or the action of a {@link javax.cache.CacheLoader}.
- * If an entry for the key existed prior to the operation it is not invoked, as this ia an update.
+ * Invoked after a cache entry is created, or if a batch call is made, after the
+ * entries are created.
+ * <p>
+ * If an entry for the key existed prior to the operation it is not invoked,
+ * instead {@link CacheEntryUpdatedListener} is invoked.
  *
- * @param <K> the type of keys maintained by the associated cache
- * @param <V> the type of values maintained by the associated cache
+ * @param <K> the type of key
+ * @param <V> the type of value
  * @author Yannis Cosmadopoulos
  * @author Greg Luck
- * @see javax.cache.event.CacheEntryUpdatedListener
+ * @see CacheEntryUpdatedListener
  * @since 1.0
  */
 public interface CacheEntryCreatedListener<K, V> extends CacheEntryListener<K, V> {
 
-    /**
-     * Called after the entry has been created (put into the cache where no previous mapping existed).
-     *
-     * @param event The entry just added.
-     * @throws javax.cache.event.CacheEntryListenerException if there is problem executing the listener
-     */
-    void entryCreated(CacheEntryEvent<? extends K, ? extends V> event) throws CacheEntryListenerException;
+  /**
+   * Called after one or more entries have been created.
+   *
+   * @param events The entries just created.
+   * @throws CacheEntryListenerException if there is problem executing the listener
+   */
+  void onCreated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events)
+      throws CacheEntryListenerException;
+
 }

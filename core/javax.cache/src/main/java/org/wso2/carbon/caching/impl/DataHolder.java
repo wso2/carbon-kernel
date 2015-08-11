@@ -17,64 +17,58 @@
 */
 package org.wso2.carbon.caching.impl;
 
+
+
+import com.hazelcast.cache.impl.HazelcastServerCachingProvider;
+import com.hazelcast.core.HazelcastInstance;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 
-import javax.cache.spi.AnnotationProvider;
+import javax.cache.CacheManager;
 
 /**
  * TODO: class description
  */
 public class DataHolder {
-    private static final Log log = LogFactory.getLog(DataHolder.class);
-    private static DataHolder instance = new DataHolder();
+	private static final Log log = LogFactory.getLog(DataHolder.class);
+	private static DataHolder instance = new DataHolder();
 
-    private DistributedMapProvider distributedMapProvider;
-    private ServerConfigurationService serverConfigurationService;
-    private CachingProviderImpl cachingProvider = new CachingProviderImpl();
-    private AnnotationProvider annotationProvider = new AnnotationProviderImpl();
+	private ServerConfigurationService serverConfigurationService;
+	private HazelcastInstance hazelcastInstance;
+	private CacheManager hazelcastCacheManager;
 
-    public static DataHolder getInstance() {
-        return instance;
-    }
+	private DataHolder() {
+	}
 
-    private DataHolder() {
-    }
+	public static DataHolder getInstance() {
+		return instance;
+	}
 
-    public DistributedMapProvider getDistributedMapProvider() {
-        return distributedMapProvider;
-    }
 
-    public ServerConfigurationService getServerConfigurationService() {
-        if (this.serverConfigurationService == null) {
-            String msg = "Before activating javax caching  bundle, an instance of "
-                    + "ServerConfigurationService should be in existence";
-            log.error(msg);
-        }
-        return this.serverConfigurationService;
-    }
+	public ServerConfigurationService getServerConfigurationService() {
+		if (this.serverConfigurationService == null) {
+			String msg = "Before activating javax caching  bundle, an instance of "
+			             + "ServerConfigurationService should be in existence";
+			log.error(msg);
+		}
+		return this.serverConfigurationService;
+	}
 
-    public void setDistributedMapProvider(DistributedMapProvider distributedMapProvider) {
-        this.distributedMapProvider = distributedMapProvider;
-        try {
-            if (distributedMapProvider != null) {
-                cachingProvider.switchToDistributedMode();
-            }
-        } catch (Exception e) {
-            log.error("Cannot setDistributedMapProvider", e);
-        }
-    }
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
 
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
+	public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+		this.hazelcastInstance = hazelcastInstance;
+	}
 
-    public CachingProviderImpl getCachingProvider() {
-        return cachingProvider;
-    }
-
-    public AnnotationProvider getAnnotationProvider() {
-        return annotationProvider;
-    }
+	public CacheManager getHazelcastCacheManager() {
+		if (hazelcastInstance != null) {
+			hazelcastCacheManager =
+					HazelcastServerCachingProvider.createCachingProvider(hazelcastInstance).getCacheManager();
+		}
+		return hazelcastCacheManager;
+	}
 }

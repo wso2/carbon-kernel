@@ -51,7 +51,7 @@ public class CacheEvictionTestCase {
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain("foo.com");
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(1);
 
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("CacheEvictionTestCase.CacheManager");
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
 
         String oldestKey = "x" + System.currentTimeMillis();
@@ -79,7 +79,7 @@ public class CacheEvictionTestCase {
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
     public void testMRUCacheEviction() {
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("testMRUCacheEviction-manager");
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         String cacheName = "testMRUCacheEviction";
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
 
@@ -121,7 +121,7 @@ public class CacheEvictionTestCase {
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
     public void testLRUCacheEviction() {
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("testLRUCacheEviction-manager");
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         String cacheName = "testLRUCacheEvictionXX";
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
 
@@ -162,7 +162,7 @@ public class CacheEvictionTestCase {
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
     public void testRandomCacheEviction() {
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("testRandomCacheEviction-manager");
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         String cacheName = "testRandomCacheEviction";
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
 
@@ -192,7 +192,7 @@ public class CacheEvictionTestCase {
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
     public void testDefaultCacheEviction() {
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("testDefaultCacheEviction-manager");
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         String cacheName = "testDefaultCacheEviction";
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
         for (int i = 0; i < 20000; i++) {
@@ -210,7 +210,7 @@ public class CacheEvictionTestCase {
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
     public void testDefaultMRUCacheEviction() {
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("testDefaultMRUCacheEviction-manager");
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         String cacheName = "testDefaultMRUCacheEviction";
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
         for (int i = 0; i < 20000; i++) {
@@ -228,7 +228,7 @@ public class CacheEvictionTestCase {
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
     public void testDefaultRandomCacheEviction() {
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("testDefaultRandomCacheEviction-manager");
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         String cacheName = "testDefaultRandomCacheEviction";
         Cache<String, Integer> cache = cacheManager.getCache(cacheName);
         for (int i = 0; i < 20000; i++) {

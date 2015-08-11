@@ -18,7 +18,6 @@
 package org.wso2.carbon.caching.impl.eviction;
 
 import org.wso2.carbon.caching.impl.CacheImpl;
-import org.wso2.carbon.caching.impl.CarbonCacheManager;
 
 /**
  * TODO: class description

@@ -1,84 +1,91 @@
-/*
-*  Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+/**
+ *  Copyright 2011-2013 Terracotta, Inc.
+ *  Copyright 2011-2013 Oracle America Incorporated
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.wso2.carbon.caching.impl;
 
 import javax.cache.Cache;
 import java.io.Serializable;
 
 /**
- * TODO: class description
+ * Implementation of cache entry
  */
-public class CacheEntry<K, V> implements Cache.Entry<K, V>, Serializable {
+public class CacheEntry<K, V> implements Cache.Entry<K, V>, Serializable{
 
-    private static final long serialVersionUID = 1996179870860085427L;
+	private static final long serialVersionUID = 1996179870860085427L;
 
-    private K key;
-    private V value;
-    private long lastAccessed;
-    private long lastModified;
+	private K key;
+	private V value;
+	private long lastAccessed;
+	private long lastModified;
 
-    public CacheEntry(K key, V value) {
-        this.key = key;
-        this.value = value;
-        long now = System.currentTimeMillis();
-        this.lastAccessed = now;
-        this.lastModified = now;
-    }
+	public CacheEntry(K key, V value) {
+		this.key = key;
+		this.value = value;
+		long now = System.currentTimeMillis();
+		this.lastAccessed = now;
+		this.lastModified = now;
+	}
+	public void setValue(V value) {
+		lastModified = System.currentTimeMillis();
+		this.value = value;
+	}
 
-    public K getKey() {
-        return key;
-    }
+	@Override
+	public K getKey() {
+		return key;
+	}
 
-    public void setValue(V value) {
-        lastModified = System.currentTimeMillis();
-        this.value = value;
-    }
+	@Override
+	public V getValue() {
+		lastAccessed = System.currentTimeMillis();
+		return value;
+	}
 
-    public V getValue() {
-        lastAccessed = System.currentTimeMillis();
-        return value;
-    }
+	//TODO implement new unwrap in CacheEntry
+	@Override
+	public <T> T unwrap(Class<T> clazz) {
+		return null;
+	}
 
-    public long getLastAccessed() {
-        return lastAccessed;
-    }
 
-    public long getLastModified() {
-        return lastModified;
-    }
+	public long getLastAccessed() {
+		return lastAccessed;
+	}
 
-    public void setLastAccessed(Long lastAccessed) {
-        this.lastAccessed = lastAccessed;
-    }
+	public long getLastModified() {
+		return lastModified;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	public void setLastAccessed(Long lastAccessed) {
+		this.lastAccessed = lastAccessed;
+	}
 
-        CacheEntry that = (CacheEntry) o;
-        return key.equals(that.key) && value.equals(that.value);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
 
-    @Override
-    public int hashCode() {
-        int result = key.hashCode();
-        result = 31 * result + value.hashCode();
-        return result;
-    }
+		CacheEntry that = (CacheEntry) o;
+		return key.equals(that.key) && value.equals(that.value);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = key.hashCode();
+		result = 31 * result + value.hashCode();
+		return result;
+	}
 }

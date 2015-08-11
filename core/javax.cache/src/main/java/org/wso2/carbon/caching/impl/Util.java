@@ -65,8 +65,8 @@ public final class Util {
      * @param cacheManagerName name of the cache manager
      * @return the distributed map name
      */
-    public static String getDistributedMapNameOfCache(String cacheName, String ownerTenantDomain,
-                                                      String cacheManagerName) {
+    public static String getDistributedCacheName(String cacheName, String ownerTenantDomain,
+                                                 String cacheManagerName) {
         return "$cache.$domain[" + ownerTenantDomain + "]" +
                 cacheManagerName + "#" + cacheName;
     }

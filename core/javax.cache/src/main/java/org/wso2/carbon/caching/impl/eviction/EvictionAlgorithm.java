@@ -18,7 +18,6 @@
 package org.wso2.carbon.caching.impl.eviction;
 
 import org.wso2.carbon.caching.impl.CacheEntry;
-import org.wso2.carbon.caching.impl.CacheImpl;
 
 import java.util.TreeSet;
 

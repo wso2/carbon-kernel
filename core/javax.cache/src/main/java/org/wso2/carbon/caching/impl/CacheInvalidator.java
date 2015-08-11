@@ -27,7 +27,6 @@ public interface CacheInvalidator {
      * Publish global cache invalidate message to the topic
      *
      * @param tenantId The current tenant Id
-     * @param cacheManagerName Cache manager name
      * @param cacheName Cache name
      * @param cacheKey Cache entry
      */

@@ -50,6 +50,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.logging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.5.0.wso2v1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -77,6 +82,7 @@
                             org.wso2.carbon.caching.impl.eviction.*
                         </Private-Package>
                         <Import-Package>
+                            org.wso2.carbon.core.*,
                             javax.transaction.*,
                             *;resolution:=optional
                         </Import-Package>

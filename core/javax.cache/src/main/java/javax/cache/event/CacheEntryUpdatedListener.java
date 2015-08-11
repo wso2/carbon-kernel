@@ -1,6 +1,6 @@
 /**
- *  Copyright (c) 2011 Terracotta, Inc.
- *  Copyright (c) 2011 Oracle and/or its affiliates.
+ *  Copyright (c) 2011-2013 Terracotta, Inc.
+ *  Copyright (c) 2011-2013 Oracle and/or its affiliates.
  *
  *  All rights reserved. Use is subject to license terms.
  */
@@ -8,10 +8,11 @@
 package javax.cache.event;
 
 /**
- * Invoked if an existing cache entry is updated, for example through a {@link javax.cache.Cache#put(Object, Object)} or a {@link javax.cache.CacheLoader} operation .
+ * Invoked if an existing cache entry is updated, or if a batch call is made,
+ * after the entries are updated.
  *
- * @param <K> the type of keys maintained by the associated cache
- * @param <V> the type of values maintained by the associated cache
+ * @param <K> the type of key
+ * @param <V> the type of value
  * @author Yannis Cosmadopoulos
  * @author Greg Luck
  * @see CacheEntryCreatedListener
@@ -19,12 +20,12 @@ package javax.cache.event;
  */
 public interface CacheEntryUpdatedListener<K, V> extends CacheEntryListener<K, V> {
 
-    /**
-     * todo change this to have two args: the old value and the new value
-     * Called after the entry has been updated (put into the cache where a previous mapping existed).
-     *
-     * @param event The event just updated.
-     * @throws CacheEntryListenerException if there is problem executing the listener
-     */
-    void entryUpdated(CacheEntryEvent<? extends K, ? extends V> event) throws CacheEntryListenerException;
+  /**
+   * Called after one or more entries have been updated.
+   *
+   * @param events The entries just updated.
+   * @throws CacheEntryListenerException if there is problem executing the listener
+   */
+  void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> events)
+      throws CacheEntryListenerException;
 }

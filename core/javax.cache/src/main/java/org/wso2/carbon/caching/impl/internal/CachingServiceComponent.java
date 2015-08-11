@@ -18,17 +18,17 @@
 package org.wso2.carbon.caching.impl.internal;
 
 
+import com.hazelcast.core.HazelcastInstance;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.caching.impl.DataHolder;
-import org.wso2.carbon.caching.impl.DistributedMapProvider;
 
 /**
  * @scr.component name="org.wso2.carbon.caching.impl.internal.CachingServiceComponent" immediate="true"
- * @scr.reference name="distributedMapProvider" interface="org.wso2.carbon.caching.impl.DistributedMapProvider"
- * cardinality="0..1" policy="dynamic"  bind="setDistributedMapProvider" unbind="unsetDistributedMapProvider"
+ * @scr.reference name="hazelcastInstance" interface="com.hazelcast.core.HazelcastInstance"
+ * cardinality="0..1" policy="dynamic"  bind="setHazelcastInstance" unbind="unsetHazelcastInstance"
  * @scr.reference name="server.configuration.service" interface="org.wso2.carbon.base.api.ServerConfigurationService"
  * cardinality="1..1" policy="dynamic"  bind="setServerConfigurationService" unbind="unsetServerConfigurationService"
  */
@@ -45,13 +45,13 @@ public class CachingServiceComponent {
     protected void deactivate(ComponentContext ctx) {
     }
 
-    protected void setDistributedMapProvider(DistributedMapProvider mapProvider) {
-        dataHolder.setDistributedMapProvider(mapProvider);
-    }
+	protected void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+		dataHolder.setHazelcastInstance(hazelcastInstance);
+	}
 
-    protected void unsetDistributedMapProvider(DistributedMapProvider mapProvider) {
-        dataHolder.setDistributedMapProvider(null);
-    }
+	protected void unsetHazelcastInstance(HazelcastInstance hazelcastInstance) {
+		dataHolder.setHazelcastInstance(null);
+	}
 
     protected void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         dataHolder.setServerConfigurationService(serverConfigurationService);

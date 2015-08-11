@@ -25,8 +25,14 @@ import org.wso2.carbon.context.PrivilegedCarbonContext;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import javax.cache.event.*;
 import java.io.File;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Iterator;
 
 import static org.testng.Assert.*;
 
@@ -40,37 +46,35 @@ public class CacheListenerTestCase {
     public static final String TEST_CACHE_ENTRY_REMOVED = "testCacheEntryRemoved";
     public static final String TEST_CACHE_ENTRY_EXPIRED = "testCacheEntryExpired";
     public static final String TEST_CACHE_ENTRY_CREATED = "testCacheEntryCreated";
+    public static final String CACHE_NAME = "CacheListenerTestCase-cache";
     private static final String TEST_FULL_SCENARIO_CACHE_REMOVED = "testFullScenarioCacheRemoved";
     private static final String TEST_FULL_SCENARIO_CACHE_EXPIRED = "testFullScenarioCacheExpired";
-    public static final String CACHE_NAME = "CacheListenerTestCase-cache";
     private Cache<String, Long> cache;
     private CacheEntryCreatedListenerImpl<String, Long> cacheEntryCreatedListener;
     private CacheEntryExpiredListenerImpl<String, Long> cacheEntryExpiredListener;
-    private CacheEntryReadListenerImpl<String, Long> cacheEntryReadListener;
     private CacheEntryRemovedListenerImpl<String, Long> cacheEntryRemovedListener;
     private CacheEntryUpdatedListenerImpl<String, Long> cacheEntryUpdatedListener;
     private String key;
 
     @BeforeMethod
-    public void setup() {
+    public void setup() throws URISyntaxException {
         System.setProperty("carbon.home", new File(".").getAbsolutePath());
 
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain("foo.com");
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(1);
 
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager("test");
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager(new URI("test"), null);
         cache = cacheManager.getCache(CACHE_NAME);
 
-        cacheEntryCreatedListener = new CacheEntryCreatedListenerImpl<String, Long>();
-        cache.registerCacheEntryListener(cacheEntryCreatedListener);
-        cacheEntryExpiredListener = new CacheEntryExpiredListenerImpl<String, Long>();
-        cache.registerCacheEntryListener(cacheEntryExpiredListener);
-        cacheEntryReadListener = new CacheEntryReadListenerImpl<String, Long>();
-        cache.registerCacheEntryListener(cacheEntryReadListener);
-        cacheEntryRemovedListener = new CacheEntryRemovedListenerImpl<String, Long>();
-        cache.registerCacheEntryListener(cacheEntryRemovedListener);
-        cacheEntryUpdatedListener = new CacheEntryUpdatedListenerImpl<String, Long>();
-        cache.registerCacheEntryListener(cacheEntryUpdatedListener);
+        cacheEntryCreatedListener = new CacheEntryCreatedListenerImpl<>();
+
+        cache.registerCacheEntryListener(new MutableCacheEntryListenerConfiguration<>(FactoryBuilder.factoryOf(cacheEntryCreatedListener), null, true, false));
+        cacheEntryExpiredListener = new CacheEntryExpiredListenerImpl<>();
+        cache.registerCacheEntryListener(new MutableCacheEntryListenerConfiguration<>(FactoryBuilder.factoryOf(cacheEntryExpiredListener), null, true, false));
+        cacheEntryRemovedListener = new CacheEntryRemovedListenerImpl<>();
+        cache.registerCacheEntryListener(new MutableCacheEntryListenerConfiguration<>(FactoryBuilder.factoryOf(cacheEntryRemovedListener), null, true, false));
+        cacheEntryUpdatedListener = new CacheEntryUpdatedListenerImpl<>();
+        cache.registerCacheEntryListener(new MutableCacheEntryListenerConfiguration<>(FactoryBuilder.factoryOf(cacheEntryUpdatedListener), null, true, false));
     }
 
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
@@ -81,10 +85,10 @@ public class CacheListenerTestCase {
         cache.put(key, System.currentTimeMillis());
         assertTrue(cacheEntryCreatedListener.isInvoked());
         assertFalse(cacheEntryExpiredListener.isInvoked());
-        assertFalse(cacheEntryReadListener.isInvoked());
         assertFalse(cacheEntryRemovedListener.isInvoked());
         assertFalse(cacheEntryUpdatedListener.isInvoked());
     }
+
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
     public void testCacheEntryUpdated() {
@@ -99,7 +103,6 @@ public class CacheListenerTestCase {
         assertTrue(cacheEntryCreatedListener.isInvoked());
         assertTrue(cacheEntryUpdatedListener.isInvoked());
         assertFalse(cacheEntryExpiredListener.isInvoked());
-        assertFalse(cacheEntryReadListener.isInvoked());
         assertFalse(cacheEntryRemovedListener.isInvoked());
     }
 
@@ -112,7 +115,6 @@ public class CacheListenerTestCase {
         cache.get(key);
 
         assertTrue(cacheEntryCreatedListener.isInvoked());
-        assertTrue(cacheEntryReadListener.isInvoked());
         assertFalse(cacheEntryExpiredListener.isInvoked());
         assertFalse(cacheEntryRemovedListener.isInvoked());
         assertFalse(cacheEntryUpdatedListener.isInvoked());
@@ -128,7 +130,6 @@ public class CacheListenerTestCase {
 
         assertTrue(cacheEntryCreatedListener.isInvoked());
         assertTrue(cacheEntryRemovedListener.isInvoked());
-        assertFalse(cacheEntryReadListener.isInvoked());
         assertFalse(cacheEntryExpiredListener.isInvoked());
         assertFalse(cacheEntryUpdatedListener.isInvoked());
     }
@@ -144,13 +145,12 @@ public class CacheListenerTestCase {
         assertTrue(cacheEntryCreatedListener.isInvoked());
         assertTrue(cacheEntryExpiredListener.isInvoked());
         assertFalse(cacheEntryRemovedListener.isInvoked());
-        assertFalse(cacheEntryReadListener.isInvoked());
         assertFalse(cacheEntryUpdatedListener.isInvoked());
     }
 
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
-    public void testFullScenarioCacheEntryRemoved(){
+    public void testFullScenarioCacheEntryRemoved() {
         String key = TEST_FULL_SCENARIO_CACHE_REMOVED;
         setKey(key);
         cache.put(key, System.currentTimeMillis());
@@ -163,7 +163,6 @@ public class CacheListenerTestCase {
         cache.remove(key);
 
         assertTrue(cacheEntryCreatedListener.isInvoked());
-        assertTrue(cacheEntryReadListener.isInvoked());
         assertTrue(cacheEntryUpdatedListener.isInvoked());
         assertTrue(cacheEntryRemovedListener.isInvoked());
         assertFalse(cacheEntryExpiredListener.isInvoked());
@@ -171,7 +170,7 @@ public class CacheListenerTestCase {
 
     @Test(groups = {"org.wso2.carbon.clustering.hazelcast.jsr107"},
             description = "")
-    public void testFullScenarioCacheEntryExpired(){
+    public void testFullScenarioCacheEntryExpired() {
         String key = TEST_FULL_SCENARIO_CACHE_EXPIRED;
         setKey(key);
         cache.put(key, System.currentTimeMillis());
@@ -181,16 +180,15 @@ public class CacheListenerTestCase {
         }
         cache.put(key, System.currentTimeMillis());
         cache.get(key);
-        ((CacheImpl)cache).expire(key);
+        ((CacheImpl) cache).expire(key);
 
         assertTrue(cacheEntryCreatedListener.isInvoked());
-        assertTrue(cacheEntryReadListener.isInvoked());
         assertTrue(cacheEntryUpdatedListener.isInvoked());
         assertTrue(cacheEntryExpiredListener.isInvoked());
         assertFalse(cacheEntryRemovedListener.isInvoked());
     }
 
-    private void setKey(String key){
+    private void setKey(String key) {
         this.key = key;
     }
 
@@ -202,58 +200,66 @@ public class CacheListenerTestCase {
         }
     }
 
-    private class CacheEntryCreatedListenerImpl<K, V> extends CacheEntryListener implements CacheEntryCreatedListener<K, V> {
+    private class CacheEntryCreatedListenerImpl<K, V> extends CacheEntryListener implements CacheEntryCreatedListener<K, V>, Serializable {
+
 
         @Override
-        public void entryCreated(CacheEntryEvent event) throws CacheEntryListenerException {
-            isInvoked = true;
-            assertEquals(event.getSource().getName(), CACHE_NAME);
-            assertEquals(event.getKey(), key);
-            assertTrue(event.getValue() instanceof Long);
+        public void onCreated(Iterable<CacheEntryEvent<? extends K, ? extends V>> cacheEntryEvents) throws CacheEntryListenerException {
+            final Iterator<CacheEntryEvent<? extends K, ? extends V>> iterator = cacheEntryEvents.iterator();
+            while (iterator.hasNext()) {
+                final CacheEntryEvent<? extends K, ? extends V> event = iterator.next();
+                isInvoked = true;
+                assertEquals(event.getSource().getName(), CACHE_NAME);
+                assertEquals(event.getKey(), key);
+                assertTrue(event.getValue() instanceof Long);
+            }
         }
     }
 
-    private class CacheEntryUpdatedListenerImpl<K, V> extends CacheEntryListener implements CacheEntryUpdatedListener<K, V> {
+    private class CacheEntryUpdatedListenerImpl<K, V> extends CacheEntryListener implements CacheEntryUpdatedListener<K, V>, Serializable {
+
 
         @Override
-        public void entryUpdated(CacheEntryEvent event) throws CacheEntryListenerException {
-            isInvoked = true;
-            assertEquals(event.getSource().getName(), CACHE_NAME);
-            assertEquals(event.getKey(), key);
-            assertTrue(event.getValue() instanceof Long);
+        public void onUpdated(Iterable<CacheEntryEvent<? extends K, ? extends V>> cacheEntryEvents) throws CacheEntryListenerException {
+            final Iterator<CacheEntryEvent<? extends K, ? extends V>> iterator = cacheEntryEvents.iterator();
+            while (iterator.hasNext()) {
+                final CacheEntryEvent<? extends K, ? extends V> event = iterator.next();
+                isInvoked = true;
+                assertEquals(event.getSource().getName(), CACHE_NAME);
+                assertEquals(event.getKey(), key);
+                assertTrue(event.getValue() instanceof Long);
+            }
         }
     }
 
-    private class CacheEntryReadListenerImpl<K, V> extends CacheEntryListener implements CacheEntryReadListener<K, V> {
+    private class CacheEntryRemovedListenerImpl<K, V> extends CacheEntryListener implements CacheEntryRemovedListener<K, V>, Serializable {
+
 
         @Override
-        public void entryRead(CacheEntryEvent event) throws CacheEntryListenerException {
-            isInvoked = true;
-            assertEquals(event.getSource().getName(), CACHE_NAME);
-            assertEquals(event.getKey(), key);
-            assertTrue(event.getValue() instanceof Long);
+        public void onRemoved(Iterable<CacheEntryEvent<? extends K, ? extends V>> cacheEntryEvents) throws CacheEntryListenerException {
+            final Iterator<CacheEntryEvent<? extends K, ? extends V>> iterator = cacheEntryEvents.iterator();
+            while (iterator.hasNext()) {
+                final CacheEntryEvent<? extends K, ? extends V> event = iterator.next();
+                isInvoked = true;
+                assertEquals(event.getSource().getName(), CACHE_NAME);
+                assertEquals(event.getKey(), key);
+                assertTrue(event.getValue() instanceof Long);
+            }
         }
     }
 
-    private class CacheEntryRemovedListenerImpl<K, V> extends CacheEntryListener implements CacheEntryRemovedListener<K, V> {
+    private class CacheEntryExpiredListenerImpl<K, V> extends CacheEntryListener implements CacheEntryExpiredListener<K, V>, Serializable {
 
         @Override
-        public void entryRemoved(CacheEntryEvent event) throws CacheEntryListenerException {
-            isInvoked = true;
-            assertEquals(event.getSource().getName(), CACHE_NAME);
-            assertEquals(event.getKey(), key);
-            assertTrue(event.getValue() instanceof Long);
-        }
-    }
-
-    private class CacheEntryExpiredListenerImpl<K, V> extends CacheEntryListener implements CacheEntryExpiredListener {
-
-        @Override
-        public void entryExpired(CacheEntryEvent event) throws CacheEntryListenerException {
-            isInvoked = true;
-            assertEquals(event.getSource().getName(), CACHE_NAME);
-            assertEquals(event.getKey(), key);
-            assertTrue(event.getValue() instanceof Long);
+        public void onExpired(Iterable<CacheEntryEvent<? extends K, ? extends V>> cacheEntryEvents) throws CacheEntryListenerException {
+            final Iterator<CacheEntryEvent<? extends K, ? extends V>> iterator = cacheEntryEvents.iterator();
+            while (iterator.hasNext()) {
+                final CacheEntryEvent<? extends K, ? extends V> event = iterator.next();
+                isInvoked = true;
+                assertEquals(event.getSource().getName(), CACHE_NAME);
+                assertEquals(event.getKey(), key);
+                assertTrue(event.getValue() instanceof Long);
+            }
         }
     }
 }

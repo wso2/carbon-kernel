@@ -1,54 +1,80 @@
 /*
-*  Copyright (c) 2005-2011, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ * Copyright (c) 2010, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.wso2.carbon.caching.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.cache.Cache;
-import javax.cache.CacheBuilder;
 import javax.cache.CacheException;
 import javax.cache.CacheManager;
-import javax.cache.OptionalFeature;
-import javax.cache.Status;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.cache.configuration.CompleteConfiguration;
+import javax.cache.configuration.Configuration;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.ModifiedExpiryPolicy;
+import javax.cache.spi.CachingProvider;
+import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
- * TODO: class description
+ * carbon cache manager implementation
  */
 public class CarbonCacheManager implements CacheManager {
-    private Map<String, Cache<?, ?>> caches = new ConcurrentHashMap<String, Cache<?, ?>>();
-    private volatile Status status;
-    private String name;
+    private static final Log log = LogFactory.getLog(CarbonCacheManager.class);
+    private static CacheCleanupTask cacheCleanupTask = new CacheCleanupTask();
+    private static Random randomGenerator = new Random();
 
+    static {
+        ThreadFactory threadFactory = new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable runnable) {
+                Thread th = new Thread(runnable);
+                th.setName("CacheExpirySchedulerThread-" + randomGenerator.nextInt(100));
+                return th;
+            }
+        };
+        ScheduledExecutorService cacheExpiryScheduler =
+                Executors.newScheduledThreadPool(10, threadFactory);
+        cacheExpiryScheduler.scheduleWithFixedDelay(cacheCleanupTask, 30, 30, TimeUnit.SECONDS);
+    }
+
+    private final HashMap<String, CacheImpl<?, ?>> caches = new HashMap<String, CacheImpl<?, ?>>();
+    private final CachingProviderImpl cachingProvider;
+    private final URI uri;
+    private final WeakReference<ClassLoader> classLoaderReference;
+    private final Properties properties;
     private String ownerTenantDomain;
     private int ownerTenantId;
-    private CacheManagerFactoryImpl cacheManagerFactory;
-
+    private String name;
     private long lastAccessed = -1;
+    private boolean isClosed;
 
-    public CarbonCacheManager(String name, CacheManagerFactoryImpl cacheManagerFactory) {
-        this.cacheManagerFactory = cacheManagerFactory;
+    public CarbonCacheManager(CachingProviderImpl cachingProvider, URI uri,
+                              ClassLoader classLoader, Properties properties) {
+
         CarbonContext carbonContext = CarbonContext.getThreadLocalCarbonContext();
         if (carbonContext == null) {
             throw new IllegalStateException("CarbonContext cannot be null");
@@ -61,9 +87,26 @@ public class CarbonCacheManager implements CacheManager {
         if (ownerTenantId == MultitenantConstants.INVALID_TENANT_ID) {
             throw new IllegalStateException("Tenant ID cannot be " + ownerTenantId);
         }
-        this.name = name;
+
         touch();
-        status = Status.STARTED;
+
+        // init
+        this.cachingProvider = cachingProvider;
+
+        if (uri == null) {
+            throw new NullPointerException("No CacheManager URI specified");
+        }
+        this.uri = uri;
+        name = getURI().toString();
+
+        if (classLoader == null) {
+            throw new NullPointerException("No ClassLoader specified");
+        }
+        this.classLoaderReference = new WeakReference<ClassLoader>(classLoader);
+
+        this.properties = properties == null ? new Properties() : new Properties(properties);
+
+        isClosed = false;
     }
 
     public int getOwnerTenantId() {
@@ -71,161 +114,228 @@ public class CarbonCacheManager implements CacheManager {
     }
 
     @Override
-    public String getName() {
+    public CachingProvider getCachingProvider() {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
-        return this.name;
+        touch();
+        return cachingProvider;
     }
 
     @Override
-    public Status getStatus() {
-        Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        return status;
+    public URI getURI() {
+        return uri;
     }
 
     @Override
-    public <K, V> CacheBuilder<K, V> createCacheBuilder(String cacheName) {
+    public ClassLoader getClassLoader() {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
+        touch();
+        return classLoaderReference.get();
+    }
+
+    @Override
+    public Properties getProperties() {
+        Util.checkAccess(ownerTenantDomain, ownerTenantId);
+        touch();
+        return properties;
+    }
+
+    @Override
+    public <K, V, C extends Configuration<K, V>> Cache<K, V> createCache(String cacheName,
+                                                                         C configuration)
+            throws IllegalArgumentException {
+        Util.checkAccess(ownerTenantDomain, ownerTenantId);
+        touch();
+
+        if (isClosed()) {
+            throw new IllegalStateException();
+        }
 
         if (cacheName == null) {
-            throw new NullPointerException("A cache name must not be null.");
+            throw new NullPointerException("cacheName must not be null");
         }
 
-        if (caches.get(cacheName) != null) {
-            throw new CacheException("Cache " + cacheName + " already exists");
-        }
-        
-        Pattern searchPattern = Pattern.compile("\\S+");
-        Matcher matcher = searchPattern.matcher(cacheName);
-        if (!matcher.find()) {
-            throw new IllegalArgumentException("A cache name must contain one or more non-whitespace characters");
+        if (configuration == null) {
+            throw new NullPointerException("configuration must not be null");
         }
 
-        return new CacheBuilderImpl<K, V>(cacheName, this);
+//		synchronized (caches) {
+        CacheImpl<?, ?> cache = caches.get(cacheName);
+
+        if (cache == null) {
+            cache = new CacheImpl(cacheName, this, configuration);
+            caches.put(cache.getName(), cache);
+
+            return (Cache<K, V>) cache;
+        } else {
+            throw new CacheException("A cache named " + cacheName + " already exists.");
+        }
+//		}
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <K, V> Cache<K, V> getCache(String cacheName) {
+    public <K, V> Cache<K, V> getCache(String cacheName, Class<K> keyType,
+                                       Class<V> valueType) {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
-        if (status != Status.STARTED) {
+        touch();
+
+        if (isClosed()) {
             throw new IllegalStateException();
         }
-        touch();
-        Cache<K, V> cache = (Cache<K, V>) caches.get(cacheName);
+
+        if (keyType == null) {
+            throw new NullPointerException("keyType can not be null");
+        }
+
+        if (valueType == null) {
+            throw new NullPointerException("valueType can not be null");
+        }
+
+//		synchronized (caches) {
+        CacheImpl<?, ?> cache = caches.get(cacheName);
+
         if (cache == null) {
-            synchronized (cacheName.intern()) {
-                if ((cache = (Cache<K, V>) caches.get(cacheName)) == null) {
-                    caches.put(cacheName, cache = new CacheImpl<K, V>(cacheName, this));
+            return null;
+        } else {
+            Configuration<?, ?> configuration = cache.getConfiguration(CompleteConfiguration.class);
+
+            if (configuration.getKeyType() != null &&
+                    configuration.getKeyType().equals(keyType)) {
+
+                if (configuration.getValueType() != null &&
+                        configuration.getValueType().equals(valueType)) {
+
+                    return (Cache<K, V>) cache;
+                } else {
+                    throw new ClassCastException("Incompatible cache value types specified, expected " +
+                            configuration.getValueType() + " but " + valueType + " was specified");
                 }
+            } else {
+                throw new ClassCastException("Incompatible cache key types specified, expected " +
+                        configuration.getKeyType() + " but " + keyType + " was specified");
             }
         }
-        return cache;
-    }
-
-    void switchToDistributedMode(){
-        for (Cache<?, ?> cache : caches.values()) {
-            ((CacheImpl) cache).switchToDistributedMode();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    final <K, V> Cache<K, V> getExistingCache(String cacheName) {
-        touch();
-        return (Cache<K, V>) caches.get(cacheName);
+//		}
     }
 
     @Override
-    public Iterable<Cache<?, ?>> getCaches() {
+    public <K, V> Cache<K, V> getCache(String cacheName) {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
-        if (status != Status.STARTED) {
+        touch();
+
+        if (isClosed()) {
             throw new IllegalStateException();
         }
+//		synchronized (caches) {
+        CacheImpl cache = caches.get(cacheName);
+
+        if (cache == null) {
+            cache = (CacheImpl) createCache(cacheName, new MutableConfiguration<Object, Object>().setExpiryPolicyFactory(
+                    AccessedExpiryPolicy.factoryOf(Duration.ONE_MINUTE)).setExpiryPolicyFactory(
+                    CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE)).setExpiryPolicyFactory(
+                    ModifiedExpiryPolicy.factoryOf(Duration.ONE_MINUTE)));
+            return cache;
+        } else {
+            Configuration configuration = cache.getConfiguration(CompleteConfiguration.class);
+
+            if (configuration.getKeyType().equals(Object.class) &&
+                    configuration.getValueType().equals(Object.class)) {
+                return cache;
+            } else {
+                throw new IllegalArgumentException("Cache " + cacheName + " was " +
+                        "defined with specific types Cache<" +
+                        configuration.getKeyType() + ", " + configuration.getValueType() + "> " +
+                        "in which case CacheManager.getCache(String, Class, Class) must be used");
+            }
+
+        }
+//		}
+    }
+
+    @Override
+    public Iterable<String> getCacheNames() {
+        Util.checkAccess(ownerTenantDomain, ownerTenantId);
         touch();
-        HashSet<Cache<?, ?>> set = new HashSet<Cache<?, ?>>();
+        HashSet<String> set = new HashSet<>();
         for (Cache<?, ?> cache : caches.values()) {
-            set.add(cache);
+            set.add(cache.getName());
         }
         return Collections.unmodifiableSet(set);
     }
 
     @Override
-    public boolean removeCache(String cacheName) {
+    public void destroyCache(String cacheName) {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
-        if (status != Status.STARTED) {
+        touch();
+
+        if (isClosed()) {
             throw new IllegalStateException();
         }
         if (cacheName == null) {
-            throw new NullPointerException("Cache name cannot be null");
+            throw new NullPointerException();
         }
-        CacheImpl<?, ?> oldCache;
-        oldCache = (CacheImpl<?, ?>) caches.remove(cacheName);
-        if (oldCache != null) {
-            oldCache.stop();
+
+        Cache<?, ?> cache;
+        synchronized (caches) {
+            cache = caches.get(cacheName);
         }
-        cacheManagerFactory.removeCacheFromMonitoring(oldCache);
-        DistributedMapProvider distributedMapProvider = DataHolder.getInstance().getDistributedMapProvider();
-        if (distributedMapProvider != null) {
-            distributedMapProvider.removeMap(Util.getDistributedMapNameOfCache(cacheName,ownerTenantDomain,
-                    this.getName()));
+
+        if (cache != null) {
+            cache.close();
         }
-        if (caches.isEmpty() && isIdle()) {
-            cacheManagerFactory.removeCacheManager(this, ownerTenantDomain);
-        }
+    }
+
+    @Override
+    public void enableManagement(String cacheName, boolean enabled) {
+        Util.checkAccess(ownerTenantDomain, ownerTenantId);
         touch();
-        return oldCache != null;
+        if (isClosed()) {
+            throw new IllegalStateException();
+        }
+        if (cacheName == null) {
+            throw new NullPointerException();
+        }
+        ((CacheImpl) caches.get(cacheName)).setManagementEnabled(enabled);
     }
 
     @Override
-    public javax.transaction.UserTransaction getUserTransaction() {
+    public void enableStatistics(String cacheName, boolean enabled) {
         Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
         touch();
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        if (isClosed()) {
+            throw new IllegalStateException();
+        }
+        if (cacheName == null) {
+            throw new NullPointerException();
+        }
+        ((CacheImpl) caches.get(cacheName)).setStatisticsEnabled(enabled);
     }
 
     @Override
-    public boolean isSupported(OptionalFeature optionalFeature) {
-        Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+    public void close() {
+        cachingProvider.releaseCacheManager(getURI(), getClassLoader());
 
-    @Override
-    public void shutdown() {
-        Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        for (Cache<?, ?> cache : caches.values()) {
+        isClosed = true;
+
+        ArrayList<Cache<?, ?>> cacheList;
+        cacheList = new ArrayList<Cache<?, ?>>(caches.values());
+        caches.clear();
+        for (Cache<?, ?> cache : cacheList) {
             try {
-                cache.stop();
-            } catch (Exception ignored) {
+                cache.close();
+            } catch (Exception e) {
+                log.info("Error stopping cache: " + cache, e);
             }
         }
-        caches.clear();
-        this.status = Status.STOPPED;
     }
 
     @Override
-    public <T> T unwrap(Class<T> cls) {
-        Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
-        if (cls.isAssignableFrom(this.getClass())) {
-            return cls.cast(this);
-        }
-
-        throw new IllegalArgumentException("Unwrapping to " + cls +
-                                           " is not a supported by this implementation");
+    public boolean isClosed() {
+        return false;
     }
 
-    void addCache(CacheImpl cache) {
-        Util.checkAccess(ownerTenantDomain, ownerTenantId);
-        checkStatusStarted();
-        String cacheName = cache.getName();
-        caches.put(cacheName, cache);
-        touch();
+    @Override
+    public <T> T unwrap(Class<T> clazz) {
+        return null;
     }
 
     @Override
@@ -251,18 +361,13 @@ public class CarbonCacheManager implements CacheManager {
         return result;
     }
 
-    private void checkStatusStarted() {
-        if (!status.equals(Status.STARTED)) {
-            throw new IllegalStateException("The cache status is not STARTED");
-        }
-    }
-
-    private void touch(){
+    private void touch() {
         lastAccessed = System.currentTimeMillis();
     }
 
-    private boolean isIdle() {
-        long timeDiff = System.currentTimeMillis() - lastAccessed;
-        return caches.isEmpty() && (timeDiff >= CachingConstants.MAX_CACHE_IDLE_TIME_MILLIS);
+    void switchToDistributedMode() {
+        for (Cache<?, ?> cache : caches.values()) {
+            ((CacheImpl) cache).switchToDistributedMode();
+        }
     }
 }
