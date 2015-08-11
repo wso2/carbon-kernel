@@ -615,7 +615,7 @@
                 <version>${version.plexus.utils}</version>
             </dependency>
             <dependency>
-                <groupId>com.hazelcast.wso2</groupId>
+                <groupId>org.wso2.orbit.com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
                 <version>${orbit.hazelcast.version}</version>
             </dependency>
@@ -724,8 +724,8 @@
         <javax.servlet.import.version.range>[3.0.0, 3.1.0)</javax.servlet.import.version.range>
 
         <!-- Hazelcast API version -->
-        <hazelcast.core.import.version.range>[3.0.1, 3.1.0)</hazelcast.core.import.version.range>
-        <hazelcast.config.import.version.range>[3.0.1, 3.1.0)</hazelcast.config.import.version.range>
+        <hazelcast.core.import.version.range>[3.5.0, 3.6.0)</hazelcast.core.import.version.range>
+        <hazelcast.config.import.version.range>[3.5.0, 3.6.0)</hazelcast.config.import.version.range>
 
         <!-- Equinox dependency versions -->
         <equinox.osgi.version>3.9.1.v20130814-1242</equinox.osgi.version>
@@ -842,7 +842,7 @@
         <version.maven.compat>3.0</version.maven.compat>
         <version.plexus.utils>3.0.17</version.plexus.utils>
         <version.plexus.archiver>1.2</version.plexus.archiver>
-        <orbit.hazelcast.version>3.0.1.wso2v1</orbit.hazelcast.version>
+        <orbit.hazelcast.version>3.5.0.wso2v1</orbit.hazelcast.version>
         <version.jacoco>0.7.5.201505241946</version.jacoco>
         <version.jetty.server>8.1.10.v20130312</version.jetty.server>
         <version.javax.servlet.api>3.0.1</version.javax.servlet.api>

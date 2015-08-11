@@ -26,7 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.LocalMemberProperty;
+import org.wso2.carbon.clustering.exception.ClusterInitializationException;
+import org.wso2.carbon.internal.clustering.ClusterUtil;
 
+import java.net.SocketException;
 import java.util.List;
 import java.util.Properties;
 
@@ -43,7 +46,20 @@ public final class MemberUtils {
      */
     public static void addMember(ClusterMember member,
                                  TcpIpConfig config) {
-        String memberStr = member.getHostName() + ":" + member.getPort();
+        String localMemberHost = member.getHostName();
+        if (localMemberHost != null && !localMemberHost.equalsIgnoreCase("127.0.0.1") &&
+            !localMemberHost.equalsIgnoreCase("localhost")) {
+            localMemberHost = localMemberHost.trim();
+        } else {
+            try {
+                localMemberHost = ClusterUtil.getIpAddress();
+            } catch (SocketException e) {
+                String msg = "Could not set local member host";
+                logger.error(msg, e);
+            }
+        }
+
+        String memberStr = localMemberHost + ":" + member.getPort();
         if (!config.getMembers().contains(memberStr)) {
             config.addMember(memberStr);
             logger.info("Added member: " + member);

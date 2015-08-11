@@ -35,7 +35,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.hazelcast.wso2</groupId>
+            <groupId>org.wso2.orbit.com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
         </dependency>
         <dependency>
@@ -73,7 +73,7 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>com.hazelcast.wso2:hazelcast</bundleDef>
+                                <bundleDef>org.wso2.orbit.com.hazelcast:hazelcast</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.core</bundleDef>
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.transport</bundleDef>
                                 <bundleDef>org.eclipse.jetty:jetty-server</bundleDef>
