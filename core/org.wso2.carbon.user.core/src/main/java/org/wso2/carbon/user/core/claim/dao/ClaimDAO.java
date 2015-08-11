@@ -396,7 +396,24 @@ public class ClaimDAO {
             prepStmt.setInt(3, tenantId);
             prepStmt.setInt(4, tenantId);
             prepStmt.executeUpdate();
+
+            prepStmt = dbConnection.prepareStatement(ClaimDBConstants.DIALECT_CLAIM_MAPPINGS_EXIST);
+            prepStmt.setString(1, dialectUri);
+            prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(3, tenantId);
+            ResultSet rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                if (rs.getInt(1) == 0) {
+                    if (getDialect(dbConnection, dialectUri) != -1) {
+                        prepStmt = dbConnection.prepareStatement(ClaimDBConstants.DELETE_DIALECT);
+                        prepStmt.setString(1, dialectUri);
+                        prepStmt.executeUpdate();
+                    }
+                }
+            }
+
             prepStmt.close();
+            dbConnection.commit();
 
         } catch (SQLException e) {
             log.error("Database Error - " + e.getMessage(), e);
