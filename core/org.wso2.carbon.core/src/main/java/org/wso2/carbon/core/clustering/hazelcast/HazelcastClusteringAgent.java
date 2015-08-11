@@ -39,7 +39,6 @@ import org.apache.axis2.util.Utils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.caching.impl.DistributedMapProvider;
 import org.wso2.carbon.core.ServerStatus;
 import org.wso2.carbon.core.clustering.api.CarbonCluster;
 import org.wso2.carbon.core.clustering.api.ClusterMessage;
@@ -248,9 +247,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
         BundleContext bundleContext = CarbonCoreDataHolder.getInstance().
                 getBundleContext();
-        bundleContext.registerService(DistributedMapProvider.class,
-                                      new HazelcastDistributedMapProvider(primaryHazelcastInstance),
-                                      null);
         bundleContext.registerService(HazelcastInstance.class, primaryHazelcastInstance, null);
         bundleContext.registerService(CarbonCluster.class,
                                       hazelcastCarbonCluster, null);
