@@ -383,8 +383,14 @@ public class DefaultClaimManager implements ClaimManager {
                     }
                 }
             }
-            claimDAO.deleteDialectOnly(dialectUri);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void deleteClaimDialect(String dialectUri) throws org.wso2.carbon.user.api.UserStoreException {
+        claimDAO.deleteDialectOnly(dialectUri);
     }
 
     /**
