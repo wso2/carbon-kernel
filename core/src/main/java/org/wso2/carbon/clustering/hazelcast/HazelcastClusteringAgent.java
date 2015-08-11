@@ -20,6 +20,7 @@ package org.wso2.carbon.clustering.hazelcast;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.GroupConfig;
+import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
@@ -108,7 +109,8 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
 
         NetworkConfig nwConfig = hazelcastConfig.getNetworkConfig();
         String localMemberHost = clusterConfiguration.getLocalMemberConfiguration().getHost();
-        if (localMemberHost != null) {
+        if (localMemberHost != null && !localMemberHost.equalsIgnoreCase("127.0.0.1") &&
+            !localMemberHost.equalsIgnoreCase("localhost")) {
             localMemberHost = localMemberHost.trim();
         } else {
             try {
@@ -135,7 +137,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         MapConfig mapConfig = new MapConfig("carbon-map-config");
         mapConfig.setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
         if (hazelcastConfig.getLicenseKey() != null) {
-            mapConfig.setStorageType(MapConfig.StorageType.OFFHEAP);
+            mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         }
         hazelcastConfig.addMapConfig(mapConfig);
 

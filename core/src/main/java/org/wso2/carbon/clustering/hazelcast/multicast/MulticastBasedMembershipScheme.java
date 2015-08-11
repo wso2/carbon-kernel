@@ -21,6 +21,7 @@ package org.wso2.carbon.clustering.hazelcast.multicast;
 import com.hazelcast.config.MulticastConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
@@ -147,6 +148,11 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
             logger.info("Member left [" + member.getUuid() + "]: " + member.getInetSocketAddress().
                     toString());
             members.remove(member.getUuid());
+        }
+
+        @Override
+        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
+            // Nothing to do
         }
     }
 }
