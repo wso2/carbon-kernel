@@ -19,6 +19,7 @@
 
 package org.wso2.carbon.internal.transports;
 
+import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.*;
 import org.wso2.carbon.transports.CarbonTransport;
@@ -37,6 +38,11 @@ public class TransportServiceComponent {
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
         bundleContext.registerService(TransportManager.class, transportManager, null);
+
+        // Registering Transport Management Command provider implementation. This allows users to manage
+        // transports via the OSGi console.
+        bundleContext.registerService(CommandProvider.class.getName(),
+                new TransportMgtCommandProvider(transportManager), null);
     }
 
     @Reference(
