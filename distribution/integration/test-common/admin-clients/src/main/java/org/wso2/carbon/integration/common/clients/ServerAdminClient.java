@@ -21,7 +21,6 @@ import org.apache.axis2.AxisFault;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
-import org.wso2.carbon.integration.framework.utils.AuthenticateStubUtil;
 import org.wso2.carbon.server.admin.stub.ServerAdminException;
 import org.wso2.carbon.server.admin.stub.ServerAdminStub;
 

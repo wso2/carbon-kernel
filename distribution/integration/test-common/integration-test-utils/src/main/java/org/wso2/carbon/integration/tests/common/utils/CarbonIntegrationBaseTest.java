@@ -25,9 +25,9 @@ import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.engine.context.beans.ContextUrls;
 import org.wso2.carbon.automation.engine.context.beans.User;
-import org.wso2.carbon.integration.common.admin.client.SecurityAdminServiceClient;
+/*import org.wso2.carbon.integration.common.admin.client.SecurityAdminServiceClient;
 import org.wso2.carbon.integration.common.utils.LoginLogoutClient;
-import org.wso2.carbon.integration.common.utils.exceptions.AutomationUtilException;
+import org.wso2.carbon.integration.common.utils.exceptions.AutomationUtilException;*/
 import org.wso2.carbon.integration.tests.common.exception.CarbonToolsIntegrationTestException;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -44,28 +44,28 @@ public abstract class CarbonIntegrationBaseTest {
     protected ContextUrls contextUrls = new ContextUrls();
     protected AutomationContext automationContext;
     protected TestUserMode userMode;
-    protected String sessionCookie;
+    /*protected String sessionCookie;
     protected String backendURL;
     protected SecurityAdminServiceClient securityAdminServiceClient;
-    protected LoginLogoutClient loginLogoutClient;
+    protected LoginLogoutClient loginLogoutClient;*/
     protected User userInfo;
 
-    protected void init() throws XPathExpressionException, AutomationUtilException {
+    protected void init() throws XPathExpressionException/*, AutomationUtilException*/ {
         userMode = TestUserMode.SUPER_TENANT_ADMIN;
         init(userMode);
     }
 
-    protected void init(TestUserMode userMode) throws XPathExpressionException, AutomationUtilException {
+    protected void init(TestUserMode userMode) throws XPathExpressionException/*, AutomationUtilException*/ {
         automationContext = new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP, userMode);
         contextUrls = automationContext.getContextUrls();
-        loginLogoutClient = new LoginLogoutClient(automationContext);
+        /*loginLogoutClient = new LoginLogoutClient(automationContext);
         sessionCookie = loginLogoutClient.login();
         backendURL = automationContext.getContextUrls().getBackEndUrl();
         userInfo = automationContext.getContextTenant().getContextUser();
     }
 
     protected String getServiceUrl(String serviceName) throws XPathExpressionException {
-        return automationContext.getContextUrls().getServiceUrl() + "/" + serviceName;
+        return automationContext.getContextUrls().getServiceUrl() + "/" + serviceName;*/
     }
 
     /**
