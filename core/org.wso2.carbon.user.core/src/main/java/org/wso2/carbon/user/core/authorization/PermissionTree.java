@@ -86,7 +86,7 @@ public class PermissionTree {
      */
     private Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> getPermissionTreeCache() {
         Cache<PermissionTreeCacheKey, GhostResource<TreeNode>> cache = null;
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(PERMISSION_CACHE_MANAGER);
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         cache = cacheManager.getCache(PERMISSION_CACHE);
         return cache;
     }

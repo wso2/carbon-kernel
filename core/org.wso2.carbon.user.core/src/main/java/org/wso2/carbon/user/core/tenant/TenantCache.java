@@ -35,7 +35,7 @@ public class TenantCache {
      */
     private <T> Cache<TenantIdKey, T> getTenantCache() {
         Cache<TenantIdKey, T> cache = null;
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(TENANT_CACHE_MANAGER);
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         cache = cacheManager.getCache(TENANT_CACHE);
         return cache;
     }

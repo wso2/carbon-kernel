@@ -51,11 +51,11 @@ public class RealmCache {
             carbonContext.setTenantId(MultitenantConstants.SUPER_TENANT_ID);
             carbonContext.setTenantDomain(MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             Cache<RealmCacheKey, RealmCacheEntry> cache;
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(CUSTOM_TENANT_CACHE_MANAGER);
+            CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
             if (cacheManager != null) {
                 cache = cacheManager.getCache(CUSTOM_TENANT_CACHE);
             } else {
-                cache = Caching.getCacheManager().getCache(CUSTOM_TENANT_CACHE);
+                cache = Caching.getCachingProvider().getCacheManager().getCache(CUSTOM_TENANT_CACHE);
             }
            
             return cache;

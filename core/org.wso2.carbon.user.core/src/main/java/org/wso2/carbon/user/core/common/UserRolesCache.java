@@ -56,7 +56,7 @@ public class UserRolesCache {
      * This logic handles by javax.cache implementation
      */
     private Cache<UserRolesCacheKey, UserRolesCacheEntry> getUserRolesCache() {
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(USER_ROLES_CACHE_MANAGER);
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
 //        cacheManager.<UserRolesCacheKey, UserRolesCacheEntry>createCacheBuilder(USER_ROLES_CACHE).  //  TODO time out not working
 //                setExpiry(CacheConfiguration.ExpiryType.MODIFIED, new CacheConfiguration.Duration(TimeUnit.MINUTES, timeOut)).
 //                setStoreByValue(false);

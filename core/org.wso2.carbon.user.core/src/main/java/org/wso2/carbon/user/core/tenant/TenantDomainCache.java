@@ -52,7 +52,7 @@ class TenantDomainCache {
     }
 
     private Cache<TenantIdKey, TenantDomainEntry> getTenantDomainCache() {
-        CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(TENANT_DOMAIN_CACHE_MANAGER);
+        CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
         Cache<TenantIdKey, TenantDomainEntry> cache = cacheManager.getCache(TENANT_DOMAIN_CACHE);
         return cache;
     }

@@ -47,7 +47,7 @@ public class ClaimInvalidationCache {
     }
 
     private Cache<String, Integer> getClaimCache() {
-        CacheManager manager = Caching.getCacheManagerFactory().getCacheManager(CLAIM_CACHE_MANAGER);
+        CacheManager manager = Caching.getCachingProvider().getCacheManager();
         Cache<String, Integer> cache = manager.getCache(CLAIM_CACHE_NAME);
         return cache;
     }

@@ -17,6 +17,8 @@ package org.wso2.carbon.user.core.authorization;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.caching.impl.CacheImpl;
+import org.wso2.carbon.caching.impl.CacheStatisticsMXBeanImpl;
 import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
@@ -25,8 +27,8 @@ import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
-import javax.cache.CacheStatistics;
 import javax.cache.Caching;
+import javax.cache.management.CacheStatisticsMXBean;
 
 /**
  * Date: Oct 1, 2010 Time: 10:32:26 AM
@@ -63,7 +65,7 @@ public class AuthorizationCache {
     private Cache<AuthorizationKey, AuthorizeCacheEntry> getAuthorizationCache() {
         Cache<AuthorizationKey, AuthorizeCacheEntry> cache = null;
         if (isEnable) {
-            CacheManager cacheManager = Caching.getCacheManagerFactory().getCacheManager(AUTHORIZATION_CACHE_MANAGER);
+            CacheManager cacheManager = Caching.getCachingProvider().getCacheManager();
             cache = cacheManager.getCache(AUTHORIZATION_CACHE_NAME);
         }
         return cache;
@@ -242,7 +244,7 @@ public class AuthorizationCache {
             return 0.0;
         }
 
-        CacheStatistics stats = cache.getStatistics();
+        CacheStatisticsMXBean stats = ((CacheImpl)cache).getStatisticsMXBean();
         return (double) stats.getCacheHits()
                 / ((double) (stats.getCacheHits() + stats.getCacheMisses()));
     }
