@@ -295,7 +295,7 @@ public final class RegistryUtils {
     public static Cache<RegistryCacheKey, GhostResource> getResourceCache(String name){
         CacheManager manager = getCacheManager();
         return (manager != null) ? manager.<RegistryCacheKey, GhostResource>getCache(name) :
-                Caching.getCacheManager().<RegistryCacheKey, GhostResource>getCache(name);
+                Caching.getCachingProvider().getCacheManager().<RegistryCacheKey, GhostResource>getCache(name);
     }
 
     /**
@@ -306,7 +306,7 @@ public final class RegistryUtils {
     public static Cache<RegistryCacheKey, RegistryCacheEntry> getResourcePathCache(String name){
         CacheManager manager = getCacheManager();
         return (manager != null) ? manager.<RegistryCacheKey, RegistryCacheEntry>getCache(name) :
-                Caching.getCacheManager().<RegistryCacheKey, RegistryCacheEntry>getCache(name);
+                Caching.getCachingProvider().getCacheManager().<RegistryCacheKey, RegistryCacheEntry>getCache(name);
     }
 
     /**
@@ -317,12 +317,11 @@ public final class RegistryUtils {
     public static Cache<String, String> getUUIDCache(String name) {
         CacheManager manager = getCacheManager();
         return (manager != null) ? manager.<String, String>getCache(name) :
-                Caching.getCacheManager().<String, String>getCache(name);
+                Caching.getCachingProvider().getCacheManager().<String, String>getCache(name);
     }
 
     private static CacheManager getCacheManager() {
-        return Caching.getCacheManagerFactory().getCacheManager(
-                RegistryConstants.REGISTRY_CACHE_MANAGER);
+        return Caching.getCachingProvider().getCacheManager();
     }
 
     /**

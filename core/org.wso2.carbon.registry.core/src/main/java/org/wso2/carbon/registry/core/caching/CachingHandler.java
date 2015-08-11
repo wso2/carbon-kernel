@@ -188,10 +188,10 @@ public class CachingHandler extends Handler {
         removeFromCache(connectionId, tenantId, cleanupPath, doGlobalCacheInvalidation);
         String parentPath = RegistryUtils.getParentPath(cleanupPath);
         Cache<RegistryCacheKey, GhostResource> cache = getCache();
-        Iterator<RegistryCacheKey> keys = cache.keys();
+        Iterator<Cache.Entry<RegistryCacheKey, GhostResource>> keys = cache.iterator();
         while (keys.hasNext()) {
-            RegistryCacheKey key = keys.next();
-            String path = key.getPath();
+            Cache.Entry<RegistryCacheKey, GhostResource> key = keys.next();
+            String path = key.getKey().getPath();
             if (recursive) {
                 if (path.startsWith(cleanupPath)) {
                     removeFromCache(connectionId, tenantId, path, doGlobalCacheInvalidation);
@@ -216,12 +216,13 @@ public class CachingHandler extends Handler {
                 + "(" + RegistryConstants.PATH_SEPARATOR + ")?(;start=.*)?$";
         Pattern pattern = Pattern.compile(pagedParentPathPrefix);
         Cache<RegistryCacheKey, GhostResource> cache = getCache();
-        Iterator<RegistryCacheKey> keys = cache.keys();
+        Iterator<Cache.Entry<RegistryCacheKey, GhostResource>> keys = cache.iterator();
         while (keys.hasNext()) {
-            RegistryCacheKey key = keys.next();
-            String path = key.getPath();
+            Cache.Entry<RegistryCacheKey, GhostResource> key = keys.next();
+            String path = key.getKey().getPath();
             if (pattern.matcher(path).matches()) {
-                cleared = cleared || removeFromCache(connectionId, tenantId, path, doGlobalCacheInvalidation);
+                cleared = cleared ||
+                        removeFromCache(connectionId, tenantId, path, doGlobalCacheInvalidation);
             }
         }
 //        for (Cache.Entry<RegistryCacheKey, GhostResource> entry : cache) {
@@ -262,10 +263,10 @@ public class CachingHandler extends Handler {
             if(doGlobalCacheInvalidation) {
                 if(RegistryCoreServiceComponent.getCacheInvalidator() != null) {
                     RegistryCoreServiceComponent.getCacheInvalidator().invalidateCache(
-                            tenantId, cache.getCacheManager().getName(), cache.getName(), cacheKey);
+                            tenantId, cache.getCacheManager().getURI().toString(), cache.getName(), cacheKey);
                     if(resource!=null) {
                         RegistryCoreServiceComponent.getCacheInvalidator().invalidateCache(tenantId,
-                                UUIDCache.getCacheManager().getName(), UUIDCache.getName(), resource.getUUID());
+                                UUIDCache.getCacheManager().getURI().toString(), UUIDCache.getName(), resource.getUUID());
                     }
                 }
             }

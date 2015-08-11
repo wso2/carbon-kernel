@@ -17,7 +17,10 @@
 package org.wso2.carbon.registry.core.caching;
 
 import javax.cache.Cache;
-import javax.cache.CacheStatistics;
+import javax.cache.management.CacheStatisticsMXBean;
+
+import org.wso2.carbon.caching.impl.CacheImpl;
+import org.wso2.carbon.caching.impl.CacheStatisticsMXBeanImpl;
 import org.wso2.carbon.registry.core.RegistryConstants;
 import org.wso2.carbon.registry.core.utils.RegistryUtils;
 
@@ -51,7 +54,7 @@ public class PathCache {
      * @return the cache hit rate.
      */
     public double hitRate() {
-        CacheStatistics stats = getCache().getStatistics();
+        CacheStatisticsMXBean stats = ((CacheImpl)getCache()).getStatisticsMXBean();
         if((stats.getCacheHits() + stats.getCacheMisses())==0){
         	return 0;
         }else{
