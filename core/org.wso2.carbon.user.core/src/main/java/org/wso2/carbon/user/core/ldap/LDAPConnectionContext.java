@@ -21,9 +21,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -35,7 +37,9 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -212,12 +216,37 @@ public class LDAPConnectionContext {
     }
 
     @SuppressWarnings("unchecked")
+    @Deprecated
     public void updateCredential(String connectionPassword) {
         /*
          * update the password otherwise it is not possible to connect again if admin password
          * changed
          */
         this.environment.put(Context.SECURITY_CREDENTIALS, connectionPassword);
+    }
+
+    /**
+     * Updates the connection password
+     *
+     * @param connectionPassword
+     */
+    public void updateCredential(Object connectionPassword) throws UserStoreException {
+
+        /*
+         * update the password otherwise it is not possible to connect again if admin password
+         * changed
+         */
+        Secret connectionPasswordObj;
+        try {
+            connectionPasswordObj = Secret.getSecret(connectionPassword);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
+        byte[] passwordBytes = connectionPasswordObj.getBytes();
+        this.environment.put(Context.SECURITY_CREDENTIALS, Arrays.copyOf(passwordBytes, passwordBytes.length));
+
+        connectionPasswordObj.clear();
     }
 
     private void populateDCMap() throws UserStoreException {
@@ -291,9 +320,9 @@ public class LDAPConnectionContext {
         return ldapURL;
     }
 
+    @Deprecated
     public LdapContext getContextWithCredentials(String userDN, String password)
             throws UserStoreException, NamingException, AuthenticationException {
-        LdapContext context = null;
 
         //create a temp env for this particular authentication session by copying the original env
         Hashtable<String, String> tempEnv = new Hashtable<String, String>();
@@ -304,13 +333,55 @@ public class LDAPConnectionContext {
         tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
         tempEnv.put(Context.SECURITY_CREDENTIALS, password);
 
+        return getContextForEnvironmentVariables(tempEnv);
+    }
+
+    /**
+     * Returns the LDAPContext for the given credentials
+     *
+     * @param userDN user DN
+     * @param password user password
+     * @return returns the LdapContext instance if credentials are valid
+     * @throws UserStoreException
+     * @throws NamingException
+     */
+    public LdapContext getContextWithCredentials(String userDN, Object password)
+            throws UserStoreException, NamingException {
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(password);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
+        try {
+            //create a temp env for this particular authentication session by copying the original env
+            Hashtable<String, Object> tempEnv = new Hashtable<>();
+            for (Object key : environment.keySet()) {
+                tempEnv.put((String) key, environment.get(key));
+            }
+            //replace connection name and password with the passed credentials to this method
+            tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
+            tempEnv.put(Context.SECURITY_CREDENTIALS, credentialObj.getBytes());
+
+            return getContextForEnvironmentVariables(tempEnv);
+        } finally {
+            credentialObj.clear();
+        }
+    }
+
+    private LdapContext getContextForEnvironmentVariables(Hashtable<?, ?> environment)
+            throws UserStoreException, NamingException {
+
+        LdapContext context = null;
+
+        Hashtable<Object, Object> tempEnv = new Hashtable<>();
+        tempEnv.putAll(environment);
         //if dcMap is not populated, it is not DNS case
         if (dcMap == null) {
-
             //replace environment properties with these credentials
             context = new InitialLdapContext(tempEnv, null);
-
-
         } else if (dcMap != null && dcMap.size() != 0) {
             try {
                 //first try the first entry in dcMap, if it fails, try iteratively
@@ -322,30 +393,27 @@ public class LDAPConnectionContext {
 
             } catch (AuthenticationException e) {
                 throw e;
-
             } catch (NamingException e) {
-                log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
+                log.error("Error obtaining connection to first Domain Controller.", e);
                 log.info("Trying to connect with other Domain Controllers");
 
                 for (Integer integer : dcMap.keySet()) {
                     try {
                         SRVRecord srv = dcMap.get(integer);
-                        environment.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(srv));
+                        tempEnv.put(Context.PROVIDER_URL, getLDAPURLFromSRVRecord(srv));
                         context = new InitialLdapContext(environment, null);
                         break;
-                    } catch (AuthenticationException e2) {
-                        throw e2;
+                    } catch (AuthenticationException e1) {
+                        throw e1;
                     } catch (NamingException e1) {
                         if (integer == (dcMap.lastKey())) {
-                            log.error("Error obtaining connection for all " + integer + " Domain Controllers."
-                                    + e1.getMessage(), e1);
-                            throw new UserStoreException("Error obtaining connection. " + e1.getMessage(), e1);
+                            throw new UserStoreException(
+                                    "Error obtaining connection for all " + integer + " Domain Controllers.", e1);
                         }
                     }
                 }
             }
         }
-        return (context);
+        return context;
     }
-
 }
