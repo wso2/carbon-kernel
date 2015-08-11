@@ -18,11 +18,13 @@
 package org.wso2.carbon.user.core.util;
 
 import org.apache.axiom.om.util.Base64;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.DBConstants;
@@ -31,6 +33,7 @@ import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.xml.StringUtils;
 
 import javax.sql.DataSource;
@@ -172,6 +175,7 @@ public final class UserCoreUtil {
      * @return
      * @throws UserStoreException
      */
+    @Deprecated
     public static String getPasswordToStore(String password, String passwordHashMethod,
                                             boolean isKdcEnabled) throws UserStoreException {
 
@@ -201,6 +205,60 @@ public final class UserCoreUtil {
             }
         }
         return passwordToStore;
+    }
+
+    /**
+     * process the original password to be stored as per the given hash method and the status of Kerberos Key
+     * Distribution Center (KDC).
+     * If KDC is enabled plain text password is returned in a byte array since it cannot operate with hashed passwords.
+     * Otherwise if the provided hash method is not null password is hashed and returned in a byte array.
+     *
+     * @param password  original password as an Object
+     * @param passwordHashMethod hash method of the password as a String
+     * @param isKdcEnabled boolean true if KDC is enabled and false if not enabled
+     * @return password to store in a byte array
+     * @throws UserStoreException
+     */
+    public static byte[] getPasswordToStore(Object password, String passwordHashMethod, boolean isKdcEnabled)
+            throws UserStoreException {
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(password);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
+        try {
+            byte[] passwordBytes = credentialObj.getBytes();
+            byte[] passwordToStore = Arrays.copyOf(passwordBytes, passwordBytes.length);
+
+            if (isKdcEnabled) {
+                // If KDC is enabled we will always use plain text passwords.
+                // Cause - KDC cannot operate with hashed passwords.
+                return passwordToStore;
+            }
+
+            if (passwordHashMethod != null) {
+
+                if (passwordHashMethod.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                    return passwordToStore;
+                }
+
+                try {
+                    MessageDigest messageDigest = MessageDigest.getInstance(passwordHashMethod);
+                    byte[] digestValue = messageDigest.digest(passwordBytes);
+                    String saltedPassword = "{" + passwordHashMethod + "}" + Base64.encode(digestValue);
+                    passwordToStore = saltedPassword.getBytes();
+                } catch (NoSuchAlgorithmException e) {
+                    throw new UserStoreException("Invalid hashMethod", e);
+                }
+            }
+
+            return passwordToStore;
+        } finally {
+            credentialObj.clear();
+        }
     }
 
     /**
@@ -256,7 +314,7 @@ public final class UserCoreUtil {
      * @return
      * @throws UserStoreException
      */
-    public static String getPolicyFriendlyRandomPassword(String username) throws UserStoreException {
+    public static char[] getPolicyFriendlyRandomPassword(String username) throws UserStoreException {
         return getPolicyFriendlyRandomPassword(username, 8);
     }
 
@@ -269,7 +327,7 @@ public final class UserCoreUtil {
      * @return password
      * @throws UserStoreException
      */
-    public static String getPolicyFriendlyRandomPassword(String username, int length)
+    public static char[] getPolicyFriendlyRandomPassword(String username, int length)
             throws UserStoreException {
 
         if (length < 8 || length > 50) {
@@ -313,7 +371,7 @@ public final class UserCoreUtil {
             throw new UserStoreException(errorMessage, e);
         }
 
-        return new String(password).concat(randomNum);
+        return ArrayUtils.addAll(password, randomNum.toCharArray());
     }
 
     /**
@@ -965,5 +1023,31 @@ public final class UserCoreUtil {
      */
     public static String getTenantShareGroupBase(String tenantOu) {
         return tenantOu + "=" + CarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+    }
+
+    /**
+     * Clear sensitive char arrays
+     *
+     * @param chars char array to be cleared
+     */
+    public static void clearSensitiveChars(char[] chars) {
+        if (chars == null) {
+            return;
+        }
+
+        Arrays.fill(chars, '\u0000');
+    }
+
+    /**
+     * Clear sensitive byte arrays
+     *
+     * @param bytes byte array to be cleared
+     */
+    public static void clearSensitiveBytes(byte[] bytes) {
+        if (bytes == null) {
+            return;
+        }
+
+        Arrays.fill(bytes, (byte) 0);
     }
 }

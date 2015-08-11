@@ -25,6 +25,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
@@ -39,6 +40,7 @@ import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JDBCRealmUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
@@ -1171,7 +1173,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
         String sqlstmt = null;
-        String password = (String) credential;
+        String password = null;
         boolean isAuthed = false;
 
         try {
@@ -1214,7 +1216,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 if (requireChange == true && changedTime.before(date)) {
                     isAuthed = false;
                 } else {
-                    password = this.preparePassword(password, saltValue);
+                    password = this.preparePassword(credential, saltValue);
                     if ((storedPassword != null) && (storedPassword.equals(password))) {
                         isAuthed = true;
                     }
@@ -1268,7 +1270,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             throws UserStoreException {
 
         Connection dbConnection = null;
-        String password = (String) credential;
         try{
             dbConnection = getDBConnection();
         }catch (SQLException e){
@@ -1278,6 +1279,14 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(errorMessage, e);
         }
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
         try {
             String sqlStmt1 = realmConfig.getUserStoreProperty(JDBCRealmConstants.ADD_USER);
 
@@ -1290,7 +1299,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 saltValue = Base64.encode(bytes);
             }
 
-            password = this.preparePassword(password, saltValue);
+            String password = this.preparePassword(credentialObj, saltValue);
 
             // do all 4 possibilities
             if (sqlStmt1.contains(UserCoreConstants.UM_TENANT_COLUMN) && (saltValue == null)) {
@@ -1402,6 +1411,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
+            credentialObj.clear();
             DatabaseUtil.closeAllConnections(dbConnection);
         }
     }
@@ -2207,7 +2217,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
             saltValue = Base64.encode(bytes);
         }
 
-        String password = this.preparePassword((String) newCredential, saltValue);
+        String password = this.preparePassword(newCredential, saltValue);
 
         if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN) && saltValue == null) {
             updateStringValuesToDatabase(null, sqlStmt, password, "", false, new Date(), userName,
@@ -2498,6 +2508,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @return
      * @throws UserStoreException
      */
+    @Deprecated
     protected String preparePassword(String password, String saltValue) throws UserStoreException {
         try {
             String digestInput = password;
@@ -2524,6 +2535,55 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.debug(msg, e);
             }
             throw new UserStoreException(msg, e);
+        }
+    }
+
+    /**
+     * Prepare the password including the salt, and hashes if hash algorithm is provided
+     *
+     * @param password original password value
+     * @param saltValue salt value
+     * @return  hashed password or plain text password as a String
+     * @throws UserStoreException
+     */
+    protected String preparePassword(Object password, String saltValue) throws UserStoreException {
+
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(password);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
+        try {
+            String passwordString;
+            if (saltValue != null) {
+                credentialObj.addChars(saltValue.toCharArray());
+            }
+
+            String digestFunction = realmConfig.getUserStoreProperties().get(JDBCRealmConstants.DIGEST_FUNCTION);
+            if (digestFunction != null) {
+                if (digestFunction.equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
+                    passwordString = new String(credentialObj.getChars());
+                    return passwordString;
+                }
+
+                MessageDigest digest = MessageDigest.getInstance(digestFunction);
+                byte[] byteValue = digest.digest(credentialObj.getBytes());
+                passwordString = Base64.encode(byteValue);
+            } else {
+                passwordString = new String(credentialObj.getChars());
+            }
+
+            return passwordString;
+        } catch (NoSuchAlgorithmException e) {
+            String msg = "Error occurred while preparing password.";
+            if (log.isDebugEnabled()) {
+                log.debug(msg, e);
+            }
+            throw new UserStoreException(msg, e);
+        } finally {
+            credentialObj.clear();
         }
     }
 

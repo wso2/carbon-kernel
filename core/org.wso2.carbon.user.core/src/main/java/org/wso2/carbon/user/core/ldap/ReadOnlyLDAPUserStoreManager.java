@@ -26,6 +26,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.Properties;
 import org.wso2.carbon.user.api.Property;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
@@ -39,6 +40,7 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.LDAPUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 
 import javax.naming.AuthenticationException;
 import javax.naming.InvalidNameException;
@@ -329,10 +331,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         userName = userName.trim();
 
-        String password = (String) credential;
-        password = password.trim();
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
 
-        if (userName.equals("") || password.equals("")) {
+        if (userName.equals("") || credentialObj.isEmpty()) {
             return false;
         }
 
@@ -340,100 +346,101 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             log.debug("Authenticating user " + userName);
         }
 
-        boolean bValue = false;
-        // check cached user DN first.
-        String name = null;
-        LdapName ldn = (LdapName)userCache.get(userName);
-        if (ldn != null) {
-            name = ldn.toString();
-            try {
-                if (debug) {
-                    log.debug("Cache hit. Using DN " + name);
-                }
-                bValue = this.bindAsUser(userName,name, (String) credential);
-            } catch (NamingException e) {
-                // do nothing if bind fails since we check for other DN
-                // patterns as well.
-                if (log.isDebugEnabled()) {
-                    log.debug("Checking authentication with UserDN " + name + "failed " +
-                            e.getMessage(), e);
-                }
-            }
-
-            if (bValue) {
-                return bValue;
-            }
-            // we need not check binding for this name again, so store this and check
-            failedUserDN = name;
-
-        }
-        // read DN patterns from user-mgt.xml
-        String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-
-        if (patterns != null && !patterns.isEmpty()) {
-
-            if (debug) {
-                log.debug("Using UserDNPatterns " + patterns);
-            }
-
-            // if the property is present, split it using # to see if there are
-            // multiple patterns specified.
-            String[] userDNPatternList = patterns.split("#");
-            if (userDNPatternList.length > 0) {
-                for (String userDNPattern : userDNPatternList) {
-                    name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
-                    // check if the same name is found and checked from cache
-                    if(failedUserDN!=null && failedUserDN.equals(name)){
-                        continue;
-                    }
-
+        try {
+            boolean bValue = false;
+            // check cached user DN first.
+            String name = null;
+            LdapName ldn = (LdapName) userCache.get(userName);
+            if (ldn != null) {
+                name = ldn.toString();
+                try {
                     if (debug) {
-                        log.debug("Authenticating with " + name);
+                        log.debug("Cache hit. Using DN " + name);
                     }
-                    try {
-                        if (name != null) {
-                            bValue = this.bindAsUser(userName, name, (String) credential);
-                            if (bValue) {
-                                LdapName ldapName = new LdapName(name);
-                                userCache.put(userName, ldapName);
-                                break;
+                    bValue = this.bindAsUser(userName, name, credentialObj);
+                } catch (NamingException e) {
+                    // do nothing if bind fails since we check for other DN
+                    // patterns as well.
+                    if (log.isDebugEnabled()) {
+                        log.debug("Checking authentication with UserDN " + name + "failed " + e.getMessage(), e);
+                    }
+                }
+
+                if (bValue) {
+                    return bValue;
+                }
+                // we need not check binding for this name again, so store this and check
+                failedUserDN = name;
+
+            }
+            // read DN patterns from user-mgt.xml
+            String patterns = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
+
+            if (patterns != null && !patterns.isEmpty()) {
+
+                if (debug) {
+                    log.debug("Using UserDNPatterns " + patterns);
+                }
+
+                // if the property is present, split it using # to see if there are
+                // multiple patterns specified.
+                String[] userDNPatternList = patterns.split("#");
+                if (userDNPatternList.length > 0) {
+                    for (String userDNPattern : userDNPatternList) {
+                        name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
+                        // check if the same name is found and checked from cache
+                        if (failedUserDN != null && failedUserDN.equals(name)) {
+                            continue;
+                        }
+
+                        if (debug) {
+                            log.debug("Authenticating with " + name);
+                        }
+                        try {
+                            if (name != null) {
+                                bValue = this.bindAsUser(userName, name, credentialObj);
+                                if (bValue) {
+                                    LdapName ldapName = new LdapName(name);
+                                    userCache.put(userName, ldapName);
+                                    break;
+                                }
+                            }
+                        } catch (NamingException e) {
+                            // do nothing if bind fails since we check for other DN
+                            // patterns as well.
+                            if (log.isDebugEnabled()) {
+                                log.debug("Checking authentication with UserDN " + userDNPattern +
+                                          "failed " + e.getMessage(), e);
                             }
                         }
-                    } catch (NamingException e) {
-                        // do nothing if bind fails since we check for other DN
-                        // patterns as well.
-                        if (log.isDebugEnabled()) {
-                            log.debug("Checking authentication with UserDN " + userDNPattern +
-                                    "failed " + e.getMessage(), e);
+                    }
+                }
+            } else {
+                name = getNameInSpaceForUserName(userName);
+                try {
+                    if (name != null) {
+                        if (debug) {
+                            log.debug("Authenticating with " + name);
+                        }
+                        bValue = this.bindAsUser(userName, name, credentialObj);
+                        if (bValue) {
+                            LdapName ldapName = new LdapName(name);
+                            userCache.put(userName, ldapName);
                         }
                     }
+                } catch (NamingException e) {
+                    String errorMessage = "Cannot bind user : " + userName;
+                    if (log.isDebugEnabled()) {
+                        log.debug(errorMessage, e);
+                    }
+                    throw new UserStoreException(errorMessage, e);
                 }
             }
-        }
-        else
-        {
-            name = getNameInSpaceForUserName(userName);
-            try {
-                if (name != null) {
-                    if (debug) {
-                        log.debug("Authenticating with " + name);
-                    }
-                    bValue = this.bindAsUser(userName, name, (String) credential);
-                    if (bValue) {
-                        LdapName ldapName = new LdapName(name);
-                        userCache.put(userName, ldapName);
-                    }
-                }
-            } catch (NamingException e) {
-                String errorMessage = "Cannot bind user : " + userName;
-                if (log.isDebugEnabled()) {
-                    log.debug(errorMessage, e);
-                }
-                throw new UserStoreException(errorMessage, e);
-            }
-        }
 
-        return bValue;
+            return bValue;
+        } finally {
+            credentialObj.clear();
+        }
     }
 
     /**
@@ -1047,7 +1054,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @throws NamingException
      * @throws UserStoreException
      */
-    private boolean bindAsUser(String userName, String dn, String credentials) throws NamingException,
+    private boolean bindAsUser(String userName, String dn, Object credentials) throws NamingException,
             UserStoreException {
         boolean isAuthed = false;
         boolean debug = log.isDebugEnabled();
