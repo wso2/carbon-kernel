@@ -16,7 +16,7 @@
 *under the License.
 */
 package org.wso2.carbon.integration.tests.patching;
-
+/*
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -25,9 +25,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.integration.common.utils.FileManager;
-import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
+import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;*/
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.integration.tests.common.utils.PatchApplyingUtil;
+/*import org.wso2.carbon.integration.tests.common.utils.PatchApplyingUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,14 +39,14 @@ import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertTrue;*/
 
 /**
  * This class tests a patch has been correctly applied or not by comparing md5sum
  * of jars.
  */
 public class PatchApplyingTestCase extends CarbonIntegrationBaseTest {
-	private static final Log log = LogFactory.getLog(PatchApplyingTestCase.class);
+	/*private static final Log log = LogFactory.getLog(PatchApplyingTestCase.class);
 
 	private static final String CARBON_HOME = System.getProperty("carbon.home");
 	private ServerConfigurationManager serverConfigurationManager;
@@ -201,12 +201,12 @@ public class PatchApplyingTestCase extends CarbonIntegrationBaseTest {
 		serverConfigurationManager.restartGracefully();
 	}
 
-	/**
+	*//**
 	 * This method return md5Sum of a given file
 	 *
 	 * @param filePath - Path of the jar file
 	 * @return md5Sum - md5Sum of the given file
-	 */
+	 *//*
 	private String getMd5Sum(String filePath) throws IOException {
 		String md5Sum = "";
 		//Try with resources. Will auto close file input stream
@@ -216,16 +216,16 @@ public class PatchApplyingTestCase extends CarbonIntegrationBaseTest {
 		return md5Sum;
 	}
 
-	/**
+	*//**
 	 * This method deletes a given patch from repository/components/patches directory inside AS.
 	 *
 	 * @param patch - A patch to be deleted
-	 */
+	 *//*
 	private void deletePatch(String patch) throws IOException {
 
 		File file =
 				new File(CARBON_HOME + File.separator + "repository" + File.separator + "components" + File.separator +
 				         "patches" + File.separator + patch);
 		FileUtils.deleteDirectory(file);
-	}
+	}*/
 }
