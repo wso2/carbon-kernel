@@ -222,6 +222,7 @@ public class UserCoreConstants {
         public static final String ACCOUNT_STATUS = IDENTITY_CLAIM_URI + "/accountLock";
         public static final String CHALLENGE_QUESTION_URI = IDENTITY_CLAIM_URI + "/challengeQuestion";
         public static final String TEMPORARY_EMAIL_ADDRESS = DEFAULT_CARBON_DIALECT + "/temporaryemailaddress";
+        public static final String DISPLAY_NAME = DEFAULT_CARBON_DIALECT + "/displayName";
     }
 
     public static final class TenantMgtConfig {
