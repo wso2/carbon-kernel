@@ -44,7 +44,7 @@ public class CarbonTransportBundleActivator implements BundleActivator {
         logger.debug("Activating jetty transport bundle..........................................");
         DataHolder.getInstance().setBundleContext(bundleContext);
 
-        JettyCarbonTransport jettyCarbonTransport = new JettyCarbonTransport("jetty-carbon-server");
+        JettyCarbonTransport jettyCarbonTransport = new JettyCarbonTransport("jetty");
 
         jettyServerRegistration = bundleContext.registerService(CarbonTransport.class.getName(), jettyCarbonTransport, null);
     }
