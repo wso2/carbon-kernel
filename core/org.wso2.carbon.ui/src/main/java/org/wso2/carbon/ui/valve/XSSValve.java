@@ -50,7 +50,7 @@ public class XSSValve extends ValveBase {
     private static String RULE_DENY = "deny";
     private static String[] xssURIPatternList;
     private static String xssRule;
-    private static String patterPath = "";
+    private static String patterPath;
     private static ArrayList<Pattern> patternList;
 
     protected static final Log log = LogFactory.getLog(XSSValve.class);
