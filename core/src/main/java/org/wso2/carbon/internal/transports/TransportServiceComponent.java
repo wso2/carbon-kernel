@@ -39,7 +39,7 @@ public class TransportServiceComponent {
     public void start(BundleContext bundleContext) throws Exception {
         bundleContext.registerService(TransportManager.class, transportManager, null);
 
-        // Registering Transport Management Command provider implementation. This allows users to manage
+        // Registering transport management command provider implementation. This allows users to manage
         // transports via the OSGi console.
         bundleContext.registerService(CommandProvider.class.getName(),
                 new TransportMgtCommandProvider(transportManager), null);
