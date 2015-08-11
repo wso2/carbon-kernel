@@ -92,7 +92,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
                 "\t\t<admin username> - Administrator's username\n" +
                 "\t\t<admin email address> - Administrator's email address\n" +
                 "\tgetTenantInfo <domain> - Retrieve tenant data\n" +
-                "\t\t<domain> - Tenant domain";
+                "\t\t<domain> - Tenant domain\n";
 
     }
 
