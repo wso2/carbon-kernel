@@ -22,6 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.listener.SecretHandleableListener;
+import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.user.core.Permission;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
@@ -43,10 +45,12 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
+import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -376,51 +380,75 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     credential, domainProvided);
         }
 
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
+
         // #################### Domain Name Free Zone Starts Here ################################
 
         // #################### <Listeners> #####################################################
-        for (UserStoreManagerListener listener : UMListenerServiceComponent
-                .getUserStoreManagerListeners()) {
-            if (!listener.authenticate(userName, credential, this)) {
-                return true;
-            }
-        }
-
-        for (UserOperationEventListener listener : UMListenerServiceComponent
-                .getUserOperationEventListeners()) {
-            if (!listener.doPreAuthenticate(userName, credential, this)) {
-                return false;
-            }
-        }
-        // #################### </Listeners> #####################################################
-
-        int tenantId = getTenantId();
-
         try {
-            RealmService realmService = UserCoreUtil.getRealmService();
-            if (realmService != null) {
-                boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
+            for (UserStoreManagerListener listener : UMListenerServiceComponent.getUserStoreManagerListeners()) {
+                Object credentialArgument;
+                if (listener instanceof SecretHandleableListener) {
+                    credentialArgument = credentialObj;
+                } else {
+                    credentialArgument = credential;
+                }
 
-                if (!tenantActive) {
-                    log.warn("Tenant has been deactivated. TenantID : " + tenantId);
+                if (!listener.authenticate(userName, credentialArgument, this)) {
+                    return true;
+                }
+            }
+
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                Object credentialArgument;
+                if (listener instanceof SecretHandleableListener) {
+                    credentialArgument = credentialObj;
+                } else {
+                    credentialArgument = credential;
+                }
+
+                if (!listener.doPreAuthenticate(userName, credentialArgument, this)) {
                     return false;
                 }
             }
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            throw new UserStoreException("Error while trying to check Tenant status for Tenant : "
-                    + tenantId, e);
-        }
+            // #################### </Listeners> #####################################################
 
-        // We are here due to two reason. Either there is no secondary UserStoreManager or no
-        // domain name provided with user name.
+            int tenantId = getTenantId();
 
-        try {
-            // Let's authenticate with the primary UserStoreManager.
-            authenticated = doAuthenticate(userName, credential);
-        } catch (Exception e) {
-            // We can ignore and proceed. Ignore the results from this user store.
-            log.error(e);
-            authenticated = false;
+            try {
+                RealmService realmService = UserCoreUtil.getRealmService();
+                if (realmService != null) {
+                    boolean tenantActive = realmService.getTenantManager().isTenantActive(tenantId);
+
+                    if (!tenantActive) {
+                        log.warn("Tenant has been deactivated. TenantID : " + tenantId);
+                        return false;
+                    }
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                throw new UserStoreException("Error while trying to check Tenant status for Tenant : "
+                                             + tenantId, e);
+            }
+
+            // We are here due to two reason. Either there is no secondary UserStoreManager or no
+            // domain name provided with user name.
+
+            try {
+                // Let's authenticate with the primary UserStoreManager.
+                authenticated = doAuthenticate(userName, credentialObj);
+            } catch (Exception e) {
+                // We can ignore and proceed. Ignore the results from this user store.
+                log.error(e);
+                authenticated = false;
+            }
+
+        } finally {
+            credentialObj.clear();
         }
 
         if (authenticated) {
@@ -690,43 +718,73 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        Secret newCredentialObj;
+        Secret oldCredentialObj;
+        try {
+            newCredentialObj = Secret.getSecret(newCredential);
+            oldCredentialObj = Secret.getSecret(oldCredential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type");
+        }
+
         // #################### <Listeners> #####################################################
-        for (UserStoreManagerListener listener : UMListenerServiceComponent
-                .getUserStoreManagerListeners()) {
-            if (!listener.updateCredential(userName, newCredential, oldCredential, this)) {
-                return;
-            }
-        }
-
-        for (UserOperationEventListener listener : UMListenerServiceComponent
-                .getUserOperationEventListeners()) {
-            if (!listener.doPreUpdateCredential(userName, newCredential, oldCredential, this)) {
-                return;
-            }
-        }
-        // #################### </Listeners> #####################################################
-
-        // This user name here is domain-less.
-        // We directly authenticate user against the selected UserStoreManager.
-        boolean isAuth = this.doAuthenticate(userName, oldCredential);
-
-        if (isAuth) {
-
-            this.doUpdateCredential(userName, newCredential, oldCredential);
-
-            // #################### <Listeners> ##################################################
-            for (UserOperationEventListener listener : UMListenerServiceComponent
-                    .getUserOperationEventListeners()) {
-                if (!listener.doPostUpdateCredential(userName, newCredential, this)) {
-                    return;
+        try {
+            for (UserStoreManagerListener listener : UMListenerServiceComponent.getUserStoreManagerListeners()) {
+                if (listener instanceof SecretHandleableListener) {
+                    if (!listener.updateCredential(userName, newCredentialObj, oldCredentialObj, this)) {
+                        return;
+                    }
+                } else {
+                    if (!listener.updateCredential(userName, newCredential, oldCredential, this)) {
+                        return;
+                    }
                 }
             }
-            // #################### </Listeners> ##################################################
 
-            return;
-        } else {
-            throw new UserStoreException(
-                    "Old credential does not match with the existing credentials.");
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof SecretHandleableListener) {
+                    if (!listener.doPreUpdateCredential(userName, newCredentialObj, oldCredentialObj, this)) {
+                        return;
+                    }
+                } else {
+                    if (!listener.doPreUpdateCredential(userName, newCredential, oldCredential, this)) {
+                        return;
+                    }
+                }
+            }
+            // #################### </Listeners> #####################################################
+
+            // This user name here is domain-less.
+            // We directly authenticate user against the selected UserStoreManager.
+            boolean isAuth = this.doAuthenticate(userName, oldCredentialObj);
+
+            if (isAuth) {
+
+                this.doUpdateCredential(userName, newCredentialObj, oldCredentialObj);
+
+                // #################### <Listeners> ##################################################
+                for (UserOperationEventListener listener : UMListenerServiceComponent
+                        .getUserOperationEventListeners()) {
+                    if (listener instanceof SecretHandleableListener) {
+                        if (!listener.doPostUpdateCredential(userName, newCredentialObj, this)) {
+                            return;
+                        }
+                    } else {
+                        if (!listener.doPostUpdateCredential(userName, newCredential, this)) {
+                            return;
+                        }
+                    }
+                }
+                // #################### </Listeners> ##################################################
+
+                return;
+            } else {
+                throw new UserStoreException(
+                        "Old credential does not match with the existing credentials.");
+            }
+        } finally {
+            newCredentialObj.clear();
+            oldCredentialObj.clear();
         }
     }
 
@@ -749,40 +807,77 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
-        // #################### <Listeners> #####################################################
-        for (UserStoreManagerListener listener : UMListenerServiceComponent
-                .getUserStoreManagerListeners()) {
-            if (!listener.updateCredentialByAdmin(userName, newCredential, this)) {
-                return;
-            }
+        Secret newCredentialObj;
+        try {
+            newCredentialObj = Secret.getSecret(newCredential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
         }
-        // using string buffers to allow the password to be changed by listener
-        for (UserOperationEventListener listener : UMListenerServiceComponent
-                .getUserOperationEventListeners()) {
-            if (newCredential == null) { // a default password will be set
-                StringBuffer credBuff = new StringBuffer();
-                if (!listener.doPreUpdateCredentialByAdmin(userName, newCredential, this)) {
-                    return;
-                }
-                newCredential = credBuff.toString(); // reading the modified value
-            } else if (newCredential instanceof String) {
-                StringBuffer credBuff = new StringBuffer((String) newCredential);
-                if (!listener.doPreUpdateCredentialByAdmin(userName, credBuff, this)) {
-                    return;
-                }
-                newCredential = credBuff.toString(); // reading the modified value
-            }
-        }
-        // #################### </Listeners> #####################################################
-
-        doUpdateCredentialByAdmin(userName, newCredential);
 
         // #################### <Listeners> #####################################################
-        for (UserOperationEventListener listener : UMListenerServiceComponent
-                .getUserOperationEventListeners()) {
-            if (!listener.doPostUpdateCredentialByAdmin(userName, newCredential, this)) {
-                return;
+        try {
+            for (UserStoreManagerListener listener : UMListenerServiceComponent.getUserStoreManagerListeners()) {
+                Object credentialArgument;
+                if (listener instanceof SecretHandleableListener) {
+                    credentialArgument = newCredentialObj;
+                } else {
+                    credentialArgument = newCredential;
+                }
+
+                if (!listener.updateCredentialByAdmin(userName, credentialArgument, this)) {
+                    return;
+                }
             }
+
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+
+                if (listener instanceof SecretHandleableListener) {
+                    if (!listener.doPreUpdateCredentialByAdmin(userName, newCredentialObj, this)) {
+                        return;
+                    }
+                } else {
+                    // using string buffers to allow the password to be changed by listener
+                    StringBuffer credBuff = null;
+                    if (newCredential == null) { // a default password will be set
+                        credBuff = new StringBuffer();
+                    } else if (newCredential instanceof String) {
+                        credBuff = new StringBuffer((String) newCredential);
+                    }
+
+                    if (credBuff != null) {
+                        if (!listener.doPreUpdateCredentialByAdmin(userName, credBuff, this)) {
+                            return;
+                        }
+                        // reading the modified value
+                        newCredential = credBuff.toString();
+                        newCredentialObj.clear();
+                        try {
+                            newCredentialObj = Secret.getSecret(newCredential);
+                        } catch (UnsupportedSecretTypeException e) {
+                            throw new UserStoreException("Unsupported credential type", e);
+                        }
+                    }
+                }
+            }
+            // #################### </Listeners> #####################################################
+
+            doUpdateCredentialByAdmin(userName, newCredentialObj);
+
+            // #################### <Listeners> #####################################################
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                Object credentialArgument;
+                if (listener instanceof SecretHandleableListener) {
+                    credentialArgument = newCredentialObj;
+                } else {
+                    credentialArgument = newCredential;
+                }
+
+                if (!listener.doPostUpdateCredentialByAdmin(userName, credentialArgument, this)) {
+                    return;
+                }
+            }
+        } finally {
+            newCredentialObj.clear();
         }
         // #################### </Listeners> #####################################################
 
@@ -1097,133 +1192,166 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return;
         }
 
-        if (userStore.isSystemStore()) {
-            systemUserRoleManager.addSystemUser(userName, credential, roleList);
-            return;
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
         }
 
-        // #################### Domain Name Free Zone Starts Here ################################
-
-        if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
-        }
-
-        // This happens only once during first startup - adding administrator user/role.
-        if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
-            userName = userStore.getDomainFreeName();
-            roleList = UserCoreUtil.removeDomainFromNames(roleList);
-        }
-
-        // #################### <Listeners> #####################################################
-        for (UserStoreManagerListener listener : UMListenerServiceComponent
-                .getUserStoreManagerListeners()) {
-            if (!listener.addUser(userName, credential, roleList, claims, profileName, this)) {
+        try {
+            if (userStore.isSystemStore()) {
+                systemUserRoleManager.addSystemUser(userName, credentialObj, roleList);
                 return;
             }
-        }
-        // String buffers are used to let listeners to modify passwords
-        for (UserOperationEventListener listener : UMListenerServiceComponent
-                .getUserOperationEventListeners()) {
-            if (credential == null) { // a default password will be set
-                StringBuffer credBuff = new StringBuffer();
-                if (!listener.doPreAddUser(userName, credBuff, roleList, claims, profileName,
-                        this)) {
-                    return;
-                }
-                credential = credBuff.toString(); // reading the modified value
-            } else if (credential instanceof String) {
-                StringBuffer credBuff = new StringBuffer((String) credential);
-                if (!listener.doPreAddUser(userName, credBuff, roleList, claims, profileName,
-                        this)) {
-                    return;
-                }
-                credential = credBuff.toString(); // reading the modified value
+
+            // #################### Domain Name Free Zone Starts Here ################################
+
+            if (isReadOnly()) {
+                throw new UserStoreException("Invalid operation. User store is read only");
             }
-        }
-        // #################### </Listeners> #####################################################
 
-        if (!checkUserNameValid(userStore.getDomainFreeName())) {
-            String message = "Username " + userStore.getDomainFreeName() + " is not valid. User name must be a non null string with following format, ";
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
+            // This happens only once during first startup - adding administrator user/role.
+            if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
+                userName = userStore.getDomainFreeName();
+                roleList = UserCoreUtil.removeDomainFromNames(roleList);
+            }
 
-        if (!checkUserPasswordValid(credential)) {
-            String message = "Credential not valid. Credential must be a non null string with following format, ";
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
+            // #################### <Listeners> #####################################################
+            for (UserStoreManagerListener listener : UMListenerServiceComponent.getUserStoreManagerListeners()) {
+                Object credentialArgument;
+                if (listener instanceof SecretHandleableListener) {
+                    credentialArgument = credentialObj;
+                } else {
+                    credentialArgument = credential;
+                }
 
-        if (doCheckExistingUser(userStore.getDomainFreeName())) {
-            throw new UserStoreException("Username '" + userName
-                    + "' already exists in the system. Please pick another username.");
-        }
+                if (!listener.addUser(userName, credentialArgument, roleList, claims, profileName, this)) {
+                    return;
+                }
+            }
 
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                if (listener instanceof SecretHandleableListener) {
+                    if (!listener.doPreAddUser(userName, credentialObj, roleList, claims, profileName, this)) {
+                        return;
+                    }
+                } else {
+                    // String buffers are used to let listeners to modify passwords
+                    StringBuffer credBuff = null;
+                    if (credential == null) { // a default password will be set
+                        credBuff = new StringBuffer();
+                    } else if (credential instanceof String) {
+                        credBuff = new StringBuffer((String) credential);
+                    }
 
-        List<String> internalRoles = new ArrayList<String>();
-        List<String> externalRoles = new ArrayList<String>();
-        int index;
-        if (roleList != null) {
-            for (String role : roleList) {
-                if (role != null && role.trim().length() > 0) {
-                    index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                    if (index > 0) {
-                        String domain = role.substring(0, index);
-                        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                            internalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                            continue;
+                    if (credBuff != null) {
+                        if (!listener.doPreAddUser(userName, credBuff, roleList, claims, profileName, this)) {
+                            return;
+                        }
+                        // reading the modified value
+                        credential = credBuff.toString();
+                        credentialObj.clear();
+                        try {
+                            credentialObj = Secret.getSecret(credential);
+                        } catch (UnsupportedSecretTypeException e) {
+                            throw new UserStoreException("Unsupported credential type", e);
                         }
                     }
-                    externalRoles.add(UserCoreUtil.removeDomainFromName(role));
                 }
             }
-        }
+            // #################### </Listeners> #####################################################
 
-        // check existance of roles and claims before user is adding
-        for (String internalRole : internalRoles) {
-            if (!hybridRoleManager.isExistingRole(internalRole)) {
-                throw new UserStoreException("Internal role is not exist : " + internalRole);
+            if (!checkUserNameValid(userStore.getDomainFreeName())) {
+                String message = "Username " + userStore.getDomainFreeName() +
+                                 " is not valid. User name must be a non null string with following format, ";
+                String regEx = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+                throw new UserStoreException(message + regEx);
             }
-        }
 
-        for (String externalRole : externalRoles) {
-            if (!doCheckExistingRole(externalRole)) {
-                throw new UserStoreException("External role is not exist : " + externalRole);
+            if (!checkUserPasswordValid(credentialObj)) {
+                String message = "Credential not valid. Credential must be a non null string with following format, ";
+                String regEx = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
+                throw new UserStoreException(message + regEx);
             }
-        }
 
-        if (claims != null) {
-            for (Map.Entry<String, String> entry : claims.entrySet()) {
-                ClaimMapping claimMapping = null;
-                try {
-                    claimMapping = (ClaimMapping) claimManager.getClaimMapping(entry.getKey());
-                } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                    String errorMessage = "Error in obtaining claim mapping for persisting user attributes.";
-                    throw new UserStoreException(errorMessage, e);
+            if (doCheckExistingUser(userStore.getDomainFreeName())) {
+                throw new UserStoreException("Username '" + userName
+                                             + "' already exists in the system. Please pick another username.");
+            }
+
+            List<String> internalRoles = new ArrayList<String>();
+            List<String> externalRoles = new ArrayList<String>();
+            int index;
+            if (roleList != null) {
+                for (String role : roleList) {
+                    if (role != null && role.trim().length() > 0) {
+                        index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                        if (index > 0) {
+                            String domain = role.substring(0, index);
+                            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                                internalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                                continue;
+                            }
+                        }
+                        externalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                    }
                 }
-                if (claimMapping == null) {
-                    String errorMessage = "Invalid claim uri has been provided.";
-                    throw new UserStoreException(errorMessage);
+            }
+
+            // check existance of roles and claims before user is adding
+            for (String internalRole : internalRoles) {
+                if (!hybridRoleManager.isExistingRole(internalRole)) {
+                    throw new UserStoreException("Internal role is not exist : " + internalRole);
                 }
             }
-        }
 
-        doAddUser(userName, credential, externalRoles.toArray(new String[externalRoles.size()]),
-                claims, profileName, requirePasswordChange);
-
-        if (internalRoles.size() > 0) {
-            hybridRoleManager.updateHybridRoleListOfUser(userName, null,
-                    internalRoles.toArray(new String[internalRoles.size()]));
-        }
-
-        // #################### <Listeners> #####################################################
-        for (UserOperationEventListener listener : UMListenerServiceComponent
-                .getUserOperationEventListeners()) {
-            if (!listener.doPostAddUser(userName, credential, roleList, claims, profileName, this)) {
-                return;
+            for (String externalRole : externalRoles) {
+                if (!doCheckExistingRole(externalRole)) {
+                    throw new UserStoreException("External role is not exist : " + externalRole);
+                }
             }
+
+            if (claims != null) {
+                for (Map.Entry<String, String> entry : claims.entrySet()) {
+                    ClaimMapping claimMapping = null;
+                    try {
+                        claimMapping = (ClaimMapping) claimManager.getClaimMapping(entry.getKey());
+                    } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                        String errorMessage = "Error in obtaining claim mapping for persisting user attributes.";
+                        throw new UserStoreException(errorMessage, e);
+                    }
+                    if (claimMapping == null) {
+                        String errorMessage = "Invalid claim uri has been provided.";
+                        throw new UserStoreException(errorMessage);
+                    }
+                }
+            }
+
+            doAddUser(userName, credentialObj, externalRoles.toArray(new String[externalRoles.size()]),
+                      claims, profileName, requirePasswordChange);
+
+            if (internalRoles.size() > 0) {
+                hybridRoleManager.updateHybridRoleListOfUser(userName, null,
+                                                             internalRoles.toArray(new String[internalRoles.size()]));
+            }
+
+            // #################### <Listeners> #####################################################
+            for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
+                Object credentialArgument;
+                if (listener instanceof SecretHandleableListener) {
+                    credentialArgument = credentialObj;
+                } else {
+                    credentialArgument = credential;
+                }
+
+                if (!listener.doPostAddUser(userName, credentialArgument, roleList, claims, profileName, this)) {
+                    return;
+                }
+            }
+        } finally {
+            credentialObj.clear();
         }
         // #################### </Listeners> #####################################################
 
@@ -2807,19 +2935,25 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return false;
         }
 
-        if (!(credential instanceof String)) {
-            throw new UserStoreException("Can handle only string type credentials");
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
         }
 
-        String password = ((String) credential).trim();
+        try {
+            if (credentialObj.getChars().length < 1) {
+                return false;
+            }
 
-        if (password.length() < 1) {
-            return false;
+            String regularExpression =
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
+            return regularExpression == null || isFormatCorrect(regularExpression, credentialObj.getChars());
+        } finally {
+            credentialObj.clear();
         }
 
-        String regularExpression = realmConfig
-                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-        return regularExpression == null || isFormatCorrect(regularExpression, password);
     }
 
     /**
@@ -2981,6 +3115,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         Pattern p2 = Pattern.compile(regularExpression);
         Matcher m2 = p2.matcher(attribute);
         return m2.matches();
+    }
+
+    private boolean isFormatCorrect(String regularExpression, char[] attribute) {
+
+        boolean matches;
+        CharBuffer charBuffer = CharBuffer.wrap(attribute);
+
+        Pattern p2 = Pattern.compile(regularExpression);
+        Matcher m2 = p2.matcher(charBuffer);
+        matches = m2.matches();
+
+        return matches;
     }
 
     /**
