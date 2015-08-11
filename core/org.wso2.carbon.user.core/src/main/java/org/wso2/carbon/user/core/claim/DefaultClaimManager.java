@@ -357,6 +357,39 @@ public class DefaultClaimManager implements ClaimManager {
     /**
      * {@inheritDoc}
      */
+    public void deleteClaimMappings(String dialectUri, org.wso2.carbon.user.api.ClaimMapping[] mappings)
+            throws UserStoreException {
+
+        if (mappings != null) {
+            for (org.wso2.carbon.user.api.ClaimMapping mapping : mappings) {
+
+                // call listeners
+                for (ClaimManagerListener listener : UMListenerServiceComponent
+                        .getClaimManagerListeners()) {
+                    if (!listener.deleteClaimMapping(mapping)) {
+                        return;
+                    }
+                }
+
+                if (mapping != null && mapping.getClaim() != null) {
+
+                    if (claimCache.isInvalid()) {
+                        this.claimMapping = getClaimMapFromDB();
+                    }
+                    if (claimMapping.containsKey(mapping.getClaim().getClaimUri())) {
+                        claimMapping.remove(mapping.getClaim().getClaimUri());
+                        claimDAO.deleteClaimMapping(getClaimMapping(mapping));
+                        this.claimCache.invalidateCache();
+                    }
+                }
+            }
+            claimDAO.deleteDialectOnly(dialectUri);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void updateClaimMapping(org.wso2.carbon.user.api.ClaimMapping mapping)
             throws UserStoreException {
         // call listeners
