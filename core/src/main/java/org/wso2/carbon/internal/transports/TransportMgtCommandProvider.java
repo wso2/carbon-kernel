@@ -70,11 +70,11 @@ public class TransportMgtCommandProvider implements CommandProvider {
     }
 
     public void _startTransports(CommandInterpreter ci) {
-        transportManager.startAllTransports();
+        transportManager.startTransports();
     }
 
     public void _stopTransports(CommandInterpreter ci) {
-        transportManager.stopAllTransports();
+        transportManager.stopTransports();
     }
 
     public void _beginMaintenance(CommandInterpreter ci) {
