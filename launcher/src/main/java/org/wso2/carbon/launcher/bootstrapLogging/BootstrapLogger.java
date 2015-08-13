@@ -28,7 +28,6 @@ public class BootstrapLogger extends Logger {
 
     /**
      * Protected method to construct a logger for a named subsystem.
-     * <p/>
      * The logger will be initially configured with a null Level
      * and with useParentHandlers true.
      *

@@ -28,9 +28,9 @@ public class FileResolver {
      * Request: file:org.eclipse.osgi_3.9.1.v20130814-1242.jar
      * Response: file:/user/wso2carbon-kernel-5.0.0/repository/components/plugins/org.eclipse.osgi_3.9.1.v20130814-1242.jar
      *
-     * @param path
-     * @param parentPath
-     * @return
+     * @param path path to resolve
+     * @param parentPath parent path
+     * @return resolved URL path
      */
     public static URL resolve(String path, String parentPath) {
         if (path.contains(":") && !path.startsWith("file:")) {
