@@ -831,7 +831,7 @@
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
-        <carbon.p2.plugin.version>1.5.6-SNAPSHOT</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
         <version.testng>6.1.1</version.testng>
         <version.wrapper>3.2.3</version.wrapper>
         <version.tycho>0.13.0</version.tycho>
