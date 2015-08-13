@@ -52,13 +52,13 @@ public class TransportManager {
         transport.stopTransport();
     }
 
-    public void startAllTransports() {
+    public void startTransports() {
         transports.entrySet()
                 .stream()
                 .forEach(entry -> entry.getValue().startTransport());
     }
 
-    public void stopAllTransports() {
+    public void stopTransports() {
         for (CarbonTransport transport : transports.values()) {
             transport.stopTransport();
         }
