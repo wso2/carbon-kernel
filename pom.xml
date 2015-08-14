@@ -211,19 +211,19 @@
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>${maven.antrunplugin.version}</version>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>${maven.cleanplugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>auto-clean</id>
-                            <phase>initialize</phase>
-                            <goals>
-                                <goal>clean</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
+                <!--<plugin>-->
+                    <!--<artifactId>maven-clean-plugin</artifactId>-->
+                    <!--<version>${maven.cleanplugin.version}</version>-->
+                    <!--<executions>-->
+                        <!--<execution>-->
+                            <!--<id>auto-clean</id>-->
+                            <!--<phase>initialize</phase>-->
+                            <!--<goals>-->
+                                <!--<goal>clean</goal>-->
+                            <!--</goals>-->
+                        <!--</execution>-->
+                    <!--</executions>-->
+                <!--</plugin>-->
             </plugins>
         </pluginManagement>
     </build>
