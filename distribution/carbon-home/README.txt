@@ -1,16 +1,14 @@
-WSO2 Carbon Kernel ${carbon.version} M1
+WSO2 Carbon Kernel ${carbon.version}
 -----------------------------
 
-Welcome to the WSO2 Carbon Kernel ${carbon.version} M2 release
+Welcome to the WSO2 Carbon Kernel ${carbon.version} release
 
 Carbon kernel 5 is the next generation of WSO2 Carbon kernel, re-architected from the ground up with the latest technologies and patterns to overcome the existing architectural limitations as well as to get rid of the dependencies to the legacy technologies like Apache Axis2.
 
 What's New In This Release
 ----------------------------
-1. Equinox Kepler based light-weight OSGi runtime.
-2. New Carbon launcher implementation 
-3. Centralized logging back-end (based on Log4j) which supports multiple logging APIs.
-4. Carbon based Deployment Framework
+1.Transport Management Framework
+2.Java 8 Support
 
 Installation & Running
 ----------------------
@@ -26,7 +24,7 @@ Hardware Requirements
 
 Software Requirements
 -------------------
-1. Java SE Development Kit - 1.7
+1. Java SE Development Kit - 1.8
 
 All known issues have been recorded at https://wso2.org/jira/browse/CARBON
 
@@ -98,4 +96,4 @@ For more information on WSO2 Carbon, visit WSO2 Carbon Home Page (http://wso2.co
 
 
 ---------------------------------------------------------------------------
-(c) Copyright 2014 WSO2 Inc.
+(c) Copyright 2015 WSO2 Inc.

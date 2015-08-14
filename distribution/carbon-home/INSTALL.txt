@@ -25,5 +25,5 @@ Hardware Requirements
 
 Software Requirements
 -------------------
-1. Java SE Development Kit - 1.7
+1. Java SE Development Kit - 1.8
 2. Apache Ant - An Apache Ant version is required. Ant 1.7.0 version is recommended.
