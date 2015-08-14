@@ -112,6 +112,15 @@ public interface UserStoreManager extends org.wso2.carbon.user.api.UserStoreMana
     String[] getUserListOfRole(String roleName) throws UserStoreException;
 
     /**
+     * Returns the User list of provided hybrid role
+     * @param domainName
+     * @param roleName
+     * @return
+     * @throws UserStoreException
+     */
+    String[] getUserListOfHybridRole(String domainName, String roleName) throws UserStoreException;
+
+    /**
      * Get user claim value in the profile.
      *
      * @param userName    The user name

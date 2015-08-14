@@ -731,9 +731,7 @@ public final class UserCoreUtil {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
                 dbConnection.commit();
             }
-        } catch (UserStoreException e) {
-            throw new UserStoreException(e.getMessage());
-        } catch (SQLException e) {
+        } catch (UserStoreException | SQLException e) {
             throw new UserStoreException(e.getMessage());
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);

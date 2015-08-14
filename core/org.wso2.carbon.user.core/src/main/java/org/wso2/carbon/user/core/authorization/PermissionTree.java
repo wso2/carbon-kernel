@@ -962,7 +962,15 @@ public class PermissionTree {
 
                 String roleName = rs.getString(1);
                 String domain = rs.getString(5);
-                String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
+
+                String roleWithDomain = null;
+
+                if(domain.startsWith("HYBRID/")){
+                    roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain.split("/")[1]);
+                } else {
+                    roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
+                }
+
                 roleWithDomain = roleWithDomain.toLowerCase();
 
                 if (allow == UserCoreConstants.ALLOW) {

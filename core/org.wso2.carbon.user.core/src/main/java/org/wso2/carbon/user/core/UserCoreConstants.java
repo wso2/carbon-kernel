@@ -55,6 +55,8 @@ public class UserCoreConstants {
     public static final int MAX_SEARCH_TIME = 10000;   // ms
 
     public static final String INTERNAL_DOMAIN = "Internal";
+    public static final String HYBRID_DOMAIN = "HYBRID";
+
     public static final String PRIMARY_DEFAULT_DOMAIN_NAME = "PRIMARY";
     public static final String SYSTEM_DOMAIN_NAME = "SYSTEM";
 

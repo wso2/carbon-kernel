@@ -26,6 +26,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
@@ -53,6 +54,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private static Log log = LogFactory.getLog(JDBCAuthorizationManager.class);
     private static boolean debug = log.isDebugEnabled();
     private final String GET_ALL_ROLES_OF_USER_ENABLED = "GetAllRolesOfUserEnabled";
+    private HybridRoleManager hybridRoleManager = null;
     private DataSource dataSource = null;
     private PermissionTree permissionTree = null;
     private AuthorizationCache authorizationCache = null;
@@ -106,6 +108,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         }
         this.populatePermissionTreeFromDB();
         this.addInitialData();
+
+        AbstractUserStoreManager userStoreManager = (AbstractUserStoreManager)userRealm.getUserStoreManager();
+        this.hybridRoleManager = userStoreManager.getInternalRoleManager();
     }
 
     public boolean isRoleAuthorized(String roleName, String resourceId, String action) throws UserStoreException {
@@ -538,6 +543,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         try {
             dbConnection = getDBConnection();
             String domain = UserCoreUtil.extractDomainFromName(roleName);
+
+            boolean isHybridRole = hybridRoleManager.isHybridDomain(domain);
+
+            if(isHybridRole && !UserCoreConstants.INTERNAL_DOMAIN.equals(domain)){
+                domain = "HYBRID/" + domain;
+            }
+
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
@@ -613,6 +625,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             dbConnection = getDBConnection();
             permissionTree.clearRoleAuthorization(roleName, action);
             String domain = UserCoreUtil.extractDomainFromName(roleName);
+
+            boolean isHybridRole = hybridRoleManager.isHybridDomain(domain);
+
+            if(isHybridRole && !UserCoreConstants.INTERNAL_DOMAIN.equals(domain)){
+                domain = "HYBRID/" + domain;
+            }
+
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
@@ -648,6 +667,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             dbConnection = getDBConnection();
             permissionTree.clearRoleAuthorization(roleName);
             String domain = UserCoreUtil.extractDomainFromName(roleName);
+
+            boolean isHybridRole = hybridRoleManager.isHybridDomain(domain);
+
+            if(isHybridRole && !UserCoreConstants.INTERNAL_DOMAIN.equals(domain)){
+                domain = "HYBRID/" + domain;
+            }
+
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
@@ -722,6 +748,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             String domain = UserCoreUtil.extractDomainFromName(newRoleName);
             newRoleName = UserCoreUtil.removeDomainFromName(newRoleName);
             roleName = UserCoreUtil.removeDomainFromName(roleName);
+
+            boolean isHybridRole = hybridRoleManager.isHybridDomain(domain);
+
+            if(isHybridRole && !UserCoreConstants.INTERNAL_DOMAIN.equals(domain)){
+                domain = "HYBRID/" + domain;
+            }
+
             if (domain != null) {
                 domain = domain.toUpperCase();
             }
@@ -776,6 +809,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             } else if (domain == null) {
                 // assume as primary domain
                 domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+            }
+
+            boolean isHybridRole = hybridRoleManager.isHybridDomain(domain);
+
+            if(isHybridRole && !UserCoreConstants.INTERNAL_DOMAIN.equals(domain)){
+                domain = "HYBRID/" + domain;
             }
 
             DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_ROLE_PERMISSION_SQL,

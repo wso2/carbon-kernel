@@ -729,6 +729,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return names;
     }
 
+    @Override
+    public String[] getUserListOfHybridRole(String domainName, String roleName) throws UserStoreException {
+        return new String[0];
+    }
+
     /**
      *
      */

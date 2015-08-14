@@ -410,6 +410,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return new String[]{UserCoreConstants.DEFAULT_PROFILE};
     }
 
+    @Override
+    public String[] getUserListOfHybridRole(String domainName, String roleName) throws UserStoreException {
+        return new String[0];
+    }
+
     /**
      *
      */

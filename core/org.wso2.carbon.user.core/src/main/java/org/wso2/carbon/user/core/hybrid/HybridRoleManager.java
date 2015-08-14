@@ -26,6 +26,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
+import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -37,7 +38,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HybridRoleManager {
 
@@ -50,6 +53,7 @@ public class HybridRoleManager {
     private DataSource dataSource;
     private RealmConfiguration realmConfig;
     private boolean userRolesCacheEnabled = true;
+    private List<String> hybridDomainNames;
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
@@ -58,9 +62,46 @@ public class HybridRoleManager {
         this.tenantId = tenantId;
         this.realmConfig = realmConfig;
         this.userRealm = realm;
-        //persist internal domain
-        UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
+        this.hybridDomainNames = loadHybridDomainNames();
 
+        //persist internal domain
+        UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN
+                , tenantId, dataSource);
+
+    }
+
+    public void persistHybridDomain(String domainName) throws UserStoreException {
+        UserCoreUtil.persistDomain(UserCoreConstants.HYBRID_DOMAIN + UserCoreConstants.DOMAIN_SEPARATOR + domainName, tenantId, dataSource);
+    }
+
+    private List<String> loadHybridDomainNames() throws UserStoreException {
+
+        Set<String> hybridDomainNames = new HashSet<>();
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        try {
+            dbConnection = getDBConnection();
+            prepStmt = dbConnection.prepareStatement(JDBCRealmConstants.GET_ALL_HYBRID_DOMAINS_SQL);
+            prepStmt.setInt(1, tenantId);
+            rs = prepStmt.executeQuery();
+            while (rs.next()) {
+                String domainName = rs.getString(1);
+                hybridDomainNames.add(UserCoreUtil.removeDomainFromName(domainName));
+            }
+            hybridDomainNames.add(UserCoreConstants.INTERNAL_DOMAIN);
+            return new ArrayList<>(hybridDomainNames);
+        } catch (SQLException e) {
+            throw new UserStoreException(e.getMessage(), e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+    }
+
+    public List<String> getHybridDomainNames() {
+        return hybridDomainNames;
     }
 
     /**
@@ -109,7 +150,7 @@ public class HybridRoleManager {
         } catch (SQLException e) {
             throw new UserStoreException(e.getMessage(), e);
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(), e);
+            throw new UserStoreException("Error while trying to add hybrid role.", e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -171,14 +212,32 @@ public class HybridRoleManager {
      * @throws UserStoreException
      */
     public String[] getHybridRoles(String filter) throws UserStoreException {
+        return getHybridRoles(null, filter);
+    }
+
+    /**
+     * Return all hybrid roles matching the filter in the given domain
+     *
+     * @param domainName
+     * @param filter
+     * @return
+     * @throws UserStoreException
+     */
+    public String[] getHybridRoles(String domainName, String filter) throws UserStoreException {
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
 
         String sqlStmt = HybridJDBCConstants.GET_ROLES;
-        int maxItemLimit = UserCoreConstants.MAX_USER_ROLE_LIST;
-        int searchTime = UserCoreConstants.MAX_SEARCH_TIME;
+        int maxItemLimit;
+        int searchTime;
+
+        boolean allHybridRoles = false;
+
+        if (domainName == null) {
+            allHybridRoles = true;
+        }
 
         try {
             maxItemLimit = Integer.parseInt(realmConfig
@@ -224,7 +283,7 @@ public class HybridRoleManager {
                 // this can be ignored since timeout method is not implemented
                 log.debug(e);
             }
-            List<String> filteredRoles = new ArrayList<String>();
+            List<String> filteredRoles = new ArrayList<>();
 
             try {
                 rs = prepStmt.executeQuery();
@@ -236,10 +295,16 @@ public class HybridRoleManager {
             if (rs != null) {
                 while (rs.next()) {
                     String name = rs.getString(1);
-                    // Append the domain
-                    name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + name;
-                    filteredRoles.add(name);
+                    // filter the domain
+                    if (allHybridRoles) {
+                        if (name.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                            filteredRoles.add(name);
+                        } else {
+                            filteredRoles.add(UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR + name);
+                        }
+                    } else if (name.startsWith(domainName + UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        filteredRoles.add(name);
+                    }
                 }
             }
             return filteredRoles.toArray(new String[filteredRoles.size()]);
@@ -332,8 +397,6 @@ public class HybridRoleManager {
             }
 
             dbConnection.commit();
-        } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
         } catch (Exception e) {
             throw new UserStoreException(e.getMessage(), e);
         } finally {
@@ -347,6 +410,25 @@ public class HybridRoleManager {
      * @throws UserStoreException
      */
     public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
+        return getHybridRoleListOfUser(null, userName, filter);
+    }
+
+    /**
+     * Return
+     *
+     * @param domainName
+     * @param userName
+     * @param filter
+     * @return
+     * @throws UserStoreException
+     */
+    public String[] getHybridRoleListOfUser(String domainName, String userName, String filter) throws UserStoreException {
+
+        boolean allHybridRoles = false;
+
+        if (domainName == null) {
+            allHybridRoles = true;
+        }
 
         String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
         String sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
@@ -379,12 +461,18 @@ public class HybridRoleManager {
                 List<String> allRoles = new ArrayList<String>();
                 boolean isEveryone = false;
                 for (String role : roles) {
-                    role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + role;
-                    if (role.equals(realmConfig.getEveryOneRoleName())) {
-                        isEveryone = true;
+                    if (allHybridRoles) {
+                        if (role.equals(realmConfig.getEveryOneRoleName())) {
+                            isEveryone = true;
+                        }
+                        if (role.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+                            allRoles.add(role);
+                        } else {
+                            allRoles.add(UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR + role);
+                        }
+                    } else if (role.startsWith(domainName + CarbonConstants.DOMAIN_SEPARATOR)) {
+                        allRoles.add(role);
                     }
-                    allRoles.add(role);
                 }
 
                 if (!isEveryone) {
@@ -445,8 +533,6 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
         } catch (Exception e) {
             throw new UserStoreException(e.getMessage(), e);
         } finally {
@@ -504,9 +590,6 @@ public class HybridRoleManager {
         }
 
         String sqlStmt = HybridJDBCConstants.UPDATE_ROLE_NAME_SQL;
-        if (sqlStmt == null) {
-            throw new UserStoreException("The sql statement for update hybrid role name is null");
-        }
 
         Connection dbConnection = null;
         try {
@@ -671,4 +754,41 @@ public class HybridRoleManager {
         return UserCoreUtil.getDomainName(realmConfig);
     }
 
+    public boolean isHybridDomain(String domain) {
+        if (domain.equalsIgnoreCase(UserCoreConstants.INTERNAL_DOMAIN)) {
+            return true;
+        }
+
+        for (String hybridDomainName : hybridDomainNames) {
+            if (hybridDomainName.equalsIgnoreCase(domain)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void addHybridRole(String domainName, String qualifiedRoleName, String[] userList) throws UserStoreException {
+        if (!isHybridDomain(domainName)) {
+            persistHybridDomain(domainName);
+        }
+
+        addHybridRole(qualifiedRoleName, userList);
+    }
+
+    public void deleteHybridRole(String domainName, String roleName) throws UserStoreException {
+        if (UserCoreConstants.INTERNAL_DOMAIN.equals(domainName)) {
+            deleteHybridRole(roleName);
+        } else {
+            deleteHybridRole(domainName + UserCoreConstants.DOMAIN_SEPARATOR + roleName);
+        }
+    }
+
+    public void updateUserListOfHybridRole(String domainName, String roleName, String[] deletedUsers, String[] newUsers) throws UserStoreException {
+        if(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domainName)) {
+            updateUserListOfHybridRole(roleName, deletedUsers, newUsers);
+        } else {
+            updateUserListOfHybridRole(UserCoreUtil.addDomainToName(roleName, domainName), deletedUsers, newUsers);
+        }
+    }
 }
