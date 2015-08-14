@@ -1914,7 +1914,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             membershipValue = escapeLdapNameForFilter(ldn);
                         }
                     } catch (InvalidNameException e) {
-                        throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
+                        throw new UserStoreException("Invalid naming exception for: " + nameInSpace, e);
                     }
                 } else {
                     return new String[0];
@@ -2520,7 +2520,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     LdapName ldn = new LdapName(nameInSpace);
                     membershipValue = escapeLdapNameForFilter(ldn);
                 } catch (InvalidNameException e) {
-                    throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
+                    throw new UserStoreException("Invalid naming exception for: " + nameInSpace, e);
                 }
             } else {
                 return false;
