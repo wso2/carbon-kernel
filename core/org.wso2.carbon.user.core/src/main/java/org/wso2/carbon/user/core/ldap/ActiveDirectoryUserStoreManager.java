@@ -557,7 +557,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 subDirContext.rename(returnedUserEntry, "CN=" + escapeSpecialCharactersForDN(cnValue));
             }
 
-        } catch (Exception e) {
+        } catch (org.wso2.carbon.user.api.UserStoreException  | NamingException e) {
             handleException(e, userName);
         } finally {
             JNDIUtil.closeContext(subDirContext);
@@ -644,7 +644,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
 
-        } catch (Exception e) {
+        } catch (org.wso2.carbon.user.api.UserStoreException | NamingException e) {
             handleException(e, userName);
         } finally {
             JNDIUtil.closeContext(subDirContext);
@@ -665,7 +665,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
     private void handleException(Exception e, String userName) throws UserStoreException{
         if (e instanceof InvalidAttributeValueException) {
-            String errorMessage = "One or more attribute values provided are incompatible for user : " + userName
+            String errorMessage = "One or more attribute values provided are incompatible for user: " + userName
                                   + "Please check and try again.";
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
@@ -673,26 +673,32 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             throw new UserStoreException(errorMessage, e);
         } else if (e instanceof InvalidAttributeIdentifierException) {
             String errorMessage = "One or more attributes you are trying to add/update are not "
-                                  + "supported by underlying LDAP for user : " + userName;
+                                  + "supported by underlying LDAP for user: " + userName;
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } else if (e instanceof NoSuchAttributeException) {
             String errorMessage = "One or more attributes you are trying to add/update are not "
-                                  + "supported by underlying LDAP for user : " + userName;
+                                  + "supported by underlying LDAP for user: " + userName;
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } else if (e instanceof NamingException) {
-            String errorMessage = "Profile information could not be updated in LDAP user store for user : " + userName;
+            String errorMessage = "Profile information could not be updated in LDAP user store for user: " + userName;
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
         } else if (e instanceof org.wso2.carbon.user.api.UserStoreException) {
-            String errorMessage = "Error in obtaining claim mapping for user : " + userName;
+            String errorMessage = "Error in obtaining claim mapping for user: " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else {
+            String errorMessage = "Error occurred in the underlying server when fetching claims for user: " + userName;
             if (logger.isDebugEnabled()) {
                 logger.debug(errorMessage, e);
             }
