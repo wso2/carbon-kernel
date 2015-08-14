@@ -23,13 +23,15 @@ import org.wso2.carbon.runtime.RuntimeState;
 import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 
 /**
+ * <p>
  * This interface is used to register/integrate custom runtime into Carbon server, by extending this
  * interface you can integrate and run a custom Runtime instance on top of Carbon server
- * <p/>
+ * </p>
+ * <p>
  * A developer who wants to integrate a custom runtime  with Carbon server should implement this.
  * The implementation should then be registered as an OSGi service using the Runtime interface for the
  * to find and add it to the configuration
- * <p/>
+ * </p>
  * The implementation of this interface can be different from one Runtime to another depending on its
  * requirements and behaviour.
  *
@@ -39,8 +41,9 @@ import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 public interface Runtime {
 
     /**
+     * <p>
      * Initialize the Runtime
-     * <p/>
+     * </p>
      * This will contain all the code segments that necessary to be called during runtime initialization
      * process. This can be different from one Runtime to another
      *
@@ -49,8 +52,9 @@ public interface Runtime {
     void init() throws RuntimeServiceException;
 
     /**
+     * <p>
      * Start the Runtime
-     * <p/>
+     * </p>
      * This will contain all the code segments that necessary to be called during runtime start() get invoked
      * This implementation will not be necessary for all the runtimes
      *
@@ -59,8 +63,9 @@ public interface Runtime {
     void start() throws RuntimeServiceException;
 
     /**
+     * <p>
      * Stop the Runtime
-     * <p/>
+     * </p>
      * This will contain all the code that need to be called when runtime need to be stopped
      *
      * @throws RuntimeServiceException - on error while trying to stopping the Runtime
@@ -68,8 +73,9 @@ public interface Runtime {
     void stop() throws RuntimeServiceException;
 
     /**
+     * <p>
      * Put the Runtime into maintenance mode
-     * <p/>
+     * </p>
      * This will contain all the code that need to be called when runtime starting its MAINTENANCE state
      *
      * @throws RuntimeServiceException - on error while trying to start maintenance of the Runtime
@@ -77,8 +83,9 @@ public interface Runtime {
     void beginMaintenance() throws RuntimeServiceException;
 
     /**
+     * <p>
      * Put the Runtime into INACTIVE state form MAINTENANCE state
-     * <p/>
+     * </p>
      * This will contain all the code that need to be called when runtime stops its maintenance mode
      *
      * @throws RuntimeServiceException - on error while trying to stop maintenance of the Runtime

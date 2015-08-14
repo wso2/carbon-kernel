@@ -123,6 +123,7 @@ public class DeploymentEngine {
      * Add and initialize a new Deployer to deployment engine.
      *
      * @param deployer the deployer instance to register
+     * @throws org.wso2.carbon.deployment.exception.DeployerRegistrationException Throwing deployment registration exception
      */
     public void registerDeployer(Deployer deployer) throws DeployerRegistrationException {
 
@@ -156,6 +157,7 @@ public class DeploymentEngine {
      * Removes a deployer from the deployment engine configuration
      *
      * @param deployer the deployer instance to un-register
+     * @throws DeploymentEngineException Throwing deployment registration exception
      */
     public void unregisterDeployer(Deployer deployer) throws DeploymentEngineException {
         ArtifactType type = deployer.getArtifactType();
@@ -223,6 +225,8 @@ public class DeploymentEngine {
 
     /**
      * Deploy the artifacts found in the artifacts to be deployed list
+     *
+     * @param artifactsToDeploy list of artifacts to deploy
      */
     public void deployArtifacts(List<Artifact> artifactsToDeploy) {
 
@@ -247,6 +251,8 @@ public class DeploymentEngine {
 
     /**
      * Updates the artifacts found in the artifacts to be updated list
+     *
+     * @param artifactsToUpdate list of artifacts to update
      */
     public void updateArtifacts(List<Artifact> artifactsToUpdate) {
         for (Object artifact : artifactsToUpdate) {
@@ -280,6 +286,8 @@ public class DeploymentEngine {
 
     /**
      * Undeploy the artifacts found in the artifact to be undeployed list
+     *
+     * @param artifactsToUndeploy list of artifacts to undeploy
      */
     public void undeployArtifacts(List<Artifact> artifactsToUndeploy) {
         for (Object artifact : artifactsToUndeploy) {

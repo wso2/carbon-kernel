@@ -24,17 +24,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * <p>
  * This class provide an abstraction level for the concept "artifact" in carbon.
- * <p/>
+ * </p>
+ * <p>
  * An artifact can be considered as a thing to deploy in carbon.
  * Eg: webapp, service, jaggery-app, proxy-service, sequence, spi, endpoint
- * <p/>
+ * </p>
+ * <p>
  * Each artifact is associated with a deployer, which can process and deploy it to the relevant
  * runtime configuration.
- * <p/>
+ * </p>
+ * <p>
  * An artifact will have a unique identifier (key), which can be used for artifact identification
  * within a runtime.
- * <p/>
+ * </p>
  * An artifact can have custom properties that are needed for relevant runtime environment.
  */
 public class Artifact {
