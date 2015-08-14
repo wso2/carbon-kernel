@@ -838,7 +838,7 @@
         <maven.surefireplugin.version>2.12</maven.surefireplugin.version>
         <maven.resourcesplugin.version>2.5</maven.resourcesplugin.version>
         <maven.scrplugin.version>1.21.0</maven.scrplugin.version>
-        <maven.bundleplugin.version>2.5.4</maven.bundleplugin.version>
+        <maven.bundleplugin.version>2.5.3</maven.bundleplugin.version>
         <maven.assemblyplugin.version>2.4</maven.assemblyplugin.version>
         <maven.sourceplugin.version>2.1.2</maven.sourceplugin.version>
         <maven.cleanplugin.version>2.4.1</maven.cleanplugin.version>
