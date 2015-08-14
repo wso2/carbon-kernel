@@ -966,6 +966,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException("User does not exist. Username : " + userName);
+        }
+
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -975,9 +979,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
 
         doSetUserClaimValue(userName, claimURI, claimValue, profileName);
 
@@ -1021,6 +1022,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException("User does not exist. Username : " + userName);
+        }
+
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1030,9 +1035,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
 
         doSetUserClaimValues(userName, refinedClaims, profileName);
 
@@ -1064,6 +1066,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException("User does not exist. Username : " + userName);
+        }
+
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1073,9 +1079,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
+
 
         doDeleteUserClaimValue(userName, claimURI, profileName);
 
@@ -1106,6 +1110,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException("User does not exist. Username : " + userName);
+        }
+
+
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1115,9 +1124,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
 
         doDeleteUserClaimValues(userName, claims, profileName);
 
