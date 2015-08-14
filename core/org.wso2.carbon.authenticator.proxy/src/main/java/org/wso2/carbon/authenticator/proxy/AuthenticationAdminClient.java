@@ -67,7 +67,7 @@ public class AuthenticationAdminClient {
         } catch (java.lang.Exception e) {
             String msg = "Error occurred while logging in";
             log.error(msg);
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug(msg, e);
             }
             throw new AuthenticationException(e);
