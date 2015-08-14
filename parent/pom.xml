@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -11,7 +12,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.0-SNAPSHOT</version>
+    <version>4.5.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -155,13 +156,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.4.0-SNAPSHOT</carbon.kernel.version>
-        <carbon.kernel.exp.pkg.version>4.4.0-SNAPSHOT</carbon.kernel.exp.pkg.version>
-        <carbon.kernel.imp.pkg.version>[4.4.0-SNAPSHOT, 4.5.0)</carbon.kernel.imp.pkg.version>
+        <carbon.kernel.version>4.5.0-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
+        <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.6.0)</carbon.kernel.imp.pkg.version>
 
-        <test.framework.version>4.3.1</test.framework.version>
-
-	<!-- Equinox dependency versions -->
+        <!-- Equinox dependency versions -->
         <version.equinox.simpleconfigurator>1.0.400.v20130327-2119</version.equinox.simpleconfigurator>
         <version.equinox.common>3.6.200.v20130402-1505</version.equinox.common>
         <version.equinox.ds>1.4.101.v20130813-1853</version.equinox.ds>
@@ -205,7 +204,8 @@
         <version.equinox.p2.director.app>1.0.300.v20130819-1621</version.equinox.p2.director.app>
         <version.equinox.p2.directorywatcher>1.0.300.v20130327-2119</version.equinox.p2.directorywatcher>
         <version.equinox.p2.engine>2.3.0.v20130526-2122-wso2v1</version.equinox.p2.engine>
-        <version.equinox.p2.console>1.0.300.v20130327-2119</version.equinox.p2.console> <!-- this version was added -->
+        <version.equinox.p2.console>1.0.300.v20130327-2119</version.equinox.p2.console>
+        <!-- this version was added -->
         <version.equinox.p2.extensionlocation>1.2.100.v20130327-2119</version.equinox.p2.extensionlocation>
         <version.equinox.p2.garbagecollector>1.0.200.v20130327-2119</version.equinox.p2.garbagecollector>
         <version.equinox.p2.jarprocessor>1.0.300.v20130327-2119</version.equinox.p2.jarprocessor>
@@ -214,11 +214,11 @@
         <version.equinox.p2.reconciler.dropins>1.1.200.v20130419-1850</version.equinox.p2.reconciler.dropins>
         <version.equinox.p2.repository.tools>2.1.0.v20130327-2119</version.equinox.p2.repository.tools>
         <version.equinox.p2.repository>2.3.0.v20130412-2032</version.equinox.p2.repository>
-        <version.equinox.p2.touchpoint.eclipse>2.1.0.v20110511-wso2v1</version.equinox.p2.touchpoint.eclipse> <!--TODO-Check Version-->
+        <version.equinox.p2.touchpoint.eclipse>2.1.0.v20110511-wso2v1</version.equinox.p2.touchpoint.eclipse>
+        <!--TODO-Check Version-->
         <version.equinox.p2.touchpoint.natives>1.1.100.v20130327-2119</version.equinox.p2.touchpoint.natives>
         <version.equinox.p2.updatechecker>1.1.200.v20130327-2119</version.equinox.p2.updatechecker>
         <version.equinox.p2.updatesite>1.0.400.v20130515-2028</version.equinox.p2.updatesite>
-
         <version.apache.felix.gogo.shell>0.10.0.v201212101605</version.apache.felix.gogo.shell>
         <version.apache.felix.gogo.runtime>0.10.0.v201209301036</version.apache.felix.gogo.runtime>
         <version.apache.felix.gogo.command>0.10.0.v201209301215</version.apache.felix.gogo.command>
@@ -294,10 +294,9 @@
 
         <!-- Apache Axiom -->
         <orbit.version.axiom>1.2.11.wso2v6</orbit.version.axiom>
-        <exp.pkg.version.axiom>1.2.11.wso2v6</exp.pkg.version.axiom>
         <imp.pkg.version.axiom>[1.2.11.wso2v6, 1.3.0)</imp.pkg.version.axiom>
         <version.axiom>1.2.11-wso2v6</version.axiom>
-	    <axiom.osgi.version>1.2.11.wso2v6</axiom.osgi.version>
+        <axiom.osgi.version>1.2.11.wso2v6</axiom.osgi.version>
         <axiom.osgi.version.range>[1.2.11.wso2v6, 1.3.0)</axiom.osgi.version.range>
 
 
@@ -308,15 +307,12 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v12</version.axis2>
-        <orbit.version.axis2>1.6.1.wso2v12</orbit.version.axis2>
-        <axis2.client.osgi.version>1.6.1.wso2v12</axis2.client.osgi.version>
-        <axis2.osgi.version>1.6.1.wso2v12</axis2.osgi.version>
-        <axis2.osgi.version.range>[1.6.1.wso2v12, 1.7.0)</axis2.osgi.version.range>
-        <exp.pkg.version.axis2>1.6.1.wso2v12</exp.pkg.version.axis2>
-        <imp.pkg.version.axis2>[1.6.1.wso2v12, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v12</version.addressing>
-        <version.axis2.json>1.6.1-wso2v12</version.axis2.json>
+        <version.axis2>1.6.1-wso2v14</version.axis2>
+        <imp.pkg.version.axis2>[1.6.1.wso2v14, 1.7.0)</imp.pkg.version.axis2>
+        <version.addressing>1.6.1-wso2v14</version.addressing>
+        <orbit.version.axis2>1.6.1.wso2v14</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1.wso2v14</axis2.client.osgi.version>
+        <version.axis2.json>1.6.1-wso2v14</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
@@ -349,16 +345,17 @@
         <version.lucene.core>2.3.2</version.lucene.core>
 
         <version.tomcat>7.0.59</version.tomcat>
-        <orbit.version.tomcat>${version.tomcat}.wso2v2</orbit.version.tomcat>
-        <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1</orbit.version.tomcat.servlet.api>
+        <orbit.version.tomcat>${version.tomcat}.wso2v3</orbit.version.tomcat>
+        <orbit.version.tomcat.servlet.api>${version.tomcat}.wso2v1
+        </orbit.version.tomcat.servlet.api>
         <orbit.version.tomcat.jsp.api>${version.tomcat}.wso2v1</orbit.version.tomcat.jsp.api>
         <orbit.version.tomcat.el.api>${version.tomcat}.wso2v1</orbit.version.tomcat.el.api>
         <orbit.version.tomcat.ha>${version.tomcat}.wso2v1</orbit.version.tomcat.ha>
         <orbit.version.tribes>7.0.34.wso2v1</orbit.version.tribes>
 
-        <version.eclipse.ecj>4.3.1</version.eclipse.ecj>
+        <version.eclipse.ecj>4.4.2</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>3.2.6.wso2v3</orbit.version.hazelcast>
+        <orbit.version.hazelcast>3.5.0.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
@@ -366,7 +363,7 @@
 
         <!-- bouncycastle -->
         <bouncycastle.version>1.49.0.wso2v2</bouncycastle.version>
-	    <imp.pkg.version.bcp>[1.49.0.wso2v2, 1.50.0)</imp.pkg.version.bcp>
+        <imp.pkg.version.bcp>[1.49.0.wso2v2, 1.50.0)</imp.pkg.version.bcp>
 
         <!--BPS specific-->
         <saxon-bps.wso2.version.human-task>9.0.0.x-wso2v1</saxon-bps.wso2.version.human-task>
@@ -376,7 +373,6 @@
 
         <!--Apache Derby-->
         <version.wso2.derby>10.3.2.1wso2v1</version.wso2.derby>
-        <emma.version>2.1.5320</emma.version>
 
         <!-- slf4j -->
         <slf4j.version>1.5.10</slf4j.version>
@@ -407,6 +403,8 @@
         <orbit.version.commons.httpclient>3.1.0.wso2v2</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
+
+        <orbit.version.encoder>1.2.0.wso2v1</orbit.version.encoder>
 
         <!--Drools-->
         <orbit.version.drools>5.1.1.wso2v1</orbit.version.drools>
@@ -451,21 +449,22 @@
         <securevault.version>1.0.0-wso2v2</securevault.version>
 
         <jdbc-pool.version>7.0.34.wso2v2</jdbc-pool.version>
-        <testng.version>6.8.5</testng.version>
-        
+
         <!-- Test integration -->
-        <automation.framework.version>4.3.1</automation.framework.version>
         <slf4j.version>1.5.10</slf4j.version>
         <woden.api.version>1.0M9</woden.api.version>
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
+        <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
 
-
+        <test.framework.version>4.4.2</test.framework.version>
+        <jacoco.agent.version>0.7.4.201502262128</jacoco.agent.version>
+        <testng.verson>6.1.1</testng.verson>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.hazelcast.wso2</groupId>
+                <groupId>org.wso2.orbit.com.hazelcast</groupId>
                 <artifactId>hazelcast</artifactId>
                 <version>${orbit.version.hazelcast}</version>
             </dependency>
@@ -1144,6 +1143,11 @@
                 <artifactId>jettison</artifactId>
                 <version>${orbit.version.jettison}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+                <artifactId>encoder</artifactId>
+                <version>${orbit.version.encoder}</version>
+            </dependency>
             <!--service-stub versions -->
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -1239,16 +1243,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.testng</groupId>
-                <artifactId>testng</artifactId>
-                <version>${testng.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>emma</groupId>
-                <artifactId>emma</artifactId>
-                <version>${emma.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.zookeeper.wso2</groupId>
@@ -1403,11 +1397,6 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.integration.framework</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.securevault</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
@@ -1439,6 +1428,12 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>SecVerifier</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>aar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>Axis2SampleService</artifactId>
                 <version>${carbon.kernel.version}</version>
                 <type>aar</type>
             </dependency>
@@ -1476,25 +1471,41 @@
             </dependency>
 
 
-                <!-- Test integration dependencies -->
+            <!-- Test integration dependencies -->
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.engine</artifactId>
-                <version>${automation.framework.version}</version>
+                <version>${test.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.extensions</artifactId>
-                <version>${automation.framework.version}</version>
+                <version>${test.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon.automation</groupId>
                 <artifactId>org.wso2.carbon.automation.test.utils</artifactId>
-                <version>${automation.framework.version}</version>
+                <version>${test.framework.version}</version>
+            </dependency>
+            <!--<dependency>
+                <groupId>org.wso2.carbon.automationutils</groupId>
+                <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
+                <version>${test.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.automationutils</groupId>
+                <artifactId>org.wso2.carbon.integration.common.admin.client</artifactId>
+                <version>${test.framework.version}</version>
+            </dependency>-->
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils
+                </artifactId>
+                <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.integration.test.common.integration.test.utils</artifactId>
+                <artifactId>org.wso2.carbon.integration.test.common.admin.clients</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
@@ -1503,6 +1514,29 @@
                 <version>${woden.api.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${version.com.google.code.gson}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <version>${jacoco.agent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.verson}</version>
+            </dependency>
+
+            <!-- SampleServlet for Integration Test -->
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>SampleServletTest</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

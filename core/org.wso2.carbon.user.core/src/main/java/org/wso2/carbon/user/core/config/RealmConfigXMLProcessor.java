@@ -196,7 +196,9 @@ public class RealmConfigXMLProcessor {
             return realmConfig;
         } catch (Exception e) {
             String message = "Error while reading realm configuration from file";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new UserStoreException(message, e);
         }
 
@@ -216,11 +218,15 @@ public class RealmConfigXMLProcessor {
             return realmConfig;
         } catch (RuntimeException e) {
             String message = "An unexpected error occurred while building the realm configuration.";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new UserStoreException(message, e);
         } catch (Exception e) {
             String message = "Error while reading realm configuration from file";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new UserStoreException(message, e);
         }
 
@@ -256,11 +262,15 @@ public class RealmConfigXMLProcessor {
             return realmConfig;
         } catch (RuntimeException e) {
             String message = "An unexpected error occurred while building the realm configuration.";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new UserStoreException(message, e);
         } catch (Exception e) {
             String message = "Error while reading realm configuration from file";
-            log.error(message, e);
+            if (log.isDebugEnabled()) {
+                log.debug(message, e);
+            }
             throw new UserStoreException(message, e);
         }
 

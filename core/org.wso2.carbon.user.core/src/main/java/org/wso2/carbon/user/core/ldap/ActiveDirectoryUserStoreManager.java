@@ -48,6 +48,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * This class is responsible for manipulating Microsoft Active Directory(AD)and Active Directory
@@ -60,7 +61,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     private boolean isADLDSRole = false;
     private boolean isSSLConnection = false;
     private String userAccountControl = "512";
-
+    private String userAttributeSeparator = ",";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
 
     public ActiveDirectoryUserStoreManager() {
 
@@ -114,9 +116,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         boolean isUserBinded = false;
 
-		/* validity checks */
-        doAddUserValidityChecks(userName, credential); // / TODO
-
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
 
@@ -137,7 +136,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         Name compoundName = null;
         try {
             NameParser ldapParser = dirContext.getNameParser("");
-            compoundName = ldapParser.parse("cn=" + userName);
+            compoundName = ldapParser.parse("cn=" + escapeSpecialCharactersForDN(userName));
 
 			/* bind the user. A disabled user account with no password */
             dirContext.bind(compoundName, null, basicAttributes);
@@ -165,15 +164,16 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             dirContext.modifyAttributes(compoundName, mods);
 
         } catch (NamingException e) {
-            String errorMessage = "Error while adding the user to the Active Directory";
+            String errorMessage = "Error while adding the user to the Active Directory for user : " + userName;
             if (isUserBinded) {
                 try {
                     dirContext.unbind(compoundName);
                 } catch (NamingException e1) {
-                    errorMessage = "Error while accessing the Active Directory";
+                    errorMessage = "Error while accessing the Active Directory for user : " + userName;
                     throw new UserStoreException(errorMessage, e);
                 }
-                errorMessage = "Error while enabling the user account. Please check password policy at DC";
+                errorMessage = "Error while enabling the user account. Please check password policy at DC for user : " +
+                               userName;
             }
             throw new UserStoreException(errorMessage, e);
         } finally {
@@ -231,8 +231,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-		/* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
+        if (!isSSLConnection) {
+            logger.warn("Unsecured connection is being used. Password operations will fail");
+        }
 
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
@@ -242,8 +243,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
         // String searchFilter =
         // realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        String searchFilter = "(&" + userListFilter + "(" + userNameAttribute + "=" + userName
-                + "))";
+        String searchFilter = "(&" + userListFilter + "(" + userNameAttribute + "=" +
+                escapeSpecialCharactersForFilter(userName) + "))";
 
         SearchControls searchControl = new SearchControls();
         String[] returningAttributes = {"CN"};
@@ -252,7 +253,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         DirContext subDirContext = null;
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
-            NamingEnumeration<SearchResult> searchResults = dirContext.search(searchBase,
+            NamingEnumeration<SearchResult> searchResults = dirContext.search(escapeDNForSearch(searchBase),
                     searchFilter, searchControl);
             SearchResult user = null;
             int count = 0;
@@ -293,10 +294,13 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 				 */
             }
             subDirContext = (DirContext) dirContext.lookup(searchBase);
-            subDirContext.modifyAttributes("CN" + "=" + userCNValue, mods);
+            subDirContext.modifyAttributes("CN" + "=" + escapeSpecialCharactersForDN(userCNValue), mods);
 
         } catch (NamingException e) {
-            String error = "Can not access the directory service";
+            String error = "Can not access the directory service for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(error, e);
+            }
             throw new UserStoreException(error, e);
         } finally {
             JNDIUtil.closeContext(subDirContext);
@@ -308,8 +312,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-		/* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
+
+        if (!isSSLConnection) {
+            logger.warn("Unsecured connection is being used. Password operations will fail");
+        }
 
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
@@ -317,8 +323,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 .getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
         String userNameAttribute = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
-        String searchFilter = "(&" + userListFilter + "(" + userNameAttribute + "=" + userName
-                + "))";
+        String searchFilter = "(&" + userListFilter + "(" + userNameAttribute + "=" +
+                escapeSpecialCharactersForFilter(userName) + "))";
         SearchControls searchControl = new SearchControls();
         String[] returningAttributes = {"CN"};
         searchControl.setReturningAttributes(returningAttributes);
@@ -327,7 +333,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         DirContext subDirContext = null;
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
-            NamingEnumeration<SearchResult> searchResults = dirContext.search(searchBase,
+            NamingEnumeration<SearchResult> searchResults = dirContext.search(escapeDNForSearch(searchBase),
                     searchFilter, searchControl);
             SearchResult user = null;
             int count = 0;
@@ -359,26 +365,18 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                         createUnicodePassword((String) newCredential)));
 
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
-                subDirContext.modifyAttributes("CN" + "=" + userCNValue, mods);
+                subDirContext.modifyAttributes("CN" + "=" + escapeSpecialCharactersForDN(userCNValue), mods);
             }
 
         } catch (NamingException e) {
-            String error = "Can not access the directory service";
+            String error = "Can not access the directory service for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(error, e);
+            }
             throw new UserStoreException(error, e);
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
-        }
-    }
-
-    /**
-     *
-     */
-    protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
-            throws UserStoreException {
-        super.doUpdateCredentialsValidityChecks(userName, newCredential);
-        if (!isSSLConnection) {
-            logger.warn("Unsecured connection is being used. Password operations will fail");
         }
     }
 
@@ -454,7 +452,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         if (userNames.length > 1) {
             userName = userNames[1];
         }
-        userSearchFilter = userSearchFilter.replace("?", userName);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -468,15 +466,17 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         try {
 
-            returnedResultList = dirContext
-                    .search(userSearchBase, userSearchFilter, searchControls);
+            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
 
         } catch (NamingException e) {
-            throw new UserStoreException("Results could not be retrieved from the directory "
-                    + "context", e);
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
         }
@@ -524,12 +524,21 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 if (EMPTY_ATTRIBUTE_STRING.equals(claimEntry.getValue())) {
                     currentUpdatedAttribute.clear();
                 } else {
-                    if (claimEntry.getValue() != null && claimEntry.getValue().contains(",")) {
-                        String[] values = claimEntry.getValue().split(",");
-                        for (String newValue : values) {
-                            if (newValue != null && newValue.trim().length() > 0) {
-                                currentUpdatedAttribute.add(newValue.trim());
+                    if (claimEntry.getValue() != null) {
+                        String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                        if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                            userAttributeSeparator = claimSeparator;
+                        }
+                        if (claimEntry.getValue().contains(userAttributeSeparator)) {
+                            StringTokenizer st = new StringTokenizer(claimEntry.getValue(), userAttributeSeparator);
+                            while (st.hasMoreElements()) {
+                                String newVal = st.nextElement().toString();
+                                if (newVal != null && newVal.trim().length() > 0) {
+                                    currentUpdatedAttribute.add(newVal.trim());
+                                }
                             }
+                        } else {
+                            currentUpdatedAttribute.add(claimEntry.getValue());
                         }
                     } else {
                         currentUpdatedAttribute.add(claimEntry.getValue());
@@ -545,28 +554,11 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     updatedAttributes);
 
             if (cnModified && cnValue != null) {
-                subDirContext.rename(returnedUserEntry, "CN=" + cnValue);
+                subDirContext.rename(returnedUserEntry, "CN=" + escapeSpecialCharactersForDN(cnValue));
             }
 
-        } catch (InvalidAttributeValueException e) {
-            String errorMessage = "One or more attribute values provided are incompatible. "
-                    + "Please check and try again.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (InvalidAttributeIdentifierException e) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                    + "supported by underlying LDAP.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (NoSuchAttributeException e) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                    + "supported by underlying LDAP.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (NamingException e) {
-            String errorMessage = "Profile information could not be updated in ApacheDS "
-                    + "LDAP user store";
-            throw new UserStoreException(errorMessage, e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String errorMessage = "Error in obtaining claim mapping.";
-            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            handleException(e, userName);
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
@@ -584,7 +576,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         String userSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
         String userSearchFilter = realmConfig
                 .getUserStoreProperty(LDAPConstants.USER_NAME_SEARCH_FILTER);
-        userSearchFilter = userSearchFilter.replace("?", userName);
+        userSearchFilter = userSearchFilter.replace("?", escapeSpecialCharactersForFilter(userName));
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -595,14 +587,16 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         try {
 
-            returnedResultList = dirContext
-                    .search(userSearchBase, userSearchFilter, searchControls);
+            returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
             returnedUserEntry = returnedResultList.next().getName();
         } catch (NamingException e) {
-            throw new UserStoreException("Results could not be retrieved from the directory "
-                    + "context", e);
+            String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             JNDIUtil.closeNamingEnumeration(returnedResultList);
         }
@@ -625,11 +619,16 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             if (EMPTY_ATTRIBUTE_STRING.equals(value)) {
                 currentUpdatedAttribute.clear();
             } else {
-                if (value.contains(",")) {
-                    String[] values = value.split(",");
-                    for (String newValue : values) {
-                        if (newValue != null && newValue.trim().length() > 0) {
-                            currentUpdatedAttribute.add(newValue.trim());
+                String claimSeparator = realmConfig.getUserStoreProperty(MULTI_ATTRIBUTE_SEPARATOR);
+                if (claimSeparator != null && !claimSeparator.trim().isEmpty()) {
+                    userAttributeSeparator = claimSeparator;
+                }
+                if (value.contains(userAttributeSeparator)) {
+                    StringTokenizer st = new StringTokenizer(value, userAttributeSeparator);
+                    while (st.hasMoreElements()) {
+                        String newVal = st.nextElement().toString();
+                        if (newVal != null && newVal.trim().length() > 0) {
+                            currentUpdatedAttribute.add(newVal.trim());
                         }
                     }
                 } else {
@@ -645,25 +644,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
 
-        } catch (InvalidAttributeValueException e) {
-            String errorMessage = "One or more attribute values provided are incompatible. "
-                    + "Please check and try again.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (InvalidAttributeIdentifierException e) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                    + "supported by underlying LDAP.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (NoSuchAttributeException e) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                    + "supported by underlying LDAP.";
-            throw new UserStoreException(errorMessage, e);
-        } catch (NamingException e) {
-            String errorMessage = "Profile information could not be updated in ApacheDS "
-                    + "LDAP user store";
-            throw new UserStoreException(errorMessage, e);
-        } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String errorMessage = "Error in obtaining claim mapping.";
-            throw new UserStoreException(errorMessage, e);
+        } catch (Exception e) {
+            handleException(e, userName);
         } finally {
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
@@ -681,4 +663,186 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         return properties;
     }
 
+    private void handleException(Exception e, String userName) throws UserStoreException{
+        if (e instanceof InvalidAttributeValueException) {
+            String errorMessage = "One or more attribute values provided are incompatible for user : " + userName
+                                  + "Please check and try again.";
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof InvalidAttributeIdentifierException) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                                  + "supported by underlying LDAP for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof NoSuchAttributeException) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                                  + "supported by underlying LDAP for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof NamingException) {
+            String errorMessage = "Profile information could not be updated in LDAP user store for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof org.wso2.carbon.user.api.UserStoreException) {
+            String errorMessage = "Error in obtaining claim mapping for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        }
+    }
+
+    /**
+     * Escaping ldap search filter special characters in a string
+     * @param dnPartial
+     * @return
+     */
+    private String escapeSpecialCharactersForFilter(String dnPartial){
+        boolean replaceEscapeCharacters = true;
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        //TODO: implement character escaping for *
+
+        if (replaceEscapeCharacters) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < dnPartial.length(); i++) {
+                char currentChar = dnPartial.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        sb.append("\\5c");
+                        break;
+                  /*right now * is used as an IS special character so
+                  LDAP escaping won't fix the problem */
+//                case '*':
+//                    sb.append("\\2a");
+//                    break;
+                    case '(':
+                        sb.append("\\28");
+                        break;
+                    case ')':
+                        sb.append("\\29");
+                        break;
+                    case '\u0000':
+                        sb.append("\\00");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            return sb.toString();
+        } else {
+            return dnPartial;
+        }
+    }
+
+    /**
+     * Escaping ldap DN special characters in a String value
+     * @param text
+     * @return
+     */
+    private String escapeSpecialCharactersForDN(String text){
+        boolean replaceEscapeCharacters = true;
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+
+        if(replaceEscapeCharacters) {
+            StringBuilder sb = new StringBuilder();
+            if ((text.length() > 0) && ((text.charAt(0) == ' ') || (text.charAt(0) == '#'))) {
+                sb.append('\\'); // add the leading backslash if needed
+            }
+            for (int i = 0; i < text.length(); i++) {
+                char currentChar = text.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        sb.append("\\\\");
+                        break;
+                    case ',':
+                        sb.append("\\,");
+                        break;
+                    case '+':
+                        sb.append("\\+");
+                        break;
+                    case '"':
+                        sb.append("\\\"");
+                        break;
+                    case '<':
+                        sb.append("\\<");
+                        break;
+                    case '>':
+                        sb.append("\\>");
+                        break;
+                    case ';':
+                        sb.append("\\;");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            if ((text.length() > 1) && (text.charAt(text.length() - 1) == ' ')) {
+                sb.insert(sb.length() - 1, '\\'); // add the trailing backslash if needed
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug("value after escaping special characters in " + text + " : " + sb.toString());
+            }
+            return sb.toString();
+        } else {
+            return text;
+        }
+
+    }
+
+    /**
+     * This method performs the additional level escaping for ldap search. In ldap search / and " characters
+     * have to be escaped again
+     * @param dn
+     * @return
+     */
+    private String escapeDNForSearch(String dn){
+        boolean replaceEscapeCharacters = true;
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        if (replaceEscapeCharacters) {
+            return dn.replace("\\\\", "\\\\\\").replace("\\\"", "\\\\\"");
+        } else {
+            return dn;
+        }
+    }
 }

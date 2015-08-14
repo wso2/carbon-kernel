@@ -39,23 +39,19 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.Map;
 
-public class TenantTransportSender extends AbstractHandler implements TransportSender{
+public class TenantTransportSender extends AbstractHandler implements TransportSender {
 
     private ConfigurationContext superTenantConfigurationContext;
     private static final String SERVICE_PREFIX = "SERVICE_PREFIX";
+    private static final String REQUEST_HOST_HEADER = "REQUEST_HOST_HEADER";
+    private static final String HTTP_ETAG = "HTTP_ETAG";
 
     public TenantTransportSender(ConfigurationContext superTenantConfigurationContext) {
         this.superTenantConfigurationContext = superTenantConfigurationContext;
     }
 
     public InvocationResponse invoke(MessageContext msgContext) throws AxisFault {
-        MessageContext superTenantOutMessageContext =
-                this.superTenantConfigurationContext.createMessageContext();
-        superTenantOutMessageContext.setProperty(MessageContext.TRANSPORT_OUT,
-                msgContext.getProperty(MessageContext.TRANSPORT_OUT));
-        superTenantOutMessageContext.setProperty(Constants.OUT_TRANSPORT_INFO,
-                msgContext.getProperty(Constants.OUT_TRANSPORT_INFO));
-
+        MessageContext superTenantOutMessageContext = createMessageContext(msgContext);
         AxisConfiguration supperTenantAxisConfiguration =
                 this.superTenantConfigurationContext.getAxisConfiguration();
         AxisService axisService =
@@ -79,6 +75,96 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
 
         superTenantOutMessageContext.setOperationContext(operationContext);
 
+        EndpointReference epr = getDestinationEPR(msgContext);
+        // this is a request message so we need to set the response message context
+        if (epr != null) {
+            String messageId = UIDGenerator.generateURNString();
+            superTenantOutMessageContext.setMessageID(messageId);
+            superTenantOutMessageContext.setProperty(MultitenantConstants.TENANT_REQUEST_MSG_CTX,
+                    msgContext);
+
+            superTenantOutMessageContext.setServerSide(true);
+
+            MessageContext superTenantInMessageContext = new MessageContext();
+            superTenantInMessageContext.setMessageID(superTenantOutMessageContext.getMessageID());
+            superTenantInMessageContext.setProperty(
+                    "synapse.RelatesToForPox", messageId);
+            superTenantInMessageContext.setServerSide(true);
+
+            superTenantInMessageContext.setMessageID(messageId);
+            superTenantInMessageContext.setServiceContext(serviceContext);
+            axisOperation.registerOperationContext(superTenantInMessageContext, operationContext);
+            //The following clone is needed due to : CARBON-15332
+            superTenantOutMessageContext = cloneForSend(superTenantOutMessageContext);
+        }
+
+        if (!JavaUtils.isTrueExplicitly(msgContext.getProperty(
+                MultitenantConstants.TENANT_MR_STARTED_FAULT))) {
+            // if the
+            AxisEngine.send(superTenantOutMessageContext);
+
+            // Keep TRANSPORT_IN alive 
+            if (superTenantOutMessageContext.getProperty(MessageContext.TRANSPORT_IN) != null) {
+                msgContext.getOperationContext().
+                        setProperty(MessageContext.TRANSPORT_IN,
+                                superTenantOutMessageContext.getProperty(MessageContext.TRANSPORT_IN));
+            }
+            msgContext.setProperty(HTTPConstants.HTTP_METHOD, superTenantOutMessageContext.
+                    getProperty(HTTPConstants.HTTP_METHOD));
+        }
+        return InvocationResponse.CONTINUE;
+    }
+
+    public void cleanup(MessageContext msgContext) throws AxisFault {
+        HttpMethod httpMethod = (HttpMethod) msgContext.getProperty(HTTPConstants.HTTP_METHOD);
+        if (httpMethod != null) {
+            httpMethod.releaseConnection();
+            msgContext.removeProperty(HTTPConstants.HTTP_METHOD); // guard against multiple calls
+        }
+    }
+
+    public void init(ConfigurationContext confContext, TransportOutDescription transportOut)
+            throws AxisFault {
+
+    }
+
+    public void stop() {
+
+    }
+
+    /**
+     * Get the EPR for the message passed in
+     *
+     * @param msgContext the message context
+     * @return the destination EPR
+     */
+    public static EndpointReference getDestinationEPR(MessageContext msgContext) {
+
+        // Trasnport URL can be different from the WSA-To
+        String transportURL = (String) msgContext.getProperty(
+                Constants.Configuration.TRANSPORT_URL);
+
+        if (transportURL != null) {
+            return new EndpointReference(transportURL);
+        } else if (
+                (msgContext.getTo() != null) && !msgContext.getTo().hasAnonymousAddress()) {
+            return msgContext.getTo();
+        }
+        return null;
+    }
+
+    private MessageContext createMessageContext(MessageContext msgContext) throws AxisFault {
+        MessageContext superTenantOutMessageContext =
+                this.superTenantConfigurationContext.createMessageContext();
+
+        superTenantOutMessageContext.setProperty(MessageContext.TRANSPORT_OUT,
+                msgContext.getProperty(MessageContext.TRANSPORT_OUT));
+        superTenantOutMessageContext.setProperty(Constants.OUT_TRANSPORT_INFO,
+                msgContext.getProperty(Constants.OUT_TRANSPORT_INFO));
+
+        AxisConfiguration supperTenantAxisConfiguration =
+                this.superTenantConfigurationContext.getAxisConfiguration();
+
         String transportOutName = msgContext.getTransportOut().getName();
         superTenantOutMessageContext.setTransportOut(
                 supperTenantAxisConfiguration.getTransportOut(transportOutName));
@@ -93,10 +179,11 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         superTenantOutMessageContext.setDoingMTOM(msgContext.isDoingMTOM());
         superTenantOutMessageContext.setProperty(MessageContext.TRANSPORT_HEADERS,
                 msgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
-        
-        superTenantOutMessageContext.setProperty(MultitenantConstants.HTTP_SC,msgContext.getProperty(MultitenantConstants.HTTP_SC));
-        superTenantOutMessageContext.setProperty(HTTPConstants.HTTP_HEADERS,msgContext.getProperty(HTTPConstants.HTTP_HEADERS));
 
+        superTenantOutMessageContext.setProperty(MultitenantConstants.HTTP_SC,
+                msgContext.getProperty(MultitenantConstants.HTTP_SC));
+        superTenantOutMessageContext.setProperty(HTTPConstants.HTTP_HEADERS,
+                msgContext.getProperty(HTTPConstants.HTTP_HEADERS));
 
         // Copy Message type and Content type from the original message ctx
         // so that the content type will be set properly
@@ -137,25 +224,24 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
         boolean contentLengthCopy = msgContext.isPropertyTrue(MultitenantConstants.
                 COPY_CONTENT_LENGTH_FROM_INCOMING);
 
-        superTenantOutMessageContext.setProperty(MultitenantConstants.POST_TO_URI, 
-        		 msgContext.getProperty(MultitenantConstants.POST_TO_URI));        
-        
+        superTenantOutMessageContext.setProperty(MultitenantConstants.POST_TO_URI,
+                msgContext.getProperty(MultitenantConstants.POST_TO_URI));
+
         superTenantOutMessageContext.setProperty(MultitenantConstants.FORCE_HTTP_CONTENT_LENGTH,
                 forceContentLength);
         superTenantOutMessageContext.setProperty(MultitenantConstants.COPY_CONTENT_LENGTH_FROM_INCOMING,
                 contentLengthCopy);
 
 
-
         superTenantOutMessageContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
                 msgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
 
 
-        if (msgContext.getOperationContext() != null){
+        if (msgContext.getOperationContext() != null) {
             MessageContext inMessageContext =
                     msgContext.getOperationContext().getMessageContext(WSDLConstants.MESSAGE_LABEL_IN_VALUE);
-            if (inMessageContext != null){
-                superTenantOutMessageContext.setProperty(RequestResponseTransport.TRANSPORT_CONTROL, 
+            if (inMessageContext != null) {
+                superTenantOutMessageContext.setProperty(RequestResponseTransport.TRANSPORT_CONTROL,
                         inMessageContext.getProperty(RequestResponseTransport.TRANSPORT_CONTROL));
             }
         }
@@ -165,22 +251,25 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
             superTenantOutMessageContext.setProperty(AddressingConstants.DISABLE_ADDRESSING_FOR_OUT_MESSAGES,
                     msgContext.getProperty(AddressingConstants.DISABLE_ADDRESSING_FOR_OUT_MESSAGES));
         }
-        
-        if(msgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE) != null){
-        	superTenantOutMessageContext.setProperty(MultitenantConstants.PASS_THROUGH_PIPE, msgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE));
-        	superTenantOutMessageContext.setProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED,msgContext.getProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED) != null?msgContext.getProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED):Boolean.FALSE);
+
+        if (msgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE) != null) {
+            superTenantOutMessageContext.setProperty(MultitenantConstants.PASS_THROUGH_PIPE,
+                    msgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE));
+            superTenantOutMessageContext.setProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED,
+                    msgContext.getProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED) != null ?
+                            msgContext.getProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED) : Boolean.FALSE);
         }
 
         if (msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION) != null) {
             superTenantOutMessageContext.
                     setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION,
-                                msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION));
+                            msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION));
         }
 
         if (msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION) != null) {
             superTenantOutMessageContext.
                     setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION,
-                                msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION));
+                            msgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION));
         }
 
          /*Handling HTTP DELETE*/
@@ -193,78 +282,27 @@ public class TenantTransportSender extends AbstractHandler implements TransportS
             superTenantOutMessageContext.setProperty(SERVICE_PREFIX, msgContext.getProperty(SERVICE_PREFIX));
         }
 
-        EndpointReference epr = getDestinationEPR(msgContext);
-        // this is a request message so we need to set the response message context
-        if (epr != null) {
-            String messageId = UIDGenerator.generateURNString();
-            superTenantOutMessageContext.setMessageID(messageId);
-            superTenantOutMessageContext.setProperty(MultitenantConstants.TENANT_REQUEST_MSG_CTX, 
-                    msgContext);
-
-            superTenantOutMessageContext.setServerSide(true);
-
-            MessageContext superTenantInMessageContext = new MessageContext();
-            superTenantInMessageContext.setMessageID(superTenantOutMessageContext.getMessageID());
-            superTenantInMessageContext.setProperty(
-                    "synapse.RelatesToForPox", messageId);
-            superTenantInMessageContext.setServerSide(true);
-            
-            superTenantInMessageContext.setMessageID(messageId);
-            superTenantInMessageContext.setServiceContext(serviceContext);
-            axisOperation.registerOperationContext(superTenantInMessageContext, operationContext);
+        if (msgContext.getProperty(HTTP_ETAG) != null) {
+            superTenantOutMessageContext.setProperty(HTTP_ETAG, msgContext.getProperty(HTTP_ETAG));
         }
 
-        if (!JavaUtils.isTrueExplicitly(msgContext.getProperty(
-                MultitenantConstants.TENANT_MR_STARTED_FAULT))){
-            // if the
-            AxisEngine.send(superTenantOutMessageContext);
-
-            // Keep TRANSPORT_IN alive 
-            if (superTenantOutMessageContext.getProperty(MessageContext.TRANSPORT_IN) != null) {
-                msgContext.getOperationContext().
-                 setProperty(MessageContext.TRANSPORT_IN,
-                             superTenantOutMessageContext.getProperty(MessageContext.TRANSPORT_IN));
-            }
-            msgContext.setProperty(HTTPConstants.HTTP_METHOD, superTenantOutMessageContext.
-                    getProperty(HTTPConstants.HTTP_METHOD));
+        if (msgContext.getProperty(REQUEST_HOST_HEADER) != null) {
+            superTenantOutMessageContext.setProperty(REQUEST_HOST_HEADER,
+                    msgContext.getProperty(REQUEST_HOST_HEADER));
         }
-        return InvocationResponse.CONTINUE;
+        return superTenantOutMessageContext;
     }
 
-    public void cleanup(MessageContext msgContext) throws AxisFault {
-        HttpMethod httpMethod = (HttpMethod) msgContext.getProperty(HTTPConstants.HTTP_METHOD);
-        if (httpMethod != null) {
-            httpMethod.releaseConnection();
-            msgContext.removeProperty(HTTPConstants.HTTP_METHOD); // guard against multiple calls
+
+    private MessageContext cloneForSend(MessageContext original) throws AxisFault {
+        MessageContext newMC = createMessageContext(original);
+        newMC.setServiceContext(original.getServiceContext());
+        newMC.setOperationContext(original.getOperationContext());
+        newMC.setAxisMessage(original.getAxisMessage());
+        if (newMC.getAxisMessage() != null) {
+            newMC.getAxisMessage().setParent(original.getAxisOperation());
         }
-    }
-
-    public void init(ConfigurationContext confContext, TransportOutDescription transportOut)
-            throws AxisFault {
-
-    }
-
-    public void stop() {
-
-    }
-
-    /**
-     * Get the EPR for the message passed in
-     * @param msgContext the message context
-     * @return the destination EPR
-     */
-    public static EndpointReference getDestinationEPR(MessageContext msgContext) {
-
-        // Trasnport URL can be different from the WSA-To
-        String transportURL = (String) msgContext.getProperty(
-            Constants.Configuration.TRANSPORT_URL);
-
-        if (transportURL != null) {
-            return new EndpointReference(transportURL);
-        } else if (
-            (msgContext.getTo() != null) && !msgContext.getTo().hasAnonymousAddress()) {
-            return msgContext.getTo();
-        }
-        return null;
+        newMC.setAxisService(original.getAxisService());
+        return newMC;
     }
 }

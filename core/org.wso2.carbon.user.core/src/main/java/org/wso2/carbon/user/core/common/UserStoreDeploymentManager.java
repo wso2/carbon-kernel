@@ -80,7 +80,11 @@ public class UserStoreDeploymentManager {
             }
 
         } catch (Exception ex) {
-            throw new DeploymentException("The deployment of " + userMgtConfigFile.getName() + " is not valid.", ex);
+            String errorMessage = "The deployment of " + userMgtConfigFile.getName() + " is not valid.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, ex);
+            }
+            throw new DeploymentException(errorMessage, ex);
         }
 
     }
@@ -157,8 +161,12 @@ public class UserStoreDeploymentManager {
                 userStoreManager.removeSecondaryUserStoreManager(domainName);
             }
         } catch (Exception ex) {
-            log.error(ex.getMessage());
-            throw new DeploymentException("Error occurred at undeploying " + domainName + " from tenant:" + CarbonContext.getThreadLocalCarbonContext().getTenantId(), ex);
+            String errorMessage = "Error occurred at undeploying " + domainName + " from tenant:" +
+                                  CarbonContext.getThreadLocalCarbonContext().getTenantId();
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, ex);
+            }
+            throw new DeploymentException(errorMessage, ex);
         }
 
     }

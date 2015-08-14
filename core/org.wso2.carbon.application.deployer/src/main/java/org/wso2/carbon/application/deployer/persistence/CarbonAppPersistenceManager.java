@@ -24,6 +24,7 @@ import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.AXIOMUtil;
 import org.apache.axiom.om.xpath.AXIOMXPath;
 import org.apache.axis2.engine.AxisConfiguration;
+import org.apache.axis2.deployment.DeploymentException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -290,6 +291,9 @@ public class CarbonAppPersistenceManager {
                     pathMappingResource.setContent(element.toString());
                     configRegistry.put(AppDeployerConstants.REG_PATH_MAPPING +
                             regConfig.getAppName(), pathMappingResource);
+                    } else if (actualResourcePath == null) {
+                        String msg = "Error while deploying registry resource";
+                        throw new DeploymentException(msg);
                 }
             }
         }
@@ -474,7 +478,9 @@ public class CarbonAppPersistenceManager {
                         new StAXOMBuilder(xmlStream).getDocumentElement());
             }
         }
-        regConfig.setAppName(appName);
+        if (regConfig != null){
+            regConfig.setAppName(appName);
+        }
         return regConfig;
     }
     

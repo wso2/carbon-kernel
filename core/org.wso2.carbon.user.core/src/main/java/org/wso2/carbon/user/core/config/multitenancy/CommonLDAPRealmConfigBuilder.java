@@ -82,7 +82,9 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration" +
                     "when creating tenant's realm.";
-            logger.error(errorMessage, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
         return realmConfig;
@@ -195,7 +197,9 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         } catch (Exception e) {
             String errorMessage = "Error while building tenant specific realm configuration " +
                     "to be persisted.";
-            logger.error(errorMessage, e);
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
             throw new UserStoreException(errorMessage, e);
         }
     }
@@ -225,7 +229,6 @@ public class CommonLDAPRealmConfigBuilder implements MultiTenantRealmConfigBuild
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.CONNECTION_PASSWORD);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.CONNECTION_URL);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.PASSWORD_HASH_METHOD);
-        tenantRealmConfiguration.getUserStoreProperties().remove("passwordHashMethod");
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.USER_SEARCH_BASE);
         tenantRealmConfiguration.getUserStoreProperties().remove(LDAPConstants.GROUP_SEARCH_BASE);
         tenantRealmConfiguration.getUserStoreProperties().put(tenantManagerKey, tenantManagerValue);

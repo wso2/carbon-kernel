@@ -14,30 +14,26 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
-        <version>4.4.0-SNAPSHOT</version>
+        <version>4.5.0-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>integration</artifactId>
-    <version>4.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Integration</name>
     <modules>
         <module>security-verifier</module>
-        <module>core</module>
-        <module>framework</module>
+        <module>axis2-sample-service</module>
+        <module>sample-servlet</module>
         <module>test-common</module>
         <module>tests-integration</module>
-        <module>tests-ui-integration</module>
-        <!--module>tests</module-->
-        <!--module>tests-new</module-->
+        <!--<module>tests-ui-integration</module>-->
     </modules>
 </project>
