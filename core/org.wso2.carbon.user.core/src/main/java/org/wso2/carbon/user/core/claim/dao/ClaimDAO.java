@@ -119,6 +119,7 @@ public class ClaimDAO {
 
             prepStmt = dbConnection.prepareStatement(ClaimDBConstants.DELETE_DIALECT);
             prepStmt.setString(1, dialectUri);
+            prepStmt.setInt(2, tenantId);
             prepStmt.executeUpdate();
             prepStmt.close();
 
@@ -427,6 +428,7 @@ public class ClaimDAO {
                     if (getDialect(dbConnection, dialectUri) != -1) {
                         prepStmt = dbConnection.prepareStatement(ClaimDBConstants.DELETE_DIALECT);
                         prepStmt.setString(1, dialectUri);
+                        prepStmt.setInt(2, tenantId);
                         prepStmt.executeUpdate();
                     }
                 }
