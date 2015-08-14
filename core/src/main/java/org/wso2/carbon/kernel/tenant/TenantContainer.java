@@ -21,8 +21,9 @@ package org.wso2.carbon.kernel.tenant;
 import java.util.Map;
 
 /**
+ * <p>
  * TenantContainer is the entity which implements the hierarchical tenancy model.
- * <p/>
+ * </p>
  * Tenant hierarchy is a tenant group with parent-child relationships. We can name the root nodes of each tenant
  * hierarchy as top-level tenants or primary tenants. The parent of the top-level tenant can be null or can be
  * the “Server”.

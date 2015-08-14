@@ -31,6 +31,7 @@ public class Utils {
      * been modified.
      *
      * @param artifact artifact to check for modification
+     * @return boolean value of artifact modified or not
      */
     public static boolean isArtifactModified(Artifact artifact) {
         long currentTimeStamp = artifact.getLastModifiedTime();

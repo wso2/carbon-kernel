@@ -22,12 +22,14 @@ import java.util.Date;
 import java.util.Map;
 
 /**
+ * <p>
  * Tenant is the entity which represent the concept of a tenant in the Carbon runtime.
- * <p/>
+ * </p>
+ * <p>
  * Tenant is the entity which represents a virtual partition(isolated area) of a software which is designed
  * according to the multi-tenancy architecture. We use the term tenant in Carbon to refer an isolated partition
  * in the server. Therefore we can define a tenant as the unit of isolation.
- * <p/>
+ * </p>
  * Tenant interface extends the TenantContainer interface to support hierarchical tenancy model where a group of
  * tenants are connected to each other with parent-child relationships.
  *
