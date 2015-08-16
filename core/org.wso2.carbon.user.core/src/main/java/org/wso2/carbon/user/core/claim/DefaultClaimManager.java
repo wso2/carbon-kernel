@@ -123,7 +123,6 @@ public class DefaultClaimManager implements ClaimManager {
      * {@inheritDoc}
      */
     public Claim getClaim(String claimURI) throws UserStoreException {
-        //Claim claim=new Claim(claimURI);
         ClaimMapping mapping = claimMapping.get(claimURI);
         if (mapping != null) {
             return mapping.getClaim();
