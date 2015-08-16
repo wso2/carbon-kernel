@@ -530,7 +530,6 @@ public class HybridRoleManager {
                     tenantId);
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
                     roleName, tenantId);
-            dbConnection.commit();
         } catch (SQLException e) {
             String errorMessage = "Error occurred while deleting hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
