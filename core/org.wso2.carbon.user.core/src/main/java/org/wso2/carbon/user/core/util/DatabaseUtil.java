@@ -539,7 +539,6 @@ public class DatabaseUtil {
                 }
             }
             prepStmt.executeUpdate();
-            dbConnection.commit();
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
