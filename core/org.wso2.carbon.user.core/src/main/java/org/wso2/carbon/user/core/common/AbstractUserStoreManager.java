@@ -2291,7 +2291,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isHybridRole()) {
-            hybridRoleManager.deleteHybridRole(userStore.getDomainFreeName());
+            if(UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                hybridRoleManager.deleteHybridRole(roleName);
+            } else {
+                hybridRoleManager.deleteHybridRole(userStore.getDomainFreeName());
+            }
             clearUserRolesCacheByTenant(tenantId);
             return;
         }
@@ -2367,7 +2371,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 return userStore;
             } else {
                 if (!domain.equalsIgnoreCase(getMyDomainName())) {
-                    if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain))) {
+                    if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                         || UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
                         userStore.setHybridRole(true);
                     } else if (UserCoreConstants.SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
                         userStore.setSystemStore(true);
@@ -2497,12 +2502,24 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
 
-        if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(roleName))) {
-            throw new UserStoreException("Role name: " + roleName
-                    + " in the system. Please pick another role name.");
+        if(roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR) && roleName.startsWith(UserCoreConstants.APPLICATION_DOMAIN)){
+            if (hybridRoleManager.isExistingRole(roleName)) {
+                throw new UserStoreException("Role name: " + roleName
+                                             + " in the system. Please pick another role name.");
+            }
+
+            hybridRoleManager.addHybridRole(roleName, userList);
+
+        } else {
+            if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(roleName))) {
+                throw new UserStoreException("Role name: " + roleName
+                                             + " in the system. Please pick another role name.");
+            }
+
+            hybridRoleManager.addHybridRole(UserCoreUtil.removeDomainFromName(roleName), userList);
         }
 
-        hybridRoleManager.addHybridRole(UserCoreUtil.removeDomainFromName(roleName), userList);
+
 
         if (permissions != null) {
             for (org.wso2.carbon.user.api.Permission permission : permissions) {
