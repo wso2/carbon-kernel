@@ -42,9 +42,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,23 +100,13 @@ public final class UserCoreUtil {
      * @throws UserStoreException
      */
     public static String[] combine(String[] array, List<String> list) throws UserStoreException {
-        // TODO :: null checks
-        String[] newArray = array;
-        if (list.size() > 0) {
-            newArray = new String[list.size() + array.length];
-            int i = 0;
-            for (Iterator<String> ite = list.iterator(); ite.hasNext(); ) {
-                String name = ite.next();
-                newArray[i] = name;
-                i++;
-            }
 
-            for (String name : array) {
-                newArray[i] = name;
-                i++;
-            }
+        if(array == null || list == null){
+            throw new IllegalArgumentException("Invalid parameters; array : " + array + ", list : " + list);
         }
-        return newArray;
+        Set h = new HashSet(list);
+        h.addAll(Arrays.asList(array));
+        return (String[]) h.toArray(new String[h.size()]);
     }
 
     /**
@@ -314,8 +306,11 @@ public final class UserCoreUtil {
             randomNum = new Integer(prng.nextInt()).toString();
 
         } catch (NoSuchAlgorithmException e) {
-            log.error("Error while creating the random password.", e);
-            throw new UserStoreException("Error while creating the random password.", e);
+            String errorMessage = "Error while creating the random password for user : " + username;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
 
         return new String(password).concat(randomNum);
@@ -732,9 +727,19 @@ public final class UserCoreUtil {
                 dbConnection.commit();
             }
         } catch (UserStoreException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "Error occurred while checking is existing domain : " + domain + " for tenant : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "DB error occurred while persisting domain : " + domain + " & tenant id : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -757,9 +762,19 @@ public final class UserCoreUtil {
                 dbConnection.commit();
             }
         } catch (UserStoreException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "Error occurred while deleting domain : " + domain + " for tenant : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "DB error occurred while deleting domain : " + domain + " & tenant id : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -792,9 +807,21 @@ public final class UserCoreUtil {
                 dbConnection.commit();
             }
         } catch (UserStoreException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "Error occurred while updating domain : " + previousDomain + " to new domain : " + newDomain +
+                    " for tenant : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage());
+            String errorMessage =
+                    "DB error occurred while updating domain : " + previousDomain + " to new domain : " + newDomain +
+                    " for tenant : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -850,7 +877,12 @@ public final class UserCoreUtil {
             }
             return isExisting;
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage =
+                    "DB error occurred while checking is existing domain : " + domain + " & tenant id : " + tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -876,7 +908,13 @@ public final class UserCoreUtil {
             }
             return isExisting;
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage =
+                    "DB error occurred while checking is existing domain id : " + domainId + " & tenant id : " +
+                    tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -903,7 +941,13 @@ public final class UserCoreUtil {
             }
             return isExisting;
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage =
+                    "DB error occurred while checking is existing system role for : " + roleName + " & tenant id : " +
+                    tenantId;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }

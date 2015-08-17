@@ -18,7 +18,7 @@
 <serviceGroup>
     <service name="SecurityVerifierService">
         <parameter name="ServiceClass" locked="true">
-            org.wso2.carbon.integration.secverifier.SecurityVerifierService
+            org.wso2.carbon.integration.tests.secverifier.SecurityVerifierService
         </parameter>
     </service>
 </serviceGroup>

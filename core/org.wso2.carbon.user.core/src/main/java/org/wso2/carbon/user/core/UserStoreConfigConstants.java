@@ -37,7 +37,6 @@ public class UserStoreConfigConstants {
     public static final String SCIMEnabled = "SCIMEnabled";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
 
-
     //Mandatory to LDAP user stores
     public static final String connectionURL = "ConnectionURL";
     public static final String connectionURLDescription = "Connection URL for the user store";

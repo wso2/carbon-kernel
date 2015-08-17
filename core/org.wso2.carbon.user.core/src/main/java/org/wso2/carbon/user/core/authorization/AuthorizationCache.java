@@ -17,6 +17,11 @@ package org.wso2.carbon.user.core.authorization;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.user.api.UserStoreException;
+import org.wso2.carbon.user.core.UserCoreConstants;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;

@@ -37,7 +37,6 @@
 package org.wso2.carbon.core.multitenancy.utils;
 
 import org.apache.axis2.AxisFault;
-import org.apache.axis2.Constants;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.description.AxisService;
@@ -66,6 +65,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -117,6 +117,19 @@ public final class TenantAxisUtils {
     public static ConfigurationContext
     getTenantConfigurationContext(String tenantDomain, ConfigurationContext mainConfigCtx) {
         ConfigurationContext tenantConfigCtx;
+
+        Boolean isTenantActive;
+        try {
+            isTenantActive = CarbonCoreDataHolder.getInstance().getRealmService().getTenantManager().
+                    isTenantActive(getTenantId(tenantDomain));
+        } catch (Exception e) {
+            throw new RuntimeException("Error while getting tenant activation status.", e);
+        }
+
+        if (!isTenantActive) {
+            throw new RuntimeException("Trying to access inactive tenant domain : " + tenantDomain);
+        }
+
         if (tenantReadWriteLocks.get(tenantDomain) == null) {
             synchronized (tenantDomain.intern()) {
                 if (tenantReadWriteLocks.get(tenantDomain) == null) {
@@ -311,16 +324,17 @@ public final class TenantAxisUtils {
                 tenantConfigCtx.setContextRoot("local:/");
 
                 TenantTransportSender transportSender = new TenantTransportSender(mainConfigCtx);
-                //adding new transport outs
-                // adding the two tenant specific transport senders
-                TransportOutDescription httpOutDescription = new TransportOutDescription(Constants.TRANSPORT_HTTP);
-                httpOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(httpOutDescription);
-
-                // adding the two tenant specific transport senders
-                TransportOutDescription httpsOutDescription = new TransportOutDescription(Constants.TRANSPORT_HTTPS);
-                httpsOutDescription.setSender(transportSender);
-                tenantAxisConfig.addTransportOut(httpsOutDescription);
+                // Adding transport senders
+                HashMap<String, TransportOutDescription> transportSenders =
+                        mainAxisConfig.getTransportsOut();
+                if (transportSenders != null && !transportSenders.isEmpty()) {
+                    for (String strTransport : transportSenders.keySet()) {
+                        TransportOutDescription outDescription =
+                                new TransportOutDescription(strTransport);
+                        outDescription.setSender(transportSender);
+                        tenantAxisConfig.addTransportOut(outDescription);
+                    }
+                }
 
                 // Set the work directory
                 tenantConfigCtx.setProperty(ServerConstants.WORK_DIR,

@@ -59,7 +59,7 @@ public class SCIRegistrarContextConfig extends ContextConfig {
             return;
         }
 
-        //code bleongs to org.wso2.carbon.tomcat.internal.SCIRegistrarContextConfig
+        //code belongs to org.wso2.carbon.tomcat.internal.SCIRegistrarContextConfig
         List<ServletContainerInitializer> mutableDetectedScis = getCustomSciList(detectedScis);
 
         // Code below is from {@link org.apache.catalina.startup.ContextConfig}

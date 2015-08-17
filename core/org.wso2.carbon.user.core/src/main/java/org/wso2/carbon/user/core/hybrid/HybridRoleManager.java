@@ -81,7 +81,7 @@ public class HybridRoleManager {
                 primaryDomainName = primaryDomainName.toUpperCase();
             }
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 
             if (!this.isExistingRole(roleName)) {
                 DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL,
@@ -107,9 +107,17 @@ public class HybridRoleManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while adding hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -142,7 +150,7 @@ public class HybridRoleManager {
 
             // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_ROLE_ID);
             prepStmt.setString(1, roleName);
             prepStmt.setInt(2, tenantId);
@@ -158,8 +166,11 @@ public class HybridRoleManager {
             }
             return isExisting;
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while checking is existing role for role name : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -203,7 +214,7 @@ public class HybridRoleManager {
                 filter = "%";
             }
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 
             if (dbConnection == null) {
                 throw new UserStoreException("null connection");
@@ -244,10 +255,11 @@ public class HybridRoleManager {
             }
             return filteredRoles.toArray(new String[filteredRoles.size()]);
         } catch (SQLException e) {
+            String errorMessage = "Error occurred while getting hybrid roles from filter : " + filter;
             if (log.isDebugEnabled()) {
-                log.debug("Using sql : " + sqlStmt);
+                log.debug(errorMessage, e);
             }
-            throw new UserStoreException(e.getMessage(), e);
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
         }
@@ -269,13 +281,16 @@ public class HybridRoleManager {
         String sqlStmt = HybridJDBCConstants.GET_USER_LIST_OF_ROLE_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String[] names = DatabaseUtil.getStringValuesFromDatabaseForInternalRoles(dbConnection, sqlStmt,
                     roleName, tenantId, tenantId);
             return names;
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting user list from hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -303,7 +318,7 @@ public class HybridRoleManager {
                 primaryDomainName = primaryDomainName.toUpperCase();
             }
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String type = DatabaseCreator.getDatabaseType(dbConnection);
 
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
@@ -333,9 +348,17 @@ public class HybridRoleManager {
 
             dbConnection.commit();
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while updating user list of hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -362,7 +385,7 @@ public class HybridRoleManager {
             String domain = UserCoreUtil.extractDomainFromName(userName);
             // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 
             if (domain != null) {
                 domain = domain.toUpperCase();
@@ -395,7 +418,11 @@ public class HybridRoleManager {
                 return roles;
             }
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting hybrid role list of user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -420,7 +447,7 @@ public class HybridRoleManager {
             String domain = UserCoreUtil.extractDomainFromName(user);
             // ########### Domain-less Roles and Domain-aware Users from here onwards #############
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String type = DatabaseCreator.getDatabaseType(dbConnection);
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
                 sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_MSSQL;
@@ -446,9 +473,17 @@ public class HybridRoleManager {
             }
             dbConnection.commit();
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while updating hybrid role list of user : " + user;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } catch (Exception e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while getting database type from DB connection";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -472,7 +507,7 @@ public class HybridRoleManager {
 
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             DatabaseUtil.updateDatabase(dbConnection,
                     HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId,
                     tenantId);
@@ -480,8 +515,11 @@ public class HybridRoleManager {
                     roleName, tenantId);
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while deleting hybrid role : " + roleName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -511,7 +549,7 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
                 DatabaseUtil.updateDatabase(dbConnection, sqlStmt, newRoleName, roleName, tenantId);
             } else {
@@ -521,10 +559,12 @@ public class HybridRoleManager {
             this.userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(roleName,
                     newRoleName);
         } catch (SQLException e) {
+            String errorMessage =
+                    "Error occurred while updating hybrid role : " + roleName + " to new role : " + newRoleName;
             if (log.isDebugEnabled()) {
-                log.debug("Using sql : " + sqlStmt);
+                log.debug(errorMessage, e);
             }
-            throw new UserStoreException(e.getMessage(), e);
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection);
         }
@@ -563,7 +603,7 @@ public class HybridRoleManager {
 //		ResultSet rs = null;
 //		boolean isUserInRole = false;
 //		try {
-//			dbConnection = getDBConnection();
+//			dbConnection = DatabaseUtil.getDBConnection(dataSource);
 //			prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.IS_USER_IN_ROLE_SQL);
 //			prepStmt.setString(1, userName);
 //			prepStmt.setString(2, roleName);
@@ -607,7 +647,7 @@ public class HybridRoleManager {
         }
 
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             preparedStatement = dbConnection.prepareStatement(HybridJDBCConstants.REMOVE_USER_SQL);
             preparedStatement.setString(1, UserCoreUtil.removeDomainFromName(userName));
             preparedStatement.setInt(2, tenantId);
@@ -616,20 +656,14 @@ public class HybridRoleManager {
             preparedStatement.execute();
             dbConnection.commit();
         } catch (SQLException e) {
-            throw new UserStoreException(e.getMessage(), e);
+            String errorMessage = "Error occurred while deleting user : " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, preparedStatement);
         }
-    }
-
-    /**
-     * @return
-     * @throws SQLException
-     */
-    private Connection getDBConnection() throws SQLException {
-        Connection dbConnection = dataSource.getConnection();
-        dbConnection.setAutoCommit(false);
-        return dbConnection;
     }
 
     /**

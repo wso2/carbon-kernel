@@ -26,11 +26,14 @@ import org.apache.axis2.util.JavaUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.core.RegistryResources;
 import org.wso2.carbon.core.Resources;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.SystemFilter;
+import org.wso2.carbon.registry.api.RegistryException;
 import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -151,7 +154,7 @@ public class DeploymentInterceptor implements AxisObserver {
 
 
     public void serviceUpdate(AxisEvent axisEvent, AxisService axisService) {
-        if (CarbonUtils.isWorkerNode()) {
+        if (CarbonUtils.isWorkerNode() && axisEvent.getEventType() != AxisEvent.SERVICE_DEPLOY) {
             if (log.isDebugEnabled()) {
                 log.debug("Skip deployment intercepting in worker nodes.");
             }
@@ -187,6 +190,7 @@ public class DeploymentInterceptor implements AxisObserver {
                 // if (eventType == AxisEvent.SERVICE_STOP) do nothing
 
                 if (eventType == AxisEvent.SERVICE_DEPLOY) {
+                    axisService.setActive(getPersistedServiceStatus(axisService));
                     if (!JavaUtils.isTrue(axisService.getParameterValue(
                             CarbonConstants.HIDDEN_SERVICE_PARAM_NAME))) {
                         log.info("Deploying Axis2 service: " + serviceName +
@@ -198,13 +202,14 @@ public class DeploymentInterceptor implements AxisObserver {
 
 
                 } else if (eventType == AxisEvent.SERVICE_START) {
+                    removeServiceStatus(axisService);
                 } else if (eventType == AxisEvent.SERVICE_STOP) {
+                    persistServiceStatus(axisService);
                 } else if (eventType == AxisEvent.SERVICE_REMOVE) {
 
                     log.info("Removing Axis2 Service: " + axisService.getName() +
                              getTenantIdAndDomainString());
-
-
+                    deleteServiceResource(axisService);
                 }
             } catch (Exception e) {
                 String msg = "Exception occurred while handling service update event." +
@@ -213,6 +218,72 @@ public class DeploymentInterceptor implements AxisObserver {
             }
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
+        }
+    }
+
+    private String getServiceResourcePath(AxisService axisService) {
+        return RegistryResources.SERVICE_GROUPS + axisService.getAxisServiceGroup()
+                .getServiceGroupName() + RegistryResources.SERVICES + axisService.getName();
+    }
+
+    private boolean getPersistedServiceStatus(AxisService axisService) {
+        String serviceResourcePath = getServiceResourcePath(axisService);
+        boolean isServerActive = axisService.isActive();
+        try {
+            if (registry.resourceExists(serviceResourcePath)) {
+                Resource serviceResource = registry.get(serviceResourcePath);
+                if (serviceResource.getProperty(RegistryResources.ServiceProperties.ACTIVE) != null) {
+                    isServerActive = Boolean.parseBoolean(serviceResource.getProperty(RegistryResources.ServiceProperties.ACTIVE));
+                }
+            }
+        } catch (RegistryException e) {
+            log.error("Failed to read persisted service status.", e);
+        }
+        return isServerActive;
+    }
+
+    private void deleteServiceResource(AxisService axisService) {
+        String serviceResourcePath = getServiceResourcePath(axisService);
+        try {
+            if (registry.resourceExists(serviceResourcePath)) {
+                registry.delete(serviceResourcePath);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Service [" + axisService.getName() + "] doesn't have any resource or resource path ["
+                            + serviceResourcePath + "] has already been deleted.");
+                }
+            }
+        } catch (RegistryException e) {
+            log.error("Failed to delete service resource.", e);
+        }
+    }
+
+    private void persistServiceStatus(AxisService axisService) {
+        String serviceResourcePath = getServiceResourcePath(axisService);
+        Resource serviceResource;
+        try {
+            if (registry.resourceExists(serviceResourcePath)) {
+                serviceResource = registry.get(serviceResourcePath);
+            } else {
+                serviceResource = registry.newCollection();
+            }
+            serviceResource.setProperty(RegistryResources.ServiceProperties.ACTIVE, Boolean.toString(axisService.isActive()));
+            registry.put(serviceResourcePath, serviceResource);
+        } catch (RegistryException e) {
+            log.error("Failed to persist service status.", e);
+        }
+    }
+
+    private void removeServiceStatus(AxisService axisService) {
+        String serviceResourcePath = getServiceResourcePath(axisService);
+        try {
+            if (registry.resourceExists(serviceResourcePath)) {
+                Resource serviceResource = registry.get(serviceResourcePath);
+                serviceResource.removeProperty(RegistryResources.ServiceProperties.ACTIVE);
+                registry.put(serviceResourcePath, serviceResource);
+            }
+        } catch (RegistryException e) {
+            log.error("Failed to remove service status.", e);
         }
     }
 
@@ -254,10 +325,47 @@ public class DeploymentInterceptor implements AxisObserver {
                     }
                 }
 
+                // check whether the module is globally engaged
+                boolean globallyEngaged = getPersistedModuleGloballyEngagedStatus(axisModule);
+                if (globallyEngaged) {
+                    axisModule.addParameter(new Parameter(RegistryResources.ModuleProperties.GLOBALLY_ENGAGED,
+                                                          Boolean.TRUE.toString()));
+                    axisModule.getParent().engageModule(axisModule);
+                }
             }
+        } catch (AxisFault axisFault) {
+            log.error("Failed to globally engage the module: " + axisModule.getName(), axisFault);
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
         }
+    }
+
+    /**
+     * This method reads the module globally engaged status from the registry
+     * @param axisModule
+     * @return
+     */
+    private boolean getPersistedModuleGloballyEngagedStatus(AxisModule axisModule) {
+        boolean globallyEngagedModule = false;
+        String moduleResourcePath = getModuleResourcePath(axisModule);
+
+        try {
+            if (registry.resourceExists(moduleResourcePath)) {
+                Resource moduleResource = registry.get(moduleResourcePath);
+                if (moduleResource.getProperty(RegistryResources.ModuleProperties.GLOBALLY_ENGAGED) != null) {
+                    globallyEngagedModule = Boolean.valueOf(moduleResource.getProperty(
+                            RegistryResources.ModuleProperties.GLOBALLY_ENGAGED));
+                }
+            }
+        } catch (org.wso2.carbon.registry.core.exceptions.RegistryException e) {
+            log.error("Failed to read persisted module globally engaged status.", e);
+        }
+
+        return globallyEngagedModule;
+    }
+
+    private String getModuleResourcePath(AxisModule axisModule) {
+        return RegistryResources.MODULES + axisModule.getName() + "/" + axisModule.getVersion();
     }
 
     public void addParameter(Parameter parameter) throws AxisFault {

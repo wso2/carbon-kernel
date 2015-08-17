@@ -21,6 +21,7 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MapEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.caching.impl.DistributedMapProvider;
@@ -93,6 +94,16 @@ public class HazelcastDistributedMapProvider implements DistributedMapProvider {
                         if (!kvEntryEvent.getMember().equals(hazelcastInstance.getCluster().getLocalMember())) {
                             entryListener.entryRemoved(kvEntryEvent.getKey());
                         }
+                    }
+
+                    @Override
+                    public void mapEvicted(MapEvent mapEvent) {
+                        map.evictAll();
+                    }
+
+                    @Override
+                    public void mapCleared(MapEvent mapEvent) {
+                        map.clear();
                     }
                 }, false);
             }

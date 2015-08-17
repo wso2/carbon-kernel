@@ -15,20 +15,18 @@
  ~ limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel-features</artifactId>
-        <version>4.4.0-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.core.common.feature</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.0-SNAPSHOT</version>
     <name>WSO2 Carbon - Carbon Common Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the carbon core common features</description>
@@ -82,7 +80,7 @@
                                 <bundleDef>opensaml.wso2:opensaml2:${version.opensaml2}</bundleDef>
                                 <bundleDef>org.apache.abdera.wso2:abdera:${orbit.version.abdera}</bundleDef>
                                 <bundleDef>org.apache.axis2.wso2:axis2:${orbit.version.axis2}</bundleDef>
-                                <bundleDef>com.hazelcast.wso2:hazelcast:${orbit.version.hazelcast}</bundleDef>
+                                <bundleDef>org.wso2.orbit.com.hazelcast:hazelcast:${orbit.version.hazelcast}</bundleDef>
                                 <bundleDef>org.apache.tiles.wso2:tiles-jsp:${orbit.version.tiles}</bundleDef>
                                 <bundleDef>org.apache.ant.wso2:ant:${version.ant}</bundleDef>
                                 <bundleDef>org.apache.xmlbeans.wso2:xmlbeans:${version.xmlbeans}</bundleDef>
@@ -119,6 +117,7 @@
                                 <bundleDef>com.jezhumble.wso2:javasysmon:${javasysmon.version}</bundleDef>
                                 <bundleDef>org.apache.tomcat.wso2:jdbc-pool:${jdbc-pool.version}</bundleDef>
                                 <bundleDef>org.eclipse.jdt.core.compiler:ecj:${version.eclipse.ecj}</bundleDef>
+                                <bundleDef>com.google.code.gson:gson:${version.com.google.code.gson}</bundleDef>
 
                                 <!--Kernel bundles-->
                                 <bundleDef>org.wso2.carbon:org.wso2.carbon.utils:${carbon.kernel.version}</bundleDef>
