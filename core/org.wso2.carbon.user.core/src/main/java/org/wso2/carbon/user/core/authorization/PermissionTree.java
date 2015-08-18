@@ -23,6 +23,8 @@ import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.registry.api.GhostResource;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
@@ -45,6 +47,7 @@ public class PermissionTree {
 
     private static final String PERMISSION_CACHE_MANAGER = "PERMISSION_CACHE_MANAGER";
     private static final String PERMISSION_CACHE = "PERMISSION_CACHE";
+    private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static Log log = LogFactory.getLog(PermissionTree.class);
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock read = readWriteLock.readLock();
@@ -89,6 +92,9 @@ public class PermissionTree {
     }
 
     void authorizeUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -113,6 +119,9 @@ public class PermissionTree {
     }
 
     void denyUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -249,6 +258,9 @@ public class PermissionTree {
      */
     SearchResult getUserPermission(String user, TreeNode.Permission permission, SearchResult sr,
                                    TreeNode node, List<String> pathParts) {
+        if (!isCaseSensitiveUsername(user, tenantId)) {
+            user = user.toLowerCase();
+        }
         read.lock();
         try {
             if (node == null) {
@@ -607,6 +619,9 @@ public class PermissionTree {
     }
 
     void clearUserAuthorization(String userName, String resourceId, String action) throws UserStoreException {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             SearchResult sr = getNode(root, PermissionTreeUtil.toComponenets(resourceId));
@@ -825,6 +840,9 @@ public class PermissionTree {
 
 
     private void clearUserAuthorization(String userName, TreeNode node) {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             Map<String, BitSet> allowUsers = node.getUserAllowPermissions();
@@ -1038,6 +1056,32 @@ public class PermissionTree {
         Connection dbConnection = dataSource.getConnection();
         dbConnection.setAutoCommit(false);
         return dbConnection;
+    }
+
+    private boolean isCaseSensitiveUsername(String username, int tenantId){
+
+        if (UserStoreMgtDSComponent.getRealmService() != null) {
+            //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
+            //as an example when running the unit tests.
+            try {
+                UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
+                        .getTenantUserRealm(tenantId).getUserStoreManager();
+                UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                        (UserCoreUtil.extractDomainFromName(username));
+                String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
+                        .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+                if (isUsernameCaseInsensitiveString != null) {
+                    return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+                } else {
+                    return true;
+                }
+            } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
+                }
+            }
+        }
+        return true;
     }
 
 }

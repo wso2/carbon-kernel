@@ -27,6 +27,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
+import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -50,6 +51,8 @@ public class HybridRoleManager {
     private DataSource dataSource;
     private RealmConfiguration realmConfig;
     private boolean userRolesCacheEnabled = true;
+
+    private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
@@ -372,7 +375,12 @@ public class HybridRoleManager {
     public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
-        String sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
+        String sqlStmt;
+        if (isCaseSensitiveUsername()){
+            sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
+        }else {
+            sqlStmt = JDBCCaseInsensitiveConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE;
+        }
 
         if (getRoleListOfUserSQLConfig != null && !getRoleListOfUserSQLConfig.equals("")) {
             sqlStmt = getRoleListOfUserSQLConfig;
@@ -703,6 +711,16 @@ public class HybridRoleManager {
      */
     protected String getMyDomainName() {
         return UserCoreUtil.getDomainName(realmConfig);
+    }
+
+    private boolean isCaseSensitiveUsername() throws UserStoreException{
+
+        String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+        if (isUsernameCaseInsensitiveString != null) {
+            return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+        } else {
+            return true;
+        }
     }
 
 }

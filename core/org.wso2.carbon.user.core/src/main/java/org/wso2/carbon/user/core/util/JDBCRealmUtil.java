@@ -16,6 +16,7 @@
 package org.wso2.carbon.user.core.util;
 
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
+import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 
 import java.util.Map;
 
@@ -215,6 +216,124 @@ public class JDBCRealmUtil {
             properties.put(JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE,
                     JDBCRealmConstants.ADD_USER_PROPERTY_OPENEDGE_SQL);
         }
+
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
+                    .SELECT_USER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_ROLE_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
+                    .GET_USER_ROLE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_SHARED_ROLES_FOR_USER_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_SHARED_ROLES_FOR_USER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USER_FILTER_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_USER_FILTER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_IS_USER_EXISTING_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_PROPS_FOR_PROFILE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_PROP_FOR_PROFILE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_PROP_FOR_PROFILE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_PROP_FOR_PROFILE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_PROFILE_NAMES_FOR_USER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_PROFILE_NAMES_FOR_USER_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_PROFILE_NAMES_FOR_USER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_USERID_FROM_USERNAME_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.GET_TENANT_ID_FROM_USERNAME_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_SHARED_ROLE_TO_USER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_SHARED_ROLE_TO_USER_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.ADD_SHARED_ROLE_TO_USER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.REMOVE_USER_FROM_ROLE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.REMOVE_USER_FROM_SHARED_ROLE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.REMOVE_USER_FROM_SHARED_ROLE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.REMOVE_USER_FROM_SHARED_ROLE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.REMOVE_ROLE_FROM_USER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.REMOVE_ROLE_FROM_USER_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.REMOVE_ROLE_FROM_USER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.DELETE_USER_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.DELETE_USER_CASE_INSENSITIVE, JDBCCaseInsensitiveConstants
+                    .DELETE_USER_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_USER_ROLE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_USER_ROLE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_USER_ROLE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.ON_DELETE_USER_REMOVE_ATTRIBUTE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.UPDATE_USER_PASSWORD_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.USER_NAME_UNIQUE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.UPDATE_USER_PROPERTY_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.DELETE_USER_PROPERTY_CASE_INSENSITIVE)) {
+            properties.put(JDBCCaseInsensitiveConstants.DELETE_USER_PROPERTY_CASE_INSENSITIVE,
+                    JDBCCaseInsensitiveConstants.DELETE_USER_PROPERTY_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE_MSSQL)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE_MSSQL,
+                    JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_MSSQL_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE_MSSQL)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE_MSSQL,
+                    JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_MSSQL_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_CASE_INSENSITIVE_MSSQL)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_CASE_INSENSITIVE_MSSQL,
+                    JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_MSSQL_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE_OPENEDGE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_CASE_INSENSITIVE_OPENEDGE,
+                    JDBCCaseInsensitiveConstants.ADD_USER_TO_ROLE_OPENEDGE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE_OPENEDGE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_CASE_INSENSITIVE_OPENEDGE,
+                    JDBCCaseInsensitiveConstants.ADD_ROLE_TO_USER_OPENEDGE_SQL_CASE_INSENSITIVE);
+        }
+        if (!properties.containsKey(JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_CASE_INSENSITIVE_OPENEDGE)) {
+            properties.put(JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_CASE_INSENSITIVE_OPENEDGE,
+                    JDBCCaseInsensitiveConstants.ADD_USER_PROPERTY_OPENEDGE_SQL_CASE_INSENSITIVE);
+        }
+
         return properties;
     }
 }
