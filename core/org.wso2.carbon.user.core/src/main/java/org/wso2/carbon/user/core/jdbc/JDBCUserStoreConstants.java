@@ -47,7 +47,7 @@ public class JDBCUserStoreConstants {
         setProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants.maxUserNameListLengthDescription);
         setProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants.maxRoleNameListLengthDescription);
         setProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants.userRolesCacheEnabledDescription);
-        setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
+        setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "true",
                                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
 
 //      LDAP Specific Properties

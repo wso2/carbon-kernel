@@ -153,7 +153,7 @@ public class JDBCCaseInsensitiveConstants {
             "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
 
 
-    public static final String CASE_SENSITIVE_USERNAME = "CaseSensitiveUsername";
+    public static final String CASE_SENSITIVE_USERNAME = "CaseInsensitiveUsername";
     public static final String CASE_SENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
 
     private JDBCCaseInsensitiveConstants() {
