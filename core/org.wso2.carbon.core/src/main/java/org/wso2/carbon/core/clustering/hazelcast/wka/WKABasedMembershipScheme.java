@@ -48,7 +48,6 @@ import java.util.Map;
 /**
  * Well-known Address membership scheme based on Hazelcast
  */
-@MembershipScheme(name = "wka")
 public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     private static final Log log = LogFactory.getLog(WKABasedMembershipScheme.class);
     private Map<String, Parameter> parameters;

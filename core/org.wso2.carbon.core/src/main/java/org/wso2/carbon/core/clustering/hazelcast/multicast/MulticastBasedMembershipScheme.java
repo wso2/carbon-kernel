@@ -41,7 +41,6 @@ import java.util.Map;
 /**
  * Multicast based membership scheme based on Hazelcast
  */
-@MembershipScheme(name = "multicast")
 public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme {
     private static final Log log = LogFactory.getLog(MulticastBasedMembershipScheme.class);
     private Map<String, Parameter> parameters;

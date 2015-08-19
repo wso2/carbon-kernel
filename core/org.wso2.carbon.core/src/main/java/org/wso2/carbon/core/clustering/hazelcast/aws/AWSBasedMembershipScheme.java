@@ -41,7 +41,6 @@ import java.util.Map;
 /**
  * AWS based membership scheme service.
  */
-@MembershipScheme(name = "aws")
 public class AWSBasedMembershipScheme implements HazelcastMembershipScheme {
     private static final Log log = LogFactory.getLog(AWSBasedMembershipScheme.class);
     private Map<String, Parameter> parameters;

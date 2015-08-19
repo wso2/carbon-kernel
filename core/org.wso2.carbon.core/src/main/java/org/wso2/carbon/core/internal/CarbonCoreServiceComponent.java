@@ -28,6 +28,7 @@ import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
+import org.wso2.carbon.core.clustering.hazelcast.HazelcastConstants;
 import org.wso2.carbon.core.clustering.hazelcast.aws.AWSBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.multicast.MulticastBasedMembershipScheme;
 import org.wso2.carbon.core.clustering.hazelcast.wka.WKABasedMembershipScheme;
@@ -40,6 +41,8 @@ import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -94,15 +97,26 @@ public class CarbonCoreServiceComponent {
 
             BundleContext bundleContext = ctxt.getBundleContext();
             bundleContext.registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null) ;
-            bundleContext.registerService(MembershipScheme.class.getName(), new AWSBasedMembershipScheme(), null);
-            bundleContext.registerService(MembershipScheme.class.getName(), new MulticastBasedMembershipScheme(), null);
-            bundleContext.registerService(MembershipScheme.class.getName(), new WKABasedMembershipScheme(), null);
+
+            // register membership scheme services
+            bundleContext.registerService(MembershipScheme.class.getName(), new AWSBasedMembershipScheme(),
+                    prepareMembershipSchemeParameters(HazelcastConstants.AWS_MEMBERSHIP_SCHEME));
+            bundleContext.registerService(MembershipScheme.class.getName(), new MulticastBasedMembershipScheme(),
+                    prepareMembershipSchemeParameters(HazelcastConstants.MULTICAST_MEMBERSHIP_SCHEME));
+            bundleContext.registerService(MembershipScheme.class.getName(), new WKABasedMembershipScheme(),
+                    prepareMembershipSchemeParameters(HazelcastConstants.WKA_MEMBERSHIP_SCHEME));
 
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(bundleContext);
         } catch (Throwable e) {
             log.error("Failed to activate Carbon Core bundle ", e);
         }
+    }
+
+    private Dictionary<String, String> prepareMembershipSchemeParameters(String membershipSchemeName) {
+        Dictionary<String, String> parameters = new Hashtable<String, String>();
+        parameters.put(HazelcastConstants.MEMBERSHIP_SCHEME_NAME, membershipSchemeName);
+        return parameters;
     }
 
     protected void deactivate(ComponentContext ctxt) {
