@@ -508,10 +508,6 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 "org.apache.synapse.transport.nhttp.HttpCoreNIOSSLListener".equals(transportInClassName)||
                 "org.apache.synapse.transport.passthru.PassThroughHttpListener".equals(transportInClassName) ||
                 "org.apache.synapse.transport.passthru.PassThroughHttpSSLListener".equals(transportInClassName)){
-<<<<<<< HEAD
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant, true);
-=======
->>>>>>> 46eb3acb0bb46841327e10b1722642ef298bfab7
             tenantInMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
         }
 

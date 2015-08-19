@@ -1144,13 +1144,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!checkUserNameValid(userStore.getDomainFreeName())) {
             String message = "Username " + userStore.getDomainFreeName() + " is not valid. User name must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
             throw new UserStoreException(message + regEx);
