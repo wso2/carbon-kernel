@@ -56,6 +56,7 @@ import java.util.regex.Pattern;
 public final class UserCoreUtil {
 
     private static final String DUMMY_VALUE = "dummy";
+    private static final String APPLICATION_DOMAIN = "Application";
     private static Log log = LogFactory.getLog(UserCoreUtil.class);
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
@@ -530,7 +531,8 @@ public final class UserCoreUtil {
             for (String name : names) {
                 if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
                     String domain = name.substring(0, index);
-                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                        || !APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                         // remove domain name if exist
                         nameList.add(name.substring(index + 1));
                     } else {
