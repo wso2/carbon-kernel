@@ -433,7 +433,7 @@
         <zookeeper.version>3.3.5.wso2v1</zookeeper.version>
         <wagon.ssh.version>2.1</wagon.ssh.version>
         <maven.incremental.plugin.version>1.3</maven.incremental.plugin.version>
-        <maven.scr.plugin.version>1.7.4</maven.scr.plugin.version>
+        <maven.scr.plugin.version>1.8.0</maven.scr.plugin.version>
         <maven.bundle.plugin.version>2.3.5</maven.bundle.plugin.version>
         <maven.source.plugin.version>2.1.2</maven.source.plugin.version>
         <maven.assembly.plugin.version>2.4</maven.assembly.plugin.version>

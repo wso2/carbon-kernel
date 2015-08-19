@@ -165,7 +165,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
-                <version>1.8.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
