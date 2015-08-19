@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.common;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -2791,7 +2792,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
 
                 value = uerProperties.get(property);
-                if (value != null && value.trim().length() > 0) {
+                if (StringUtils.isNotEmpty(value)) {
                     finalValues.put(claim, value);
                 }
             }
