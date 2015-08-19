@@ -11,6 +11,9 @@
 
     <artifactId>feature-licensed</artifactId>
     <packaging>pom</packaging>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Feature Licensed</name>
+
+
     <modules>
         <module>1.0.0</module>
     </modules>

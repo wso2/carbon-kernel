@@ -57,7 +57,9 @@ public class RealmCache {
             } else {
                 cache = Caching.getCacheManager().getCache(CUSTOM_TENANT_CACHE);
             }
-           
+            if (log.isDebugEnabled()) {
+                log.debug("created authorization cache : " + cache);
+            }
             return cache;
         } finally {
             PrivilegedCarbonContext.endTenantFlow();
