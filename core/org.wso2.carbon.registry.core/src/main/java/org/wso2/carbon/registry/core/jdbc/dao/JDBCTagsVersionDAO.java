@@ -487,9 +487,9 @@ public class JDBCTagsVersionDAO extends JDBCTagsDAO implements TagsDAO {
             int i;
             for (i = 0; i < tags.length; i++) {
                 if (tags[i] == null) {
-                    s.setString(1, tags[i]);
+                    s.setString(i + 1 , tags[i]);
                 } else {
-                    s.setString(1, tags[i].toLowerCase());
+                    s.setString(i + 1 , tags[i].toLowerCase());
                 }
             }
             s.setInt(i + 1, CurrentSession.getTenantId());
