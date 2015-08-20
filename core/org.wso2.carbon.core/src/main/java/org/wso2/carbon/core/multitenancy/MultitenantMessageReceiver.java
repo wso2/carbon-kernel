@@ -99,61 +99,74 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             if (tenantRequestMsgCtx != null) {
                 MessageContext tenantResponseMsgCtx = tenantRequestMsgCtx.getOperationContext().
                         getMessageContext(WSDL2Constants.MESSAGE_LABEL_IN);
-
-                if (tenantResponseMsgCtx == null) {
-                    tenantResponseMsgCtx = new MessageContext();
-                    tenantResponseMsgCtx.setOperationContext(tenantRequestMsgCtx.getOperationContext());
-                }
-
-                tenantResponseMsgCtx.setServerSide(true);
-                tenantResponseMsgCtx.setDoingREST(tenantRequestMsgCtx.isDoingREST());
-
-                Iterator itr = mainInMsgContext.getPropertyNames();
-                while (itr.hasNext()) {
-                     String key = (String) itr.next();
-                          if (key != null) {
-                           tenantResponseMsgCtx.setProperty(key, mainInMsgContext.getProperty(key));
-                          }
-                }
+                String tenantDomain;
                 if (tenantRequestMsgCtx.getProperty(MultitenantConstants.TENANT_DOMAIN) != null) {
-                    String tenant = (String)tenantRequestMsgCtx.getProperty(MultitenantConstants.TENANT_DOMAIN);
-                    PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant, true);
-                    tenantResponseMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
-                }else{
-                    log.warn("Tenant domain is not available in tenant request message context, hence it might not be " +
-                            "set in the thread local carbon context");
+                    tenantDomain = (String) tenantRequestMsgCtx.getProperty(MultitenantConstants.TENANT_DOMAIN);
+                } else {
+                    tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+                    log.warn("Tenant domain is not available in tenant request message context, hence it might not be "
+                             + "set in the thread local carbon context");
                 }
-                tenantResponseMsgCtx.setProperty(MessageContext.TRANSPORT_IN, tenantRequestMsgCtx
-                        .getProperty(MessageContext.TRANSPORT_IN));
-                tenantResponseMsgCtx.setTransportIn(tenantRequestMsgCtx.getTransportIn());
-                tenantResponseMsgCtx.setTransportOut(tenantRequestMsgCtx.getTransportOut());
+                try {
+                    PrivilegedCarbonContext.startTenantFlow();
+                    PrivilegedCarbonContext privilegedCarbonContext = 
+                            PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                    privilegedCarbonContext.setTenantDomain(tenantDomain, true);
+                    if (tenantResponseMsgCtx == null) {
+                        tenantResponseMsgCtx = new MessageContext();
+                        tenantResponseMsgCtx.setOperationContext(tenantRequestMsgCtx.getOperationContext());
+                    }
 
-                tenantResponseMsgCtx.setProperty(MessageContext.TRANSPORT_HEADERS,
-                        mainInMsgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
+                    tenantResponseMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
+                    tenantResponseMsgCtx.setServerSide(true);
+                    tenantResponseMsgCtx.setDoingREST(tenantRequestMsgCtx.isDoingREST());
 
-                tenantResponseMsgCtx.setAxisMessage(
-                        tenantRequestMsgCtx.getOperationContext().getAxisOperation().
-                        getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE));
+                    Iterator itr = mainInMsgContext.getPropertyNames();
+                    while (itr.hasNext()) {
+                        String key = (String) itr.next();
+                        if (key != null) {
+                            tenantResponseMsgCtx.setProperty(key, mainInMsgContext.getProperty(key));
+                        }
+                    }
 
-                tenantResponseMsgCtx.setOperationContext(tenantRequestMsgCtx.getOperationContext());
-                tenantResponseMsgCtx.setConfigurationContext(
-                        tenantRequestMsgCtx.getConfigurationContext());
+                    tenantResponseMsgCtx.setProperty(MessageContext.TRANSPORT_IN,
+                                                     tenantRequestMsgCtx.getProperty(MessageContext.TRANSPORT_IN));
+                    tenantResponseMsgCtx.setTransportIn(tenantRequestMsgCtx.getTransportIn());
+                    tenantResponseMsgCtx.setTransportOut(tenantRequestMsgCtx.getTransportOut());
 
-                tenantResponseMsgCtx.setTo(null);
-                tenantResponseMsgCtx.setSoapAction(mainInMsgContext.getSoapAction());
+                    tenantResponseMsgCtx.setProperty(MessageContext.TRANSPORT_HEADERS,
+                                                     mainInMsgContext.getProperty(MessageContext.TRANSPORT_HEADERS));
 
-                tenantResponseMsgCtx.setEnvelope(mainInMsgContext.getEnvelope());
-                
-                if(mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE) != null){
-                	tenantResponseMsgCtx.setProperty(MultitenantConstants.PASS_THROUGH_PIPE, mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE));
-                	tenantResponseMsgCtx.setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION, mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION));
-                	tenantResponseMsgCtx.setProperty("READY2ROCK", mainInMsgContext.getProperty("READY2ROCK"));
-                	tenantResponseMsgCtx.setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION, mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION));
+                    tenantResponseMsgCtx.setAxisMessage(tenantRequestMsgCtx.getOperationContext()
+                                                                           .getAxisOperation()
+                                                                           .getMessage(WSDLConstants.MESSAGE_LABEL_IN_VALUE));
+
+                    tenantResponseMsgCtx.setOperationContext(tenantRequestMsgCtx.getOperationContext());
+                    tenantResponseMsgCtx.setConfigurationContext(tenantRequestMsgCtx.getConfigurationContext());
+
+                    tenantResponseMsgCtx.setTo(null);
+                    tenantResponseMsgCtx.setSoapAction(mainInMsgContext.getSoapAction());
+
+                    tenantResponseMsgCtx.setEnvelope(mainInMsgContext.getEnvelope());
+
+                    if (mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE) != null) {
+                        tenantResponseMsgCtx.setProperty(MultitenantConstants.PASS_THROUGH_PIPE,
+                                mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_PIPE));
+                        tenantResponseMsgCtx.setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION,
+                                mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONFIGURATION));
+                        tenantResponseMsgCtx.setProperty("READY2ROCK",
+                                mainInMsgContext.getProperty("READY2ROCK"));
+                        tenantResponseMsgCtx.setProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION,
+                                mainInMsgContext.getProperty(MultitenantConstants.PASS_THROUGH_SOURCE_CONNECTION));
+                    }
+
+                    tenantResponseMsgCtx.setProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED, Boolean.FALSE);
+                    tenantResponseMsgCtx.setProperty(MultitenantConstants.CONTENT_TYPE,
+                                mainInMsgContext.getProperty(MultitenantConstants.CONTENT_TYPE));
+                    AxisEngine.receive(tenantResponseMsgCtx);
+                } finally {
+                    PrivilegedCarbonContext.endTenantFlow();
                 }
-
-                tenantResponseMsgCtx.setProperty(MultitenantConstants.MESSAGE_BUILDER_INVOKED,Boolean.FALSE);
-                tenantResponseMsgCtx.setProperty(MultitenantConstants.CONTENT_TYPE, mainInMsgContext.getProperty(MultitenantConstants.CONTENT_TYPE));
-                AxisEngine.receive(tenantResponseMsgCtx);
             }
         }
     }
@@ -169,56 +182,51 @@ public class MultitenantMessageReceiver implements MessageReceiver {
         String to = mainInMsgContext.getTo().getAddress();
         int tenantDelimiterIndex = to.indexOf(TENANT_DELIMITER);
 
-        String tenant;
+        String tenantDomain;
         String serviceAndOperation;
 
-	//for synapse nhttp transport we need to destroy the existing thread contexts and initialise the new value holders
-        if (mainInMsgContext.getTransportIn() != null){
-            String transportInClassName = mainInMsgContext.getTransportIn().getReceiver().getClass().getName();
-            if ("org.apache.synapse.transport.nhttp.HttpCoreNIOListener".equals(transportInClassName) ||
-                    "org.apache.synapse.transport.nhttp.HttpCoreNIOSSLListener".equals(transportInClassName) ||
-                    "org.apache.synapse.transport.passthru.PassThroughHttpListener".equals(transportInClassName) ||
-                    "org.apache.synapse.transport.passthru.PassThroughHttpSSLListener".equals(transportInClassName)
-                    ){
-                PrivilegedCarbonContext.destroyCurrentContext();
-            }
-        }
-
-
         if (tenantDelimiterIndex != -1) {
-            tenant = MultitenantUtils.getTenantDomainFromUrl(to);
-            serviceAndOperation = to.substring(tenantDelimiterIndex + tenant.length() + 4);
+            tenantDomain = MultitenantUtils.getTenantDomainFromUrl(to);
+            serviceAndOperation = to.substring(tenantDelimiterIndex + tenantDomain.length() + 4);
         } else {
             // in this case tenant detail is not with the url but user may have send it
             // with a soap header or an http header.
             // in that case TenantDomainHandler may have set it.
-            tenant = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
+            tenantDomain = PrivilegedCarbonContext.getThreadLocalCarbonContext().getTenantDomain();
             serviceAndOperation = Utils.getServiceAndOperationPart(to,
                     mainInMsgContext.getConfigurationContext().getServiceContextPath());
         }
 
-        if (tenant == null) {
+        if (tenantDomain == null) {
             // Throw an AxisFault: Tenant not specified
             handleException(mainInMsgContext, new AxisFault("Tenant not specified"));
             return;
         }
 
-        // this is to prevent non-blocking transports from sending 202
-        mainInMsgContext.getOperationContext().setProperty(
-                    Constants.RESPONSE_WRITTEN, "SKIP");
+        try {
+            PrivilegedCarbonContext.startTenantFlow();
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            privilegedCarbonContext.setTenantDomain(tenantDomain, true);            
+            // this is to prevent non-blocking transports from sending 202
+            mainInMsgContext.getOperationContext().setProperty(Constants.RESPONSE_WRITTEN, "SKIP");
 
-        ConfigurationContext tenantConfigCtx =
-                TenantAxisUtils.getTenantConfigurationContext(tenant, mainConfigCtx);
-        if (tenantConfigCtx == null) {
-            // Throw AxisFault: Tenant does not exist
-            handleException(mainInMsgContext, new AxisFault("Tenant " + tenant + "  not found"));
-            return;
-        }
+            ConfigurationContext tenantConfigCtx =
+                                                   TenantAxisUtils.getTenantConfigurationContext(tenantDomain,
+                                                                                                 mainConfigCtx);
+            if (tenantConfigCtx == null) {
+                // Throw AxisFault: Tenant does not exist
+                handleException(mainInMsgContext, new AxisFault("Tenant " + tenantDomain +
+                                                                "  not found"));
+                return;
+            }
 
-        if (mainInMsgContext.isDoingREST()) { // Handle REST requests
-            doREST(mainInMsgContext, to, tenant, tenantConfigCtx, serviceAndOperation);
-        } else {
-            doSOAP(mainInMsgContext, tenant, tenantConfigCtx, serviceAndOperation);
+            if (mainInMsgContext.isDoingREST()) { // Handle REST requests
+                doREST(mainInMsgContext, to, tenantDomain, tenantConfigCtx, serviceAndOperation);
+            } else {
+                doSOAP(mainInMsgContext, tenantDomain, tenantConfigCtx, serviceAndOperation);
+            }
+        } finally {
+            PrivilegedCarbonContext.endTenantFlow();
         }
     }
 
@@ -249,7 +257,6 @@ public class MultitenantMessageReceiver implements MessageReceiver {
         tenantInMsgCtx.setServerSide(true);
         copyProperties(mainInMsgContext, tenantInMsgCtx);
 
-        PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant, true);
         tenantInMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
         try {
             // set a dummy transport out description
@@ -427,8 +434,13 @@ public class MultitenantMessageReceiver implements MessageReceiver {
             mainOutMsgContext.getAxisService().addSchema(tenantOutMsgContext.getAxisService().getSchema());
             mainOutMsgContext.setEnvelope(tenantOutMsgContext.getEnvelope());
 	    mainOutMsgContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
-                  tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
-            AxisEngine.send(mainOutMsgContext);
+                                      tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
+            try {
+                AxisEngine.send(mainOutMsgContext);
+            } finally {
+                mainOutMsgContext.getAxisService().getSchema()
+                                 .removeAll(tenantOutMsgContext.getAxisService().getSchema());
+            }
         }
     }
 
@@ -496,7 +508,6 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 "org.apache.synapse.transport.nhttp.HttpCoreNIOSSLListener".equals(transportInClassName)||
                 "org.apache.synapse.transport.passthru.PassThroughHttpListener".equals(transportInClassName) ||
                 "org.apache.synapse.transport.passthru.PassThroughHttpSSLListener".equals(transportInClassName)){
-            PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenant, true);
             tenantInMsgCtx.setProperty(MultitenantConstants.TENANT_DOMAIN, tenant);
         }
 
