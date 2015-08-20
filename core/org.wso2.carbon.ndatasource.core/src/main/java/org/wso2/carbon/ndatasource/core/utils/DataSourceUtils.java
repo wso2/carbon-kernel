@@ -18,8 +18,6 @@ package org.wso2.carbon.ndatasource.core.utils;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.impl.Constants;
-import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,9 +53,6 @@ public class DataSourceUtils {
 	private static Log log = LogFactory.getLog(DataSourceUtils.class);
 	
 	private static SecretResolver secretResolver;
-    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
-            Constants.SECURITY_MANAGER_PROPERTY;
-    private static final int ENTITY_EXPANSION_LIMIT = 0;
     private static final String XML_DECLARATION="xml-declaration";
 	
 	private static ThreadLocal<String> dataSourceId = new ThreadLocal<String>() {
@@ -291,9 +286,6 @@ public class DataSourceUtils {
         documentBuilderFactory.setNamespaceAware(true);
         documentBuilderFactory.setExpandEntityReferences(false);
         documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        SecurityManager securityManager = new SecurityManager();
-        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
-        documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
         documentBuilder.setEntityResolver(new SecureEntityResolver());
         return documentBuilder;
