@@ -42,9 +42,10 @@ public interface TenantRuntime<T extends Tenant> {
     public void init() throws Exception;
 
     /**
+     * <p>
      * Adds a new tenant to the system from the specified <code>Tenant</code> object.
      * Persists the given tenant data using the available <code>TenantStore</code> implementation.
-     * <p/>
+     * </p>
      *
      * @param tenant the Tenant instance with data
      * @return an instance of the created tenant

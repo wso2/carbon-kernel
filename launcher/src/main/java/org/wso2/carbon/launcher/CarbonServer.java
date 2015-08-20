@@ -36,7 +36,7 @@ public class CarbonServer {
     /**
      * Starts a Carbon server instance. This method returns only after the server instance stops completely.
      *
-     * @throws Exception
+     * @throws Exception if error occurred
      */
     public void start() throws Exception {
 

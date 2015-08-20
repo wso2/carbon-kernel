@@ -40,8 +40,11 @@ public class Utils {
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
 
     /**
-     * Replace system property holders in the property values.
-     * e.g. Replace ${carbon.home} with value of the carbon.home system property.
+     * Replace system property holders in the property values 
+     * e.g Replace ${carbon.home} with value of the carbon.home system property
+     *
+     * @param value System variable value to be replaced 
+     * @return resolved system property value
      */
     public static String substituteVars(String value) {
         String newValue = value;

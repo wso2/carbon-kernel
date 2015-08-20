@@ -107,9 +107,9 @@ public class FileUtils {
     /**
      * Archive a directory
      *
-     * @param destArchive
-     * @param sourceDir
-     * @throws java.io.IOException
+     * @param destArchive destination of the archive
+     * @param sourceDir  source directory
+     * @throws java.io.IOException throws io exception if archive failed
      */
     public static void archiveDir(String destArchive, String sourceDir) throws IOException {
         File zipDir = new File(sourceDir);

@@ -52,7 +52,7 @@ public class RuntimeManager {
     /**
      * Return registered runtime list
      *
-     * @return
+     * @return List of rumtimes
      */
     public List<Runtime> getRuntimeList() {
         return runtimeList;

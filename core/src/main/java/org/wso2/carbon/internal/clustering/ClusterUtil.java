@@ -117,7 +117,8 @@ public class ClusterUtil {
     /**
      * Get the membership scheme applicable to this cluster
      *
-     * @return The membership scheme. Only "wka" & "multicast" are valid return values.
+     * @param clusterConfiguration the ClusterConfiguration instance
+     * @return The membership scheme. Only wka and multicast are valid return values
      * @throws org.wso2.carbon.clustering.exception.ClusterConfigurationException
      *          If the membershipScheme specified in the cluster.xml file is invalid
      */

@@ -65,7 +65,7 @@ public class DataHolder {
     /**
      * Getter method of RuntimeManager instance
      *
-     * @return
+     * @return RuntimeManager   returns runtime manager instance
      */
     public RuntimeManager getRuntimeManager() {
         return runtimeManager;
