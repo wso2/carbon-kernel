@@ -1325,7 +1325,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         UserCoreUtil.removeDomainFromNames(newUsers));
             } else {
                 throw new UserStoreException(
-                        "Read-only user store.Roles cannot be added or modfified");
+                        "Read-only user store.Roles cannot be added or modified");
             }
         }
 
