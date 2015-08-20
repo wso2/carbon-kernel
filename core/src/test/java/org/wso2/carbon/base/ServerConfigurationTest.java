@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.base.test;
+package org.wso2.carbon.base;
 
 
 import org.testng.Assert;
