@@ -18,11 +18,15 @@ package org.wso2.carbon.ndatasource.core.utils;
 import org.apache.axiom.om.OMElement;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.impl.Constants;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
@@ -36,19 +40,12 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.StringWriter;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 
 /**
  * Data Sources utility class.
@@ -58,6 +55,10 @@ public class DataSourceUtils {
 	private static Log log = LogFactory.getLog(DataSourceUtils.class);
 	
 	private static SecretResolver secretResolver;
+    private static final String SECURITY_MANAGER_PROPERTY = Constants.XERCES_PROPERTY_PREFIX +
+            Constants.SECURITY_MANAGER_PROPERTY;
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static final String XML_DECLARATION="xml-declaration";
 	
 	private static ThreadLocal<String> dataSourceId = new ThreadLocal<String>() {
         protected synchronized String initialValue() {
@@ -127,15 +128,17 @@ public class DataSourceUtils {
                                 from "stringToElement" */
 				return "";
 			}
-		    Transformer transformer = TransformerFactory.newInstance().newTransformer();
-		    StringWriter buff = new StringWriter();
-		    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		    transformer.transform(new DOMSource(element), new StreamResult(buff));
-		    return buff.toString();
-		} catch (Exception e) {
-			log.error("Error while convering element to string: " + e.getMessage(), e);
-			return null;
-		}
+            Document document = element.getOwnerDocument();
+            DOMImplementationLS domImplLS = (DOMImplementationLS) document
+                    .getImplementation();
+            LSSerializer serializer = domImplLS.createLSSerializer();
+            //by default its true, so set it to false to get String without xml-declaration
+            serializer.getDomConfig().setParameter(XML_DECLARATION, false);
+            return serializer.writeToString(element);
+        } catch (Exception e) {
+            log.error("Error while convering element to string: " + e.getMessage(), e);
+            return null;
+        }
 	}
 	
 	public static Element stringToElement(String xml) {
@@ -143,11 +146,12 @@ public class DataSourceUtils {
 			return null;
 		}
 		try {
-		    DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		    DocumentBuilder db = getSecuredDocumentBuilder(false);
 		    return db.parse(new ByteArrayInputStream(xml.getBytes())).getDocumentElement();
 		} catch (Exception e) {
-			log.error("Error while converting string to element: " + e.getMessage(), e);
-			return null;
+            log.error("Error while converting string to element: " + e.getMessage(), e);
+            throw new RuntimeException("Error in creating an XML document from stream: " +
+                    e.getMessage(), e);
 		}
 	}
 	
@@ -228,10 +232,8 @@ public class DataSourceUtils {
     }
 
     public static Document convertToDocument(File file) throws DataSourceException {
-        DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
-        fac.setNamespaceAware(true);
         try {
-            return fac.newDocumentBuilder().parse(file);
+            return getSecuredDocumentBuilder(false).parse(file);
         } catch (Exception e) {
             throw new DataSourceException("Error in creating an XML document from file: " +
                     e.getMessage(), e);
@@ -239,10 +241,8 @@ public class DataSourceUtils {
     }
 
     public static Document convertToDocument(InputStream in) throws DataSourceException {
-        DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
-        fac.setNamespaceAware(true);
         try {
-            return fac.newDocumentBuilder().parse(in);
+            return getSecuredDocumentBuilder(false).parse(in);
         } catch (Exception e) {
             throw new DataSourceException("Error in creating an XML document from stream: " +
                     e.getMessage(), e);
@@ -254,12 +254,9 @@ public class DataSourceUtils {
 			if (element == null) {
 				return null;
 			}
-		    Transformer transformer = TransformerFactory.newInstance().newTransformer();
-		    ByteArrayOutputStream out = new ByteArrayOutputStream();
-		    transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-		    transformer.transform(new DOMSource(element), new StreamResult(out));
-		    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		    return in;
+            String xmlString = elementToString(element);
+            InputStream stream = new ByteArrayInputStream(xmlString.getBytes());
+		    return stream;
 		} catch (Exception e) {
 			log.error("Error while convering element to InputStream: " + e.getMessage(), e);
 			return null;
@@ -268,10 +265,9 @@ public class DataSourceUtils {
     
     public static Element convertDataSourceMetaInfoToElement(DataSourceMetaInfo dsmInfo, 
     		Marshaller dsmMarshaller) throws DataSourceException{
-    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     	Element element;
 		try {
-			Document document = factory.newDocumentBuilder().newDocument();
+			Document document = getSecuredDocumentBuilder(false).newDocument();
 			dsmMarshaller.marshal(dsmInfo, document);
 			element = document.getDocumentElement();
 		} catch (Exception e) {
@@ -281,4 +277,25 @@ public class DataSourceUtils {
 		return element;
     }
 
+    /**
+     * This method provides a secured document builder which will secure XXE attacks.
+     *
+     * @param setIgnoreComments whether to set setIgnoringComments in DocumentBuilderFactory.
+     * @return DocumentBuilder
+     * @throws ParserConfigurationException
+     */
+    private static DocumentBuilder getSecuredDocumentBuilder(boolean setIgnoreComments) throws
+            ParserConfigurationException {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setIgnoringComments(setIgnoreComments);
+        documentBuilderFactory.setNamespaceAware(true);
+        documentBuilderFactory.setExpandEntityReferences(false);
+        documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        SecurityManager securityManager = new SecurityManager();
+        securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+        documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        documentBuilder.setEntityResolver(new SecureEntityResolver());
+        return documentBuilder;
+    }
 }
