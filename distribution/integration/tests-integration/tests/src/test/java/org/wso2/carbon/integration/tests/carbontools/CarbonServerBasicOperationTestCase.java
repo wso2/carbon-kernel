@@ -38,19 +38,21 @@ import org.wso2.carbon.utils.ServerConstants;
 import sun.management.VMManagement;
 
 import javax.xml.xpath.XPathExpressionException;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static org.testng.Assert.assertTrue;
 
 /**
-* Provides test methods for start, stop, restart, dump and run build.xml test cases
-*/
+ * Provides test methods for start, stop, restart, dump and run build.xml test cases
+ */
 public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory.getLog(CarbonServerBasicOperationTestCase.class);
@@ -72,8 +74,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing server startup argument --start")
-    public void testServerStartCommand() throws CarbonToolsIntegrationTestException,
-                                                NoSuchFieldException, IllegalAccessException {
+    public void testServerStartCommand() throws Exception {
         String[] cmdArrayToStart;
         Process process;
 
@@ -99,11 +100,38 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         assertTrue(startupStatus, "Unsuccessful login");
     }
 
-    @Test(groups = {"carbon.core"}, description = "Testing carbondump.sh execution",
-            dependsOnMethods = "testServerStartCommand")
-    public void testCarbonDumpCommandOnLinux() throws CarbonToolsIntegrationTestException {
+    @Test(groups = {"carbon.core"}, description = "Testing carbondump.sh execution", dependsOnMethods = {"testStopCommand"})
+    public void testCarbonDumpCommandOnLinux() throws Exception {
         String[] cmdArray;
         Process carbonDumpProcess = null;
+        String expectedString = "Copyright";
+        boolean isFoundTheMessage = false;
+        BufferedReader br = null;
+        String[] zipCmdArray = {"zip", "--help"};
+        Process process;
+        try {
+            process = Runtime.getRuntime().exec(zipCmdArray, null);
+        } catch (IOException ex) {
+            throw new SkipException(" This test method need zip command to run");
+        }
+        String line;
+        long startTime = System.currentTimeMillis();
+
+        // Wait 1 second to check whether zip command installed or not
+        while (!isFoundTheMessage && (System.currentTimeMillis() - startTime) < 1000) {
+            br = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
+            while ((line = br.readLine()) != null) {
+                log.info(line);
+                if (line.contains(expectedString)) {
+                    log.info("found the string expected string " + expectedString + ", in line =>" + line);
+                    isFoundTheMessage = true;
+                    break;
+                }
+            }
+        }
+        if (!isFoundTheMessage) {
+            throw new SkipException(" This test method need zip command to run");
+        }
         try {
             if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
                     contains(OperatingSystems.WINDOWS.name().toLowerCase()))) {
@@ -111,23 +139,22 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
                 throw new SkipException("--start is not available for windows");
                 // Since we are skipping --start feature it won
             } else {
-                cmdArray = new String[]
-                        {"sh", "carbondump.sh", "-carbonHome", carbonHome, "-pid", processId};
-
+                cmdArray = new String[]{"sh", "carbondump.sh", "-carbonHome", System.getProperty("carbon.home"),
+                                        "-pid", getProcessId(System.getProperty("carbon.home"))};
             }
-            carbonDumpProcess = CarbonCommandToolsUtil.runScript(carbonHome + File.separator + "bin", cmdArray);
-            assertTrue(isDumpFileFound(carbonHome), "Couldn't find the dump file");
+            carbonDumpProcess = CarbonCommandToolsUtil.runScript(System.getProperty("carbon.home") + File.separator + "bin", cmdArray);
+            assertTrue(isDumpFileFound(System.getProperty("carbon.home")), "Couldn't find the dump file");
         } finally {
             if (carbonDumpProcess != null) {
                 carbonDumpProcess.destroy();
             }
+            br.close();
         }
-
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing server startup argument --restart",
-            dependsOnMethods = {"testCarbonDumpCommandOnLinux"})
-    public void testServerRestartCommand() throws CarbonToolsIntegrationTestException {
+            dependsOnMethods = {"testServerStartCommand"})
+    public void testServerRestartCommand() throws Exception {
         String[] cmdArrayToReStart;
         if ((CarbonCommandToolsUtil.getCurrentOperatingSystem().
                 contains(OperatingSystems.WINDOWS.name().toLowerCase()))) {
@@ -149,7 +176,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
 
     @Test(groups = {"carbon.core"}, description = "Testing server startup argument --stop",
             dependsOnMethods = {"testServerRestartCommand"})
-    public void testStopCommand() throws CarbonToolsIntegrationTestException, InterruptedException {
+    public void testStopCommand() throws Exception {
         String[] cmdArray;
         Process processStop = null;
         boolean startupStatus = false;
@@ -172,9 +199,7 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
     }
 
     @Test(groups = {"carbon.core"}, description = "Testing carbondump.bat execution", dependsOnMethods = {"testStopCommand"})
-    public void testCarbonDumpCommandOnWindows()
-            throws CarbonToolsIntegrationTestException, NoSuchFieldException,
-                   IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public void testCarbonDumpCommandOnWindows() throws Exception {
         Process processDump = null;
         String carbonHome = System.getProperty(ServerConstants.CARBON_HOME);
         try {
@@ -205,38 +230,6 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
         }
     }
 
-
-    /**
-     * Check carbon dump zip file available or not in the carbon home directory
-     *
-     * @param carbonHome - carbon Home
-     * @return boolean - true if found the zip file, else false
-     */
-    private boolean isDumpFileFound(String carbonHome) {
-        boolean isFoundDumpFolder = false;
-        File folder = new File(carbonHome);
-        long startTime = System.currentTimeMillis();
-
-        while (!isFoundDumpFolder && (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
-            if (folder.exists() && folder.isDirectory()) {
-                File[] listOfFiles = folder.listFiles();
-                if (listOfFiles != null) {
-                    for (File file : listOfFiles) {
-                        if (file.getName().contains("carbondump") && file.getName().contains("zip")) {
-                            double bytes = file.length();
-                            double kilobytes = (bytes / 1024);
-                            if (kilobytes > 0) {
-                                log.info("carbon bump file name " + file.getName());
-                                isFoundDumpFolder = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return isFoundDumpFolder;
-    }
-
     @AfterClass(alwaysRun = true)
     public void shutDownServer() {
         try {
@@ -250,22 +243,53 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
 
 
     /**
+     * Check carbon dump zip file available or not in the carbon home directory
+     *
+     * @param carbonHome - carbon Home
+     * @return boolean - true if found the zip file, else false
+     */
+    private boolean isDumpFileFound(String carbonHome) throws InterruptedException {
+        boolean isFoundDumpFolder = false;
+        File folder = new File(carbonHome);
+        long startTime = System.currentTimeMillis();
+
+        while (!isFoundDumpFolder && (System.currentTimeMillis() - startTime) < (CarbonIntegrationConstants.DEFAULT_WAIT_MS * 2)) {
+            if (folder.exists() && folder.isDirectory()) {
+                File[] listOfFiles = folder.listFiles();
+                if (listOfFiles != null) {
+                    for (File file : listOfFiles) {
+                        if (file.getName().contains("carbondump") && file.getName().contains("zip")) {
+                            double bytes = file.length();
+                            double kilobytes = (bytes / 1024);
+                            if (kilobytes > 0) {
+                                log.info("carbon dump file name " + file.getName());
+                                isFoundDumpFolder = true;
+                                break;
+                            }
+                        } else {
+                            Thread.sleep(2000);
+                            log.info("carbon dump zip file not created yet time " + (System.currentTimeMillis() - startTime) + " milliseconds");
+                        }
+                    }
+                }
+            }
+        }
+        return isFoundDumpFolder;
+    }
+
+    /**
      * provides carbon home after extracting the pack.
      *
      * @param context - AutomationContext
      * @return - carbon home
      * @throws CarbonToolsIntegrationTestException - Error while setup carbon home from carbon zip file
      */
-    private String getCarbonHome(AutomationContext context)
-            throws CarbonToolsIntegrationTestException {
+    private String getCarbonHome(AutomationContext context) throws CarbonToolsIntegrationTestException {
         try {
-
-
             String carbonZip = System.getProperty(FrameworkConstants.SYSTEM_PROPERTY_CARBON_ZIP_LOCATION);
             CarbonServerManager carbonServerManager = new CarbonServerManager(context);
             String carbonHomePath = carbonServerManager.setUpCarbonHome(carbonZip);
             return carbonHomePath;
-
         } catch (IOException ex) {
             log.error("Extracting the pack and getting the carbon home failed", ex);
             throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
@@ -275,6 +299,30 @@ public class CarbonServerBasicOperationTestCase extends CarbonIntegrationBaseTes
             throw new CarbonToolsIntegrationTestException("Extracting the pack and getting the " +
                                                           "carbon home failed", e);
         }
+    }
+
+    private String getProcessId(String carbonHome) throws CarbonToolsIntegrationTestException {
+        BufferedReader br = null;
+        String processId = "";
+        try {
+            String sCurrentLine;
+            br = new BufferedReader(new FileReader(carbonHome + "/wso2carbon.pid"));
+            while ((sCurrentLine = br.readLine()) != null) {
+                processId = sCurrentLine.trim();
+                break;
+            }
+        } catch (IOException e) {
+            throw new CarbonToolsIntegrationTestException("wso2carbon.pid file not found", e);
+        } finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException ex) {
+                throw new CarbonToolsIntegrationTestException("error while closing the BufferedReader", ex);
+            }
+        }
+        return processId;
     }
 
 }

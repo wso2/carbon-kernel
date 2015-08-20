@@ -1380,7 +1380,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         UserCoreUtil.removeDomainFromNames(newUsers));
             } else {
                 throw new UserStoreException(
-                        "Read-only user store.Roles cannot be added or modfified");
+                        "Read-only user store.Roles cannot be added or modified");
             }
         }
 
@@ -2715,19 +2715,20 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         Set<String> propertySet = new HashSet<String>();
         for (String claim : claims) {
 
-            // There can be cases some claim values being requested for claims
-            // we don't have.
-            String property = null;
-            try {
-                property = getClaimAtrribute(claim, userName, domainName);
-            } catch (org.wso2.carbon.user.api.UserStoreException e) {
-                throw new UserStoreException(e);
-            }
-            if (property != null
-                    && (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)
-                    || !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) ||
-                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim))) {
-                propertySet.add(property);
+            if (!UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim) &&
+                    !UserCoreConstants.INT_ROLE_CLAIM.equalsIgnoreCase(claim) &&
+                    !UserCoreConstants.EXT_ROLE_CLAIM.equalsIgnoreCase(claim)) {
+                // There can be cases some claim values being requested for claims
+                // we don't have.
+                String property = null;
+                try {
+                    property = getClaimAtrribute(claim, userName, domainName);
+                } catch (org.wso2.carbon.user.api.UserStoreException e) {
+                    throw new UserStoreException(e);
+                }
+                if (property != null) {
+                    propertySet.add(property);
+                }
             }
 
             if (UserCoreConstants.ROLE_CLAIM.equalsIgnoreCase(claim)) {
@@ -3548,6 +3549,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     @Override
+    public boolean isBulkImportSupported(){
+
+        return new Boolean(realmConfig.getUserStoreProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT));
+
+    }
+
+    @Override
     public void addRole(String roleName, String[] userList,
                         org.wso2.carbon.user.api.Permission[] permissions)
             throws org.wso2.carbon.user.api.UserStoreException {
@@ -3800,5 +3808,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
     public HybridRoleManager getInternalRoleManager() {
         return hybridRoleManager;
+    }
+
+    public boolean isCaseSensitiveUsername(){
+        return false;
     }
 }

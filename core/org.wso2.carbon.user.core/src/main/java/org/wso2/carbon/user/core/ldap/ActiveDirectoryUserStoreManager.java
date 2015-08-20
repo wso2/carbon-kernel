@@ -729,6 +729,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     case '\\':
                         sb.append("\\5c");
                         break;
+                  /*right now * is used as an IS special character so
+                  LDAP escaping won't fix the problem */
 //                case '*':
 //                    sb.append("\\2a");
 //                    break;

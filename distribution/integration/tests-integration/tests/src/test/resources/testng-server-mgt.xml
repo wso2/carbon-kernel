@@ -26,6 +26,14 @@
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
     </listeners>
 
+    <test name="patching-tests" preserve-order="true" parallel="false">
+        <classes>
+            <!-- TODO: https://wso2.org/jira/browse/CARBON-15314 -->
+            <!-- <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/> -->
+            <class name="org.wso2.carbon.integration.tests.patching.PatchApplyingTestCase"/>
+        </classes>
+    </test>
+
     <test name="carbon-integration-tests-server-mgt" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.carbon.integration.tests.integration.SecurityVerificationTestCase"/>
@@ -46,10 +54,16 @@
         </packages>
     </test>
 
-    <test name="feature-management-tests" preserve-order="true" parallel="false">
-        <packages>
-            <package name="org.wso2.carbon.integration.tests.featuremanagement"/>
-        </packages>
+    <!--<test name="feature-management-tests" preserve-order="true" parallel="false">-->
+        <!--<packages>-->
+            <!--<package name="org.wso2.carbon.integration.tests.featuremanagement"/>-->
+        <!--</packages>-->
+    <!--</test>-->
+
+    <test name="Jira-Fixes" preserve-order="true" parallel="false" >
+        <classes>
+            <class name="org.wso2.carbon.integration.tests.jira.issues.test.CARBON15322SkipLoginPageTestCase" />
+        </classes>
     </test>
 
 </suite>
