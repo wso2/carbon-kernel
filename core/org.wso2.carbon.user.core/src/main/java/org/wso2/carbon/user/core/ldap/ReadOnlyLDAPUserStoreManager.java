@@ -1913,6 +1913,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             membershipValue = escapeLdapNameForFilter(ldn);
                         }
                     } catch (InvalidNameException e) {
+                        log.error("Error while creating LDAP name from: " + nameInSpace);
                         throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
                     }
                 } else {
@@ -2520,6 +2521,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     LdapName ldn = new LdapName(nameInSpace);
                     membershipValue = escapeLdapNameForFilter(ldn);
                 } catch (InvalidNameException e) {
+                    log.error("Error while creating LDAP name from: " + nameInSpace);
                     throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
                 }
             } else {
