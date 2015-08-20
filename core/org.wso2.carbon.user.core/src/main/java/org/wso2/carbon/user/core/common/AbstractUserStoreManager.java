@@ -1172,9 +1172,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
                     if (index > 0) {
                         String domain = role.substring(0, index);
-                        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                            || APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
                             internalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                            continue;
+                        } else if (APPLICATION_DOMAIN.equalsIgnoreCase(domain)){
+                            internalRoles.add(role);
                             continue;
                         }
                     }
@@ -1287,8 +1289,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 throw new UserStoreException("Cannot update everyone role");
             }
 
-            hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(),
-                    deletedUsers, newUsers);
+            if(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(),
+                                                             deletedUsers, newUsers);
+            } else {
+                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainAwareName(),
+                                                             deletedUsers, newUsers);
+            }
             clearUserRolesCacheByTenant(this.tenantId);
             return;
         }
@@ -1510,8 +1517,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isHybridRole()) {
-            hybridRoleManager.updateHybridRoleName(userStore.getDomainFreeName(),
-                    userStoreNew.getDomainFreeName());
+            if(UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                hybridRoleManager.updateHybridRoleName(userStore.getDomainFreeName(),
+                                                       userStoreNew.getDomainFreeName());
+            } else {
+                hybridRoleManager.updateHybridRoleName(userStore.getDomainAwareName(),
+                                                       userStoreNew.getDomainAwareName());
+            }
 
             // This is a special case. We need to pass roles with domains.
             userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(
@@ -2159,7 +2171,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (userStore.isHybridRole()) {
-            doAddInternalRole(userStore.getDomainFreeName(), userList, permissions);
+            doAddInternalRole(roleName, userList, permissions);
             return;
         }
 

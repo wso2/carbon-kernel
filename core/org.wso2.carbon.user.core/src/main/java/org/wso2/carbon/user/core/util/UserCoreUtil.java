@@ -532,7 +532,7 @@ public final class UserCoreUtil {
                 if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
                     String domain = name.substring(0, index);
                     if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                        || !APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                        && !APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                         // remove domain name if exist
                         nameList.add(name.substring(index + 1));
                     } else {
