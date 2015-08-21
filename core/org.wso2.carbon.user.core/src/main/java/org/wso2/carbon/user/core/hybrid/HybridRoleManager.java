@@ -24,9 +24,7 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.UserRolesCache;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -52,6 +50,7 @@ public class HybridRoleManager {
     private DataSource dataSource;
     private RealmConfiguration realmConfig;
     private boolean userRolesCacheEnabled = true;
+    private static final String APPLICATION_DOMAIN = "Application";
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
@@ -62,6 +61,7 @@ public class HybridRoleManager {
         this.userRealm = realm;
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
+        UserCoreUtil.persistDomain(APPLICATION_DOMAIN, tenantId, dataSource);
 
     }
 
@@ -251,8 +251,10 @@ public class HybridRoleManager {
                 while (rs.next()) {
                     String name = rs.getString(1);
                     // Append the domain
-                    name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + name;
+                    if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                               + name;
+                    }
                     filteredRoles.add(name);
                 }
             }
@@ -375,22 +377,7 @@ public class HybridRoleManager {
     public String[] getHybridRoleListOfUser(String userName, String filter) throws UserStoreException {
 
         String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
-        String sqlStmt;
-        if (userRealm.getUserStoreManager() == null) {
-            //At the time of admin user creation, user store manager is not added to user realm
-            sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
-        }else{
-            UserStoreManager userStoreManager = userRealm.getUserStoreManager();
-            if (userStoreManager instanceof AbstractUserStoreManager) {
-                if (((AbstractUserStoreManager)userRealm.getUserStoreManager()).isCaseSensitiveUsername()) {
-                    sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
-                } else {
-                    sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE;
-                }
-            }else {
-                sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
-            }
-        }
+        String sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
 
         if (getRoleListOfUserSQLConfig != null && !getRoleListOfUserSQLConfig.equals("")) {
             sqlStmt = getRoleListOfUserSQLConfig;
@@ -420,8 +407,10 @@ public class HybridRoleManager {
                 List<String> allRoles = new ArrayList<String>();
                 boolean isEveryone = false;
                 for (String role : roles) {
-                    role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + role;
+                    if(!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                               + role;
+                    }
                     if (role.equals(realmConfig.getEveryOneRoleName())) {
                         isEveryone = true;
                     }

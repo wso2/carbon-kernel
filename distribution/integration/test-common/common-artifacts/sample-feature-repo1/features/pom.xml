@@ -11,6 +11,8 @@
 
     <artifactId>features</artifactId>
     <packaging>pom</packaging>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Feature Aggregate</name>
+
     <modules>
         <module>feature1</module>
         <module>feature2</module>

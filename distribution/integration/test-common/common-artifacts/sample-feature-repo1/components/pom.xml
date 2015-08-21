@@ -7,10 +7,12 @@
         <groupId>org.wso2.carbon</groupId>
         <version>4.5.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>components</artifactId>
     <packaging>pom</packaging>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Component Aggregate</name>
+
     <modules>
         <module>component1</module>
         <module>component2</module>
