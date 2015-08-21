@@ -88,6 +88,7 @@ public class HybridRoleManager {
             if (!this.isExistingRole(roleName)) {
                 DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL,
                         roleName, tenantId);
+                dbConnection.commit();
             } else {
                 throw new UserStoreException("Role name: " + roleName
                         + " in the system. Please pick another role name.");
@@ -514,9 +515,6 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            DatabaseUtil.updateDatabase(dbConnection,
-                    HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId,
-                    tenantId);
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
                     roleName, tenantId);
             dbConnection.commit();

@@ -538,11 +538,7 @@ public class DatabaseUtil {
                     }
                 }
             }
-            int count = prepStmt.executeUpdate();
-            /*if (log.isDebugEnabled()) {
-                log.debug("Executed Query is " + sqlStmt + " and number of updated rows :: "
-                        + count);
-            }*/
+            prepStmt.executeUpdate();
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
