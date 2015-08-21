@@ -57,9 +57,10 @@
 
     <xs:complexType name="membershipSchemeConfiguration">
         <xs:sequence>
-            <xs:choice minOccurs="0">
+            <xs:choice minOccurs="1">
                 <xs:element name="Multicast" type="tns:multicastSchemeConfig"/>
                 <xs:element name="WKA" type="tns:wkaSchemeConfig"/>
+                <xs:element name="AWS" type="tns:awsSchemeConfig"/>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
@@ -83,6 +84,19 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="awsSchemeConfig">
+        <xs:sequence>
+            <xs:element name="AccessKey" type="xs:string"/>
+            <xs:element name="SecretKey" type="xs:string"/>
+            <xs:element name="SecurityGroup" type="xs:string"/>
+            <xs:element name="Region" type="xs:string" default="us-east-1" minOccurs="0"/>
+            <xs:element name="TagKey" type="xs:string" minOccurs="0"/>
+            <xs:element name="TagValue" type="xs:string" minOccurs="0"/>
+            <xs:element name="ConnTimeout" type="xs:int" minOccurs="0" default="-1"/>
+            <xs:element name="HostHeader" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

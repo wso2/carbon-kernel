@@ -32,6 +32,7 @@ import com.hazelcast.core.MessageListener;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.clustering.hazelcast.aws.AWSMembershipScheme;
 import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.internal.clustering.ClusterUtil;
@@ -142,7 +143,11 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         hazelcastConfig.addMapConfig(mapConfig);
 
         long start = System.currentTimeMillis();
+
+        //TODO: HazelcastInstance should be looked up from OSGi service
         hazelcastInstance = Hazelcast.newHazelcastInstance(hazelcastConfig);
+
+
         logger.info("Hazelcast initialized in " + (System.currentTimeMillis() - start) + "ms");
 
         clusteringMessageTopic = hazelcastInstance.
@@ -270,6 +275,11 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                                                                nwConfig.getJoin().
                                                                        getMulticastConfig(),
                                                                sentMsgsBuffer);
+                    membershipScheme.init(clusterContext);
+                    break;
+                case ClusteringConstants.MembershipScheme.AWS_BASED:
+                    membershipScheme =
+                            new AWSMembershipScheme(nwConfig.getJoin().getAwsConfig(), sentMsgsBuffer);
                     membershipScheme.init(clusterContext);
                     break;
             }

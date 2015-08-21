@@ -62,5 +62,10 @@ public final class ClusteringConstants {
          * Well-Known Address based membership management scheme
          */
         public static final String WKA_BASED = "WKA";
+
+        /**
+         * Amazon AWS based membership scheme
+         */
+        public static final String AWS_BASED = "AWS";
     }
 }
