@@ -56,6 +56,16 @@
                 </Member>
             </Members>
         </WKA-->
+
+        <!--AWS membership scheme related properties-->
+        <!--AWS>
+            <AccessKey>xxxxxxxxxx</AccessKey>
+            <SecretKey>yyyyyyyyyy</SecretKey>
+            <SecurityGroup>a_group_name</SecurityGroup>
+            <Region>us-east-1</Region>
+            <TagKey>a_tag_key</TagKey>
+            <TagValue>a_tag_value</TagValue>
+        </AWS-->
     </MembershipScheme>
 
 </Cluster>
