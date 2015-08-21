@@ -30,7 +30,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axis2.engine.AxisConfiguration;
-import org.apache.axis2.deployment.DeploymentException;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -52,7 +51,7 @@ public class RegistryResourceDeployer implements AppDeploymentHandler {
      * @param carbonApp - store info in this object after deploying
      * @param axisConfig - AxisConfiguration of the current tenant
      */
-    public void deployArtifacts(CarbonApplication carbonApp, AxisConfiguration axisConfig)  throws DeploymentException {
+    public void deployArtifacts(CarbonApplication carbonApp, AxisConfiguration axisConfig) {
         ApplicationConfiguration appConfig = carbonApp.getAppConfig();
         List<Artifact.Dependency> deps = appConfig.getApplicationArtifact().getDependencies();
 
@@ -103,7 +102,7 @@ public class RegistryResourceDeployer implements AppDeploymentHandler {
      * @param parentAppName - name of the parent cApp
      */
     private void deployRegistryArtifacts(CarbonAppPersistenceManager capm,
-                                         List<Artifact> artifacts, String parentAppName) throws DeploymentException{
+                                         List<Artifact> artifacts, String parentAppName) {
         for (Artifact artifact : artifacts) {
             if (REGISTRY_RESOURCE_TYPE.equals(artifact.getType())) {
                 try {
@@ -114,7 +113,6 @@ public class RegistryResourceDeployer implements AppDeploymentHandler {
                     artifact.setRegConfig(regConfig);
                 } catch (Exception e) {
                     log.error("Error while deploying registry artifact " + artifact.getName(), e);
-                    throw new DeploymentException(e.getMessage());
                 }
             }
 

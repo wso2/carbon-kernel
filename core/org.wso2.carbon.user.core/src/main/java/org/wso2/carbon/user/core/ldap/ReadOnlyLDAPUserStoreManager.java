@@ -612,8 +612,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
         String searchFilter = ((LDAPRoleContext) context).getListFilter();
         String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
-        searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter
-                (roleName) + "))";
+        searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter(roleName) + "))";
         String searchBases = ((LDAPRoleContext) context).getSearchBase();
 
         if (debug) {
@@ -1550,8 +1549,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             String searchFilter = ((LDAPRoleContext) context).getListFilter();
             String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
-            searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter
-                    (context.getRoleName()) + "))";
+            searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter(
+                    context.getRoleName()) + "))";
 
             String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
             String returnedAtts[] = {membershipProperty};
@@ -1914,6 +1913,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             membershipValue = escapeLdapNameForFilter(ldn);
                         }
                     } catch (InvalidNameException e) {
+                        log.error("Error while creating LDAP name from: " + nameInSpace);
                         throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
                     }
                 } else {
@@ -2331,7 +2331,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userPropertyName =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-        searchFilter = "(&" + searchFilter + "(" + property + "=" + escapeSpecialCharactersForFilterWithStarAsRegex(value) + "))";
+        searchFilter = "(&" + searchFilter + "(" + property + "=" + escapeSpecialCharactersForFilterWithStarAsRegex(
+                value) + "))";
 
         DirContext dirContext = this.connectionSource.getContext();
         NamingEnumeration<?> answer = null;
@@ -2520,6 +2521,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     LdapName ldn = new LdapName(nameInSpace);
                     membershipValue = escapeLdapNameForFilter(ldn);
                 } catch (InvalidNameException e) {
+                    log.error("Error while creating LDAP name from: " + nameInSpace);
                     throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
                 }
             } else {
@@ -2765,6 +2767,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     public Map<String, String> getProperties(Tenant tenant) throws UserStoreException {
         return this.realmConfig.getUserStoreProperties();
+    }
+
+    @Override
+    public boolean isBulkImportSupported() throws UserStoreException {
+        return false;
     }
 
     /**
