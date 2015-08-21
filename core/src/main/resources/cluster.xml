@@ -84,6 +84,14 @@
             <TagKey>a_tag_key</TagKey>
             <TagValue>a_tag_value</TagValue>
         </AWS-->
+
+        <!--Generic membership scheme configuration-->
+        <!--Generic>
+            <Name>foo</Name>
+            <Parameter name="xxx">xxx-val</Parameter>
+            <Parameter name="yyy">yyy-val</Parameter>
+            <Parameter name="zzz">zzz-val</Parameter>
+        </Generic-->
     </MembershipScheme>
 
 </Cluster>

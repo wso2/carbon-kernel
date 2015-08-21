@@ -135,11 +135,15 @@ public class ClusterUtil {
                 mbrScheme = membershipSchemeParam.trim();
             }
             if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
-                && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)) {
+                && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)
+                    && !mbrScheme.equals(ClusteringConstants.MembershipScheme.AWS_BASED)
+                    && !mbrScheme.equals(ClusteringConstants.MembershipScheme.GENERIC)) {
                 String msg = "Invalid membership scheme '" + mbrScheme +
-                             "'. Supported schemes are " +
+                             "'. Supported schemes are {" +
                              ClusteringConstants.MembershipScheme.MULTICAST_BASED +
-                             ", " + ClusteringConstants.MembershipScheme.WKA_BASED;
+                             ", " + ClusteringConstants.MembershipScheme.WKA_BASED +
+                             ", " + ClusteringConstants.MembershipScheme.AWS_BASED +
+                             ", " + ClusteringConstants.MembershipScheme.GENERIC + "}";
                 logger.error(msg);
                 throw new ClusterConfigurationException(msg);
             }

@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.clustering;
 
+import sun.net.www.content.text.Generic;
+
 /**
  * All constants used by the carbon clustering implementation
  */
@@ -67,5 +69,10 @@ public final class ClusteringConstants {
          * Amazon AWS based membership scheme
          */
         public static final String AWS_BASED = "AWS";
+
+        /**
+         * Generic membership scheme
+         */
+        public static final String GENERIC = "Generic";
     }
 }

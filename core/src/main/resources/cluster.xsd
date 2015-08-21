@@ -61,6 +61,7 @@
                 <xs:element name="Multicast" type="tns:multicastSchemeConfig"/>
                 <xs:element name="WKA" type="tns:wkaSchemeConfig"/>
                 <xs:element name="AWS" type="tns:awsSchemeConfig"/>
+                <xs:element name="Generic" type="tns:genericSchemeConfig"/>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
@@ -98,6 +99,22 @@
             <xs:element name="ConnTimeout" type="xs:int" minOccurs="0" default="-1"/>
             <xs:element name="HostHeader" type="xs:string" minOccurs="0"/>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="genericSchemeConfig">
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string"/>
+            <xs:element name="Parameter" type="tns:ParameterElement" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ParameterElement">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string">
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
     <xs:complexType name="wkaMember">
