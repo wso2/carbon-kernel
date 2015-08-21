@@ -19,6 +19,7 @@
 package org.wso2.carbon.clustering.hazelcast.aws;
 
 import com.hazelcast.config.AwsConfig;
+import com.hazelcast.config.JoinConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
@@ -48,8 +49,11 @@ public class AWSMembershipScheme implements HazelcastMembershipScheme {
     private ClusterContext clusterContext;
     private final List<ClusterMessage> messageBuffer;
 
-    public AWSMembershipScheme(AwsConfig awsConfig, List<ClusterMessage> messageBuffer) {
-        this.awsConfig = awsConfig;
+    public AWSMembershipScheme(JoinConfig joinConfig, List<ClusterMessage> messageBuffer) {
+        joinConfig.getMulticastConfig().setEnabled(false);
+        joinConfig.getTcpIpConfig().setEnabled(false);
+        joinConfig.getAwsConfig().setEnabled(true);
+        this.awsConfig = joinConfig.getAwsConfig();
         this.messageBuffer = messageBuffer;
     }
 

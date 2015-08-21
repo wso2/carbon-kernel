@@ -279,7 +279,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                     break;
                 case ClusteringConstants.MembershipScheme.AWS_BASED:
                     membershipScheme =
-                            new AWSMembershipScheme(nwConfig.getJoin().getAwsConfig(), sentMsgsBuffer);
+                            new AWSMembershipScheme(nwConfig.getJoin(), sentMsgsBuffer);
                     membershipScheme.init(clusterContext);
                     break;
             }
