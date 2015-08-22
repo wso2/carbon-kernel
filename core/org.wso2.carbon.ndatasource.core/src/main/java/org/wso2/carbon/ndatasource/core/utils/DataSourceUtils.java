@@ -53,7 +53,7 @@ public class DataSourceUtils {
 	private static Log log = LogFactory.getLog(DataSourceUtils.class);
 	
 	private static SecretResolver secretResolver;
-    private static final String XML_DECLARATION="xml-declaration";
+        private static final String XML_DECLARATION="xml-declaration";
 	
 	private static ThreadLocal<String> dataSourceId = new ThreadLocal<String>() {
         protected synchronized String initialValue() {
@@ -123,17 +123,17 @@ public class DataSourceUtils {
                                 from "stringToElement" */
 				return "";
 			}
-            Document document = element.getOwnerDocument();
-            DOMImplementationLS domImplLS = (DOMImplementationLS) document
-                    .getImplementation();
-            LSSerializer serializer = domImplLS.createLSSerializer();
-            //by default its true, so set it to false to get String without xml-declaration
-            serializer.getDomConfig().setParameter(XML_DECLARATION, false);
-            return serializer.writeToString(element);
-        } catch (Exception e) {
-            log.error("Error while convering element to string: " + e.getMessage(), e);
-            return null;
-        }
+                Document document = element.getOwnerDocument();
+                DOMImplementationLS domImplLS = (DOMImplementationLS) document
+                       .getImplementation();
+                LSSerializer serializer = domImplLS.createLSSerializer();
+                //by default its true, so set it to false to get String without xml-declaration
+                serializer.getDomConfig().setParameter(XML_DECLARATION, false);
+                return serializer.writeToString(element);
+                } catch (Exception e) {
+                      log.error("Error while convering element to string: " + e.getMessage(), e);
+                      return null;
+                }
 	}
 	
 	public static Element stringToElement(String xml) {
@@ -144,9 +144,9 @@ public class DataSourceUtils {
 		    DocumentBuilder db = getSecuredDocumentBuilder(false);
 		    return db.parse(new ByteArrayInputStream(xml.getBytes())).getDocumentElement();
 		} catch (Exception e) {
-            log.error("Error while converting string to element: " + e.getMessage(), e);
-            throw new RuntimeException("Error in creating an XML document from stream: " +
-                    e.getMessage(), e);
+                    log.error("Error while converting string to element: " + e.getMessage(), e);
+                    throw new RuntimeException("Error in creating an XML document from stream: " +
+                          e.getMessage(), e);
 		}
 	}
 	
@@ -249,9 +249,9 @@ public class DataSourceUtils {
 			if (element == null) {
 				return null;
 			}
-            String xmlString = elementToString(element);
-            InputStream stream = new ByteArrayInputStream(xmlString.getBytes());
-		    return stream;
+                        String xmlString = elementToString(element);
+                        InputStream stream = new ByteArrayInputStream(xmlString.getBytes());
+		        return stream;
 		} catch (Exception e) {
 			log.error("Error while convering element to InputStream: " + e.getMessage(), e);
 			return null;
