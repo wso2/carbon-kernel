@@ -62,7 +62,7 @@ public class HybridRoleManager {
         this.userRealm = realm;
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
-
+        UserCoreUtil.persistDomain(UserCoreConstants.APPLICATION_DOMAIN, tenantId, dataSource);
     }
 
     /**
@@ -251,8 +251,10 @@ public class HybridRoleManager {
                 while (rs.next()) {
                     String name = rs.getString(1);
                     // Append the domain
-                    name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + name;
+                    if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                               + name;
+                    }
                     filteredRoles.add(name);
                 }
             }
@@ -420,8 +422,10 @@ public class HybridRoleManager {
                 List<String> allRoles = new ArrayList<String>();
                 boolean isEveryone = false;
                 for (String role : roles) {
-                    role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + role;
+                    if (!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                               + role;
+                    }
                     if (role.equals(realmConfig.getEveryOneRoleName())) {
                         isEveryone = true;
                     }
