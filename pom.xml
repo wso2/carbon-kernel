@@ -31,6 +31,7 @@
                 <!--<module>dependencies</module>-->
                 <module>launcher</module>
                 <module>core</module>
+                <module>osgi-tests</module>
                 <module>modules/transport</module>
                 <module>features</module>
                 <module>distribution</module>
