@@ -233,7 +233,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         DirContext dirContext = getSearchBaseDirectoryContext();
 
 		/* getting add user basic attributes */
-        BasicAttributes basicAttributes = getAddUserBasicAttributes(userName);
+        BasicAttributes basicAttributes = getAddUserBasicAttributes(escapeSpecialCharactersForDN(userName));
 
         BasicAttribute userPassword = new BasicAttribute("userPassword");
         userPassword.add(UserCoreUtil.getPasswordToStore((String) credential,
@@ -426,13 +426,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         if (!isCNExists) {
             BasicAttribute cn = new BasicAttribute("cn");
-            cn.add(userName);
+            cn.add(escapeSpecialCharactersForDNWithStar(userName));
             basicAttributes.put(cn);
         }
 
         if (!isSNExists) {
             BasicAttribute sn = new BasicAttribute("sn");
-            sn.add(userName);
+            sn.add(escapeSpecialCharactersForDNWithStar(userName));
             basicAttributes.put(sn);
         }
     }
@@ -1972,12 +1972,87 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
     /**
+     * Escaping ldap DN special characters in a String value
+     * @param text
+     * @return
+     */
+    private String escapeSpecialCharactersForDN(String text){
+        boolean replaceEscapeCharacters = true;
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+
+        if(replaceEscapeCharacters) {
+            StringBuilder sb = new StringBuilder();
+            if ((text.length() > 0) && ((text.charAt(0) == ' ') || (text.charAt(0) == '#'))) {
+                sb.append('\\'); // add the leading backslash if needed
+            }
+            for (int i = 0; i < text.length(); i++) {
+                char currentChar = text.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        if(text.charAt(i+1) == '*'){
+                            sb.append("*");
+                            i++;
+                            break;
+                        }
+                        sb.append("\\\\");
+                        break;
+                    case ',':
+                        sb.append("\\,");
+                        break;
+                    case '+':
+                        sb.append("\\+");
+                        break;
+                    case '"':
+                        sb.append("\\\"");
+                        break;
+                    case '<':
+                        sb.append("\\<");
+                        break;
+                    case '>':
+                        sb.append("\\>");
+                        break;
+                    case ';':
+                        sb.append("\\;");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            if ((text.length() > 1) && (text.charAt(text.length() - 1) == ' ')) {
+                sb.insert(sb.length() - 1, '\\'); // add the trailing backslash if needed
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("value after escaping special characters in " + text + " : " + sb.toString());
+            }
+            return sb.toString();
+        } else {
+            return text;
+        }
+
+    }
+
+
+
+    /**
      * Escaping ldap search filter special characters in a string
      * @param dnPartial
      * @return
      */
     private String escapeSpecialCharactersForFilter(String dnPartial){
         boolean replaceEscapeCharacters = true;
+
+        dnPartial.replace("\\*","*");
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
@@ -2000,9 +2075,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     case '\\':
                         sb.append("\\5c");
                         break;
-//                case '*':
-//                    sb.append("\\2a");
-//                    break;
+                    case '*':
+                        sb.append("\\2a");
+                        break;
                     case '(':
                         sb.append("\\28");
                         break;
@@ -2027,8 +2102,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
      * @param text
      * @return
      */
-    private String escapeSpecialCharactersForDN(String text){
+    private String escapeSpecialCharactersForDNWithStar(String text){
         boolean replaceEscapeCharacters = true;
+        text.replace("\\*","*");
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
@@ -2070,6 +2146,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                         break;
                     case ';':
                         sb.append("\\;");
+                        break;
+                    case '*':
+                        sb.append("\\2a");
                         break;
                     default:
                         sb.append(currentChar);

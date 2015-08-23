@@ -27,4 +27,5 @@ org.wso2.carbon.feature.mgt.core*
 org.wso2.carbon.user.core*
 org.wso2.carbon.feature.mgt.services*
 org.wso2.carbon.utils*
+org.wso2.carbon.context*
 org.wso2.carbon.roles.mgt*

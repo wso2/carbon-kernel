@@ -89,7 +89,7 @@ public class RegistryCoreServiceComponent {
     @SuppressWarnings("deprecation")
     private static org.wso2.carbon.registry.core.config.RegistryConfiguration registryConfig;
 
-    private RegistryDataHolder dataHolder = RegistryDataHolder.getInstance();
+    private static RealmService realmService;
 
     private static final Log log = LogFactory.getLog(RegistryCoreServiceComponent.class);
 
@@ -580,7 +580,7 @@ public class RegistryCoreServiceComponent {
 
         InputStream configInputStream = new FileInputStream(getConfigFile());
         RegistryContext registryContext =
-                RegistryContext.getBaseInstance(configInputStream, dataHolder.getRealmService());
+                RegistryContext.getBaseInstance(configInputStream, realmService);
         registryContext.setSetup(System.getProperty(RegistryConstants.SETUP_PROPERTY) != null);
         return new EmbeddedRegistryService(registryContext);
     }
@@ -599,7 +599,8 @@ public class RegistryCoreServiceComponent {
         String chroot = regConfig
                 .getValue(org.wso2.carbon.registry.core.config.RegistryConfiguration.REGISTRY_ROOT);
 
-        return new RemoteRegistryService(url, username, password, dataHolder.getRealmService(), chroot);
+        return new RemoteRegistryService(url, username,
+                password, realmService, chroot);
     }
 
     // Gets registry configuration instance.
@@ -717,7 +718,7 @@ public class RegistryCoreServiceComponent {
 
     // Method to update realm service.
     private static void updateRealmService(RealmService service) {
-        RegistryDataHolder.getInstance().setRealmService(service);
+        realmService = service;
     }
 
     // Method to update registry configuration.
@@ -767,7 +768,7 @@ public class RegistryCoreServiceComponent {
      * @return the instance of the realm service.
      */
     public static RealmService getRealmService() {
-        return RegistryDataHolder.getInstance().getRealmService();
+        return realmService;
     }
 
 

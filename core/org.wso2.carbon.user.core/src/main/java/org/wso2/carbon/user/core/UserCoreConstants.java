@@ -55,6 +55,7 @@ public class UserCoreConstants {
     public static final int MAX_SEARCH_TIME = 10000;   // ms
 
     public static final String INTERNAL_DOMAIN = "Internal";
+    public static final String APPLICATION_DOMAIN = "Application";
     public static final String PRIMARY_DEFAULT_DOMAIN_NAME = "PRIMARY";
     public static final String SYSTEM_DOMAIN_NAME = "SYSTEM";
 
@@ -152,6 +153,7 @@ public class UserCoreConstants {
         public static final String PROPERTY_JAVA_REG_EX = "PasswordJavaRegEx";
         public static final String PROPERTY_JS_REG_EX = "PasswordJavaScriptRegEx";
         public static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
+        public static final String PROPERTY_USERNAME_ERROR_MSG = "UsernameJavaRegExViolationErrorMsg";
 
         public static final String PROPERTY_USER_NAME_JAVA_REG_EX = "UsernameJavaRegEx";
         public static final String PROPERTY_USER_NAME_JS_REG_EX = "UsernameJavaScriptRegEx";

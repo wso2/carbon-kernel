@@ -43,7 +43,6 @@ import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.system.SystemUserRoleManager;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
-import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Constructor;
@@ -1191,6 +1190,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!checkUserNameValid(userStore.getDomainFreeName())) {
             String message = "Username " + userStore.getDomainFreeName() + " is not valid. User name must be a non null string with following format, ";
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
             throw new UserStoreException(message + regEx);
@@ -1226,6 +1232,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         String domain = role.substring(0, index);
                         if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
                             internalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                            continue;
+                        } else if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                            internalRoles.add(role);
                             continue;
                         }
                     }
@@ -1333,8 +1342,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 throw new UserStoreException("Cannot update everyone role");
             }
 
-            hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(),
-                    deletedUsers, newUsers);
+            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(),
+                                                             deletedUsers, newUsers);
+            } else {
+                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainAwareName(),
+                                                             deletedUsers, newUsers);
+            }
             clearUserRolesCacheByTenant(this.tenantId);
             return;
         }
@@ -1459,6 +1473,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
                 if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
                     internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
+                } else if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                    internalRoleDel.add(deleteRole);
                 } else {
                     // This is domain free role name.
                     roleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
@@ -1479,6 +1495,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
                 if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
                     internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
+                } else if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                    internalRoleNew.add(newRole);
                 } else {
                     roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
                 }
@@ -1552,8 +1570,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isHybridRole()) {
-            hybridRoleManager.updateHybridRoleName(userStore.getDomainFreeName(),
-                    userStoreNew.getDomainFreeName());
+            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                hybridRoleManager.updateHybridRoleName(userStore.getDomainFreeName(),
+                                                       userStoreNew.getDomainFreeName());
+            } else {
+                hybridRoleManager.updateHybridRoleName(userStore.getDomainAwareName(),
+                                                       userStoreNew.getDomainAwareName());
+            }
 
             // This is a special case. We need to pass roles with domains.
             userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(
@@ -1637,12 +1660,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (userStore.isHybridRole()) {
-            boolean exist = hybridRoleManager.isExistingRole(userStore.getDomainFreeName());
-            if (exist) {
-                return true;
+            boolean exist;
+
+            if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                exist = hybridRoleManager.isExistingRole(userStore.getDomainAwareName());
             } else {
-                return false;
+                exist = hybridRoleManager.isExistingRole(userStore.getDomainFreeName());
             }
+
+            return exist;
         }
 
         // This happens only once during first startup - adding administrator user/role.
@@ -1884,7 +1910,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (UserCoreConstants.INTERNAL_DOMAIN.
-                equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
+                equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))
+            || UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
             String[] internalRoles = doGetInternalRoleListOfUser(userName, "*");
             if (UserCoreUtil.isContain(roleName, internalRoles)) {
                 addToIsUserHasRole(modifiedUserName, roleName, roles);
@@ -2082,8 +2109,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String[] userNamesInHybrid = new String[0];
         if (userStore.isHybridRole()) {
-            userNamesInHybrid =
-                    hybridRoleManager.getUserListOfHybridRole(userStore.getDomainFreeName());
+            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                userNamesInHybrid =
+                        hybridRoleManager.getUserListOfHybridRole(userStore.getDomainFreeName());
+            } else {
+                userNamesInHybrid = hybridRoleManager.getUserListOfHybridRole(userStore.getDomainAwareName());
+            }
+
             // remove domain
             List<String> finalNameList = new ArrayList<String>();
             String displayNameAttribute =
@@ -2192,7 +2224,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (userStore.isHybridRole()) {
-            doAddInternalRole(userStore.getDomainFreeName(), userList, permissions);
+            doAddInternalRole(roleName, userList, permissions);
             return;
         }
 
@@ -2342,7 +2374,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isHybridRole()) {
-            hybridRoleManager.deleteHybridRole(userStore.getDomainFreeName());
+            if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
+                hybridRoleManager.deleteHybridRole(roleName);
+            } else {
+                hybridRoleManager.deleteHybridRole(userStore.getDomainFreeName());
+            }
             clearUserRolesCacheByTenant(tenantId);
             return;
         }
@@ -2418,7 +2454,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 return userStore;
             } else {
                 if (!domain.equalsIgnoreCase(getMyDomainName())) {
-                    if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain))) {
+                    if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                         || UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
                         userStore.setHybridRole(true);
                     } else if (UserCoreConstants.SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
                         userStore.setSystemStore(true);
@@ -2426,6 +2463,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         throw new UserStoreException("Invalid Domain Name");
                     }
                 }
+
+                userStore.setDomainAwareName(user);
+                userStore.setDomainFreeName(domainFreeName);
+                userStore.setDomainName(domain);
+                userStore.setRecurssive(false);
+                return userStore;
             }
         }
 
@@ -2548,12 +2591,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
 
-        if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(roleName))) {
-            throw new UserStoreException("Role name: " + roleName
-                    + " in the system. Please pick another role name.");
-        }
+        if (roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)
+            && roleName.toLowerCase().startsWith(UserCoreConstants.APPLICATION_DOMAIN.toLowerCase())) {
+            if (hybridRoleManager.isExistingRole(roleName)) {
+                throw new UserStoreException("Role name: " + roleName
+                                             + " in the system. Please pick another role name.");
+            }
 
-        hybridRoleManager.addHybridRole(UserCoreUtil.removeDomainFromName(roleName), userList);
+            hybridRoleManager.addHybridRole(roleName, userList);
+
+        } else {
+            if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(roleName))) {
+                throw new UserStoreException("Role name: " + roleName
+                                             + " in the system. Please pick another role name.");
+            }
+
+            hybridRoleManager.addHybridRole(UserCoreUtil.removeDomainFromName(roleName), userList);
+        }
 
         if (permissions != null) {
             for (org.wso2.carbon.user.api.Permission permission : permissions) {
@@ -2598,7 +2652,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String[] roleList = new String[0];
 
-        if (!noInternalRoles) {
+        if (!noInternalRoles && (filter.toLowerCase().startsWith(UserCoreConstants.APPLICATION_DOMAIN.toLowerCase()))) {
+            roleList = hybridRoleManager.getHybridRoles(filter);
+        } else if (!noInternalRoles) {
             roleList = hybridRoleManager.getHybridRoles(UserCoreUtil.removeDomainFromName(filter));
         }
 
@@ -2616,7 +2672,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             String domain = filter.substring(0, index);
 
             UserStoreManager secManager = getSecondaryUserStoreManager(domain);
-            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                || UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                 return new String[0];
             }
             if (secManager != null) {
