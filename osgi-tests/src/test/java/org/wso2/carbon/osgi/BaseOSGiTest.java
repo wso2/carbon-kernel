@@ -23,11 +23,13 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.wso2.carbon.osgi.util.Utils;
 
 import javax.inject.Inject;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
@@ -91,4 +93,19 @@ public class BaseOSGiTest {
         assertNotNull("Bundle Context is null", bundleContext);
     }
 
+    @Test
+    public void testCarbonCoreBundleStatus() {
+
+        Bundle coreBundle = null;
+
+        Bundle bundles[] = bundleContext.getBundles();
+        for (int i = 0; i < bundles.length; i++) {
+            if (bundles[i].getSymbolicName().equals("org.wso2.carbon.core")) {
+                coreBundle = bundles[i];
+                break;
+            }
+        }
+        assertNotNull("Carbon Core bundle not found", coreBundle);
+        assertEquals("Carbon Core Bundle is not activated", coreBundle.getState(), Bundle.ACTIVE);
+    }
 }
