@@ -23,6 +23,8 @@
 
     <artifactId>component3</artifactId>
     <packaging>pom</packaging>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Component03</name>
+
 
     <modules>
         <module>1.0.0</module>

@@ -17,26 +17,26 @@
 */
 package org.wso2.carbon.integration.tests.featuremanagement;
 
-import org.testng.annotations.BeforeClass;
+/*import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.test.utils.common.TestConfigurationProvider;
 import org.wso2.carbon.feature.mgt.stub.prov.data.Feature;
 import org.wso2.carbon.feature.mgt.stub.prov.data.FeatureInfo;
 import org.wso2.carbon.feature.mgt.stub.prov.data.RepositoryInfo;
-import org.wso2.carbon.integration.common.clients.RepositoryAdminClient;
+import org.wso2.carbon.integration.common.clients.RepositoryAdminClient;*/
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 
-import java.io.File;
+/*import java.io.File;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertTrue;*/
 
 /**
  * Test case which tests Feature Management functionality
  */
 public class FeatureRepositoryMgtTestCase extends CarbonIntegrationBaseTest {
-    private RepositoryAdminClient repositoryAdminClient;
+    /*private RepositoryAdminClient repositoryAdminClient;
 
     String[] repoNickNames = {"testRepo101", "testRepo102", "testRepo103"};
     String sampleP2RepoPath;
@@ -218,5 +218,5 @@ public class FeatureRepositoryMgtTestCase extends CarbonIntegrationBaseTest {
         for (String repoPath : repoPaths) {
             repositoryAdminClient.removeRepository("file://" + repoPath);
         }
-    }
+    }*/
 }

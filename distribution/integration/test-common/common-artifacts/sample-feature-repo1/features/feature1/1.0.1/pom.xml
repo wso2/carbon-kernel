@@ -11,13 +11,14 @@
 
     <artifactId>org.wso2.carbon.test.feature1</artifactId>
     <packaging>pom</packaging>
-    <version>${carbon.test.component101}</version>
+    <version>1.0.1-SNAPSHOT</version>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Feature01 101</name>
+
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.test.component1</artifactId>
-            <version>${carbon.test.component101}</version>
         </dependency>
     </dependencies>
 

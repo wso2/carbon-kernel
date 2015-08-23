@@ -20,14 +20,14 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-parent</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>carbon-kernel</artifactId>
     <packaging>pom</packaging>
-    <name>WSO2 Carbon Kernel - Parent Maven Project</name>
+    <name>WSO2 Carbon - Parent Maven Project</name>
     <description>carbon-parent</description>
     <url>http://wso2.org</url>
 

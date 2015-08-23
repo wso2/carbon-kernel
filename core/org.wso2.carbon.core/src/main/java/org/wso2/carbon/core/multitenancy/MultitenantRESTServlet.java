@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.multitenancy.transports.DummyTransportSender;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -151,6 +152,7 @@ public class MultitenantRESTServlet extends AxisServlet {
                 new ServletRequestResponseTransport());
 
         PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantDomain(tenantDomain, true);
+        inMessageContext.setProperty(MultitenantConstants.TENANT_DOMAIN, tenantDomain);
         return inMessageContext;
     }
 
