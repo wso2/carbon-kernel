@@ -17,5 +17,19 @@
 package org.wso2.carbon.osgi.util;
 
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class Utils {
+
+    /**
+     * Set the carbon home for execute tests.
+     * Carbon home is set to /carbon-kernel/distribution/carbon-home
+     */
+    public static void setCarbonHome() {
+        String currentDir = Paths.get("").toAbsolutePath().toString();
+        Path carbonHome = Paths.get(currentDir, "..", "distribution", "carbon-home");
+        System.setProperty("carbon.home", carbonHome.toString());
+    }
+
 }
