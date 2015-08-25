@@ -64,7 +64,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
 
     @Override
     public Tenant loadTenant(String tenantDomain) throws Exception {
-        if (tenantConfigMap.containsKey(tenantDomain)){
+        if (tenantConfigMap.containsKey(tenantDomain)) {
             TenantConfig tenantConfig = tenantConfigMap.get(tenantDomain);
             return populateTenant(tenantConfig);
         }

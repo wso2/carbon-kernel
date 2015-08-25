@@ -96,7 +96,7 @@ public class FileUtils {
         String dstAbsPath = dst.getAbsolutePath();
         String dstDir = dstAbsPath.substring(0, dstAbsPath.lastIndexOf(File.separator));
         File dir = new File(dstDir);
-        if (!dir.exists() && !dir.mkdirs()){
+        if (!dir.exists() && !dir.mkdirs()) {
             throw new IOException("Fail to create the directory: " + dir.getAbsolutePath());
         }
 
