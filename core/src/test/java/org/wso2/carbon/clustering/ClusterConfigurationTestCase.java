@@ -45,36 +45,36 @@ public class ClusterConfigurationTestCase extends BaseTest {
 
     }
 
-    @Test (groups = {"wso2.carbon.clustering"}, description = "sample cluster.xml validation")
+    @Test(groups = {"wso2.carbon.clustering"}, description = "sample cluster.xml validation")
     public void testClusterXmlValidation1()
             throws ParserConfigurationException, IOException, SAXException {
         Source xmlFile = new StreamSource(getTestResourceFile("xsd" + File.separator +
-                                                              "cluster.xml"));
+                "cluster.xml"));
         SchemaFactory schemaFactory = SchemaFactory
                 .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = schemaFactory.newSchema(getTestResourceFile("xsd" + File.separator +
-                                                                    "cluster.xsd"));
+                "cluster.xsd"));
         Validator validator = schema.newValidator();
         validator.validate(xmlFile);
     }
 
-    @Test (groups = {"wso2.carbon.clustering"}, description = "distribution cluster.xml validation")
+    @Test(groups = {"wso2.carbon.clustering"}, description = "distribution cluster.xml validation")
     public void testClusterXmlValidation2()
             throws ParserConfigurationException, IOException, SAXException {
         Source xmlFile = new StreamSource(new File(".." + File.separator +
-                                                   "distribution" + File.separator + "carbon-home" +
-                                                   File.separator + "repository" + File.separator +
-                                                   "conf" + File.separator + "cluster.xml"));
+                "distribution" + File.separator + "carbon-home" +
+                File.separator + "repository" + File.separator +
+                "conf" + File.separator + "cluster.xml"));
         SchemaFactory schemaFactory = SchemaFactory
                 .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = schemaFactory.newSchema(getTestResourceFile("xsd" + File.separator +
-                                                                    "cluster.xsd"));
+                "cluster.xsd"));
         Validator validator = schema.newValidator();
         validator.validate(xmlFile);
     }
 
-    @Test (groups = {"wso2.carbon.clustering"},
-           description = "test cluster configuration population")
+    @Test(groups = {"wso2.carbon.clustering"},
+            description = "test cluster configuration population")
     public void testBuildClusterConfiguration() throws ClusterConfigurationException {
         try {
             buildClusterConfig("fake/path");
@@ -86,14 +86,14 @@ public class ClusterConfigurationTestCase extends BaseTest {
         clusterConfiguration = buildClusterConfig(clusterXMLLocation);
     }
 
-    @Test(groups = {"wso2.carbon.clustering"}, description = "test clustering enable/disabled" ,
-          dependsOnMethods = {"testBuildClusterConfiguration"})
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test clustering enable/disabled",
+            dependsOnMethods = {"testBuildClusterConfiguration"})
     public void testClusteringEnabled() {
         boolean isEnabled = clusterConfiguration.isEnabled();
         Assert.assertTrue(isEnabled);
     }
 
-    @Test (groups = {"wso2.carbon.clustering"}, description = "test clustering agent type")
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test clustering agent type")
     public void testClusteringAgentType() throws ClusterConfigurationException {
         Assert.assertEquals("hazelcast", clusterConfiguration.getAgent());
     }

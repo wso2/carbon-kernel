@@ -60,17 +60,6 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         serviceRegistration.unregister();
     }
 
-    @Reference(
-            name = "carbon.runtime.service",
-            service = CarbonRuntime.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetCarbonRuntime"
-    )
-    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = carbonRuntime;
-    }
-
     public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = null;
     }
@@ -80,6 +69,17 @@ public class CarbonKernelCommandProvider implements CommandProvider {
             throw new Exception("CarbonRuntime instance is not available");
         }
         return carbonRuntime;
+    }
+
+    @Reference(
+            name = "carbon.runtime.service",
+            service = CarbonRuntime.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetCarbonRuntime"
+    )
+    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = carbonRuntime;
     }
 
     @Override

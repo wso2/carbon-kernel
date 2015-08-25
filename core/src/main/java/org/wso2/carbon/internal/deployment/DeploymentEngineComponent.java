@@ -73,7 +73,7 @@ public class DeploymentEngineComponent {
             DeploymentService deploymentService =
                     new CarbonDeploymentService(deploymentEngine);
             serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
-                                                                deploymentService, null);
+                    deploymentService, null);
 
             logger.debug("Started Carbon Deployment Engine");
 

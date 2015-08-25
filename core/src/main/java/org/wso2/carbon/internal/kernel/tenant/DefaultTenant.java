@@ -42,8 +42,18 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     }
 
     @Override
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    @Override
     public String getDomain() {
         return domain;
+    }
+
+    @Override
+    public void setDomain(String domain) {
+        this.domain = domain;
     }
 
     @Override
@@ -52,8 +62,18 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     }
 
     @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
     public String getDescription() {
         return description;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     @Override
@@ -62,13 +82,28 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     }
 
     @Override
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @Override
     public String getAdminUsername() {
         return adminUsername;
     }
 
     @Override
+    public void setAdminUsername(String adminUsername) {
+        this.adminUsername = adminUsername;
+    }
+
+    @Override
     public String getAdminUserEmailAddress() {
         return adminUserEmailAddress;
+    }
+
+    @Override
+    public void setAdminUserEmailAddress(String emailAddress) {
+        this.adminUserEmailAddress = emailAddress;
     }
 
     @Override
@@ -82,47 +117,12 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     }
 
     @Override
-    public void setID(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public void setDomain(String domain) {
-        this.domain = domain;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    @Override
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    @Override
-    public void setAdminUsername(String adminUsername) {
-        this.adminUsername = adminUsername;
-    }
-
-    @Override
-    public void setAdminUserEmailAddress(String emailAddress) {
-        this.adminUserEmailAddress = emailAddress;
+    public void setProperties(Map<String, String> props) {
+        this.properties = props;
     }
 
     @Override
     public void setProperty(String key, String value) {
         this.properties.put(key, value);
-    }
-
-    @Override
-    public void setProperties(Map<String, String> props) {
-        this.properties = props;
     }
 }

@@ -22,9 +22,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *  CarbonConfiguration class holds static configuration parameters specified in the carbon.xml file.
+ * CarbonConfiguration class holds static configuration parameters specified in the carbon.xml file.
  *
- *  @since 5.0.0
+ * @since 5.0.0
  */
 @XmlRootElement(name = "Server")
 public class CarbonConfiguration {

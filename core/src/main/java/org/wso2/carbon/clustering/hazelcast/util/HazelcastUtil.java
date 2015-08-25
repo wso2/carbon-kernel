@@ -39,7 +39,7 @@ public class HazelcastUtil {
     public static ClusterMember toClusterMember(Member hazelcastMember) {
         InetSocketAddress inetSocketAddress = hazelcastMember.getInetSocketAddress();
         ClusterMember clusterMember = new ClusterMember(inetSocketAddress.getHostName(),
-                                                        inetSocketAddress.getPort());
+                inetSocketAddress.getPort());
         clusterMember.setId(hazelcastMember.getUuid());
         return clusterMember;
     }

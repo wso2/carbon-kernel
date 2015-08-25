@@ -50,8 +50,8 @@ public class CustomDeployer implements Deployer {
     private String directory = "text-files";
     private URL directoryLocation;
     private ArtifactType artifactType;
-    private String testDir = "src" + File.separator + "test" + File.separator  + "resources" +
-                             File.separator + "carbon-repo" + File.separator + directory;
+    private String testDir = "src" + File.separator + "test" + File.separator + "resources" +
+            File.separator + "carbon-repo" + File.separator + directory;
 
     public CustomDeployer() {
         artifactType = new ArtifactType<String>("txt");
@@ -89,7 +89,7 @@ public class CustomDeployer implements Deployer {
     public void undeploy(Object key) throws CarbonDeploymentException {
         if (!(key instanceof String)) {
             throw new CarbonDeploymentException("Error while Un Deploying : " + key +
-                                                "is not a String value");
+                    "is not a String value");
         }
         logger.info("Undeploying : " + key);
         try {
@@ -111,12 +111,16 @@ public class CustomDeployer implements Deployer {
     public String update(Artifact artifact) throws CarbonDeploymentException {
         logger.info("Updating : " + artifact.getName());
         sample1Updated = true;
-        return  artifact.getName();
+        return artifact.getName();
     }
 
 
     public URL getLocation() {
         return directoryLocation;
+    }
+
+    public void setLocation(URL directoryLocation) {
+        this.directoryLocation = directoryLocation;
     }
 
     public ArtifactType getArtifactType() {
@@ -125,9 +129,5 @@ public class CustomDeployer implements Deployer {
 
     public void setArtifactType(ArtifactType artifactType) {
         this.artifactType = artifactType;
-    }
-
-    public void setLocation(URL directoryLocation) {
-        this.directoryLocation = directoryLocation;
     }
 }

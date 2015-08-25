@@ -29,9 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataHolder {
-    private BundleContext bundleContext;
-
     private static DataHolder instance = new DataHolder();
+    private BundleContext bundleContext;
     private CarbonCluster carbonCluster;
     private ClusterContext clusterContext;
 
@@ -50,12 +49,12 @@ public class DataHolder {
         this.bundleContext = bundleContext;
     }
 
-    public void setCarbonCluster(CarbonCluster carbonCluster) {
-        this.carbonCluster = carbonCluster;
-    }
-
     public CarbonCluster getCarbonCluster() {
         return carbonCluster;
+    }
+
+    public void setCarbonCluster(CarbonCluster carbonCluster) {
+        this.carbonCluster = carbonCluster;
     }
 
     public ClusterContext getClusterContext() {

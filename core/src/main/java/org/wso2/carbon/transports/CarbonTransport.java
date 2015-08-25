@@ -34,15 +34,6 @@ public abstract class CarbonTransport {
         this.id = id;
     }
 
-    private enum State {
-        UNINITIALIZED, STARTED, STOPPED, IN_MAINTENANCE;
-
-        @Override
-        public String toString() {
-            return name();
-        }
-    }
-
     public String getId() {
         return id;
     }
@@ -91,4 +82,13 @@ public abstract class CarbonTransport {
     }
 
     protected abstract void endMaintenance();
+
+    private enum State {
+        UNINITIALIZED, STARTED, STOPPED, IN_MAINTENANCE;
+
+        @Override
+        public String toString() {
+            return name();
+        }
+    }
 }

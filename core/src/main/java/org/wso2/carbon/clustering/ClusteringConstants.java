@@ -19,40 +19,32 @@
 
 package org.wso2.carbon.clustering;
 
-import sun.net.www.content.text.Generic;
-
 /**
  * All constants used by the carbon clustering implementation
  */
 public final class ClusteringConstants {
 
-    private ClusteringConstants() {
-    }
-
     public static final String CLUSTER_AGENT = "Agent";
-
     /**
      * The default domain to which this member belongs to. This node may be running in application
      * or loadBalance mode
      */
     public static final String DEFAULT_DOMAIN = "wso2.carbon.domain";
-
     public static final String LOCAL_MEMBER_HOST = "LocalMember.Host";
-
     public static final String LOCAL_MEMBER_PORT = "LocalMember.Port";
-
     /**
      * The membership scheme used in this setup. The only values supported at the moment are
      * "multicast" and "wka"
      */
     public static final String MEMBERSHIP_SCHEME = "MembershipScheme";
-
     /**
      * The clustering domain/group. Nodes in the same group will belong to the same multicast
      * domain. There will not be interference between nodes in different groups.
      */
     public static final String DOMAIN = "Domain";
 
+    private ClusteringConstants() {
+    }
 
     public static final class MembershipScheme {
         /**

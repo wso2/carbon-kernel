@@ -26,15 +26,16 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.util.HashMap;
 
-public class ArtifactTest extends BaseTest{
-    private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
+public class ArtifactTest extends BaseTest {
+    private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private File file = new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
-                         + File.separator + "sample1.txt");
+            + File.separator + "sample1.txt");
     private ArtifactType artifactType = new ArtifactType<String>("txt");
 
     private HashMap<String, Object> properties = new HashMap<>();
 
     private Artifact artifact;
+
     /**
      * @param testName
      */

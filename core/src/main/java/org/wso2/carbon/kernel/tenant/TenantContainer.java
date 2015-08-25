@@ -41,11 +41,25 @@ public interface TenantContainer {
     public String getID();
 
     /**
+     * Sets the tenant ID.
+     *
+     * @param id the tenant id
+     */
+    public void setID(String id);
+
+    /**
      * Returns the parent tenant of this tenant
      *
      * @return the parent tenant
      */
     public TenantContainer getParent();
+
+    /**
+     * Sets the parent tenant.
+     *
+     * @param parentTenant the parent tenant
+     */
+    public void setParent(TenantContainer parentTenant);
 
     /**
      * Returns child tenants of this tenant.
@@ -62,18 +76,11 @@ public interface TenantContainer {
     public int getDepthOfHierarchy();
 
     /**
-     * Sets the tenant ID.
+     * Sets the allowed depth of tenant hierarchy.
      *
-     * @param id the tenant id
+     * @param depthOfHierarchy the depth of the tenant hierarchy
      */
-    public void setID(String id);
-
-    /**
-     * Sets the parent tenant.
-     *
-     * @param parentTenant the parent tenant
-     */
-    public void setParent(TenantContainer parentTenant);
+    public void setDepthOfHierarchy(int depthOfHierarchy);
 
     /**
      * Add a new child tenant
@@ -91,15 +98,7 @@ public interface TenantContainer {
 
     /**
      * @param childTenant the tenant to be removed as a child.
-     *
      * @return the removed child tenant
      */
     public TenantContainer removeChild(TenantContainer childTenant);
-
-    /**
-     * Sets the allowed depth of tenant hierarchy.
-     *
-     * @param depthOfHierarchy the depth of the tenant hierarchy
-     */
-    public void setDepthOfHierarchy(int depthOfHierarchy);
 }

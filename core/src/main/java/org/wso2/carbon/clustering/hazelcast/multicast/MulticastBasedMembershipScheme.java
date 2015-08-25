@@ -45,11 +45,11 @@ import java.util.Map;
  */
 public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(MulticastBasedMembershipScheme.class);
+    private final List<ClusterMessage> messageBuffer;
     private ClusterConfiguration clusterConfiguration;
     private MulticastSchemeConfig multicastSchemeConfig;
     private String primaryDomain;
     private MulticastConfig config;
-    private final List<ClusterMessage> messageBuffer;
     private ClusterContext clusterContext;
     private HazelcastInstance hazelcastInstance;
 
@@ -97,7 +97,7 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
                     addMembershipListener(new MulticastMembershipListener());
         } catch (Exception e) {
             throw new MembershipFailedException("Error while trying join multicast " +
-                                                "membership scheme", e);
+                    "membership scheme", e);
         }
     }
 

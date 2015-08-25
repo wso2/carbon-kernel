@@ -32,8 +32,8 @@ import java.util.Properties;
 public class LoggingConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingConfiguration.class);
-    private ConfigurationAdmin configurationAdmin;
     private static LoggingConfiguration instance = new LoggingConfiguration();
+    private ConfigurationAdmin configurationAdmin;
 
     /**
      * Method to retrieve an instance of the logging configuration.
@@ -91,7 +91,7 @@ public class LoggingConfiguration {
             return prop;
         } catch (IOException e) {
             logger.error("Fail to read Properties from file [" + file.getAbsolutePath() +
-                         "] configuration property.", e);
+                    "] configuration property.", e);
         }
         return null;
     }

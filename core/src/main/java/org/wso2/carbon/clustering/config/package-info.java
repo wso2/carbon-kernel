@@ -19,9 +19,7 @@
 
 @XmlSchema(
         namespace = "http://wso2.com/schema/clustering/config",
-        elementFormDefault = XmlNsForm.QUALIFIED)
-
-package org.wso2.carbon.clustering.config;
+        elementFormDefault = XmlNsForm.QUALIFIED) package org.wso2.carbon.clustering.config;
 
 import javax.xml.bind.annotation.XmlNsForm;
 import javax.xml.bind.annotation.XmlSchema;

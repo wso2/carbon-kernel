@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class LoggingConfigurationTest extends BaseTest {
-    LoggingConfiguration loggingConfiguration;
+    private static final String PROPERTY_FILE = "sample-log4j.properties";
     protected String testDir = "src" + File.separator + "test" + File.separator;
-    private final String PROPERTY_FILE = "sample-log4j.properties";
+    LoggingConfiguration loggingConfiguration;
 
     /**
      * @param testName
@@ -56,7 +56,8 @@ public class LoggingConfigurationTest extends BaseTest {
         Assert.assertEquals(testProperties.get(loggerTraceMessages), properties.get(loggerTraceMessages));
         Assert.assertEquals(testProperties.get(carbonConsole), properties.get(carbonConsole));
         Assert.assertEquals(testProperties.get(carbonConsoleLayout), properties.get(carbonConsoleLayout));
-        Assert.assertEquals(testProperties.get(carbonConsoleLayoutConversionPattern), properties.get(carbonConsoleLayoutConversionPattern));
+        Assert.assertEquals(testProperties.get(carbonConsoleLayoutConversionPattern),
+                properties.get(carbonConsoleLayoutConversionPattern));
         Assert.assertEquals(testProperties.get(carbonConsoleThreshold), properties.get(carbonConsoleThreshold));
     }
 

@@ -21,7 +21,6 @@ package org.wso2.carbon.kernel.util;
 import org.wso2.carbon.kernel.CarbonConstants;
 
 import java.io.File;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,8 +30,8 @@ public class Utils {
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
 
     public static String getCarbonXMLLocation() {
-          return getCarbonHome() + File.separator + CarbonConstants.CONF_REPO_DIR +
-                  File.separator + CarbonConstants.CARBON_CONFIG_XML;
+        return getCarbonHome() + File.separator + CarbonConstants.CONF_REPO_DIR +
+                File.separator + CarbonConstants.CARBON_CONFIG_XML;
     }
 
     public static String getCarbonHome() {

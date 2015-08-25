@@ -53,26 +53,17 @@ import java.util.List;
  */
 public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(WKABasedMembershipScheme.class);
+    private final List<ClusterMessage> messageBuffer;
     private ClusterConfiguration clusterConfiguration;
     private WKASchemeConfig wkaSchemeConfig;
     private String primaryDomain;
     private List<ClusterMember> wkaMembers = new ArrayList<ClusterMember>();
-    private final List<ClusterMessage> messageBuffer;
     private NetworkConfig nwConfig;
 
     private IMap<String, ClusterMember> allMembers;
     private volatile HazelcastInstance hazelcastInstance;
     private com.hazelcast.core.Member localMember;
     private ClusterContext clusterContext;
-
-    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
-        this.hazelcastInstance = hazelcastInstance;
-    }
-
-    @Override
-    public void setLocalMember(com.hazelcast.core.Member localMember) {
-        this.localMember = localMember;
-    }
 
     public WKABasedMembershipScheme(String primaryDomain,
                                     List<ClusterMember> wkaMembers,
@@ -82,6 +73,15 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
         this.wkaMembers = wkaMembers;
         this.messageBuffer = messageBuffer;
         this.nwConfig = config.getNetworkConfig();
+    }
+
+    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
+    }
+
+    @Override
+    public void setLocalMember(com.hazelcast.core.Member localMember) {
+        this.localMember = localMember;
     }
 
     @Override
@@ -101,7 +101,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
             }
         } catch (Exception e) {
             throw new MembershipInitializationException("Error while trying initialize " +
-                                                        "WKA membership scheme", e);
+                    "WKA membership scheme", e);
         }
     }
 
@@ -116,13 +116,13 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
             for (ClusterMember member : allMembers.values()) {
                 InetSocketAddress inetSocketAddress = localMember.getInetSocketAddress();
                 if (!member.getHostName().equals(inetSocketAddress.getHostName()) &&
-                    member.getPort() != inetSocketAddress.getPort()) {  // Don't add the local member
+                        member.getPort() != inetSocketAddress.getPort()) {  // Don't add the local member
                     MemberUtils.addMember(member, nwConfig.getJoin().getTcpIpConfig());
                 }
             }
         } catch (Exception e) {
             throw new MembershipFailedException("Error while trying join wka " +
-                                                "membership scheme", e);
+                    "membership scheme", e);
         }
     }
 
@@ -139,7 +139,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
             }
             clusterContext.addMember(HazelcastUtil.toClusterMember(member));
             logger.info("Member joined [" + member.getUuid() + "]: " +
-                        member.getInetSocketAddress().toString());
+                    member.getInetSocketAddress().toString());
             try {
                 HazelcastUtil.sendMessagesToMember(messageBuffer, member);
             } catch (MessageFailedException e) {
@@ -153,7 +153,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
             com.hazelcast.core.Member hazelcastMember = membershipEvent.getMember();
             String uuid = hazelcastMember.getUuid();
             logger.info("Member left [" + uuid + "]: " +
-                     hazelcastMember.getInetSocketAddress().toString());
+                    hazelcastMember.getInetSocketAddress().toString());
 
             // If the member who left is a WKA member, try to keep reconnecting to it
             ClusterMember member = allMembers.get(membershipEvent.getMember().getUuid());
@@ -163,7 +163,7 @@ public class WKABasedMembershipScheme implements HazelcastMembershipScheme {
             boolean isWKAMember = false;
             for (ClusterMember wkaMember : wkaMembers) {
                 if (wkaMember.getHostName().equals(member.getHostName()) &&
-                    wkaMember.getPort() == member.getPort()) {
+                        wkaMember.getPort() == member.getPort()) {
                     logger.info("WKA member " + member + " left cluster.");
                     isWKAMember = true;
                     break;

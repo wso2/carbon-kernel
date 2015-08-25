@@ -66,7 +66,7 @@ public interface ClusteringAgent {
     /**
      * Send a message to a set of specific members in the cluster
      *
-     * @param msg the cluster message to send
+     * @param msg     the cluster message to send
      * @param members the set of members to whom the cluster message should be sent
      * @throws MessageFailedException on error while sending the message
      * @see ClusterMessage

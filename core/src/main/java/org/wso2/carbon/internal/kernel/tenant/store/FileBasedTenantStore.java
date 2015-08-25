@@ -115,6 +115,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
             throw e;
         }
     }
+
     private Tenant populateTenant(TenantConfig tenantConfig) {
         Tenant tenant = new DefaultTenant();
         tenant.setID(tenantConfig.getId());

@@ -33,7 +33,7 @@ public class XMLBasedConfigProvider implements CarbonConfigProvider {
 
     public CarbonConfiguration getCarbonConfiguration() {
 
-        String configFileLocation =  Utils.getCarbonXMLLocation();
+        String configFileLocation = Utils.getCarbonXMLLocation();
         try {
             Reader in = new FileReader(configFileLocation);
 

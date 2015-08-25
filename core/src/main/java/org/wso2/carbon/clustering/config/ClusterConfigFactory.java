@@ -40,8 +40,8 @@ public class ClusterConfigFactory {
         try {
             //TODO : get carbon repo from system property
             String clusterXmlLocation = System.getProperty("carbon.home") + File.separator +
-                                        "repository" + File.separator + "conf" +
-                                        File.separator + "cluster.xml";
+                    "repository" + File.separator + "conf" +
+                    File.separator + "cluster.xml";
 
             File file = new File(clusterXmlLocation);
             JAXBContext jaxbContext = JAXBContext.newInstance(ClusterConfiguration.class);

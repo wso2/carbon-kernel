@@ -52,13 +52,12 @@ import java.util.TimerTask;
 )
 
 public class RuntimeServiceRegisterComponent implements ServiceListener {
+    public static final String REQUIRED_RUNTIME_SERVICE = "Runtime-Manager-RequiredServices";
     private static Logger logger = LoggerFactory.getLogger(RuntimeServiceRegisterComponent.class);
-    private ServiceRegistration serviceRegistration;
-
     private static BundleContext bundleContext;
+    private ServiceRegistration serviceRegistration;
     private List<String> requiredRuntimes = new ArrayList<String>();
     private Timer pendingRuntimeObservationTimer = new Timer();
-    public static final String REQUIRED_RUNTIME_SERVICE = "Runtime-Manager-RequiredServices";
 
     @Activate
     protected void activate(ComponentContext componentContext) {

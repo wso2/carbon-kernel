@@ -24,12 +24,15 @@ import com.hazelcast.core.HazelcastInstance;
 
 /**
  * The singleton based instance provider for hazelcast instance.
- *
+ * <p>
  * This is needed because there can be only one hazelcast instance in a cluster.
  */
 public class HazelcastInstanceManager {
     private static HazelcastInstanceManager instance = new HazelcastInstanceManager();
     private HazelcastInstance hazelcastInstance;
+
+    private HazelcastInstanceManager() {
+    }
 
     public static HazelcastInstanceManager getInstance() {
         return instance;
@@ -45,8 +48,5 @@ public class HazelcastInstanceManager {
 
     public HazelcastInstance getHazelcastInstance() {
         return hazelcastInstance;
-    }
-
-    private HazelcastInstanceManager() {
     }
 }

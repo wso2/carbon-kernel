@@ -100,7 +100,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         primaryDomain = getClusterDomain();
         String instanceName = HazelcastUtil.
                 lookupHazelcastProperty(clusterContext.getClusterConfiguration(),
-                                        HazelcastConstants.INSTANCE_NAME);
+                        HazelcastConstants.INSTANCE_NAME);
         if (instanceName == null) {
             instanceName = primaryDomain + ".instance";
         }
@@ -112,7 +112,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         NetworkConfig nwConfig = hazelcastConfig.getNetworkConfig();
         String localMemberHost = clusterConfiguration.getLocalMemberConfiguration().getHost();
         if (localMemberHost != null && !localMemberHost.equalsIgnoreCase("127.0.0.1") &&
-            !localMemberHost.equalsIgnoreCase("localhost")) {
+                !localMemberHost.equalsIgnoreCase("localhost")) {
             localMemberHost = localMemberHost.trim();
         } else {
             try {
@@ -155,7 +155,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                 getTopic(HazelcastConstants.CLUSTERING_MESSAGE_TOPIC);
         clusteringMessageTopic.
                 addMessageListener(new HazelcastClusterMessageListener(recdMsgsBuffer,
-                                                                       sentMsgsBuffer));
+                        sentMsgsBuffer));
         ITopic<ControlCommand> controlCommandTopic = hazelcastInstance.
                 getTopic(HazelcastConstants.CONTROL_COMMAND_TOPIC);
         controlCommandTopic.addMessageListener(new HazelcastControlCommandListener());
@@ -174,10 +174,10 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         localMember.getInetSocketAddress().getPort();
         ClusterMember carbonLocalMember =
                 MemberUtils.getLocalMember(primaryDomain,
-                                           localMember.getInetSocketAddress().getAddress().
-                                                   getHostAddress(),
-                                           localMember.getInetSocketAddress().getPort(),
-                                           clusterContext.getClusterConfiguration());
+                        localMember.getInetSocketAddress().getAddress().
+                                getHostAddress(),
+                        localMember.getInetSocketAddress().getPort(),
+                        clusterContext.getClusterConfiguration());
         logger.info("Local member: [" + localMember.getUuid() + "] - " + carbonLocalMember);
 
         //Create a Queue for receiving messages from others
@@ -206,22 +206,22 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
             carbonLocalMember.getProperties().put("subDomain", "__$default");  // Set the default subDomain
         }
         MemberUtils.getMembersMap(hazelcastInstance, primaryDomain).put(localMember.getUuid(),
-                                                                        carbonLocalMember);
+                carbonLocalMember);
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
         if (bundleContext != null) {
             bundleContext.registerService(HazelcastInstance.class, hazelcastInstance, null);
         }
         ScheduledExecutorService msgCleanupScheduler = Executors.newScheduledThreadPool(1);
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
-                                                   2, 2, TimeUnit.MINUTES);
+                2, 2, TimeUnit.MINUTES);
         logger.info("Cluster initialization completed");
     }
 
     private void setHazelcastConfigurations() {
 
         String hazelcastXmlLocation = System.getProperty("carbon.home") + File.separator +
-                                      "repository" + File.separator + "conf" + File.separator +
-                                      "etc" + File.separator + "hazelcast.xml";
+                "repository" + File.separator + "conf" + File.separator +
+                "etc" + File.separator + "hazelcast.xml";
         File hazelcastConfigFile = new File(hazelcastXmlLocation);
         if (hazelcastConfigFile.isFile()) {
             hazelcastConfig.setConfigurationFile(hazelcastConfigFile);
@@ -233,12 +233,12 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         // https://groups.google.com/forum/#!searchin/hazelcast/Azeez/hazelcast/x-skloPgl2o/PZN60s85XK0J
         hazelcastProperties.setProperty(HazelcastConstants.MAX_NO_HEARTBEAT_SECONDS, "600");
         hazelcastProperties.setProperty(HazelcastConstants.MAX_NO_MASTER_CONFIRMATION_SECONDS,
-                                        "900");
+                "900");
         hazelcastProperties.setProperty(HazelcastConstants.MERGE_FIRST_RUN_DELAY_SECONDS, "60");
         hazelcastProperties.setProperty(HazelcastConstants.MERGE_NEXT_RUN_DELAY_SECONDS, "30");
 
         HazelcastUtil.loadPropertiesFromConfig(clusterContext.getClusterConfiguration(),
-                                               hazelcastProperties);
+                hazelcastProperties);
         hazelcastConfig.setProperties(hazelcastProperties);
     }
 
@@ -266,8 +266,8 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                     List<ClusterMember> wkaMembers = ClusterUtil.
                             getWellKnownMembers(clusterContext.getClusterConfiguration());
                     membershipScheme = new WKABasedMembershipScheme(primaryDomain,
-                                                                    wkaMembers, hazelcastConfig,
-                                                                    sentMsgsBuffer);
+                            wkaMembers, hazelcastConfig,
+                            sentMsgsBuffer);
                     membershipScheme.init(clusterContext);
                     break;
                 case ClusteringConstants.MembershipScheme.MULTICAST_BASED:
@@ -350,7 +350,7 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
             int messagesProcessed = 0;
             for (ClusterMessage clusteringMessage : sentMsgsBuffer) {
                 if (System.currentTimeMillis() - clusteringMessage.getTimestamp() >=
-                    MAX_MESSAGE_LIFETIME) {
+                        MAX_MESSAGE_LIFETIME) {
                     sentMsgsBuffer.remove(clusteringMessage);
                 }
 

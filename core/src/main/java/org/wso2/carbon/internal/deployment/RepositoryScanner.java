@@ -38,28 +38,23 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RepositoryScanner {
     private static final Logger logger = LoggerFactory.getLogger(RepositoryScanner.class);
+    private final DeploymentEngine carbonDeploymentEngine;
     /**
      * A list which holds the artifacts to be deployed
      */
     private ArrayList<Artifact> artifactsToDeploy = new ArrayList<>();
-
     /**
      * A list which holds the artifact to be undeployed
      */
     private ArrayList<Artifact> artifactsToUndeploy = new ArrayList<>();
-
     /**
      * A list which holds the artifact to be updated
      */
     private ArrayList<Artifact> artifactsToUpdate = new ArrayList<>();
-
     /**
      * A list to hold the path of the artifacts to be deployed
      */
     private List<String> artifactFilePathList = new ArrayList<>();
-
-
-    private final DeploymentEngine carbonDeploymentEngine;
 
     public RepositoryScanner(DeploymentEngine carbonDeploymentEngine) {
         this.carbonDeploymentEngine = carbonDeploymentEngine;
@@ -75,7 +70,6 @@ public class RepositoryScanner {
     }
 
 
-
     /**
      * Search and add the artifacts in all deployment directories in the repository
      * and populate the relevant lists (deploy, undeploy, sweep) to carry out the
@@ -85,7 +79,7 @@ public class RepositoryScanner {
         File carbonRepo = carbonDeploymentEngine.getRepositoryDirectory();
         for (Deployer deployer : carbonDeploymentEngine.getDeployers().values()) {
             File deploymentLocation = Utils.resolveFileURL(deployer.getLocation().getPath(),
-                                                           carbonRepo.getPath());
+                    carbonRepo.getPath());
             findArtifactsToDeploy(deploymentLocation, deployer.getArtifactType());
         }
         checkUndeployedArtifacts();
@@ -124,7 +118,7 @@ public class RepositoryScanner {
      * deploy artifacts list
      *
      * @param directoryToSearch the directory to scan
-     * @param type ArtifactType
+     * @param type              ArtifactType
      */
     private void findArtifactsToDeploy(File directoryToSearch, ArtifactType type) {
         File[] files = directoryToSearch.listFiles();
@@ -144,7 +138,7 @@ public class RepositoryScanner {
      */
     private void addArtifactToDeploy(Artifact artifact) {
         Artifact deployedArtifact = findDeployedArtifact(artifact.getType(),
-                                                         artifact.getPath());
+                artifact.getPath());
         if (deployedArtifact != null) { // Artifact is getting updated
             if (Utils.isArtifactModified(deployedArtifact)) {
                 artifactsToUpdate.add(deployedArtifact);

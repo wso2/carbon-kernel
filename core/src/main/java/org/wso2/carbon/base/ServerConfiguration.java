@@ -47,16 +47,19 @@ import javax.xml.parsers.ParserConfigurationException;
 public class ServerConfiguration implements ServerConfigurationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerConfiguration.class);
-
+    /**
+     * Stores the singleton server configuration instance.
+     */
+    private static ServerConfiguration instance = new ServerConfiguration();
     private Map<String, List<String>> configuration = new HashMap<String, List<String>>();
     private boolean isInitialized;
     private boolean isLoadedConfigurationPreserved = false;
     private String documentXML;
 
-    /**
-     * Stores the singleton server configuration instance.
-     */
-    private static ServerConfiguration instance = new ServerConfiguration();
+    private ServerConfiguration() {
+    }
+
+    // Private constructor preventing creation of duplicate instances.
 
     /**
      * Method to retrieve an instance of the server configuration.
@@ -66,11 +69,6 @@ public class ServerConfiguration implements ServerConfigurationService {
     public static ServerConfiguration getInstance() {
         // Need permissions in order to instantiate ServerConfiguration
         return instance;
-    }
-
-    // Private constructor preventing creation of duplicate instances.
-
-    private ServerConfiguration() {
     }
 
     /**
@@ -154,7 +152,7 @@ public class ServerConfiguration implements ServerConfigurationService {
                             .getResourceAsStream(configurationXMLLocation);
                     if (xmlInputStream == null) {
                         String msg = "Configuration File cannot be loaded from "
-                                     + configurationXMLLocation;
+                                + configurationXMLLocation;
                         logger.error(msg, e1);
                         throw new ServerConfigurationException(msg, e1);
 
@@ -162,7 +160,7 @@ public class ServerConfiguration implements ServerConfigurationService {
                 }
             } catch (IOException e) {
                 logger.error("Configuration File cannot be loaded from "
-                          + configurationXMLLocation, e);
+                        + configurationXMLLocation, e);
                 throw new ServerConfigurationException(e);
             }
             init(xmlInputStream);
@@ -262,19 +260,19 @@ public class ServerConfiguration implements ServerConfigurationService {
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
         while (indexOfStartingChars < text.indexOf("${")
-               && (indexOfStartingChars = text.indexOf("${")) != -1
-               && (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a
+                && (indexOfStartingChars = text.indexOf("${")) != -1
+                && (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a
             // property
             // used?
             String sysProp = text.substring(indexOfStartingChars + 2,
-                                            indexOfClosingBrace);
+                    indexOfClosingBrace);
             String propValue = System.getProperty(sysProp);
             if (propValue != null) {
                 text = text.substring(0, indexOfStartingChars) + propValue
-                       + text.substring(indexOfClosingBrace + 1);
+                        + text.substring(indexOfClosingBrace + 1);
             }
             if (sysProp.equals("carbon.home") && propValue != null
-                && propValue.equals(".")) {
+                    && propValue.equals(".")) {
 
                 text = new File(".").getAbsolutePath() + File.separator + text;
 

@@ -33,9 +33,6 @@ import javax.xml.validation.SchemaFactory;
 
 public class BaseTest {
 
-    protected String testDir = "src" + File.separator + "test" + File.separator;
-    protected String testResourceDir = testDir + "resources";
-
     /**
      * Basedir for all file I/O.
      */
@@ -47,6 +44,9 @@ public class BaseTest {
             basedir = new File(".").getAbsolutePath();
         }
     }
+
+    protected String testDir = "src" + File.separator + "test" + File.separator;
+    protected String testResourceDir = testDir + "resources";
 
     public BaseTest() {
         testDir = new File(basedir, testDir).getAbsolutePath();
@@ -66,7 +66,7 @@ public class BaseTest {
 
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schema = sf.newSchema(new File(testResourceDir + File.separator +
-                                                  "xsd" + File.separator + "cluster.xsd"));
+                    "xsd" + File.separator + "cluster.xsd"));
 
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             unmarshaller.setSchema(schema);

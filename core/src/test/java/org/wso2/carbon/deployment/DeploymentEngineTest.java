@@ -33,8 +33,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class DeploymentEngineTest extends BaseTest {
-    private final static String CARBON_REPO = "carbon-repo";
-    private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
+    private static final String CARBON_REPO = "carbon-repo";
+    private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private DeploymentEngine deploymentEngine;
     private CustomDeployer customDeployer;
     private ArrayList<Artifact> artifactsList;
@@ -53,7 +53,7 @@ public class DeploymentEngineTest extends BaseTest {
         customDeployer = new CustomDeployer();
         artifactsList = new ArrayList<>();
         Artifact artifact = new Artifact(new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
-                                         + File.separator + "sample1.txt"));
+                + File.separator + "sample1.txt"));
         artifact.setType(new ArtifactType<String>("txt"));
         artifactsList.add(artifact);
     }
@@ -83,6 +83,7 @@ public class DeploymentEngineTest extends BaseTest {
             Assert.assertTrue(e.getMessage().contains("Deployer Class Name is null"));
         }
     }
+
     @Test
     public void testDummyDeployer2() {
         try {
@@ -93,6 +94,7 @@ public class DeploymentEngineTest extends BaseTest {
             Assert.assertTrue(e.getMessage().contains("missing 'directory' attribute"));
         }
     }
+
     @Test
     public void testDummyDeployer3() {
         try {
@@ -144,6 +146,7 @@ public class DeploymentEngineTest extends BaseTest {
             Assert.assertTrue(e.getMessage().contains("Artifact Type"));
         }
     }
+
     @Test(dependsOnMethods = {"testUndeployArtifacts"})
     public void testRemoveDeployer() throws DeploymentEngineException {
         deploymentEngine.unregisterDeployer(customDeployer);

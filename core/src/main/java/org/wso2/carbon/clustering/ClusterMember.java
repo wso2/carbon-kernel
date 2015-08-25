@@ -71,6 +71,7 @@ public class ClusterMember implements Serializable {
 
     /**
      * Return the host name associated with this member
+     *
      * @return hostname
      */
     public String getHostName() {
@@ -83,6 +84,7 @@ public class ClusterMember implements Serializable {
 
     /**
      * Return TCP port of this member
+     *
      * @return port
      */
     public int getPort() {
@@ -91,6 +93,7 @@ public class ClusterMember implements Serializable {
 
     /**
      * Indicates whether this member is active
+     *
      * @return true if active
      */
     public boolean isActive() {
@@ -99,6 +102,7 @@ public class ClusterMember implements Serializable {
 
     /**
      * Sets the state of this member true-active/false-inactive
+     *
      * @param active state true-active/false-inactive
      */
     public void setActive(boolean active) {
@@ -107,6 +111,7 @@ public class ClusterMember implements Serializable {
 
     /**
      * Returns the domain associated with this member
+     *
      * @return domain
      */
     public String getDomain() {
@@ -115,6 +120,7 @@ public class ClusterMember implements Serializable {
 
     /**
      * Sets the domain value for this member
+     *
      * @param domain domain
      */
     public void setDomain(String domain) {
@@ -122,15 +128,8 @@ public class ClusterMember implements Serializable {
     }
 
     /**
-     * Custom properties associated with this member
-     * @param properties the properties instance
-     */
-    public void setProperties(Properties properties) {
-        this.properties = properties;
-    }
-
-    /**
      * Returns the properties that are associated with this member
+     *
      * @return the properties instance
      */
     public Properties getProperties() {
@@ -138,7 +137,17 @@ public class ClusterMember implements Serializable {
     }
 
     /**
+     * Custom properties associated with this member
+     *
+     * @param properties the properties instance
+     */
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    /**
      * The InetSocketAddress of this member, which is populated using the host and port
+     *
      * @return InetSocketAddress
      */
     public InetSocketAddress getInetSocketAddress() {
@@ -147,6 +156,7 @@ public class ClusterMember implements Serializable {
 
     /**
      * Returns the ID of this member
+     *
      * @return the ID
      */
     public String getId() {
@@ -155,6 +165,7 @@ public class ClusterMember implements Serializable {
 
     /**
      * Sets a unique ID for this member
+     *
      * @param id the ID to set
      */
     public void setId(String id) {
@@ -173,8 +184,8 @@ public class ClusterMember implements Serializable {
         boolean isIdenticalPorts = port == member.getPort();
 
         return (isIdenticalPorts && (hostName != null ?
-                                                     hostName.equals(member.getHostName()) :
-                                                     member.getHostName() == null));
+                hostName.equals(member.getHostName()) :
+                member.getHostName() == null));
     }
 
     public int hashCode() {
@@ -186,6 +197,6 @@ public class ClusterMember implements Serializable {
 
     public String toString() {
         return "Host:" + hostName + ", Port: " + port + ", Domain: " + domain +
-               ", Sub-domain:" + properties.getProperty("subDomain") + ", Active:" + isActive;
+                ", Sub-domain:" + properties.getProperty("subDomain") + ", Active:" + isActive;
     }
 }

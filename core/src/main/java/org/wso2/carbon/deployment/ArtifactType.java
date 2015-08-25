@@ -21,6 +21,7 @@ package org.wso2.carbon.deployment;
 
 /**
  * This class represent the artifact type of an artifact.
+ *
  * @param <T> Artifact type
  */
 public class ArtifactType<T> {

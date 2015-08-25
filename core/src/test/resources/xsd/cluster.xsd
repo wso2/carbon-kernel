@@ -15,10 +15,10 @@
   ~ limitations under the License.
   -->
 
-<xs:schema elementFormDefault="qualified" version="1.0"
-           targetNamespace="http://wso2.com/schema/clustering/config"
-           xmlns:tns="http://wso2.com/schema/clustering/config"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:tns="http://wso2.com/schema/clustering/config" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           version="1.0"
+           targetNamespace="http://wso2.com/schema/clustering/config">
 
     <xs:element name="Cluster" type="tns:clusterConfiguration"/>
 

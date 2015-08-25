@@ -88,8 +88,9 @@ public class FileUtils {
     /**
      * Copies src file to dst directory.
      * If the dst directory does not exist, it is created
-     * @param src  The file to be copied
-     * @param dst  The destination directory to which the file has to be copied
+     *
+     * @param src The file to be copied
+     * @param dst The destination directory to which the file has to be copied
      * @throws java.io.IOException If an error occurs while copying
      */
     public static void copyFileToDir(File src, File dst) throws IOException {
@@ -108,7 +109,7 @@ public class FileUtils {
      * Archive a directory
      *
      * @param destArchive destination of the archive
-     * @param sourceDir  source directory
+     * @param sourceDir   source directory
      * @throws java.io.IOException throws io exception if archive failed
      */
     public static void archiveDir(String destArchive, String sourceDir) throws IOException {

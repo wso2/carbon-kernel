@@ -29,7 +29,7 @@ import java.io.File;
 import java.util.HashMap;
 
 public class DeployerTest extends BaseTest {
-    private final static String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
+    private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private CustomDeployer customDeployer;
     private Artifact artifact;
     private String key;
@@ -46,7 +46,7 @@ public class DeployerTest extends BaseTest {
         customDeployer = new CustomDeployer();
         customDeployer.init();
         artifact = new Artifact(new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
-                                               + File.separator + "sample1.txt"));
+                + File.separator + "sample1.txt"));
         artifact.setVersion("1.0.0");
         artifact.setProperties(new HashMap<String, Object>());
     }

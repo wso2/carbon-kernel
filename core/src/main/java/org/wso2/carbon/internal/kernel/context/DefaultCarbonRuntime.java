@@ -37,12 +37,12 @@ public class DefaultCarbonRuntime implements PrivilegedCarbonRuntime {
     }
 
     @Override
-    public void setCarbonConfiguration(CarbonConfiguration carbonConfiguration) {
-        this.carbonConfiguration = carbonConfiguration;
+    public void setTenantRuntime(TenantRuntime<Tenant> tenantRuntime) {
+        this.tenantRuntime = tenantRuntime;
     }
 
     @Override
-    public void setTenantRuntime(TenantRuntime<Tenant> tenantRuntime) {
-        this.tenantRuntime = tenantRuntime;
+    public void setCarbonConfiguration(CarbonConfiguration carbonConfiguration) {
+        this.carbonConfiguration = carbonConfiguration;
     }
 }

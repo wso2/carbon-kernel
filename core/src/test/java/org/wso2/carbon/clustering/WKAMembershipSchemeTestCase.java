@@ -56,7 +56,7 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
         Object membershipScheme = clusterConfiguration.
                 getMembershipSchemeConfiguration().getMembershipScheme();
         Assert.assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
-                            membershipScheme.toString());
+                membershipScheme.toString());
         WKASchemeConfig wkaSchemeConfig = (WKASchemeConfig) membershipScheme;
         List<WKAMember> wkaMembers = wkaSchemeConfig.getWkaMembers();
         List<ClusterMember> clusterMembers = ClusterUtil.getWellKnownMembers(clusterConfiguration);
@@ -70,7 +70,7 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
 
 
     @Test(groups = {"wso2.carbon.clustering"}, description = "test send message with wka scheme",
-          dependsOnMethods = {"testWKAMembershipScheme"})
+            dependsOnMethods = {"testWKAMembershipScheme"})
     public void testSendMessage() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         CustomClusterMessage clusterMessage = new CustomClusterMessage("WKAMessage");
@@ -84,8 +84,8 @@ public class WKAMembershipSchemeTestCase extends MembershipSchemeBaseTest {
     }
 
     @Test(groups = {"wso2.carbon.clustering"},
-          description = "test send message to specific member in wka scheme",
-          dependsOnMethods = {"testSendMessage"})
+            description = "test send message to specific member in wka scheme",
+            dependsOnMethods = {"testSendMessage"})
     public void testSendMessageToMember() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         List<ClusterMember> clusterMembers = carbonCluster.getMembers();

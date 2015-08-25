@@ -45,10 +45,10 @@ public class CarbonDeploymentService implements DeploymentService {
             throw new CarbonDeploymentException("Unknown artifactType : " + artifactType);
         }
         String destinationDirectory = carbonDeploymentEngine.getRepositoryDirectory() +
-                                      File.separator + deployer.getLocation();
+                File.separator + deployer.getLocation();
         try {
             FileUtils.copyFileToDir(new File(artifactPath),
-                                    new File(destinationDirectory));
+                    new File(destinationDirectory));
         } catch (IOException e) {
             throw new CarbonDeploymentException("Error wile copying artifact", e);
         }
@@ -61,12 +61,12 @@ public class CarbonDeploymentService implements DeploymentService {
         }
 
         Artifact deployedArtifact = carbonDeploymentEngine.getDeployedArtifact(artifactType,
-                                                                               key);
+                key);
         if (deployedArtifact != null) {
             FileUtils.deleteDir(new File(deployedArtifact.getPath()));
         } else {
             throw new CarbonDeploymentException("Cannot find artifact with key : " + key +
-                                                " to undeploy");
+                    " to undeploy");
         }
     }
 

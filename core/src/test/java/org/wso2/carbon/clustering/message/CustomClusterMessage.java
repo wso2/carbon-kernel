@@ -26,13 +26,14 @@ import org.wso2.carbon.clustering.exception.MessageFailedException;
 
 
 public class CustomClusterMessage extends ClusterMessage {
-    private final static Logger logger = LoggerFactory.getLogger(CustomClusterMessage.class);
+    private static final Logger logger = LoggerFactory.getLogger(CustomClusterMessage.class);
     private static String executedMsg;
     private String content;
 
     public CustomClusterMessage(String content) {
         this.content = content;
     }
+
     @Override
     public void execute() throws MessageFailedException {
         logger.info("Executing cluster message : " + content);

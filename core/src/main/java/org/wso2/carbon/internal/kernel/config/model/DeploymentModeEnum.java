@@ -25,11 +25,11 @@ public enum DeploymentModeEnum {
     triggered,
     scheduled;
 
-    public String value() {
-        return name();
-    }
-
     public static DeploymentModeEnum fromValue(String v) {
         return valueOf(v);
+    }
+
+    public String value() {
+        return name();
     }
 }
