@@ -458,10 +458,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public final String getUserClaimValue(String userName, String claim, String profileName)
             throws UserStoreException {
 
-        // If user does not exist, just return
-        if (!isExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
+
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
@@ -470,7 +467,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
+        // If user does not exist, throw an exception
 
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException("User does not exist. Username : " + userName);
+        }
 
         Map<String, String> finalValues = doGetUserClaimValues(userName, new String[]{claim},
                 userStore.getDomainName(), profileName);
@@ -508,11 +509,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public final Claim[] getUserClaimValues(String userName, String profileName)
             throws UserStoreException {
 
-        // If user does not exist, just return
-        if (!isExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
-
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getUserClaimValues(
@@ -520,6 +516,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
+        // If user does not exist, throw exception
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException("User does not exist. Username : " + userName);
+        }
 
         if (profileName == null || profileName.trim().length() == 0) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
@@ -559,9 +559,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     public final Map<String, String> getUserClaimValues(String userName, String[] claims,
                                                         String profileName) throws UserStoreException {
-        if (!isExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             return userStore.getUserStoreManager().getUserClaimValues(
@@ -569,6 +566,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException("User does not exist. Username : " + userName);
+        }
 
         Map<String, String> finalValues = doGetUserClaimValues(userName, claims,
                 userStore.getDomainName(), profileName);
