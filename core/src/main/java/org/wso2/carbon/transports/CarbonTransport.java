@@ -73,7 +73,8 @@ public abstract class CarbonTransport {
         if (state.equals(State.STARTED)) {
             state = State.IN_MAINTENANCE;
         } else {
-            throw new IllegalStateException("Cannot put transport " + id + " into maintenance. Current state: " + state);
+            throw new IllegalStateException("Cannot put transport " + id +
+                    " into maintenance. Current state: " + state);
         }
         beginMaintenance();
     }

@@ -18,15 +18,12 @@ package org.wso2.carbon.base;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.base.api.ServerConfigurationService;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +36,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This class stores the configuration of the Carbon Server.
@@ -78,8 +78,7 @@ public class ServerConfiguration implements ServerConfigurationService {
      * called once, for successive calls, it will be checked.
      *
      * @param xmlInputStream the server configuration file stream.
-     * @throws org.wso2.carbon.base.ServerConfigurationException
-     *          if the operation failed.
+     * @throws ServerConfigurationException if the operation failed.
      */
     public synchronized void init(InputStream xmlInputStream)
             throws ServerConfigurationException {

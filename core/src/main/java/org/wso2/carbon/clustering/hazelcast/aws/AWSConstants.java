@@ -25,8 +25,8 @@ public final class AWSConstants {
 
     public static final String ACCESS_KEY = "accessKey";
     public static final String SECRET_KEY = "secretKey";
-    public static final String SECURITY_GROUP = "securityGroup" ;
-    public static final String CONNECTION_TIMEOUT ="connTimeout" ;
+    public static final String SECURITY_GROUP = "securityGroup";
+    public static final String CONNECTION_TIMEOUT = "connTimeout";
     public static final String HOST_HEADER = "hostHeader";
     public static final String REGION = "region";
     public static final String TAG_KEY = "tagKey";

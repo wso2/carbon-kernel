@@ -22,14 +22,13 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.internal.DataHolder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

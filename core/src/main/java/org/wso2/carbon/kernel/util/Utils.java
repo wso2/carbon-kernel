@@ -35,7 +35,7 @@ public class Utils {
                   File.separator + CarbonConstants.CARBON_CONFIG_XML;
     }
 
-    public static String getCarbonHome(){
+    public static String getCarbonHome() {
         // Assumption. This property is always get validated in the Carbon launcher module.
         return System.getProperty(CarbonConstants.CARBON_HOME);
     }

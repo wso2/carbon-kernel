@@ -82,14 +82,14 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
     }
 
     @Override
-    public Tenant deleteTenant(String tenantDomain) throws Exception{
+    public Tenant deleteTenant(String tenantDomain) throws Exception {
         //TODO Notify
         return tenantStore.deleteTenant(tenantDomain);
     }
 
     @Override
     public Tenant getTenant(String tenantDomain) throws Exception {
-        if(loadedTenants.containsKey(tenantDomain)){
+        if (loadedTenants.containsKey(tenantDomain)) {
             return loadedTenants.get(tenantDomain);
         }
         // Loading the tenant.

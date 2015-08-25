@@ -18,16 +18,16 @@
 
 package org.wso2.carbon.internal.kernel.config;
 
-import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.util.Utils;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.Reader;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 public class XMLBasedConfigProvider implements CarbonConfigProvider {
 

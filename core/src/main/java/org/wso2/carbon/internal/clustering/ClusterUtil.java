@@ -52,7 +52,7 @@ public class ClusterUtil {
             ClusterConfiguration clusterConfiguration) {
         List<ClusterMember> members = new ArrayList<>();
 
-        List<WKAMember> wkaMembers = ((WKASchemeConfig)clusterConfiguration.
+        List<WKAMember> wkaMembers = ((WKASchemeConfig) clusterConfiguration.
                 getMembershipSchemeConfiguration().getMembershipScheme()).getWkaMembers();
 
         for (WKAMember wkaMember : wkaMembers) {
@@ -119,8 +119,7 @@ public class ClusterUtil {
      *
      * @param clusterConfiguration the ClusterConfiguration instance
      * @return The membership scheme. Only wka and multicast are valid return values
-     * @throws org.wso2.carbon.clustering.exception.ClusterConfigurationException
-     *          If the membershipScheme specified in the cluster.xml file is invalid
+     * @throws ClusterConfigurationException If the membershipScheme specified in the cluster.xml file is invalid
      */
     public static String getMembershipScheme(ClusterConfiguration clusterConfiguration)
             throws ClusterConfigurationException {

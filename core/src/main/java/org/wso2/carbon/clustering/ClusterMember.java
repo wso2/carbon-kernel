@@ -186,6 +186,6 @@ public class ClusterMember implements Serializable {
 
     public String toString() {
         return "Host:" + hostName + ", Port: " + port + ", Domain: " + domain +
-               ", Sub-domain:" + properties.getProperty("subDomain")+ ", Active:" + isActive;
+               ", Sub-domain:" + properties.getProperty("subDomain") + ", Active:" + isActive;
     }
 }

@@ -36,7 +36,8 @@ public class GenericMembershipScheme implements HazelcastMembershipScheme {
 
     @Override
     public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
-        MembershipScheme membershipScheme = DataHolder.getInstance().getGenericMembershipScheme(genericSchemeConfig.getName());
+        MembershipScheme membershipScheme =
+                DataHolder.getInstance().getGenericMembershipScheme(genericSchemeConfig.getName());
         if (membershipScheme instanceof HazelcastMembershipScheme) {
             HazelcastMembershipScheme hazelcastMembershipScheme = (HazelcastMembershipScheme) membershipScheme;
             hazelcastMembershipScheme.setHazelcastInstance(hazelcastInstance);
@@ -45,7 +46,8 @@ public class GenericMembershipScheme implements HazelcastMembershipScheme {
 
     @Override
     public void setLocalMember(Member localMember) {
-        MembershipScheme membershipScheme = DataHolder.getInstance().getGenericMembershipScheme(genericSchemeConfig.getName());
+        MembershipScheme membershipScheme =
+                DataHolder.getInstance().getGenericMembershipScheme(genericSchemeConfig.getName());
         if (membershipScheme instanceof HazelcastMembershipScheme) {
             HazelcastMembershipScheme hazelcastMembershipScheme = (HazelcastMembershipScheme) membershipScheme;
             hazelcastMembershipScheme.setLocalMember(localMember);

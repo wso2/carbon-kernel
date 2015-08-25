@@ -19,13 +19,13 @@
 package org.wso2.carbon.clustering.hazelcast.util;
 
 import com.hazelcast.core.Member;
-import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.ClusterMember;
-import org.wso2.carbon.internal.DataHolder;
-import org.wso2.carbon.internal.clustering.CarbonCluster;
+import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.LocalMemberProperty;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
+import org.wso2.carbon.internal.DataHolder;
+import org.wso2.carbon.internal.clustering.CarbonCluster;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;

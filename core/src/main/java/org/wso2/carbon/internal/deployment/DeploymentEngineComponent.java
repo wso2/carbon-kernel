@@ -113,7 +113,7 @@ public class DeploymentEngineComponent {
             } catch (Exception e) {
                 logger.error("Error while adding deployer to the deployment engine", e);
             }
-        } else {//carbon deployment engine is not initialized yet, so we keep them in a pending list
+        } else { //carbon deployment engine is not initialized yet, so we keep them in a pending list
             deployerList.add(deployer);
         }
     }

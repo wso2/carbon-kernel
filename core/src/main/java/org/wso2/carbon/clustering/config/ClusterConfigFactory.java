@@ -23,13 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 
+import java.io.File;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
 
 public class ClusterConfigFactory {
     private static final Logger logger = LoggerFactory.getLogger(ClusterConfigFactory.class);

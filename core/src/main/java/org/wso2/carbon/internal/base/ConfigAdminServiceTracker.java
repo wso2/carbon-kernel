@@ -39,7 +39,8 @@ public class ConfigAdminServiceTracker extends ServiceTracker {
 
     @Override
     public final Object addingService(ServiceReference serviceReference) {
-        @SuppressWarnings("unchecked") ConfigurationAdmin service = (ConfigurationAdmin) super.addingService(serviceReference);
+        @SuppressWarnings("unchecked") ConfigurationAdmin service =
+                (ConfigurationAdmin) super.addingService(serviceReference);
         loggingConfiguration.setConfigurationAdminService(service);
 
         try {

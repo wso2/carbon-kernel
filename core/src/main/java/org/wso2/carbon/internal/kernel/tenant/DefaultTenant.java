@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.internal.kernel.tenant;
 
-import org.wso2.carbon.kernel.tenant.TenantContainerBase;
 import org.wso2.carbon.kernel.tenant.Tenant;
+import org.wso2.carbon.kernel.tenant.TenantContainerBase;
 
 import java.util.Collections;
 import java.util.Date;

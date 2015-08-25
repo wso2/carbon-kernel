@@ -19,11 +19,11 @@
 
 package org.wso2.carbon.clustering.spi;
 
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
+import org.wso2.carbon.internal.clustering.ClusterContext;
 
 import java.util.List;
 

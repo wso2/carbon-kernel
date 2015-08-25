@@ -122,7 +122,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         if (args.length == 1) {
             try {
                 Tenant tenant = tenantRuntime.getTenant(args[0]);
-                if(tenant == null) {
+                if (tenant == null) {
                     System.out.println("Tenant with domain " + args[0] + " does not exists");
                     return;
                 }

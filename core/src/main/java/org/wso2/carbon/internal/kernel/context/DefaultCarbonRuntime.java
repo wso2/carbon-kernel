@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.internal.kernel.context;
 
-import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 

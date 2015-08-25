@@ -23,10 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.ArtifactType;
+import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.deployment.spi.Deployer;
-import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.CarbonRuntime;
 
 import java.io.File;
@@ -123,7 +123,7 @@ public class DeploymentEngine {
      * Add and initialize a new Deployer to deployment engine.
      *
      * @param deployer the deployer instance to register
-     * @throws org.wso2.carbon.deployment.exception.DeployerRegistrationException Throwing deployment registration exception
+     * @throws DeployerRegistrationException Throwing deployment registration exception
      */
     public void registerDeployer(Deployer deployer) throws DeployerRegistrationException {
 

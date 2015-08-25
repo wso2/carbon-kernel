@@ -22,10 +22,10 @@ package org.wso2.carbon.clustering.config.membership.scheme;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * JAXB mapping for AWS membership scheme configuration
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AWSSchemeConfig {
 

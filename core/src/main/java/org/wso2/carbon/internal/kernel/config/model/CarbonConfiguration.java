@@ -18,7 +18,8 @@
 
 package org.wso2.carbon.internal.kernel.config.model;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *  CarbonConfiguration class holds static configuration parameters specified in the carbon.xml file.

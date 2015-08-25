@@ -18,7 +18,9 @@
 
 package org.wso2.carbon.kernel.tenant;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Abstract implementation of the TenantContainer interface. This class provide generic implementations of the methods.
