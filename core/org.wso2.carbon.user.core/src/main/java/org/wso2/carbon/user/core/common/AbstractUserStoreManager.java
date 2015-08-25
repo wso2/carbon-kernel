@@ -3863,4 +3863,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public boolean isCaseSensitiveUsername(){
         return false;
     }
+
+    protected void handleException(Exception e, String userName) throws UserStoreException {}
 }
