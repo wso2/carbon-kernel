@@ -16,23 +16,23 @@
 
 package org.wso2.carbon.base;
 
-import java.io.File;
-
+/**
+ * Carbon base Constants
+ */
 public class Constants {
-	public static final String CARBON_REPOSITORY = "carbon.repository";
-	public static final String CARBON_REPOSITORY_PATH_ENV = "CARBON_REPOSITORY";
-	public static final String CARBON_HOME = "carbon.home";
-	public static final String CARBON_HOME_ENV = "CARBON_HOME";
+    public static final String CARBON_REPOSITORY = "carbon.repository";
+    public static final String CARBON_REPOSITORY_PATH_ENV = "CARBON_REPOSITORY";
+    public static final String CARBON_HOME = "carbon.home";
+    public static final String CARBON_HOME_ENV = "CARBON_HOME";
 
     //    properties relavant to pax logging configuration
     public static final String CONFIG_FILE_NAME = "log4j.properties";
     public static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
 
-	/**
-	 * Remove default constructor and make it not available to initialize.
-	 */
-
-	private Constants() {
+    /**
+     * Remove default constructor and make it not available to initialize.
+     */
+    private Constants() {
 		throw new AssertionError("Instantiating utility class...");
 	}
 
