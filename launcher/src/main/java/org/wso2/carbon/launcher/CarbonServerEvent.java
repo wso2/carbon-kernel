@@ -27,18 +27,17 @@ public class CarbonServerEvent {
 
     /**
      * The CarbonServer is in the process of starting
-     *
+     * <p>
      * This event is fired just before the CarbonServer launches the OSGi framework.
-     *
      */
-    public final static int	STARTING							= 0x00000001;
+    public static final int STARTING = 0x00000001;
 
     /**
      * The CarbonServer is in the process of stopping
-     *
+     * <p>
      * This event is fired just after the CarbonServer stops the OSGi framework.
      */
-    public final static int	STOPPING							= 0x00000002;
+    public static final int STOPPING = 0x00000002;
 
     /**
      * Type of event.
@@ -50,13 +49,14 @@ public class CarbonServerEvent {
      */
     private final CarbonLaunchConfig<String, String> config;
 
-    public CarbonServerEvent(int type, CarbonLaunchConfig<String, String> config){
+    public CarbonServerEvent(int type, CarbonLaunchConfig<String, String> config) {
         this.type = type;
         this.config = config;
     }
 
     /**
      * Returns the type of the event.
+     *
      * @return type.
      */
     public int getType() {
@@ -65,6 +65,7 @@ public class CarbonServerEvent {
 
     /**
      * Returns the Carbon launch configurations.
+     *
      * @return config
      */
     public CarbonLaunchConfig<String, String> getConfig() {

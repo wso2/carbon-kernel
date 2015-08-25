@@ -15,17 +15,6 @@
  */
 package org.wso2.maven.p2;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.maven.artifact.factory.ArtifactFactory;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
@@ -34,11 +23,19 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.tycho.p2.facade.internal.P2ApplicationLauncher;
 import org.wso2.maven.p2.generate.utils.FileManagementUtil;
 import org.wso2.maven.p2.generate.utils.MavenUtils;
 import org.wso2.maven.p2.generate.utils.P2Utils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Write environment information for the current build to file.
@@ -90,7 +87,7 @@ public class RepositoryGenMojo extends AbstractMojo {
      * @parameter
      */
     private ArrayList bundleArtifacts;
-    
+
     /**
      * Source folder
      *
@@ -134,7 +131,7 @@ public class RepositoryGenMojo extends AbstractMojo {
      * @parameter default-value="${project}"
      */
     private MavenProject project;
-    
+
     /**
      * @parameter default-value="false"
      */
@@ -161,7 +158,9 @@ public class RepositoryGenMojo extends AbstractMojo {
     private List remoteRepositories;
 
 
-    /** @component */
+    /**
+     * @component
+     */
     private P2ApplicationLauncher launcher;
 
     /**
@@ -179,13 +178,13 @@ public class RepositoryGenMojo extends AbstractMojo {
     private File sourceDir;
     private File p2AgentDir;
 
-	private ArrayList processedBundleArtifacts;
+    private ArrayList processedBundleArtifacts;
 
-	private File REPO_GEN_LOCATION;
-	
-	private File categoryDeinitionFile;
+    private File REPO_GEN_LOCATION;
 
-	private File ARCHIVE_FILE;
+    private File categoryDeinitionFile;
+
+    private File ARCHIVE_FILE;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         createRepo();
@@ -210,7 +209,6 @@ public class RepositoryGenMojo extends AbstractMojo {
             throw new MojoExecutionException(e.getMessage(), e);
         }
     }
-
 
 
     private void copyResources() throws MojoExecutionException {
@@ -249,7 +247,6 @@ public class RepositoryGenMojo extends AbstractMojo {
         addArguments(launcher);
 
 
-
         int result = launcher.execute(forkedProcessTimeoutInSeconds);
         if (result != 0) {
             throw new MojoFailureException("P2 publisher return code was " + result);
@@ -267,15 +264,15 @@ public class RepositoryGenMojo extends AbstractMojo {
                 "-compress",
                 "-append");
     }
-    
+
     private void extractFeatures() throws MojoExecutionException {
         ArrayList processedFeatureArtifacts = getProcessedFeatureArtifacts();
         if (processedFeatureArtifacts == null) return;
         for (Iterator iterator = processedFeatureArtifacts.iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             FeatureArtifact featureArtifact = (FeatureArtifact) iterator.next();
             try {
-		getLog().info("Extracting feature "+featureArtifact.getGroupId()+":"+featureArtifact.getArtifactId());
+                getLog().info("Extracting feature " + featureArtifact.getGroupId() + ":" + featureArtifact.getArtifactId());
                 FileManagementUtil.unzip(featureArtifact.getArtifact().getFile(), sourceDir);
             } catch (Exception e) {
                 throw new MojoExecutionException("Error occured when extracting the Feature Artifact: " + featureArtifact.toString(), e);
@@ -283,16 +280,17 @@ public class RepositoryGenMojo extends AbstractMojo {
         }
     }
 
-    private void copyBundleArtifacts()throws MojoExecutionException {
+    private void copyBundleArtifacts() throws MojoExecutionException {
         ArrayList processedBundleArtifacts = getProcessedBundleArtifacts();
-        if (processedBundleArtifacts == null) return;
-        File pluginsDir = new File(sourceDir,"plugins");
-        for (Iterator iterator = processedBundleArtifacts.iterator(); iterator
-                .hasNext();) {
+        if (processedBundleArtifacts == null) {
+            return;
+        }
+        File pluginsDir = new File(sourceDir, "plugins");
+        for (Iterator iterator = processedBundleArtifacts.iterator(); iterator.hasNext(); ) {
             BundleArtifact bundleArtifact = (BundleArtifact) iterator.next();
             try {
-            	File file = bundleArtifact.getArtifact().getFile();
-                FileManagementUtil.copy(file, new File(pluginsDir,file.getName()));
+                File file = bundleArtifact.getArtifact().getFile();
+                FileManagementUtil.copy(file, new File(pluginsDir, file.getName()));
             } catch (Exception e) {
                 throw new MojoExecutionException("Error occured when extracting the Feature Artifact: " + bundleArtifact.toString(), e);
             }
@@ -302,15 +300,17 @@ public class RepositoryGenMojo extends AbstractMojo {
     private ArrayList getProcessedFeatureArtifacts() throws MojoExecutionException {
         if (processedFeatureArtifacts != null)
             return processedFeatureArtifacts;
-        if (featureArtifacts == null || featureArtifacts.size() == 0) return null;
+        if (featureArtifacts == null || featureArtifacts.size() == 0) {
+            return null;
+        }
         processedFeatureArtifacts = new ArrayList();
         Iterator iter = featureArtifacts.iterator();
         while (iter.hasNext()) {
-        	FeatureArtifact f = null;
-        	Object obj = iter.next();
-        	try {
-        		if (obj instanceof FeatureArtifact) {
-        			f = (FeatureArtifact) obj;
+            FeatureArtifact f = null;
+            Object obj = iter.next();
+            try {
+                if (obj instanceof FeatureArtifact) {
+                    f = (FeatureArtifact) obj;
                 } else if (obj instanceof String) {
                     f = FeatureArtifact.getFeatureArtifact(obj.toString());
                 } else
@@ -318,26 +318,28 @@ public class RepositoryGenMojo extends AbstractMojo {
                 f.resolveVersion(getProject());
                 f.setArtifact(MavenUtils.getResolvedArtifact(f, getArtifactFactory(), remoteRepositories, getLocalRepository(), getResolver()));
                 processedFeatureArtifacts.add(f);
-        	} catch (Exception e) {
+            } catch (Exception e) {
                 throw new MojoExecutionException("Error occured when processing the Feature Artifact: " + obj.toString(), e);
             }
         }
         return processedFeatureArtifacts;
     }
-    
+
     private void archiveRepo() throws MojoExecutionException {
-    	if (isArchive()){
-    		getLog().info("Generating repository archive...");
-    		FileManagementUtil.zipFolder(REPO_GEN_LOCATION.toString(), ARCHIVE_FILE.toString());
-    		getLog().info("Repository Archive: "+ARCHIVE_FILE.toString());
-    		FileManagementUtil.deleteDirectories(REPO_GEN_LOCATION);
-    	}
+        if (isArchive()) {
+            getLog().info("Generating repository archive...");
+            FileManagementUtil.zipFolder(REPO_GEN_LOCATION.toString(), ARCHIVE_FILE.toString());
+            getLog().info("Repository Archive: " + ARCHIVE_FILE.toString());
+            FileManagementUtil.deleteDirectories(REPO_GEN_LOCATION);
+        }
     }
-    
+
     private ArrayList getProcessedBundleArtifacts() throws MojoExecutionException {
         if (processedBundleArtifacts != null)
             return processedBundleArtifacts;
-        if (bundleArtifacts == null || bundleArtifacts.size() == 0) return null;
+        if (bundleArtifacts == null || bundleArtifacts.size() == 0) {
+            return null;
+        }
         processedBundleArtifacts = new ArrayList();
         Iterator iter = bundleArtifacts.iterator();
         while (iter.hasNext()) {
@@ -357,127 +359,122 @@ public class RepositoryGenMojo extends AbstractMojo {
     }
 
 
-
     private void createAndSetupPaths() throws Exception {
         targetDir = new File(getProject().getBasedir(), "target");
         String timestampVal = String.valueOf((new Date()).getTime());
         tempDir = new File(targetDir, "tmp." + timestampVal);
         sourceDir = new File(tempDir, "featureExtract");
         sourceDir.mkdirs();
-        
-		metadataRepository=(artifactRepository==null? metadataRepository:artifactRepository);
-		artifactRepository=(metadataRepository==null? artifactRepository:metadataRepository);
-		if (metadataRepository == null) {
-			File repo = new File(targetDir, getProject().getArtifactId() + "_" + getProject().getVersion());
-			metadataRepository = repo.toURL();
-			artifactRepository = metadataRepository;
-		}
-        REPO_GEN_LOCATION=new File(metadataRepository.getFile().replace("/",File.separator));
-        ARCHIVE_FILE=new File(targetDir,getProject().getArtifactId()+"_"+getProject().getVersion()+".zip");
-        categoryDeinitionFile=File.createTempFile("equinox-p2", "category");
+
+        metadataRepository = (artifactRepository == null ? metadataRepository : artifactRepository);
+        artifactRepository = (metadataRepository == null ? artifactRepository : metadataRepository);
+        if (metadataRepository == null) {
+            File repo = new File(targetDir, getProject().getArtifactId() + "_" + getProject().getVersion());
+            metadataRepository = repo.toURL();
+            artifactRepository = metadataRepository;
+        }
+        REPO_GEN_LOCATION = new File(metadataRepository.getFile().replace("/", File.separator));
+        ARCHIVE_FILE = new File(targetDir, getProject().getArtifactId() + "_" + getProject().getVersion() + ".zip");
+        categoryDeinitionFile = File.createTempFile("equinox-p2", "category");
     }
 
-	private void updateRepositoryWithCategories() throws Exception {
-		if (!isCategoriesAvailable()) {
-			return;
-		} else {
-			P2Utils.createCategoryFile(getProject(), categories, categoryDeinitionFile,
-			                           getArtifactFactory(), getRemoteRepositories(),
-			                           getLocalRepository(), getResolver());
-			P2ApplicationLauncher launcher = this.launcher;
-			launcher.setWorkingDirectory(project.getBasedir());
-			launcher.setApplicationName("org.eclipse.equinox.p2.publisher.CategoryPublisher");
-			launcher.addArguments("-metadataRepository", metadataRepository.toString(),
-			                      "-categoryDefinition", categoryDeinitionFile.toURI().toString(),
-			                      "-categoryQualifier", 
-			                      "-compress", 
-			                      "-append");
+    private void updateRepositoryWithCategories() throws Exception {
+        if (!isCategoriesAvailable()) {
+            return;
+        } else {
+            P2Utils.createCategoryFile(getProject(), categories, categoryDeinitionFile,
+                    getArtifactFactory(), getRemoteRepositories(),
+                    getLocalRepository(), getResolver());
+            P2ApplicationLauncher launcher = this.launcher;
+            launcher.setWorkingDirectory(project.getBasedir());
+            launcher.setApplicationName("org.eclipse.equinox.p2.publisher.CategoryPublisher");
+            launcher.addArguments("-metadataRepository", metadataRepository.toString(),
+                    "-categoryDefinition", categoryDeinitionFile.toURI().toString(),
+                    "-categoryQualifier",
+                    "-compress",
+                    "-append");
 
-			int result = launcher.execute(forkedProcessTimeoutInSeconds);
-			if (result != 0) {
-				throw new MojoFailureException("P2 publisher return code was " + result);
-			}
-		}
-	}
-    
-	private boolean isCategoriesAvailable() {
-		if (categories == null || categories.size() == 0) {
-			return false;
-		}
-		return true;
-	}
-    
+            int result = launcher.execute(forkedProcessTimeoutInSeconds);
+            if (result != 0) {
+                throw new MojoFailureException("P2 publisher return code was " + result);
+            }
+        }
+    }
+
+    private boolean isCategoriesAvailable() {
+        if (categories == null || categories.size() == 0) {
+            return false;
+        }
+        return true;
+    }
+
     private void performMopUp() {
         try {
             // we want this temp file, in order to debug some errors. since this is in target, it will
             // get removed in the next build cycle.
-           // FileUtils.deleteDirectory(tempDir);
+            // FileUtils.deleteDirectory(tempDir);
         } catch (Exception e) {
             getLog().warn(new MojoExecutionException("Unable complete mop up operation", e));
         }
     }
 
-
-
-    public void setP2Profile(P2Profile p2Profile) {
-        this.p2Profile = p2Profile;
-    }
-
-
     public P2Profile getP2Profile() {
         return p2Profile;
     }
 
-
-    public void setProject(MavenProject project) {
-        this.project = project;
-    }
-
-    public void setArtifactFactory(org.apache.maven.artifact.factory.ArtifactFactory artifactFactory) {
-        this.artifactFactory = artifactFactory;
-    }
-
-    public void setResolver(org.apache.maven.artifact.resolver.ArtifactResolver resolver) {
-        this.resolver = resolver;
-    }
-
-    public void setLocalRepository(org.apache.maven.artifact.repository.ArtifactRepository localRepository) {
-        this.localRepository = localRepository;
-    }
-
-    public void setRemoteRepositories(List remoteRepositories) {
-        this.remoteRepositories = remoteRepositories;
+    public void setP2Profile(P2Profile p2Profile) {
+        this.p2Profile = p2Profile;
     }
 
     public MavenProject getProject() {
         return project;
     }
 
+    public void setProject(MavenProject project) {
+        this.project = project;
+    }
+
     public ArtifactFactory getArtifactFactory() {
         return artifactFactory;
+    }
+
+    public void setArtifactFactory(org.apache.maven.artifact.factory.ArtifactFactory artifactFactory) {
+        this.artifactFactory = artifactFactory;
     }
 
     public ArtifactResolver getResolver() {
         return resolver;
     }
 
+    public void setResolver(org.apache.maven.artifact.resolver.ArtifactResolver resolver) {
+        this.resolver = resolver;
+    }
+
     public ArtifactRepository getLocalRepository() {
         return localRepository;
+    }
+
+    public void setLocalRepository(org.apache.maven.artifact.repository.ArtifactRepository localRepository) {
+        this.localRepository = localRepository;
     }
 
     public List getRemoteRepositories() {
         return remoteRepositories;
     }
 
-	public String getRepositoryName() {
-		if (name==null){
-			return getProject().getArtifactId();
-		}else{
-			return name;
-		}
-	}
+    public void setRemoteRepositories(List remoteRepositories) {
+        this.remoteRepositories = remoteRepositories;
+    }
 
-	public boolean isArchive() {
-		return archive;
-	}
+    public String getRepositoryName() {
+        if (name == null) {
+            return getProject().getArtifactId();
+        } else {
+            return name;
+        }
+    }
+
+    public boolean isArchive() {
+        return archive;
+    }
 }

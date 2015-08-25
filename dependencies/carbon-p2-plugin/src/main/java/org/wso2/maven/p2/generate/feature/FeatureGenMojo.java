@@ -1,19 +1,5 @@
 package org.wso2.maven.p2.generate.feature;
 
-import java.io.*;
-import java.util.*;
-import java.util.prefs.Preferences;
-
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.metadata.ArtifactMetadataSource;
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -32,9 +18,33 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.maven.p2.generate.utils.FileManagementUtil;
-import org.wso2.maven.p2.generate.utils.P2Utils;
 import org.wso2.maven.p2.generate.utils.MavenUtils;
+import org.wso2.maven.p2.generate.utils.P2Utils;
 import org.wso2.maven.p2.generate.utils.PropertyReplacer;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * Write environment information for the current build to file.
@@ -244,28 +254,28 @@ public class FeatureGenMojo extends AbstractMojo {
         performMopUp();
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
     public String getVersion() {
         return version;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public String getLabel() {
         return label;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     private ArrayList<Bundle> getProcessedBundlesList() throws MojoExecutionException {
@@ -455,7 +465,7 @@ public class FeatureGenMojo extends AbstractMojo {
         ArrayList<IncludedFeature> includedFeatures = getIncludedFeatures();
 
         if (processedMissingPlugins != null) {
-            for (Iterator<Object> iterator = processedMissingPlugins.iterator(); iterator.hasNext();) {
+            for (Iterator<Object> iterator = processedMissingPlugins.iterator(); iterator.hasNext(); ) {
                 Bundle bundle = (Bundle) iterator.next();
                 Element plugin = document.createElement("plugin");
                 plugin.setAttribute("id", bundle.getBundleSymbolicName());
@@ -474,7 +484,7 @@ public class FeatureGenMojo extends AbstractMojo {
             } else
                 require = requireNodes.item(0);
             if (processedMissingImportPlugins != null) {
-                for (Iterator<Object> iterator = processedMissingImportPlugins.iterator(); iterator.hasNext();) {
+                for (Iterator<Object> iterator = processedMissingImportPlugins.iterator(); iterator.hasNext(); ) {
                     ImportBundle bundle = (ImportBundle) iterator.next();
                     Element plugin = document.createElement("import");
                     plugin.setAttribute("plugin", bundle.getBundleSymbolicName());
@@ -510,10 +520,10 @@ public class FeatureGenMojo extends AbstractMojo {
             }
         }
 
-        if(processedMissingImportFeatures != null) {
+        if (processedMissingImportFeatures != null) {
             for (Object processedMissingImportFeature : processedMissingImportFeatures) {
                 ImportFeature feature = (ImportFeature) processedMissingImportFeature;
-                if(feature.isOptional()){
+                if (feature.isOptional()) {
                     Element includeElement = document.createElement("includes");
                     includeElement.setAttribute("id", feature.getFeatureId());
                     includeElement.setAttribute("version", feature.getFeatureVersion());
@@ -542,7 +552,7 @@ public class FeatureGenMojo extends AbstractMojo {
         ArrayList<Bundle> processedBundlesList = getProcessedBundlesList();
         if (processedBundlesList == null) return null;
         for (Iterator<Bundle> iterator = processedBundlesList.iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             Bundle bundle = iterator.next();
             missingPlugins.put(bundle.getArtifactId(), bundle);
         }
@@ -588,7 +598,7 @@ public class FeatureGenMojo extends AbstractMojo {
             ArrayList<Property> list = getProcessedAdviceProperties();
 
             if (FILE_P2_INF.exists()) {
-                p2infStringList= readAdviceFile(FILE_P2_INF.getAbsolutePath()); //In memory storage of  current p2.inf content
+                p2infStringList = readAdviceFile(FILE_P2_INF.getAbsolutePath()); //In memory storage of  current p2.inf content
                 getLog().info("Updating Advice file (p2.inf)");
             } else {
                 getLog().info("Generating Advice file (p2.inf)");
@@ -597,10 +607,10 @@ public class FeatureGenMojo extends AbstractMojo {
             out = new BufferedWriter(new FileWriter(FILE_P2_INF.getAbsolutePath()));
             //re-writing the already availabled p2.inf lines
             Properties properties = new Properties();
-            properties.setProperty("feature.version",Bundle.getOSGIVersion(getVersion()));
-            if(p2infStringList != null && p2infStringList.size() > 0){
-                for(String str : p2infStringList){
-                    out.write(PropertyReplacer.replaceProperties(str,properties)+"\n"); // writing the strings after replacing ${feature.version}
+            properties.setProperty("feature.version", Bundle.getOSGIVersion(getVersion()));
+            if (p2infStringList != null && p2infStringList.size() > 0) {
+                for (String str : p2infStringList) {
+                    out.write(PropertyReplacer.replaceProperties(str, properties) + "\n"); // writing the strings after replacing ${feature.version}
                 }
             }
             if (list.size() == 0) return;    // finally block will take care of output stream closing.
@@ -640,8 +650,8 @@ public class FeatureGenMojo extends AbstractMojo {
             throw new MojoExecutionException("Unable to create/open p2.inf file", e);
         } catch (IOException e) {
             throw new MojoExecutionException("Error while reading from p2.inf file", e);
-        }finally {
-            if(br != null) {
+        } finally {
+            if (br != null) {
                 try {
                     br.close();
                 } catch (IOException e) {
@@ -657,7 +667,7 @@ public class FeatureGenMojo extends AbstractMojo {
         HashMap<String, ImportBundle> missingImportPlugins = new HashMap<String, ImportBundle>();
         ArrayList<ImportBundle> processedImportBundlesList = getProcessedImportBundlesList();
         if (processedImportBundlesList == null) return null;
-        for (Iterator<ImportBundle> iterator = processedImportBundlesList.iterator(); iterator.hasNext();) {
+        for (Iterator<ImportBundle> iterator = processedImportBundlesList.iterator(); iterator.hasNext(); ) {
             ImportBundle bundle = iterator.next();
             missingImportPlugins.put(bundle.getArtifactId(), bundle);
         }
@@ -684,7 +694,7 @@ public class FeatureGenMojo extends AbstractMojo {
         HashMap<String, ImportFeature> missingImportFeatures = new HashMap<String, ImportFeature>();
         ArrayList<ImportFeature> processedImportFeaturesList = getProcessedImportFeaturesList();
         if (processedImportFeaturesList == null) return null;
-        for (Iterator<ImportFeature> iterator = processedImportFeaturesList.iterator(); iterator.hasNext();) {
+        for (Iterator<ImportFeature> iterator = processedImportFeaturesList.iterator(); iterator.hasNext(); ) {
             ImportFeature feature = iterator.next();
             missingImportFeatures.put(feature.getFeatureId(), feature);
         }
@@ -715,56 +725,52 @@ public class FeatureGenMojo extends AbstractMojo {
         return arrayList;
     }
 
-    public void setProviderName(String providerName) {
-        this.providerName = providerName;
-    }
-
     public String getProviderName() {
         return providerName;
     }
 
-    public void setCopyright(String copyrite) {
-        this.copyright = copyrite;
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
     public String getCopyright() {
         return copyright;
     }
 
-    public void setLicenceUrl(String licenceUrl) {
-        this.licenceUrl = licenceUrl;
+    public void setCopyright(String copyrite) {
+        this.copyright = copyrite;
     }
 
     public String getLicenceUrl() {
         return licenceUrl;
     }
 
-    public void setLicence(String licence) {
-        this.licence = licence;
+    public void setLicenceUrl(String licenceUrl) {
+        this.licenceUrl = licenceUrl;
     }
 
     public String getLicence() {
         return licence;
     }
 
-    public void setManifest(File manifest) {
-        this.manifest = manifest;
+    public void setLicence(String licence) {
+        this.licence = licence;
     }
 
     public File getManifest() {
         return manifest;
     }
 
-    public void setPropertiesFile(File propertiesFile) {
-        this.propertiesFile = propertiesFile;
+    public void setManifest(File manifest) {
+        this.manifest = manifest;
     }
 
     public File getPropertiesFile() {
         return propertiesFile;
     }
 
-    public void setProperties(Properties properties) {
-        this.properties = properties;
+    public void setPropertiesFile(File propertiesFile) {
+        this.propertiesFile = propertiesFile;
     }
 
     public Properties getProperties() throws MojoExecutionException {
@@ -786,6 +792,10 @@ public class FeatureGenMojo extends AbstractMojo {
             }
         }
         return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
     }
 
     private ArrayList<Property> getProcessedAdviceProperties() throws MojoExecutionException {
@@ -812,7 +822,7 @@ public class FeatureGenMojo extends AbstractMojo {
         ArrayList<Bundle> processedBundlesList = getProcessedBundlesList();
         if (processedBundlesList != null) {
             getLog().info("Copying bundle dependencies");
-            for (Iterator<Bundle> iterator = processedBundlesList.iterator(); iterator.hasNext();) {
+            for (Iterator<Bundle> iterator = processedBundlesList.iterator(); iterator.hasNext(); ) {
                 Bundle bundle = iterator.next();
                 try {
                     getLog().info("   " + bundle.toOSGIString());
@@ -826,7 +836,7 @@ public class FeatureGenMojo extends AbstractMojo {
         ArrayList<ImportBundle> processedImportBundlesList = getProcessedImportBundlesList();
         if (processedImportBundlesList != null) {
             getLog().info("Copying import bundle dependencies");
-            for (Iterator<ImportBundle> iterator = processedImportBundlesList.iterator(); iterator.hasNext();) {
+            for (Iterator<ImportBundle> iterator = processedImportBundlesList.iterator(); iterator.hasNext(); ) {
                 ImportBundle bundle = iterator.next();
                 try {
                     if (!bundle.isExclude()) {
@@ -848,7 +858,7 @@ public class FeatureGenMojo extends AbstractMojo {
                             includedFeature.getArtifactId());
                     FileManagementUtil.unzip(includedFeature.getArtifact().getFile(), featureBaseDir);
                 } catch (Exception e) {
-                    throw new MojoExecutionException("Error occured when extracting the Feature Artifact: " + 
+                    throw new MojoExecutionException("Error occured when extracting the Feature Artifact: " +
                             includedFeature.getGroupId() + ":" + includedFeature.getArtifactId(), e);
                 }
             }
@@ -867,49 +877,49 @@ public class FeatureGenMojo extends AbstractMojo {
             projectHelper.attachArtifact(project, "zip", null, FILE_FEATURE_ZIP);
         }
     }
-    
-    private void copyResources() throws MojoExecutionException {
-    	
-    	//The following code was taken from the maven bundle plugin and updated suit the purpose
-    	List<Resource> resources = project.getResources();
-		for (Resource resource : resources){
-			String sourcePath = resource.getDirectory();
-			if (new File(sourcePath).exists()){
-				DirectoryScanner scanner = new DirectoryScanner();
-				scanner.setBasedir( resource.getDirectory() );
-				if ( resource.getIncludes() != null && !resource.getIncludes().isEmpty() ){
-					scanner.setIncludes((String[])resource.getIncludes().toArray(new String[]{}));
-				}else{
-					scanner.setIncludes(new String[]{"**/**"});
-				}
 
-				List<String> excludes = resource.getExcludes();
-				if (excludes != null && !excludes.isEmpty()){
-					scanner.setExcludes((String[])excludes.toArray(new String[]{}));
-				}
-				
-				scanner.addDefaultExcludes();
-				scanner.scan();
-				
-				List<String> includedFiles = Arrays.asList( scanner.getIncludedFiles() );
-				getLog().info("   " + resource.getDirectory());
-				for (String name: includedFiles){
-					File fromPath=new File(sourcePath,name);
-					File toPath=new File(FOLDER_FEATURES_FEATURE,name);
-					    
-					try {
-						if (fromPath.isDirectory() && !toPath.exists()){
-							toPath.mkdirs();
-						}else{
-							FileManagementUtil.copy(fromPath, toPath);
-						}
-					} catch (IOException e) {
-						throw new MojoExecutionException("Unable copy resources: " + resource.getDirectory(), e);
-					}
-				}
-			}
-		}
-    	
+    private void copyResources() throws MojoExecutionException {
+
+        //The following code was taken from the maven bundle plugin and updated suit the purpose
+        List<Resource> resources = project.getResources();
+        for (Resource resource : resources) {
+            String sourcePath = resource.getDirectory();
+            if (new File(sourcePath).exists()) {
+                DirectoryScanner scanner = new DirectoryScanner();
+                scanner.setBasedir(resource.getDirectory());
+                if (resource.getIncludes() != null && !resource.getIncludes().isEmpty()) {
+                    scanner.setIncludes((String[]) resource.getIncludes().toArray(new String[]{}));
+                } else {
+                    scanner.setIncludes(new String[]{"**/**"});
+                }
+
+                List<String> excludes = resource.getExcludes();
+                if (excludes != null && !excludes.isEmpty()) {
+                    scanner.setExcludes((String[]) excludes.toArray(new String[]{}));
+                }
+
+                scanner.addDefaultExcludes();
+                scanner.scan();
+
+                List<String> includedFiles = Arrays.asList(scanner.getIncludedFiles());
+                getLog().info("   " + resource.getDirectory());
+                for (String name : includedFiles) {
+                    File fromPath = new File(sourcePath, name);
+                    File toPath = new File(FOLDER_FEATURES_FEATURE, name);
+
+                    try {
+                        if (fromPath.isDirectory() && !toPath.exists()) {
+                            toPath.mkdirs();
+                        } else {
+                            FileManagementUtil.copy(fromPath, toPath);
+                        }
+                    } catch (IOException e) {
+                        throw new MojoExecutionException("Unable copy resources: " + resource.getDirectory(), e);
+                    }
+                }
+            }
+        }
+
 //        List resources = project.getResources();
 //        if (resources != null) {
 //            getLog().info("Copying resources");

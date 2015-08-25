@@ -29,10 +29,10 @@ import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
-import org.wso2.carbon.internal.clustering.CarbonCluster;
-import org.wso2.carbon.internal.clustering.ClusterUtil;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
 import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
+import org.wso2.carbon.internal.clustering.CarbonCluster;
+import org.wso2.carbon.internal.clustering.ClusterUtil;
 
 import java.util.ArrayList;
 import java.util.List;

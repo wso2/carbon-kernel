@@ -5,7 +5,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.codehaus.plexus.archiver.ArchiverException;
 import org.codehaus.plexus.archiver.UnArchiver;
 import org.eclipse.tycho.model.ProductConfiguration;
 import org.eclipse.tycho.p2.facade.internal.P2ApplicationLauncher;
@@ -17,27 +16,30 @@ import java.net.URL;
  * @goal publish-product
  */
 public class PublishProductMojo extends AbstractMojo {
-	/**
-	 * @parameter expression="${project}"
-	 * @required
-	 */
-	protected MavenProject project;
-	/**
-	 * Metadata repository name
-	 *     @parameter
-	 */
-	private URL metadataRepository;
-	/**
-	 * Artifact repository name
-	 *      @parameter
-	 */
-	private URL artifactRepository;
+    /**
+     * @parameter expression="${project}"
+     * @required
+     */
+    protected MavenProject project;
+    /**
+     * Metadata repository name
+     *
+     * @parameter
+     */
+    private URL metadataRepository;
+    /**
+     * Artifact repository name
+     *
+     * @parameter
+     */
+    private URL artifactRepository;
 
     /**
-	 * executable
-	 *      @parameter
-	 */
-	private String executable;
+     * executable
+     *
+     * @parameter
+     */
+    private String executable;
 
     /**
      * @component role="org.codehaus.plexus.archiver.UnArchiver" role-hint="zip"
@@ -45,21 +47,23 @@ public class PublishProductMojo extends AbstractMojo {
     private UnArchiver deflater;
 
 
-	/**
-	 * The product configuration, a .product file. This file manages all aspects
-	 * of a product definition from its constituent plug-ins to configuration
-	 * files to branding.
-	 *
-	 * @parameter expression="${productConfiguration}"
-	 */
-	private File productConfigurationFile;
-	/**
+    /**
+     * The product configuration, a .product file. This file manages all aspects
+     * of a product definition from its constituent plug-ins to configuration
+     * files to branding.
+     *
+     * @parameter expression="${productConfiguration}"
+     */
+    private File productConfigurationFile;
+    /**
      * Parsed product configuration file
      */
     private ProductConfiguration productConfiguration;
 
 
-    /** @component */
+    /**
+     * @component
+     */
     private P2ApplicationLauncher launcher;
 
     /**
@@ -71,19 +75,19 @@ public class PublishProductMojo extends AbstractMojo {
     private int forkedProcessTimeoutInSeconds;
 
 
-	public void execute() throws MojoExecutionException, MojoFailureException {
-		try {
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        try {
 
-			publishProduct();
+            publishProduct();
 
-        }catch (Exception e) {
-			throw new MojoExecutionException("Cannot generate P2 metadata", e);
-		}
-	}
+        } catch (Exception e) {
+            throw new MojoExecutionException("Cannot generate P2 metadata", e);
+        }
+    }
 
-	private void publishProduct()  throws Exception{
+    private void publishProduct() throws Exception {
 
-        productConfiguration = ProductConfiguration.read( productConfigurationFile );
+        productConfiguration = ProductConfiguration.read(productConfigurationFile);
         P2ApplicationLauncher launcher = this.launcher;
 
         launcher.setWorkingDirectory(project.getBasedir());
@@ -103,8 +107,5 @@ public class PublishProductMojo extends AbstractMojo {
         if (result != 0) {
             throw new MojoFailureException("P2 publisher return code was " + result);
         }
-	}
-
-
-
+    }
 }

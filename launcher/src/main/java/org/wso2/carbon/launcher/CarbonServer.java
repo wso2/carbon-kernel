@@ -17,7 +17,7 @@ import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.wso2.carbon.launcher.utils.Constants.*;
+import static org.wso2.carbon.launcher.utils.Constants.CARBON_START_TIME;
 
 /**
  * Launches a Carbon instance
@@ -182,7 +182,8 @@ public class CarbonServer {
         for (CarbonInitialBundle initialBundleInfo : config.getInitialBundles()) {
 
             if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Loading initial bundle: " + initialBundleInfo.getLocation().toExternalForm() + " with startlevel " + initialBundleInfo.getLevel());
+                logger.log(Level.FINE, "Loading initial bundle: " + initialBundleInfo.getLocation().toExternalForm() +
+                        " with startlevel " + initialBundleInfo.getLevel());
             }
 
             Bundle bundle = bundleContext.installBundle(initialBundleInfo.getLocation().toString());

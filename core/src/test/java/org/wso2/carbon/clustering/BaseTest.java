@@ -23,16 +23,13 @@ import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 public class BaseTest {
 

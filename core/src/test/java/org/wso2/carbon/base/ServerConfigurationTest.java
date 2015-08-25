@@ -18,26 +18,18 @@
 
 package org.wso2.carbon.base;
 
-
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.base.ServerConfigurationException;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ServerConfigurationTest extends BaseTest {
 
     protected String testDir = "src" + File.separator + "test" + File.separator;
-    private final String CONFIG_FILE = "sample-carbon.xml";
+    private static final String CONFIG_FILE = "sample-carbon.xml";
 
     /**
      * @param testName
@@ -61,11 +53,11 @@ public class ServerConfigurationTest extends BaseTest {
         String offsetProp = "Ports.Offset";
         String offsetValue = "0";
 
-        String RMIRegistryPortProp = "Ports.JMX.RMIRegistryPort";
-        String RMIRegistryPortValue = "9999";
+        String rmiRegistryPortProp = "Ports.JMX.RMIRegistryPort";
+        String rmiRegistryPortValue = "9999";
 
-        String RMIServerPortProp = "Ports.JMX.RMIServerPort";
-        String RMIServerPortValue = "11111";
+        String rmiServerPortProp = "Ports.JMX.RMIServerPort";
+        String rmiServerPortValue = "11111";
 
         File configFile = new File(getTestResourceFile(CONFIG_FILE).getAbsolutePath());
         ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
@@ -75,8 +67,8 @@ public class ServerConfigurationTest extends BaseTest {
         String[] versionProperties = serverConfiguration.getProperties(versionProp);
         String[] packageProperties = serverConfiguration.getProperties(packageProp);
         String[] portOffsetProperties = serverConfiguration.getProperties(offsetProp);
-        String[] PortJMXRegProperties = serverConfiguration.getProperties(RMIRegistryPortProp);
-        String[] portJMXServerProperties = serverConfiguration.getProperties(RMIServerPortProp);
+        String[] PortJMXRegProperties = serverConfiguration.getProperties(rmiRegistryPortProp);
+        String[] portJMXServerProperties = serverConfiguration.getProperties(rmiServerPortProp);
 
         for (String prop : nameProperties) {
             Assert.assertEquals(nameValue, nameProperties[0]);
@@ -95,11 +87,11 @@ public class ServerConfigurationTest extends BaseTest {
         }
 
         for (String prop : PortJMXRegProperties) {
-            Assert.assertEquals(RMIRegistryPortValue, PortJMXRegProperties[0]);
+            Assert.assertEquals(rmiRegistryPortValue, PortJMXRegProperties[0]);
         }
 
         for (String prop : portJMXServerProperties) {
-            Assert.assertEquals(RMIServerPortValue, portJMXServerProperties[0]);
+            Assert.assertEquals(rmiServerPortValue, portJMXServerProperties[0]);
         }
     }
 
@@ -118,11 +110,11 @@ public class ServerConfigurationTest extends BaseTest {
         String offsetProp = "Ports.Offset";
         String offsetValue = "0";
 
-        String RMIRegistryPortProp = "Ports.JMX.RMIRegistryPort";
-        String RMIRegistryPortValue = "9999";
+        String rmiRegistryPortProp = "Ports.JMX.RMIRegistryPort";
+        String rmiRegistryPortValue = "9999";
 
-        String RMIServerPortProp = "Ports.JMX.RMIServerPort";
-        String RMIServerPortValue = "11111";
+        String rmiServerPortProp = "Ports.JMX.RMIServerPort";
+        String rmiServerPortValue = "11111";
 
         File configFile = new File(getTestResourceFile(CONFIG_FILE).getAbsolutePath());
         InputStream inputStream =  new FileInputStream(configFile);
@@ -133,8 +125,8 @@ public class ServerConfigurationTest extends BaseTest {
         String[] versionProperties = serverConfiguration.getProperties(versionProp);
         String[] packageProperties = serverConfiguration.getProperties(packageProp);
         String[] portOffsetProperties = serverConfiguration.getProperties(offsetProp);
-        String[] PortJMXRegProperties = serverConfiguration.getProperties(RMIRegistryPortProp);
-        String[] portJMXServerProperties = serverConfiguration.getProperties(RMIServerPortProp);
+        String[] PortJMXRegProperties = serverConfiguration.getProperties(rmiRegistryPortProp);
+        String[] portJMXServerProperties = serverConfiguration.getProperties(rmiServerPortProp);
 
         for (String prop : nameProperties) {
             Assert.assertEquals(nameValue, nameProperties[0]);
@@ -153,12 +145,11 @@ public class ServerConfigurationTest extends BaseTest {
         }
 
         for (String prop : PortJMXRegProperties) {
-            Assert.assertEquals(RMIRegistryPortValue, PortJMXRegProperties[0]);
+            Assert.assertEquals(rmiRegistryPortValue, PortJMXRegProperties[0]);
         }
 
         for (String prop : portJMXServerProperties) {
-            Assert.assertEquals(RMIServerPortValue, portJMXServerProperties[0]);
+            Assert.assertEquals(rmiServerPortValue, portJMXServerProperties[0]);
         }
     }
-
 }

@@ -15,9 +15,9 @@
  */
 package org.wso2.maven.p2;
 
-import java.util.ArrayList;
-
 import org.wso2.maven.p2.generate.utils.P2Constants;
+
+import java.util.ArrayList;
 
 public class EquinoxLauncher {
 
@@ -35,13 +35,13 @@ public class EquinoxLauncher {
      */
     private ArrayList launcherFiles;
 
-    public EquinoxLauncher(){
+    public EquinoxLauncher() {
 
     }
 
     public String getLauncherJar() {
-    	if (launcherJar==null)
-    		launcherJar="org.eclipse.equinox.launcher";
+        if (launcherJar == null)
+            launcherJar = "org.eclipse.equinox.launcher";
         return launcherJar;
     }
 
@@ -50,12 +50,12 @@ public class EquinoxLauncher {
     }
 
     public ArrayList getLauncherFiles() {
-    	if (launcherFiles==null){
-    		launcherFiles=new ArrayList();
-			for(String p2File:P2Constants.OSGI_FILES){
-				launcherFiles.add(p2File);
-			}
-    	}
+        if (launcherFiles == null) {
+            launcherFiles = new ArrayList();
+            for (String p2File : P2Constants.OSGI_FILES) {
+                launcherFiles.add(p2File);
+            }
+        }
         return launcherFiles;
     }
 

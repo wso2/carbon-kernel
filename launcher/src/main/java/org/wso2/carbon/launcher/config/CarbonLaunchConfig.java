@@ -23,15 +23,30 @@ import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
 import org.wso2.carbon.launcher.utils.FileResolver;
 import org.wso2.carbon.launcher.utils.Utils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.wso2.carbon.launcher.utils.Constants.*;
+import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
+import static org.wso2.carbon.launcher.utils.Constants.CARBON_INITIAL_OSGI_BUNDLES;
+import static org.wso2.carbon.launcher.utils.Constants.CARBON_OSGI_FRAMEWORK;
+import static org.wso2.carbon.launcher.utils.Constants.CARBON_OSGI_REPOSITORY;
+import static org.wso2.carbon.launcher.utils.Constants.CARBON_SERVER_LISTENERS;
+import static org.wso2.carbon.launcher.utils.Constants.ECLIPSE_P2_DATA_AREA;
+import static org.wso2.carbon.launcher.utils.Constants.OSGI_CONFIG_AREA;
+import static org.wso2.carbon.launcher.utils.Constants.OSGI_INSTALL_AREA;
+import static org.wso2.carbon.launcher.utils.Constants.OSGI_INSTANCE_AREA;
 
 public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
 

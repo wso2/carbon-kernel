@@ -16,15 +16,15 @@
 package org.wso2.maven.p2;
 
 
-import java.util.Properties;
-import java.util.regex.Pattern;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.wso2.maven.p2.generate.feature.Bundle;
 
+import java.util.Properties;
+import java.util.regex.Pattern;
+
 public class CatFeature {
-    
+
     /**
      * Id of the feature
      *
@@ -40,16 +40,16 @@ public class CatFeature {
      * @required
      */
     private String version;
-    
+
     /**
      * @parameter default-value="${project}"
      */
     private MavenProject project;
-    
+
     private boolean versionReplaced = false;
 
-    public CatFeature(){
-        
+    public CatFeature() {
+
     }
 
     public String getId() {
@@ -61,25 +61,25 @@ public class CatFeature {
     }
 
     public String getVersion() throws MojoExecutionException {
-    	if (!versionReplaced) {
-    		replaceProjectKeysInVersion(project);
-    	}
+        if (!versionReplaced) {
+            replaceProjectKeysInVersion(project);
+        }
         return Bundle.getOSGIVersion(version);
     }
 
     public void setVersion(String version) {
         this.version = version;
     }
-    
-	public void replaceProjectKeysInVersion(MavenProject project) throws MojoExecutionException{
-		if (version == null) {
-			throw new MojoExecutionException("Could not find the version for featureId: " + getId());
-		}
-		Properties properties = project.getProperties();
-		for(Object key:properties.keySet()){
-			version=version.replaceAll(Pattern.quote("${"+key+"}"), properties.get(key).toString());
-		}
-		versionReplaced = true;
-	}
-    
+
+    public void replaceProjectKeysInVersion(MavenProject project) throws MojoExecutionException {
+        if (version == null) {
+            throw new MojoExecutionException("Could not find the version for featureId: " + getId());
+        }
+        Properties properties = project.getProperties();
+        for (Object key : properties.keySet()) {
+            version = version.replaceAll(Pattern.quote("${" + key + "}"), properties.get(key).toString());
+        }
+        versionReplaced = true;
+    }
+
 }

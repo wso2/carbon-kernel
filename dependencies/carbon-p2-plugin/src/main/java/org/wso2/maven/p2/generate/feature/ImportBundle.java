@@ -3,55 +3,55 @@ package org.wso2.maven.p2.generate.feature;
 import org.apache.maven.plugin.MojoExecutionException;
 
 
-public class ImportBundle extends Bundle{
+public class ImportBundle extends Bundle {
 
-	
-	/**
+
+    /**
      * Version Compatibility of the Bundle
      *
      * @parameter default-value="false"
      */
-	private boolean exclude;
+    private boolean exclude;
 
-	/**
+    /**
      * OSGI Symbolic name
      *
-     * @parameter 
+     * @parameter
      */
-	private String bundleSymbolicName;
-	
-	/**
+    private String bundleSymbolicName;
+
+    /**
      * OSGI Version
      *
      * @parameter
      */
-	private String bundleVersion;
+    private String bundleVersion;
 
-	public void setExclude(boolean exclude) {
-		this.exclude = exclude;
-	}
+    public static ImportBundle getBundle(String bundleDefinition) throws MojoExecutionException {
+        return (ImportBundle) Bundle.getBundle(bundleDefinition, new ImportBundle());
+    }
 
-	public boolean isExclude() {
-		return exclude;
-	}
-	
-	public static ImportBundle getBundle(String bundleDefinition) throws MojoExecutionException{
-		return (ImportBundle) Bundle.getBundle(bundleDefinition, new ImportBundle());
-	}
-	
-	public void setBundleSymbolicName(String bundleSymbolicName) {
-		this.bundleSymbolicName = bundleSymbolicName;
-	}
+    public boolean isExclude() {
+        return exclude;
+    }
 
-	public String getBundleSymbolicName() {
-		return bundleSymbolicName;
-	}
+    public void setExclude(boolean exclude) {
+        this.exclude = exclude;
+    }
 
-	public void setBundleVersion(String bundleVersion) {
-		this.bundleVersion = bundleVersion;
-	}
+    public String getBundleSymbolicName() {
+        return bundleSymbolicName;
+    }
 
-	public String getBundleVersion() {
-		return bundleVersion;
-	}
+    public void setBundleSymbolicName(String bundleSymbolicName) {
+        this.bundleSymbolicName = bundleSymbolicName;
+    }
+
+    public String getBundleVersion() {
+        return bundleVersion;
+    }
+
+    public void setBundleVersion(String bundleVersion) {
+        this.bundleVersion = bundleVersion;
+    }
 }

@@ -24,11 +24,10 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
+import org.wso2.carbon.internal.clustering.ClusterContext;
 
 import java.util.UUID;
-
 
 public class ClusterContextTestCase extends BaseTest {
 
@@ -73,6 +72,4 @@ public class ClusterContextTestCase extends BaseTest {
         clusterContext.removeMembershipListener(membershipListener);
         Assert.assertEquals(clusterContext.getMembershipListeners().size(), 0);
     }
-
-
 }

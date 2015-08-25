@@ -1,10 +1,10 @@
 package org.wso2.carbon.base;
 
 
-import org.wso2.carbon.base.Constants;
-
-import java.io.*;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class BaseTest {
 

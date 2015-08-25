@@ -33,7 +33,6 @@ public class Constants {
      * Remove default constructor and make it not available to initialize.
      */
     private Constants() {
-		throw new AssertionError("Instantiating utility class...");
-	}
-
+        throw new AssertionError("Instantiating utility class...");
+    }
 }

@@ -2,18 +2,12 @@ package org.wso2.carbon.base;
 
 
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.base.Constants;
-import org.wso2.carbon.base.LoggingConfiguration;
-import org.wso2.carbon.base.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Dictionary;
 import java.util.Properties;
 
 public class LoggingConfigurationTest extends BaseTest {
