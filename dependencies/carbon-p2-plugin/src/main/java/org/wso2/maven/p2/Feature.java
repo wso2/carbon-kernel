@@ -48,7 +48,8 @@ public class Feature {
             feature.setVersion(split[1]);
             return feature;
         }
-        throw new MojoExecutionException("Insufficient feature information provided to determine the feature: " + bundleDefinition);
+        throw new MojoExecutionException("Insufficient feature information provided to" +
+                " determine the feature: " + bundleDefinition);
     }
 
     public String getId() {

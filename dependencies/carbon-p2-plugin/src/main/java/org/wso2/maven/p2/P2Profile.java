@@ -42,7 +42,9 @@ public class P2Profile {
         if (split.length > 1) {
             p2Profile.setGroupId(split[0]);
             p2Profile.setArtifactId(split[1]);
-            if (split.length == 3) p2Profile.setVersion(split[2]);
+            if (split.length == 3) {
+                p2Profile.setVersion(split[2]);
+            }
             return p2Profile;
         }
         throw new MojoExecutionException("Insufficient artifact information provided to determine the profile: " +

@@ -41,17 +41,20 @@ public class ImportFeature {
             if (split.length > 1) {
                 if (P2Utils.isMatchString(split[1])) {
                     match = split[1].toUpperCase();
-                    if (match.equalsIgnoreCase("optional"))
+                    if (match.equalsIgnoreCase("optional")) {
                         feature.setOptional(true);
-                    if (split.length > 2)
+                    }
+                    if (split.length > 2) {
                         feature.setFeatureVersion(split[2]);
+                    }
                 } else {
                     feature.setFeatureVersion(split[1]);
                     if (split.length > 2) {
                         if (P2Utils.isMatchString(split[2])) {
                             match = split[2].toUpperCase();
-                            if (match.equalsIgnoreCase("optional"))
+                            if (match.equalsIgnoreCase("optional")) {
                                 feature.setOptional(true);
+                            }
                         }
                     }
                 }
@@ -59,7 +62,8 @@ public class ImportFeature {
             feature.setCompatibility(match);
             return feature;
         }
-        throw new MojoExecutionException("Insufficient feature artifact information provided to determine the feature: " + featureDefinition);
+        throw new MojoExecutionException("Insufficient feature artifact information " +
+                "provided to determine the feature: " + featureDefinition);
     }
 
     public String getFeatureId() {
@@ -91,7 +95,8 @@ public class ImportFeature {
     }
 
     public void setFeatureVersion(String version) {
-        if (featureVersion == null || featureVersion.equals(""))
+        if (featureVersion == null || featureVersion.equals("")) {
             featureVersion = Bundle.getOSGIVersion(version);
+        }
     }
 }

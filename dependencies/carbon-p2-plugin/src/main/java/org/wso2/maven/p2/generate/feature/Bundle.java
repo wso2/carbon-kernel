@@ -57,8 +57,9 @@ public class Bundle {
             if (split.length > 2) {
                 if (P2Utils.isMatchString(split[2])) {
                     match = split[2].toUpperCase();
-                    if (split.length > 3)
+                    if (split.length > 3) {
                         bundle.setVersion(split[3]);
+                    }
                 } else {
                     bundle.setVersion(split[2]);
                     if (split.length > 3) {
@@ -71,7 +72,8 @@ public class Bundle {
             bundle.setCompatibility(match);
             return bundle;
         }
-        throw new MojoExecutionException("Insufficient artifact information provided to determine the bundle: " + bundleDefinition);
+        throw new MojoExecutionException("Insufficient artifact information provided to determine the bundle: " +
+                bundleDefinition);
     }
 
     public static Bundle getBundle(String bundleDefinition) throws MojoExecutionException {
@@ -234,7 +236,8 @@ public class Bundle {
             List dependencies = project.getDependencies();
             for (Iterator iterator = dependencies.iterator(); iterator.hasNext(); ) {
                 Dependency dependancy = (Dependency) iterator.next();
-                if (dependancy.getGroupId().equalsIgnoreCase(getGroupId()) && dependancy.getArtifactId().equalsIgnoreCase(getArtifactId())) {
+                if (dependancy.getGroupId().equalsIgnoreCase(getGroupId()) &&
+                        dependancy.getArtifactId().equalsIgnoreCase(getArtifactId())) {
                     setVersion(dependancy.getVersion());
                 }
 
@@ -245,7 +248,8 @@ public class Bundle {
                 List dependencies = project.getDependencyManagement().getDependencies();
                 for (Iterator iterator = dependencies.iterator(); iterator.hasNext(); ) {
                     Dependency dependancy = (Dependency) iterator.next();
-                    if (dependancy.getGroupId().equalsIgnoreCase(getGroupId()) && dependancy.getArtifactId().equalsIgnoreCase(getArtifactId())) {
+                    if (dependancy.getGroupId().equalsIgnoreCase(getGroupId()) &&
+                            dependancy.getArtifactId().equalsIgnoreCase(getArtifactId())) {
                         setVersion(dependancy.getVersion());
                     }
 
@@ -271,10 +275,11 @@ public class Bundle {
     }
 
     public String toString() {
-        if (getVersion() != null && !getVersion().equalsIgnoreCase(""))
+        if (getVersion() != null && !getVersion().equalsIgnoreCase("")) {
             return getGroupId() + ":" + getArtifactId() + ":" + getVersion();
-        else
+        } else {
             return getGroupId() + ":" + getArtifactId();
+        }
     }
 
     public String toOSGIString() {
@@ -314,10 +319,13 @@ public class Bundle {
                 setBundleVersion(manifest.getMainAttributes().getValue(BUNDLE_VERSION));
             }
             jarFile.close();
-            if (getBundleSymbolicName() == null || getBundleVersion() == null)
-                throw new MojoExecutionException("Artifact doesn't contain OSGI info: " + getGroupId() + ":" + getArtifactId() + ":" + getVersion());
+            if (getBundleSymbolicName() == null || getBundleVersion() == null) {
+                throw new MojoExecutionException("Artifact doesn't contain OSGI info: " + getGroupId() + ":" +
+                        getArtifactId() + ":" + getVersion());
+            }
         } catch (IOException e) {
-            throw new MojoExecutionException("Unable to retreive osgi bundle info: " + getGroupId() + ":" + getArtifactId() + ":" + getVersion(), e);
+            throw new MojoExecutionException("Unable to retreive osgi bundle info: " + getGroupId() + ":" +
+                    getArtifactId() + ":" + getVersion(), e);
         }
 
     }

@@ -40,8 +40,9 @@ public class EquinoxLauncher {
     }
 
     public String getLauncherJar() {
-        if (launcherJar == null)
+        if (launcherJar == null) {
             launcherJar = "org.eclipse.equinox.launcher";
+        }
         return launcherJar;
     }
 

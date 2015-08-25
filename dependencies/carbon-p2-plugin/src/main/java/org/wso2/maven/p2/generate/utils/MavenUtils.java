@@ -36,7 +36,8 @@ public class MavenUtils {
 
     public static Artifact getResolvedArtifact(FeatureArtifact featureArtifact,
                                                ArtifactFactory artifactFactory, List remoteRepositories,
-                                               ArtifactRepository localRepository, ArtifactResolver resolver) throws MojoExecutionException {
+                                               ArtifactRepository localRepository,
+                                               ArtifactResolver resolver) throws MojoExecutionException {
         Artifact artifact = artifactFactory.createArtifact(featureArtifact.getGroupId(),
                 featureArtifact.getArtifactId(), featureArtifact.getVersion(), Artifact.SCOPE_RUNTIME, "zip");
         try {
@@ -50,7 +51,8 @@ public class MavenUtils {
     }
 
     public static Artifact getResolvedArtifact(P2Profile p2Profile, ArtifactFactory artifactFactory,
-                                               List remoteRepositories, ArtifactRepository localRepository, ArtifactResolver resolver) throws MojoExecutionException {
+                                               List remoteRepositories, ArtifactRepository localRepository,
+                                               ArtifactResolver resolver) throws MojoExecutionException {
         Artifact artifact = artifactFactory.createArtifact(p2Profile.getGroupId(), p2Profile.getArtifactId(),
                 p2Profile.getVersion(), Artifact.SCOPE_RUNTIME, "zip");
         try {
@@ -64,7 +66,8 @@ public class MavenUtils {
     }
 
     public static Artifact getResolvedArtifact(Artifact artifact, List remoteRepositories,
-                                               ArtifactRepository localRepository, ArtifactResolver resolver) throws MojoExecutionException {
+                                               ArtifactRepository localRepository,
+                                               ArtifactResolver resolver) throws MojoExecutionException {
         try {
             resolver.resolve(artifact, remoteRepositories, localRepository);
         } catch (ArtifactResolutionException e) {

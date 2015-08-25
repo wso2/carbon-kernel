@@ -85,8 +85,9 @@ public class IncludedFeature {
 
         if (segments.length == 4) {
             segment = segments[3];
-            if ("optional".equals(segment))
+            if ("optional".equals(segment)) {
                 feature.optional = true;
+            }
         }
 
         return feature;

@@ -279,9 +279,12 @@ public class FeatureGenMojo extends AbstractMojo {
     }
 
     private ArrayList<Bundle> getProcessedBundlesList() throws MojoExecutionException {
-        if (processedBundles != null)
+        if (processedBundles != null) {
             return processedBundles;
-        if (bundles == null || bundles.size() == 0) return null;
+        }
+        if (bundles == null || bundles.size() == 0) {
+            return null;
+        }
         processedBundles = new ArrayList<Bundle>();
         Iterator iter = bundles.iterator();
         while (iter.hasNext()) {
@@ -291,8 +294,9 @@ public class FeatureGenMojo extends AbstractMojo {
                 b = (Bundle) obj;
             } else if (obj instanceof String) {
                 b = Bundle.getBundle(obj.toString());
-            } else
+            } else {
                 b = (Bundle) obj;
+            }
             b.resolveVersion(project);
             b.setArtifact(getResolvedArtifact(b));
             processedBundles.add(b);
@@ -301,9 +305,12 @@ public class FeatureGenMojo extends AbstractMojo {
     }
 
     private ArrayList<ImportBundle> getProcessedImportBundlesList() throws MojoExecutionException {
-        if (processedImportBundles != null)
+        if (processedImportBundles != null) {
             return processedImportBundles;
-        if (importBundles == null || importBundles.size() == 0) return null;
+        }
+        if (importBundles == null || importBundles.size() == 0) {
+            return null;
+        }
         processedImportBundles = new ArrayList<ImportBundle>();
         Iterator iter = importBundles.iterator();
         while (iter.hasNext()) {
@@ -313,20 +320,27 @@ public class FeatureGenMojo extends AbstractMojo {
                 b = (ImportBundle) obj;
             } else if (obj instanceof String) {
                 b = ImportBundle.getBundle(obj.toString());
-            } else
+            } else {
                 b = (ImportBundle) obj;
+            }
             b.resolveVersion(project);
-            if (!b.isExclude()) b.setArtifact(getResolvedArtifact(b));
-            else b.resolveOSGIInfo();
+            if (!b.isExclude()) {
+                b.setArtifact(getResolvedArtifact(b));
+            } else {
+                b.resolveOSGIInfo();
+            }
             processedImportBundles.add(b);
         }
         return processedImportBundles;
     }
 
     private ArrayList<ImportFeature> getProcessedImportFeaturesList() throws MojoExecutionException {
-        if (processedImportfeatures != null)
+        if (processedImportfeatures != null) {
             return processedImportfeatures;
-        if (importFeatures == null || importFeatures.size() == 0) return null;
+        }
+        if (importFeatures == null || importFeatures.size() == 0) {
+            return null;
+        }
         processedImportfeatures = new ArrayList<ImportFeature>();
         Iterator iter = importFeatures.iterator();
         while (iter.hasNext()) {
@@ -336,8 +350,9 @@ public class FeatureGenMojo extends AbstractMojo {
                 f = (ImportFeature) obj;
             } else if (obj instanceof String) {
                 f = ImportFeature.getFeature(obj.toString());
-            } else
+            } else {
                 f = (ImportFeature) obj;
+            }
             f.setFeatureVersion(project.getVersion());
             processedImportfeatures.add(f);
         }
@@ -345,11 +360,13 @@ public class FeatureGenMojo extends AbstractMojo {
     }
 
     private ArrayList<IncludedFeature> getIncludedFeatures() throws MojoExecutionException {
-        if (processedIncludedFeatures != null)
+        if (processedIncludedFeatures != null) {
             return processedIncludedFeatures;
+        }
 
-        if (includedFeatures == null || includedFeatures.size() == 0)
+        if (includedFeatures == null || includedFeatures.size() == 0) {
             return null;
+        }
 
         processedIncludedFeatures = new ArrayList<IncludedFeature>(includedFeatures.size());
         for (Object obj : includedFeatures) {
@@ -370,7 +387,8 @@ public class FeatureGenMojo extends AbstractMojo {
     }
 
     private Artifact getResolvedArtifact(Bundle bundle) throws MojoExecutionException {
-        Artifact artifact = artifactFactory.createArtifact(bundle.getGroupId(), bundle.getArtifactId(), bundle.getVersion(), Artifact.SCOPE_RUNTIME, "jar");
+        Artifact artifact = artifactFactory.createArtifact(bundle.getGroupId(), bundle.getArtifactId(),
+                bundle.getVersion(), Artifact.SCOPE_RUNTIME, "jar");
         try {
             resolver.resolve(artifact, remoteRepositories, localRepository);
         } catch (ArtifactResolutionException e) {
@@ -413,8 +431,9 @@ public class FeatureGenMojo extends AbstractMojo {
             } catch (Exception e) {
                 throw new MojoExecutionException("Unable to load feature manifest", e);
             }
-        } else
+        } else {
             document = documentBuilder.newDocument();
+        }
         return document;
     }
 
@@ -426,19 +445,27 @@ public class FeatureGenMojo extends AbstractMojo {
             rootElement = document.createElement("feature");
             document.appendChild(rootElement);
         }
-        if (!rootElement.hasAttribute("id")) rootElement.setAttribute("id", id);
-        if (!rootElement.hasAttribute("label")) rootElement.setAttribute("label", getLabel());
-        if (!rootElement.hasAttribute("version"))
+        if (!rootElement.hasAttribute("id")) {
+            rootElement.setAttribute("id", id);
+        }
+        if (!rootElement.hasAttribute("label")) {
+            rootElement.setAttribute("label", getLabel());
+        }
+        if (!rootElement.hasAttribute("version")) {
             rootElement.setAttribute("version", Bundle.getOSGIVersion(getVersion()));
-        if (!rootElement.hasAttribute("provider-name")) rootElement.setAttribute("provider-name", getProviderName());
+        }
+        if (!rootElement.hasAttribute("provider-name")) {
+            rootElement.setAttribute("provider-name", getProviderName());
+        }
         NodeList descriptionTags = rootElement.getElementsByTagName("description");
         Node description;
         if (descriptionTags.getLength() == 0) {
             description = document.createElement("description");
             description.setTextContent(getDescription());
             rootElement.appendChild(description);
-        } else
+        } else {
             description = descriptionTags.item(0);
+        }
 
         NodeList copyrightTags = rootElement.getElementsByTagName("copyright");
         Node copyright;
@@ -446,8 +473,9 @@ public class FeatureGenMojo extends AbstractMojo {
             copyright = document.createElement("copyright");
             copyright.setTextContent(getCopyright());
             rootElement.appendChild(copyright);
-        } else
+        } else {
             copyright = copyrightTags.item(0);
+        }
 
         NodeList licenseTags = rootElement.getElementsByTagName("license");
         Node license;
@@ -456,8 +484,9 @@ public class FeatureGenMojo extends AbstractMojo {
             ((Element) license).setAttribute("url", getLicenceUrl());
             license.setTextContent(getLicence());
             rootElement.appendChild(license);
-        } else
+        } else {
             license = licenseTags.item(0);
+        }
 
         ArrayList<Object> processedMissingPlugins = getMissingPlugins(document);
         ArrayList<Object> processedMissingImportPlugins = getMissingImportPlugins(document);
@@ -481,8 +510,9 @@ public class FeatureGenMojo extends AbstractMojo {
             if (requireNodes == null || requireNodes.getLength() == 0) {
                 require = document.createElement("require");
                 rootElement.appendChild(require);
-            } else
+            } else {
                 require = requireNodes.item(0);
+            }
             if (processedMissingImportPlugins != null) {
                 for (Iterator<Object> iterator = processedMissingImportPlugins.iterator(); iterator.hasNext(); ) {
                     ImportBundle bundle = (ImportBundle) iterator.next();
@@ -500,10 +530,11 @@ public class FeatureGenMojo extends AbstractMojo {
                         Element plugin = document.createElement("import");
                         plugin.setAttribute("feature", feature.getFeatureId());
                         plugin.setAttribute("version", feature.getFeatureVersion());
-                        if (P2Utils.isPatch(feature.getCompatibility()))
+                        if (P2Utils.isPatch(feature.getCompatibility())) {
                             plugin.setAttribute("patch", "true");
-                        else
+                        } else {
                             plugin.setAttribute("match", P2Utils.getMatchRule(feature.getCompatibility()));
+                        }
                         require.appendChild(plugin);
                     }
                 }
@@ -550,7 +581,9 @@ public class FeatureGenMojo extends AbstractMojo {
     private ArrayList<Object> getMissingPlugins(Document document) throws MojoExecutionException {
         HashMap<String, Bundle> missingPlugins = new HashMap<String, Bundle>();
         ArrayList<Bundle> processedBundlesList = getProcessedBundlesList();
-        if (processedBundlesList == null) return null;
+        if (processedBundlesList == null) {
+            return null;
+        }
         for (Iterator<Bundle> iterator = processedBundlesList.iterator(); iterator
                 .hasNext(); ) {
             Bundle bundle = iterator.next();
@@ -560,7 +593,8 @@ public class FeatureGenMojo extends AbstractMojo {
         for (int i = 0; i < existingPlugins.getLength(); i++) {
             Node node = existingPlugins.item(i);
             Node namedItem = node.getAttributes().getNamedItem("id");
-            if (namedItem != null && namedItem.getTextContent() != null && missingPlugins.containsKey(namedItem.getTextContent())) {
+            if (namedItem != null && namedItem.getTextContent() != null &&
+                    missingPlugins.containsKey(namedItem.getTextContent())) {
                 missingPlugins.remove(namedItem.getTextContent());
             }
         }
@@ -570,14 +604,17 @@ public class FeatureGenMojo extends AbstractMojo {
 
     private void createPropertiesFile() throws MojoExecutionException {
         Properties props = getProperties();
-        if (props == null) return;
-        if (!props.isEmpty())
+        if (props == null) {
+            return;
+        }
+        if (!props.isEmpty()) {
             try {
                 getLog().info("Generating feature properties");
                 props.store(new FileOutputStream(FILE_FEATURE_PROPERTIES), "Properties of " + id);
             } catch (Exception e) {
                 throw new MojoExecutionException("Unable to create the feature properties", e);
             }
+        }
     }
 
     private void createManifestMFFile() throws MojoExecutionException {
@@ -586,7 +623,7 @@ public class FeatureGenMojo extends AbstractMojo {
             BufferedWriter out = new BufferedWriter(new FileWriter(FILE_FEATURE_MANIFEST));
             out.write("Manifest-Version: 1.0\n\n");
             out.close();
-        } catch (Exception e) {//Catch exception if any
+        } catch (Exception e) { //Catch exception if any
             throw new MojoExecutionException("Unable to create manifest file", e);
         }
     }
@@ -598,7 +635,8 @@ public class FeatureGenMojo extends AbstractMojo {
             ArrayList<Property> list = getProcessedAdviceProperties();
 
             if (FILE_P2_INF.exists()) {
-                p2infStringList = readAdviceFile(FILE_P2_INF.getAbsolutePath()); //In memory storage of  current p2.inf content
+                //In memory storage of  current p2.inf content
+                p2infStringList = readAdviceFile(FILE_P2_INF.getAbsolutePath());
                 getLog().info("Updating Advice file (p2.inf)");
             } else {
                 getLog().info("Generating Advice file (p2.inf)");
@@ -610,10 +648,13 @@ public class FeatureGenMojo extends AbstractMojo {
             properties.setProperty("feature.version", Bundle.getOSGIVersion(getVersion()));
             if (p2infStringList != null && p2infStringList.size() > 0) {
                 for (String str : p2infStringList) {
-                    out.write(PropertyReplacer.replaceProperties(str, properties) + "\n"); // writing the strings after replacing ${feature.version}
+                    // writing the strings after replacing ${feature.version}
+                    out.write(PropertyReplacer.replaceProperties(str, properties) + "\n");
                 }
             }
-            if (list.size() == 0) return;    // finally block will take care of output stream closing.
+            if (list.size() == 0) {
+                return;    // finally block will take care of output stream closing.
+            }
             int nextIndex = P2Utils.getLastIndexOfProperties(FILE_P2_INF) + 1;
             for (Object category : list) {
                 Property cat = (Property) category;
@@ -624,15 +665,14 @@ public class FeatureGenMojo extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException("Unable to create/open p2.inf file", e);
         } finally {
-            if (out != null)
+            if (out != null) {
                 try {
                     out.close();
                 } catch (IOException e) {
                     throw new MojoExecutionException("Unable to finalize p2.inf file", e);
                 }
+            }
         }
-
-
     }
 
     private List<String> readAdviceFile(String absolutePath) throws MojoExecutionException {
@@ -666,23 +706,29 @@ public class FeatureGenMojo extends AbstractMojo {
     private ArrayList<Object> getMissingImportPlugins(Document document) throws MojoExecutionException {
         HashMap<String, ImportBundle> missingImportPlugins = new HashMap<String, ImportBundle>();
         ArrayList<ImportBundle> processedImportBundlesList = getProcessedImportBundlesList();
-        if (processedImportBundlesList == null) return null;
+        if (processedImportBundlesList == null) {
+            return null;
+        }
         for (Iterator<ImportBundle> iterator = processedImportBundlesList.iterator(); iterator.hasNext(); ) {
             ImportBundle bundle = iterator.next();
             missingImportPlugins.put(bundle.getArtifactId(), bundle);
         }
         NodeList requireNodeList = document.getDocumentElement().getElementsByTagName("require");
-        if (requireNodeList == null || requireNodeList.getLength() == 0)
+        if (requireNodeList == null || requireNodeList.getLength() == 0) {
             return returnArrayList(missingImportPlugins.values().toArray());
+        }
         Node requireNode = requireNodeList.item(0);
         if (requireNode instanceof Element) {
             Element requireElement = (Element) requireNode;
             NodeList importNodes = requireElement.getElementsByTagName("import");
-            if (importNodes == null) return returnArrayList(missingImportPlugins.values().toArray());
+            if (importNodes == null) {
+                return returnArrayList(missingImportPlugins.values().toArray());
+            }
             for (int i = 0; i < importNodes.getLength(); i++) {
                 Node node = importNodes.item(i);
                 Node namedItem = node.getAttributes().getNamedItem("plugin");
-                if (namedItem != null && namedItem.getTextContent() != null && missingImportPlugins.containsKey(namedItem.getTextContent())) {
+                if (namedItem != null && namedItem.getTextContent() != null &&
+                        missingImportPlugins.containsKey(namedItem.getTextContent())) {
                     missingImportPlugins.remove(namedItem.getTextContent());
                 }
             }
@@ -693,23 +739,29 @@ public class FeatureGenMojo extends AbstractMojo {
     private ArrayList<Object> getMissingImportFeatures(Document document) throws MojoExecutionException {
         HashMap<String, ImportFeature> missingImportFeatures = new HashMap<String, ImportFeature>();
         ArrayList<ImportFeature> processedImportFeaturesList = getProcessedImportFeaturesList();
-        if (processedImportFeaturesList == null) return null;
+        if (processedImportFeaturesList == null) {
+            return null;
+        }
         for (Iterator<ImportFeature> iterator = processedImportFeaturesList.iterator(); iterator.hasNext(); ) {
             ImportFeature feature = iterator.next();
             missingImportFeatures.put(feature.getFeatureId(), feature);
         }
         NodeList requireNodeList = document.getDocumentElement().getElementsByTagName("require");
-        if (requireNodeList == null || requireNodeList.getLength() == 0)
+        if (requireNodeList == null || requireNodeList.getLength() == 0) {
             return returnArrayList(missingImportFeatures.values().toArray());
+        }
         Node requireNode = requireNodeList.item(0);
         if (requireNode instanceof Element) {
             Element requireElement = (Element) requireNode;
             NodeList importNodes = requireElement.getElementsByTagName("import");
-            if (importNodes == null) return returnArrayList(missingImportFeatures.values().toArray());
+            if (importNodes == null) {
+                return returnArrayList(missingImportFeatures.values().toArray());
+            }
             for (int i = 0; i < importNodes.getLength(); i++) {
                 Node node = importNodes.item(i);
                 Node namedItem = node.getAttributes().getNamedItem("feature");
-                if (namedItem != null && namedItem.getTextContent() != null && missingImportFeatures.containsKey(namedItem.getTextContent())) {
+                if (namedItem != null && namedItem.getTextContent() != null &&
+                        missingImportFeatures.containsKey(namedItem.getTextContent())) {
                     missingImportFeatures.remove(namedItem.getTextContent());
                 }
             }
@@ -799,19 +851,20 @@ public class FeatureGenMojo extends AbstractMojo {
     }
 
     private ArrayList<Property> getProcessedAdviceProperties() throws MojoExecutionException {
-        if (processedAdviceProperties != null)
+        if (processedAdviceProperties != null) {
             return processedAdviceProperties;
+        }
         processedAdviceProperties = new ArrayList<Property>();
-        ;
         if (adviceFile != null && adviceFile.getProperties() != null) {
             for (Object property : adviceFile.getProperties()) {
                 Property prop = null;
-                if (property instanceof Property)
+                if (property instanceof Property) {
                     prop = (Property) property;
-                else if (property instanceof String)
+                } else if (property instanceof String) {
                     prop = Property.getProperty(property.toString());
-                else
+                } else {
                     throw new MojoExecutionException("Unknown advice property definition: " + property.toString());
+                }
                 processedAdviceProperties.add(prop);
             }
         }

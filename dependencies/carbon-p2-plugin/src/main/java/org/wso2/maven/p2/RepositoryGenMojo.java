@@ -267,15 +267,19 @@ public class RepositoryGenMojo extends AbstractMojo {
 
     private void extractFeatures() throws MojoExecutionException {
         ArrayList processedFeatureArtifacts = getProcessedFeatureArtifacts();
-        if (processedFeatureArtifacts == null) return;
+        if (processedFeatureArtifacts == null) {
+            return;
+        }
         for (Iterator iterator = processedFeatureArtifacts.iterator(); iterator
                 .hasNext(); ) {
             FeatureArtifact featureArtifact = (FeatureArtifact) iterator.next();
             try {
-                getLog().info("Extracting feature " + featureArtifact.getGroupId() + ":" + featureArtifact.getArtifactId());
+                getLog().info("Extracting feature " +
+                        featureArtifact.getGroupId() + ":" + featureArtifact.getArtifactId());
                 FileManagementUtil.unzip(featureArtifact.getArtifact().getFile(), sourceDir);
             } catch (Exception e) {
-                throw new MojoExecutionException("Error occured when extracting the Feature Artifact: " + featureArtifact.toString(), e);
+                throw new MojoExecutionException("Error occured when extracting the Feature Artifact: " +
+                        featureArtifact.toString(), e);
             }
         }
     }
@@ -292,14 +296,16 @@ public class RepositoryGenMojo extends AbstractMojo {
                 File file = bundleArtifact.getArtifact().getFile();
                 FileManagementUtil.copy(file, new File(pluginsDir, file.getName()));
             } catch (Exception e) {
-                throw new MojoExecutionException("Error occured when extracting the Feature Artifact: " + bundleArtifact.toString(), e);
+                throw new MojoExecutionException("Error occured when extracting the Feature Artifact: " +
+                        bundleArtifact.toString(), e);
             }
         }
     }
 
     private ArrayList getProcessedFeatureArtifacts() throws MojoExecutionException {
-        if (processedFeatureArtifacts != null)
+        if (processedFeatureArtifacts != null) {
             return processedFeatureArtifacts;
+        }
         if (featureArtifacts == null || featureArtifacts.size() == 0) {
             return null;
         }
@@ -313,13 +319,16 @@ public class RepositoryGenMojo extends AbstractMojo {
                     f = (FeatureArtifact) obj;
                 } else if (obj instanceof String) {
                     f = FeatureArtifact.getFeatureArtifact(obj.toString());
-                } else
+                } else {
                     f = (FeatureArtifact) obj;
+                }
                 f.resolveVersion(getProject());
-                f.setArtifact(MavenUtils.getResolvedArtifact(f, getArtifactFactory(), remoteRepositories, getLocalRepository(), getResolver()));
+                f.setArtifact(MavenUtils.getResolvedArtifact(f, getArtifactFactory(),
+                        remoteRepositories, getLocalRepository(), getResolver()));
                 processedFeatureArtifacts.add(f);
             } catch (Exception e) {
-                throw new MojoExecutionException("Error occured when processing the Feature Artifact: " + obj.toString(), e);
+                throw new MojoExecutionException("Error occured when processing the Feature Artifact: " +
+                        obj.toString(), e);
             }
         }
         return processedFeatureArtifacts;
@@ -335,8 +344,9 @@ public class RepositoryGenMojo extends AbstractMojo {
     }
 
     private ArrayList getProcessedBundleArtifacts() throws MojoExecutionException {
-        if (processedBundleArtifacts != null)
+        if (processedBundleArtifacts != null) {
             return processedBundleArtifacts;
+        }
         if (bundleArtifacts == null || bundleArtifacts.size() == 0) {
             return null;
         }
@@ -349,10 +359,12 @@ public class RepositoryGenMojo extends AbstractMojo {
                 f = (BundleArtifact) obj;
             } else if (obj instanceof String) {
                 f = BundleArtifact.getBundleArtifact(obj.toString());
-            } else
+            } else {
                 f = (BundleArtifact) obj;
+            }
             f.resolveVersion(getProject());
-            f.setArtifact(MavenUtils.getResolvedArtifact(f, getArtifactFactory(), remoteRepositories, getLocalRepository(), getResolver()));
+            f.setArtifact(MavenUtils.getResolvedArtifact(f, getArtifactFactory(), remoteRepositories,
+                    getLocalRepository(), getResolver()));
             processedBundleArtifacts.add(f);
         }
         return processedBundleArtifacts;

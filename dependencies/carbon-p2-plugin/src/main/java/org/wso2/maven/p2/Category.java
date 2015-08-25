@@ -53,9 +53,12 @@ public class Category {
                                                       List remoteRepositories,
                                                       ArtifactRepository localRepository,
                                                       ArtifactResolver resolver) throws MojoExecutionException {
-        if (processedFeatures != null)
+        if (processedFeatures != null) {
             return processedFeatures;
-        if (features == null || features.size() == 0) return null;
+        }
+        if (features == null || features.size() == 0) {
+            return null;
+        }
         processedFeatures = new ArrayList<CatFeature>();
         Iterator<CatFeature> iter = features.iterator();
         while (iter.hasNext()) {

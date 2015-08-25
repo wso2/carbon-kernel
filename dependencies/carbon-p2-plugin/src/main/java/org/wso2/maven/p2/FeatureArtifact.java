@@ -39,15 +39,19 @@ public class FeatureArtifact {
     private String featureId;
     private String featureVersion;
 
-    protected static FeatureArtifact getFeatureArtifact(String featureArtifactDefinition, FeatureArtifact featureArtifact) throws MojoExecutionException {
+    protected static FeatureArtifact getFeatureArtifact(String featureArtifactDefinition,
+                                                        FeatureArtifact featureArtifact) throws MojoExecutionException {
         String[] split = featureArtifactDefinition.split(":");
         if (split.length > 1) {
             featureArtifact.setGroupId(split[0]);
             featureArtifact.setArtifactId(split[1]);
-            if (split.length == 3) featureArtifact.setVersion(split[2]);
+            if (split.length == 3) {
+                featureArtifact.setVersion(split[2]);
+            }
             return featureArtifact;
         }
-        throw new MojoExecutionException("Insufficient artifact information provided to determine the feature: " + featureArtifactDefinition);
+        throw new MojoExecutionException("Insufficient artifact information provided to determine the feature: " +
+                featureArtifactDefinition);
     }
 
     public static FeatureArtifact getFeatureArtifact(String featureArtifactDefinition) throws MojoExecutionException {
@@ -91,7 +95,8 @@ public class FeatureArtifact {
             List dependencies = project.getDependencies();
             for (Iterator iterator = dependencies.iterator(); iterator.hasNext(); ) {
                 Dependency dependancy = (Dependency) iterator.next();
-                if (dependancy.getGroupId().equalsIgnoreCase(getGroupId()) && dependancy.getArtifactId().equalsIgnoreCase(getArtifactId())) {
+                if (dependancy.getGroupId().equalsIgnoreCase(getGroupId()) &&
+                        dependancy.getArtifactId().equalsIgnoreCase(getArtifactId())) {
                     setVersion(dependancy.getVersion());
                 }
 
@@ -101,7 +106,8 @@ public class FeatureArtifact {
             List dependencies = project.getDependencyManagement().getDependencies();
             for (Iterator iterator = dependencies.iterator(); iterator.hasNext(); ) {
                 Dependency dependancy = (Dependency) iterator.next();
-                if (dependancy.getGroupId().equalsIgnoreCase(getGroupId()) && dependancy.getArtifactId().equalsIgnoreCase(getArtifactId())) {
+                if (dependancy.getGroupId().equalsIgnoreCase(getGroupId()) &&
+                        dependancy.getArtifactId().equalsIgnoreCase(getArtifactId())) {
                     setVersion(dependancy.getVersion());
                 }
 

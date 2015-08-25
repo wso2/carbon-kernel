@@ -20,15 +20,17 @@ public class Property {
     private String value;
 
     public static Property getProperty(String advicePropertyDefinition) throws MojoExecutionException {
-        if (advicePropertyDefinition.trim().equalsIgnoreCase(""))
+        if (advicePropertyDefinition.trim().equalsIgnoreCase("")) {
             throw new MojoExecutionException("Invalid advice property definition.");
+        }
         String[] propertyDefs = advicePropertyDefinition.split(":");
         Property property = new Property();
         if (propertyDefs.length > 1) {
             property.setKey(propertyDefs[0]);
             property.setValue(propertyDefs[1]);
-        } else
+        } else {
             throw new MojoExecutionException("Invalid advice property definition: " + advicePropertyDefinition);
+        }
         return property;
     }
 

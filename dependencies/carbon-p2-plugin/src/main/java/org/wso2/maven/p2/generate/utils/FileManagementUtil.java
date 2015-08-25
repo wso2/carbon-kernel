@@ -52,8 +52,9 @@ public class FileManagementUtil {
                         new File(dstPath, files[i]), filesToBeCopied);
             }
         } else {
-            if (!filesToBeCopied.contains(srcPath.getAbsolutePath()))
+            if (!filesToBeCopied.contains(srcPath.getAbsolutePath())) {
                 return;
+            }
             if (!srcPath.exists()) {
                 return;
             } else {
@@ -87,7 +88,7 @@ public class FileManagementUtil {
         }
     }
 
-    static public void zipFolder(String srcFolder, String destZipFile) {
+    public static void zipFolder(String srcFolder, String destZipFile) {
         ZipOutputStream zip = null;
         FileOutputStream fileWriter = null;
         try {
@@ -107,9 +108,7 @@ public class FileManagementUtil {
         }
     }
 
-    static private void addToZip(String path, String srcFile, ZipOutputStream zip) {
-
-
+    private static void addToZip(String path, String srcFile, ZipOutputStream zip) {
         File folder = new File(srcFile);
         if (folder.isDirectory()) {
             addFolderToZip(path, srcFile, zip);
@@ -119,10 +118,11 @@ public class FileManagementUtil {
             int len;
             try {
                 FileInputStream in = new FileInputStream(srcFile);
-                if (path.trim().equals(""))
+                if (path.trim().equals("")) {
                     zip.putNextEntry(new ZipEntry(folder.getName()));
-                else
+                } else {
                     zip.putNextEntry(new ZipEntry(path + "/" + folder.getName()));
+                }
                 while ((len = in.read(buf)) > 0) {
                     zip.write(buf, 0, len);
                 }
@@ -133,13 +133,15 @@ public class FileManagementUtil {
         }
     }
 
-    static private void addFolderContentsToZip(String srcFolder, ZipOutputStream zip) {
+    private static void addFolderContentsToZip(String srcFolder, ZipOutputStream zip) {
         File folder = new File(srcFolder);
         String fileListe[] = folder.list();
         try {
             int i = 0;
             while (true) {
-                if (fileListe.length == i) break;
+                if (fileListe.length == i) {
+                    break;
+                }
                 if (new File(folder, fileListe[i]).isDirectory()) {
                     zip.putNextEntry(new ZipEntry(fileListe[i] + "/"));
                     zip.closeEntry();
@@ -151,16 +153,19 @@ public class FileManagementUtil {
         }
     }
 
-    static private void addFolderToZip(String path, String srcFolder, ZipOutputStream zip) {
+    private static void addFolderToZip(String path, String srcFolder, ZipOutputStream zip) {
         File folder = new File(srcFolder);
         String fileListe[] = folder.list();
         try {
             int i = 0;
             while (true) {
-                if (fileListe.length == i) break;
+                if (fileListe.length == i) {
+                    break;
+                }
                 String newPath = folder.getName();
-                if (!path.equalsIgnoreCase(""))
+                if (!path.equalsIgnoreCase("")) {
                     newPath = path + "/" + newPath;
+                }
                 if (new File(folder, fileListe[i]).isDirectory()) {
                     zip.putNextEntry(new ZipEntry(newPath + "/" + fileListe[i] + "/"));
 //					zip.closeEntry();
@@ -405,8 +410,9 @@ public class FileManagementUtil {
                     file.mkdirs();
                     continue;
                 }
-                if (file.getParentFile() != null && !file.getParentFile().exists())
+                if (file.getParentFile() != null && !file.getParentFile().exists()) {
                     file.getParentFile().mkdirs();
+                }
                 FileOutputStream fos = new FileOutputStream(file);
                 dest = new BufferedOutputStream(fos, BUFFER);
                 while ((count = zis.read(data, 0, BUFFER))

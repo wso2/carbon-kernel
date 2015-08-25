@@ -37,14 +37,17 @@ public class P2Utils {
     private static String[] matchList =
             new String[]{"perfect", "equivalent", "compatible", "greaterOrEqual", "patch", "optional"};
 
-    public static void setupLauncherLocation(P2Profile p2Profile, File p2LauncherDir, File p2LauncherPluginDir, EquinoxLauncher equinoxLauncher) throws MojoExecutionException {
+    public static void setupLauncherLocation(P2Profile p2Profile, File p2LauncherDir,
+                                             File p2LauncherPluginDir,
+                                             EquinoxLauncher equinoxLauncher) throws MojoExecutionException {
         try {
             FileManagementUtil.unzip(p2Profile.getArtifact().getFile(), p2LauncherDir);
             String[] plugins = p2LauncherPluginDir.list();
             boolean found = false;
             for (String plugin : plugins) {
-                if (equinoxLauncher.getLauncherJar().equals(plugin))
+                if (equinoxLauncher.getLauncherJar().equals(plugin)) {
                     found = true;
+                }
             }
 
             if (!found) {
@@ -59,8 +62,10 @@ public class P2Utils {
                         break;
                     }
                 }
-                if (!found)
+                if (!found) {
                     throw new MojoExecutionException("Lanucher jar was not found: " + equinoxLauncher.getLauncherJar());
+
+                }
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Unable to setup p2 launcher location", e);
@@ -72,8 +77,9 @@ public class P2Utils {
                                                         ArtifactFactory artifactFactory, List remoteRepositories,
                                                         ArtifactRepository localRepository,
                                                         ArtifactResolver resolver) throws MojoExecutionException {
-        if (processedP2LauncherFiles != null)
+        if (processedP2LauncherFiles != null) {
             return processedP2LauncherFiles;
+        }
         processedP2LauncherFiles = new ArrayList();
         Iterator iter = equinoxLauncher.getLauncherFiles().iterator();
         while (iter.hasNext()) {
@@ -83,14 +89,16 @@ public class P2Utils {
                 b = (Bundle) obj;
             } else if (obj instanceof String) {
                 b = Bundle.getBundle(obj.toString());
-            } else
+            } else {
                 b = (Bundle) obj;
+            }
             try {
                 b.resolveVersion(project);
             } catch (MojoExecutionException e) {
                 b.setVersion(P2Constants.getDefaultVersion(b.getGroupId(), b.getArtifactId()));
-                if (b.getVersion() == null)
+                if (b.getVersion() == null) {
                     throw e;
+                }
             }
             b.setArtifact(MavenUtils.getResolvedArtifact(b, artifactFactory, remoteRepositories,
                     localRepository, resolver));
@@ -121,14 +129,17 @@ public class P2Utils {
                     String[] split2 = split[0].split(Pattern.quote("."));
                     if (split2[0].equalsIgnoreCase("properties")) {
                         int index = Integer.parseInt(split2[1]);
-                        if (index > min)
+                        if (index > min) {
                             min = index;
+                        }
                     }
                 }
             } catch (FileNotFoundException e) {
                 throw e;
             } finally {
-                if (in != null) in.close();
+                if (in != null) {
+                    in.close();
+                }
             }
         }
         return min;
@@ -166,8 +177,9 @@ public class P2Utils {
     }
 
     public static String getMatchRule(String matchStr) {
-        if (isPatch(matchStr))
+        if (isPatch(matchStr)) {
             return "perfect";
+        }
         for (String match : matchList) {
             if (matchStr.equalsIgnoreCase(match)) {
                 return match;

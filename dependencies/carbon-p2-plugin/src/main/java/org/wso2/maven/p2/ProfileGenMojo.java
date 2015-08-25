@@ -156,7 +156,8 @@ public class ProfileGenMojo extends AbstractMojo {
             installFeatures(getIUsToInstall());
             //updating profile's config.ini p2.data.area property using relative path
             File profileConfigIni = FileManagementUtil.getProfileConfigIniFile(destination, profile);
-            FileManagementUtil.changeConfigIniProperty(profileConfigIni, "eclipse.p2.data.area", "@config.dir/../../p2/");
+            FileManagementUtil.
+                    changeConfigIniProperty(profileConfigIni, "eclipse.p2.data.area", "@config.dir/../../p2/");
 
             //deleting old profile files, if specified
             if (deleteOldProfileFiles) {
@@ -178,8 +179,9 @@ public class ProfileGenMojo extends AbstractMojo {
                 f = (Feature) featureObj;
             } else if (featureObj instanceof String) {
                 f = Feature.getFeature(featureObj.toString());
-            } else
+            } else {
                 f = (Feature) featureObj;
+            }
             installUIs = installUIs + f.getId().trim() + "/" + f.getVersion().trim() + ",";
         }
 
@@ -208,7 +210,8 @@ public class ProfileGenMojo extends AbstractMojo {
         }
     }
 
-    private void addArguments(P2ApplicationLauncher launcher, String installUIs) throws IOException, MalformedURLException {
+    private void addArguments(P2ApplicationLauncher launcher, String installUIs)
+            throws IOException, MalformedURLException {
         launcher.addArguments(
                 "-metadataRepository", metadataRepository.toExternalForm(), //
                 "-artifactRepository", artifactRepository.toExternalForm(), //
@@ -328,7 +331,9 @@ public class ProfileGenMojo extends AbstractMojo {
 
                 while (true) {
                     String s = bufferedReader.readLine();
-                    if (s == null) break;
+                    if (s == null) {
+                        break;
+                    }
                     if (STREAM_TYPE_IN.equals(streamType)) {
                         getLog().info(s);
                     } else if (STREAM_TYPE_ERROR.equals(streamType)) {
