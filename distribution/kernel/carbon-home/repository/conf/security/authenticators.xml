@@ -37,8 +37,9 @@
             <Parameter name="NameIDPolicyFormat">urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</Parameter>
             <Parameter name="AssertionConsumerServiceURL">https://localhost:9443/acs</Parameter>
 
-            <!-- <Parameter name="IdPCertAlias">wso2carbon</Parameter> -->
             <!-- <Parameter name="ResponseSignatureValidationEnabled">false</Parameter> -->
+            <!-- <Parameter name="VerifySignatureWithUserDomain">false</Parameter> -->
+            <!-- <Parameter name="IdPCertAlias">wso2carbon</Parameter> -->
             <!-- <Parameter name="LoginAttributeName"></Parameter> -->
             <!-- <Parameter name="RoleClaimAttribute"></Parameter> -->
             <!-- <Parameter name="AttributeValueSeparator">,</Parameter> -->
