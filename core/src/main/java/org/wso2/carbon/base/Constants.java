@@ -25,7 +25,7 @@ public class Constants {
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_HOME_ENV = "CARBON_HOME";
 
-    //    properties relavant to pax logging configuration
+    //    properties relevant to pax logging configuration
     public static final String CONFIG_FILE_NAME = "log4j.properties";
     public static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
 
