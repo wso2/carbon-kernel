@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.launcher.bootstrapLogging;
+package org.wso2.carbon.launcher.bootstrap.logging;
 
 import java.io.IOException;
 import java.util.logging.ConsoleHandler;

@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.launcher;
 
-import org.wso2.carbon.launcher.bootstrapLogging.CarbonLogger;
-import org.wso2.carbon.launcher.bootstrapLogging.ConsoleLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.CarbonLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.ConsoleLogger;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 

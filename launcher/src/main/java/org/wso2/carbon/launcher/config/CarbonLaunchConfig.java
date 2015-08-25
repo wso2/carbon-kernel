@@ -19,7 +19,7 @@
 package org.wso2.carbon.launcher.config;
 
 import org.wso2.carbon.launcher.CarbonServerListener;
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.utils.FileResolver;
 import org.wso2.carbon.launcher.utils.Utils;
 

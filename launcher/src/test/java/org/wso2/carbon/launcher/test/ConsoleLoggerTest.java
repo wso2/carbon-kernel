@@ -22,7 +22,7 @@ package org.wso2.carbon.launcher.test;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.test.LoggingHandlers.CommonsLogHandler;
 import org.wso2.carbon.launcher.test.LoggingHandlers.JavaUtilLogHandler;
 import org.wso2.carbon.launcher.test.LoggingHandlers.SLF4jLogHandler;

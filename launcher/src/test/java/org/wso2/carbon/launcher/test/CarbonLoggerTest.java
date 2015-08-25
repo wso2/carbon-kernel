@@ -22,8 +22,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
-import org.wso2.carbon.launcher.bootstrapLogging.LoggingFormatter;
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.LoggingFormatter;
 
 import java.io.*;
 import java.util.ArrayList;

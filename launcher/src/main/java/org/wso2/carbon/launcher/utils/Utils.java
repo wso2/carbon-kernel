@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.launcher.utils;
 
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 
 import java.io.File;
 import java.net.MalformedURLException;
