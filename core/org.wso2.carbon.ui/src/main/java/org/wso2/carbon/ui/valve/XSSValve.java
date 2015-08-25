@@ -24,6 +24,7 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.servlet.ServletException;
 import java.io.File;
@@ -44,7 +45,7 @@ public class XSSValve extends ValveBase {
     private static String ENABLED_PROPERTY = XSS_VALVE_PROPERTY + ".Enabled";
     private static String RULE_PATTERN_PROPERTY = XSS_VALVE_PROPERTY + ".Patterns.Pattern";
     private static String RULE_PROPERTY = XSS_VALVE_PROPERTY + ".Rule";
-    private static String XSS_PATTERNS_LOCATION = XSS_VALVE_PROPERTY + ".XSSPatternsLocation";
+    private static String XSS_EXTENSION_FILE_NAME = "xss-patterns.properties";
     private static boolean xssEnabled = false;
     private static String RULE_ALLOW = "allow";
     private static String RULE_DENY = "deny";
@@ -93,7 +94,7 @@ public class XSSValve extends ValveBase {
         }
         xssURIPatternList = serverConfiguration.getProperties(RULE_PATTERN_PROPERTY);
         xssRule = serverConfiguration.getFirstProperty(RULE_PROPERTY);
-        patterPath = serverConfiguration.getFirstProperty(XSS_PATTERNS_LOCATION);
+        patterPath = CarbonUtils.getCarbonSecurityConfigDirPath() + "/" + XSS_EXTENSION_FILE_NAME;
         buildScriptPatterns();
     }
 
