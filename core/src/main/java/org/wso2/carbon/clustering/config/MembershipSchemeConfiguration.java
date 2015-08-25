@@ -20,6 +20,7 @@
 package org.wso2.carbon.clustering.config;
 
 import org.wso2.carbon.clustering.config.membership.scheme.AWSSchemeConfig;
+import org.wso2.carbon.clustering.config.membership.scheme.GenericSchemeConfig;
 import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig;
 import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 
@@ -34,7 +35,8 @@ public class MembershipSchemeConfiguration {
     @XmlElements(value = {
             @XmlElement(name = "Multicast", type = MulticastSchemeConfig.class),
             @XmlElement(name = "WKA", type = WKASchemeConfig.class),
-            @XmlElement(name = "AWS", type = AWSSchemeConfig.class)
+            @XmlElement(name = "AWS", type = AWSSchemeConfig.class),
+            @XmlElement(name = "Generic", type = GenericSchemeConfig.class)
     })
     private Object membershipScheme;
 

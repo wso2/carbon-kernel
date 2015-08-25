@@ -104,15 +104,21 @@
     <xs:complexType name="genericSchemeConfig">
         <xs:sequence>
             <xs:element name="Name" type="xs:string"/>
-            <xs:element name="Parameter" type="tns:ParameterElement" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Parameters" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="Parameter" type="tns:parameter" minOccurs="1"
+                                    maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="ParameterElement">
+    <xs:complexType name="parameter">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute name="name" type="xs:string">
-                </xs:attribute>
+                <xs:attribute name="name" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

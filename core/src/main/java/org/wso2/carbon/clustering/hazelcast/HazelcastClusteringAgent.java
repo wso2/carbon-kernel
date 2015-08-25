@@ -33,6 +33,7 @@ import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.hazelcast.aws.AWSMembershipScheme;
+import org.wso2.carbon.clustering.hazelcast.generic.GenericMembershipScheme;
 import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.internal.clustering.ClusterUtil;
@@ -270,16 +271,17 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                     membershipScheme.init(clusterContext);
                     break;
                 case ClusteringConstants.MembershipScheme.MULTICAST_BASED:
-                    membershipScheme =
-                            new MulticastBasedMembershipScheme(primaryDomain,
-                                                               nwConfig.getJoin().
-                                                                       getMulticastConfig(),
-                                                               sentMsgsBuffer);
+                    membershipScheme = new MulticastBasedMembershipScheme(primaryDomain,
+                            nwConfig.getJoin().getMulticastConfig(),
+                            sentMsgsBuffer);
                     membershipScheme.init(clusterContext);
                     break;
                 case ClusteringConstants.MembershipScheme.AWS_BASED:
-                    membershipScheme =
-                            new AWSMembershipScheme(nwConfig.getJoin(), sentMsgsBuffer);
+                    membershipScheme = new AWSMembershipScheme(nwConfig.getJoin(), sentMsgsBuffer);
+                    membershipScheme.init(clusterContext);
+                    break;
+                case ClusteringConstants.MembershipScheme.GENERIC:
+                    membershipScheme = new GenericMembershipScheme();
                     membershipScheme.init(clusterContext);
                     break;
             }

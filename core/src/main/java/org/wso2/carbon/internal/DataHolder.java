@@ -20,9 +20,13 @@
 package org.wso2.carbon.internal;
 
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.clustering.spi.MembershipScheme;
 import org.wso2.carbon.internal.clustering.CarbonCluster;
 import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.internal.runtime.RuntimeManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DataHolder {
     private BundleContext bundleContext;
@@ -32,6 +36,7 @@ public class DataHolder {
     private ClusterContext clusterContext;
 
     private RuntimeManager runtimeManager = null;
+    private Map<String, MembershipScheme> genericMembershipSchemes = new HashMap<>();
 
     public static DataHolder getInstance() {
         return instance;
@@ -78,5 +83,17 @@ public class DataHolder {
      */
     public void setRuntimeManager(RuntimeManager runtimeManager) {
         this.runtimeManager = runtimeManager;
+    }
+
+    public void addGenericMembershipScheme(String name, MembershipScheme genericMembershipScheme) {
+        genericMembershipSchemes.put(name, genericMembershipScheme);
+    }
+
+    public MembershipScheme getGenericMembershipScheme(String membershipSchemeName) {
+        return genericMembershipSchemes.get(membershipSchemeName);
+    }
+
+    public void removeGenericMembershipScheme(String membershipSchemeName) {
+        genericMembershipSchemes.remove(membershipSchemeName);
     }
 }

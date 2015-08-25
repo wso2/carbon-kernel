@@ -28,10 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.api.Cluster;
-import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.ClusterConfigFactory;
+import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.spi.ClusteringAgent;
+import org.wso2.carbon.clustering.spi.MembershipScheme;
 import org.wso2.carbon.internal.DataHolder;
 
 import java.util.Map;
@@ -48,7 +49,7 @@ import java.util.Map;
         immediate = true
 )
 
-
+@SuppressWarnings("unused")
 public class CarbonClusterServiceComponent {
 
     private static Logger logger = LoggerFactory.getLogger(CarbonClusterServiceComponent.class);
@@ -85,8 +86,8 @@ public class CarbonClusterServiceComponent {
                         initializeCluster(clusteringAgent, clusterConfiguration);
                     } else {
                         logger.error("Unsupported clustering agent is registered : {} \n" +
-                        "Expected clustering agent is : {}", clusterAgentTypeParam,
-                                     clusterConfiguration.getAgent());
+                                        "Expected clustering agent is : {}", clusterAgentTypeParam,
+                                clusterConfiguration.getAgent());
                     }
                 }
             }
@@ -101,6 +102,27 @@ public class CarbonClusterServiceComponent {
             if (clusterConfiguration.getAgent().equals(registeredAgentType)) {
                 terminateCluster(clusteringAgent);
             }
+        }
+    }
+
+    @Reference(
+            name = "carbon.clustering.membership.scheme",
+            service = MembershipScheme.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "removeGenericMembershipScheme"
+    )
+    protected void addGenericMembershipScheme(MembershipScheme scheme, Map<String, ?> ref) {
+        String membershipSchemeName = (String) ref.get(ClusteringConstants.MEMBERSHIP_SCHEME);
+        if (membershipSchemeName != null) {
+            DataHolder.getInstance().addGenericMembershipScheme(membershipSchemeName, scheme);
+        }
+    }
+
+    protected void removeGenericMembershipScheme(MembershipScheme scheme, Map<String, ?> ref) {
+        String membershipSchemeName = (String) ref.get(ClusteringConstants.MEMBERSHIP_SCHEME);
+        if (membershipSchemeName != null) {
+            DataHolder.getInstance().removeGenericMembershipScheme(membershipSchemeName);
         }
     }
 
