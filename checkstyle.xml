@@ -25,10 +25,6 @@ page at http://checkstyle.sourceforge.net/config.html -->
 
 <module name="Checker">
 
-    <module name="UnusedImports">
-        <property name="severity" value="error"/>
-    </module>
-
     <module name="FileTabCharacter">
         <property name="severity" value="error"/>
         <!-- Checks that there are no tab characters in the file.
@@ -108,6 +104,8 @@ page at http://checkstyle.sourceforge.net/config.html -->
         <module name="IllegalImport">
             <property name="illegalPkgs" value="junit.framework"/>
         </module>
+
+        <module name="UnusedImports"/>
 
         <!--
 
