@@ -16,25 +16,24 @@
 
 package org.wso2.carbon.osgi;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.testng.Assert;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
 import org.wso2.carbon.osgi.util.Utils;
 
 import javax.inject.Inject;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 
-@RunWith(PaxExam.class)
+@Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class BaseOSGiTest {
 
@@ -52,6 +51,8 @@ public class BaseOSGiTest {
 
         return options(
                 repositories("http://maven.wso2.org/nexus/content/groups/wso2-public"),
+                //must install the testng bundle
+                mavenBundle().artifactId("testng").groupId("org.testng").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("hazelcast").groupId("org.wso2.orbit.com.hazelcast").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator").groupId("org.eclipse.equinox").versionAsInProject(),
@@ -70,7 +71,6 @@ public class BaseOSGiTest {
                 mavenBundle().artifactId("org.eclipse.ecf.identity").groupId("org.eclipse.ecf").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.ecf.provider.filetransfer").groupId("org.eclipse.ecf").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.app").groupId("org.eclipse.equinox").versionAsInProject(),
-                //mavenBundle().artifactId("cm").groupId("org.eclipse.equinox").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.common").groupId("org.eclipse.equinox").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.concurrent").groupId("org.eclipse.equinox").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.console").groupId("org.eclipse.equinox").versionAsInProject(),
@@ -83,14 +83,13 @@ public class BaseOSGiTest {
                 mavenBundle().artifactId("org.eclipse.equinox.registry").groupId("org.eclipse.equinox").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator.manipulator").groupId("org.eclipse.equinox").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.util").groupId("org.eclipse.equinox").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.eclipse.osgi").versionAsInProject(),
-                junitBundles()
+                mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.eclipse.osgi").versionAsInProject()
         );
     }
 
     @Test
     public void testBundleContextStatus() {
-        assertNotNull("Bundle Context is null", bundleContext);
+        Assert.assertNotNull(bundleContext, "Bundle Context is null");
     }
 
     @Test
@@ -105,7 +104,7 @@ public class BaseOSGiTest {
                 break;
             }
         }
-        assertNotNull("Carbon Core bundle not found", coreBundle);
-        assertEquals("Carbon Core Bundle is not activated", coreBundle.getState(), Bundle.ACTIVE);
+        Assert.assertNotNull(coreBundle, "Carbon Core bundle not found");
+        Assert.assertEquals(coreBundle.getState(), Bundle.ACTIVE, "Carbon Core Bundle is not activated");
     }
 }

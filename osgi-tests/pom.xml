@@ -42,11 +42,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.agent</artifactId>
             <classifier>runtime</classifier>
@@ -61,11 +56,6 @@
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.http.servlet</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-            <version>${version.pax.logging.api}</version>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
@@ -186,11 +176,6 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.http.servlet</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.launcher</artifactId>
             <scope>test</scope>
         </dependency>
@@ -214,17 +199,12 @@
             <artifactId>org.eclipse.equinox.util</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi.services</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <!-- Pax Exam Dependencies-->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -241,7 +221,7 @@
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-junit4</artifactId>
+            <artifactId>pax-exam-testng</artifactId>
             <version>${exam.version}</version>
             <scope>test</scope>
         </dependency>
@@ -257,6 +237,18 @@
             <version>${url.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.api.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.spec.ee</groupId>
+            <artifactId>ow2-jta-1.1-spec</artifactId>
+            <version>${ow2.jta.spec.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -270,13 +262,6 @@
                         <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
                     </systemPropertyVariables>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit47</artifactId>
-                        <version>${maven.surefireplugin.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -285,6 +270,7 @@
             <plugin>
                 <groupId>org.ops4j.pax.exam</groupId>
                 <artifactId>maven-paxexam-plugin</artifactId>
+                <version>${maven.paxexamplugin.vesion}</version>
                 <executions>
                     <execution>
                         <id>generate-config</id>
@@ -301,7 +287,10 @@
     <properties>
         <exam.version>4.6.0</exam.version>
         <url.version>1.6.0</url.version>
-        <junit.version>4.12</junit.version>
+        <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
+        <slf4j.api.version>1.7.12</slf4j.api.version>
+        <testng.version>6.3.1</testng.version>
+        <maven.paxexamplugin.vesion>1.2.4</maven.paxexamplugin.vesion>
     </properties>
 
 </project>
