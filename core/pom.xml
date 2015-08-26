@@ -76,19 +76,19 @@
     </dependencies>
 
     <build>
-        <!--pluginManagement>
+        <!--<pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.11</version>
+                    <version>2.16</version>
                     <executions>
                         <execution>
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-                                <configLocation>../checkstyle.xml</configLocation>
-                                <suppressionsLocation>../suppressions.xml</suppressionsLocation>
+                                <configLocation>https://raw.githubusercontent.com/wso2/carbon-kernel/master/checkstyle.xml</configLocation>
+                                <suppressionsLocation>https://raw.githubusercontent.com/wso2/carbon-kernel/master/suppressions.xml</suppressionsLocation>
                                 <encoding>UTF-8</encoding>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
@@ -101,7 +101,7 @@
                     </executions>
                 </plugin>
             </plugins>
-        </pluginManagement-->
+        </pluginManagement>-->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
