@@ -554,7 +554,13 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 subDirContext.rename(returnedUserEntry, "CN=" + escapeSpecialCharactersForDN(cnValue));
             }
 
-        } catch (org.wso2.carbon.user.api.UserStoreException  | NamingException e) {
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error in obtaining claim mapping for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (NamingException e) {
             handleException(e, userName);
         } finally {
             JNDIUtil.closeContext(subDirContext);
@@ -641,7 +647,13 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             subDirContext.modifyAttributes(returnedUserEntry, DirContext.REPLACE_ATTRIBUTE,
                     updatedAttributes);
 
-        } catch (org.wso2.carbon.user.api.UserStoreException | NamingException e) {
+        } catch (org.wso2.carbon.user.api.UserStoreException e) {
+            String errorMessage = "Error in obtaining claim mapping for user : " + userName;
+            if (logger.isDebugEnabled()) {
+                logger.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } catch (NamingException e) {
             handleException(e, userName);
         } finally {
             JNDIUtil.closeContext(subDirContext);

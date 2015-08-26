@@ -2907,12 +2907,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
-        } else if (e instanceof org.wso2.carbon.user.api.UserStoreException) {
-            String errorMessage = "Error occurred from the user store level for username: " + userName;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
         } else {
             String errorMessage = "Error occurred in the underlying server for username: " + userName;
             if (log.isDebugEnabled()) {
