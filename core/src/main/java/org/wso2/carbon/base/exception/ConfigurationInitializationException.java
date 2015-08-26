@@ -1,5 +1,8 @@
 package org.wso2.carbon.base.exception;
 
+/**
+ * TODO: class level comment
+ */
 public class ConfigurationInitializationException extends Exception {
     public ConfigurationInitializationException(String message) {
         super(message);

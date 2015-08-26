@@ -75,7 +75,8 @@ public class UtilsTest {
     public void stringTokenizeTest2() {
         String str = "file:plugins/org.eclipse.equinox.simpleconfigurator_1.0.400.v20130327-2119.jar@1:true";
 
-        String[] expectedArray = new String[]{"file:plugins/org.eclipse.equinox.simpleconfigurator_1.0.400.v20130327-2119.jar@1:true"};
+        String[] expectedArray =
+                new String[]{"file:plugins/org.eclipse.equinox.simpleconfigurator_1.0.400.v20130327-2119.jar@1:true"};
 
         String[] output = Utils.tokenize(str, ",");
         Assert.assertEquals(output, expectedArray);

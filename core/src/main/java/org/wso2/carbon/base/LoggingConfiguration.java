@@ -29,6 +29,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * TODO Class level comment
+ */
 public class LoggingConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingConfiguration.class);

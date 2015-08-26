@@ -12,6 +12,9 @@ import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * TODO: class level comment
+ */
 public class FileUtils {
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 

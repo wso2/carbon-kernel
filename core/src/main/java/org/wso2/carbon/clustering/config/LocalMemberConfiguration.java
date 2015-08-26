@@ -26,6 +26,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
+/**
+ * TODO: class level comment
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LocalMemberConfiguration {
     @XmlElement(name = "Host", required = true)

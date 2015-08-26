@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.clustering.config.membership.scheme;
 
+import org.wso2.carbon.clustering.ClusteringConstants;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -45,6 +47,6 @@ public class WKASchemeConfig {
     }
 
     public String toString() {
-        return "WKA";
+        return ClusteringConstants.MembershipScheme.WKA_BASED;
     }
 }

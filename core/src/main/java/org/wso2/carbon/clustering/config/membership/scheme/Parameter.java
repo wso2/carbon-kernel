@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
 /**
- * TODO: class level comment
+ * JAXB representation of a Parameter in the Generic membership scheme
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement

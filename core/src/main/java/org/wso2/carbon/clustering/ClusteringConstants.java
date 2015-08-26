@@ -46,6 +46,9 @@ public final class ClusteringConstants {
     private ClusteringConstants() {
     }
 
+    /**
+     * Supported Membership schemes
+     */
     public static final class MembershipScheme {
         /**
          * Multicast based membership discovery scheme

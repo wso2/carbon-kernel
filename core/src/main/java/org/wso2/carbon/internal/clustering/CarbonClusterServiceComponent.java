@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.api.Cluster;
-import org.wso2.carbon.clustering.config.ClusterConfigFactory;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
+import org.wso2.carbon.clustering.config.ClusterConfigurationBuilder;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.spi.ClusteringAgent;
 import org.wso2.carbon.clustering.spi.MembershipScheme;
@@ -77,7 +77,7 @@ public class CarbonClusterServiceComponent {
     )
     protected void setClusteringAgent(ClusteringAgent clusteringAgent, Map<String, ?> ref) {
         try {
-            clusterConfiguration = ClusterConfigFactory.build();
+            clusterConfiguration = ClusterConfigurationBuilder.build();
             if (clusterConfiguration.isEnabled()) {
                 Object clusterAgentTypeParam = ref.get(ClusteringConstants.CLUSTER_AGENT);
                 if (clusterAgentTypeParam != null) {

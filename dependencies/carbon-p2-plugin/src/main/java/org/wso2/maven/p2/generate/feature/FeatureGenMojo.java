@@ -49,8 +49,8 @@ import javax.xml.transform.stream.StreamResult;
 /**
  * Write environment information for the current build to file.
  *
- * @goal p2-feature-gen
- * @phase package
+ * Maven goal: p2-feature-gen
+ * Maven phase: package
  */
 public class FeatureGenMojo extends AbstractMojo {
 
@@ -226,14 +226,14 @@ public class FeatureGenMojo extends AbstractMojo {
     private File destFolder;
     private File featureBaseDir;
     private File featuresDir;
-    private File FOLDER_FEATURES_FEATURE;
+    private File folderFeaturesFeature;
     private File pluginsDir;
-    private File FOLDER_RESOURCES;
-    private File FILE_FEATURE_XML;
-    private File FILE_P2_INF;
-    private File FILE_FEATURE_PROPERTIES;
-    private File FILE_FEATURE_MANIFEST;
-    private File FILE_FEATURE_ZIP;
+    private File folderResources;
+    private File fileFeatureXml;
+    private File fileP2Inf;
+    private File fileFeatureProperties;
+    private File fileFeatureManifest;
+    private File fileFeatureZip;
 
     private boolean isPropertiesLoadedFromFile = false;
 
@@ -403,16 +403,16 @@ public class FeatureGenMojo extends AbstractMojo {
         destFolder = new File(project.getBasedir(), "target");
         featureBaseDir = new File(destFolder, "raw");
         featuresDir = new File(featureBaseDir, "features");
-        FOLDER_FEATURES_FEATURE = new File(featuresDir, id + "_" + Bundle.getOSGIVersion(getVersion()));
+        folderFeaturesFeature = new File(featuresDir, id + "_" + Bundle.getOSGIVersion(getVersion()));
         pluginsDir = new File(featureBaseDir, "plugins");
-        FOLDER_RESOURCES = new File(project.getBasedir(), "src");
-        File FOLDER_FEATURES_FEATURE_META_INF = new File(FOLDER_FEATURES_FEATURE, "META-INF");
-        FILE_FEATURE_XML = new File(FOLDER_FEATURES_FEATURE, "feature.xml");
-        FILE_FEATURE_PROPERTIES = new File(FOLDER_FEATURES_FEATURE, "feature.properties");
-        FILE_P2_INF = new File(FOLDER_FEATURES_FEATURE, "p2.inf");
-        FILE_FEATURE_MANIFEST = new File(FOLDER_FEATURES_FEATURE_META_INF, "MANIFEST.MF");
-        FILE_FEATURE_ZIP = new File(destFolder, project.getArtifactId() + "-" + project.getVersion() + ".zip");
-        FOLDER_FEATURES_FEATURE_META_INF.mkdirs();
+        folderResources = new File(project.getBasedir(), "src");
+        File folderFeaturesFeatureMetaInf = new File(folderFeaturesFeature, "META-INF");
+        fileFeatureXml = new File(folderFeaturesFeature, "feature.xml");
+        fileFeatureProperties = new File(folderFeaturesFeature, "feature.properties");
+        fileP2Inf = new File(folderFeaturesFeature, "p2.inf");
+        fileFeatureManifest = new File(folderFeaturesFeatureMetaInf, "MANIFEST.MF");
+        fileFeatureZip = new File(destFolder, project.getArtifactId() + "-" + project.getVersion() + ".zip");
+        folderFeaturesFeatureMetaInf.mkdirs();
         pluginsDir.mkdirs();
     }
 
@@ -569,7 +569,7 @@ public class FeatureGenMojo extends AbstractMojo {
             Transformer transformer;
             transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(document);
-            StreamResult result = new StreamResult(FILE_FEATURE_XML);
+            StreamResult result = new StreamResult(fileFeatureXml);
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.transform(source, result);
@@ -610,7 +610,7 @@ public class FeatureGenMojo extends AbstractMojo {
         if (!props.isEmpty()) {
             try {
                 getLog().info("Generating feature properties");
-                props.store(new FileOutputStream(FILE_FEATURE_PROPERTIES), "Properties of " + id);
+                props.store(new FileOutputStream(fileFeatureProperties), "Properties of " + id);
             } catch (Exception e) {
                 throw new MojoExecutionException("Unable to create the feature properties", e);
             }
@@ -620,7 +620,7 @@ public class FeatureGenMojo extends AbstractMojo {
     private void createManifestMFFile() throws MojoExecutionException {
         try {
             getLog().info("Generating MANIFEST.MF");
-            BufferedWriter out = new BufferedWriter(new FileWriter(FILE_FEATURE_MANIFEST));
+            BufferedWriter out = new BufferedWriter(new FileWriter(fileFeatureManifest));
             out.write("Manifest-Version: 1.0\n\n");
             out.close();
         } catch (Exception e) { //Catch exception if any
@@ -634,15 +634,15 @@ public class FeatureGenMojo extends AbstractMojo {
         try {
             ArrayList<Property> list = getProcessedAdviceProperties();
 
-            if (FILE_P2_INF.exists()) {
+            if (fileP2Inf.exists()) {
                 //In memory storage of  current p2.inf content
-                p2infStringList = readAdviceFile(FILE_P2_INF.getAbsolutePath());
+                p2infStringList = readAdviceFile(fileP2Inf.getAbsolutePath());
                 getLog().info("Updating Advice file (p2.inf)");
             } else {
                 getLog().info("Generating Advice file (p2.inf)");
             }
 
-            out = new BufferedWriter(new FileWriter(FILE_P2_INF.getAbsolutePath()));
+            out = new BufferedWriter(new FileWriter(fileP2Inf.getAbsolutePath()));
             //re-writing the already availabled p2.inf lines
             Properties properties = new Properties();
             properties.setProperty("feature.version", Bundle.getOSGIVersion(getVersion()));
@@ -655,7 +655,7 @@ public class FeatureGenMojo extends AbstractMojo {
             if (list.size() == 0) {
                 return;    // finally block will take care of output stream closing.
             }
-            int nextIndex = P2Utils.getLastIndexOfProperties(FILE_P2_INF) + 1;
+            int nextIndex = P2Utils.getLastIndexOfProperties(fileP2Inf) + 1;
             for (Object category : list) {
                 Property cat = (Property) category;
                 out.write("\nproperties." + nextIndex + ".name=" + cat.getKey());
@@ -920,14 +920,14 @@ public class FeatureGenMojo extends AbstractMojo {
     }
 
     private void createArchive() throws MojoExecutionException {
-        getLog().info("Generating feature archive: " + FILE_FEATURE_ZIP.getAbsolutePath());
-        FileManagementUtil.zipFolder(featureBaseDir.getAbsolutePath(), FILE_FEATURE_ZIP.getAbsolutePath());
+        getLog().info("Generating feature archive: " + fileFeatureZip.getAbsolutePath());
+        FileManagementUtil.zipFolder(featureBaseDir.getAbsolutePath(), fileFeatureZip.getAbsolutePath());
     }
 
     private void deployArtifact() {
-        if (FILE_FEATURE_ZIP != null && FILE_FEATURE_ZIP.exists()) {
-            project.getArtifact().setFile(FILE_FEATURE_ZIP);
-            projectHelper.attachArtifact(project, "zip", null, FILE_FEATURE_ZIP);
+        if (fileFeatureZip != null && fileFeatureZip.exists()) {
+            project.getArtifact().setFile(fileFeatureZip);
+            projectHelper.attachArtifact(project, "zip", null, fileFeatureZip);
         }
     }
 
@@ -958,7 +958,7 @@ public class FeatureGenMojo extends AbstractMojo {
                 getLog().info("   " + resource.getDirectory());
                 for (String name : includedFiles) {
                     File fromPath = new File(sourcePath, name);
-                    File toPath = new File(FOLDER_FEATURES_FEATURE, name);
+                    File toPath = new File(folderFeaturesFeature, name);
 
                     try {
                         if (fromPath.isDirectory() && !toPath.exists()) {
@@ -983,7 +983,7 @@ public class FeatureGenMojo extends AbstractMojo {
 //                        File resourceFolder = new File(resource.getDirectory());
 //                        if (resourceFolder.exists()) {
 //                            getLog().info("   " + resource.getDirectory());
-//                            FileManagementUtil.copyDirectory(resourceFolder, FOLDER_FEATURES_FEATURE);
+//                            FileManagementUtil.copyDirectory(resourceFolder, folderFeaturesFeature);
 //                        }
 //                    } catch (IOException e) {
 //                        throw new MojoExecutionException("Unable copy resources: " + resource.getDirectory(), e);

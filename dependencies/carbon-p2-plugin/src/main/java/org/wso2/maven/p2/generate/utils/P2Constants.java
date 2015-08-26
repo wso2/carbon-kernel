@@ -1,5 +1,8 @@
 package org.wso2.maven.p2.generate.utils;
 
+/**
+ * Equinox P2 constants
+ */
 public class P2Constants {
     public static final String[] OSGI_FILES = new String[]{"org.eclipse.equinox:org.eclipse.equinox.common",
             "org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator",
@@ -113,8 +116,9 @@ public class P2Constants {
     public static String getDefaultVersion(String groupId, String artifactId) {
         for (String osgiFile : OSGI_FILES_DEFAULT_VERSION) {
             String[] split = osgiFile.split(":");
-            if (split[0].equalsIgnoreCase(groupId) && split[1].equalsIgnoreCase(artifactId))
+            if (split[0].equalsIgnoreCase(groupId) && split[1].equalsIgnoreCase(artifactId)) {
                 return split[2];
+            }
         }
         return null;
     }

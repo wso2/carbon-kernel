@@ -3,6 +3,9 @@ package org.wso2.maven.p2;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.wso2.maven.p2.generate.feature.Bundle;
 
+/**
+ * TODO: class level comment
+ */
 public class BundleArtifact extends Bundle {
     protected static BundleArtifact getBundleArtifact(String bundleArtifactDefinition,
                                                       BundleArtifact bundleArtifact) throws MojoExecutionException {

@@ -40,8 +40,8 @@ import java.util.List;
 /**
  * Write environment information for the current build to file.
  *
- * @goal p2-repo-gen
- * @phase package
+ * Maven goal: p2-repo-gen
+ * Maven phase: package
  */
 public class RepositoryGenMojo extends AbstractMojo {
 
@@ -180,11 +180,11 @@ public class RepositoryGenMojo extends AbstractMojo {
 
     private ArrayList processedBundleArtifacts;
 
-    private File REPO_GEN_LOCATION;
+    private File repoGenLocation;
 
     private File categoryDeinitionFile;
 
-    private File ARCHIVE_FILE;
+    private File archiveFile;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
         createRepo();
@@ -222,7 +222,7 @@ public class RepositoryGenMojo extends AbstractMojo {
                         File resourceFolder = new File(resource.getDirectory());
                         if (resourceFolder.exists()) {
                             getLog().info("   " + resource.getDirectory());
-                            FileManagementUtil.copyDirectory(resourceFolder, REPO_GEN_LOCATION);
+                            FileManagementUtil.copyDirectory(resourceFolder, repoGenLocation);
                         }
                     } catch (IOException e) {
                         throw new MojoExecutionException("Unable copy resources: " + resource.getDirectory(), e);
@@ -337,9 +337,9 @@ public class RepositoryGenMojo extends AbstractMojo {
     private void archiveRepo() throws MojoExecutionException {
         if (isArchive()) {
             getLog().info("Generating repository archive...");
-            FileManagementUtil.zipFolder(REPO_GEN_LOCATION.toString(), ARCHIVE_FILE.toString());
-            getLog().info("Repository Archive: " + ARCHIVE_FILE.toString());
-            FileManagementUtil.deleteDirectories(REPO_GEN_LOCATION);
+            FileManagementUtil.zipFolder(repoGenLocation.toString(), archiveFile.toString());
+            getLog().info("Repository Archive: " + archiveFile.toString());
+            FileManagementUtil.deleteDirectories(repoGenLocation);
         }
     }
 
@@ -385,8 +385,8 @@ public class RepositoryGenMojo extends AbstractMojo {
             metadataRepository = repo.toURL();
             artifactRepository = metadataRepository;
         }
-        REPO_GEN_LOCATION = new File(metadataRepository.getFile().replace("/", File.separator));
-        ARCHIVE_FILE = new File(targetDir, getProject().getArtifactId() + "_" + getProject().getVersion() + ".zip");
+        repoGenLocation = new File(metadataRepository.getFile().replace("/", File.separator));
+        archiveFile = new File(targetDir, getProject().getArtifactId() + "_" + getProject().getVersion() + ".zip");
         categoryDeinitionFile = File.createTempFile("equinox-p2", "category");
     }
 

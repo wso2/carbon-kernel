@@ -2,7 +2,9 @@ package org.wso2.maven.p2.generate.feature;
 
 import org.apache.maven.plugin.MojoExecutionException;
 
-
+/**
+ * TODO: class level comment
+ */
 public class ImportBundle extends Bundle {
 
 

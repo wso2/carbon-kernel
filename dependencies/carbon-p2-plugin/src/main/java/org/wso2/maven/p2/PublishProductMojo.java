@@ -13,7 +13,7 @@ import java.io.File;
 import java.net.URL;
 
 /**
- * @goal publish-product
+ * Maven goal: publish-product
  */
 public class PublishProductMojo extends AbstractMojo {
     /**

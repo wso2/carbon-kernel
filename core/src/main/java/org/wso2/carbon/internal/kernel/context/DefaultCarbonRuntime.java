@@ -23,6 +23,9 @@ import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
+/**
+ * TODO: class level comment
+ */
 public class DefaultCarbonRuntime implements PrivilegedCarbonRuntime {
     private CarbonConfiguration carbonConfiguration;
     private TenantRuntime<Tenant> tenantRuntime;

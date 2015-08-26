@@ -19,24 +19,30 @@
 
 package org.wso2.carbon.clustering.config;
 
+import org.wso2.carbon.clustering.ClusteringConstants;
 import org.wso2.carbon.clustering.config.membership.scheme.AWSSchemeConfig;
 import org.wso2.carbon.clustering.config.membership.scheme.GenericSchemeConfig;
 import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig;
 import org.wso2.carbon.clustering.config.membership.scheme.WKASchemeConfig;
 
+import java.lang.reflect.Member;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
+/**
+ * JAXB repesentaiton of cluster MembershipScheme configuration
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MembershipSchemeConfiguration {
 
     @XmlElements(value = {
-            @XmlElement(name = "Multicast", type = MulticastSchemeConfig.class),
-            @XmlElement(name = "WKA", type = WKASchemeConfig.class),
-            @XmlElement(name = "AWS", type = AWSSchemeConfig.class),
-            @XmlElement(name = "Generic", type = GenericSchemeConfig.class)
+            @XmlElement(name = ClusteringConstants.MembershipScheme.MULTICAST_BASED,
+                    type = MulticastSchemeConfig.class),
+            @XmlElement(name = ClusteringConstants.MembershipScheme.WKA_BASED, type = WKASchemeConfig.class),
+            @XmlElement(name = ClusteringConstants.MembershipScheme.AWS_BASED, type = AWSSchemeConfig.class),
+            @XmlElement(name = ClusteringConstants.MembershipScheme.GENERIC, type = GenericSchemeConfig.class)
     })
     private Object membershipScheme;
 

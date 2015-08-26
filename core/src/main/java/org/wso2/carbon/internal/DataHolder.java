@@ -28,6 +28,9 @@ import org.wso2.carbon.internal.runtime.RuntimeManager;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Carbon kernel DataHolder
+ */
 public class DataHolder {
     private static DataHolder instance = new DataHolder();
     private BundleContext bundleContext;

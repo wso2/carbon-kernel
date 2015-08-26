@@ -23,9 +23,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
-import org.wso2.carbon.launcher.test.LoggingHandlers.CommonsLogHandler;
-import org.wso2.carbon.launcher.test.LoggingHandlers.JavaUtilLogHandler;
-import org.wso2.carbon.launcher.test.LoggingHandlers.SLF4jLogHandler;
+import org.wso2.carbon.launcher.test.logging.handlers.CommonsLogHandler;
+import org.wso2.carbon.launcher.test.logging.handlers.JavaUtilLogHandler;
+import org.wso2.carbon.launcher.test.logging.handlers.SLF4jLogHandler;
 
 import java.util.logging.Level;
 import java.util.logging.LogRecord;

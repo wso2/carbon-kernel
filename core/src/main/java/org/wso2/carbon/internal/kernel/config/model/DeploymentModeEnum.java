@@ -20,6 +20,9 @@ package org.wso2.carbon.internal.kernel.config.model;
 
 import javax.xml.bind.annotation.XmlEnum;
 
+/**
+ * TODO: class level comment
+ */
 @XmlEnum
 public enum DeploymentModeEnum {
     triggered,

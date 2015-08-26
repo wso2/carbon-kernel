@@ -43,6 +43,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+/**
+ * TODO: class level comment
+ */
 //TODO Implement transactional behaviour (Implement locking mechanism)
 public class FileBasedTenantStore implements TenantStore<Tenant> {
 

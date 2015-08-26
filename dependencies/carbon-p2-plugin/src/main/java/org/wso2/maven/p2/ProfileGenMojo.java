@@ -42,14 +42,14 @@ import java.util.Date;
 /**
  * Write environment information for the current build to file.
  *
- * @goal p2-profile-gen
- * @phase package
+ * Maven goal: p2-profile-gen
+ * Maven phase: package
  */
 public class ProfileGenMojo extends AbstractMojo {
 
 
-    private final String STREAM_TYPE_IN = "inputStream";
-    private final String STREAM_TYPE_ERROR = "errorStream";
+    private final String streamTypeIn = "inputStream";
+    private final String streamTypeError = "errorStream";
     /**
      * Destination to which the features should be installed
      *
@@ -138,10 +138,10 @@ public class ProfileGenMojo extends AbstractMojo {
      * @parameter expression="${p2.timeout}"
      */
     private int forkedProcessTimeoutInSeconds;
-    private File FOLDER_TARGET;
-    private File FOLDER_TEMP;
-    private File FOLDER_TEMP_REPO_GEN;
-    private File FILE_FEATURE_PROFILE;
+    private File folderTarget;
+    private File folderTemp;
+    private File folderTempRepoGen;
+    private File fileFeatureProfile;
     private File p2AgentDir;
 
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -228,11 +228,11 @@ public class ProfileGenMojo extends AbstractMojo {
     }
 
     private void createAndSetupPaths() throws Exception {
-        FOLDER_TARGET = new File(project.getBasedir(), "target");
+        folderTarget = new File(project.getBasedir(), "target");
         String timestampVal = String.valueOf((new Date()).getTime());
-        FOLDER_TEMP = new File(FOLDER_TARGET, "tmp." + timestampVal);
-        FOLDER_TEMP_REPO_GEN = new File(FOLDER_TEMP, "temp_repo");
-        FILE_FEATURE_PROFILE = new File(FOLDER_TARGET, project.getArtifactId() + "-" + project.getVersion() + ".zip");
+        folderTemp = new File(folderTarget, "tmp." + timestampVal);
+        folderTempRepoGen = new File(folderTemp, "temp_repo");
+        fileFeatureProfile = new File(folderTarget, project.getArtifactId() + "-" + project.getVersion() + ".zip");
 
 
     }
@@ -296,20 +296,23 @@ public class ProfileGenMojo extends AbstractMojo {
     }
 
     private void deployArtifact() {
-        if (FILE_FEATURE_PROFILE != null && FILE_FEATURE_PROFILE.exists()) {
-            project.getArtifact().setFile(FILE_FEATURE_PROFILE);
-            projectHelper.attachArtifact(project, "zip", null, FILE_FEATURE_PROFILE);
+        if (fileFeatureProfile != null && fileFeatureProfile.exists()) {
+            project.getArtifact().setFile(fileFeatureProfile);
+            projectHelper.attachArtifact(project, "zip", null, fileFeatureProfile);
         }
     }
 
     private void performMopUp() {
         try {
-            FileUtils.deleteDirectory(FOLDER_TEMP);
+            FileUtils.deleteDirectory(folderTemp);
         } catch (Exception e) {
             getLog().warn(new MojoExecutionException("Unable complete mop up operation", e));
         }
     }
 
+    /**
+     * TODO class level comment
+     */
     public class InputStreamHandler implements Runnable {
         String streamType;
         InputStream inputStream;
@@ -334,9 +337,9 @@ public class ProfileGenMojo extends AbstractMojo {
                     if (s == null) {
                         break;
                     }
-                    if (STREAM_TYPE_IN.equals(streamType)) {
+                    if (streamTypeIn.equals(streamType)) {
                         getLog().info(s);
-                    } else if (STREAM_TYPE_ERROR.equals(streamType)) {
+                    } else if (streamTypeError.equals(streamType)) {
                         getLog().error(s);
                     }
                 }

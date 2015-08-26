@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+/**
+ * Equinox P2 profile
+ */
 public class P2Profile {
     /**
      * Group Id of the Bundle

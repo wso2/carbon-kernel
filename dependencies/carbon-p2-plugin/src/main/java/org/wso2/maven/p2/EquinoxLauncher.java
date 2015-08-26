@@ -19,6 +19,9 @@ import org.wso2.maven.p2.generate.utils.P2Constants;
 
 import java.util.ArrayList;
 
+/**
+ * Launches the Equinox OSGi container
+ */
 public class EquinoxLauncher {
 
     /**

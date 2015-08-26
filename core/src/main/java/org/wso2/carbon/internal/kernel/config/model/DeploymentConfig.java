@@ -22,6 +22,9 @@ import org.wso2.carbon.kernel.util.Utils;
 
 import javax.xml.bind.annotation.XmlElement;
 
+/**
+ * TODO: class level comment
+ */
 public class DeploymentConfig {
 
     @XmlElement(name = "Mode", required = true)

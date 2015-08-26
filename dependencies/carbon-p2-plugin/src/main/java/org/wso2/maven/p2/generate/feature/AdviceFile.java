@@ -2,6 +2,9 @@ package org.wso2.maven.p2.generate.feature;
 
 import java.util.ArrayList;
 
+/**
+ * TODO: class level comment
+ */
 public class AdviceFile {
 
     /**

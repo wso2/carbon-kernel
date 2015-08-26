@@ -24,6 +24,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
+/**
+ * TODO: class level comment
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LocalMemberProperty {
     @XmlAttribute(name = "name", required = true)

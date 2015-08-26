@@ -20,6 +20,9 @@ package org.wso2.carbon.launcher.config;
 
 import java.net.URL;
 
+/**
+ * TODO: class level comment
+ */
 public class CarbonInitialBundle {
     public final URL location;
     public final int level;

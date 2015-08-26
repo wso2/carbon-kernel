@@ -4,6 +4,9 @@ import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.wso2.maven.p2.generate.utils.P2Utils;
 
+/**
+ * TODO: class level comment
+ */
 public class ImportFeature {
 
     /**

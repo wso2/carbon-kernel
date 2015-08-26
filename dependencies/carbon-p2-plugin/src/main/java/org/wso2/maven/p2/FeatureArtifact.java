@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+/**
+ * TODO: class level comment
+ */
 public class FeatureArtifact {
     /**
      * Group Id of the Bundle

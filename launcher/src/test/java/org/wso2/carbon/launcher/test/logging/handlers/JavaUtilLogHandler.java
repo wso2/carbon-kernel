@@ -16,10 +16,21 @@
 * under the License.
 */
 
-package org.wso2.carbon.kernel.context;
+package org.wso2.carbon.launcher.test.logging.handlers;
 
-/**
- * TODO class level comment
- */
-public class TenantContext {
+import java.util.ArrayList;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.LogRecord;
+
+
+public class JavaUtilLogHandler extends ConsoleHandler {
+    ArrayList<LogRecord> logList = new ArrayList<LogRecord>();
+
+    public void publish(LogRecord record) {
+        logList.add(record);
+    }
+
+    public ArrayList<LogRecord> getLogList() {
+        return logList;
+    }
 }

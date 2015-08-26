@@ -17,6 +17,9 @@ package org.wso2.maven.p2.generate.feature;
 
 import org.apache.maven.artifact.Artifact;
 
+/**
+ * TODO: class level comment
+ */
 public class IncludedFeature {
 
     /**

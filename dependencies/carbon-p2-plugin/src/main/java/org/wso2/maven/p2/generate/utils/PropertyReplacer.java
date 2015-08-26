@@ -18,6 +18,9 @@ package org.wso2.maven.p2.generate.utils;
 
 import java.util.Properties;
 
+/**
+ * TODO class level comment
+ */
 public class PropertyReplacer {
     private PropertyReplacer() {
         // you can't instantiate this class

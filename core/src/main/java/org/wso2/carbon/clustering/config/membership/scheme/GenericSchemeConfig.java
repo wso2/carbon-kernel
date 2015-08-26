@@ -19,12 +19,17 @@
 
 package org.wso2.carbon.clustering.config.membership.scheme;
 
+import org.wso2.carbon.clustering.ClusteringConstants;
+
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
+/**
+ * JAXB configuration for generic membership scheme
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class GenericSchemeConfig {
 
@@ -52,6 +57,6 @@ public class GenericSchemeConfig {
     }
 
     public String toString() {
-        return "Generic";
+        return ClusteringConstants.MembershipScheme.GENERIC;
     }
 }

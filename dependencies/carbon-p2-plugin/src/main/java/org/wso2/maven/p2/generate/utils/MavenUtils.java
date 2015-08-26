@@ -17,6 +17,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+/**
+ * TODO: class level comment
+ */
 public class MavenUtils {
 
     public static Artifact getResolvedArtifact(Bundle bundle, ArtifactFactory artifactFactory,

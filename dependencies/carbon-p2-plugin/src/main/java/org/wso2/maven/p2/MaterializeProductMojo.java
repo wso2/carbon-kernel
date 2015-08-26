@@ -16,7 +16,7 @@ import java.net.URL;
 import java.util.Properties;
 
 /**
- * @goal materialize-product
+ * Maven goal: materialize-product
  */
 public class MaterializeProductMojo extends AbstractMojo {
     /**

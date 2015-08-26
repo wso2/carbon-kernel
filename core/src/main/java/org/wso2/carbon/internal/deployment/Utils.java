@@ -23,6 +23,9 @@ import org.wso2.carbon.deployment.Artifact;
 
 import java.io.File;
 
+/**
+ * Utils
+ */
 public class Utils {
 
     /**

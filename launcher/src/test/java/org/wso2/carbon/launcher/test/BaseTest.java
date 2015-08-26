@@ -74,7 +74,6 @@ public class BaseTest {
 //        InputStream testResource = null;
         BufferedReader bufferedReader = null;
         try {
-//            testResource = new FileInputStream(new File("/home/manoj/Desktop/carbon-kernel/modules/launcher/src/test/resources/logs/test.logs"));
             bufferedReader = new BufferedReader(new InputStreamReader(testResource));
             String strLine;
             while ((strLine = bufferedReader.readLine()) != null) {

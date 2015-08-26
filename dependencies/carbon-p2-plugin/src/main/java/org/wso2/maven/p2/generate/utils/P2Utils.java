@@ -33,6 +33,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+/**
+ * P2 utils functions
+ */
 public class P2Utils {
     private static String[] matchList =
             new String[]{"perfect", "equivalent", "compatible", "greaterOrEqual", "patch", "optional"};

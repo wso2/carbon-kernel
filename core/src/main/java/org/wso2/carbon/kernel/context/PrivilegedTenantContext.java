@@ -18,5 +18,8 @@
 
 package org.wso2.carbon.kernel.context;
 
+/**
+ * TODO class level comment
+ */
 public class PrivilegedTenantContext {
 }

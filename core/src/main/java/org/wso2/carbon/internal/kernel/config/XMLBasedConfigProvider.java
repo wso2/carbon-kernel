@@ -29,6 +29,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+/**
+ * This class takes care of parsing the carbon.xml file and creating the CarbonConfiguration object model
+ */
 public class XMLBasedConfigProvider implements CarbonConfigProvider {
 
     public CarbonConfiguration getCarbonConfiguration() {

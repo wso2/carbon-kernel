@@ -24,6 +24,9 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Kernel utils
+ */
 public class Utils {
 
     private static final String VAR_REGEXP = "\\$\\{[^}]*}";

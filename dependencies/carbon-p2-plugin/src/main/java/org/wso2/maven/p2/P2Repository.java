@@ -2,6 +2,9 @@ package org.wso2.maven.p2;
 
 import java.net.URL;
 
+/**
+ * Represents an Equinox P2 repo
+ */
 public class P2Repository {
     /**
      * URL of the Metadata Repository

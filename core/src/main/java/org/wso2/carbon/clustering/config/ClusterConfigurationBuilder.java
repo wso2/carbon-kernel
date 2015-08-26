@@ -31,17 +31,18 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-public class ClusterConfigFactory {
-    private static final Logger logger = LoggerFactory.getLogger(ClusterConfigFactory.class);
+/**
+ * Carbon cluster configuration builder which reads the cluster.xml and create an object model
+ */
+public class ClusterConfigurationBuilder {
+    private static final Logger logger = LoggerFactory.getLogger(ClusterConfigurationBuilder.class);
 
-    public static ClusterConfiguration build()
-            throws ClusterConfigurationException {
+    public static ClusterConfiguration build() throws ClusterConfigurationException {
         ClusterConfiguration clusterConfiguration = null;
         try {
             //TODO : get carbon repo from system property
             String clusterXmlLocation = System.getProperty("carbon.home") + File.separator +
-                    "repository" + File.separator + "conf" +
-                    File.separator + "cluster.xml";
+                    "repository" + File.separator + "conf" + File.separator + "cluster.xml";
 
             File file = new File(clusterXmlLocation);
             JAXBContext jaxbContext = JAXBContext.newInstance(ClusterConfiguration.class);

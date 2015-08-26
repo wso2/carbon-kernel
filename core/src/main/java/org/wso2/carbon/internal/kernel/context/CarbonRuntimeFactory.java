@@ -25,6 +25,9 @@ import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
+/**
+ * TODO: class level comment
+ */
 public class CarbonRuntimeFactory {
 
     public static CarbonRuntime createCarbonRuntime(CarbonConfigProvider carbonConfigProvider) throws Exception {

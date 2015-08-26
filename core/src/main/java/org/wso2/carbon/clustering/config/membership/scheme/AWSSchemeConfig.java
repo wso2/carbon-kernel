@@ -19,6 +19,8 @@
 
 package org.wso2.carbon.clustering.config.membership.scheme;
 
+import org.wso2.carbon.clustering.ClusteringConstants;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -118,6 +120,6 @@ public class AWSSchemeConfig {
     }
 
     public String toString() {
-        return "AWS";
+        return ClusteringConstants.MembershipScheme.AWS_BASED;
     }
 }

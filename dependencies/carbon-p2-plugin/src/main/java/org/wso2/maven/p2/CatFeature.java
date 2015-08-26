@@ -23,6 +23,9 @@ import org.wso2.maven.p2.generate.feature.Bundle;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
+/**
+ * TODO: class level comment
+ */
 public class CatFeature {
 
     /**

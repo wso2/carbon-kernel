@@ -20,6 +20,9 @@ package org.wso2.carbon.launcher.utils;
 
 import java.io.File;
 
+/**
+ * Carbon constants
+ */
 public class Constants {
 
     public static final String LAUNCH_PROPERTIES_FILE = "launch.properties";
@@ -54,6 +57,9 @@ public class Constants {
     public static final String LOG_LEVEL_INFO = "INFO";
     public static final String LOG_LEVEL_DEBUG = "DEBUG";
 
+    /**
+     * Carbon server process exit codes
+     */
     public static class ExitCodes {
         public static final int SUCCESSFUL_TERMINATION = 0;
         public static final int UNSUCCESSFUL_TERMINATION = -1;

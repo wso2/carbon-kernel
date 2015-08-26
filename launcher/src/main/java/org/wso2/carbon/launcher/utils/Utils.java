@@ -32,6 +32,9 @@ import java.util.regex.Pattern;
 
 import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
 
+/**
+ * Carbon launcher Utils
+ */
 public class Utils {
 
     private static final Logger logger = BootstrapLogger.getBootstrapLogger();

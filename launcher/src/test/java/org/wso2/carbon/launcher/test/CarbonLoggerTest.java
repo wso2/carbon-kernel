@@ -63,7 +63,8 @@ public class CarbonLoggerTest extends BaseTest {
         String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonLoggerTest} - Sample message-01";
 
         logger.info(sampleMessage);
-        ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(new File(getTestResourceFile(LOGS).getAbsolutePath())));
+        ArrayList<String> logRecords =
+                getLogsFromTestResource(new FileInputStream(new File(getTestResourceFile(LOGS).getAbsolutePath())));
         Assert.assertTrue(logRecords.get(0).contains(resultLog));
     }
 
