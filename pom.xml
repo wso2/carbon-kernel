@@ -72,7 +72,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.16</version>
                     <executions>
                         <execution>
                             <id>validate</id>
@@ -89,6 +88,36 @@
                                 <failsOnError>true</failsOnError>
                                 <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             </configuration>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <configuration>
+                        <!--
+                            Enables analysis which takes more memory but finds more bugs.
+                            If you run out of memory, changes the value of the effort element
+                            to 'Low'.
+                        -->
+                        <effort>Max</effort>
+                        <!-- Reports all bugs (other values are medium and max) -->
+                        <threshold>Low</threshold>
+                        <!-- Produces XML report -->
+                        <xmlOutput>true</xmlOutput>
+                        <!-- Configures the directory in which the XML report is created -->
+                        <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+                    </configuration>
+                    <executions>
+                        <!--
+                            Ensures that FindBugs inspects source code when project is compiled.
+                        -->
+                        <execution>
+                            <id>analyze-compile</id>
+                            <phase>compile</phase>
                             <goals>
                                 <goal>check</goal>
                             </goals>
@@ -256,7 +285,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.16</version>
+                <version>${maven.checkstyleplugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${maven.findbugsplugin.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -879,6 +913,8 @@
         <maven.antrunplugin.version>1.7</maven.antrunplugin.version>
         <maven.projectinforeportsplugin.version>2.4</maven.projectinforeportsplugin.version>
         <maven.incrementalbuildplugin.version>1.2</maven.incrementalbuildplugin.version>
+        <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
+        <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>

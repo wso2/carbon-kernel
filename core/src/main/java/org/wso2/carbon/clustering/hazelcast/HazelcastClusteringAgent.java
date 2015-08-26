@@ -27,8 +27,6 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -171,12 +169,12 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
             }
         }
         localMember = hazelcastInstance.getCluster().getLocalMember();
-        localMember.getInetSocketAddress().getPort();
+        localMember.getSocketAddress().getPort();
         ClusterMember carbonLocalMember =
                 MemberUtils.getLocalMember(primaryDomain,
-                        localMember.getInetSocketAddress().getAddress().
+                        localMember.getSocketAddress().getAddress().
                                 getHostAddress(),
-                        localMember.getInetSocketAddress().getPort(),
+                        localMember.getSocketAddress().getPort(),
                         clusterContext.getClusterConfiguration());
         logger.info("Local member: [" + localMember.getUuid() + "] - " + carbonLocalMember);
 
@@ -184,21 +182,17 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
         final ITopic<ClusterMessage> replayedMsgs = hazelcastInstance.
                 getTopic(HazelcastConstants.REPLAY_MESSAGE_QUEUE + localMember.getUuid());
 
-        replayedMsgs.addMessageListener(new MessageListener<ClusterMessage>() {
-
-            @Override
-            public void onMessage(Message<ClusterMessage> clusterMessage) {
-                ClusterMessage msg = clusterMessage.getMessageObject();
-                // check UUID to eliminate duplicates
-                if (!recdMsgsBuffer.containsKey(msg.getUuid())) {
-                    logger.info("Received replayed message: " + msg.getUuid());
-                    try {
-                        msg.execute();
-                    } catch (MessageFailedException e) {
-                        logger.error("Message execution failed", e);
-                    }
-                    recdMsgsBuffer.put(msg.getUuid(), System.currentTimeMillis());
+        replayedMsgs.addMessageListener(clusterMessage -> {
+            ClusterMessage msg = clusterMessage.getMessageObject();
+            // check UUID to eliminate duplicates
+            if (!recdMsgsBuffer.containsKey(msg.getUuid())) {
+                logger.info("Received replayed message: " + msg.getUuid());
+                try {
+                    msg.execute();
+                } catch (MessageFailedException e) {
+                    logger.error("Message execution failed", e);
                 }
+                recdMsgsBuffer.put(msg.getUuid(), System.currentTimeMillis());
             }
         });
 
