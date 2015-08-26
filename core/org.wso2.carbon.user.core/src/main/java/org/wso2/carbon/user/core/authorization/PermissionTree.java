@@ -981,7 +981,7 @@ public class PermissionTree {
                 String roleName = rs.getString(1);
                 String domain = rs.getString(5);
                 String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
-                roleWithDomain = roleWithDomain.toLowerCase();
+//                roleWithDomain = roleWithDomain.toLowerCase();
 
                 if (allow == UserCoreConstants.ALLOW) {
                     tree.authorizeRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
