@@ -16,14 +16,14 @@ public class P2Repository {
      * @parameter
      */
     private URL artifactRepository;
-    
+
     /**
      * URL of the P2 Repository
      *
      * @parameter
      */
     private URL repository;
-    
+
     /**
      * Genrate P2 Repository on the fly
      *
@@ -31,35 +31,35 @@ public class P2Repository {
      */
     private RepositoryGenMojo generateRepo;
 
-	public void setGenerateRepo(RepositoryGenMojo generateRepo) {
-		this.generateRepo = generateRepo;
-	}
+    public RepositoryGenMojo getGenerateRepo() {
+        return generateRepo;
+    }
 
-	public RepositoryGenMojo getGenerateRepo() {
-		return generateRepo;
-	}
+    public void setGenerateRepo(RepositoryGenMojo generateRepo) {
+        this.generateRepo = generateRepo;
+    }
 
-	public void setRepository(URL repository) {
-		this.repository = repository;
-	}
+    public URL getRepository() {
+        return repository;
+    }
 
-	public URL getRepository() {
-		return repository;
-	}
+    public void setRepository(URL repository) {
+        this.repository = repository;
+    }
 
-	public void setArtifactRepository(URL artifactRepository) {
-		this.artifactRepository = artifactRepository;
-	}
+    public URL getArtifactRepository() {
+        return artifactRepository;
+    }
 
-	public URL getArtifactRepository() {
-		return artifactRepository;
-	}
+    public void setArtifactRepository(URL artifactRepository) {
+        this.artifactRepository = artifactRepository;
+    }
 
-	public void setMetadataRepository(URL metadataRepository) {
-		this.metadataRepository = metadataRepository;
-	}
+    public URL getMetadataRepository() {
+        return metadataRepository;
+    }
 
-	public URL getMetadataRepository() {
-		return metadataRepository;
-	} 
+    public void setMetadataRepository(URL metadataRepository) {
+        this.metadataRepository = metadataRepository;
+    }
 }

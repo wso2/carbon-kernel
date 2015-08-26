@@ -8,13 +8,13 @@ public class Feature {
      * @parameter
      * @required
      */
-	public String featureId;
-	
+    public String featureId;
+
     /**
      * Version of the Feature
      *
      * @parameter
      * @required
      */
-	public String version;
+    public String version;
 }

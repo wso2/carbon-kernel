@@ -23,16 +23,14 @@ import org.wso2.carbon.context.login.identifiers.GroupIdentifier;
 
 public interface Group {
 
-	/**
-	 * 
-	 * @return
-	 */
-	public GroupIdentifier getIdentifier();
+    /**
+     * @return
+     */
+    public GroupIdentifier getIdentifier();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getDescription();
+    /**
+     * @return
+     */
+    public String getDescription();
 
 }

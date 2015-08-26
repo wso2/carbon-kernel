@@ -19,15 +19,9 @@ package org.wso2.maven.p2.generate.utils;
 import java.util.Properties;
 
 public class PropertyReplacer {
-    // States of the state machine
-    private enum State {
-        NORMAL, SEEN_DOLLAR, WITHIN_BRACKET
-    }
-
     private PropertyReplacer() {
         // you can't instantiate this class
     }
-
 
     public static String replaceProperties(final String origString, final Properties props) {
 
@@ -58,8 +52,8 @@ public class PropertyReplacer {
                     buffer.append(key);
                     buffer.append('}');
                 }
-                 start = i + 1;
-                 state = State.NORMAL;
+                start = i + 1;
+                state = State.NORMAL;
             }
         }
         // No properties hence returning the original string
@@ -71,6 +65,12 @@ public class PropertyReplacer {
             buffer.append(origString.substring(start, chars.length));
         }
         return buffer.toString();
+    }
+
+
+    // States of the state machine
+    private enum State {
+        NORMAL, SEEN_DOLLAR, WITHIN_BRACKET
     }
 
 }

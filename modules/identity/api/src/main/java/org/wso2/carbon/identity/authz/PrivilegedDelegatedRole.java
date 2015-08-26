@@ -19,48 +19,45 @@
 
 package org.wso2.carbon.identity.authz;
 
-import java.util.Date;
-
 import org.wso2.carbon.identity.authn.PrivilegedGroup;
 import org.wso2.carbon.identity.authn.PrivilegedUser;
 import org.wso2.carbon.identity.authz.spi.ReadOnlyAuthorizationStore;
 
+import java.util.Date;
+
 public class PrivilegedDelegatedRole<U extends PrivilegedUser, G extends PrivilegedGroup>
-		extends PrivilegedRole<U, G> {
+        extends PrivilegedRole<U, G> {
 
-	private Date effectiveFrom;
-	private Date effectiveUpTo;
+    private Date effectiveFrom;
+    private Date effectiveUpTo;
 
-	/**
-	 * 
-	 * @param authzStore
-	 * @param roleIdentifier
-	 * @param effectiveFrom
-	 * @param effectiveUpTo
-	 * @throws AuthorizationStoreException 
-	 */
-	public PrivilegedDelegatedRole(RoleIdentifier roleIdentifier,
-			ReadOnlyAuthorizationStore authzStore, Date effectiveFrom,
-			Date effectiveUpTo) throws AuthorizationStoreException {
-		super(roleIdentifier, authzStore);
-		this.effectiveFrom = effectiveFrom;
-		this.effectiveUpTo = effectiveUpTo;
-	}
+    /**
+     * @param authzStore
+     * @param roleIdentifier
+     * @param effectiveFrom
+     * @param effectiveUpTo
+     * @throws AuthorizationStoreException
+     */
+    public PrivilegedDelegatedRole(RoleIdentifier roleIdentifier,
+                                   ReadOnlyAuthorizationStore authzStore, Date effectiveFrom,
+                                   Date effectiveUpTo) throws AuthorizationStoreException {
+        super(roleIdentifier, authzStore);
+        this.effectiveFrom = effectiveFrom;
+        this.effectiveUpTo = effectiveUpTo;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Date getEffectiveUpTo() {
-		return effectiveUpTo;
-	}
+    /**
+     * @return
+     */
+    public Date getEffectiveUpTo() {
+        return effectiveUpTo;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public Date getEffectiveFrom() {
-		return effectiveFrom;
-	}
+    /**
+     * @return
+     */
+    public Date getEffectiveFrom() {
+        return effectiveFrom;
+    }
 
 }

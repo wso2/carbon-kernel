@@ -25,21 +25,19 @@ import org.wso2.carbon.identity.commons.EntryIdentifier;
 /**
  * Keep the track of related accounts across identity stores.
  */
-public interface ReadWriteLinkedAccountStore extends ReadOnlyLinkedAccountStore{
+public interface ReadWriteLinkedAccountStore extends ReadOnlyLinkedAccountStore {
 
-	/**
-	 * 
-	 * @param entryIdentifier
-	 * @param linkedEntryIdentifier
-	 * @throws AccountException
-	 */
-	public void link(EntryIdentifier entryIdentifier, EntryIdentifier linkedEntryIdentifier) throws AccountException;
+    /**
+     * @param entryIdentifier
+     * @param linkedEntryIdentifier
+     * @throws AccountException
+     */
+    public void link(EntryIdentifier entryIdentifier, EntryIdentifier linkedEntryIdentifier) throws AccountException;
 
-	/**
-	 * 
-	 * @param entryIdentifier
-	 * @param linkedEntryIdentifier
-	 * @throws AccountException
-	 */
-	public void unlink(EntryIdentifier entryIdentifier, EntryIdentifier linkedEntryIdentifier) throws AccountException;
+    /**
+     * @param entryIdentifier
+     * @param linkedEntryIdentifier
+     * @throws AccountException
+     */
+    public void unlink(EntryIdentifier entryIdentifier, EntryIdentifier linkedEntryIdentifier) throws AccountException;
 }

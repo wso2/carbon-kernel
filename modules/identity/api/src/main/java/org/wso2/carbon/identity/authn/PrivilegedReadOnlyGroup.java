@@ -19,9 +19,6 @@
 
 package org.wso2.carbon.identity.authn;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.wso2.carbon.identity.authn.spi.ReadOnlyIdentityStore;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
 import org.wso2.carbon.identity.authz.AuthorizationStoreException;
@@ -30,83 +27,80 @@ import org.wso2.carbon.identity.authz.spi.ReadOnlyAuthorizationStore;
 import org.wso2.carbon.identity.authz.spi.RoleSearchCriteria;
 import org.wso2.carbon.identity.commons.EntityTree;
 
+import java.util.Collections;
+import java.util.List;
+
 public class PrivilegedReadOnlyGroup extends
-		PrivilegedGroup<PrivilegedROUser, PrivilegedReadOnlyRole> {
+        PrivilegedGroup<PrivilegedROUser, PrivilegedReadOnlyRole> {
 
-	private ReadOnlyIdentityStore<PrivilegedROUser, PrivilegedReadOnlyGroup, PrivilegedReadOnlyRole> identityStore;
-	private ReadOnlyAuthorizationStore<PrivilegedROUser, PrivilegedReadOnlyGroup, PrivilegedReadOnlyRole> authzStore;
+    private ReadOnlyIdentityStore<PrivilegedROUser, PrivilegedReadOnlyGroup, PrivilegedReadOnlyRole> identityStore;
+    private ReadOnlyAuthorizationStore<PrivilegedROUser, PrivilegedReadOnlyGroup, PrivilegedReadOnlyRole> authzStore;
 
-	/**
-	 * 
-	 * @param identityStore
-	 * @param authzStore
-	 * @param groupIdentifier
-	 */
-	public PrivilegedReadOnlyGroup(
-			GroupIdentifier groupIdentifier,
-			ReadOnlyIdentityStore<PrivilegedROUser, PrivilegedReadOnlyGroup, PrivilegedReadOnlyRole> identityStore,
-			ReadOnlyAuthorizationStore<PrivilegedROUser, PrivilegedReadOnlyGroup, PrivilegedReadOnlyRole> authzStore)
-			throws IdentityStoreException {
-		super(groupIdentifier, identityStore, authzStore);
-		this.authzStore = authzStore;
-		this.identityStore = identityStore;
-	}
+    /**
+     * @param identityStore
+     * @param authzStore
+     * @param groupIdentifier
+     */
+    public PrivilegedReadOnlyGroup(
+            GroupIdentifier groupIdentifier,
+            ReadOnlyIdentityStore<PrivilegedROUser, PrivilegedReadOnlyGroup, PrivilegedReadOnlyRole> identityStore,
+            ReadOnlyAuthorizationStore<PrivilegedROUser, PrivilegedReadOnlyGroup, PrivilegedReadOnlyRole> authzStore)
+            throws IdentityStoreException {
+        super(groupIdentifier, identityStore, authzStore);
+        this.authzStore = authzStore;
+        this.identityStore = identityStore;
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedROUser> getUsers() throws IdentityStoreException {
-		return identityStore.getUsersInGroup(getIdentifier());
-	}
+    /**
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<PrivilegedROUser> getUsers() throws IdentityStoreException {
+        return identityStore.getUsersInGroup(getIdentifier());
+    }
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedROUser> getUsers(UserSearchCriteria searchCriteria)
-			throws IdentityStoreException {
-		return identityStore.getUsersInGroup(getIdentifier(), searchCriteria);
-	}
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<PrivilegedROUser> getUsers(UserSearchCriteria searchCriteria)
+            throws IdentityStoreException {
+        return identityStore.getUsersInGroup(getIdentifier(), searchCriteria);
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<PrivilegedReadOnlyRole> getRoles()
-			throws AuthorizationStoreException {
-		List<PrivilegedReadOnlyRole> roles = authzStore
-				.getRoles(getIdentifier());
-		return Collections.unmodifiableList(roles);
-	}
+    /**
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<PrivilegedReadOnlyRole> getRoles()
+            throws AuthorizationStoreException {
+        List<PrivilegedReadOnlyRole> roles = authzStore
+                .getRoles(getIdentifier());
+        return Collections.unmodifiableList(roles);
+    }
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<PrivilegedReadOnlyRole> getRoles(
-			RoleSearchCriteria searchCriteria)
-			throws AuthorizationStoreException {
-		List<PrivilegedReadOnlyRole> roles = authzStore.getRoles(
-				getIdentifier(), searchCriteria);
-		return Collections.unmodifiableList(roles);
-	}
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<PrivilegedReadOnlyRole> getRoles(
+            RoleSearchCriteria searchCriteria)
+            throws AuthorizationStoreException {
+        List<PrivilegedReadOnlyRole> roles = authzStore.getRoles(
+                getIdentifier(), searchCriteria);
+        return Collections.unmodifiableList(roles);
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<EntityTree> getChildren() throws IdentityStoreException {
-		List<EntityTree> children = identityStore
-				.getGroupChildren(getIdentifier());
-		return Collections.unmodifiableList(children);
-	}
+    /**
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<EntityTree> getChildren() throws IdentityStoreException {
+        List<EntityTree> children = identityStore
+                .getGroupChildren(getIdentifier());
+        return Collections.unmodifiableList(children);
+    }
 
 }

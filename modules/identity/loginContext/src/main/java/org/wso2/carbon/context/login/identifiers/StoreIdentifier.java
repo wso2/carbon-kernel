@@ -21,8 +21,8 @@ package org.wso2.carbon.context.login.identifiers;
 
 public class StoreIdentifier extends EntityIdentifier {
 
-	public StoreIdentifier(String value) {
-		super(value);
-	}
+    public StoreIdentifier(String value) {
+        super(value);
+    }
 
 }

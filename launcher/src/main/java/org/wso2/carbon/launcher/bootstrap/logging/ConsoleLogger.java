@@ -27,10 +27,9 @@ import java.util.logging.LogRecord;
  * Convenience class for configuring java.util.logging to append to
  * carbon console.  This could be used for bootstrap logging
  * prior to start of the framework.
- * 
  */
 public class ConsoleLogger {
-    public static synchronized Handler getDefaultHandler () throws IOException {
+    public static synchronized Handler getDefaultHandler() throws IOException {
         ConsoleLogHandler consoleLogHandler = new ConsoleLogHandler();
         // setting the log4j.properties format
         consoleLogHandler.setFormatter(new LoggingFormatter());

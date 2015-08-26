@@ -14,9 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<hazelcast xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.2.xsd"
-           xmlns="http://www.hazelcast.com/schema/config"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<hazelcast xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.2.xsd"
+           xmlns="http://www.hazelcast.com/schema/config">
     <group>
         <name>wso2.carbon.domain</name>
         <password>pass</password>
@@ -55,8 +55,8 @@
         <interfaces enabled="false">
             <interface>10.10.1.*</interface>
         </interfaces>
-        <ssl enabled="false" />
-        <socket-interceptor enabled="false" />
+        <ssl enabled="false"/>
+        <socket-interceptor enabled="false"/>
         <symmetric-encryption enabled="false">
             <!--
                encryption algorithm such as
@@ -201,6 +201,6 @@
         <portable-version>0</portable-version>
     </serialization>
 
-    <services enable-defaults="true" />
+    <services enable-defaults="true"/>
 
 </hazelcast>

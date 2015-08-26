@@ -19,9 +19,6 @@
 
 package org.wso2.carbon.identity.authn.spi;
 
-import java.util.List;
-import java.util.Properties;
-
 import org.wso2.carbon.identity.account.spi.ReadOnlyLinkedAccountStore;
 import org.wso2.carbon.identity.authn.GroupIdentifier;
 import org.wso2.carbon.identity.authn.IdentityStoreException;
@@ -41,184 +38,169 @@ import org.wso2.carbon.identity.credential.spi.CredentialStore;
 import org.wso2.carbon.identity.profile.Profile;
 import org.wso2.carbon.identity.profile.ProfileIdentifier;
 
-public interface ReadOnlyIdentityStore< U extends PrivilegedUser<G, R>, 
-										G extends PrivilegedGroup<U, R>, 
-										R extends PrivilegedRole<U, G> >
-		extends VirtualReadOnlyIdentityStore<U, G, R> {
+import java.util.List;
+import java.util.Properties;
 
-	/**
-	 * 
-	 * @param storeDialectCollection
-	 * @param accountManager
-	 * @param credentialStore
-	 * @param properties
-	 */
-	public void init(StoreDialectCollection storeDialectCollection,
-			ReadOnlyLinkedAccountStore linkedAccontStore,
-			CredentialStore credentialStore, Properties properties);
+public interface ReadOnlyIdentityStore<U extends PrivilegedUser<G, R>,
+        G extends PrivilegedGroup<U, R>,
+        R extends PrivilegedRole<U, G>>
+        extends VirtualReadOnlyIdentityStore<U, G, R> {
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param dialectIdentifier
-	 * @param claimIdentifiers
-	 * @param profileIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<Claim> getUserAttributes(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier,
-			List<ClaimIdentifier> claimIdentifiers,
-			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
+    /**
+     * @param storeDialectCollection
+     * @param accountManager
+     * @param credentialStore
+     * @param properties
+     */
+    public void init(StoreDialectCollection storeDialectCollection,
+                     ReadOnlyLinkedAccountStore linkedAccontStore,
+                     CredentialStore credentialStore, Properties properties);
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param dialectIdentifier
-	 * @param profileIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<Claim> getUserAttributes(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier,
-			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @param dialectIdentifier
+     * @param claimIdentifiers
+     * @param profileIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<Claim> getUserAttributes(UserIdentifier userIdentifier,
+                                         DialectIdentifier dialectIdentifier,
+                                         List<ClaimIdentifier> claimIdentifiers,
+                                         ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param dialectIdentifier
-	 * @param profileIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public Profile getUserProfile(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier,
-			ProfileIdentifier profileIdentifier) throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @param dialectIdentifier
+     * @param profileIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<Claim> getUserAttributes(UserIdentifier userIdentifier,
+                                         DialectIdentifier dialectIdentifier,
+                                         ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param dialectIdentifier
-	 * @param claimUris
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<Profile> getUserProfiles(UserIdentifier userIdentifier,
-			DialectIdentifier dialectIdentifier, List<ClaimIdentifier> claimUris)
-			throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @param dialectIdentifier
+     * @param profileIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public Profile getUserProfile(UserIdentifier userIdentifier,
+                                  DialectIdentifier dialectIdentifier,
+                                  ProfileIdentifier profileIdentifier) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public EntryIdentifier getUserEntryId(UserIdentifier userIdentifier)
-			throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @param dialectIdentifier
+     * @param claimUris
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<Profile> getUserProfiles(UserIdentifier userIdentifier,
+                                         DialectIdentifier dialectIdentifier, List<ClaimIdentifier> claimUris)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @throws IdentityStoreException
-	 * @return
-	 */
-	public EntryIdentifier getGroupEntryId(GroupIdentifier groupIdentifier)
-			throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public EntryIdentifier getUserEntryId(UserIdentifier userIdentifier)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param groupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public boolean isUserInGroup(UserIdentifier userIdentifier,
-			GroupIdentifier groupIdentifier) throws IdentityStoreException;
+    /**
+     * @param groupIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public EntryIdentifier getGroupEntryId(GroupIdentifier groupIdentifier)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<U> getUsersInGroup(GroupIdentifier groupIdentifier)
-			throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @param groupIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public boolean isUserInGroup(UserIdentifier userIdentifier,
+                                 GroupIdentifier groupIdentifier) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<U> getUsersInGroup(GroupIdentifier groupIdentifier,
-			UserSearchCriteria searchCriteria) throws IdentityStoreException;
+    /**
+     * @param groupIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<U> getUsersInGroup(GroupIdentifier groupIdentifier)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<EntityTree> getGroupChildren(GroupIdentifier groupIdentifier)
-			throws IdentityStoreException;
+    /**
+     * @param groupIdentifier
+     * @param searchCriteria
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<U> getUsersInGroup(GroupIdentifier groupIdentifier,
+                                   UserSearchCriteria searchCriteria) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param parentGroupIdentifier
-	 * @param childGroupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public boolean hasChildGroup(GroupIdentifier parentGroupIdentifier,
-			GroupIdentifier childGroupIdentifier) throws IdentityStoreException;
+    /**
+     * @param groupIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<EntityTree> getGroupChildren(GroupIdentifier groupIdentifier)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param childGroupIdentifier
-	 * @param parentGroupIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public boolean hasParentGroup(GroupIdentifier childGroupIdentifier,
-			GroupIdentifier parentGroupIdentifier)
-			throws IdentityStoreException;
+    /**
+     * @param parentGroupIdentifier
+     * @param childGroupIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public boolean hasChildGroup(GroupIdentifier parentGroupIdentifier,
+                                 GroupIdentifier childGroupIdentifier) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<G> getGroups(UserIdentifier userIdentifier)
-			throws IdentityStoreException;
+    /**
+     * @param childGroupIdentifier
+     * @param parentGroupIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public boolean hasParentGroup(GroupIdentifier childGroupIdentifier,
+                                  GroupIdentifier parentGroupIdentifier)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<G> getGroups(UserIdentifier userIdentifier,
-			GroupSearchCriteria searchCriteria) throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<G> getGroups(UserIdentifier userIdentifier)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @return
-	 */
-	public StoreIdentifier getStoreIdentifier();
+    /**
+     * @param userIdentifier
+     * @param searchCriteria
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<G> getGroups(UserIdentifier userIdentifier,
+                             GroupSearchCriteria searchCriteria) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isReadOnly();
+    /**
+     * @return
+     */
+    public StoreIdentifier getStoreIdentifier();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ReadOnlyLinkedAccountStore getLinkedAccountStore();
+    /**
+     * @return
+     */
+    public boolean isReadOnly();
+
+    /**
+     * @return
+     */
+    public ReadOnlyLinkedAccountStore getLinkedAccountStore();
 
 }

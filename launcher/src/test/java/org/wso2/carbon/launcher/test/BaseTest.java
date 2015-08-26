@@ -18,14 +18,16 @@
 
 package org.wso2.carbon.launcher.test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class BaseTest {
-
-    protected String testDir = "src" + File.separator + "test" + File.separator;
-    protected String testResourceDir = testDir + "resources";
-//    private final static String LOGS = "logs" + File.separator + "test.logs";
 
     /**
      * Basedir for all file I/O. Important when running tests from the reactor.
@@ -39,6 +41,10 @@ public class BaseTest {
             basedir = new File(".").getAbsolutePath();
         }
     }
+
+    //    private static final String LOGS = "logs" + File.separator + "test.logs";
+    protected String testDir = "src" + File.separator + "test" + File.separator;
+    protected String testResourceDir = testDir + "resources";
 
     /**
      * @param testName
@@ -58,8 +64,8 @@ public class BaseTest {
             return new FileInputStream(testResource);
         } catch (FileNotFoundException e) {
             throw new IllegalStateException("The '" + testResource.getAbsolutePath() +
-                                            "' file does not exist. Verify that the 'basedir' System property " +
-                                            "is pointing to the root of the project", e);
+                    "' file does not exist. Verify that the 'basedir' System property " +
+                    "is pointing to the root of the project", e);
         }
     }
 
@@ -71,7 +77,7 @@ public class BaseTest {
 //            testResource = new FileInputStream(new File("/home/manoj/Desktop/carbon-kernel/modules/launcher/src/test/resources/logs/test.logs"));
             bufferedReader = new BufferedReader(new InputStreamReader(testResource));
             String strLine;
-            while ((strLine = bufferedReader.readLine()) != null)   {
+            while ((strLine = bufferedReader.readLine()) != null) {
                 logRecords.add(strLine);
             }
 

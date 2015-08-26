@@ -34,11 +34,10 @@ import java.util.logging.Logger;
 public class ConsoleLoggerTest {
 
 
-    private Logger logger;
-
     JavaUtilLogHandler javaUtilLogHandler;
     CommonsLogHandler commonsLogHandler;
     SLF4jLogHandler slf4jLogHandler;
+    private Logger logger;
 
     @BeforeSuite
     public void doBeforeEachTest() {

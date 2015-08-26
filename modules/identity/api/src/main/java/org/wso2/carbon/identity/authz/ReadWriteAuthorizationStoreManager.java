@@ -24,23 +24,21 @@ import org.wso2.carbon.identity.authz.spi.ReadWriteAuthorizationStore;
 
 public interface ReadWriteAuthorizationStoreManager extends ReadOnlyAuthorizationStoreManager {
 
-	/**
-	 * 
-	 * @param storeIdentifier
-	 * @return
-	 */
-	public ReadWriteAuthorizationStore getAuthorizationStore(StoreIdentifier storeIdentifier);
+    /**
+     * @param storeIdentifier
+     * @return
+     */
+    public ReadWriteAuthorizationStore getAuthorizationStore(StoreIdentifier storeIdentifier);
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ReadWriteAuthorizationStore getPrimaryAuthorizationStore();
+    /**
+     * @return
+     */
+    public ReadWriteAuthorizationStore getPrimaryAuthorizationStore();
 
-	/**
-	 * 
-	 * @param storeIdentifier
-	 * @return
-	 */
+    /**
+     *
+     * @param storeIdentifier
+     * @return
+     */
 //	public void addAuthorizationStore(StoreIdentifier storeIdentifier);
 }

@@ -19,21 +19,19 @@
 
 package org.wso2.carbon.context.login;
 
-import java.util.List;
-
 import org.wso2.carbon.context.login.identifiers.RoleIdentifier;
+
+import java.util.List;
 
 public interface Role {
 
-	/**
-	 * 
-	 * @return
-	 */
-	public RoleIdentifier getRoleIdentifier();
+    /**
+     * @return
+     */
+    public RoleIdentifier getRoleIdentifier();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public List<CarbonPermission> getPermission();
+    /**
+     * @return
+     */
+    public List<CarbonPermission> getPermission();
 }

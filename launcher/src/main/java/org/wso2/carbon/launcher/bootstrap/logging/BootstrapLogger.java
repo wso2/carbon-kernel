@@ -34,14 +34,13 @@ public class BootstrapLogger extends Logger {
      * @param resourceBundleName name of ResourceBundle to be used for localizing
      *                           messages for this logger.  May be null if none
      *                           of the messages require localization.
-     * @throws java.util.MissingResourceException
-     *          if the ResourceBundleName is non-null and
-     *          no corresponding resource can be found.
-     * @param    name    A name for the logger.  This should
-     * be a dot-separated name and should normally
-     * be based on the package name or class name
-     * of the subsystem, such as java.net
-     * or javax.swing.  It may be null for anonymous Loggers.
+     * @param name               A name for the logger.  This should
+     *                           be a dot-separated name and should normally
+     *                           be based on the package name or class name
+     *                           of the subsystem, such as java.net
+     *                           or javax.swing.  It may be null for anonymous Loggers.
+     * @throws java.util.MissingResourceException if the ResourceBundleName is non-null and
+     *                                            no corresponding resource can be found.
      */
     protected BootstrapLogger(String name, String resourceBundleName) {
         super(name, resourceBundleName);

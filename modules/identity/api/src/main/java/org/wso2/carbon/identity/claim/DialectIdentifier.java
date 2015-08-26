@@ -23,12 +23,11 @@ import org.wso2.carbon.identity.commons.EntityIdentifier;
 
 public class DialectIdentifier extends EntityIdentifier {
 
-	/**
-	 * 
-	 * @param value
-	 */
-	public DialectIdentifier(String value) {
-		super(value);
-	}
+    /**
+     * @param value
+     */
+    public DialectIdentifier(String value) {
+        super(value);
+    }
 
 }

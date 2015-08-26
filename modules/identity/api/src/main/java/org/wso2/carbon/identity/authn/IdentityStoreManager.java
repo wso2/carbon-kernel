@@ -27,28 +27,25 @@ import org.wso2.carbon.identity.credential.spi.CredentialStore;
 
 public interface IdentityStoreManager extends ReadOnlyIdentityStoreManager {
 
-	public void init(IdentityStoreConfig primaryStoreConfig, ClaimManager claimManager,
-			ReadWriteLinkedAccountStore linkedAccountStore, CredentialStore credentialStore);
+    public void init(IdentityStoreConfig primaryStoreConfig, ClaimManager claimManager,
+                     ReadWriteLinkedAccountStore linkedAccountStore, CredentialStore credentialStore);
 
-	/**
-	 * 
-	 * @param storeConfig
-	 * @throws IdentityException
-	 */
-	public void addIdentityStore(IdentityStoreConfig storeConfig) throws IdentityException;
+    /**
+     * @param storeConfig
+     * @throws IdentityException
+     */
+    public void addIdentityStore(IdentityStoreConfig storeConfig) throws IdentityException;
 
-	/**
-	 * 
-	 * @param storeIdentifier
-	 * @throws IdentityException
-	 */
-	public void dropIdentityStore(StoreIdentifier storeIdentifier) throws IdentityException;
+    /**
+     * @param storeIdentifier
+     * @throws IdentityException
+     */
+    public void dropIdentityStore(StoreIdentifier storeIdentifier) throws IdentityException;
 
-	/**
-	 * 
-	 * @param storeConfig
-	 * @throws IdentityException
-	 */
-	public void updateIdentityStore(IdentityStoreConfig storeConfig) throws IdentityException;
+    /**
+     * @param storeConfig
+     * @throws IdentityException
+     */
+    public void updateIdentityStore(IdentityStoreConfig storeConfig) throws IdentityException;
 
 }

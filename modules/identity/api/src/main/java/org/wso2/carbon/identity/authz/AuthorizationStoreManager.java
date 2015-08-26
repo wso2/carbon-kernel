@@ -25,31 +25,27 @@ import org.wso2.carbon.identity.config.spi.AuthorizationStoreConfig;
 
 public interface AuthorizationStoreManager extends ReadOnlyAuthorizationStoreManager {
 
-	/**
-	 * 
-	 * @param primaryAuthzStoreConfig
-	 */
-	public void init(AuthorizationStoreConfig primaryAuthzStoreConfig);
+    /**
+     * @param primaryAuthzStoreConfig
+     */
+    public void init(AuthorizationStoreConfig primaryAuthzStoreConfig);
 
-	/**
-	 * 
-	 * @param storeConfig
-	 * @throws IdentityException
-	 */
-	public void addAuthorizationStore(AuthorizationStoreConfig storeConfig) throws IdentityException;
+    /**
+     * @param storeConfig
+     * @throws IdentityException
+     */
+    public void addAuthorizationStore(AuthorizationStoreConfig storeConfig) throws IdentityException;
 
-	/**
-	 * 
-	 * @param storeIdentifier
-	 * @throws IdentityException
-	 */
-	public void dropAuthorizationStore(StoreIdentifier storeIdentifier) throws IdentityException;
+    /**
+     * @param storeIdentifier
+     * @throws IdentityException
+     */
+    public void dropAuthorizationStore(StoreIdentifier storeIdentifier) throws IdentityException;
 
-	/**
-	 * 
-	 * @param storeConfig
-	 * @throws IdentityException
-	 */
-	public void updateAuthorizationStore(AuthorizationStoreConfig storeConfig) throws IdentityException;
+    /**
+     * @param storeConfig
+     * @throws IdentityException
+     */
+    public void updateAuthorizationStore(AuthorizationStoreConfig storeConfig) throws IdentityException;
 
 }

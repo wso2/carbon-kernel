@@ -1,6 +1,6 @@
-<Cluster xsi:schemaLocation="http://wso2.com/schema/clustering/config cluster.xsd"
-         xmlns="http://wso2.com/schema/clustering/config"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://wso2.com/schema/clustering/config cluster.xsd"
+         xmlns="http://wso2.com/schema/clustering/config">
 
     <!--Indicates whether clustering should be enabled or disabled for this node-->
     <Enable>false</Enable>
