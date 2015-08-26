@@ -284,6 +284,8 @@ public class HazelcastClusteringAgent implements ClusteringAgent {
                     membershipScheme = new GenericMembershipScheme();
                     membershipScheme.init(clusterContext);
                     break;
+                default:
+                    break;
             }
         }
     }
