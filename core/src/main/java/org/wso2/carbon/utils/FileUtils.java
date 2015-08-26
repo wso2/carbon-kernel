@@ -131,33 +131,35 @@ public class FileUtils {
         //get a listing of the directory content
         String[] dirList = zipDir.list();
         byte[] readBuffer = new byte[40960];
-        int bytesIn = 0;
+        int bytesIn;
         //loop through dirList, and zip the files
-        for (String aDirList : dirList) {
-            File f = new File(zipDir, aDirList);
-            //place the zip entry in the ZipOutputStream object
-            zos.putNextEntry(new ZipEntry(getZipEntryPath(f, archiveSourceDir)));
-            if (f.isDirectory()) {
-                //if the File object is a directory, call this
-                //function again to add its content recursively
-                zipDir(f, zos, archiveSourceDir);
-                //loop again
-                continue;
-            }
-            //if we reached here, the File object f was not a directory
-            //create a FileInputStream on top of f
-            FileInputStream fis = new FileInputStream(f);
-            try {
-                //now write the content of the file to the ZipOutputStream
-                while ((bytesIn = fis.read(readBuffer)) != -1) {
-                    zos.write(readBuffer, 0, bytesIn);
+        if (dirList != null) {
+            for (String aDirList : dirList) {
+                File f = new File(zipDir, aDirList);
+                //place the zip entry in the ZipOutputStream object
+                zos.putNextEntry(new ZipEntry(getZipEntryPath(f, archiveSourceDir)));
+                if (f.isDirectory()) {
+                    //if the File object is a directory, call this
+                    //function again to add its content recursively
+                    zipDir(f, zos, archiveSourceDir);
+                    //loop again
+                    continue;
                 }
-            } finally {
+                //if we reached here, the File object f was not a directory
+                //create a FileInputStream on top of f
+                FileInputStream fis = new FileInputStream(f);
                 try {
-                    //close the Stream
-                    fis.close();
-                } catch (IOException e) {
-                    logger.error("Unable to close the InputStream " + e.getMessage());
+                    //now write the content of the file to the ZipOutputStream
+                    while ((bytesIn = fis.read(readBuffer)) != -1) {
+                        zos.write(readBuffer, 0, bytesIn);
+                    }
+                } finally {
+                    try {
+                        //close the Stream
+                        fis.close();
+                    } catch (IOException e) {
+                        logger.error("Unable to close the InputStream " + e.getMessage());
+                    }
                 }
             }
         }

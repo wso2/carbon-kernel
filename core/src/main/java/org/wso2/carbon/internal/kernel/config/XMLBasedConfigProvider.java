@@ -22,8 +22,8 @@ import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.util.Utils;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -37,9 +37,7 @@ public class XMLBasedConfigProvider implements CarbonConfigProvider {
     public CarbonConfiguration getCarbonConfiguration() {
 
         String configFileLocation = Utils.getCarbonXMLLocation();
-        try {
-            Reader in = new FileReader(configFileLocation);
-
+        try (Reader in = new FileReader(configFileLocation)) {
             JAXBContext jaxbContext = JAXBContext.newInstance(CarbonConfiguration.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
@@ -59,12 +57,9 @@ public class XMLBasedConfigProvider implements CarbonConfigProvider {
 
             return (CarbonConfiguration) unmarshaller.unmarshal(in);
 
-        } catch (JAXBException e) {
+        } catch (JAXBException | IOException e) {
             // TODO handle this exception
             e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            //dfd
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
         // We need to populate a CarbonConfiguration from the carbon.xml file.

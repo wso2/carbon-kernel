@@ -111,7 +111,7 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
 
     @Override
     public String getProperty(String key) {
-        return properties.get(key);
+        return properties == null ? null : properties.get(key);
     }
 
     @Override

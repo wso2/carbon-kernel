@@ -31,7 +31,6 @@ import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.internal.DataHolder;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;

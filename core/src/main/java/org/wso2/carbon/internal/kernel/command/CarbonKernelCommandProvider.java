@@ -57,7 +57,9 @@ public class CarbonKernelCommandProvider implements CommandProvider {
 
     @Deactivate
     public void unregisterCommandProvider(BundleContext bundleContext) {
-        serviceRegistration.unregister();
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
     }
 
     public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
