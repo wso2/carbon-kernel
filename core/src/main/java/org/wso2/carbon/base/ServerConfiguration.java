@@ -105,13 +105,7 @@ public class ServerConfiguration implements ServerConfigurationService {
             }
             isInitialized = true;
             isLoadedConfigurationPreserved = false;
-        } catch (ParserConfigurationException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ServerConfigurationException(e);
-        } catch (SAXException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ServerConfigurationException(e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             logger.error("Problem in parsing the configuration file ", e);
             throw new ServerConfigurationException(e);
         }
@@ -146,21 +140,17 @@ public class ServerConfiguration implements ServerConfigurationService {
                     xmlInputStream = new FileInputStream(f);
                 } catch (FileNotFoundException e1) {
                     // As a last resort test in the classpath
-                    ClassLoader cl = ServerConfigurationService.class
-                            .getClassLoader();
-                    xmlInputStream = cl
-                            .getResourceAsStream(configurationXMLLocation);
+                    ClassLoader cl = ServerConfigurationService.class.getClassLoader();
+                    xmlInputStream = cl.getResourceAsStream(configurationXMLLocation);
                     if (xmlInputStream == null) {
-                        String msg = "Configuration File cannot be loaded from "
-                                + configurationXMLLocation;
+                        String msg = "Configuration File cannot be loaded from " + configurationXMLLocation;
                         logger.error(msg, e1);
                         throw new ServerConfigurationException(msg, e1);
 
                     }
                 }
             } catch (IOException e) {
-                logger.error("Configuration File cannot be loaded from "
-                        + configurationXMLLocation, e);
+                logger.error("Configuration File cannot be loaded from " + configurationXMLLocation, e);
                 throw new ServerConfigurationException(e);
             }
             init(xmlInputStream);
@@ -246,12 +236,6 @@ public class ServerConfiguration implements ServerConfigurationService {
         }
     }
 
-    private void overrideConfiguration(String key, String value) {
-        List<String> list = new ArrayList<String>();
-        list.add(value);
-        configuration.put(key, list);
-    }
-
     private String replaceSystemProperty(String text) {
         int indexOfStartingChars = -1;
         int indexOfClosingBrace;
@@ -282,7 +266,7 @@ public class ServerConfiguration implements ServerConfigurationService {
     }
 
     private String getKey(Stack<String> nameStack) {
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         for (int i = 0; i < nameStack.size(); i++) {
             String name = nameStack.elementAt(i);
             key.append(name).append(".");

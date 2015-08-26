@@ -124,21 +124,15 @@ public class ClusterUtil {
      */
     public static String getMembershipScheme(ClusterConfiguration clusterConfiguration)
             throws ClusterConfigurationException {
-        String mbrScheme = null;
-
-        Object membershipScheme = clusterConfiguration.getMembershipSchemeConfiguration().
-                getMembershipScheme();
+        String membershipSchemeStr = null;
+        Object membershipScheme = clusterConfiguration.getMembershipSchemeConfiguration().getMembershipScheme();
         if (membershipScheme != null) {
-            String membershipSchemeParam = membershipScheme.toString();
-            mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
-            if (membershipSchemeParam != null) {
-                mbrScheme = membershipSchemeParam.trim();
-            }
-            if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
-                    && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)
-                    && !mbrScheme.equals(ClusteringConstants.MembershipScheme.AWS_BASED)
-                    && !mbrScheme.equals(ClusteringConstants.MembershipScheme.GENERIC)) {
-                String msg = "Invalid membership scheme '" + mbrScheme +
+            membershipSchemeStr = membershipScheme.toString().trim();
+            if (!membershipSchemeStr.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
+                    && !membershipSchemeStr.equals(ClusteringConstants.MembershipScheme.WKA_BASED)
+                    && !membershipSchemeStr.equals(ClusteringConstants.MembershipScheme.AWS_BASED)
+                    && !membershipSchemeStr.equals(ClusteringConstants.MembershipScheme.GENERIC)) {
+                String msg = "Invalid membership scheme '" + membershipSchemeStr +
                         "'. Supported schemes are {" +
                         ClusteringConstants.MembershipScheme.MULTICAST_BASED +
                         ", " + ClusteringConstants.MembershipScheme.WKA_BASED +
@@ -148,7 +142,6 @@ public class ClusterUtil {
                 throw new ClusterConfigurationException(msg);
             }
         }
-
-        return mbrScheme;
+        return membershipSchemeStr;
     }
 }

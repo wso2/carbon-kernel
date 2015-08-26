@@ -121,9 +121,9 @@ public class FileUtils {
             throw new RuntimeException(sourceDir + " is not a directory");
         }
 
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destArchive));
-        zipDir(zipDir, zos, sourceDir);
-        zos.close();
+        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destArchive))) {
+            zipDir(zipDir, zos, sourceDir);
+        }
     }
 
     protected static void zipDir(File zipDir, ZipOutputStream zos, String archiveSourceDir)

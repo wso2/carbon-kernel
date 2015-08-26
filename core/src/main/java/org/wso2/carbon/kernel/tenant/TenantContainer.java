@@ -38,14 +38,14 @@ public interface TenantContainer {
      *
      * @return the tenant id
      */
-    public String getID();
+    public String getId();
 
     /**
      * Sets the tenant ID.
      *
      * @param id the tenant id
      */
-    public void setID(String id);
+    public void setId(String id);
 
     /**
      * Returns the parent tenant of this tenant

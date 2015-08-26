@@ -22,10 +22,12 @@ package org.wso2.carbon.clustering.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -58,12 +60,11 @@ public class ClusterConfigurationBuilder {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             unmarshaller.setSchema(schema);
             clusterConfiguration = (ClusterConfiguration) unmarshaller.unmarshal(file);
-        } catch (Exception e) {
+        } catch (SAXException | JAXBException e) {
             String msg = "Error while loading cluster configuration file";
             logger.error(msg, e);
             throw new ClusterConfigurationException(msg, e);
         }
-
         return clusterConfiguration;
     }
 }

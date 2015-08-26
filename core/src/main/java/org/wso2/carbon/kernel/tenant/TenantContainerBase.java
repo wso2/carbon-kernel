@@ -36,12 +36,12 @@ public class TenantContainerBase implements TenantContainer {
     private int depthOfHierarchy = -1;
 
     @Override
-    public String getID() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setID(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -73,7 +73,7 @@ public class TenantContainerBase implements TenantContainer {
 
     @Override
     public void addChild(TenantContainer child) {
-        children.put(child.getID(), child);
+        children.put(child.getId(), child);
         child.setParent(this);
         //TODO Notify
     }
@@ -86,7 +86,7 @@ public class TenantContainerBase implements TenantContainer {
 
     @Override
     public TenantContainer removeChild(TenantContainer child) {
-        return children.remove(child.getID());
+        return children.remove(child.getId());
         // TODO Notify.
     }
 }

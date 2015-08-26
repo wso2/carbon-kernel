@@ -32,6 +32,7 @@ import org.wso2.carbon.internal.DataHolder;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -92,10 +93,10 @@ public class BundleDeployer implements Deployer {
         Object key = artifact.getKey();
         if (key instanceof Bundle) {
             bundle = ((Bundle) key);
-            try {
+            try (FileInputStream inputStream = new FileInputStream(artifact.getFile())) {
                 logger.info("Updating bundle  : {}", bundle.getSymbolicName());
-                bundle.update(new FileInputStream(artifact.getFile()));
-            } catch (BundleException | FileNotFoundException e) {
+                bundle.update(inputStream);
+            } catch (BundleException | IOException e) {
                 throw new CarbonDeploymentException("Error while updating bundle", e);
             }
         }

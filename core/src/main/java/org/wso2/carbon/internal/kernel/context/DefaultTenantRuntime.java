@@ -67,7 +67,7 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
         //TODO implement a pluggable mechanism for tenant implementations.
         Tenant tenant = new DefaultTenant();
 
-        tenant.setID(UUID.randomUUID().toString());
+        tenant.setId(UUID.randomUUID().toString());
         tenant.setDomain(domain);
         tenant.setName(name);
         tenant.setDescription(description);

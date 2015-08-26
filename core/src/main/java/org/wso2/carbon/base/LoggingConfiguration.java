@@ -87,9 +87,8 @@ public class LoggingConfiguration {
 
     public final Properties readProperties(File file)
             throws IllegalArgumentException {
-        try {
+        try (FileInputStream fis = new FileInputStream(file)) {
             Properties prop = new Properties();
-            FileInputStream fis = new FileInputStream(file);
             prop.load(fis);
             return prop;
         } catch (IOException e) {
@@ -98,5 +97,4 @@ public class LoggingConfiguration {
         }
         return null;
     }
-
 }

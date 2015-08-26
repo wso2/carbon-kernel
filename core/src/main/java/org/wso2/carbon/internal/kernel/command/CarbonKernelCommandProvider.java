@@ -105,7 +105,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
             try {
                 Tenant tenant = tenantRuntime.addTenant(args[0], args[1], args[2],
                         args[3], args[4], new HashMap<String, String>(0));
-                System.out.println("Successfully Created the tenant with the ID " + tenant.getID());
+                System.out.println("Successfully Created the tenant with the ID " + tenant.getId());
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -50,10 +52,11 @@ import static org.wso2.carbon.launcher.utils.Constants.OSGI_INSTANCE_AREA;
 
 /**
  * TODO: class level comment
+ *
  * @param <K> TODO
  * @param <V> TODO
  */
-public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
+public class CarbonLaunchConfig<K, V> {
 
     private static final Logger logger = BootstrapLogger.getBootstrapLogger();
 
@@ -68,9 +71,11 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
 
     private String carbonOSGiRepositoryPath;
 
-    private CarbonInitialBundle[] initialBundles;
+    private List<CarbonInitialBundle> initialBundles = new ArrayList<>();
 
-    private CarbonServerListener[] carbonServerListeners;
+    private List<CarbonServerListener> carbonServerListeners = new ArrayList<>();
+
+    private Map<String, String> properties = new HashMap<>();
 
     /**
      * Load the launch configuration from the classpath.
@@ -80,7 +85,7 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
 
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
-            for (Map.Entry entry : entrySet()) {
+            for (Map.Entry entry : properties.entrySet()) {
                 logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
             }
         }
@@ -94,16 +99,16 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
      * @param launchPropFile launch.properties file
      */
     public CarbonLaunchConfig(File launchPropFile) {
-        try {
+        try (FileInputStream fileInputStream = new FileInputStream(launchPropFile)) {
             // First load all the default properties
             loadFromClasspath();
 
             // Then load all the other properties defined in the file.
-            loadInternal(new FileInputStream(launchPropFile));
+            loadInternal(fileInputStream);
 
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
-                for (Map.Entry entry : entrySet()) {
+                for (Map.Entry entry : properties.entrySet()) {
                     logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
                 }
             }
@@ -111,6 +116,10 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
             initializeProperties();
         } catch (FileNotFoundException e) {
             String errorMsg = "File " + launchPropFile + "does not exists";
+            logger.log(Level.SEVERE, errorMsg, e);
+            throw new RuntimeException(errorMsg, e);
+        } catch (IOException e) {
+            String errorMsg = "Exception while loading file " + launchPropFile;
             logger.log(Level.SEVERE, errorMsg, e);
             throw new RuntimeException(errorMsg, e);
         }
@@ -131,7 +140,7 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
 
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
-                for (Map.Entry entry : entrySet()) {
+                for (Map.Entry entry : properties.entrySet()) {
                     logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
                 }
             }
@@ -168,16 +177,16 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
         return eclipseP2DataArea;
     }
 
-    public CarbonInitialBundle[] getInitialBundles() {
-        return initialBundles;
+    public List<CarbonInitialBundle> getInitialBundles() {
+        return Collections.unmodifiableList(initialBundles);
     }
 
     public String getCarbonHome() {
         return carbonHome;
     }
 
-    public CarbonServerListener[] getCarbonServerListeners() {
-        return carbonServerListeners;
+    public List<CarbonServerListener> getCarbonServerListeners() {
+        return Collections.unmodifiableList(carbonServerListeners);
     }
 
     private void loadFromClasspath() {
@@ -193,7 +202,7 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
             // Load the Map from the properties object.
             // Replace variables with proper value. eg. ${carbon.home}
             for (Map.Entry entry : launchProps.entrySet()) {
-                this.put((String) entry.getKey(), Utils.substituteVars((String) entry.getValue()));
+                properties.put((String) entry.getKey(), Utils.substituteVars((String) entry.getValue()));
             }
 
         } catch (IOException e) {
@@ -213,17 +222,22 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
     private void initializeProperties() {
         carbonHome = System.getProperty(CARBON_HOME);
 
-        carbonOSGiRepository = resolvePath(get(CARBON_OSGI_REPOSITORY), carbonHome, CARBON_OSGI_REPOSITORY);
+        carbonOSGiRepository = resolvePath(properties.get(CARBON_OSGI_REPOSITORY), carbonHome, CARBON_OSGI_REPOSITORY);
         carbonOSGiRepositoryPath = carbonOSGiRepository.toExternalForm().substring(5);
 
-        carbonOSGiFramework = resolvePath(get(CARBON_OSGI_FRAMEWORK), carbonOSGiRepositoryPath, CARBON_OSGI_FRAMEWORK);
-        osgiInstallArea = resolvePath(get(OSGI_INSTALL_AREA), carbonOSGiRepositoryPath, OSGI_INSTALL_AREA);
-        osgiConfigurationArea = resolvePath(get(OSGI_CONFIG_AREA), carbonOSGiRepositoryPath, OSGI_CONFIG_AREA);
-        osgiInstanceArea = resolvePath(get(OSGI_INSTANCE_AREA), carbonOSGiRepositoryPath, OSGI_INSTANCE_AREA);
-        eclipseP2DataArea = resolvePath(get(ECLIPSE_P2_DATA_AREA), carbonOSGiRepositoryPath, ECLIPSE_P2_DATA_AREA);
+        carbonOSGiFramework =
+                resolvePath(properties.get(CARBON_OSGI_FRAMEWORK), carbonOSGiRepositoryPath, CARBON_OSGI_FRAMEWORK);
+        osgiInstallArea =
+                resolvePath(properties.get(OSGI_INSTALL_AREA), carbonOSGiRepositoryPath, OSGI_INSTALL_AREA);
+        osgiConfigurationArea =
+                resolvePath(properties.get(OSGI_CONFIG_AREA), carbonOSGiRepositoryPath, OSGI_CONFIG_AREA);
+        osgiInstanceArea =
+                resolvePath(properties.get(OSGI_INSTANCE_AREA), carbonOSGiRepositoryPath, OSGI_INSTANCE_AREA);
+        eclipseP2DataArea =
+                resolvePath(properties.get(ECLIPSE_P2_DATA_AREA), carbonOSGiRepositoryPath, ECLIPSE_P2_DATA_AREA);
 
-        populateInitialBundlesList(get(CARBON_INITIAL_OSGI_BUNDLES));
-        loadCarbonServerListeners(get(CARBON_SERVER_LISTENERS));
+        populateInitialBundlesList(properties.get(CARBON_INITIAL_OSGI_BUNDLES));
+        loadCarbonServerListeners(properties.get(CARBON_SERVER_LISTENERS));
     }
 
     /**
@@ -246,7 +260,7 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
             url = FileResolver.resolve(path, parentPath);
         }
 
-        put(key, url.toExternalForm());
+        properties.put(key, url.toExternalForm());
 
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Path: " + path);
@@ -259,12 +273,10 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
 
     private void populateInitialBundlesList(String initialBundleList) {
         if (Utils.checkForNullOrEmpty(initialBundleList)) {
-            initialBundles = new CarbonInitialBundle[0];
             return;
         }
 
         String[] strArray = Utils.tokenize(initialBundleList, ",");
-        ArrayList<CarbonInitialBundle> bundleArrayList = new ArrayList<CarbonInitialBundle>(strArray.length);
 
         // Pattern to extract information from a initial bundle entry.
         // e.g. file:plugins/org.eclipse.equinox.console_1.0.100.v20130429-0953.jar@2:true
@@ -289,7 +301,7 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
             boolean start = Boolean.parseBoolean(matcher.group(4));
 
             URL bundleURL = FileResolver.resolve("file:" + path, carbonOSGiRepositoryPath);
-            bundleArrayList.add(new CarbonInitialBundle(bundleURL, bundleStartLevel, start));
+            initialBundles.add(new CarbonInitialBundle(bundleURL, bundleStartLevel, start));
 
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "Initial bundle entry: " + bundleEntry);
@@ -298,19 +310,14 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
                 logger.log(Level.FINE, "Start flag: " + start);
             }
         }
-
-        initialBundles = bundleArrayList.toArray(new CarbonInitialBundle[bundleArrayList.size()]);
     }
 
     private void loadCarbonServerListeners(String serverListenersList) {
         if (Utils.checkForNullOrEmpty(serverListenersList)) {
-            carbonServerListeners = new CarbonServerListener[0];
             return;
         }
 
         String[] classNameArray = Utils.tokenize(serverListenersList, ",");
-        ArrayList<CarbonServerListener> listenerArrayList = new ArrayList<CarbonServerListener>(classNameArray.length);
-
         for (String className : classNameArray) {
             if (Utils.checkForNullOrEmpty(className)) {
                 continue;
@@ -318,15 +325,18 @@ public class CarbonLaunchConfig<K, V> extends HashMap<String, String> {
 
             try {
                 Class clazz = Class.forName(className.trim());
-                listenerArrayList.add((CarbonServerListener) clazz.newInstance());
+                carbonServerListeners.add((CarbonServerListener) clazz.newInstance());
 
                 if (logger.isLoggable(Level.FINE)) {
                     logger.log(Level.FINE, "Loaded CarbonServerListener: " + className);
                 }
-            } catch (Exception e) {
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
-        carbonServerListeners = listenerArrayList.toArray(new CarbonServerListener[listenerArrayList.size()]);
+    }
+
+    public Map<String, String> getProperties() {
+        return Collections.unmodifiableMap(properties);
     }
 }

@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * Logger class correspond to bootstrap logging
  */
 public class BootstrapLogger extends Logger {
-    static Logger bootstrapLogger;
+    private static Logger bootstrapLogger = new BootstrapLogger(null, null);
 
     /**
      * Protected method to construct a logger for a named subsystem.
@@ -47,14 +47,6 @@ public class BootstrapLogger extends Logger {
     }
 
     public static Logger getBootstrapLogger() {
-        if (bootstrapLogger != null) {
-            return bootstrapLogger;
-        } else {
-            bootstrapLogger = new BootstrapLogger(null, null);
-            // set logging level on log4j.properties file correspond to log4j.logger.org.wso2
-//            bootstrapLogger.setLevel(LoggingUtils.getLog4jCarbonLoggingLevel());
-//            bootstrapLogger.setLevel(Level.FINE);
-            return bootstrapLogger;
-        }
+        return bootstrapLogger;
     }
 }

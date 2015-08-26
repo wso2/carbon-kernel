@@ -27,6 +27,8 @@ import java.util.Properties;
  */
 public class ClusterMember implements Serializable {
 
+    private static final long serialVersionUID = 8903688708839996113L;
+
     /**
      * The host name of this member. Can be the name or the IP address
      */

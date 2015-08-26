@@ -51,19 +51,19 @@ public class CarbonServer {
             // Creates an OSGi framework instance
             ClassLoader fwkClassLoader = createOSGiFwkClassLoader();
             FrameworkFactory fwkFactory = loadOSGiFwkFactory(fwkClassLoader);
-            framework = fwkFactory.newFramework(config);
+            framework = fwkFactory.newFramework(config.getProperties());
 
             // Notify Carbon server start
             dispatchEvent(CarbonServerEvent.STARTING);
 
             // Initialize and start OSGi framework.
-            initAndStartOSGiFramework();
+            initAndStartOSGiFramework(framework);
 
             // Loads initial bundles listed in the launch.properties file.
             loadInitialBundles(framework.getBundleContext());
 
             // This thread waits until the OSGi framework comes to a complete shutdown.
-            waitForServerStop();
+            waitForServerStop(framework);
 
             // Notify Carbon server shutdown.
             dispatchEvent(CarbonServerEvent.STOPPING);
@@ -114,7 +114,7 @@ public class CarbonServer {
         }
     }
 
-    private void initAndStartOSGiFramework() throws BundleException {
+    private void initAndStartOSGiFramework(Framework framework) throws BundleException {
         // Initializes the framework. Framework will try to resolve all the bundles if their requirements
         //  can be satisfied.
         if (logger.isLoggable(Level.FINE)) {
@@ -135,7 +135,7 @@ public class CarbonServer {
         }
     }
 
-    private void waitForServerStop() throws Exception {
+    private void waitForServerStop(Framework framework) throws Exception {
         if (!isFrameworkActive()) {
             return;
         }

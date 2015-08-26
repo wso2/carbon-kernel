@@ -40,12 +40,12 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     private Map<String, String> properties;
 
     @Override
-    public String getID() {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setID(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 

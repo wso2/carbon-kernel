@@ -121,7 +121,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
 
     private Tenant populateTenant(TenantConfig tenantConfig) {
         Tenant tenant = new DefaultTenant();
-        tenant.setID(tenantConfig.getId());
+        tenant.setId(tenantConfig.getId());
         tenant.setDomain(tenantConfig.getDomain());
         tenant.setName(tenantConfig.getName());
         tenant.setDescription(tenantConfig.getDescription());
@@ -136,7 +136,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
 
     private TenantConfig populateTenantConfig(Tenant tenant) {
         TenantConfig tenantConfig = new TenantConfig();
-        tenantConfig.setId(tenant.getID());
+        tenantConfig.setId(tenant.getId());
         tenantConfig.setDomain(tenant.getDomain());
         tenantConfig.setName(tenant.getName());
         tenantConfig.setDescription(tenant.getDescription());
@@ -156,7 +156,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
         HierarchyConfig hierarchyConfig = new HierarchyConfig();
 
         if (tenant.getParent() != null) {
-            hierarchyConfig.setParentID(tenant.getParent().getID());
+            hierarchyConfig.setParentID(tenant.getParent().getId());
             hierarchyConfig.setDepthOfHierarchy(tenant.getParent().getDepthOfHierarchy() - 1);
         } else {
             hierarchyConfig.setParentID("Server");
