@@ -2827,6 +2827,19 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (debug) {
                     log.debug("Using DN: " + group);
                 }
+
+                String rdn = group.split(",")[0];
+
+                if (rdn.startsWith(groupNameAttribute.toLowerCase()) || rdn.startsWith(groupNameAttribute.toUpperCase())){
+                    /*
+                    * Checking to see if the required information can be retrieved from the RDN
+                    * If so, we can add that value and continue without creating an LDAP context
+                    * Connection
+                    * */
+                    groupNameAttributeValues.add(rdn.split("=")[1]);
+                    continue;
+                }
+
                 Attributes groupAttributes = dirContext.getAttributes(group, returnedAttributes);
                 if (groupAttributes != null) {
                     Attribute groupAttribute = groupAttributes.get(groupNameAttribute);
