@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * TODO: class level comment
+ * JAXB mapping for Admin User Config
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AdminUserConfig {
