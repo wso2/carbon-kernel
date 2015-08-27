@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 /**
- * TODO class level comment
+ * JAXB mapping for Tenant Store Config
  */
 @XmlRootElement(name = "TenantStore")
 @XmlAccessorType(XmlAccessType.FIELD)

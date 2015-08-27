@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * TODO: class level comment
+ * JAXB mapping for Hierarchy Config
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HierarchyConfig {

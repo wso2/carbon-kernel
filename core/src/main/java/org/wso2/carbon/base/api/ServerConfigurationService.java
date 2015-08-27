@@ -19,7 +19,7 @@ package org.wso2.carbon.base.api;
 import org.w3c.dom.Element;
 
 /**
- * TODO class level comment
+ * Service Configuration Service Interface
  */
 public interface ServerConfigurationService {
 

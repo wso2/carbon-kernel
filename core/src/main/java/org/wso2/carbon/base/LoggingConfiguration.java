@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * TODO Class level comment
+ * This class creates the Logging Configurations
  */
 public class LoggingConfiguration {
 
