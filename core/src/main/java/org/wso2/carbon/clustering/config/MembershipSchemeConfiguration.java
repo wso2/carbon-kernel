@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
 /**
- * JAXB repesentaiton of cluster MembershipScheme configuration
+ * JAXB representation of cluster MembershipScheme configuration
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MembershipSchemeConfiguration {
