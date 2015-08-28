@@ -204,93 +204,196 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam</artifactId>
-            <version>${exam.version}</version>
+            <version>${version.exam}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-container-native</artifactId>
-            <version>${exam.version}</version>
+            <version>${version.exam}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-testng</artifactId>
-            <version>${exam.version}</version>
+            <version>${version.exam}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
-            <version>${exam.version}</version>
+            <version>${version.exam}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-aether</artifactId>
-            <version>${url.version}</version>
+            <version>${version.pax.url.aether}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.api.version}</version>
+            <version>${versionslf4j.api}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.spec.ee</groupId>
             <artifactId>ow2-jta-1.1-spec</artifactId>
-            <version>${ow2.jta.spec.version}</version>
+            <version>${version.ow2.jta.spec}</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.ant</artifactId>
+            <version>${version.org.jacoco.ant}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${maven.surefireplugin.version}</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.ops4j.pax.exam</groupId>
-                <artifactId>maven-paxexam-plugin</artifactId>
-                <version>${maven.paxexamplugin.vesion}</version>
-                <executions>
-                    <execution>
-                        <id>generate-config</id>
-                        <goals>
-                            <goal>generate-depends-file</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    </dependencies>
+    <profiles>
+        <profile>
+            <id>with-tests</id>
+            <activation>
+                <property>
+                    <name>!maven.test.skip</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-jacoco-dependencies</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <includeTypes>jar</includeTypes>
+                                    <includeArtifactIds>org.jacoco.ant</includeArtifactIds>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven.surefireplugin.version}</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>org.wso2.carbon*</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>default-check</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <rule>
+                                        </rule>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>${version.maven.antrunplugin}</version>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <configuration>
+                                    <target xmlns:jacoco="antlib:org.jacoco.ant">
+                                        //this task is to provide class/src files locations for jacoco report generation
+                                        <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+                                            <classpath path="${project.build.directory}"/>
+                                        </taskdef>
+                                        <jacoco:report>
+                                            <executiondata>
+                                                <file file="${project.build.directory}/jacoco.exec"/>
+                                            </executiondata>
+                                            <structure name="Carbon Core OSGi Tests">
+                                                <classfiles>
+                                                    <fileset dir="../core/target/classes"/>
+                                                </classfiles>
+                                                <sourcefiles encoding="UTF-8">
+                                                    <fileset dir="../core/src"/>
+                                                </sourcefiles>
+                                            </structure>
+                                            <html destdir="${project.build.directory}/site/jacoco"/>
+                                        </jacoco:report>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.jacoco</groupId>
+                                <artifactId>org.jacoco.ant</artifactId>
+                                <version>${version.org.jacoco.ant}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.ops4j.pax.exam</groupId>
+                        <artifactId>maven-paxexam-plugin</artifactId>
+                        <version>${version.maven.paxexamplugin}</version>
+                        <executions>
+                            <execution>
+                                <id>generate-config</id>
+                                <goals>
+                                    <goal>generate-depends-file</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <!--Pax Exam Versions-->
     <properties>
-        <exam.version>4.6.0</exam.version>
-        <url.version>1.6.0</url.version>
-        <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
-        <slf4j.api.version>1.7.12</slf4j.api.version>
-        <testng.version>6.3.1</testng.version>
-        <maven.paxexamplugin.vesion>1.2.4</maven.paxexamplugin.vesion>
+        <version.exam>4.6.0</version.exam>
+        <version.pax.url.aether>1.6.0</version.pax.url.aether>
+        <version.ow2.jta.spec>1.0.12</version.ow2.jta.spec>
+        <versionslf4j.api>1.7.12</versionslf4j.api>
+        <version.maven.paxexamplugin>1.2.4</version.maven.paxexamplugin>
+        <version.maven.antrunplugin>1.8</version.maven.antrunplugin>
+        <version.org.jacoco.ant>0.7.5.201505241946</version.org.jacoco.ant>
+
     </properties>
 
 </project>
