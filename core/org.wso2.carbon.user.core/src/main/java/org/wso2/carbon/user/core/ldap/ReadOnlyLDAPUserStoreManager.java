@@ -2818,6 +2818,12 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
 
+    private boolean isInSearchBase(LdapName dn, LdapName searchBase){
+
+        List<Rdn> baseRdns = searchBase.getRdns();
+        return dn.endsWith(baseRdns);
+    }
+
     /**
      * @param groupDNs
      * @return
@@ -2837,6 +2843,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             DirContext dirContext = this.connectionSource.getContext();
 
             for (LdapName group : groupDNs) {
+                if(!isInSearchBase(group, new LdapName(groupSearchBase))){
+                    // ignore those groups outside the group search base
+                    continue;
+                }
                 if (debug) {
                     log.debug("Using DN: " + group);
                 }
