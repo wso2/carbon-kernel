@@ -916,6 +916,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             throws UserStoreException {
         // search the user with UserNameAttribute, retrieve their
         // DisplayNameAttribute combine and return
+        String domain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         String displayNameAttribute =
                 this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
         if (displayNameAttribute != null) {
@@ -2289,8 +2290,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     if (debug) {
                                         log.debug("Found user: " + name);
                                     }
-                                    domain = UserCoreUtil.addDomainToName(name,
-                                            domain);
                                     names.add(name);
                                 }
                             }
@@ -2474,9 +2473,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
 
 
-                // get DNs of the groups to which this user belongs
-                List<String> groupDNs = this.getListOfNames(searchBases, searchFilter,
-                        searchCtls, memberOfProperty, false);
 
                 list = this.getAttributeListOfOneElement(searchBases, searchFilter, searchCtls);
             }
