@@ -23,17 +23,15 @@ import org.wso2.carbon.identity.carbon.identifiers.UserIdentifier;
 
 public interface User {
 
-	/**
-	 * 
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	public Credential getCredentials();
+    /**
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public Credential getCredentials();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public UserIdentifier getUserIdentifier();
+    /**
+     * @return
+     */
+    public UserIdentifier getUserIdentifier();
 
 }

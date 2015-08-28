@@ -26,6 +26,9 @@ import org.wso2.carbon.runtime.spi.Runtime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Runtime Manager class
+ */
 public class RuntimeManager {
     private static Logger logger = LoggerFactory.getLogger(RuntimeManager.class);
     private List<Runtime> runtimeList = new ArrayList<Runtime>();

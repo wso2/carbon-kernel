@@ -27,8 +27,8 @@ import org.wso2.carbon.clustering.agent.CustomClusteringAgent;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
+import org.wso2.carbon.internal.clustering.ClusterContext;
 
 
 public class ClusteringAgentTestCase extends BaseTest {
@@ -46,15 +46,15 @@ public class ClusteringAgentTestCase extends BaseTest {
         membershipListener = new CustomMembershipListener();
     }
 
-    @Test (groups = {"wso2.carbon.clustering"}, description = "test initialize clustering agent")
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test initialize clustering agent")
     public void testInitializeClusteringAgent() throws ClusterInitializationException {
         clusteringAgent.init(clusterContext);
         Assert.assertTrue(clusteringAgent.isInitialized());
     }
 
-    @Test (groups = {"wso2.carbon.clustering"},
-           description = "test membership listener event notification",
-           dependsOnMethods = {"testInitializeClusteringAgent"})
+    @Test(groups = {"wso2.carbon.clustering"},
+            description = "test membership listener event notification",
+            dependsOnMethods = {"testInitializeClusteringAgent"})
     public void testMembershipListener() {
         clusterContext.addMembershipListener(membershipListener);
         ClusterMember clusterMember = new ClusterMember("127.0.0.0", 4500);

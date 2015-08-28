@@ -26,9 +26,6 @@ import java.io.InputStream;
 
 public class BaseTest {
 
-    protected String testDir = "src" + File.separator + "test" + File.separator;
-    protected String testResourceDir = testDir + "resources";
-
     /**
      * Basedir for all file I/O.
      */
@@ -40,6 +37,9 @@ public class BaseTest {
             basedir = new File(".").getAbsolutePath();
         }
     }
+
+    protected String testDir = "src" + File.separator + "test" + File.separator;
+    protected String testResourceDir = testDir + "resources";
 
     /**
      * @param testName
@@ -59,8 +59,8 @@ public class BaseTest {
             return new FileInputStream(testResource);
         } catch (FileNotFoundException e) {
             throw new IllegalStateException("The '" + testResource.getAbsolutePath() +
-                                            "' file does not exist. Verify that the 'basedir' System property " +
-                                            "is pointing to the root of the project", e);
+                    "' file does not exist. Verify that the 'basedir' System property " +
+                    "is pointing to the root of the project", e);
         }
     }
 }

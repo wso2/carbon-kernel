@@ -7,7 +7,7 @@ import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.startlevel.BundleStartLevel;
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 
@@ -17,7 +17,7 @@ import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.wso2.carbon.launcher.utils.Constants.*;
+import static org.wso2.carbon.launcher.utils.Constants.CARBON_START_TIME;
 
 /**
  * Launches a Carbon instance
@@ -51,19 +51,19 @@ public class CarbonServer {
             // Creates an OSGi framework instance
             ClassLoader fwkClassLoader = createOSGiFwkClassLoader();
             FrameworkFactory fwkFactory = loadOSGiFwkFactory(fwkClassLoader);
-            framework = fwkFactory.newFramework(config);
+            framework = fwkFactory.newFramework(config.getProperties());
 
             // Notify Carbon server start
             dispatchEvent(CarbonServerEvent.STARTING);
 
             // Initialize and start OSGi framework.
-            initAndStartOSGiFramework();
+            initAndStartOSGiFramework(framework);
 
             // Loads initial bundles listed in the launch.properties file.
             loadInitialBundles(framework.getBundleContext());
 
             // This thread waits until the OSGi framework comes to a complete shutdown.
-            waitForServerStop();
+            waitForServerStop(framework);
 
             // Notify Carbon server shutdown.
             dispatchEvent(CarbonServerEvent.STOPPING);
@@ -114,7 +114,7 @@ public class CarbonServer {
         }
     }
 
-    private void initAndStartOSGiFramework() throws BundleException {
+    private void initAndStartOSGiFramework(Framework framework) throws BundleException {
         // Initializes the framework. Framework will try to resolve all the bundles if their requirements
         //  can be satisfied.
         if (logger.isLoggable(Level.FINE)) {
@@ -135,7 +135,7 @@ public class CarbonServer {
         }
     }
 
-    private void waitForServerStop() throws Exception {
+    private void waitForServerStop(Framework framework) throws Exception {
         if (!isFrameworkActive()) {
             return;
         }
@@ -182,7 +182,8 @@ public class CarbonServer {
         for (CarbonInitialBundle initialBundleInfo : config.getInitialBundles()) {
 
             if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Loading initial bundle: " + initialBundleInfo.getLocation().toExternalForm() + " with startlevel " + initialBundleInfo.getLevel());
+                logger.log(Level.FINE, "Loading initial bundle: " + initialBundleInfo.getLocation().toExternalForm() +
+                        " with startlevel " + initialBundleInfo.getLevel());
             }
 
             Bundle bundle = bundleContext.installBundle(initialBundleInfo.getLocation().toString());

@@ -28,7 +28,7 @@ import org.wso2.carbon.internal.clustering.CarbonCluster;
 import org.wso2.carbon.internal.clustering.ClusterContext;
 
 
-public class MembershipSchemeBaseTest extends BaseTest{
+public class MembershipSchemeBaseTest extends BaseTest {
     private CustomClusteringAgent clusteringAgent1;
     private CustomClusteringAgent clusteringAgent2;
     private ClusterContext clusterContext1;

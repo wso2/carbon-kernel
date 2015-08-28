@@ -23,10 +23,9 @@ import java.util.Properties;
 
 public interface ReadWriteIdentityManager extends VirtualReadWriteIdentityStore {
 
-	/**
-	 * 
-	 * @param identityStoreMaanger
-	 */
-	public void init(ReadWriteIdentityStoreManager identityStoreMaanger, Properties properties);
+    /**
+     * @param identityStoreMaanger
+     */
+    public void init(ReadWriteIdentityStoreManager identityStoreMaanger, Properties properties);
 
 }

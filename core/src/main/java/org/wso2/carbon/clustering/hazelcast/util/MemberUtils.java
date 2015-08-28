@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.config.LocalMemberProperty;
-import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.internal.clustering.ClusterUtil;
 
 import java.net.SocketException;
@@ -39,8 +38,12 @@ import java.util.Properties;
 public final class MemberUtils {
     private static Logger logger = LoggerFactory.getLogger(MemberUtils.class);
 
+    private MemberUtils() {
+    }
+
     /**
      * Adds a give cluster member to the hazelcast TCP config instance
+     *
      * @param member the cluster member to add
      * @param config the tcp config instance to use when adding the member
      */
@@ -48,7 +51,7 @@ public final class MemberUtils {
                                  TcpIpConfig config) {
         String localMemberHost = member.getHostName();
         if (localMemberHost != null && !localMemberHost.equalsIgnoreCase("127.0.0.1") &&
-            !localMemberHost.equalsIgnoreCase("localhost")) {
+                !localMemberHost.equalsIgnoreCase("localhost")) {
             localMemberHost = localMemberHost.trim();
         } else {
             try {
@@ -68,9 +71,10 @@ public final class MemberUtils {
 
     /**
      * This will return the local member with all the local member properties populated
-     * @param domain the cluster domain
-     * @param localMemberHost local member host
-     * @param localMemberPort local member port
+     *
+     * @param domain               the cluster domain
+     * @param localMemberHost      local member host
+     * @param localMemberPort      local member port
      * @param clusterConfiguration the cluster configuration
      * @return the populated local member object
      */
@@ -78,7 +82,7 @@ public final class MemberUtils {
                                                String localMemberHost,
                                                int localMemberPort,
                                                ClusterConfiguration clusterConfiguration) {
-        ClusterMember member =  new ClusterMember(localMemberHost, localMemberPort);
+        ClusterMember member = new ClusterMember(localMemberHost, localMemberPort);
         Properties memberInfo = new Properties();
 
 //      TODO : Since we are not depending on confContext, How to get http/s ports?
@@ -117,17 +121,17 @@ public final class MemberUtils {
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
         while (indexOfStartingChars < text.indexOf("${") &&
-               (indexOfStartingChars = text.indexOf("${")) != -1 &&
-               (indexOfClosingBrace = text.indexOf("}")) != -1) { // Is a property used?
+                (indexOfStartingChars = text.indexOf("${")) != -1 &&
+                (indexOfClosingBrace = text.indexOf("}")) != -1) { // Is a property used?
             String sysProp = text.substring(indexOfStartingChars + 2,
-                                            indexOfClosingBrace);
+                    indexOfClosingBrace);
             String propValue = props.getProperty(sysProp);
             if (propValue == null) {
                 propValue = System.getProperty(sysProp);
             }
             if (propValue != null) {
                 text = text.substring(0, indexOfStartingChars) + propValue +
-                       text.substring(indexOfClosingBrace + 1);
+                        text.substring(indexOfClosingBrace + 1);
             }
         }
         return text;
@@ -135,15 +139,13 @@ public final class MemberUtils {
 
     /**
      * Returns the the distributed map associated with the cluster domain
+     *
      * @param hazelcastInstance the hazelcastInstance to get the map
-     * @param domain  the cluster domain
+     * @param domain            the cluster domain
      * @return the map associated with the cluster domain
      */
     public static IMap<String, ClusterMember> getMembersMap(HazelcastInstance hazelcastInstance,
                                                             String domain) {
         return hazelcastInstance.getMap("$" + domain + ".members");
-    }
-
-    private MemberUtils() {
     }
 }

@@ -17,10 +17,12 @@ package org.wso2.maven.p2;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.wso2.maven.p2.generate.feature.Bundle;
-import org.wso2.maven.p2.generate.feature.ImportFeature;
 
+/**
+ * Represents a P2 feature
+ */
 public class Feature {
-    
+
     /**
      * Id of the feature
      *
@@ -37,8 +39,20 @@ public class Feature {
      */
     private String version;
 
-    public Feature(){
-        
+    public Feature() {
+
+    }
+
+    protected static Feature getFeature(String bundleDefinition) throws MojoExecutionException {
+        String[] split = bundleDefinition.split(":");
+        if (split.length > 1) {
+            Feature feature = new Feature();
+            feature.setId(split[0]);
+            feature.setVersion(split[1]);
+            return feature;
+        }
+        throw new MojoExecutionException("Insufficient feature information provided to" +
+                " determine the feature: " + bundleDefinition);
     }
 
     public String getId() {
@@ -56,15 +70,4 @@ public class Feature {
     public void setVersion(String version) {
         this.version = version;
     }
-    
-	protected static Feature getFeature(String bundleDefinition) throws MojoExecutionException{
-		String[] split = bundleDefinition.split(":");
-		if (split.length>1){
-			Feature feature=new Feature();
-			feature.setId(split[0]);
-			feature.setVersion(split[1]);
-			return feature;
-		}
-		throw new MojoExecutionException("Insufficient feature information provided to determine the feature: "+bundleDefinition) ; 
-	}
 }

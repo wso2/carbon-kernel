@@ -7,14 +7,14 @@ import org.wso2.carbon.runtime.exception.RuntimeServiceException;
 public class RuntimeServiceExceptionTest {
 
     @Test
-    public void RuntimeServiceException1() {
+    public void runtimeServiceException1() {
         String errorMsg = "Test Runtime Exception";
         RuntimeServiceException runtimeServiceException = new RuntimeServiceException(errorMsg);
         Assert.assertEquals(errorMsg, runtimeServiceException.getMessage());
     }
 
     @Test
-    public void RuntimeServiceException2() {
+    public void runtimeServiceException2() {
         String errorMsg = "Test Runtime Exception";
         RuntimeServiceException runtimeServiceException = new RuntimeServiceException(errorMsg, new Exception());
         Assert.assertEquals(errorMsg, runtimeServiceException.getMessage());

@@ -19,34 +19,31 @@
 
 package org.wso2.carbon.identity;
 
-import java.util.Properties;
-
 import org.wso2.carbon.identity.authn.ReadOnlyIdentityManager;
 import org.wso2.carbon.identity.authz.ReadOnlyAuthorizationManager;
+
+import java.util.Properties;
 
 /**
  * Entry point for Identity library with access to user realm.
  */
 public interface ReadOnlyRealm {
 
-	/**
-	 * 
-	 * @param identityManager
-	 * @param authzManager
-	 * @param properties
-	 */
-	public void init(ReadOnlyIdentityManager identityManager, ReadOnlyAuthorizationManager authzManager,
-			Properties properties);
+    /**
+     * @param identityManager
+     * @param authzManager
+     * @param properties
+     */
+    public void init(ReadOnlyIdentityManager identityManager, ReadOnlyAuthorizationManager authzManager,
+                     Properties properties);
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ReadOnlyIdentityManager getIdentityManager();
+    /**
+     * @return
+     */
+    public ReadOnlyIdentityManager getIdentityManager();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ReadOnlyAuthorizationManager getAuthorizationManager();
+    /**
+     * @return
+     */
+    public ReadOnlyAuthorizationManager getAuthorizationManager();
 }

@@ -20,6 +20,9 @@ package org.wso2.carbon.kernel;
 
 import java.io.File;
 
+/**
+ * Carbon kernel constants
+ */
 public class CarbonConstants {
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_CONF_REPO = "carbon.conf.repo";

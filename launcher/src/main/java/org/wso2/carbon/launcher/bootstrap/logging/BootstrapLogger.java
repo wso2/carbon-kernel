@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.launcher.bootstrapLogging;
+package org.wso2.carbon.launcher.bootstrap.logging;
 
 import java.util.logging.Logger;
 
@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * Logger class correspond to bootstrap logging
  */
 public class BootstrapLogger extends Logger {
-    static Logger bootstrapLogger;
+    private static Logger bootstrapLogger = new BootstrapLogger(null, null);
 
     /**
      * Protected method to construct a logger for a named subsystem.
@@ -34,28 +34,19 @@ public class BootstrapLogger extends Logger {
      * @param resourceBundleName name of ResourceBundle to be used for localizing
      *                           messages for this logger.  May be null if none
      *                           of the messages require localization.
-     * @throws java.util.MissingResourceException
-     *          if the ResourceBundleName is non-null and
-     *          no corresponding resource can be found.
-     * @param    name    A name for the logger.  This should
-     * be a dot-separated name and should normally
-     * be based on the package name or class name
-     * of the subsystem, such as java.net
-     * or javax.swing.  It may be null for anonymous Loggers.
+     * @param name               A name for the logger.  This should
+     *                           be a dot-separated name and should normally
+     *                           be based on the package name or class name
+     *                           of the subsystem, such as java.net
+     *                           or javax.swing.  It may be null for anonymous Loggers.
+     * @throws java.util.MissingResourceException if the ResourceBundleName is non-null and
+     *                                            no corresponding resource can be found.
      */
     protected BootstrapLogger(String name, String resourceBundleName) {
         super(name, resourceBundleName);
     }
 
     public static Logger getBootstrapLogger() {
-        if (bootstrapLogger != null) {
-            return bootstrapLogger;
-        } else {
-            bootstrapLogger = new BootstrapLogger(null, null);
-            // set logging level on log4j.properties file correspond to log4j.logger.org.wso2
-//            bootstrapLogger.setLevel(LoggingUtils.getLog4jCarbonLoggingLevel());
-//            bootstrapLogger.setLevel(Level.FINE);
-            return bootstrapLogger;
-        }
+        return bootstrapLogger;
     }
 }

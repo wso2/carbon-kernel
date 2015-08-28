@@ -29,11 +29,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * This class creates the Logging Configurations
+ */
 public class LoggingConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingConfiguration.class);
-    private ConfigurationAdmin configurationAdmin;
     private static LoggingConfiguration instance = new LoggingConfiguration();
+    private ConfigurationAdmin configurationAdmin;
 
     /**
      * Method to retrieve an instance of the logging configuration.
@@ -84,16 +87,14 @@ public class LoggingConfiguration {
 
     public final Properties readProperties(File file)
             throws IllegalArgumentException {
-        try {
+        try (FileInputStream fis = new FileInputStream(file)) {
             Properties prop = new Properties();
-            FileInputStream fis = new FileInputStream(file);
             prop.load(fis);
             return prop;
         } catch (IOException e) {
             logger.error("Fail to read Properties from file [" + file.getAbsolutePath() +
-                         "] configuration property.", e);
+                    "] configuration property.", e);
         }
         return null;
     }
-
 }

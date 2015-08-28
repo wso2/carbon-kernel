@@ -18,6 +18,9 @@ package org.wso2.carbon.base.api;
 
 import org.w3c.dom.Element;
 
+/**
+ * Service Configuration Service Interface
+ */
 public interface ServerConfigurationService {
 
     void setConfigurationProperty(String key, String value);

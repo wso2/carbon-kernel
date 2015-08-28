@@ -59,6 +59,6 @@ public class MembershipEvent {
     @Override
     public String toString() {
         return "MembershipEvent {" + member + "} "
-               + ((eventType == MEMBER_ADDED) ? "added" : "removed");
+                + ((eventType == MEMBER_ADDED) ? "added" : "removed");
     }
 }

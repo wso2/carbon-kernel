@@ -24,31 +24,28 @@ import java.util.List;
 
 public class AttributeValue<T> {
 
-	private T value;
-	private List<T> values;
+    private T value;
+    private List<T> values;
 
-	/**
-	 * 
-	 * @param value
-	 */
-	public AttributeValue(T value) {
-		this.value = value;
-	}
+    /**
+     * @param value
+     */
+    public AttributeValue(T value) {
+        this.value = value;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public T getValue() {
-		return value;
-	}
+    /**
+     * @return
+     */
+    public T getValue() {
+        return value;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public List<T> getValues() {
-		return Collections.unmodifiableList(values);
-	}
+    /**
+     * @return
+     */
+    public List<T> getValues() {
+        return Collections.unmodifiableList(values);
+    }
 
 }

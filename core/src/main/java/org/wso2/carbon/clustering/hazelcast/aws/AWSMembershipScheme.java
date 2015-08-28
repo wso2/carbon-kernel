@@ -45,9 +45,9 @@ public class AWSMembershipScheme implements HazelcastMembershipScheme {
     private static final Logger log = LoggerFactory.getLogger(AWSMembershipScheme.class);
 
     private final AwsConfig awsConfig;
+    private final List<ClusterMessage> messageBuffer;
     private HazelcastInstance hazelcastInstance;
     private ClusterContext clusterContext;
-    private final List<ClusterMessage> messageBuffer;
 
     public AWSMembershipScheme(JoinConfig joinConfig, List<ClusterMessage> messageBuffer) {
         joinConfig.getMulticastConfig().setEnabled(false);

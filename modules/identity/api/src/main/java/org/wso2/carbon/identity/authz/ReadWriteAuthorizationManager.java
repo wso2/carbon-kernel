@@ -24,10 +24,9 @@ import java.util.Properties;
 
 public interface ReadWriteAuthorizationManager extends VirtualReadWriteAuthorizationStore {
 
-	/**
-	 * 
-	 * @param authzStoreMaanger
-	 * @param properties
-	 */
-	public void init(ReadWriteAuthorizationStoreManager authzStoreMaanger, Properties properties);
+    /**
+     * @param authzStoreMaanger
+     * @param properties
+     */
+    public void init(ReadWriteAuthorizationStoreManager authzStoreMaanger, Properties properties);
 }

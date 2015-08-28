@@ -19,10 +19,9 @@
 
 package org.wso2.carbon.clustering.agent;
 
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastClusteringAgent;
-
+import org.wso2.carbon.internal.clustering.ClusterContext;
 
 public class CustomClusteringAgent extends HazelcastClusteringAgent {
     private boolean isInitialized = false;

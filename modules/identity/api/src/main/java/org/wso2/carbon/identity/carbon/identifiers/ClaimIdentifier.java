@@ -21,12 +21,11 @@ package org.wso2.carbon.identity.carbon.identifiers;
 
 public class ClaimIdentifier extends EntityIdentifier {
 
-	/**
-	 * 
-	 * @param value
-	 */
-	public ClaimIdentifier(String value) {
-		super(value);
-	}
+    /**
+     * @param value
+     */
+    public ClaimIdentifier(String value) {
+        super(value);
+    }
 
 }

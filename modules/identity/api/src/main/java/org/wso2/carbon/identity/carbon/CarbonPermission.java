@@ -21,44 +21,40 @@ package org.wso2.carbon.identity.carbon;
 
 public class CarbonPermission {
 
-	private String resource;
-	private String action;
-//	private PermissionIdentifier permissionIdentifier;
-	private String description;
+    private String resource;
+    private String action;
+    //	private PermissionIdentifier permissionIdentifier;
+    private String description;
 
-	/**
-	 * 
-	 * @param resource
-	 * @param action
-	 */
-	public CarbonPermission(String resource, String action) {
-		this.resource = resource;
-		this.action = action;
-		this.description = "";
-	}
+    /**
+     * @param resource
+     * @param action
+     */
+    public CarbonPermission(String resource, String action) {
+        this.resource = resource;
+        this.action = action;
+        this.description = "";
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getResource() {
-		return resource;
-	}
+    /**
+     * @return
+     */
+    public String getResource() {
+        return resource;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getAction() {
-		return action;
-	}
+    /**
+     * @return
+     */
+    public String getAction() {
+        return action;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getDescription() {
-		return description;
-	}
+    /**
+     * @return
+     */
+    public String getDescription() {
+        return description;
+    }
 
 }

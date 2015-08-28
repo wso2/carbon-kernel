@@ -19,6 +19,9 @@
 
 package org.wso2.carbon.deployment.exception;
 
+/**
+ * Represents the Deployment Engine related Exception
+ */
 public class DeploymentEngineException extends Exception {
 
     public DeploymentEngineException(String message) {

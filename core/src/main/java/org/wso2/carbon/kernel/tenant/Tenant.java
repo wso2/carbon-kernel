@@ -46,11 +46,25 @@ public interface Tenant extends TenantContainer {
     public String getDomain();
 
     /**
+     * Sets the tenant domain.
+     *
+     * @param domain the tenant domain
+     */
+    public void setDomain(String domain);
+
+    /**
      * Returns the human readable name of the tenant.
      *
      * @return the tenant name
      */
     public String getName();
+
+    /**
+     * Sets a human readable name of the tenant.
+     *
+     * @param name the tenant name
+     */
+    public void setName(String name);
 
     /**
      * Returns the tenant description.
@@ -60,11 +74,25 @@ public interface Tenant extends TenantContainer {
     public String getDescription();
 
     /**
+     * Sets a description of the tenant.
+     *
+     * @param description the tenant description
+     */
+    public void setDescription(String description);
+
+    /**
      * Returns created date and time of the tenant.
      *
      * @return the tenant created date
      */
     public Date getCreatedDate();
+
+    /**
+     * Sets the created date and time of the tenant.
+     *
+     * @param createdDate the tenant created date
+     */
+    public void setCreatedDate(Date createdDate);
 
     /**
      * Returns the username of the tenant administrator.
@@ -74,11 +102,25 @@ public interface Tenant extends TenantContainer {
     public String getAdminUsername();
 
     /**
+     * Sets the username of the tenant administrator.
+     *
+     * @param adminUsername the username of the tenant administrator
+     */
+    public void setAdminUsername(String adminUsername);
+
+    /**
      * Returns the email address of the tenant administrator.
      *
      * @return the email address of the tenant administrator
      */
     public String getAdminUserEmailAddress();
+
+    /**
+     * Sets the email address of the tenant administrator.
+     *
+     * @param emailAddress the email address of the tenant administrator
+     */
+    public void setAdminUserEmailAddress(String emailAddress);
 
     /**
      * Returns the value of the attribute <code>key</code>.
@@ -96,46 +138,11 @@ public interface Tenant extends TenantContainer {
     public Map<String, String> getProperties();
 
     /**
-     * Sets the tenant domain.
+     * Sets a map of the tenant attributes.
      *
-     * @param domain the tenant domain
+     * @param props the maps of tenant attributes
      */
-    public void setDomain(String domain);
-
-    /**
-     * Sets a human readable name of the tenant.
-     *
-     * @param name the tenant name
-     */
-    public void setName(String name);
-
-    /**
-     * Sets a description of the tenant.
-     *
-     * @param description the tenant description
-     */
-    public void setDescription(String description);
-
-    /**
-     * Sets the created date and time of the tenant.
-     *
-     * @param createdDate the tenant created date
-     */
-    public void setCreatedDate(Date createdDate);
-
-    /**
-     * Sets the username of the tenant administrator.
-     *
-     * @param adminUsername the username of the tenant administrator
-     */
-    public void setAdminUsername(String adminUsername);
-
-    /**
-     * Sets the email address of the tenant administrator.
-     *
-     * @param emailAddress the email address of the tenant administrator
-     */
-    public void setAdminUserEmailAddress(String emailAddress);
+    public void setProperties(Map<String, String> props);
 
     /**
      * Sets a tenant attribute
@@ -144,11 +151,4 @@ public interface Tenant extends TenantContainer {
      * @param value the attribute value
      */
     public void setProperty(String key, String value);
-
-    /**
-     * Sets a map of the tenant attributes.
-     *
-     * @param props the maps of tenant attributes
-     */
-    public void setProperties(Map<String, String> props);
 }

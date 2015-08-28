@@ -22,7 +22,7 @@ package org.wso2.carbon.launcher;
  * This is an interface which may be implemented by a Carbon developer to get notified of the Carbon server startup and
  * the Carbon server shutdown. These listener implementations will get notified before launching the OSGi framework
  * as well as after shutting down the OSGi framework. CarbonServer notifies these listeners synchronously.
- *
+ * <p>
  * To register a CarbonServerListener, add the fully qualified class name to carbon.server.listeners property in
  * launch.properties file. This property accepts a list of comma separated fully qualified class names.
  */

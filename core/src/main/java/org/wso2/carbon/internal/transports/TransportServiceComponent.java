@@ -21,12 +21,19 @@ package org.wso2.carbon.internal.transports;
 
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.transports.CarbonTransport;
 import org.wso2.carbon.transports.TransportManager;
 
 import java.util.Map;
 
+/**
+ * OSGi declarative services component which handled registration & uregistration of Carbon transports
+ */
 @Component(
         name = "org.wso2.carbon.internal.transport.TransportServiceComponent",
         immediate = true

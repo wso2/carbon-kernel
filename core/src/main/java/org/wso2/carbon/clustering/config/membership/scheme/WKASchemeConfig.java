@@ -19,13 +19,18 @@
 
 package org.wso2.carbon.clustering.config.membership.scheme;
 
+import org.wso2.carbon.clustering.ClusteringConstants;
+
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * JAXB class for WKA (well-known address) based membership scheme configuration
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WKASchemeConfig {
 
@@ -42,6 +47,6 @@ public class WKASchemeConfig {
     }
 
     public String toString() {
-        return "WKA";
+        return ClusteringConstants.MembershipScheme.WKA_BASED;
     }
 }

@@ -21,10 +21,12 @@ package org.wso2.carbon.transport.internal;
 
 import org.osgi.framework.BundleContext;
 
+/**
+ * Data holder for Carbon transport bundle
+ */
 public class DataHolder {
-    private BundleContext bundleContext;
     private static DataHolder instance = new DataHolder();
-
+    private BundleContext bundleContext;
 
     public static DataHolder getInstance() {
         return instance;

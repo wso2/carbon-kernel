@@ -25,7 +25,7 @@ import org.wso2.carbon.launcher.utils.Utils;
 @Test(groups = "utils")
 public class UtilsTest {
 
-    public void substituteVarsTest(){
+    public void substituteVarsTest() {
         System.setProperty("profile", "default");
         String inputStr = "file:${profile}";
         String expectedOutputStr = "file:default";
@@ -34,7 +34,7 @@ public class UtilsTest {
         Assert.assertEquals(outputStr, expectedOutputStr);
     }
 
-    public void substituteVarsTest2(){
+    public void substituteVarsTest2() {
         System.setProperty("profile", "default");
         System.setProperty("carbon.home", "/home/user/wso2carbon-kernel-5.0.0");
         String inputStr = "file:${carbon.home}/repository/components/${profile}";
@@ -44,7 +44,7 @@ public class UtilsTest {
         Assert.assertEquals(outputStr, expectedOutputStr);
     }
 
-    public void substituteVarsTest3(){
+    public void substituteVarsTest3() {
         System.setProperty("profile", "default");
         String inputStr = "${profile}";
         String expectedOutputStr = "default";
@@ -53,7 +53,7 @@ public class UtilsTest {
         Assert.assertEquals(outputStr, expectedOutputStr);
     }
 
-    public void stringTokenizeTest(){
+    public void stringTokenizeTest() {
         String str = "file:plugins/org.eclipse.equinox.simpleconfigurator_1.0.400.v20130327-2119.jar@1:true," +
                 "file:plugins/org.apache.felix.gogo.runtime_0.10.0.v201209301036.jar@2:true," +
                 "file:plugins/org.apache.felix.gogo.command_0.10.0.v201209301215.jar@2:true," +
@@ -72,10 +72,11 @@ public class UtilsTest {
         Assert.assertEquals(output, expectedArray);
     }
 
-    public void stringTokenizeTest2(){
+    public void stringTokenizeTest2() {
         String str = "file:plugins/org.eclipse.equinox.simpleconfigurator_1.0.400.v20130327-2119.jar@1:true";
 
-        String[] expectedArray = new String[]{"file:plugins/org.eclipse.equinox.simpleconfigurator_1.0.400.v20130327-2119.jar@1:true"};
+        String[] expectedArray =
+                new String[]{"file:plugins/org.eclipse.equinox.simpleconfigurator_1.0.400.v20130327-2119.jar@1:true"};
 
         String[] output = Utils.tokenize(str, ",");
         Assert.assertEquals(output, expectedArray);

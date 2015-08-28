@@ -20,16 +20,19 @@ package org.wso2.carbon.internal.kernel.config.model;
 
 import javax.xml.bind.annotation.XmlEnum;
 
+/**
+ * JAXB mapping for Deployment Mode Enum
+ */
 @XmlEnum
 public enum DeploymentModeEnum {
     triggered,
     scheduled;
 
-    public String value() {
-        return name();
-    }
-
     public static DeploymentModeEnum fromValue(String v) {
         return valueOf(v);
+    }
+
+    public String value() {
+        return name();
     }
 }

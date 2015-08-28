@@ -28,10 +28,10 @@ import org.wso2.carbon.clustering.config.membership.scheme.MulticastSchemeConfig
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
-import org.wso2.carbon.internal.clustering.CarbonCluster;
-import org.wso2.carbon.internal.clustering.ClusterUtil;
 import org.wso2.carbon.clustering.message.CustomClusterMessage;
 import org.wso2.carbon.clustering.message.CustomMemberClusterMessage;
+import org.wso2.carbon.internal.clustering.CarbonCluster;
+import org.wso2.carbon.internal.clustering.ClusterUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
     }
 
     @Test(groups = {"wso2.carbon.clustering"},
-          description = "test multicast scheme with two members")
+            description = "test multicast scheme with two members")
     public void testMulticastMembershipScheme()
             throws ClusterInitializationException, ClusterConfigurationException {
         initializeMembershipScheme();
@@ -56,7 +56,7 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
         Object membershipScheme = clusterConfiguration.
                 getMembershipSchemeConfiguration().getMembershipScheme();
         Assert.assertEquals(ClusterUtil.getMembershipScheme(clusterConfiguration),
-                            membershipScheme.toString());
+                membershipScheme.toString());
 
         MulticastSchemeConfig multicastSchemeConfig = (MulticastSchemeConfig) membershipScheme;
 
@@ -68,8 +68,8 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
     }
 
     @Test(groups = {"wso2.carbon.clustering"},
-          description = "test send message with multicast scheme",
-          dependsOnMethods = {"testMulticastMembershipScheme"})
+            description = "test send message with multicast scheme",
+            dependsOnMethods = {"testMulticastMembershipScheme"})
     public void testSendMessage() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         CustomClusterMessage clusterMessage = new CustomClusterMessage("MulticastMessage");
@@ -83,8 +83,8 @@ public class MulitcastMembershipSchemeTestCase extends MembershipSchemeBaseTest 
     }
 
     @Test(groups = {"wso2.carbon.clustering"},
-          description = "test send message to specific member in multicast scheme",
-          dependsOnMethods = {"testSendMessage"})
+            description = "test send message to specific member in multicast scheme",
+            dependsOnMethods = {"testSendMessage"})
     public void testSendMessageToMember() throws MessageFailedException {
         CarbonCluster carbonCluster = getClusterService();
         List<ClusterMember> clusterMembers = carbonCluster.getMembers();

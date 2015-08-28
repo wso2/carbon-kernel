@@ -18,8 +18,8 @@
 
 package org.wso2.carbon.launcher;
 
-import org.wso2.carbon.launcher.bootstrapLogging.CarbonLogger;
-import org.wso2.carbon.launcher.bootstrapLogging.ConsoleLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.CarbonLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.ConsoleLogger;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -28,7 +28,13 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.wso2.carbon.launcher.utils.Constants.*;
+import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
+import static org.wso2.carbon.launcher.utils.Constants.DEFAULT_PROFILE;
+import static org.wso2.carbon.launcher.utils.Constants.ExitCodes;
+import static org.wso2.carbon.launcher.utils.Constants.LAUNCH_PROPERTIES_FILE;
+import static org.wso2.carbon.launcher.utils.Constants.LOG_LEVEL_WARN;
+import static org.wso2.carbon.launcher.utils.Constants.PAX_DEFAULT_SERVICE_LOG_LEVEL;
+import static org.wso2.carbon.launcher.utils.Constants.PROFILE;
 
 /**
  * Starts a Carbon server instance.
@@ -90,13 +96,15 @@ public class Main {
         File launchPropFile = new File(launchPropFilePath);
 
         if (launchPropFile.exists()) {
-            logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " + launchPropFile.getAbsolutePath());
+            logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " +
+                    launchPropFile.getAbsolutePath());
 
             return new CarbonLaunchConfig<String, String>(launchPropFile);
         } else {
 
             if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Loading the Carbon launch configuration from the launch.properties file in the classpath");
+                logger.log(Level.FINE, "Loading the Carbon launch configuration from the launch.properties file " +
+                        "in the classpath");
             }
 
             return new CarbonLaunchConfig<String, String>();

@@ -19,8 +19,6 @@
 
 package org.wso2.carbon.context.login;
 
-import java.util.List;
-
 import org.wso2.carbon.context.login.commons.IdentityException;
 import org.wso2.carbon.context.login.identifiers.EntryIdentifier;
 import org.wso2.carbon.context.login.identifiers.GroupIdentifier;
@@ -28,64 +26,58 @@ import org.wso2.carbon.context.login.identifiers.RoleIdentifier;
 import org.wso2.carbon.context.login.identifiers.StoreIdentifier;
 import org.wso2.carbon.context.login.identifiers.UserIdentifier;
 
+import java.util.List;
+
 public interface CarbonUser<G extends CarbonGroup, R extends CarbonRole> extends User {
 
-	/**
-	 * 
-	 * @return
-	 */
-	public EntryIdentifier getUserEntryId();
+    /**
+     * @return
+     */
+    public EntryIdentifier getUserEntryId();
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public List<G> getGroups() throws IdentityException;
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public List<G> getGroups() throws IdentityException;
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public List<R> getRoles() throws IdentityException;
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public List<R> getRoles() throws IdentityException;
 
 
-	/**
-	 * 
-	 * @return
-	 */
-	public StoreIdentifier getStoreIdentifier();
+    /**
+     * @return
+     */
+    public StoreIdentifier getStoreIdentifier();
 
-	/**
-	 * 
-	 * @param roleIdentifie
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean hasRole(RoleIdentifier roleIdentifie) throws IdentityException;
+    /**
+     * @param roleIdentifie
+     * @return
+     * @throws IdentityException
+     */
+    public boolean hasRole(RoleIdentifier roleIdentifie) throws IdentityException;
 
-	/**
-	 * 
-	 * @param permission
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean hasPermission(CarbonPermission permission) throws IdentityException;
-	
-	/**
-	 * 
-	 * @param groupIdentifier
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean inGroup(GroupIdentifier groupIdentifier) throws IdentityException;
+    /**
+     * @param permission
+     * @return
+     * @throws IdentityException
+     */
+    public boolean hasPermission(CarbonPermission permission) throws IdentityException;
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException 
-	 */
-	public List<UserIdentifier> getLinkedAccounts() throws IdentityException;
+    /**
+     * @param groupIdentifier
+     * @return
+     * @throws IdentityException
+     */
+    public boolean inGroup(GroupIdentifier groupIdentifier) throws IdentityException;
+
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public List<UserIdentifier> getLinkedAccounts() throws IdentityException;
 
 }

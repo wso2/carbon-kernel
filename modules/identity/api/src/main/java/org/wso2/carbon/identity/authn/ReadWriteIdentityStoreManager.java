@@ -21,25 +21,23 @@ package org.wso2.carbon.identity.authn;
 
 import org.wso2.carbon.identity.authn.spi.ReadWriteIdentityStore;
 
-public interface ReadWriteIdentityStoreManager extends ReadOnlyIdentityStoreManager{
+public interface ReadWriteIdentityStoreManager extends ReadOnlyIdentityStoreManager {
 
-	/**
-	 * 
-	 * @param storeIdentifier
-	 * @return
-	 */
-	public ReadWriteIdentityStore getIdentityStore(StoreIdentifier storeIdentifier);
+    /**
+     * @param storeIdentifier
+     * @return
+     */
+    public ReadWriteIdentityStore getIdentityStore(StoreIdentifier storeIdentifier);
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ReadWriteIdentityStore getPrimaryIdentityStore();
+    /**
+     * @return
+     */
+    public ReadWriteIdentityStore getPrimaryIdentityStore();
 
-	/**
-	 * 
-	 * @return
-	 */
+    /**
+     *
+     * @return
+     */
 //	public void addPrimaryIdentityStore(StoreIdentifier storeIdentifier);
 
 }

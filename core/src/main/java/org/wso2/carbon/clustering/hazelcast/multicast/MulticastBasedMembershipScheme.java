@@ -26,7 +26,6 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
@@ -36,6 +35,7 @@ import org.wso2.carbon.clustering.exception.MessageFailedException;
 import org.wso2.carbon.clustering.hazelcast.HazelcastMembershipScheme;
 import org.wso2.carbon.clustering.hazelcast.util.HazelcastUtil;
 import org.wso2.carbon.clustering.hazelcast.util.MemberUtils;
+import org.wso2.carbon.internal.clustering.ClusterContext;
 
 import java.util.List;
 import java.util.Map;
@@ -45,11 +45,11 @@ import java.util.Map;
  */
 public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme {
     private static Logger logger = LoggerFactory.getLogger(MulticastBasedMembershipScheme.class);
+    private final List<ClusterMessage> messageBuffer;
     private ClusterConfiguration clusterConfiguration;
     private MulticastSchemeConfig multicastSchemeConfig;
     private String primaryDomain;
     private MulticastConfig config;
-    private final List<ClusterMessage> messageBuffer;
     private ClusterContext clusterContext;
     private HazelcastInstance hazelcastInstance;
 
@@ -97,7 +97,7 @@ public class MulticastBasedMembershipScheme implements HazelcastMembershipScheme
                     addMembershipListener(new MulticastMembershipListener());
         } catch (Exception e) {
             throw new MembershipFailedException("Error while trying join multicast " +
-                                                "membership scheme", e);
+                    "membership scheme", e);
         }
     }
 

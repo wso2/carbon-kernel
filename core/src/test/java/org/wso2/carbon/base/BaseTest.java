@@ -1,17 +1,15 @@
 package org.wso2.carbon.base;
 
 
-import org.wso2.carbon.base.Constants;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
-import java.io.*;
-import java.util.ArrayList;
-
+/**
+ * TODO class level comment
+ */
 public class BaseTest {
-
-    protected String testDir = "src" + File.separator + "test" + File.separator;
-    protected String testResourceDir = testDir + "resources";
-    protected String confDir = File.separator + "repository"  + File.separator + "conf";
-    protected String serverXmlPath = File.separator + "carbon.xml";
 
     /**
      * Basedir for all file I/O.
@@ -29,6 +27,11 @@ public class BaseTest {
             basedir = new File("").getAbsolutePath();
         }
     }
+
+    protected String testDir = "src" + File.separator + "test" + File.separator;
+    protected String testResourceDir = testDir + "resources";
+    protected String confDir = File.separator + "repository" + File.separator + "conf";
+    protected String serverXmlPath = File.separator + "carbon.xml";
 
     /**
      * @param testName
@@ -62,8 +65,8 @@ public class BaseTest {
             return new FileInputStream(testResource);
         } catch (FileNotFoundException e) {
             throw new IllegalStateException("The '" + testResource.getAbsolutePath() +
-                                            "' file does not exist. Verify that the 'basedir' System property " +
-                                            "is pointing to the root of the project", e);
+                    "' file does not exist. Verify that the 'basedir' System property " +
+                    "is pointing to the root of the project", e);
         }
     }
 

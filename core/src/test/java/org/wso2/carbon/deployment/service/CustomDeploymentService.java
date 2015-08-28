@@ -21,10 +21,10 @@ package org.wso2.carbon.deployment.service;
 
 import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.ArtifactType;
-import org.wso2.carbon.internal.deployment.CarbonDeploymentService;
-import org.wso2.carbon.internal.deployment.DeploymentEngine;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;
+import org.wso2.carbon.internal.deployment.CarbonDeploymentService;
+import org.wso2.carbon.internal.deployment.DeploymentEngine;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,6 +38,7 @@ public class CustomDeploymentService extends CarbonDeploymentService {
         super(deploymentEngine);
         this.deploymentEngine = deploymentEngine;
     }
+
     @Override
     public void deploy(String artifactPath, ArtifactType artifactType)
             throws CarbonDeploymentException {

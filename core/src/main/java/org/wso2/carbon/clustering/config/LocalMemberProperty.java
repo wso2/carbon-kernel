@@ -24,6 +24,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
+/**
+ * JAXB mapping for Local Member Property
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LocalMemberProperty {
     @XmlAttribute(name = "name", required = true)

@@ -24,11 +24,10 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.clustering.config.ClusterConfiguration;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.membership.listener.CustomMembershipListener;
+import org.wso2.carbon.internal.clustering.ClusterContext;
 
 import java.util.UUID;
-
 
 public class ClusterContextTestCase extends BaseTest {
 
@@ -42,37 +41,35 @@ public class ClusterContextTestCase extends BaseTest {
         clusterMember.setId(UUID.randomUUID().toString());
         membershipListener = new CustomMembershipListener();
         ClusterConfiguration clusterConfiguration = buildClusterConfig(
-                getTestResourceFile("cluster-00.xml"). getAbsolutePath());
+                getTestResourceFile("cluster-00.xml").getAbsolutePath());
         clusterContext = new ClusterContext(clusterConfiguration);
     }
 
-    @Test (groups = {"wso2.carbon.clustering"}, description = "test add cluster member")
+    @Test(groups = {"wso2.carbon.clustering"}, description = "test add cluster member")
     public void testAddMember() {
         clusterContext.addMember(clusterMember);
         Assert.assertEquals(clusterContext.getClusterMembers().get(0), clusterMember);
     }
 
     @Test(groups = {"wso2.carbon.clustering"}, description = "test remove cluster member",
-          dependsOnMethods = {"testAddMember"})
+            dependsOnMethods = {"testAddMember"})
     public void testRemoveMember() {
         clusterContext.removeMember(clusterMember);
         Assert.assertEquals(clusterContext.getClusterMembers().size(), 0);
     }
 
-    @Test (groups = {"wso2.carbon.clustering"},
-           description = "test add cluster membership listener")
+    @Test(groups = {"wso2.carbon.clustering"},
+            description = "test add cluster membership listener")
     public void testAddMembershipListener() {
         clusterContext.addMembershipListener(membershipListener);
         Assert.assertEquals(clusterContext.getMembershipListeners().get(0), membershipListener);
     }
 
-    @Test (groups = {"wso2.carbon.clustering"},
-           description = "test remove cluster membership listener",
-           dependsOnMethods = {"testAddMembershipListener"})
+    @Test(groups = {"wso2.carbon.clustering"},
+            description = "test remove cluster membership listener",
+            dependsOnMethods = {"testAddMembershipListener"})
     public void testRemoveMembershipListener() {
         clusterContext.removeMembershipListener(membershipListener);
         Assert.assertEquals(clusterContext.getMembershipListeners().size(), 0);
     }
-
-
 }

@@ -34,15 +34,6 @@ public abstract class CarbonTransport {
         this.id = id;
     }
 
-    private enum State {
-        UNINITIALIZED, STARTED, STOPPED, IN_MAINTENANCE;
-
-        @Override
-        public String toString() {
-            return name();
-        }
-    }
-
     public String getId() {
         return id;
     }
@@ -73,7 +64,8 @@ public abstract class CarbonTransport {
         if (state.equals(State.STARTED)) {
             state = State.IN_MAINTENANCE;
         } else {
-            throw new IllegalStateException("Cannot put transport " + id + " into maintenance. Current state: " + state);
+            throw new IllegalStateException("Cannot put transport " + id +
+                    " into maintenance. Current state: " + state);
         }
         beginMaintenance();
     }
@@ -90,4 +82,13 @@ public abstract class CarbonTransport {
     }
 
     protected abstract void endMaintenance();
+
+    private enum State {
+        UNINITIALIZED, STARTED, STOPPED, IN_MAINTENANCE;
+
+        @Override
+        public String toString() {
+            return name();
+        }
+    }
 }

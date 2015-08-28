@@ -18,15 +18,12 @@ package org.wso2.carbon.base;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.wso2.carbon.base.api.ServerConfigurationService;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -39,6 +36,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This class stores the configuration of the Carbon Server.
@@ -47,16 +47,19 @@ import java.util.Stack;
 public class ServerConfiguration implements ServerConfigurationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerConfiguration.class);
-
+    /**
+     * Stores the singleton server configuration instance.
+     */
+    private static ServerConfiguration instance = new ServerConfiguration();
     private Map<String, List<String>> configuration = new HashMap<String, List<String>>();
     private boolean isInitialized;
     private boolean isLoadedConfigurationPreserved = false;
     private String documentXML;
 
-    /**
-     * Stores the singleton server configuration instance.
-     */
-    private static ServerConfiguration instance = new ServerConfiguration();
+    private ServerConfiguration() {
+    }
+
+    // Private constructor preventing creation of duplicate instances.
 
     /**
      * Method to retrieve an instance of the server configuration.
@@ -68,18 +71,12 @@ public class ServerConfiguration implements ServerConfigurationService {
         return instance;
     }
 
-    // Private constructor preventing creation of duplicate instances.
-
-    private ServerConfiguration() {
-    }
-
     /**
      * This initializes the server configuration. This method should only be
      * called once, for successive calls, it will be checked.
      *
      * @param xmlInputStream the server configuration file stream.
-     * @throws org.wso2.carbon.base.ServerConfigurationException
-     *          if the operation failed.
+     * @throws ServerConfigurationException if the operation failed.
      */
     public synchronized void init(InputStream xmlInputStream)
             throws ServerConfigurationException {
@@ -108,13 +105,7 @@ public class ServerConfiguration implements ServerConfigurationService {
             }
             isInitialized = true;
             isLoadedConfigurationPreserved = false;
-        } catch (ParserConfigurationException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ServerConfigurationException(e);
-        } catch (SAXException e) {
-            logger.error("Problem in parsing the configuration file ", e);
-            throw new ServerConfigurationException(e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             logger.error("Problem in parsing the configuration file ", e);
             throw new ServerConfigurationException(e);
         }
@@ -149,21 +140,17 @@ public class ServerConfiguration implements ServerConfigurationService {
                     xmlInputStream = new FileInputStream(f);
                 } catch (FileNotFoundException e1) {
                     // As a last resort test in the classpath
-                    ClassLoader cl = ServerConfigurationService.class
-                            .getClassLoader();
-                    xmlInputStream = cl
-                            .getResourceAsStream(configurationXMLLocation);
+                    ClassLoader cl = ServerConfigurationService.class.getClassLoader();
+                    xmlInputStream = cl.getResourceAsStream(configurationXMLLocation);
                     if (xmlInputStream == null) {
-                        String msg = "Configuration File cannot be loaded from "
-                                     + configurationXMLLocation;
+                        String msg = "Configuration File cannot be loaded from " + configurationXMLLocation;
                         logger.error(msg, e1);
                         throw new ServerConfigurationException(msg, e1);
 
                     }
                 }
             } catch (IOException e) {
-                logger.error("Configuration File cannot be loaded from "
-                          + configurationXMLLocation, e);
+                logger.error("Configuration File cannot be loaded from " + configurationXMLLocation, e);
                 throw new ServerConfigurationException(e);
             }
             init(xmlInputStream);
@@ -249,12 +236,6 @@ public class ServerConfiguration implements ServerConfigurationService {
         }
     }
 
-    private void overrideConfiguration(String key, String value) {
-        List<String> list = new ArrayList<String>();
-        list.add(value);
-        configuration.put(key, list);
-    }
-
     private String replaceSystemProperty(String text) {
         int indexOfStartingChars = -1;
         int indexOfClosingBrace;
@@ -263,19 +244,19 @@ public class ServerConfiguration implements ServerConfigurationService {
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
         while (indexOfStartingChars < text.indexOf("${")
-               && (indexOfStartingChars = text.indexOf("${")) != -1
-               && (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a
+                && (indexOfStartingChars = text.indexOf("${")) != -1
+                && (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a
             // property
             // used?
             String sysProp = text.substring(indexOfStartingChars + 2,
-                                            indexOfClosingBrace);
+                    indexOfClosingBrace);
             String propValue = System.getProperty(sysProp);
             if (propValue != null) {
                 text = text.substring(0, indexOfStartingChars) + propValue
-                       + text.substring(indexOfClosingBrace + 1);
+                        + text.substring(indexOfClosingBrace + 1);
             }
             if (sysProp.equals("carbon.home") && propValue != null
-                && propValue.equals(".")) {
+                    && propValue.equals(".")) {
 
                 text = new File(".").getAbsolutePath() + File.separator + text;
 
@@ -285,7 +266,7 @@ public class ServerConfiguration implements ServerConfigurationService {
     }
 
     private String getKey(Stack<String> nameStack) {
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         for (int i = 0; i < nameStack.size(); i++) {
             String name = nameStack.elementAt(i);
             key.append(name).append(".");

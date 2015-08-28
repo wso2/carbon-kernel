@@ -19,63 +19,57 @@
 
 package org.wso2.carbon.identity.authz;
 
-import java.util.List;
-
 import org.wso2.carbon.identity.authn.PrivilegedRWUser;
 import org.wso2.carbon.identity.authn.PrivilegedReadWriteGroup;
 import org.wso2.carbon.identity.authz.spi.RoleSearchCriteria;
 
+import java.util.List;
+
 public interface VirtualReadWriteAuthorizationStore
-		extends
-		VirtualReadOnlyAuthorizationStore< PrivilegedRWUser, 
-									  	   PrivilegedReadWriteGroup,
-									  	   PrivilegedReadWriteRole > {
+        extends
+        VirtualReadOnlyAuthorizationStore<PrivilegedRWUser,
+                PrivilegedReadWriteGroup,
+                PrivilegedReadWriteRole> {
 
-	/**
-	 * 
-	 * @param roleIdentifier
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public PrivilegedReadWriteRole getRole(RoleIdentifier roleIdentifier) throws AuthorizationStoreException;
+    /**
+     * @param roleIdentifier
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public PrivilegedReadWriteRole getRole(RoleIdentifier roleIdentifier) throws AuthorizationStoreException;
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<PrivilegedReadWriteRole> getRoles(RoleSearchCriteria searchCriteria) throws AuthorizationStoreException;
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<PrivilegedReadWriteRole> getRoles(RoleSearchCriteria searchCriteria) throws AuthorizationStoreException;
 
-	/**
-	 * 
-	 * @param permission
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public PermissionIdentifier createPermission(Permission permission) throws AuthorizationStoreException;
-	
-	/**
-	 * 
-	 * @param permissionList
-	 * @throws AuthorizationStoreException
-	 */
-	public void createPermissions(List<Permission> permissionList) throws AuthorizationStoreException;
+    /**
+     * @param permission
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public PermissionIdentifier createPermission(Permission permission) throws AuthorizationStoreException;
 
-	/**
-	 * 
-	 * @param role
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public PrivilegedReadWriteRole createRole(Role role) throws AuthorizationStoreException;
+    /**
+     * @param permissionList
+     * @throws AuthorizationStoreException
+     */
+    public void createPermissions(List<Permission> permissionList) throws AuthorizationStoreException;
 
-	/**
-	 * 
-	 * @param roleList
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public void createRoles(List<Role> roleList) throws AuthorizationStoreException;
+    /**
+     * @param role
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public PrivilegedReadWriteRole createRole(Role role) throws AuthorizationStoreException;
+
+    /**
+     * @param roleList
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public void createRoles(List<Role> roleList) throws AuthorizationStoreException;
 
 }

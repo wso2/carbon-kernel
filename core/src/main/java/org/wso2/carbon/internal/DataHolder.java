@@ -20,18 +20,25 @@
 package org.wso2.carbon.internal;
 
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.clustering.spi.MembershipScheme;
 import org.wso2.carbon.internal.clustering.CarbonCluster;
 import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.internal.runtime.RuntimeManager;
 
-public class DataHolder {
-    private BundleContext bundleContext;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Carbon kernel DataHolder
+ */
+public class DataHolder {
     private static DataHolder instance = new DataHolder();
+    private BundleContext bundleContext;
     private CarbonCluster carbonCluster;
     private ClusterContext clusterContext;
 
     private RuntimeManager runtimeManager = null;
+    private Map<String, MembershipScheme> genericMembershipSchemes = new HashMap<>();
 
     public static DataHolder getInstance() {
         return instance;
@@ -45,12 +52,12 @@ public class DataHolder {
         this.bundleContext = bundleContext;
     }
 
-    public void setCarbonCluster(CarbonCluster carbonCluster) {
-        this.carbonCluster = carbonCluster;
-    }
-
     public CarbonCluster getCarbonCluster() {
         return carbonCluster;
+    }
+
+    public void setCarbonCluster(CarbonCluster carbonCluster) {
+        this.carbonCluster = carbonCluster;
     }
 
     public ClusterContext getClusterContext() {
@@ -78,5 +85,17 @@ public class DataHolder {
      */
     public void setRuntimeManager(RuntimeManager runtimeManager) {
         this.runtimeManager = runtimeManager;
+    }
+
+    public void addGenericMembershipScheme(String name, MembershipScheme genericMembershipScheme) {
+        genericMembershipSchemes.put(name, genericMembershipScheme);
+    }
+
+    public MembershipScheme getGenericMembershipScheme(String membershipSchemeName) {
+        return genericMembershipSchemes.get(membershipSchemeName);
+    }
+
+    public void removeGenericMembershipScheme(String membershipSchemeName) {
+        genericMembershipSchemes.remove(membershipSchemeName);
     }
 }

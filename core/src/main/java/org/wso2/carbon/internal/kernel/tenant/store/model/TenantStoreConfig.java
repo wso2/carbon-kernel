@@ -18,13 +18,15 @@
 
 package org.wso2.carbon.internal.kernel.tenant.store.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * JAXB mapping for Tenant Store Config
+ */
 @XmlRootElement(name = "TenantStore")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TenantStoreConfig {

@@ -19,82 +19,77 @@
 
 package org.wso2.carbon.identity.authn;
 
-import java.util.List;
-
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
 import org.wso2.carbon.identity.authz.PrivilegedReadWriteRole;
 import org.wso2.carbon.identity.credential.spi.Credential;
 
+import java.util.List;
+
 public interface VirtualReadWriteIdentityStore
-		extends
-		VirtualReadOnlyIdentityStore< PrivilegedRWUser, 
-									  PrivilegedReadWriteGroup,
-									  PrivilegedReadWriteRole > {
+        extends
+        VirtualReadOnlyIdentityStore<PrivilegedRWUser,
+                PrivilegedReadWriteGroup,
+                PrivilegedReadWriteRole> {
 
-	/**
-	 * 
-	 * @param credential
-	 * @return
-	 * @throws AuthenticationFailureException
-	 */
-	@SuppressWarnings("rawtypes")
-	public PrivilegedRWUser authenticate(Credential credential)
-			throws AuthenticationFailureException;
+    /**
+     * @param credential
+     * @return
+     * @throws AuthenticationFailureException
+     */
+    @SuppressWarnings("rawtypes")
+    public PrivilegedRWUser authenticate(Credential credential)
+            throws AuthenticationFailureException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public PrivilegedRWUser getUser(UserIdentifier userIdentifier)
-			throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public PrivilegedRWUser getUser(UserIdentifier userIdentifier)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria)
-			throws IdentityStoreException;
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public PrivilegedReadWriteGroup getGroup(GroupIdentifier userIdentifier)
-			throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public PrivilegedReadWriteGroup getGroup(GroupIdentifier userIdentifier)
+            throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<PrivilegedReadWriteGroup> getGroups(
-			GroupSearchCriteria searchCriteria) throws IdentityStoreException;
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<PrivilegedReadWriteGroup> getGroups(
+            GroupSearchCriteria searchCriteria) throws IdentityStoreException;
 
-	/**
-	 * Creates a user in the underlying user store.
-	 * 
-	 * @param user
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public PrivilegedRWUser createUser(User user) throws IdentityStoreException;
+    /**
+     * Creates a user in the underlying user store.
+     *
+     * @param user
+     * @return
+     * @throws IdentityStoreException
+     */
+    public PrivilegedRWUser createUser(User user) throws IdentityStoreException;
 
-	/**
-	 * Creates a group in the underlying user store.
-	 * 
-	 * @param group
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public PrivilegedReadWriteGroup createGroup(Group group)
-			throws IdentityStoreException;
+    /**
+     * Creates a group in the underlying user store.
+     *
+     * @param group
+     * @return
+     * @throws IdentityStoreException
+     */
+    public PrivilegedReadWriteGroup createGroup(Group group)
+            throws IdentityStoreException;
 
 }

@@ -54,7 +54,7 @@ public class HttpServiceComponent {
         try {
             logger.info("Registering a sample servlet : {}", context);
             httpService.registerServlet(context, servlet, null,
-                                        httpService.createDefaultHttpContext());
+                    httpService.createDefaultHttpContext());
         } catch (ServletException | NamespaceException e) {
             logger.error("Error while registering servlet", e);
         }

@@ -20,6 +20,9 @@ package org.wso2.carbon.internal.kernel.config.model;
 
 import javax.xml.bind.annotation.XmlElement;
 
+/**
+ * JAXB mapping for Ports Config
+ */
 public class PortsConfig {
 
     @XmlElement(name = "Offset")
