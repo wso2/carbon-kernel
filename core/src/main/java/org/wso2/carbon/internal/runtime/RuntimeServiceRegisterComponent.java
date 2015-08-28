@@ -52,13 +52,12 @@ import java.util.TimerTask;
 )
 
 public class RuntimeServiceRegisterComponent implements ServiceListener {
+    public static final String REQUIRED_RUNTIME_SERVICE = "Runtime-Manager-RequiredServices";
     private static Logger logger = LoggerFactory.getLogger(RuntimeServiceRegisterComponent.class);
+    private BundleContext bundleContext;
     private ServiceRegistration serviceRegistration;
-
-    private static BundleContext bundleContext;
     private List<String> requiredRuntimes = new ArrayList<String>();
     private Timer pendingRuntimeObservationTimer = new Timer();
-    public static final String REQUIRED_RUNTIME_SERVICE = "Runtime-Manager-RequiredServices";
 
     @Activate
     protected void activate(ComponentContext componentContext) {
@@ -74,7 +73,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
             if (requiredRuntimes.isEmpty()) {
                 completeRuntimeInitialization(bundleContext);
             } else {
-                StringBuffer serviceList = new StringBuffer("(|");
+                StringBuilder serviceList = new StringBuilder("(|");
                 for (String service : requiredRuntimes) {
                     serviceList.append("(").append(Constants.OBJECTCLASS).append("=").append(service).append(")");
                 }
@@ -127,7 +126,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
         pendingRuntimeObservationTimer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
                 if (!requiredRuntimes.isEmpty()) {
-                    StringBuffer services = new StringBuffer();
+                    StringBuilder services = new StringBuilder();
                     for (String service : requiredRuntimes) {
                         services.append(service).append(",");
                     }

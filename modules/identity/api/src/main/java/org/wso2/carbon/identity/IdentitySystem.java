@@ -30,37 +30,32 @@ import org.wso2.carbon.identity.config.IdentityServiceConfig;
  * Entry point in Identity library for administrative operations.
  */
 public interface IdentitySystem {
-	
-	/**
-	 * 
-	 * @param identityServiceConfig
-	 * @throws IdentityException
-	 */
-	public void init(IdentityServiceConfig identityServiceConfig) throws IdentityException;
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public IdentityStoreManager getIdentityStoreManager();
+
+    /**
+     * @param identityServiceConfig
+     * @throws IdentityException
+     */
+    public void init(IdentityServiceConfig identityServiceConfig) throws IdentityException;
+
+    /**
+     * @return
+     */
+    public IdentityStoreManager getIdentityStoreManager();
 //	public ReadWriteIdentityStoreManager getIdentityStoreManager();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public AuthorizationStoreManager getAuthorizationStoreManager();
+    /**
+     * @return
+     */
+    public AuthorizationStoreManager getAuthorizationStoreManager();
 //	public ReadWriteAuthorizationStoreManager getAuthorizationStoreManager();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ClaimManager getClaimManager();
+    /**
+     * @return
+     */
+    public ClaimManager getClaimManager();
 
-	/**
-	 * 
-	 * @return
-	 */
-	public ReadWriteLinkedAccountStore getLinkedAccountStore();
+    /**
+     * @return
+     */
+    public ReadWriteLinkedAccountStore getLinkedAccountStore();
 }

@@ -18,7 +18,9 @@
 
 package org.wso2.carbon.kernel.tenant;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Abstract implementation of the TenantContainer interface. This class provide generic implementations of the methods.
@@ -34,13 +36,24 @@ public class TenantContainerBase implements TenantContainer {
     private int depthOfHierarchy = -1;
 
     @Override
-    public String getID() {
+    public String getId() {
         return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     public TenantContainer getParent() {
         return parent;
+    }
+
+    @Override
+    public void setParent(TenantContainer parent) {
+        this.parent = parent;
+        // TODO Notify.
     }
 
     @Override
@@ -54,19 +67,13 @@ public class TenantContainerBase implements TenantContainer {
     }
 
     @Override
-    public void setID(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public void setParent(TenantContainer parent) {
-        this.parent = parent;
-        // TODO Notify.
+    public void setDepthOfHierarchy(int depthOfHierarchy) {
+        this.depthOfHierarchy = depthOfHierarchy;
     }
 
     @Override
     public void addChild(TenantContainer child) {
-        children.put(child.getID(), child);
+        children.put(child.getId(), child);
         child.setParent(this);
         //TODO Notify
     }
@@ -79,12 +86,7 @@ public class TenantContainerBase implements TenantContainer {
 
     @Override
     public TenantContainer removeChild(TenantContainer child) {
-        return children.remove(child.getID());
+        return children.remove(child.getId());
         // TODO Notify.
-    }
-
-    @Override
-    public void setDepthOfHierarchy(int depthOfHierarchy) {
-        this.depthOfHierarchy = depthOfHierarchy;
     }
 }

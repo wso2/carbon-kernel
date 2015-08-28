@@ -18,9 +18,9 @@
  */
 package org.wso2.carbon.clustering.spi;
 
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.exception.MembershipFailedException;
 import org.wso2.carbon.clustering.exception.MembershipInitializationException;
+import org.wso2.carbon.internal.clustering.ClusterContext;
 
 /**
  * A representation of a membership scheme such as "multicast based" or "well-known address (WKA)

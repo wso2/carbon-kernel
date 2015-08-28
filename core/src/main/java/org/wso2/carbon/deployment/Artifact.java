@@ -108,6 +108,7 @@ public class Artifact {
     public void setKey(Object key) {
         this.key = key;
     }
+
     /**
      * Path of the file associated with this artifact
      *

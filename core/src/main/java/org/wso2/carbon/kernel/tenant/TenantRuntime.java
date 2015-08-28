@@ -93,7 +93,7 @@ public interface TenantRuntime<T extends Tenant> {
     /**
      * Deletes the tenant from the system.
      *
-     * @param tenantDomain  the domain of the tenant to be deleted.
+     * @param tenantDomain the domain of the tenant to be deleted.
      * @return an instance of the deleted tenant.
      * @throws Exception in the event of a failure while deleting the tenant
      */
@@ -102,7 +102,7 @@ public interface TenantRuntime<T extends Tenant> {
     /**
      * Loads the tenant from the TenantStore and returns a Tenant instance.
      *
-     * @param tenantDomain  the domain of the tenant to be loaded
+     * @param tenantDomain the domain of the tenant to be loaded
      * @return the loaded tenant
      * @throws Exception in the event of a failure while loading the tenant details
      */

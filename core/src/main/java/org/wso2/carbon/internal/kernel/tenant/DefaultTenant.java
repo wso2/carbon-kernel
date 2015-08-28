@@ -18,13 +18,16 @@
 
 package org.wso2.carbon.internal.kernel.tenant;
 
-import org.wso2.carbon.kernel.tenant.TenantContainerBase;
 import org.wso2.carbon.kernel.tenant.Tenant;
+import org.wso2.carbon.kernel.tenant.TenantContainerBase;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * TODO: class level comment
+ */
 public class DefaultTenant extends TenantContainerBase implements Tenant {
 
     private String id;
@@ -37,8 +40,13 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     private Map<String, String> properties;
 
     @Override
-    public String getID() {
+    public String getId() {
         return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -47,48 +55,13 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    @Override
-    public String getAdminUsername() {
-        return adminUsername;
-    }
-
-    @Override
-    public String getAdminUserEmailAddress() {
-        return adminUserEmailAddress;
-    }
-
-    @Override
-    public String getProperty(String key) {
-        return properties.get(key);
-    }
-
-    @Override
-    public Map<String, String> getProperties() {
-        return Collections.unmodifiableMap(properties);
-    }
-
-    @Override
-    public void setID(String id) {
-        this.id = id;
-    }
-
-    @Override
     public void setDomain(String domain) {
         this.domain = domain;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -97,8 +70,18 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     }
 
     @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public Date getCreatedDate() {
+        return createdDate;
     }
 
     @Override
@@ -107,8 +90,18 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     }
 
     @Override
+    public String getAdminUsername() {
+        return adminUsername;
+    }
+
+    @Override
     public void setAdminUsername(String adminUsername) {
         this.adminUsername = adminUsername;
+    }
+
+    @Override
+    public String getAdminUserEmailAddress() {
+        return adminUserEmailAddress;
     }
 
     @Override
@@ -117,12 +110,22 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     }
 
     @Override
-    public void setProperty(String key, String value) {
-        this.properties.put(key, value);
+    public String getProperty(String key) {
+        return properties == null ? null : properties.get(key);
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return Collections.unmodifiableMap(properties);
     }
 
     @Override
     public void setProperties(Map<String, String> props) {
         this.properties = props;
+    }
+
+    @Override
+    public void setProperty(String key, String value) {
+        this.properties.put(key, value);
     }
 }

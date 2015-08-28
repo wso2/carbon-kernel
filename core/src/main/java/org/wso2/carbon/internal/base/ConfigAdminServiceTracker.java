@@ -26,6 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.base.LoggingConfiguration;
 
+/**
+ * TODO: class level comment
+ */
 public class ConfigAdminServiceTracker extends ServiceTracker {
     private static final String CONFIG_ADMIN_SERVICE_NAME = ConfigurationAdmin.class.getName();
     private static final Logger logger = LoggerFactory.getLogger(ConfigAdminServiceTracker.class);
@@ -39,7 +42,8 @@ public class ConfigAdminServiceTracker extends ServiceTracker {
 
     @Override
     public final Object addingService(ServiceReference serviceReference) {
-        @SuppressWarnings("unchecked") ConfigurationAdmin service = (ConfigurationAdmin) super.addingService(serviceReference);
+        @SuppressWarnings("unchecked") ConfigurationAdmin service =
+                (ConfigurationAdmin) super.addingService(serviceReference);
         loggingConfiguration.setConfigurationAdminService(service);
 
         try {

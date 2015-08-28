@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.wso2.carbon.launcher.bootstrapLogging;
+package org.wso2.carbon.launcher.bootstrap.logging;
 
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -24,7 +24,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Properties;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
@@ -36,7 +35,6 @@ import java.util.logging.StreamHandler;
  */
 public class CarbonLogger {
     private static final String CARBON_BOOTSTRAP_LOG = "wso2carbon.log";
-    private static Properties configProps;
 
     public static synchronized Handler getDefaultHandler() throws IOException {
         String logFilename = Utils.getRepositoryDir() + File.separator + "logs" + File.separator + CARBON_BOOTSTRAP_LOG;
@@ -58,7 +56,10 @@ public class CarbonLogger {
         private void open(File logfile, boolean append) throws IOException {
             if (!logfile.getParentFile().exists()) {
                 try {
-                    logfile.getParentFile().mkdirs();
+                    if (!logfile.getParentFile().mkdirs()) {
+                        throw new IOException("Could not make directories " +
+                                logfile.getParentFile().getAbsolutePath());
+                    }
                 } catch (SecurityException se) {
                     throw new IOException(se.getMessage());
                 }

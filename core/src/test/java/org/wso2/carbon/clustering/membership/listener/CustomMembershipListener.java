@@ -8,6 +8,7 @@ import org.wso2.carbon.clustering.api.MembershipListener;
 public class CustomMembershipListener implements MembershipListener {
     private static String addedMember;
     private static String removedMember;
+
     @Override
     public void memberAdded(MembershipEvent event) {
         ClusterMember clusterMember = event.getMember();

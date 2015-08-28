@@ -22,21 +22,25 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
-import org.wso2.carbon.launcher.bootstrapLogging.LoggingFormatter;
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.LoggingFormatter;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
 public class CarbonLoggerTest extends BaseTest {
-    Logger logger;
-    CarbonLogHandler carbonLogHandler;
+    private static final String LOGS = "logs" + File.separator + "test.logs";
     protected String testDir = "src" + File.separator + "test" + File.separator;
     protected String testResourceDir = testDir + "resources";
-    private final static String LOGS = "logs" + File.separator + "test.logs";
+    Logger logger;
+    CarbonLogHandler carbonLogHandler;
 
     /**
      * @param testName
@@ -46,7 +50,7 @@ public class CarbonLoggerTest extends BaseTest {
     }
 
     @BeforeSuite
-    public void doBeforeEachTest() throws IOException{
+    public void doBeforeEachTest() throws IOException {
         logger = BootstrapLogger.getBootstrapLogger();
         carbonLogHandler = new CarbonLogHandler(new File(getTestResourceFile(LOGS).getAbsolutePath()));
         carbonLogHandler.setFormatter(new LoggingFormatter());
@@ -54,12 +58,13 @@ public class CarbonLoggerTest extends BaseTest {
     }
 
     @Test
-    public void testCarbonLogAppend() throws IOException{
+    public void testCarbonLogAppend() throws IOException {
         String sampleMessage = "Sample message-01";
         String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonLoggerTest} - Sample message-01";
 
         logger.info(sampleMessage);
-        ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(new File(getTestResourceFile(LOGS).getAbsolutePath())));
+        ArrayList<String> logRecords =
+                getLogsFromTestResource(new FileInputStream(new File(getTestResourceFile(LOGS).getAbsolutePath())));
         Assert.assertTrue(logRecords.get(0).contains(resultLog));
     }
 

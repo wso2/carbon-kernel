@@ -38,11 +38,12 @@ import org.wso2.carbon.kernel.tenant.TenantRuntime;
 public interface CarbonRuntime {
 
     // TODO FIX exposing the internal implementation of CarbonConfiguration..
+
     /**
      * Returns the CarbonConfiguration instance. It holds static configuration items specified
      * in the carbon.xml file.
      *
-     * @return  the carbon configuration
+     * @return the carbon configuration
      * @see CarbonConfiguration
      */
     public CarbonConfiguration getConfiguration();

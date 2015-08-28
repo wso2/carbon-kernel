@@ -29,7 +29,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 public class Activator implements BundleActivator {
-    private final static Logger logger = LoggerFactory.getLogger(Activator.class);
+    private static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {

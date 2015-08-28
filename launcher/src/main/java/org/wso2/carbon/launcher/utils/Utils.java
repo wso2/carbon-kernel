@@ -18,7 +18,7 @@
 
 package org.wso2.carbon.launcher.utils;
 
-import org.wso2.carbon.launcher.bootstrapLogging.BootstrapLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -32,6 +32,9 @@ import java.util.regex.Pattern;
 
 import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
 
+/**
+ * Carbon launcher Utils
+ */
 public class Utils {
 
     private static final Logger logger = BootstrapLogger.getBootstrapLogger();
@@ -40,10 +43,10 @@ public class Utils {
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
 
     /**
-     * Replace system property holders in the property values 
+     * Replace system property holders in the property values
      * e.g Replace ${carbon.home} with value of the carbon.home system property
      *
-     * @param value System variable value to be replaced 
+     * @param value System variable value to be replaced
      * @return resolved system property value
      */
     public static String substituteVars(String value) {
@@ -59,7 +62,7 @@ public class Utils {
             newValue = newValue.replaceFirst(VAR_REGEXP, sysPropValue);
         }
 
-        if(logger.isLoggable(Level.FINE)){
+        if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Substitute Variables before: " + value + ", after: " + newValue);
         }
 
@@ -74,8 +77,8 @@ public class Utils {
         return System.getProperty(Constants.CARBON_HOME) + File.separator + Constants.REPOSITORY_DIR_PATH;
     }
 
-    public static String getLaunchConfigDir(){
-        return System.getProperty(Constants.CARBON_HOME) + File.separator +Constants.LAUNCH_CONF_DIR_PATH;
+    public static String getLaunchConfigDir() {
+        return System.getProperty(Constants.CARBON_HOME) + File.separator + Constants.LAUNCH_CONF_DIR_PATH;
     }
 
     public static boolean checkForNullOrEmpty(String arg) {
@@ -91,15 +94,15 @@ public class Utils {
         }
     }
 
-    public static String[] tokenize(String list, String delim){
-        if (checkForNullOrEmpty(list)){
+    public static String[] tokenize(String list, String delim) {
+        if (checkForNullOrEmpty(list)) {
             return new String[0];
         }
         ArrayList<String> tokenList = new ArrayList<String>();
         StringTokenizer stringTokenizer = new StringTokenizer(list, delim);
-        while(stringTokenizer.hasMoreElements()){
+        while (stringTokenizer.hasMoreElements()) {
             String token = stringTokenizer.nextToken().trim();
-            if(!checkForNullOrEmpty(token)){
+            if (!checkForNullOrEmpty(token)) {
                 tokenList.add(token);
             }
         }

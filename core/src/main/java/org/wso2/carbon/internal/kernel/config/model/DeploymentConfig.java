@@ -22,6 +22,9 @@ import org.wso2.carbon.kernel.util.Utils;
 
 import javax.xml.bind.annotation.XmlElement;
 
+/**
+ * JAXB mapping for Deployment Config
+ */
 public class DeploymentConfig {
 
     @XmlElement(name = "Mode", required = true)

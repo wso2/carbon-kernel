@@ -29,6 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * TODO: class level comment
+ */
 public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
 
     private TenantStore<Tenant> tenantStore;
@@ -64,7 +67,7 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
         //TODO implement a pluggable mechanism for tenant implementations.
         Tenant tenant = new DefaultTenant();
 
-        tenant.setID(UUID.randomUUID().toString());
+        tenant.setId(UUID.randomUUID().toString());
         tenant.setDomain(domain);
         tenant.setName(name);
         tenant.setDescription(description);
@@ -82,14 +85,14 @@ public class DefaultTenantRuntime implements TenantRuntime<Tenant> {
     }
 
     @Override
-    public Tenant deleteTenant(String tenantDomain) throws Exception{
+    public Tenant deleteTenant(String tenantDomain) throws Exception {
         //TODO Notify
         return tenantStore.deleteTenant(tenantDomain);
     }
 
     @Override
     public Tenant getTenant(String tenantDomain) throws Exception {
-        if(loadedTenants.containsKey(tenantDomain)){
+        if (loadedTenants.containsKey(tenantDomain)) {
             return loadedTenants.get(tenantDomain);
         }
         // Loading the tenant.

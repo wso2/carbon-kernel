@@ -21,19 +21,18 @@ package org.wso2.carbon.identity.carbon.identifiers;
 
 public class RoleIdentifier extends EntityIdentifier {
 
-	private StoreIdentifier storeIdentifier;
+    private StoreIdentifier storeIdentifier;
 
-	/**
-	 * 
-	 * @param value
-	 * @param provider
-	 */
-	public RoleIdentifier(String value, StoreIdentifier storeIdentifier) {
-		super(value);
-		this.storeIdentifier = storeIdentifier;
-	}
+    /**
+     * @param value
+     * @param provider
+     */
+    public RoleIdentifier(String value, StoreIdentifier storeIdentifier) {
+        super(value);
+        this.storeIdentifier = storeIdentifier;
+    }
 
-	public StoreIdentifier getStoreIdentifier() {
-		return storeIdentifier;
-	}
+    public StoreIdentifier getStoreIdentifier() {
+        return storeIdentifier;
+    }
 }

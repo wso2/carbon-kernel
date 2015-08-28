@@ -52,7 +52,7 @@ public class ClusterUtil {
             ClusterConfiguration clusterConfiguration) {
         List<ClusterMember> members = new ArrayList<>();
 
-        List<WKAMember> wkaMembers = ((WKASchemeConfig)clusterConfiguration.
+        List<WKAMember> wkaMembers = ((WKASchemeConfig) clusterConfiguration.
                 getMembershipSchemeConfiguration().getMembershipScheme()).getWkaMembers();
 
         for (WKAMember wkaMember : wkaMembers) {
@@ -61,7 +61,7 @@ public class ClusterUtil {
 
             if (hostName != null && port != 0) {
                 members.add(new ClusterMember(replaceVariables(hostName),
-                                              port));
+                        port));
             }
         }
         return members;
@@ -76,9 +76,9 @@ public class ClusterUtil {
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
         if ((indexOfStartingChars = text.indexOf("${")) != -1 &&
-            (indexOfClosingBrace = text.indexOf("}")) != -1) { // Is a property used?
+                (indexOfClosingBrace = text.indexOf("}")) != -1) { // Is a property used?
             String var = text.substring(indexOfStartingChars + 2,
-                                        indexOfClosingBrace);
+                    indexOfClosingBrace);
 
             String propValue = System.getProperty(var);
             if (propValue == null) {
@@ -86,7 +86,7 @@ public class ClusterUtil {
             }
             if (propValue != null) {
                 text = text.substring(0, indexOfStartingChars) + propValue +
-                       text.substring(indexOfClosingBrace + 1);
+                        text.substring(indexOfClosingBrace + 1);
             }
         }
         return text;
@@ -114,41 +114,34 @@ public class ClusterUtil {
     private static boolean isIP(String hostAddress) {
         return hostAddress.split("[.]").length == 4;
     }
+
     /**
      * Get the membership scheme applicable to this cluster
      *
      * @param clusterConfiguration the ClusterConfiguration instance
      * @return The membership scheme. Only wka and multicast are valid return values
-     * @throws org.wso2.carbon.clustering.exception.ClusterConfigurationException
-     *          If the membershipScheme specified in the cluster.xml file is invalid
+     * @throws ClusterConfigurationException If the membershipScheme specified in the cluster.xml file is invalid
      */
     public static String getMembershipScheme(ClusterConfiguration clusterConfiguration)
             throws ClusterConfigurationException {
-        String mbrScheme = null;
-
-        Object membershipScheme = clusterConfiguration.getMembershipSchemeConfiguration().
-                getMembershipScheme();
+        String membershipSchemeStr = null;
+        Object membershipScheme = clusterConfiguration.getMembershipSchemeConfiguration().getMembershipScheme();
         if (membershipScheme != null) {
-            String membershipSchemeParam = membershipScheme.toString();
-            mbrScheme = ClusteringConstants.MembershipScheme.MULTICAST_BASED;
-            if (membershipSchemeParam != null) {
-                mbrScheme = membershipSchemeParam.trim();
-            }
-            if (!mbrScheme.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
-                && !mbrScheme.equals(ClusteringConstants.MembershipScheme.WKA_BASED)
-                    && !mbrScheme.equals(ClusteringConstants.MembershipScheme.AWS_BASED)
-                    && !mbrScheme.equals(ClusteringConstants.MembershipScheme.GENERIC)) {
-                String msg = "Invalid membership scheme '" + mbrScheme +
-                             "'. Supported schemes are {" +
-                             ClusteringConstants.MembershipScheme.MULTICAST_BASED +
-                             ", " + ClusteringConstants.MembershipScheme.WKA_BASED +
-                             ", " + ClusteringConstants.MembershipScheme.AWS_BASED +
-                             ", " + ClusteringConstants.MembershipScheme.GENERIC + "}";
+            membershipSchemeStr = membershipScheme.toString().trim();
+            if (!membershipSchemeStr.equals(ClusteringConstants.MembershipScheme.MULTICAST_BASED)
+                    && !membershipSchemeStr.equals(ClusteringConstants.MembershipScheme.WKA_BASED)
+                    && !membershipSchemeStr.equals(ClusteringConstants.MembershipScheme.AWS_BASED)
+                    && !membershipSchemeStr.equals(ClusteringConstants.MembershipScheme.GENERIC)) {
+                String msg = "Invalid membership scheme '" + membershipSchemeStr +
+                        "'. Supported schemes are {" +
+                        ClusteringConstants.MembershipScheme.MULTICAST_BASED +
+                        ", " + ClusteringConstants.MembershipScheme.WKA_BASED +
+                        ", " + ClusteringConstants.MembershipScheme.AWS_BASED +
+                        ", " + ClusteringConstants.MembershipScheme.GENERIC + "}";
                 logger.error(msg);
                 throw new ClusterConfigurationException(msg);
             }
         }
-
-        return mbrScheme;
+        return membershipSchemeStr;
     }
 }

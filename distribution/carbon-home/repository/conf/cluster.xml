@@ -1,6 +1,6 @@
-<Cluster xsi:schemaLocation="http://wso2.com/schema/clustering/config cluster.xsd"
-         xmlns="http://wso2.com/schema/clustering/config"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://wso2.com/schema/clustering/config cluster.xsd"
+         xmlns="http://wso2.com/schema/clustering/config">
 
     <!--Indicates whether clustering should be enabled or disabled for this node-->
     <Enable>false</Enable>
@@ -26,17 +26,14 @@
     </LocalMember>
 
     <!--
-        The membership scheme used in this setup. The only values supported at the moment are
-        "multicast" and "wka"
+        The membership discovery scheme used in this setup. Multicast, WKA, AWS & Generic are the supported
+        schemes.
 
-        1. multicast - membership is automatically discovered using multicasting
-        2. wka - Well-Known Address based multicasting. Membership is discovered with the help
-            of one or more nodes running at a Well-Known Address. New members joining a
-            cluster will first connect to a well-known node, register with the well-known node
-            and get the membership list from it. When new members join, one of the well-known
-            nodes will notify the others in the group. When a member leaves the cluster or
-            is deemed to have left the cluster, it will be detected by the Group Membership
-            Service (GMS) using a TCP ping mechanism.
+        1. Multicast - membership is automatically discovered using multicasting
+        2. WKA - Well-Known Address based discovery. Membership is discovered with the help
+            of one or more nodes running at a Well-Known Address.
+        3. AWS - membership scheme for Amazon AWS deployments
+        4. Generic - allows plugging in custom membership schemes
     -->
     <MembershipScheme>
         <!-- multicast membership scheme related properties-->
@@ -66,6 +63,16 @@
             <TagKey>a_tag_key</TagKey>
             <TagValue>a_tag_value</TagValue>
         </AWS-->
+
+        <!--Generic membership scheme related properties-->
+        <!--Generic>
+            <Name>Foo</Name>
+            <Parameters>
+                <Parameter name="xxx">xxx-val</Parameter>
+                <Parameter name="yyy">yyy-val</Parameter>
+                <Parameter name="zzz">zzz-val</Parameter>
+            </Parameters>
+        </Generic-->
     </MembershipScheme>
 
 </Cluster>

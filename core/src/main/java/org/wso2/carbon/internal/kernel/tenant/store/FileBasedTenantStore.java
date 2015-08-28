@@ -18,26 +18,34 @@
 
 package org.wso2.carbon.internal.kernel.tenant.store;
 
-import org.wso2.carbon.kernel.CarbonConstants;
 import org.wso2.carbon.internal.kernel.DefaultImplConstants;
 import org.wso2.carbon.internal.kernel.tenant.DefaultTenant;
 import org.wso2.carbon.internal.kernel.tenant.store.model.AdminUserConfig;
 import org.wso2.carbon.internal.kernel.tenant.store.model.HierarchyConfig;
 import org.wso2.carbon.internal.kernel.tenant.store.model.TenantConfig;
 import org.wso2.carbon.internal.kernel.tenant.store.model.TenantStoreConfig;
+import org.wso2.carbon.kernel.CarbonConstants;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.store.TenantStore;
-
 import org.wso2.carbon.kernel.util.Utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 
+/**
+ * TODO: class level comment
+ */
 //TODO Implement transactional behaviour (Implement locking mechanism)
 public class FileBasedTenantStore implements TenantStore<Tenant> {
 
@@ -58,8 +66,8 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     }
 
     @Override
-    public Tenant loadTenant(String tenantDomain) throws Exception{
-        if (tenantConfigMap.containsKey(tenantDomain)){
+    public Tenant loadTenant(String tenantDomain) throws Exception {
+        if (tenantConfigMap.containsKey(tenantDomain)) {
             TenantConfig tenantConfig = tenantConfigMap.get(tenantDomain);
             return populateTenant(tenantConfig);
         }
@@ -75,7 +83,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     }
 
     @Override
-    public Tenant deleteTenant(String tenantDomain) throws Exception{
+    public Tenant deleteTenant(String tenantDomain) throws Exception {
 
 //        TenantConfig tenantConfig = tenantConfigMap.get(tenantDomain);
 //        if(tenantConfig == null) {
@@ -110,9 +118,10 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
             throw e;
         }
     }
-    private Tenant populateTenant(TenantConfig tenantConfig){
+
+    private Tenant populateTenant(TenantConfig tenantConfig) {
         Tenant tenant = new DefaultTenant();
-        tenant.setID(tenantConfig.getId());
+        tenant.setId(tenantConfig.getId());
         tenant.setDomain(tenantConfig.getDomain());
         tenant.setName(tenantConfig.getName());
         tenant.setDescription(tenantConfig.getDescription());
@@ -127,7 +136,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
 
     private TenantConfig populateTenantConfig(Tenant tenant) {
         TenantConfig tenantConfig = new TenantConfig();
-        tenantConfig.setId(tenant.getID());
+        tenantConfig.setId(tenant.getId());
         tenantConfig.setDomain(tenant.getDomain());
         tenantConfig.setName(tenant.getName());
         tenantConfig.setDescription(tenant.getDescription());
@@ -147,7 +156,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
         HierarchyConfig hierarchyConfig = new HierarchyConfig();
 
         if (tenant.getParent() != null) {
-            hierarchyConfig.setParentID(tenant.getParent().getID());
+            hierarchyConfig.setParentID(tenant.getParent().getId());
             hierarchyConfig.setDepthOfHierarchy(tenant.getParent().getDepthOfHierarchy() - 1);
         } else {
             hierarchyConfig.setParentID("Server");

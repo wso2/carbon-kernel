@@ -23,21 +23,21 @@ import org.wso2.carbon.context.login.commons.Visibility;
 
 public class GroupIdentifier extends EntityIdentifier {
 
-	private Visibility visibility;
-	private StoreIdentifier storeIdentifier;
+    private Visibility visibility;
+    private StoreIdentifier storeIdentifier;
 
-	public GroupIdentifier(StoreIdentifier storeIdentifier, String value, Visibility visibility) {
-		super(value);
-		this.storeIdentifier = storeIdentifier;
-		this.visibility = visibility;
-	}
+    public GroupIdentifier(StoreIdentifier storeIdentifier, String value, Visibility visibility) {
+        super(value);
+        this.storeIdentifier = storeIdentifier;
+        this.visibility = visibility;
+    }
 
-	public Visibility getVisibility() {
-		return visibility;
-	}
+    public Visibility getVisibility() {
+        return visibility;
+    }
 
-	public StoreIdentifier getStoreIdentifier() {
-		return storeIdentifier;
-	}
+    public StoreIdentifier getStoreIdentifier() {
+        return storeIdentifier;
+    }
 
 }

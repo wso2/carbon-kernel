@@ -19,27 +19,25 @@
 
 package org.wso2.carbon.identity.account.spi;
 
-import java.util.List;
-import java.util.Properties;
-
 import org.wso2.carbon.identity.authn.UserIdentifier;
 import org.wso2.carbon.identity.commons.EntryIdentifier;
+
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Keep the track of related accounts across identity stores.
  */
 public interface ReadOnlyLinkedAccountStore {
 
-	/**
-	 * 
-	 * @param properties
-	 */
-	public void init(Properties properties);
+    /**
+     * @param properties
+     */
+    public void init(Properties properties);
 
-	/**
-	 * 
-	 * @param entryIdentifier
-	 * @return
-	 */
-	public List<UserIdentifier> getLinkedAccounts(EntryIdentifier entryIdentifier);
+    /**
+     * @param entryIdentifier
+     * @return
+     */
+    public List<UserIdentifier> getLinkedAccounts(EntryIdentifier entryIdentifier);
 }

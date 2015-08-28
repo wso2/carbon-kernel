@@ -19,22 +19,21 @@
 
 package org.wso2.carbon.identity.authz;
 
-import java.util.Properties;
-
 import org.wso2.carbon.identity.authn.PrivilegedROUser;
 import org.wso2.carbon.identity.authn.PrivilegedReadOnlyGroup;
 
-public interface ReadOnlyAuthorizationManager
-		extends
-		VirtualReadOnlyAuthorizationStore< PrivilegedROUser, 
-										   PrivilegedReadOnlyGroup,
-										   PrivilegedReadOnlyRole > {
+import java.util.Properties;
 
-	/**
-	 * 
-	 * @param authzStoreMaanger
-	 * @param properties
-	 */
-	public void init(ReadOnlyAuthorizationStoreManager authzStoreMaanger,
-			Properties properties);
+public interface ReadOnlyAuthorizationManager
+        extends
+        VirtualReadOnlyAuthorizationStore<PrivilegedROUser,
+                PrivilegedReadOnlyGroup,
+                PrivilegedReadOnlyRole> {
+
+    /**
+     * @param authzStoreMaanger
+     * @param properties
+     */
+    public void init(ReadOnlyAuthorizationStoreManager authzStoreMaanger,
+                     Properties properties);
 }

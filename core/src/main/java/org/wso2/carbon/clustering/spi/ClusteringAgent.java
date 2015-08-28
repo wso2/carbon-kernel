@@ -19,11 +19,11 @@
 
 package org.wso2.carbon.clustering.spi;
 
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.clustering.ClusterMember;
 import org.wso2.carbon.clustering.ClusterMessage;
 import org.wso2.carbon.clustering.exception.ClusterInitializationException;
 import org.wso2.carbon.clustering.exception.MessageFailedException;
+import org.wso2.carbon.internal.clustering.ClusterContext;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public interface ClusteringAgent {
     /**
      * Send a message to a set of specific members in the cluster
      *
-     * @param msg the cluster message to send
+     * @param msg     the cluster message to send
      * @param members the set of members to whom the cluster message should be sent
      * @throws MessageFailedException on error while sending the message
      * @see ClusterMessage

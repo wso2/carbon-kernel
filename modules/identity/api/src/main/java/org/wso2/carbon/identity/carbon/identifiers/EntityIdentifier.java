@@ -21,21 +21,19 @@ package org.wso2.carbon.identity.carbon.identifiers;
 
 public class EntityIdentifier {
 
-	private String value;
+    private String value;
 
-	/**
-	 * 
-	 * @param value
-	 */
-	public EntityIdentifier(String value) {
-		this.value = value;
-	}
+    /**
+     * @param value
+     */
+    public EntityIdentifier(String value) {
+        this.value = value;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public String getValue() {
-		return value;
-	}
+    /**
+     * @return
+     */
+    public String getValue() {
+        return value;
+    }
 }

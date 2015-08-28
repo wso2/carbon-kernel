@@ -19,94 +19,87 @@
 
 package org.wso2.carbon.identity.authz;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.wso2.carbon.identity.authn.PrivilegedRWUser;
 import org.wso2.carbon.identity.authn.PrivilegedReadWriteGroup;
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
 import org.wso2.carbon.identity.authz.spi.ReadWriteAuthorizationStore;
 
-public class PrivilegedReadWriteRole extends PrivilegedRole<PrivilegedRWUser,PrivilegedReadWriteGroup> {
+import java.util.Collections;
+import java.util.List;
 
-	private ReadWriteAuthorizationStore authzStore;
+public class PrivilegedReadWriteRole extends PrivilegedRole<PrivilegedRWUser, PrivilegedReadWriteGroup> {
 
-	/**
-	 * 
-	 * @param authzStore
-	 * @param roleIdentifier
-	 * @throws AuthorizationStoreException 
-	 */
-	public PrivilegedReadWriteRole(RoleIdentifier roleIdentifier, ReadWriteAuthorizationStore authzStore) throws AuthorizationStoreException {
-		super(roleIdentifier, authzStore);
-		this.authzStore = authzStore;
-	}
+    private ReadWriteAuthorizationStore authzStore;
 
-	/**
-	 * 
-	 * @param permissionIdentifierList
-	 * @throws AuthorizationStoreException
-	 */
-	public void addPermission(List<PermissionIdentifier> permissionIdentifierList)
-			throws AuthorizationStoreException {
-		authzStore.assignPermissionsToRole(getRoleIdentifier(), permissionIdentifierList);
-	}
+    /**
+     * @param authzStore
+     * @param roleIdentifier
+     * @throws AuthorizationStoreException
+     */
+    public PrivilegedReadWriteRole(RoleIdentifier roleIdentifier, ReadWriteAuthorizationStore authzStore) throws AuthorizationStoreException {
+        super(roleIdentifier, authzStore);
+        this.authzStore = authzStore;
+    }
 
-	/**
-	 * 
-	 * @param permissionIdentifierList
-	 * @throws AuthorizationStoreException
-	 */
-	public void removePermission(List<PermissionIdentifier> permissionIdentifierList)
-			throws AuthorizationStoreException {
-		authzStore.removePermissionsFromRole(getRoleIdentifier(), permissionIdentifierList);
-	}
+    /**
+     * @param permissionIdentifierList
+     * @throws AuthorizationStoreException
+     */
+    public void addPermission(List<PermissionIdentifier> permissionIdentifierList)
+            throws AuthorizationStoreException {
+        authzStore.assignPermissionsToRole(getRoleIdentifier(), permissionIdentifierList);
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<PrivilegedReadWriteGroup> getGroups() throws AuthorizationStoreException {
-		return authzStore.getGroupsOfRole(getRoleIdentifier());
-	}
+    /**
+     * @param permissionIdentifierList
+     * @throws AuthorizationStoreException
+     */
+    public void removePermission(List<PermissionIdentifier> permissionIdentifierList)
+            throws AuthorizationStoreException {
+        authzStore.removePermissionsFromRole(getRoleIdentifier(), permissionIdentifierList);
+    }
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<PrivilegedReadWriteGroup> getGroups(GroupSearchCriteria searchCriteria)
-			throws AuthorizationStoreException {
-		List<PrivilegedReadWriteGroup> groups = authzStore.getGroupsOfRole(
-				getRoleIdentifier(), searchCriteria);
-		return Collections.unmodifiableList(groups);
-	}
+    /**
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<PrivilegedReadWriteGroup> getGroups() throws AuthorizationStoreException {
+        return authzStore.getGroupsOfRole(getRoleIdentifier());
+    }
 
-	/**
-	 * 
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<PrivilegedRWUser> getUsers() throws AuthorizationStoreException {
-		List<PrivilegedRWUser> users = authzStore
-				.getUsersOfRole(getRoleIdentifier());
-		return Collections.unmodifiableList(users);
-	}
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<PrivilegedReadWriteGroup> getGroups(GroupSearchCriteria searchCriteria)
+            throws AuthorizationStoreException {
+        List<PrivilegedReadWriteGroup> groups = authzStore.getGroupsOfRole(
+                getRoleIdentifier(), searchCriteria);
+        return Collections.unmodifiableList(groups);
+    }
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria)
-			throws AuthorizationStoreException {
-		List<PrivilegedRWUser> users = authzStore.getUsersOfRole(
-				getRoleIdentifier(), searchCriteria);
-		return Collections.unmodifiableList(users);
-	}
+    /**
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<PrivilegedRWUser> getUsers() throws AuthorizationStoreException {
+        List<PrivilegedRWUser> users = authzStore
+                .getUsersOfRole(getRoleIdentifier());
+        return Collections.unmodifiableList(users);
+    }
+
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<PrivilegedRWUser> getUsers(UserSearchCriteria searchCriteria)
+            throws AuthorizationStoreException {
+        List<PrivilegedRWUser> users = authzStore.getUsersOfRole(
+                getRoleIdentifier(), searchCriteria);
+        return Collections.unmodifiableList(users);
+    }
 
 }

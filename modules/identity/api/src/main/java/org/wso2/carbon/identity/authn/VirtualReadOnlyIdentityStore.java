@@ -19,56 +19,51 @@
 
 package org.wso2.carbon.identity.authn;
 
-import java.util.List;
-
 import org.wso2.carbon.identity.authn.spi.GroupSearchCriteria;
 import org.wso2.carbon.identity.authn.spi.UserSearchCriteria;
 import org.wso2.carbon.identity.authz.PrivilegedRole;
 import org.wso2.carbon.identity.credential.spi.Credential;
 
-public interface VirtualReadOnlyIdentityStore < U extends PrivilegedUser<G, R>, 
-												G extends PrivilegedGroup<U, R>, 
-												R extends PrivilegedRole<U, G> > {
+import java.util.List;
 
-	/**
-	 * 
-	 * @param credential
-	 * @return
-	 * @throws AuthenticationFailureException
-	 */
-	@SuppressWarnings("rawtypes")
-	public U authenticate(Credential credential) throws AuthenticationFailureException;
+public interface VirtualReadOnlyIdentityStore<U extends PrivilegedUser<G, R>,
+        G extends PrivilegedGroup<U, R>,
+        R extends PrivilegedRole<U, G>> {
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public U getUser(UserIdentifier userIdentifier) throws IdentityStoreException;
+    /**
+     * @param credential
+     * @return
+     * @throws AuthenticationFailureException
+     */
+    @SuppressWarnings("rawtypes")
+    public U authenticate(Credential credential) throws AuthenticationFailureException;
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<U> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public U getUser(UserIdentifier userIdentifier) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param userIdentifier
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public G getGroup(GroupIdentifier userIdentifier) throws IdentityStoreException;
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<U> getUsers(UserSearchCriteria searchCriteria) throws IdentityStoreException;
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws IdentityStoreException
-	 */
-	public List<G> getGroups(GroupSearchCriteria searchCriteria) throws IdentityStoreException;
+    /**
+     * @param userIdentifier
+     * @return
+     * @throws IdentityStoreException
+     */
+    public G getGroup(GroupIdentifier userIdentifier) throws IdentityStoreException;
+
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws IdentityStoreException
+     */
+    public List<G> getGroups(GroupSearchCriteria searchCriteria) throws IdentityStoreException;
 
 }

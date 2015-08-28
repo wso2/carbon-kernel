@@ -22,7 +22,6 @@ package org.wso2.carbon.deployment.exception;
 /**
  * The exception class for all deployer registration, unregistration related the exceptions that
  * can be thrown from CarbonDeployementEngine
- *
  */
 
 public class DeployerRegistrationException extends Exception {

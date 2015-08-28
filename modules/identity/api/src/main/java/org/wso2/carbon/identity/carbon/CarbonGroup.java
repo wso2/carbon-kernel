@@ -19,8 +19,6 @@
 
 package org.wso2.carbon.identity.carbon;
 
-import java.util.List;
-
 import org.wso2.carbon.identity.carbon.commons.EntityTree;
 import org.wso2.carbon.identity.carbon.commons.IdentityException;
 import org.wso2.carbon.identity.carbon.identifiers.EntryIdentifier;
@@ -28,78 +26,71 @@ import org.wso2.carbon.identity.carbon.identifiers.GroupIdentifier;
 import org.wso2.carbon.identity.carbon.identifiers.RoleIdentifier;
 import org.wso2.carbon.identity.carbon.identifiers.StoreIdentifier;
 
+import java.util.List;
+
 public interface CarbonGroup<U extends CarbonUser, R extends CarbonRole>
-		extends Group {
+        extends Group {
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public EntryIdentifier getEntryId() throws IdentityException;
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public EntryIdentifier getEntryId() throws IdentityException;
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public List<U> getUsers() throws IdentityException;
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public List<U> getUsers() throws IdentityException;
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public List<R> getRoles()
-			throws IdentityException;
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public List<R> getRoles()
+            throws IdentityException;
 
-	/**
-	 * 
-	 * @return
-	 * @throws IdentityException
-	 */
-	public List<EntityTree> getChildren() throws IdentityException;
+    /**
+     * @return
+     * @throws IdentityException
+     */
+    public List<EntityTree> getChildren() throws IdentityException;
 
-	/**
-	 * 
-	 * @param childGroupIdentifier
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean hasChild(GroupIdentifier childGroupIdentifier)
-			throws IdentityException;
+    /**
+     * @param childGroupIdentifier
+     * @return
+     * @throws IdentityException
+     */
+    public boolean hasChild(GroupIdentifier childGroupIdentifier)
+            throws IdentityException;
 
-	/**
-	 * 
-	 * @param parentGroupIdentifier
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean hasParent(GroupIdentifier parentGroupIdentifier)
-			throws IdentityException;
+    /**
+     * @param parentGroupIdentifier
+     * @return
+     * @throws IdentityException
+     */
+    public boolean hasParent(GroupIdentifier parentGroupIdentifier)
+            throws IdentityException;
 
-	/**
-	 * 
-	 * @param roleIdentifier
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean hasRole(RoleIdentifier roleIdentifier)
-			throws IdentityException;
+    /**
+     * @param roleIdentifier
+     * @return
+     * @throws IdentityException
+     */
+    public boolean hasRole(RoleIdentifier roleIdentifier)
+            throws IdentityException;
 
-	/**
-	 * 
-	 * @param permission
-	 * @return
-	 * @throws IdentityException
-	 */
-	public boolean hasPermission(CarbonPermission permission)
-			throws IdentityException;
+    /**
+     * @param permission
+     * @return
+     * @throws IdentityException
+     */
+    public boolean hasPermission(CarbonPermission permission)
+            throws IdentityException;
 
-	/**
-	 * 
-	 * @return
-	 */
-	public StoreIdentifier getStoreIdentifier();
+    /**
+     * @return
+     */
+    public StoreIdentifier getStoreIdentifier();
 
 }

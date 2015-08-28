@@ -38,15 +38,8 @@ public abstract class ClusterMessage implements Serializable {
     private long timestamp = System.currentTimeMillis();
 
     /**
-     * Sets the uuid for this cluster message
-     * @param uuid the uuid to be set
-     */
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    /**
      * Returns the uuid of this cluster message
+     *
      * @return uuid
      */
     public String getUuid() {
@@ -54,7 +47,17 @@ public abstract class ClusterMessage implements Serializable {
     }
 
     /**
+     * Sets the uuid for this cluster message
+     *
+     * @param uuid the uuid to be set
+     */
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    /**
      * Returns the timestamp of this cluster message
+     *
      * @return timestamp value
      */
     public long getTimestamp() {
@@ -64,6 +67,7 @@ public abstract class ClusterMessage implements Serializable {
     /**
      * This is execute method which should be implemented by those who write a new cluster message
      * This will be called by the cluster framework when receiving the message from the cluster
+     *
      * @throws MessageFailedException on error while executing the message
      */
     public abstract void execute() throws MessageFailedException;

@@ -21,13 +21,16 @@ package org.wso2.carbon.internal.deployment;
 
 import org.wso2.carbon.kernel.CarbonRuntime;
 
+/**
+ * Data holder
+ */
 public class OSGiServiceHolder {
-    private  static OSGiServiceHolder instance = new OSGiServiceHolder();
+    private static OSGiServiceHolder instance = new OSGiServiceHolder();
 
     private DeploymentEngine carbonDeploymentEngine;
     private CarbonRuntime carbonRuntime;
 
-    public  static OSGiServiceHolder getInstance() {
+    public static OSGiServiceHolder getInstance() {
         return instance;
     }
 

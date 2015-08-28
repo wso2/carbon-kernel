@@ -77,9 +77,9 @@ public interface Deployer {
      * Returns the deploy directory location associated with the deployer.
      * <p>
      * It can be relative to CARBON_HOME or an abosolute path
-     *      Eg : webapps, dataservices, sequences  or
-     *           /dev/wso2/deployment/repository/  or
-     *           file:/dev/wso2/deployment/repository/
+     * Eg : webapps, dataservices, sequences  or
+     * /dev/wso2/deployment/repository/  or
+     * file:/dev/wso2/deployment/repository/
      *
      * @return deployer directory location
      */
@@ -87,7 +87,8 @@ public interface Deployer {
 
     /**
      * Returns the type of the artifact that the deployer is capable of deploying
-     *      Eg : webapp, dataservice
+     * Eg : webapp, dataservice
+     *
      * @return ArtifactType object which contains info about the artifact type
      * @see ArtifactType
      */

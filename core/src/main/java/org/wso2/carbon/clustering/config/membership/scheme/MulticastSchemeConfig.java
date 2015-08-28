@@ -19,10 +19,15 @@
 
 package org.wso2.carbon.clustering.config.membership.scheme;
 
+import org.wso2.carbon.clustering.ClusteringConstants;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+/**
+ * JAXB representation of multicast membership configuration
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MulticastSchemeConfig {
     @XmlElement(name = "Group", defaultValue = "228.0.0.4")
@@ -67,6 +72,6 @@ public class MulticastSchemeConfig {
     }
 
     public String toString() {
-        return "Multicast";
+        return ClusteringConstants.MembershipScheme.MULTICAST_BASED;
     }
 }

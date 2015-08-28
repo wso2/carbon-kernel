@@ -57,18 +57,9 @@ public class CarbonKernelCommandProvider implements CommandProvider {
 
     @Deactivate
     public void unregisterCommandProvider(BundleContext bundleContext) {
-        serviceRegistration.unregister();
-    }
-
-    @Reference(
-            name = "carbon.runtime.service",
-            service = CarbonRuntime.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetCarbonRuntime"
-    )
-    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = carbonRuntime;
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
     }
 
     public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
@@ -80,6 +71,17 @@ public class CarbonKernelCommandProvider implements CommandProvider {
             throw new Exception("CarbonRuntime instance is not available");
         }
         return carbonRuntime;
+    }
+
+    @Reference(
+            name = "carbon.runtime.service",
+            service = CarbonRuntime.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unsetCarbonRuntime"
+    )
+    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = carbonRuntime;
     }
 
     @Override
@@ -105,7 +107,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
             try {
                 Tenant tenant = tenantRuntime.addTenant(args[0], args[1], args[2],
                         args[3], args[4], new HashMap<String, String>(0));
-                System.out.println("Successfully Created the tenant with the ID " + tenant.getID());
+                System.out.println("Successfully Created the tenant with the ID " + tenant.getId());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -122,7 +124,7 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         if (args.length == 1) {
             try {
                 Tenant tenant = tenantRuntime.getTenant(args[0]);
-                if(tenant == null) {
+                if (tenant == null) {
                     System.out.println("Tenant with domain " + args[0] + " does not exists");
                     return;
                 }

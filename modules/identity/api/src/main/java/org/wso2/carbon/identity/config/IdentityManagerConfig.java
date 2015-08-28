@@ -19,32 +19,30 @@
 
 package org.wso2.carbon.identity.config;
 
-import java.util.Properties;
-
 import org.wso2.carbon.identity.config.spi.IdentityStoreConfig;
+
+import java.util.Properties;
 
 public final class IdentityManagerConfig extends AbstractManagerConfig {
 
-	private IdentityStoreConfig primaryIdentityStoreConfig;
+    private IdentityStoreConfig primaryIdentityStoreConfig;
 
-	/**
-	 * 
-	 * @param clazzName
-	 * @param properties
-	 * @param primaryIdentityStoreConfig
-	 */
-	public IdentityManagerConfig(String clazzName, Properties properties,
-			IdentityStoreConfig primaryIdentityStoreConfig) {
-		super(clazzName, properties);
-		this.primaryIdentityStoreConfig = primaryIdentityStoreConfig;
-	}
+    /**
+     * @param clazzName
+     * @param properties
+     * @param primaryIdentityStoreConfig
+     */
+    public IdentityManagerConfig(String clazzName, Properties properties,
+                                 IdentityStoreConfig primaryIdentityStoreConfig) {
+        super(clazzName, properties);
+        this.primaryIdentityStoreConfig = primaryIdentityStoreConfig;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public IdentityStoreConfig getPrimaryIdentityStoreConfig() {
-		return primaryIdentityStoreConfig;
-	}
+    /**
+     * @return
+     */
+    public IdentityStoreConfig getPrimaryIdentityStoreConfig() {
+        return primaryIdentityStoreConfig;
+    }
 
 }

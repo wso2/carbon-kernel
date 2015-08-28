@@ -19,51 +19,47 @@
 
 package org.wso2.carbon.identity.authz;
 
-import java.util.List;
-
 import org.wso2.carbon.identity.authn.PrivilegedGroup;
 import org.wso2.carbon.identity.authn.PrivilegedUser;
 import org.wso2.carbon.identity.authz.spi.PermissionSearchCriteria;
 import org.wso2.carbon.identity.authz.spi.RoleSearchCriteria;
 
-public interface VirtualReadOnlyAuthorizationStore < U extends PrivilegedUser<G, R>, 
-													 G extends PrivilegedGroup<U, R>, 
-													 R extends PrivilegedRole<U, G> > {
+import java.util.List;
 
-	/**
-	 * 
-	 * @param permissionIdentifier
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public Permission getPermission(PermissionIdentifier permissionIdentifier)
-			throws AuthorizationStoreException;
+public interface VirtualReadOnlyAuthorizationStore<U extends PrivilegedUser<G, R>,
+        G extends PrivilegedGroup<U, R>,
+        R extends PrivilegedRole<U, G>> {
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<Permission> getPermissions(
-			PermissionSearchCriteria searchCriteria)
-			throws AuthorizationStoreException;
+    /**
+     * @param permissionIdentifier
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public Permission getPermission(PermissionIdentifier permissionIdentifier)
+            throws AuthorizationStoreException;
 
-	/**
-	 * 
-	 * @param roleIdentifier
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public R getRole(RoleIdentifier roleIdentifier)
-			throws AuthorizationStoreException;
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<Permission> getPermissions(
+            PermissionSearchCriteria searchCriteria)
+            throws AuthorizationStoreException;
 
-	/**
-	 * 
-	 * @param searchCriteria
-	 * @return
-	 * @throws AuthorizationStoreException
-	 */
-	public List<R> getRoles(RoleSearchCriteria searchCriteria)
-			throws AuthorizationStoreException;
+    /**
+     * @param roleIdentifier
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public R getRole(RoleIdentifier roleIdentifier)
+            throws AuthorizationStoreException;
+
+    /**
+     * @param searchCriteria
+     * @return
+     * @throws AuthorizationStoreException
+     */
+    public List<R> getRoles(RoleSearchCriteria searchCriteria)
+            throws AuthorizationStoreException;
 }

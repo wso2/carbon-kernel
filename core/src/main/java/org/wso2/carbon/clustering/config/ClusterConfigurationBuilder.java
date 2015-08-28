@@ -22,26 +22,29 @@ package org.wso2.carbon.clustering.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.clustering.exception.ClusterConfigurationException;
+import org.xml.sax.SAXException;
 
+import java.io.File;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
 
-public class ClusterConfigFactory {
-    private static final Logger logger = LoggerFactory.getLogger(ClusterConfigFactory.class);
+/**
+ * Carbon cluster configuration builder which reads the cluster.xml and create an object model
+ */
+public class ClusterConfigurationBuilder {
+    private static final Logger logger = LoggerFactory.getLogger(ClusterConfigurationBuilder.class);
 
-    public static ClusterConfiguration build()
-            throws ClusterConfigurationException {
+    public static ClusterConfiguration build() throws ClusterConfigurationException {
         ClusterConfiguration clusterConfiguration = null;
         try {
             //TODO : get carbon repo from system property
             String clusterXmlLocation = System.getProperty("carbon.home") + File.separator +
-                                        "repository" + File.separator + "conf" +
-                                        File.separator + "cluster.xml";
+                    "repository" + File.separator + "conf" + File.separator + "cluster.xml";
 
             File file = new File(clusterXmlLocation);
             JAXBContext jaxbContext = JAXBContext.newInstance(ClusterConfiguration.class);
@@ -57,12 +60,11 @@ public class ClusterConfigFactory {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             unmarshaller.setSchema(schema);
             clusterConfiguration = (ClusterConfiguration) unmarshaller.unmarshal(file);
-        } catch (Exception e) {
+        } catch (SAXException | JAXBException e) {
             String msg = "Error while loading cluster configuration file";
             logger.error(msg, e);
             throw new ClusterConfigurationException(msg, e);
         }
-
         return clusterConfiguration;
     }
 }

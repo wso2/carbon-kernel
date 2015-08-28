@@ -18,11 +18,14 @@
 
 package org.wso2.carbon.internal.kernel.context;
 
-import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
+/**
+ * TODO: class level comment
+ */
 public class DefaultCarbonRuntime implements PrivilegedCarbonRuntime {
     private CarbonConfiguration carbonConfiguration;
     private TenantRuntime<Tenant> tenantRuntime;
@@ -37,12 +40,12 @@ public class DefaultCarbonRuntime implements PrivilegedCarbonRuntime {
     }
 
     @Override
-    public void setCarbonConfiguration(CarbonConfiguration carbonConfiguration) {
-        this.carbonConfiguration = carbonConfiguration;
+    public void setTenantRuntime(TenantRuntime<Tenant> tenantRuntime) {
+        this.tenantRuntime = tenantRuntime;
     }
 
     @Override
-    public void setTenantRuntime(TenantRuntime<Tenant> tenantRuntime) {
-        this.tenantRuntime = tenantRuntime;
+    public void setCarbonConfiguration(CarbonConfiguration carbonConfiguration) {
+        this.carbonConfiguration = carbonConfiguration;
     }
 }

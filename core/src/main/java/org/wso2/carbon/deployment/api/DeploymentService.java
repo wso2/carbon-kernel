@@ -52,9 +52,9 @@ public interface DeploymentService {
      * which uniquely identifies an artifact in a runtime and the artifact deployment
      * directory
      *
-     * @param key artifact key to uniquely identify an artifact in a runtime
-     *            Eg: for webapps this can be webapp context such as /foo , /bar, etc
-     *                for service this can be service name such as EchoService, VersionService, etc
+     * @param key          artifact key to uniquely identify an artifact in a runtime
+     *                     Eg: for webapps this can be webapp context such as /foo , /bar, etc
+     *                     for service this can be service name such as EchoService, VersionService, etc
      * @param artifactType the type of the artifact going to be dpeloyed
      *                     Eg : webapp, dataservice, sequence
      * @throws CarbonDeploymentException - on error while trying undeploy the given artifact info
@@ -67,9 +67,9 @@ public interface DeploymentService {
      * which uniquely identifies an artifact in a runtime and the artifact deployment
      * directory
      *
-     * @param key artifact key to uniquely identify an artifact in a runtime
-     *            Eg: for webapps this can be webapp context such as /foo , /bar, etc
-     *                for service this can be service name such as EchoService, VersionService, etc
+     * @param key          artifact key to uniquely identify an artifact in a runtime
+     *                     Eg: for webapps this can be webapp context such as /foo , /bar, etc
+     *                     for service this can be service name such as EchoService, VersionService, etc
      * @param artifactType the type of the artifact going to be dpeloyed
      *                     Eg : webapp, dataservice, sequence
      * @throws CarbonDeploymentException - on error while trying redeploy the given artifact info

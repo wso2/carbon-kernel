@@ -26,9 +26,6 @@ import org.w3c.dom.NodeList;
 import org.wso2.carbon.base.exception.ConfigurationInitializationException;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,6 +37,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Generic Base Utility methods
@@ -61,8 +61,8 @@ public class Utils {
                 .getProperty(Constants.CARBON_REPOSITORY);
         /*
          * if user set the system property telling where is the configuration
-		 * directory
-		 */
+         * directory
+         */
         if (carbonXML == null) {
             return getCarbonConfigDirPath() + File.separator + "carbon.xml";
         }
@@ -79,7 +79,7 @@ public class Utils {
         }
         if (carbonRepoDirPath == null) {
             configDirPath = getCarbonHome() + File.separator + "repository"
-                            + File.separator + "conf";
+                    + File.separator + "conf";
         } else {
             configDirPath = carbonRepoDirPath + File.separator + "conf";
         }
@@ -115,7 +115,7 @@ public class Utils {
                             .getResourceAsStream(configurationXMLLocation);
                     if (xmlInputStream == null) {
                         String msg = "Configuration File cannot be loaded from "
-                                     + configurationXMLLocation;
+                                + configurationXMLLocation;
                         logger.error(msg, e1);
                         throw new ConfigurationInitializationException(msg, e1);
                     }
@@ -125,7 +125,7 @@ public class Utils {
             }
         } catch (IOException e) {
             logger.error("Configuration File cannot be loaded from "
-                         + configurationXMLLocation, e);
+                    + configurationXMLLocation, e);
             throw new ConfigurationInitializationException(e);
         }
         return xmlInputStream;
@@ -214,19 +214,19 @@ public class Utils {
         // Properties are specified as ${system.property},
         // and are assumed to be System properties
         while (indexOfStartingChars < text.indexOf("${")
-               && (indexOfStartingChars = text.indexOf("${")) != -1
-               && (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a
+                && (indexOfStartingChars = text.indexOf("${")) != -1
+                && (indexOfClosingBrace = text.indexOf('}')) != -1) { // Is a
             // property
             // used?
             String sysProp = text.substring(indexOfStartingChars + 2,
-                                            indexOfClosingBrace);
+                    indexOfClosingBrace);
             String propValue = System.getProperty(sysProp);
             if (propValue != null) {
                 text = text.substring(0, indexOfStartingChars) + propValue
-                       + text.substring(indexOfClosingBrace + 1);
+                        + text.substring(indexOfClosingBrace + 1);
             }
             if (sysProp.equals("carbon.home") && propValue != null
-                && propValue.equals(".")) {
+                    && propValue.equals(".")) {
 
                 text = new File(".").getAbsolutePath() + File.separator + text;
 
@@ -234,5 +234,4 @@ public class Utils {
         }
         return text;
     }
-
 }

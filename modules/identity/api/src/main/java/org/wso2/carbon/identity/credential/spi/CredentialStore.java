@@ -19,52 +19,47 @@
 
 package org.wso2.carbon.identity.credential.spi;
 
-import java.util.Properties;
-
 import org.wso2.carbon.identity.commons.EntryIdentifier;
 import org.wso2.carbon.identity.credential.InvalideCredentialException;
 import org.wso2.carbon.identity.credential.UnsupportedCredentialException;
 
+import java.util.Properties;
+
 public interface CredentialStore {
 
-	/**
-	 * 
-	 * @param properties
-	 */
-	public void init(Properties properties);
+    /**
+     * @param properties
+     */
+    public void init(Properties properties);
 
-	/**
-	 * 
-	 * @param credential
-	 * @throws InvalidCredentialException
-	 */
-	@SuppressWarnings("rawtypes")
-	public void validateCredentials(EntryIdentifier entryId, Credential credential) throws InvalideCredentialException;
+    /**
+     * @param credential
+     * @throws InvalidCredentialException
+     */
+    @SuppressWarnings("rawtypes")
+    public void validateCredentials(EntryIdentifier entryId, Credential credential) throws InvalideCredentialException;
 
-	/**
-	 * 
-	 * @param entryId
-	 * @param newCredentials
-	 * @throws UnsupportedCredentialException
-	 */
-	@SuppressWarnings("rawtypes")
-	public void resetCredentials(EntryIdentifier entryId, Credential newCredentials) throws UnsupportedCredentialException;
+    /**
+     * @param entryId
+     * @param newCredentials
+     * @throws UnsupportedCredentialException
+     */
+    @SuppressWarnings("rawtypes")
+    public void resetCredentials(EntryIdentifier entryId, Credential newCredentials) throws UnsupportedCredentialException;
 
-	/**
-	 * 
-	 * @param entryId
-	 * @param credential
-	 * @throws UnsupportedCredentialException
-	 */
-	@SuppressWarnings("rawtypes")
-	public void addCredential(EntryIdentifier entryId, Credential credential) throws UnsupportedCredentialException;
+    /**
+     * @param entryId
+     * @param credential
+     * @throws UnsupportedCredentialException
+     */
+    @SuppressWarnings("rawtypes")
+    public void addCredential(EntryIdentifier entryId, Credential credential) throws UnsupportedCredentialException;
 
-	/**
-	 * 
-	 * @param entryId
-	 * @param credential
-	 */
-	@SuppressWarnings("rawtypes")
-	public void removeCredential(EntryIdentifier entryId, Credential credential);
+    /**
+     * @param entryId
+     * @param credential
+     */
+    @SuppressWarnings("rawtypes")
+    public void removeCredential(EntryIdentifier entryId, Credential credential);
 
 }
