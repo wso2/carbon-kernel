@@ -67,6 +67,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
     private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
+    public static final String USER_NOT_FOUND = "user.not.found: Username : ";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -470,7 +471,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // If user does not exist, throw an exception
 
         if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
+            throw new UserStoreException(USER_NOT_FOUND + userName);
         }
 
         Map<String, String> finalValues = doGetUserClaimValues(userName, new String[]{claim},
@@ -518,7 +519,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
         // If user does not exist, throw exception
         if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
+            throw new UserStoreException(USER_NOT_FOUND + userName);
         }
 
         if (profileName == null || profileName.trim().length() == 0) {
@@ -567,7 +568,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
         if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
+            throw new UserStoreException(USER_NOT_FOUND + userName);
         }
 
         Map<String, String> finalValues = doGetUserClaimValues(userName, claims,
@@ -967,7 +968,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
+            throw new UserStoreException(USER_NOT_FOUND + userName);
         }
 
         // #################### <Listeners> #####################################################
@@ -1023,7 +1024,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
+            throw new UserStoreException(USER_NOT_FOUND + userName);
         }
 
         // #################### <Listeners> #####################################################
@@ -1067,7 +1068,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
+            throw new UserStoreException(USER_NOT_FOUND + userName);
         }
 
         // #################### <Listeners> #####################################################
@@ -1111,7 +1112,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
+            throw new UserStoreException(USER_NOT_FOUND + userName);
         }
 
 
