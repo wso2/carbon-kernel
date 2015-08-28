@@ -68,6 +68,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
     private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     private static final String APPLICATION_DOMAIN = "Application";
+    public static final String USER_NOT_FOUND = "UserNotFound";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -462,10 +463,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public final String getUserClaimValue(String userName, String claim, String profileName)
             throws UserStoreException {
 
-        // If user does not exist, just return
-        if (!isExistingUser(userName)) {
-            return null;
-        }
+
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
@@ -475,6 +473,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
 
+        // If user does not exist,  throw an exception
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "doesn't exist in : " +
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+        }
 
         Map<String, String> finalValues = doGetUserClaimValues(userName, new String[]{claim},
                 userStore.getDomainName(), profileName);
@@ -512,10 +515,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     public final Claim[] getUserClaimValues(String userName, String profileName)
             throws UserStoreException {
 
-        // If user does not exist, just return
-        if (!isExistingUser(userName)) {
-            return null;
-        }
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
@@ -524,6 +523,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
+
+        // If user does not exist,  throw an exception
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "doesn't exist in : " +
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+        }
 
         if (profileName == null || profileName.trim().length() == 0) {
             profileName = UserCoreConstants.DEFAULT_PROFILE;
@@ -572,6 +577,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
 
+        // If user does not exist,  throw an exception
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "doesn't exist in : " +
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+        }
         Map<String, String> finalValues = doGetUserClaimValues(userName, claims,
                 userStore.getDomainName(), profileName);
 
@@ -926,10 +936,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return;
         }
 
+        // ############################# Domain Free Zone Starts Here ###########################
         if (isReadOnly()) {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        // If user does not exist,  throw an exception
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "doesn't exist in : " +
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+        }
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -938,10 +954,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
         // #################### </Listeners> #####################################################
-
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
 
         doSetUserClaimValue(userName, claimURI, claimValue, profileName);
 
@@ -968,9 +980,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     claims, profileName);
             return;
         }
+        // ####################### Domain Free Zone Starts Here #################################
 
         if (isReadOnly()) {
             throw new UserStoreException("Invalid operation. User store is read only");
+        }
+
+        // If user does not exist,  throw an exception
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "doesn't exist in : " +
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         }
 
         // #################### <Listeners> #####################################################
@@ -982,9 +1001,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
 
         doSetUserClaimValues(userName, claims, profileName);
 
@@ -1016,6 +1032,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        // If user does not exist,  throw an exception
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "doesn't exist in : " +
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+        }
+
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1025,9 +1047,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
 
         doDeleteUserClaimValue(userName, claimURI, profileName);
 
@@ -1058,6 +1077,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
 
+        // If user does not exist,  throw an exception
+        if (!doCheckExistingUser(userName)) {
+            throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "doesn't exist in : " +
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
+        }
+
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1066,10 +1091,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
         // #################### </Listeners> #####################################################
-
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
 
         doDeleteUserClaimValues(userName, claims, profileName);
 
