@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Carbon-Kernel-Core_Test-Suite">
+    <test name="carbon-core-unit-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.wso2.carbon.base.LoggingConfigurationTest" />
+            <class name="org.wso2.carbon.base.ServerConfigurationTest" />
+            <class name="org.wso2.carbon.base.UtilsTest" />
+
+            <class name="org.wso2.carbon.clustering.ClusterConfigurationTestCase" />
+            <class name="org.wso2.carbon.clustering.ClusterContextTestCase" />
+            <class name="org.wso2.carbon.clustering.ClusteringAgentTestCase" />
+            <class name="org.wso2.carbon.clustering.MembershipSchemeBaseTest" />
+            <class name="org.wso2.carbon.clustering.MulitcastMembershipSchemeTestCase" />
+            <class name="org.wso2.carbon.clustering.WKAMembershipSchemeTestCase" />
+
+            <class name="org.wso2.carbon.deployment.BaseTest" />
+            <class name="org.wso2.carbon.deployment.ArtifactTest" />
+            <class name="org.wso2.carbon.deployment.DeployerTest" />
+            <class name="org.wso2.carbon.deployment.DeploymentEngineTest" />
+            <class name="org.wso2.carbon.deployment.DeploymentServiceTest" />
+
+            <class name="org.wso2.carbon.runtime.CustomRuntimeTest" />
+            <class name="org.wso2.carbon.runtime.RuntimeManagerTest" />
+            <class name="org.wso2.carbon.runtime.RuntimeServiceExceptionTest" />
+            <class name="org.wso2.carbon.runtime.RuntimeServiceTest" />
+        </classes>
+    </test>
+</suite>
