@@ -916,7 +916,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             throws UserStoreException {
         // search the user with UserNameAttribute, retrieve their
         // DisplayNameAttribute combine and return
-        String domain = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME);
         String displayNameAttribute =
                 this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
         if (displayNameAttribute != null) {
