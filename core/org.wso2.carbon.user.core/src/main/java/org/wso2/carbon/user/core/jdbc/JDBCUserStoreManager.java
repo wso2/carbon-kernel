@@ -46,8 +46,17 @@ import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.security.SecureRandom;
 
 public class JDBCUserStoreManager extends AbstractUserStoreManager {
@@ -62,7 +71,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String SHA_1_PRNG = "SHA1PRNG";
 
     protected DataSource jdbcds = null;
-    protected Random random = new Random();
+
 
     public JDBCUserStoreManager() {
 
