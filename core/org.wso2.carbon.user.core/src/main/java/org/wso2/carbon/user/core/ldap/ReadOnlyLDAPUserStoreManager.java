@@ -2841,9 +2841,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     log.debug("Using DN: " + group);
                 }
 
-                Rdn rdn = group.getRdn(0);
+                Rdn rdn = group.getRdn(group.getRdns().size()-1);
+                // get the last element of the RDNs.
 
-                if ( rdn.getType().equals(groupNameAttribute)){
+                if ( rdn.getType().toLowerCase().equals(groupNameAttribute.toLowerCase())){
                     /*
                     * Checking to see if the required information can be retrieved from the RDN
                     * If so, we can add that value and continue without creating an LDAP context
