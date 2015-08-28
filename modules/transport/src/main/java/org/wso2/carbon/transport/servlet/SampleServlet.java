@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SampleServlet extends HttpServlet {
 
+    private static final long serialVersionUID = -6962690373152344042L;
+
     protected void doPost(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         doGet(req, res);

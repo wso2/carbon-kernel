@@ -23,6 +23,7 @@ import org.wso2.carbon.kernel.tenant.TenantContainerBase;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -37,7 +38,7 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
     private Date createdDate;
     private String adminUsername;
     private String adminUserEmailAddress;
-    private Map<String, String> properties;
+    private Map<String, String> properties = new HashMap<>();
 
     @Override
     public String getId() {
@@ -81,12 +82,12 @@ public class DefaultTenant extends TenantContainerBase implements Tenant {
 
     @Override
     public Date getCreatedDate() {
-        return createdDate;
+        return createdDate != null ? new Date(createdDate.getTime()) : null;
     }
 
     @Override
     public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+        this.createdDate = new Date(createdDate.getTime());
     }
 
     @Override

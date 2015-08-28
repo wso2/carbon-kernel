@@ -22,9 +22,11 @@ import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.util.Utils;
 
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -37,7 +39,8 @@ public class XMLBasedConfigProvider implements CarbonConfigProvider {
     public CarbonConfiguration getCarbonConfiguration() {
 
         String configFileLocation = Utils.getCarbonXMLLocation();
-        try (Reader in = new FileReader(configFileLocation)) {
+
+        try (Reader in = new InputStreamReader(new FileInputStream(configFileLocation), StandardCharsets.ISO_8859_1)) {
             JAXBContext jaxbContext = JAXBContext.newInstance(CarbonConfiguration.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 

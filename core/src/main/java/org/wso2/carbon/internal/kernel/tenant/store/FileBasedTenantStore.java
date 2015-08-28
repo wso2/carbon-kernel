@@ -30,12 +30,15 @@ import org.wso2.carbon.kernel.tenant.store.TenantStore;
 import org.wso2.carbon.kernel.util.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.JAXBContext;
@@ -96,7 +99,8 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     }
 
     private void saveConfig() throws Exception {
-        try (Writer writer = new FileWriter(tenantStoreXMLPath)) {
+        try (Writer writer =
+                     new OutputStreamWriter(new FileOutputStream(tenantStoreXMLPath), StandardCharsets.ISO_8859_1)) {
             Marshaller marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(tenantStoreConfig, writer);
@@ -108,7 +112,8 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
     }
 
     private void loadConfig() throws Exception {
-        try (Reader reader = new FileReader(tenantStoreXMLPath)) {
+        try (Reader reader =
+                     new InputStreamReader(new FileInputStream(tenantStoreXMLPath), StandardCharsets.ISO_8859_1)) {
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             tenantStoreConfig = (TenantStoreConfig) unmarshaller.unmarshal(reader);
             populateTenantConfigMap();
