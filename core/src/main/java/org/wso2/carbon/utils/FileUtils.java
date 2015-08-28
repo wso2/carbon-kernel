@@ -60,10 +60,7 @@ public class FileUtils {
             throw new IOException("Fail to create the directory: " + dir.getAbsolutePath());
         }
 
-        InputStream in = new FileInputStream(src);
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(dst);
+        try (InputStream in = new FileInputStream(src); OutputStream out = new FileOutputStream(dst)) {
 
             // Transfer bytes from in to out
             byte[] buf = new byte[10240];
@@ -71,20 +68,8 @@ public class FileUtils {
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
             }
-        } finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-                logger.warn("Unable to close the InputStream " + e.getMessage(), e);
-            }
-
-            try {
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                logger.warn("Unable to close the OutputStream " + e.getMessage(), e);
-            }
+        } catch (IOException e) {
+            logger.warn("Unable to copy file " + e.getMessage(), e);
         }
     }
 

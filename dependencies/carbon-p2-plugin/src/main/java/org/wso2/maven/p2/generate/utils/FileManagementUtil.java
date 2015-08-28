@@ -181,26 +181,14 @@ public class FileManagementUtil {
     }
 
     public static void copyFile(String src, String dest) {
-        InputStream is = null;
-        FileOutputStream fos = null;
-
-        try {
-            is = new FileInputStream(src);
-            fos = new FileOutputStream(dest);
+        try (InputStream is = new FileInputStream(src); FileOutputStream fos = new FileOutputStream(dest)) {
             int c = 0;
             byte[] array = new byte[1024];
             while ((c = is.read(array)) >= 0) {
                 fos.write(array, 0, c);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                fos.close();
-                is.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 
