@@ -30,7 +30,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * TODO: class level comment
+ * This class represent the implementation of deployment, undeployment and redeployment of Carbon Artifacts
  */
 public class CarbonDeploymentService implements DeploymentService {
 

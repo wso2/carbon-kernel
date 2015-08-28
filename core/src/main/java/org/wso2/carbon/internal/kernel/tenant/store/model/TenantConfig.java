@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * TODO class level comment
+ * JAXB mapping for Tenant Config
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TenantConfig {

@@ -20,7 +20,7 @@
 package org.wso2.carbon.deployment.exception;
 
 /**
- * TODO: class level comment
+ * Represents the Deployment Engine related Exception
  */
 public class DeploymentEngineException extends Exception {
 

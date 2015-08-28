@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO class level comment
+ * Runtime Manager class
  */
 public class RuntimeManager {
     private static Logger logger = LoggerFactory.getLogger(RuntimeManager.class);
