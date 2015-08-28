@@ -83,11 +83,11 @@ public class TenantConfig {
     }
 
     public Date getCreatedDate() {
-        return createdDate;
+        return createdDate != null ? new Date(createdDate.getTime()) : null;
     }
 
     public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+        this.createdDate = new Date(createdDate.getTime());
     }
 
     public AdminUserConfig getAdminUserConfig() {
