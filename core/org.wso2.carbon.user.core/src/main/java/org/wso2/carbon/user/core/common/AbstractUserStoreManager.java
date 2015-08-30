@@ -998,10 +998,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!doCheckExistingUser(userName)) {
-            throw new UserStoreException("User does not exist. Username : " + userName);
-        }
-
         doSetUserClaimValues(userName, claims, profileName);
 
         // #################### <Listeners> #####################################################
