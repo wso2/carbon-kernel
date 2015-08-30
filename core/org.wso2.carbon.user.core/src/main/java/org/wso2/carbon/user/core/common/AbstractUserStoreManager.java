@@ -931,6 +931,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return;
         }
 
+        // #################### Domain Name Free Zone Starts Here ################################
+
         if (isReadOnly()) {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
@@ -975,6 +977,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     claims, profileName);
             return;
         }
+
+        // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
             throw new UserStoreException("Invalid operation. User store is read only");
