@@ -67,7 +67,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
     private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
-    public static final String USER_NOT_FOUND = "UserNotFound";
+    private static final String USER_NOT_FOUND = "UserNotFound";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -966,6 +966,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             return;
         }
 
+        // #################### Domain Name Free Zone Starts Here ################################
+
         if (isReadOnly()) {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
@@ -1009,6 +1011,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             userStore.getUserStoreManager().setUserClaimValues(userStore.getDomainFreeName(), claims, profileName);
             return;
         }
+
+        // #################### Domain Name Free Zone Starts Here ################################
+
         Map<String, String> refinedClaims = new HashMap<String, String>();
         if (claims != null && !claims.isEmpty()) {
             for (Map.Entry<String, String> entry : claims.entrySet()) {
@@ -1023,6 +1028,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
             }
         }
+        
         if (isReadOnly()) {
             throw new UserStoreException("Invalid operation. User store is read only");
         }
