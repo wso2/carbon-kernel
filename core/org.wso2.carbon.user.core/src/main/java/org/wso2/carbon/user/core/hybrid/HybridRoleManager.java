@@ -62,7 +62,7 @@ public class HybridRoleManager {
         this.userRealm = realm;
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
-
+        UserCoreUtil.persistDomain(UserCoreConstants.APPLICATION_DOMAIN, tenantId, dataSource);
     }
 
     /**
@@ -88,6 +88,7 @@ public class HybridRoleManager {
             if (!this.isExistingRole(roleName)) {
                 DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL,
                         roleName, tenantId);
+                dbConnection.commit();
             } else {
                 throw new UserStoreException("Role name: " + roleName
                         + " in the system. Please pick another role name.");
@@ -108,7 +109,7 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while adding hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -250,8 +251,10 @@ public class HybridRoleManager {
                 while (rs.next()) {
                     String name = rs.getString(1);
                     // Append the domain
-                    name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + name;
+                    if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                               + name;
+                    }
                     filteredRoles.add(name);
                 }
             }
@@ -349,7 +352,7 @@ public class HybridRoleManager {
             }
 
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while updating user list of hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -419,8 +422,10 @@ public class HybridRoleManager {
                 List<String> allRoles = new ArrayList<String>();
                 boolean isEveryone = false;
                 for (String role : roles) {
-                    role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + role;
+                    if (!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                               + role;
+                    }
                     if (role.equals(realmConfig.getEveryOneRoleName())) {
                         isEveryone = true;
                     }
@@ -489,7 +494,7 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while updating hybrid role list of user : " + user;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -525,9 +530,6 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            DatabaseUtil.updateDatabase(dbConnection,
-                    HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId,
-                    tenantId);
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
                     roleName, tenantId);
             dbConnection.commit();
