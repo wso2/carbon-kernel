@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.4.1-SNAPSHOT</version>
+        <version>4.4.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -128,9 +128,10 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Activator>org.wso2.carbon.user.core.internal.Activator
                         </Bundle-Activator>
-                        <Private-Package>org.wso2.carbon.user.core.internal</Private-Package>
+                        <Private-Package>org.wso2.carbon.user.core.internal,org.wso2.carbon.user.core.jdbc.caseinsensitive</Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.user.core.internal,
+                            !org.wso2.carbon.user.core.jdbc.caseinsensitive,
                             org.wso2.carbon.user.core.*
                         </Export-Package>
                         <Import-Package>
@@ -139,6 +140,7 @@
                             org.apache.axiom.*; version="${imp.pkg.version.axiom}",
                             javax.sql.*,
                             org.apache.commons.logging.*,
+                            org.apache.commons.lang.*;
                             javax.naming.*,
                             javax.xml.stream.*; version="1.0.1",
                             javax.xml.namespace; version=0.0.0,

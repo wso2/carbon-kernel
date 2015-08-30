@@ -106,8 +106,6 @@ public final class CarbonUILoginUtil {
                 // Also setting it in a cookie, for non-remember-me cases
                 Cookie cookie = new Cookie("requestedURI", tmpURI);
                 cookie.setPath("/");
-                cookie.setSecure(true);
-                cookie.setHttpOnly(true);
                 response.addCookie(cookie);
             }
         }

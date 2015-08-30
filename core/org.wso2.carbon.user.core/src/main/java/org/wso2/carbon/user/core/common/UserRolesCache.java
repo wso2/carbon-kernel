@@ -23,6 +23,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -32,6 +33,7 @@ public class UserRolesCache {
 
     private static final String USER_ROLES_CACHE_MANAGER = "USER_ROLES_CACHE_MANAGER";
     private static final String USER_ROLES_CACHE = "USER_ROLES_CACHE";
+    private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static Log log = LogFactory.getLog(UserRolesCache.class);
     private static UserRolesCache userRolesCache = new UserRolesCache();
 
@@ -91,10 +93,9 @@ public class UserRolesCache {
         if (isCacheNull(cache)) {
             return;
         }
-
-        if (!isUsernameCaseSensitive(userName, tenantId)){
-            userName = userName.toLowerCase();
-        }
+        if (!isCaseSensitiveUsername(userName, tenantId)){
+                        userName = userName.toLowerCase();
+                    }
         //create cache key
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
         //create cache entry
@@ -112,8 +113,7 @@ public class UserRolesCache {
         if (isCacheNull(cache)) {
             return new String[0];
         }
-
-        if (!isUsernameCaseSensitive(userName, tenantId)){
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
             userName = userName.toLowerCase();
         }
         //create cache key
@@ -142,8 +142,7 @@ public class UserRolesCache {
         if (isCacheNull(cache)) {
             return;
         }
-
-        if (!isUsernameCaseSensitive(userName, tenantId)){
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
             userName = userName.toLowerCase();
         }
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
@@ -158,35 +157,30 @@ public class UserRolesCache {
         }
     }
 
-    private boolean isUsernameCaseSensitive(String username, int tenantId){
-        if (UserStoreMgtDSComponent.getRealmService()!= null) {
+
+    private boolean isCaseSensitiveUsername(String username, int tenantId){
+
+        if (UserStoreMgtDSComponent.getRealmService() != null) {
             //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
             //as an example when running the unit tests.
             try {
                 UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
                         .getTenantUserRealm(tenantId).getUserStoreManager();
                 UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                        (getDomainFromName(username));
-                if (userAvailableUserStoreManager instanceof AbstractUserStoreManager) {
-                    return ((AbstractUserStoreManager) userAvailableUserStoreManager).isCaseSensitiveUsername();
+                        (UserCoreUtil.extractDomainFromName(username));
+                String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
+                        .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+                if (isUsernameCaseInsensitiveString != null) {
+                    return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
                 } else {
-                    return false;
+                    return true;
                 }
             } catch (UserStoreException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error while reading user store property CaseSensitiveUsername. Considering as false.");
+                    log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
                 }
             }
         }
-        return false;
-    }
-
-    private String getDomainFromName(String name) {
-        int index;
-        if ((index = name.indexOf("/")) > 0) {
-            String domain = name.substring(0, index);
-            return domain;
-        }
-        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        return true;
     }
 }

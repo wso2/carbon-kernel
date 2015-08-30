@@ -58,14 +58,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private AuthorizationCache authorizationCache = null;
     private UserRealm userRealm = null;
     private RealmConfiguration realmConfig = null;
+    private boolean caseInSensitiveAuthorizationRules;
     private boolean verifyByRetrievingAllUserRoles;
     private String cacheIdentifier;
     private int tenantId;
-    private final String IS_EXISTING_ROLE_PERMISSION_MAPPING =
-            "SELECT UM_ID, UM_IS_ALLOWED FROM UM_ROLE_PERMISSION WHERE UM_ROLE_NAME=? " +
-            "AND UM_PERMISSION_ID = (SELECT UM_ID FROM UM_PERMISSION WHERE UM_RESOURCE_ID = ? AND UM_ACTION = ? AND " +
-            "UM_TENANT_ID=?) AND UM_TENANT_ID=? AND UM_DOMAIN_ID=(SELECT UM_DOMAIN_ID FROM UM_DOMAIN WHERE " +
-            "UM_TENANT_ID=? AND UM_DOMAIN_NAME=?)";
 
     public JDBCAuthorizationManager(RealmConfiguration realmConfig, Map<String, Object> properties,
                                     ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
@@ -75,6 +71,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         if (!"true".equals(realmConfig.getAuthorizationManagerProperty(UserCoreConstants.
                 RealmConfig.PROPERTY_AUTHORIZATION_CACHE_ENABLED))) {
             authorizationCache.disableCache();
+        }
+
+        if (!"true".equals(realmConfig.getAuthorizationManagerProperty(UserCoreConstants.
+                RealmConfig.PROPERTY_CASE_SENSITIVITY))) {
+            caseInSensitiveAuthorizationRules = true;
         }
 
         if ("true".equals(realmConfig.getAuthorizationManagerProperty(GET_ALL_ROLES_OF_USER_ENABLED))) {
@@ -144,7 +145,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 return false;
             }
         }
-
 
         try {
             Boolean userAllowed = authorizationCache.isUserAuthorized(cacheIdentifier,
@@ -343,7 +343,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
             List<String> lstPermissions = new ArrayList<String>();
             String[] roles = this.userRealm.getUserStoreManager().getRoleListOfUser(userName);
-
             permissionTree.updatePermissionTree();
             permissionTree.getUIResourcesForRoles(roles, lstPermissions, permissionRootPath);
             String[] permissions = lstPermissions.toArray(new String[lstPermissions.size()]);
@@ -396,7 +395,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             log.error("Invalid data provided at authorization code");
             throw new UserStoreException("Invalid data provided");
         }
-
         addAuthorizationForRole(roleName, resourceId, action, UserCoreConstants.ALLOW, true);
     }
 
@@ -414,7 +412,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             log.error("Invalid data provided at authorization code");
             throw new UserStoreException("Invalid data provided");
         }
-
         addAuthorizationForRole(roleName, resourceId, action, UserCoreConstants.DENY, true);
     }
 
@@ -614,6 +611,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
         }
 
+
         /*need to clear tenant authz cache once role authorization is removed, currently there is
         no way to remove cache entry by role.*/
         authorizationCache.clearCacheByTenant(this.tenantId);
@@ -650,6 +648,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 return;
             }
         }
+
         this.authorizationCache.clearCacheByTenant(tenantId);
 
         Connection dbConnection = null;
@@ -739,9 +738,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-        short isAllowed = -1;
-        boolean isRolePermissionExisting = false;
         try {
             dbConnection = getDBConnection();
             int permissionId = this.getPermissionId(dbConnection, resourceId, action);
@@ -762,51 +758,19 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 // assume as primary domain
                 domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
-/*
 
             DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_ROLE_PERMISSION_SQL,
                     UserCoreUtil.removeDomainFromName(roleName), resourceId, action,
                     tenantId, tenantId, tenantId, domain);
 
-*/
-            prepStmt = dbConnection.prepareStatement(IS_EXISTING_ROLE_PERMISSION_MAPPING);
-            prepStmt.setString(1, UserCoreUtil.removeDomainFromName(roleName));
-            prepStmt.setString(2, resourceId);
-            prepStmt.setString(3, action);
-            prepStmt.setInt(4, tenantId);
-            prepStmt.setInt(5, tenantId);
-            prepStmt.setInt(6, tenantId);
-            prepStmt.setString(7, domain);
-
-            rs = prepStmt.executeQuery();
-
-            if (rs != null && rs.next()) {
-                isAllowed = rs.getShort(2);
-                isRolePermissionExisting = true;
-            } else {
-                // Role permission not existing
-                isRolePermissionExisting = false;
+            if (log.isDebugEnabled()) {
+                log.debug("Adding permission Id: " + permissionId + " to the role: "
+                        + UserCoreUtil.removeDomainFromName(roleName) + " of tenant: " + tenantId
+                        + " of domain: " + domain + " to resource: " + resourceId);
             }
-
-            if(isRolePermissionExisting && isAllowed != allow){
-                DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_ROLE_PERMISSION_SQL,
-                       UserCoreUtil.removeDomainFromName(roleName), resourceId, action,
-                      tenantId, tenantId, tenantId, domain);
-                isRolePermissionExisting = false;
-            }
-
-            if(!isRolePermissionExisting) {
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Adding permission Id: " + permissionId + " to the role: "
-                              + UserCoreUtil.removeDomainFromName(roleName) + " of tenant: " + tenantId
-                              + " of domain: " + domain + " to resource: " + resourceId);
-                }
-
-                DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL, permissionId,
-                                            UserCoreUtil.removeDomainFromName(roleName), allow, tenantId, tenantId,
-                                            domain);
-            }
+            DatabaseUtil.updateDatabase(dbConnection, DBConstants.ADD_ROLE_PERMISSION_SQL,
+                    permissionId, UserCoreUtil.removeDomainFromName(roleName), allow,
+                    tenantId, tenantId, domain);
 
             if (updateCache) {
                 if (allow == UserCoreConstants.ALLOW) {
@@ -827,25 +791,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     dbConnection.rollback();
                 }
             } catch (SQLException e1) {
-                String errorMessage =
-                        "Error in DB connection rollback for role : " + roleName + " & resource id : " + resourceId +
-                        " & action : " + action + " & allow : " + " & update cache : " + updateCache;
-                log.error(errorMessage, e1);
-                throw new UserStoreException(errorMessage, e1);
+                throw new UserStoreException("Error in connection rollback ", e1);
             }
-
             if (log.isDebugEnabled()) {
                 log.debug("Error! " + e.getMessage(), e);
             }
             throw new UserStoreException("Error! " + e.getMessage(), e);
         } finally {
-            if(rs != null){
-                try{
-                    rs.close();
-                } catch (SQLException e){
-                    log.error("Closing result set failed when adding role permission", e);
-                }
-            }
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
     }

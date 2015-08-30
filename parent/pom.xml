@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -12,7 +10,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.1-SNAPSHOT</version>
+    <version>4.4.2-SNAPSHOT</version>
     <name>WSO2 Carbon - Parent Pom</name>
     <description>WSO2 Carbon Kernel Parent Pom</description>
     <url>http://wso2.org</url>
@@ -156,7 +154,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Carbon Kernel Related Versions-->
-        <carbon.kernel.version>4.4.1-SNAPSHOT</carbon.kernel.version>
+        <carbon.kernel.version>4.4.2-SNAPSHOT</carbon.kernel.version>
         <carbon.kernel.exp.pkg.version>${carbon.kernel.version}</carbon.kernel.exp.pkg.version>
         <carbon.kernel.imp.pkg.version>[${carbon.kernel.version}, 4.5.0)</carbon.kernel.imp.pkg.version>
 
@@ -403,6 +401,8 @@
         <orbit.version.commons.httpclient>3.1.0.wso2v2</orbit.version.commons.httpclient>
         <orbit.version.commons.pool>1.5.6.wso2v1</orbit.version.commons.pool>
         <orbit.version.commons.fileuploader>1.2.0.wso2v1</orbit.version.commons.fileuploader>
+
+        <orbit.version.encoder>1.2.0.wso2v1</orbit.version.encoder>
 
         <!--Drools-->
         <orbit.version.drools>5.1.1.wso2v1</orbit.version.drools>
@@ -1141,6 +1141,11 @@
                 <artifactId>jettison</artifactId>
                 <version>${orbit.version.jettison}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.owasp.encoder</groupId>
+                <artifactId>encoder</artifactId>
+                <version>${orbit.version.encoder}</version>
+            </dependency>
             <!--service-stub versions -->
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
@@ -1386,11 +1391,6 @@
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.student.mgt.ui</artifactId>
-                <version>${carbon.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wso2.carbon</groupId>
-                <artifactId>org.wso2.carbon.integration.framework</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>

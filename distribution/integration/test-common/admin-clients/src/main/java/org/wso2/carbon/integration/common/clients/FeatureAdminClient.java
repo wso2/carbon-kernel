@@ -27,7 +27,6 @@ import org.wso2.carbon.feature.mgt.stub.ProvisioningAdminServiceStub;
 import org.wso2.carbon.feature.mgt.stub.prov.data.*;
 import org.wso2.carbon.feature.mgt.ui.FeatureWrapper;
 import org.wso2.carbon.feature.mgt.ui.util.Utils;
-import org.wso2.carbon.integration.framework.utils.AuthenticateStubUtil;
 import org.wso2.carbon.utils.CarbonUtils;
 
 import javax.xml.xpath.XPathExpressionException;

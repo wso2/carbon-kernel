@@ -547,8 +547,7 @@ public class JDBCTenantManager implements TenantManager {
             dbConnection = getDBConnection();
             String sqlStmt = TenantConstants.ACTIVATE_SQL;
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            prepStmt.setBoolean(1,true);
-            prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(1, tenantId);
             prepStmt.executeUpdate();
             dbConnection.commit();
         } catch (SQLException e) {

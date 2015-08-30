@@ -24,7 +24,6 @@ import org.wso2.carbon.registry.api.GhostResource;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.UserStoreManager;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
@@ -48,6 +47,7 @@ public class PermissionTree {
 
     private static final String PERMISSION_CACHE_MANAGER = "PERMISSION_CACHE_MANAGER";
     private static final String PERMISSION_CACHE = "PERMISSION_CACHE";
+    private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
     private static Log log = LogFactory.getLog(PermissionTree.class);
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     private final Lock read = readWriteLock.readLock();
@@ -92,7 +92,7 @@ public class PermissionTree {
     }
 
     void authorizeUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
-        if (!isUsernameCaseSensitive(userName, tenantId)){
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
             userName = userName.toLowerCase();
         }
         write.lock();
@@ -119,7 +119,7 @@ public class PermissionTree {
     }
 
     void denyUserInTree(String userName, String resourceId, String action, boolean updateCache) throws UserStoreException {
-        if (!isUsernameCaseSensitive(userName, tenantId)){
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
             userName = userName.toLowerCase();
         }
         write.lock();
@@ -258,8 +258,7 @@ public class PermissionTree {
      */
     SearchResult getUserPermission(String user, TreeNode.Permission permission, SearchResult sr,
                                    TreeNode node, List<String> pathParts) {
-
-        if (!isUsernameCaseSensitive(user, tenantId)){
+        if (!isCaseSensitiveUsername(user, tenantId)) {
             user = user.toLowerCase();
         }
         read.lock();
@@ -615,15 +614,12 @@ public class PermissionTree {
     }
 
     void clearUserAuthorization(String userName) throws UserStoreException {
-        if (!isUsernameCaseSensitive(userName, tenantId)){
-            userName = userName.toLowerCase();
-        }
         clearUserAuthorization(userName, root);
         invalidateCache(root);
     }
 
     void clearUserAuthorization(String userName, String resourceId, String action) throws UserStoreException {
-        if (!isUsernameCaseSensitive(userName, tenantId)){
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
             userName = userName.toLowerCase();
         }
         write.lock();
@@ -844,6 +840,9 @@ public class PermissionTree {
 
 
     private void clearUserAuthorization(String userName, TreeNode node) {
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         write.lock();
         try {
             Map<String, BitSet> allowUsers = node.getUserAllowPermissions();
@@ -982,7 +981,6 @@ public class PermissionTree {
                 String roleName = rs.getString(1);
                 String domain = rs.getString(5);
                 String roleWithDomain = UserCoreUtil.addDomainToName(roleName, domain);
-                roleWithDomain = roleWithDomain.toLowerCase();
 
                 if (allow == UserCoreConstants.ALLOW) {
                     tree.authorizeRoleInTree(roleWithDomain, rs.getString(2), rs.getString(4), false);
@@ -1059,36 +1057,30 @@ public class PermissionTree {
         return dbConnection;
     }
 
-    private boolean isUsernameCaseSensitive(String username, int tenantId){
-        if (UserStoreMgtDSComponent.getRealmService()!= null) {
+    private boolean isCaseSensitiveUsername(String username, int tenantId){
+
+        if (UserStoreMgtDSComponent.getRealmService() != null) {
             //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
             //as an example when running the unit tests.
             try {
                 UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
                         .getTenantUserRealm(tenantId).getUserStoreManager();
                 UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                        (getDomainFromName(username));
-                if (userAvailableUserStoreManager instanceof AbstractUserStoreManager) {
-                    return ((AbstractUserStoreManager) userAvailableUserStoreManager).isCaseSensitiveUsername();
+                        (UserCoreUtil.extractDomainFromName(username));
+                String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
+                        .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+                if (isUsernameCaseInsensitiveString != null) {
+                    return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
                 } else {
-                    return false;
+                    return true;
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 if (log.isDebugEnabled()) {
-                    log.debug("Error while reading user store property CaseSensitiveUsername. Considering as false.");
+                    log.debug("Error while reading user store property CaseInsensitiveUsername. Considering as false.");
                 }
             }
         }
-        return false;
-    }
-
-    private String getDomainFromName(String name) {
-        int index;
-        if ((index = name.indexOf("/")) > 0) {
-            String domain = name.substring(0, index);
-            return domain;
-        }
-        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        return true;
     }
 
 }
