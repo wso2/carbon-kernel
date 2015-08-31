@@ -28,6 +28,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserCoreTestConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreManager;
+import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.common.DefaultRealm;
 import org.wso2.carbon.user.core.config.TestRealmConfigBuilder;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
@@ -645,8 +646,11 @@ public void doClaimStuff() throws Exception {
         String value = usWriter.getUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, null);
         assertEquals("claim1default",value);
         //Non existing user
-        String value1 = usWriter.getUserClaimValue("isuru", ClaimTestUtil.CLAIM_URI1, null);
-        assertEquals(null, value1);
+        try{
+            usWriter.getUserClaimValue("isuru", ClaimTestUtil.CLAIM_URI1, null);
+        } catch ( UserStoreException e ){
+            assertTrue(e.getMessage().contains("UserNotFound"));
+        }
         // update default
         usWriter.setUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, "dimzi lee", null);
         value = usWriter.getUserClaimValue("dimuthu", ClaimTestUtil.CLAIM_URI1, null);
