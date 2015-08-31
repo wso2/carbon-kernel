@@ -40,7 +40,9 @@ public final class ClaimDBConstants {
             "UM_DIALECT_URI=? AND UM_TENANT_ID=?";
     public static final String COUNT_DIALECTS = "SELECT COUNT(UM_ID) FROM UM_DIALECT WHERE " +
             "UM_TENANT_ID=?";
-    public static final String DELETE_DIALECT = "DELETE FROM UM_DIALECT WHERE UM_DIALECT_URI=?";
+    public static final String DELETE_DIALECT = "DELETE FROM UM_DIALECT WHERE UM_DIALECT_URI=? AND UM_TENANT_ID=?";
+	public static final String DIALECT_CLAIM_MAPPINGS_EXIST = "SELECT COUNT(UM_ID) FROM UM_CLAIM WHERE UM_DIALECT_ID=(SELECT UM_ID FROM UM_DIALECT WHERE UM_DIALECT_URI=? AND UM_TENANT_ID=?) AND UM_TENANT_ID=?";
+    
     public static final String UM_DIALECT_ID = "UM_DIALECT_ID";
     public static final String UM_CLAIM_URI = "UM_CLAIM_URI";
     public static final String UM_DISPLAY_TAG = "UM_DISPLAY_TAG";

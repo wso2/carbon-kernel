@@ -20,6 +20,7 @@ package org.wso2.carbon.core.clustering.hazelcast;
 import com.hazelcast.config.*;
 import com.hazelcast.core.*;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MembershipListener;
 import com.hazelcast.nio.serialization.ByteArraySerializer;
 import com.hazelcast.nio.serialization.StreamSerializer;
 import org.apache.axiom.om.OMAttribute;
@@ -101,8 +102,6 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
 
         primaryHazelcastConfig = new Config();
         setHazelcastProperties();
-//        new LoginModuleConfig().
-//        primaryHazelcastConfig.getSecurityConfig().addMemberLoginModuleConfig(new UsernamePasswordCredentials());
 
         Parameter managementCenterURL = getParameter(HazelcastConstants.MGT_CENTER_URL);
         if (managementCenterURL != null) {
@@ -152,7 +151,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         MapConfig mapConfig = new MapConfig("carbon-map-config");
         mapConfig.setEvictionPolicy(MapConfig.DEFAULT_EVICTION_POLICY);
         if (licenseKey != null) {
-            mapConfig.setInMemoryFormat(InMemoryFormat.OFFHEAP);
+            mapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
         }
         primaryHazelcastConfig.addMapConfig(mapConfig);
         loadCustomHazelcastSerializers();
@@ -215,6 +214,38 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         }
         MemberUtils.getMembersMap(primaryHazelcastInstance, primaryDomain).put(localMember.getUuid(),
                                                                                carbonLocalMember);
+
+        // To receive membership events required for the leader election algorithm.
+        primaryHazelcastInstance.getCluster().addMembershipListener(new CoordinatorElectionMembershipListener());
+
+        //-- Cluster coordinator election algorithm implementation starts here.
+        // Hazelcast Community confirms that the list of members is consistent across a given cluster.  Also the first
+        // member of the member list you get from primaryHazelcastInstance.getCluster().getMembers() is consistent
+        // across the cluster and first member usually is the oldest member.  Therefore we can safely assume first
+        // member as the coordinator node.
+
+        // Now this distributed lock is used to correctly identify the coordinator node during the member startup. The
+        // node which acquires the lock checks whether it is the oldest member in the cluster. If it is the oldest
+        // member then it elects itself as the coordinator node and then release the lock. If it is not the oldest
+        // member them simply release the lock. This distributed lock is used to avoid any race conditions.
+        ILock lock = primaryHazelcastInstance.getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK);
+
+        try {
+            log.debug("Trying to get the CLUSTER_COORDINATOR_LOCK lock.");
+
+            lock.lock();
+            log.debug("Acquired the CLUSTER_COORDINATOR_LOCK lock.");
+
+            Member oldestMember = primaryHazelcastInstance.getCluster().getMembers().iterator().next();
+            if (oldestMember.localMember() && !isCoordinator) {
+                electCoordinatorNode();
+            }
+        } finally {
+            lock.unlock();
+            log.debug("Released the CLUSTER_COORDINATOR_LOCK lock.");
+        }
+        //-- Coordinator election algorithm ends here.
+
         BundleContext bundleContext = CarbonCoreDataHolder.getInstance().
                 getBundleContext();
         bundleContext.registerService(DistributedMapProvider.class,
@@ -227,40 +258,21 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
         msgCleanupScheduler.scheduleWithFixedDelay(new ClusterMessageCleanupTask(),
                                                    2, 2, TimeUnit.MINUTES);
 
-        // Start thread which will try to obtain Hazelcast lock. If lock is acquired by this member, set isCoordinator = true
-        Thread coordinatorElectorThread = new Thread(){
-
-            @Override
-            public void run() {
-                ILock lock = primaryHazelcastInstance.getLock(HazelcastConstants.CLUSTER_COORDINATOR_LOCK);
-
-                try {
-                    lock.lock();
-                    isCoordinator = true;
-                    log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
-                            "as the Coordinator for the cluster [" + carbonLocalMember.getDomain() + "]");
-
-                    // Notify all OSGi services which are waiting for this member to become the coordinator
-                    List<CoordinatedActivity> coordinatedActivities = CarbonCoreDataHolder.getInstance().getCoordinatedActivities();
-                    for (CoordinatedActivity coordinatedActivity : coordinatedActivities) {
-                        coordinatedActivity.execute();
-                    }
-
-                } catch (HazelcastInstanceNotActiveException e) {
-                    String serverStatus = ServerStatus.getCurrentStatus();
-                    if ( !(ServerStatus.STATUS_SHUTTING_DOWN.equals(serverStatus) ||
-                            ServerStatus.STATUS_RESTARTING.equals(serverStatus)) ) {
-                        log.error("Could not acquire Hazelcast coordinator lock", e);
-                    }
-                    // Ignoring this exception if the server is shutting down.
-                }
-            }
-        };
-
-        coordinatorElectorThread.setName("Cluster ["+ carbonLocalMember.getDomain() +"] coordinator elector thread");
-        coordinatorElectorThread.start();
-
         log.info("Cluster initialization completed");
+    }
+
+    private void electCoordinatorNode() {
+        isCoordinator = true;
+        log.info("Elected this member [" + primaryHazelcastInstance.getCluster().getLocalMember().getUuid() + "] " +
+                "as the Coordinator node");
+
+        // Notify all OSGi services which are waiting for this member to become the coordinator
+        List<CoordinatedActivity> coordinatedActivities =
+                CarbonCoreDataHolder.getInstance().getCoordinatedActivities();
+        for (CoordinatedActivity coordinatedActivity : coordinatedActivities) {
+            coordinatedActivity.execute();
+        }
+        log.debug("Invoked all the coordinated activities after electing this member as the Coordinator");
     }
 
     /**
@@ -546,7 +558,7 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
     }
 
     public boolean isCoordinator() {
-        return isCoordinator;
+        return  isCoordinator;
     }
 
     public List<ClusteringCommand> sendMessage(ClusteringMessage clusteringMessage,
@@ -602,6 +614,63 @@ public class HazelcastClusteringAgent extends ParameterAdapter implements Cluste
                     break;
                 }
             }
+        }
+    }
+
+    /**
+     * This membership listener is used to receive member added/remove events to implement coordination
+     * election algorithm
+     */
+    private class CoordinatorElectionMembershipListener implements MembershipListener {
+
+        /**
+         * Checks whether there are multiple coordinator nodes in the cluster. There could be situations where this
+         * node was elected as the coordinator because it was the oldest member at that time. But when a new
+         * node is added, this node may not be the oldest member in the cluster. Following section explains how this
+         * situation can occur.
+         * <p/>
+         * Sometimes Hazelcast cluster could get partitioned. When the cluster get partitioned, each partition will
+         * elect its own coordinator node. Now when these partitions merge themselves we need to elect a new
+         * coordinator and make sure there is only one coordinator in the merged partition. When partitions are getting
+         * merged memberAdded events are invoked. Therefore in memberAdded event handling code we re-elect the
+         * oldest member, first mode in the member list, as the coordinator.
+         *
+         * @param membershipEvent event
+         */
+        @Override
+        public void memberAdded(MembershipEvent membershipEvent) {
+            if (isCoordinator) {
+                log.debug("Member Added Event: Checking whether there are multiple Coordinator nodes in the cluster.");
+                Member oldestMember = primaryHazelcastInstance.getCluster().getMembers().iterator().next();
+                if (!oldestMember.localMember()) {
+                    log.debug("This node is not the Coordinator now.");
+                    isCoordinator = false;
+                }
+            }
+        }
+
+        /**
+         * Checks whether this nodes became the oldest member in the cluster. If so elect this node as the
+         * coordinator node.
+         *
+         * @param membershipEvent event
+         */
+        @Override
+        public void memberRemoved(MembershipEvent membershipEvent) {
+            if (!isCoordinator) {
+                log.debug("Member Removed Event: Checking whether this node became the Coordinator node");
+                Member oldestMember = primaryHazelcastInstance.getCluster().getMembers().iterator().next();
+
+                if (oldestMember.localMember()) {
+                    Member localMember = primaryHazelcastInstance.getCluster().getLocalMember();
+                    electCoordinatorNode();
+                    log.debug("Member Removed Event: This member is elected as the Coordinator node");
+                }
+            }
+        }
+
+        @Override
+        public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
         }
     }
 }

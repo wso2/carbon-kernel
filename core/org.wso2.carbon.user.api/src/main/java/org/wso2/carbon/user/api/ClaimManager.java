@@ -109,6 +109,24 @@ public interface ClaimManager {
     void deleteClaimMapping(ClaimMapping mapping) throws UserStoreException;
 
     /**
+     * Delete all claim mappings of a claim dialect
+     *
+     * @param dialectUri
+     * @param mappings
+     * @throws UserStoreException
+     */
+    void deleteClaimMappings(String dialectUri, ClaimMapping[] mappings) throws UserStoreException;
+
+    /**
+     * Deletes a claim dialect
+     *
+     * @param dialectUri
+     * @throws UserStoreException
+     */
+    void deleteClaimDialect(String dialectUri) throws UserStoreException;
+
+
+    /**
      * Updates a claim mapping
      *
      * @param mapping The claim mapping to be updated
