@@ -647,8 +647,8 @@ public void doClaimStuff() throws Exception {
         assertEquals("claim1default",value);
         //Non existing user
         try{
-            String value1 = usWriter.getUserClaimValue("isuru", ClaimTestUtil.CLAIM_URI1, null);
-        }catch(UserStoreException e){
+            usWriter.getUserClaimValue("isuru", ClaimTestUtil.CLAIM_URI1, null);
+        } catch ( UserStoreException e ){
             assertTrue(e.getMessage().contains("UserNotFound"));
         }
         // update default
