@@ -28,7 +28,7 @@ public class Utils {
      */
     public static void setCarbonHome() {
         String currentDir = Paths.get("").toAbsolutePath().toString();
-        Path carbonHome = Paths.get(currentDir, "..", "distribution", "carbon-home");
+        Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
         System.setProperty("carbon.home", carbonHome.toString());
     }
 
