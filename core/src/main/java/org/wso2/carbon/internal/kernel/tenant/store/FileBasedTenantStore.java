@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.internal.kernel.tenant.store;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.internal.kernel.DefaultImplConstants;
 import org.wso2.carbon.internal.kernel.tenant.DefaultTenant;
 import org.wso2.carbon.internal.kernel.tenant.store.model.AdminUserConfig;
@@ -51,6 +53,8 @@ import javax.xml.bind.Unmarshaller;
  */
 //TODO Implement transactional behaviour (Implement locking mechanism)
 public class FileBasedTenantStore implements TenantStore<Tenant> {
+
+    private static final Logger logger = LoggerFactory.getLogger(FileBasedTenantStore.class);
 
     private TenantStoreConfig tenantStoreConfig;
     private JAXBContext jaxbContext;
@@ -105,8 +109,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             marshaller.marshal(tenantStoreConfig, writer);
         } catch (IOException | JAXBException e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Error occurred while saving " + tenantStoreXMLPath, e);
             throw e;
         }
     }
@@ -118,8 +121,7 @@ public class FileBasedTenantStore implements TenantStore<Tenant> {
             tenantStoreConfig = (TenantStoreConfig) unmarshaller.unmarshal(reader);
             populateTenantConfigMap();
         } catch (FileNotFoundException | JAXBException e) {
-            // TODO log
-            e.printStackTrace();
+            logger.error("Could not load " + tenantStoreXMLPath, e);
             throw e;
         }
     }
