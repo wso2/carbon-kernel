@@ -27,9 +27,10 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.tenant.Tenant;
 import org.wso2.carbon.kernel.tenant.TenantRuntime;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
