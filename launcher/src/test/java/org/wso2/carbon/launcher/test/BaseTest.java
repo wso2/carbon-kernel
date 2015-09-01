@@ -18,6 +18,9 @@
 
 package org.wso2.carbon.launcher.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +31,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class BaseTest {
+    private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
 
     /**
      * Basedir for all file I/O. Important when running tests from the reactor.
@@ -71,24 +75,13 @@ public class BaseTest {
 
     public ArrayList<String> getLogsFromTestResource(FileInputStream testResource) {
         ArrayList<String> logRecords = new ArrayList<String>();
-//        InputStream testResource = null;
-        BufferedReader bufferedReader = null;
-        try {
-            bufferedReader = new BufferedReader(new InputStreamReader(testResource));
+        try (BufferedReader bufferedReader  = new BufferedReader(new InputStreamReader(testResource))) {
             String strLine;
             while ((strLine = bufferedReader.readLine()) != null) {
                 logRecords.add(strLine);
             }
-
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } finally {
-            try {
-                bufferedReader.close();
-                testResource.close();
-            } catch (IOException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
+            logger.error("Could not get logs", e);
         }
         return logRecords;
     }

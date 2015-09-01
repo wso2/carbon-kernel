@@ -18,6 +18,8 @@
 
 package org.wso2.carbon.internal.kernel.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.util.Utils;
@@ -35,6 +37,7 @@ import javax.xml.bind.Unmarshaller;
  * This class takes care of parsing the carbon.xml file and creating the CarbonConfiguration object model
  */
 public class XMLBasedConfigProvider implements CarbonConfigProvider {
+    private static final Logger logger = LoggerFactory.getLogger(XMLBasedConfigProvider.class);
 
     public CarbonConfiguration getCarbonConfiguration() {
 
@@ -61,8 +64,7 @@ public class XMLBasedConfigProvider implements CarbonConfigProvider {
             return (CarbonConfiguration) unmarshaller.unmarshal(in);
 
         } catch (JAXBException | IOException e) {
-            // TODO handle this exception
-            e.printStackTrace();
+            logger.error("Could not load " + configFileLocation, e);
         }
 
         // We need to populate a CarbonConfiguration from the carbon.xml file.

@@ -93,26 +93,18 @@ public class RuntimeServiceTest {
     }
 
     @Test(dependsOnMethods = {"testStartBeforeInitRuntime"})
-    public void testInitRuntime() {
-        try {
-            for (Runtime runtime : runtimeManager.getRuntimeList()) {
-                runtime.init();
-                Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
-            }
-        } catch (RuntimeServiceException e) {
-            e.printStackTrace();
+    public void testInitRuntime() throws RuntimeServiceException {
+        for (Runtime runtime : runtimeManager.getRuntimeList()) {
+            runtime.init();
+            Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
         }
     }
 
     @Test(dependsOnMethods = {"testInitRuntime"})
-    public void testStartRuntime() {
-        try {
-            customRuntimeService.startRuntimes();
-            for (Runtime runtime : runtimeManager.getRuntimeList()) {
-                Assert.assertEquals(RuntimeState.ACTIVE, runtime.getState());
-            }
-        } catch (RuntimeServiceException e) {
-            e.printStackTrace();
+    public void testStartRuntime() throws RuntimeServiceException {
+        customRuntimeService.startRuntimes();
+        for (Runtime runtime : runtimeManager.getRuntimeList()) {
+            Assert.assertEquals(RuntimeState.ACTIVE, runtime.getState());
         }
     }
 
@@ -128,14 +120,10 @@ public class RuntimeServiceTest {
     }
 
     @Test(dependsOnMethods = {"testStartRuntime"})
-    public void testBeginMaintenance() {
-        try {
-            customRuntimeService.beginMaintenance();
-            for (Runtime runtime : runtimeManager.getRuntimeList()) {
-                Assert.assertEquals(RuntimeState.MAINTENANCE, runtime.getState());
-            }
-        } catch (RuntimeServiceException e) {
-            e.printStackTrace();
+    public void testBeginMaintenance() throws RuntimeServiceException {
+        customRuntimeService.beginMaintenance();
+        for (Runtime runtime : runtimeManager.getRuntimeList()) {
+            Assert.assertEquals(RuntimeState.MAINTENANCE, runtime.getState());
         }
     }
 
@@ -151,26 +139,18 @@ public class RuntimeServiceTest {
     }
 
     @Test(dependsOnMethods = {"testStartOnMaintenanceRuntime"})
-    public void testEndMaintenance() {
-        try {
-            customRuntimeService.endMaintenance();
-            for (Runtime runtime : runtimeManager.getRuntimeList()) {
-                Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
-            }
-        } catch (RuntimeServiceException e) {
-            e.printStackTrace();
+    public void testEndMaintenance() throws RuntimeServiceException {
+        customRuntimeService.endMaintenance();
+        for (Runtime runtime : runtimeManager.getRuntimeList()) {
+            Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
         }
     }
 
     @Test(dependsOnMethods = {"testEndMaintenance"})
-    public void testEndRuntime() {
-        try {
-            customRuntimeService.stopRuntimes();
-            for (Runtime runtime : runtimeManager.getRuntimeList()) {
-                Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
-            }
-        } catch (RuntimeServiceException e) {
-            e.printStackTrace();
+    public void testEndRuntime() throws RuntimeServiceException {
+        customRuntimeService.stopRuntimes();
+        for (Runtime runtime : runtimeManager.getRuntimeList()) {
+            Assert.assertEquals(RuntimeState.INACTIVE, runtime.getState());
         }
     }
 

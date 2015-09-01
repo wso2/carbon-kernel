@@ -31,6 +31,7 @@
     <suppress checks="JavadocStyle" files=".*/src/.*/internal/.*"/>
 
     <suppress checks="MethodNameCheck" files=".*/*CommandProvider.java"/>
+    <suppress checks="Regexp" files=".*/*CommandProvider.java"/>
 
 
     <!-- copied from apache hadoop, won't fix style to keep diff minimal -->

@@ -140,12 +140,12 @@ public class Main {
         try {
             logger.addHandler(CarbonLogger.getDefaultHandler());
             logger.addHandler(ConsoleLogger.getDefaultHandler());
-        } catch (IOException e) {
+        } catch (IOException ex) {
             // Following log may never get printed if logging is not properly initialized. Hence the sending the error
             //  message to the standard out.
-            e.printStackTrace();
-            logger.log(Level.SEVERE, "Could not initialize logging", e);
-            throw new RuntimeException(e);
+            ex.printStackTrace();
+            logger.log(Level.SEVERE, "Could not initialize logging", ex);
+            throw new RuntimeException(ex);
         }
     }
 }
