@@ -40,6 +40,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 public class FileBasedClaimBuilder {
 
     public static final String LOCAL_NAME_DIALECTS = "Dialects";
@@ -53,8 +54,8 @@ public class FileBasedClaimBuilder {
 
     private static Log log = LogFactory.getLog(FileBasedClaimBuilder.class);
     private static BundleContext bundleContext;
-    static InputStream inStream = null;
-    int tenantId;
+    private static InputStream inStream = null;
+    private int tenantId;
 
     public FileBasedClaimBuilder(int tenantId) {
         this.tenantId = tenantId;

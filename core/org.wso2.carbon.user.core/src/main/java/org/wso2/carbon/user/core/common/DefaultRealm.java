@@ -29,9 +29,6 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.claim.ClaimManagerFactory;
 import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.claim.DefaultClaimManager;
-import org.wso2.carbon.user.core.claim.builder.ClaimBuilder;
-import org.wso2.carbon.user.core.claim.builder.ClaimBuilderException;
-import org.wso2.carbon.user.core.claim.dao.ClaimDAO;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.profile.ProfileConfiguration;
@@ -82,9 +79,9 @@ public class DefaultRealm implements UserRealm {
         this.tenantId = tenantId;
         dataSource = DatabaseUtil.getRealmDataSource(realmConfig);
         properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
-        if(UserStoreMgtDSComponent.getClaimManagerFactory() == null){
+        if (UserStoreMgtDSComponent.getClaimManagerFactory() == null) {
             claimMan = new DefaultClaimManager();
-        }else{
+        } else {
             claimManagerFactory = UserStoreMgtDSComponent.getClaimManagerFactory();
             claimMan = claimManagerFactory.getClaimManager(tenantId);
         }
@@ -107,9 +104,9 @@ public class DefaultRealm implements UserRealm {
         Map<String, ClaimMapping> claimMappings = new HashMap<String, ClaimMapping>();
         Map<String, ProfileConfiguration> profileConfigs = new HashMap<String, ProfileConfiguration>();
 
-        if(UserStoreMgtDSComponent.getClaimManagerFactory() == null){
+        if (UserStoreMgtDSComponent.getClaimManagerFactory() == null) {
             claimMan = new DefaultClaimManager();
-        }else{
+        } else {
             claimManagerFactory = UserStoreMgtDSComponent.getClaimManagerFactory();
             claimMan = claimManagerFactory.getClaimManager(tenantId);
         }

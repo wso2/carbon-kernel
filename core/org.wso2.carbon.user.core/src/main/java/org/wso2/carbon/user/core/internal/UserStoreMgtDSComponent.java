@@ -54,8 +54,8 @@ public class UserStoreMgtDSComponent {
     private static Log log = LogFactory.getLog(UserStoreMgtDSComponent.class);
     private static RealmService realmService;
     private static ServerConfigurationService serverConfigurationService = null;
-    private static ClaimManagerFactory claimManagerFactory= null;
-    private static ClaimManager claimManager=null;
+    private static ClaimManagerFactory claimManagerFactory = null;
+    private static ClaimManager claimManager = null;
     private static DefaultClaimManager defaultClaimManager = null;
 
     public static RealmService getRealmService() {
