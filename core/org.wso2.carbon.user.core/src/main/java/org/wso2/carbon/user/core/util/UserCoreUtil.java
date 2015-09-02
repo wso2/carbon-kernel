@@ -44,7 +44,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -58,6 +57,7 @@ public final class UserCoreUtil {
 
     private static final String DUMMY_VALUE = "dummy";
     private static final String APPLICATION_DOMAIN = "Application";
+    private static final String WORKFLOW_DOMAIN = "Workflow";
     private static Log log = LogFactory.getLog(UserCoreUtil.class);
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
@@ -536,7 +536,7 @@ public final class UserCoreUtil {
                 if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
                     String domain = name.substring(0, index);
                     if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                        && !APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                        && !APPLICATION_DOMAIN.equalsIgnoreCase(domain) && !WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
                         // remove domain name if exist
                         nameList.add(name.substring(index + 1));
                     } else {
@@ -752,7 +752,8 @@ public final class UserCoreUtil {
 
     }
 
-    public static void deletePersistedDomain(String domain, int tenantId, DataSource dataSource) throws UserStoreException {
+    public static void deletePersistedDomain(String domain, int tenantId, DataSource dataSource)
+            throws UserStoreException {
         Connection dbConnection = null;
         try {
             String sqlStatement = JDBCRealmConstants.DELETE_DOMAIN_SQL;
@@ -786,7 +787,8 @@ public final class UserCoreUtil {
         }
     }
 
-    public static void updatePersistedDomain(String previousDomain, String newDomain, int tenantId, DataSource dataSource) throws UserStoreException {
+    public static void updatePersistedDomain(String previousDomain, String newDomain, int tenantId,
+                                             DataSource dataSource) throws UserStoreException {
         Connection dbConnection = null;
         try {
             String sqlStatement = JDBCRealmConstants.UPDATE_DOMAIN_SQL;
@@ -894,7 +896,8 @@ public final class UserCoreUtil {
         }
     }
 
-    private static boolean checkExistingDomainId(int domainId, int tenantId, DataSource dataSource) throws UserStoreException {
+    private static boolean checkExistingDomainId(int domainId, int tenantId, DataSource dataSource)
+            throws UserStoreException {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
