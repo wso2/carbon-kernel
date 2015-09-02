@@ -281,7 +281,7 @@
                                     <overwrite>true</overwrite>
                                     <resources>
                                         <resource>
-                                            <directory>../distribution/carbon-home</directory>
+                                            <directory>../../distribution/carbon-home</directory>
                                         </resource>
                                     </resources>
                                 </configuration>
@@ -364,10 +364,10 @@
                                             </executiondata>
                                             <structure name="Carbon Core OSGi Tests">
                                                 <classfiles>
-                                                    <fileset dir="../core/target/classes"/>
+                                                    <fileset dir="../../core/target/classes"/>
                                                 </classfiles>
                                                 <sourcefiles encoding="UTF-8">
-                                                    <fileset dir="../core/src"/>
+                                                    <fileset dir="../../core/src"/>
                                                 </sourcefiles>
                                             </structure>
                                             <html destdir="${project.build.directory}/site/jacoco"/>
