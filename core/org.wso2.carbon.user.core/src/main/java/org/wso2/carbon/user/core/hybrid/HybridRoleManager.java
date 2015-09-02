@@ -52,6 +52,7 @@ public class HybridRoleManager {
     private RealmConfiguration realmConfig;
     private boolean userRolesCacheEnabled = true;
     private static final String APPLICATION_DOMAIN = "Application";
+    private static final String WORKFLOW_DOMAIN = "Workflow";
 
     private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
 
@@ -65,6 +66,7 @@ public class HybridRoleManager {
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
         UserCoreUtil.persistDomain(APPLICATION_DOMAIN, tenantId, dataSource);
+        UserCoreUtil.persistDomain(WORKFLOW_DOMAIN, tenantId, dataSource);
 
     }
 
