@@ -68,7 +68,12 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 		Connection connection = null;
         try {
             Class.forName(rdbmsConfiguration.getDriverClassName());
-            DriverManager.getConnection(rdbmsConfiguration.getUrl(),rdbmsConfiguration.getUsername(),rdbmsConfiguration.getPassword());
+	        if (rdbmsConfiguration.getUsername() != null) {
+		        DriverManager.getConnection(rdbmsConfiguration.getUrl(), rdbmsConfiguration.getUsername(),
+		                                    rdbmsConfiguration.getPassword());
+	        } else {
+		        DriverManager.getConnection(rdbmsConfiguration.getUrl());
+	        }
         } catch (ClassNotFoundException e) {
             throw new DataSourceException("Error loading Driver class:" +e.getMessage(),e);
         } catch (SQLException e) {
