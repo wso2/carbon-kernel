@@ -109,6 +109,8 @@ public class LDAPConnectionContext {
 
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         environment.put(Context.SECURITY_AUTHENTICATION, "simple");
+        environment.put("com.sun.jndi.ldap.read.timeout",realmConfig.
+                getUserStoreProperty(UserCoreConstants.RealmConfig.LDAP_READ_TIMEOUT));
 
         /**
          * In carbon JNDI context we need to by pass specific tenant context and we need the base
