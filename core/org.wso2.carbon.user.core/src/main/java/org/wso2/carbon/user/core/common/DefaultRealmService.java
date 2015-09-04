@@ -50,6 +50,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -140,7 +143,22 @@ public class DefaultRealmService implements RealmService {
     }
 
     @Override
-    public org.wso2.carbon.user.api.UserRealm getTenantUserRealm(int tenantId)
+    public org.wso2.carbon.user.api.UserRealm getTenantUserRealm(final int tenantId)
+            throws org.wso2.carbon.user.api.UserStoreException {
+
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<org.wso2.carbon.user.api.UserRealm>() {
+                @Override
+                public org.wso2.carbon.user.api.UserRealm run() throws Exception {
+                    return getTenantUserRealmInternal(tenantId);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw (org.wso2.carbon.user.api.UserStoreException) e.getException();
+        }
+    }
+
+    private org.wso2.carbon.user.api.UserRealm getTenantUserRealmInternal(int tenantId)
             throws org.wso2.carbon.user.api.UserStoreException {
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
             return bootstrapRealm;
@@ -188,7 +206,21 @@ public class DefaultRealmService implements RealmService {
     }
 
     @Override
-    public UserRealm getUserRealm(RealmConfiguration tenantRealmConfig) throws UserStoreException {
+    public UserRealm getUserRealm(final RealmConfiguration tenantRealmConfig) throws UserStoreException {
+
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<UserRealm>() {
+                @Override
+                public UserRealm run() throws Exception {
+                    return getUserRealmInternal(tenantRealmConfig);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            throw (UserStoreException) e.getException();
+        }
+    }
+
+    public UserRealm getUserRealmInternal(RealmConfiguration tenantRealmConfig) throws UserStoreException {
         UserRealm userRealm = null;
         int tenantId = tenantRealmConfig.getTenantId();
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
