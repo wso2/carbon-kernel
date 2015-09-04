@@ -3,9 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>carbon-kernel</artifactId>
+        <artifactId>carbon-kernel-tests</artifactId>
         <groupId>org.wso2.carbon</groupId>
         <version>5.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -209,25 +210,25 @@
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam</artifactId>
-            <version>${version.exam}</version>
+            <version>${version.pax.exam}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-container-native</artifactId>
-            <version>${version.exam}</version>
+            <version>${version.pax.exam}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-testng</artifactId>
-            <version>${version.exam}</version>
+            <version>${version.pax.exam}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
-            <version>${version.exam}</version>
+            <version>${version.pax.exam}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -239,7 +240,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${versionslf4j.api}</version>
+            <version>${version.slf4j.api}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -348,7 +349,7 @@
 
                     <plugin>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>${version.maven.antrunplugin}</version>
+                        <version>${maven.antrunplugin.version}</version>
                         <executions>
                             <execution>
                                 <phase>prepare-package</phase>
@@ -391,7 +392,7 @@
                     <plugin>
                         <groupId>org.ops4j.pax.exam</groupId>
                         <artifactId>maven-paxexam-plugin</artifactId>
-                        <version>${version.maven.paxexamplugin}</version>
+                        <version>${maven.paxexamplugin.version}</version>
                         <executions>
                             <execution>
                                 <id>generate-config</id>
@@ -406,15 +407,11 @@
         </profile>
     </profiles>
 
-    <!--Pax Exam Versions-->
+
     <properties>
-        <version.exam>4.6.0</version.exam>
-        <version.pax.url.aether>1.6.0</version.pax.url.aether>
-        <version.ow2.jta.spec>1.0.12</version.ow2.jta.spec>
-        <versionslf4j.api>1.7.12</versionslf4j.api>
-        <version.maven.paxexamplugin>1.2.4</version.maven.paxexamplugin>
-        <version.maven.antrunplugin>1.8</version.maven.antrunplugin>
-        <version.org.jacoco.ant>0.7.5.201505241946</version.org.jacoco.ant>
+
+
+
 
     </properties>
 

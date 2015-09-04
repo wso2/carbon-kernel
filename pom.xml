@@ -752,6 +752,14 @@
         <maven.incrementalbuildplugin.version>1.2</maven.incrementalbuildplugin.version>
         <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
         <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
+        <maven.paxexamplugin.version>1.2.4</maven.paxexamplugin.version>
+        <maven.antrunplugin.version>1.8</maven.antrunplugin.version>
+
+        <!--Pax Exam Versions-->
+        <pax.exam.version>4.6.0</pax.exam.version>
+        <pax.url.aether.version>1.6.0</pax.url.aether.version>
+        <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
+        <slf4j.api.version>1.7.12</slf4j.api.version>
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
@@ -767,5 +775,6 @@
         <plexus.utils.version>3.0.17</plexus.utils.version>
         <plexus.archiver.version>1.2</plexus.archiver.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
+        <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
     </properties>
 </project>
