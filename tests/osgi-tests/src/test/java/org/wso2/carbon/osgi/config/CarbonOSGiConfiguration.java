@@ -56,10 +56,6 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
                         versionAsInProject(),
                 mavenBundle().artifactId("org.apache.felix.gogo.shell").groupId("org.apache.felix").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.apache.felix.gogo.shell").groupId("org.apache.felix").
-                        versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.contenttype").groupId("org.eclipse.core").
-                        versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.core.contenttype").groupId("org.eclipse.core").
                         versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.core.expressions").groupId("org.eclipse.core").
