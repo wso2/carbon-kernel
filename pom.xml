@@ -890,7 +890,7 @@
 
         <!--Maven Plugins -->
         <maven.wagon.ssh.version>2.1</maven.wagon.ssh.version>
-        <maven.surefireplugin.version>1.3</maven.surefireplugin.version>
+        <!--<maven.surefireplugin.version>1.3</maven.surefireplugin.version>-->
         <maven.compilerplugin.version>3.1</maven.compilerplugin.version>
         <maven.surefireplugin.version>2.12</maven.surefireplugin.version>
         <maven.resourcesplugin.version>2.5</maven.resourcesplugin.version>
@@ -905,6 +905,14 @@
         <maven.incrementalbuildplugin.version>1.2</maven.incrementalbuildplugin.version>
         <maven.checkstyleplugin.version>2.16</maven.checkstyleplugin.version>
         <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
+        <maven.paxexamplugin.version>1.2.4</maven.paxexamplugin.version>
+        <maven.antrunplugin.version>1.8</maven.antrunplugin.version>
+
+        <!--Pax Exam Versions-->
+        <version.pax.exam>4.6.0</version.pax.exam>
+        <version.pax.url.aether>1.6.0</version.pax.url.aether>
+        <version.ow2.jta.spec>1.0.12</version.ow2.jta.spec>
+        <version.slf4j.api>1.7.12</version.slf4j.api>
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
@@ -923,5 +931,6 @@
         <version.jacoco>0.7.5.201505241946</version.jacoco>
         <version.jetty.server>8.1.10.v20130312</version.jetty.server>
         <version.javax.servlet.api>3.0.1</version.javax.servlet.api>
+        <version.org.jacoco.ant>0.7.5.201505241946</version.org.jacoco.ant>
     </properties>
 </project>
