@@ -239,8 +239,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         BasicAttributes basicAttributes = getAddUserBasicAttributes(escapeSpecialCharactersForDN(userName));
 
         BasicAttribute userPassword = new BasicAttribute("userPassword");
-        userPassword.add(UserCoreUtil.getPasswordToStore((String) credential,
-                this.realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD), kdcEnabled));
+        String passwordHashMethod = this.realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
+        if (passwordHashMethod == null) {
+            passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
+        }
+        userPassword.add(UserCoreUtil.getPasswordToStore((String) credential, passwordHashMethod, kdcEnabled));
         basicAttributes.put(userPassword);
 
 		/* setting claims */
@@ -603,6 +606,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // TODO: what to do if there are more than one user
             SearchResult searchResult = null;
             String passwordHashMethod = realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
+            if (passwordHashMethod == null) {
+                passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
+            }
             while (namingEnumeration.hasMore()) {
                 searchResult = namingEnumeration.next();
 
