@@ -603,9 +603,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             // TODO: what to do if there are more than one user
             SearchResult searchResult = null;
             String passwordHashMethod = realmConfig.getUserStoreProperty(PASSWORD_HASH_METHOD);
-            if (passwordHashMethod == null) {
-                passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
-            }
             while (namingEnumeration.hasMore()) {
                 searchResult = namingEnumeration.next();
 
