@@ -529,7 +529,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     if (role.indexOf("/") > -1) {
                         role = (role.split("/"))[1];
                     }
-                    String grpSearchFilter = searchFilter.replace("?", role);
+                    String grpSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(role));
                     groupResults =
                             searchInGroupBase(grpSearchFilter, returningGroupAttributes,
                                     SearchControls.SUBTREE_SCOPE, mainDirContext,
@@ -1291,7 +1291,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     LDAPRoleContext context = (LDAPRoleContext) createRoleContext(deletedRole);
                     deletedRole = context.getRoleName();
                     String searchFilter = context.getSearchFilter();
-                    roleSearchFilter = searchFilter.replace("?", deletedRole);
+                    roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
                     String[] returningAttributes = new String[]{membershipAttribute};
                     String searchBase = context.getSearchBase();
                     NamingEnumeration<SearchResult> groupResults =
@@ -1323,7 +1323,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     String searchFilter = context.getSearchFilter();
 
                     if (isExistingRole(deletedRole)) {
-                        roleSearchFilter = searchFilter.replace("?", deletedRole);
+                        roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
                         String[] returningAttributes = new String[]{membershipAttribute};
                         String searchBase = context.getSearchBase();
                         NamingEnumeration<SearchResult> groupResults =
@@ -1362,7 +1362,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     String searchFilter = context.getSearchFilter();
 
                     if (isExistingRole(newRole)) {
-                        roleSearchFilter = searchFilter.replace("?", newRole);
+                        roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(newRole));
                         String[] returningAttributes = new String[]{membershipAttribute};
                         String searchBase = context.getSearchBase();
 
@@ -1434,7 +1434,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             DirContext mainDirContext = this.connectionSource.getContext();
 
             try {
-                searchFilter = searchFilter.replace("?", roleName);
+                searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(roleName));
                 String membershipAttributeName =
                         realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 String[] returningAttributes = new String[]{membershipAttributeName};
@@ -1692,7 +1692,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         try {
 
-            groupSearchFilter = groupSearchFilter.replace("?", roleName);
+            groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(roleName));
             String[] returningAttributes = {roleNameAttributeName};
             groupSearchResults = searchInGroupBase(groupSearchFilter, returningAttributes,
                     SearchControls.SUBTREE_SCOPE, mainContext, searchBase);
@@ -1746,7 +1746,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         String roleName = context.getRoleName();
         String groupSearchFilter = ((LDAPRoleContext) context).getSearchFilter();
-        groupSearchFilter = groupSearchFilter.replace("?", context.getRoleName());
+        groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(context.getRoleName()));
         String[] returningAttributes = {((LDAPRoleContext) context).getRoleNameProperty()};
         String searchBase = ((LDAPRoleContext) context).getSearchBase();
 
