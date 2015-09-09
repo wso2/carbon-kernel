@@ -102,22 +102,6 @@ public class LoggingUtils {
     }
 
     /**
-     * Returns a LoggingEvent sanitized for CR and LF characters if present.
-     *
-     * @param loggingEvent LoggingEvent with the log content
-     * @return a sanitized LoggingEvent
-     */
-    public static LoggingEvent getSanitizedLoggingEvent(LoggingEvent loggingEvent) {
-
-        return new LoggingEvent(loggingEvent.getFQNOfLoggerClass(), loggingEvent.getLogger(),
-                                loggingEvent.getTimeStamp(), loggingEvent.getLevel(),
-                                getSanitizedLoggingMessage(loggingEvent.getMessage()),
-                                loggingEvent.getThreadName(), loggingEvent.getThrowableInformation(),
-                                loggingEvent.getNDC(), loggingEvent.getLocationInformation(),
-                                loggingEvent.getProperties());
-    }
-
-    /**
      * Returns a String instance sanitized for CR and LF characters if present in the original message
      *
      * @param message original message
