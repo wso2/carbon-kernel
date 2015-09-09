@@ -44,13 +44,13 @@ public class CSRFPreventionFilter implements Filter {
 
         CSRFFilterConfig config = new CSRFFilterConfig();
 
-        // Loads enabled configuration at /repository/conf/carbon.xml//Server/Security/CSRFPreventionConfig/Enabled
+        // Loads enabled configuration at /repository/conf/carbon.xml//Server/Security/CSRFPreventionConfig/CSRFPreventionFilter/Enabled
         ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
         config.setEnabled(
                 serverConfiguration.getFirstProperty(CSRFConstants.ConfigurationProperties.ENABLED) == null ? false :
                 Boolean.parseBoolean(
                         serverConfiguration.getFirstProperty(CSRFConstants.ConfigurationProperties.ENABLED)));
-        // Loads skipUrlPattern configuration at /repository/conf/carbon.xml//Server/Security/CSRFPreventionConfig/SkipUrlPattern
+        // Loads skipUrlPattern configuration at /repository/conf/carbon.xml//Server/Security/CSRFPreventionConfig/CSRFPreventionFilter/SkipUrlPattern
         config.setSkipUrlPattern(
                 serverConfiguration.getFirstProperty(CSRFConstants.ConfigurationProperties.SKIP_URL_PATTERN));
 
