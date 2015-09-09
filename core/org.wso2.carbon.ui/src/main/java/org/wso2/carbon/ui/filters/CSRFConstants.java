@@ -29,8 +29,9 @@ public class CSRFConstants {
     public static final Pattern HTML_HEAD_PATTERN = Pattern.compile("(?i)</head>");
 
     public static final class ConfigurationProperties {
-        public static final String ENABLED = "Security.CSRFPreventionConfig.Enabled";
-        public static final String SKIP_URL_PATTERN = "Security.CSRFPreventionConfig.SkipUrlPattern";
+        public static final String ENABLED = "Security.CSRFPreventionConfig.CSRFPreventionFilter.Enabled";
+        public static final String SKIP_URL_PATTERN =
+                "Security.CSRFPreventionConfig.CSRFPreventionFilter.SkipUrlPattern";
 
         private ConfigurationProperties() {
         }

@@ -30,7 +30,7 @@ import java.util.Arrays;
 public class CSRFValve extends ValveBase {
 
     private final static String REFERER_HEADER = "referer";
-    private final static String CSRF_VALVE_PROPERTY = "Security.CSRFPreventionConfig";
+    private final static String CSRF_VALVE_PROPERTY = "Security.CSRFPreventionConfig.CSRFValve";
     private final static String ENABLED_PROPERTY = CSRF_VALVE_PROPERTY + ".Enabled";
     private final static String WHITE_LIST_PROPERTY = CSRF_VALVE_PROPERTY + ".WhiteList.Url";
     private final static String RULE_PATTERN_PROPERTY = CSRF_VALVE_PROPERTY + ".Patterns.Pattern";
