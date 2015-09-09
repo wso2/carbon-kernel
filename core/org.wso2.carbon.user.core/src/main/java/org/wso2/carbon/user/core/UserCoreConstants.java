@@ -55,6 +55,7 @@ public class UserCoreConstants {
     public static final int MAX_SEARCH_TIME = 10000;   // ms
 
     public static final String INTERNAL_DOMAIN = "Internal";
+    public static final String APPLICATION_DOMAIN = "Application";
     public static final String PRIMARY_DEFAULT_DOMAIN_NAME = "PRIMARY";
     public static final String SYSTEM_DOMAIN_NAME = "SYSTEM";
 
@@ -151,10 +152,11 @@ public class UserCoreConstants {
 
         public static final String PROPERTY_JAVA_REG_EX = "PasswordJavaRegEx";
         public static final String PROPERTY_JS_REG_EX = "PasswordJavaScriptRegEx";
+        public static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
+        public static final String PROPERTY_USERNAME_ERROR_MSG = "UsernameJavaRegExViolationErrorMsg";
 
         public static final String PROPERTY_USER_NAME_JAVA_REG_EX = "UsernameJavaRegEx";
         public static final String PROPERTY_USER_NAME_JS_REG_EX = "UsernameJavaScriptRegEx";
-        public static final String PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX = "UsernameWithEmailJavaScriptRegEx";
 
         public static final String PROPERTY_ROLE_NAME_JAVA_REG_EX = "RolenameJavaRegEx";
         public static final String PROPERTY_ROLE_NAME_JS_REG_EX = "RolenameJavaScriptRegEx";
@@ -171,8 +173,6 @@ public class UserCoreConstants {
 
         //configuration to enable or disable authorization caching
         public static final String PROPERTY_AUTHORIZATION_CACHE_ENABLED = "AuthorizationCacheEnabled";
-
-        public static final String PROPERTY_CASE_SENSITIVITY = "CaseSensitiveAuthorizationRules";
 
         //configuration to identify the cache uniquely
         public static final String PROPERTY_USER_CORE_CACHE_IDENTIFIER = "UserCoreCacheIdentifier";
@@ -223,6 +223,7 @@ public class UserCoreConstants {
         public static final String ACCOUNT_STATUS = IDENTITY_CLAIM_URI + "/accountLock";
         public static final String CHALLENGE_QUESTION_URI = IDENTITY_CLAIM_URI + "/challengeQuestion";
         public static final String TEMPORARY_EMAIL_ADDRESS = DEFAULT_CARBON_DIALECT + "/temporaryemailaddress";
+        public static final String DISPLAY_NAME = DEFAULT_CARBON_DIALECT + "/displayName";
     }
 
     public static final class TenantMgtConfig {

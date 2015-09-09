@@ -22,17 +22,6 @@ import java.util.List;
 
 public class PermissionTreeUtil {
 
-    /**
-     * @param path
-     * @return
-     */
-
-    public static void main(String[] args) {
-        List<String> lst = PermissionTreeUtil.toComponenets("/");
-        System.out.println(lst.size());
-        System.out.println(lst.get(0));
-    }
-
     public static List<String> toComponenets(String path) {
         String[] results = path.split("/");
         List<String> resultArr = new ArrayList<String>();

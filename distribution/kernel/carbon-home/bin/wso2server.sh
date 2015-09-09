@@ -303,6 +303,7 @@ do
     -Dfile.encoding=UTF8 \
     -Djava.net.preferIPv4Stack=true \
     -Dcom.ibm.cacheLocalHost=true \
+    -DworkerNode=false \
     org.wso2.carbon.bootstrap.Bootstrap $*
     status=$?
 done

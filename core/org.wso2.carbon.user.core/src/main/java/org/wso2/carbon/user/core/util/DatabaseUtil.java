@@ -298,7 +298,7 @@ public class DatabaseUtil {
                 String name = rs.getString(1);
                 String domain = rs.getString(2);
                 if (domain != null) {
-                    UserCoreUtil.addDomainToName(name, domain);
+                    name = UserCoreUtil.addDomainToName(name, domain);
                 }
                 lst.add(name);
             }
@@ -538,11 +538,7 @@ public class DatabaseUtil {
                     }
                 }
             }
-            int count = prepStmt.executeUpdate();
-            /*if (log.isDebugEnabled()) {
-                log.debug("Executed Query is " + sqlStmt + " and number of updated rows :: "
-                        + count);
-            }*/
+            prepStmt.executeUpdate();
         } catch (SQLException e) {
             String errorMessage = "Using sql : " + sqlStmt + " " + e.getMessage();
             if (log.isDebugEnabled()) {
@@ -556,6 +552,10 @@ public class DatabaseUtil {
 
     public static Connection getDBConnection(DataSource dataSource) throws SQLException {
         Connection dbConnection = dataSource.getConnection();
+        dbConnection.setAutoCommit(false);
+        if (dbConnection.getTransactionIsolation() != Connection.TRANSACTION_READ_COMMITTED) {
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+        }
         return dbConnection;
     }
 

@@ -132,7 +132,7 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
         String searchFilter = "(&(objectClass=" + organizationalObjectClass + ")(" + organizationalAttribute + "=" + orgName + "))";
 
         SearchControls userSearchControl = new SearchControls();
-        userSearchControl.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        userSearchControl.setSearchScope(SearchControls.ONELEVEL_SCOPE);
         NamingEnumeration<SearchResult> userSearchResults = null;
 
         try {
@@ -355,9 +355,6 @@ public class CommonHybridLDAPTenantManager extends JDBCTenantManager {
             //create user password attribute
             Attribute password = new BasicAttribute(USER_PASSWORD_ATTRIBUTE_NAME);
             String passwordHashMethod = realmConfig.getUserStoreProperty(LDAPConstants.PASSWORD_HASH_METHOD);
-            if (passwordHashMethod == null) {
-                passwordHashMethod = realmConfig.getUserStoreProperty("passwordHashMethod");
-            }
             String passwordToStore = UserCoreUtil.getPasswordToStore(
                     tenant.getAdminPassword(), passwordHashMethod, isKDCEnabled());
             password.add(passwordToStore);

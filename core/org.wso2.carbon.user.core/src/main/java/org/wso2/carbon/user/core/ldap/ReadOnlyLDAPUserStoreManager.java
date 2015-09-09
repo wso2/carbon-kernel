@@ -48,10 +48,14 @@ import javax.naming.PartialResultException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.InvalidAttributeIdentifierException;
+import javax.naming.directory.InvalidAttributeValueException;
+import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.sql.DataSource;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -66,11 +70,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
+    public static final String MEMBER_UID = "memberUid";
     private static Log log = LogFactory.getLog(ReadOnlyLDAPUserStoreManager.class);
     private final int MAX_USER_CACHE = 200;
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-
+    private static final String PROPERTY_REFERRAL_IGNORE ="ignore";
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
     protected LDAPConnectionContext connectionSource = null;
@@ -508,8 +513,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
                 try {
                     answer = dirContext.search(escapeDNForSearch(userDN), searchFilter, searchCtls);
+                } catch (PartialResultException e) {
+                    // can be due to referrals in AD. so just ignore error
+                    String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
+                    if (isIgnorePartialResultException()) {
+                        if (log.isDebugEnabled()) {
+                            log.debug(errorMessage, e);
+                        }
+                    } else {
+                        throw new UserStoreException(errorMessage, e);
+                    }
                 } catch (NamingException e) {
-                    String errorMessage = "Error occurred while searching directory context for user : " + userName;
+                    String errorMessage = "Error occurred while searching directory context for user : " + userDN + " searchFilter : " + searchFilter;
                     if (log.isDebugEnabled()) {
                         log.debug(errorMessage, e);
                     }
@@ -600,7 +615,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         }
         String searchFilter = ((LDAPRoleContext) context).getListFilter();
         String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
-        searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter(roleName) + "))";
+        searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter
+                (roleName) + "))";
         String searchBases = ((LDAPRoleContext) context).getSearchBase();
 
         if (debug) {
@@ -786,11 +802,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     new String[]{userNameProperty, serviceNameAttribute,
                             displayNameAttribute};
             finalFilter.append("(&").append(searchFilter).append("(").append(displayNameAttribute)
-                    .append("=").append(escapeSpecialCharactersForFilter(filter)).append("))");
+                    .append("=").append(escapeSpecialCharactersForFilterWithStarAsRegex(filter)).append("))");
         } else {
             returnedAtts = new String[]{userNameProperty, serviceNameAttribute};
             finalFilter.append("(&").append(searchFilter).append("(").append(userNameProperty).append("=")
-                    .append(escapeSpecialCharactersForFilter(filter)).append("))");
+                    .append(escapeSpecialCharactersForFilterWithStarAsRegex(filter)).append("))");
         }
 
         if (debug) {
@@ -873,7 +889,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     log.debug("result: " + username);
                 }
             }
-
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage =
+                    "Error occurred while getting user list for filter : " + filter + "max limit : " + maxItemLimit;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage =
                     "Error occurred while getting user list for filter : " + filter + "max limit : " + maxItemLimit;
@@ -1133,6 +1159,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     return answer;
                 }
             }
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage ="Error occurred while search user for filter : " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
             String errorMessage ="Error occurred while search user for filter : " + searchFilter;
             if (log.isDebugEnabled()) {
@@ -1161,16 +1197,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 "User store is operating in read only mode. Cannot write into the user store.");
     }
 
-    /**
-     * LDAP user store does not support bulk import.
-     *
-     * @return Always returns <code>false<code>.
-     */
-    public boolean isBulkImportSupported() {
-        return false;
-    }
-
-    /**
+     /**
      * This method is to check whether multiple profiles are allowed with a
      * particular user-store.
      * For an example, currently, JDBC user store supports multiple profiles and
@@ -1223,7 +1250,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         // / search filter TODO
         StringBuffer finalFilter = new StringBuffer();
         finalFilter.append("(&").append(searchFilter).append("(").append(roleNameProperty).append("=")
-                .append(escapeSpecialCharactersForFilter(filter)).append("))");
+                .append(escapeSpecialCharactersForFilterWithStarAsRegex(filter)).append("))");
 
         if (debug) {
             log.debug("Listing roles. SearchBase: " + searchBase + " ConstructedFilter: " +
@@ -1257,8 +1284,20 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     }
                 }
             }
+        } catch (PartialResultException e) {
+            // can be due to referrals in AD. so just ignore error
+            String errorMessage = "Error occurred while getting LDAP role names. SearchBase: " + searchBase + " ConstructedFilter: " +
+            finalFilter.toString();
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
+            }
         } catch (NamingException e) {
-            String errorMessage = "Error occurred while getting LDAP role names";
+            String errorMessage = "Error occurred while getting LDAP role names. SearchBase: " + searchBase + " ConstructedFilter: " +
+                                  finalFilter.toString();
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
             }
@@ -1514,7 +1553,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             String searchFilter = ((LDAPRoleContext) context).getListFilter();
             String roleNameProperty = ((LDAPRoleContext) context).getRoleNameProperty();
-            searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter(context.getRoleName()) + "))";
+            searchFilter = "(&" + searchFilter + "(" + roleNameProperty + "=" + escapeSpecialCharactersForFilter
+                    (context.getRoleName()) + "))";
 
             String membershipProperty = realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
             String returnedAtts[] = {membershipProperty};
@@ -1531,7 +1571,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     if (debug) {
                         log.debug("Using pattern: " + pattern);
                     }
-                    pattern = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDN(context.getRoleName()));
+                    pattern = MessageFormat.format(pattern.trim(), escapeSpecialCharactersForDN(context.getRoleName
+                            ()));
                     try {
                         answer = dirContext.search(escapeDNForSearch(pattern), searchFilter, searchCtls);
                         if (answer.hasMore()) {
@@ -1602,6 +1643,21 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         }
                     }
                 }
+            }
+
+            if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
+                /* when the GroupEntryObjectClass is posixGroup, membership attribute is memberUid. We have to
+                   retrieve the DN using the memberUid.
+                   This procedure has to make an extra call to ldap. alternatively this can be done with a single ldap
+                   search using the memberUid and retrieving the display name and username. */
+                List<String> userDNListNew = new ArrayList<>();
+
+                for (String user : userDNList) {
+                    String userDN = getNameInSpaceForUserName(user);
+                    userDNListNew.add(userDN);
+                }
+
+                userDNList = userDNListNew;
             }
 
             // iterate over users' DN list and get userName and display name
@@ -1678,8 +1734,13 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
+            String errorMessage = "Error in reading user information in the user store for filter : " + filter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             String errorMessage = "Error in reading user information in the user store for filter : " + filter;
@@ -1848,10 +1909,15 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 if (nameInSpace != null) {
                     try {
                         LdapName ldn = new LdapName(nameInSpace);
-                        membershipValue = escapeLdapNameForFilter(ldn);
+                        if (MEMBER_UID.equals(realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE))) {
+                            // membership value of posixGroup is not DN of the user
+                            List rdns = ldn.getRdns();
+                            membershipValue = ((Rdn) rdns.get(rdns.size() - 1)).getValue().toString();
+                        } else {
+                            membershipValue = escapeLdapNameForFilter(ldn);
+                        }
                     } catch (InvalidNameException e) {
-                        log.error("Error while creating LDAP name from: " + nameInSpace);
-                        throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
+                        throw new UserStoreException("Invalid naming exception for: " + nameInSpace, e);
                     }
                 } else {
                     return new String[0];
@@ -2097,8 +2163,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         } catch (PartialResultException e) {
             // can be due to referrals in AD. so just ignore error
-            if (log.isDebugEnabled()) {
-                log.debug("LDAP", e);
+            String errorMessage = "Error occurred while GetAttributeListOfOneElementWithPrimarGroup. SearchBase: " +
+                                  searchBase + " SearchFilter: " + searchFilter;
+            if (isIgnorePartialResultException()) {
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+            } else {
+                throw new UserStoreException(errorMessage, e);
             }
         } catch (NamingException e) {
             if (log.isDebugEnabled()) {
@@ -2174,6 +2246,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private List<String> getListOfNames(String searchBases, String searchFilter,
                                         SearchControls searchCtls, String property, boolean appendDn)
             throws UserStoreException {
+        searchFilter = searchFilter.replace("*","\\*");
         boolean debug = log.isDebugEnabled();
         List<String> names = new ArrayList<String>();
         DirContext dirContext = null;
@@ -2261,7 +2334,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         String userPropertyName =
                 realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
 
-        searchFilter = "(&" + searchFilter + "(" + property + "=" + escapeSpecialCharactersForFilter(value) + "))";
+        searchFilter = "(&" + searchFilter + "(" + property + "=" + escapeSpecialCharactersForFilterWithStarAsRegex(value) + "))";
 
         DirContext dirContext = this.connectionSource.getContext();
         NamingEnumeration<?> answer = null;
@@ -2450,8 +2523,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     LdapName ldn = new LdapName(nameInSpace);
                     membershipValue = escapeLdapNameForFilter(ldn);
                 } catch (InvalidNameException e) {
-                    log.error("Error while creating LDAP name from: " + nameInSpace);
-                    throw new UserStoreException("Invalid naming exception for : " + nameInSpace, e);
+                    throw new UserStoreException("Invalid naming exception for: " + nameInSpace, e);
                 }
             } else {
                 return false;
@@ -2511,7 +2583,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
                     searchFilter =
                             "(&" + searchFilter + "(" + membershipProperty + "=" + membershipValue +
-                                    ") (" + roleNameProperty + "=" + roleName + "))";
+                                    ") (" + roleNameProperty + "=" + escapeSpecialCharactersForFilter(roleName) + "))";
 
                     // handle multiple search bases 
                     String[] searchBaseArray = searchBases.split("#");
@@ -2916,7 +2988,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         if (replaceEscapeCharacters) {
             String escapedDN = "";
             for (int i = ldn.size()-1; i > -1; i--) { //escaping the rdns separately and re-constructing the DN
-                escapedDN = escapedDN + escapeSpecialCharactersForFilter(ldn.get(i));
+                escapedDN = escapedDN + escapeSpecialCharactersForFilterWithStarAsRegex(ldn.get(i));
                 if (i != 0) {
                     escapedDN += ",";
                 }
@@ -2935,8 +3007,62 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      * @param dnPartial
      * @return
      */
+    private String escapeSpecialCharactersForFilterWithStarAsRegex(String dnPartial){
+        boolean replaceEscapeCharacters = true;
+
+        String replaceEscapeCharactersAtUserLoginString = realmConfig
+                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
+
+        if (replaceEscapeCharactersAtUserLoginString != null) {
+            replaceEscapeCharacters = Boolean
+                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            if (log.isDebugEnabled()) {
+                log.debug("Replace escape characters configured to: "
+                        + replaceEscapeCharactersAtUserLoginString);
+            }
+        }
+        //TODO: implement character escaping for *
+
+        if (replaceEscapeCharacters) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < dnPartial.length(); i++) {
+                char currentChar = dnPartial.charAt(i);
+                switch (currentChar) {
+                    case '\\':
+                        if(dnPartial.charAt(i+1) == '*'){
+                            sb.append("\\2a");
+                            i++;
+                            break;
+                        }
+                        sb.append("\\5c");
+                        break;
+                    case '(':
+                        sb.append("\\28");
+                        break;
+                    case ')':
+                        sb.append("\\29");
+                        break;
+                    case '\u0000':
+                        sb.append("\\00");
+                        break;
+                    default:
+                        sb.append(currentChar);
+                }
+            }
+            return sb.toString();
+        } else {
+            return dnPartial;
+        }
+    }
+
+    /**
+     * Escaping ldap search filter special characters in a string
+     * @param dnPartial
+     * @return
+     */
     private String escapeSpecialCharactersForFilter(String dnPartial){
         boolean replaceEscapeCharacters = true;
+        dnPartial.replace("\\*","*");
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
@@ -2959,9 +3085,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     case '\\':
                         sb.append("\\5c");
                         break;
-//                case '*':
-//                    sb.append("\\2a");
-//                    break;
+                    case '*':
+                        sb.append("\\2a");
+                        break;
                     case '(':
                         sb.append("\\28");
                         break;
@@ -2988,6 +3114,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     private String escapeSpecialCharactersForDN(String text){
         boolean replaceEscapeCharacters = true;
+        text.replace("\\*","*");
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
@@ -3030,6 +3157,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     case ';':
                         sb.append("\\;");
                         break;
+                    case '*':
+                        sb.append("\\2a");
+                        break;
                     default:
                         sb.append(currentChar);
                 }
@@ -3071,6 +3201,51 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             return dn.replace("\\\\", "\\\\\\").replace("\\\"", "\\\\\"");
         } else {
             return dn;
+        }
+    }
+
+    private boolean isIgnorePartialResultException() {
+
+        if (PROPERTY_REFERRAL_IGNORE.equals(realmConfig.getUserStoreProperty(LDAPConstants.PROPERTY_REFERRAL))) {
+            return true;
+        }
+        return false;
+    }
+
+    protected void handleException(Exception e, String userName) throws UserStoreException{
+        if (e instanceof InvalidAttributeValueException) {
+            String errorMessage = "One or more attribute values provided are incompatible for user: " + userName
+                    + "Please check and try again.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof InvalidAttributeIdentifierException) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP for user: " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof NoSuchAttributeException) {
+            String errorMessage = "One or more attributes you are trying to add/update are not "
+                    + "supported by underlying LDAP for user: " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else if (e instanceof NamingException) {
+            String errorMessage = "Profile information could not be updated in LDAP user store for user: " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } else {
+            String errorMessage = "Error occurred in the underlying server for username: " + userName;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
         }
     }
 }

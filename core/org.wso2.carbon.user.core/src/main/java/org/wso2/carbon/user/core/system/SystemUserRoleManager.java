@@ -38,14 +38,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class SystemUserRoleManager {
 
     private static Log log = LogFactory.getLog(SystemUserRoleManager.class);
     int tenantId;
     private DataSource dataSource;
-    private Random random = new Random();
+    private static final String SHA_1_PRNG = "SHA1PRNG";
 
     public SystemUserRoleManager(DataSource dataSource, int tenantId) throws UserStoreException {
         super();
@@ -59,7 +59,7 @@ public class SystemUserRoleManager {
     public void addSystemRole(String roleName, String[] userList) throws UserStoreException {
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             if (!this.isExistingRole(roleName)) {
                 DatabaseUtil.updateDatabase(dbConnection, SystemJDBCConstants.ADD_ROLE_SQL,
                         roleName, tenantId);
@@ -104,7 +104,7 @@ public class SystemUserRoleManager {
         ResultSet rs = null;
         boolean isExisting = false;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(SystemJDBCConstants.GET_ROLE_ID);
             prepStmt.setString(1, roleName);
             prepStmt.setInt(2, tenantId);
@@ -131,7 +131,7 @@ public class SystemUserRoleManager {
         String sqlStmt = SystemJDBCConstants.GET_ROLES;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String[] roles = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
                     tenantId);
             return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);
@@ -151,7 +151,7 @@ public class SystemUserRoleManager {
         String sqlStmt = SystemJDBCConstants.GET_USER_LIST_OF_ROLE_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String[] users = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
                     roleName, tenantId, tenantId);
             return UserCoreUtil.addDomainToNames(users, UserCoreConstants.SYSTEM_DOMAIN_NAME);
@@ -173,7 +173,7 @@ public class SystemUserRoleManager {
         String sqlStmt2 = SystemJDBCConstants.ADD_USER_TO_ROLE_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String type = DatabaseCreator.getDatabaseType(dbConnection);
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
                 sqlStmt2 = SystemJDBCConstants.ADD_USER_TO_ROLE_SQL_MSSQL;
@@ -214,7 +214,7 @@ public class SystemUserRoleManager {
         String sqlStmt = SystemJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String[] roles = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
                     userName, tenantId, tenantId);
             return UserCoreUtil.addDomainToNames(roles, UserCoreConstants.SYSTEM_DOMAIN_NAME);
@@ -236,7 +236,7 @@ public class SystemUserRoleManager {
         String sqlStmt2 = SystemJDBCConstants.ADD_ROLE_TO_USER_SQL;
         Connection dbConnection = null;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String type = DatabaseCreator.getDatabaseType(dbConnection);
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
                 sqlStmt2 = SystemJDBCConstants.ADD_ROLE_TO_USER_SQL_MSSQL;
@@ -280,7 +280,7 @@ public class SystemUserRoleManager {
         ResultSet rs = null;
         boolean isUserInRole = false;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(SystemJDBCConstants.IS_USER_IN_ROLE_SQL);
             prepStmt.setString(1, userName);
             prepStmt.setString(2, roleName);
@@ -313,7 +313,7 @@ public class SystemUserRoleManager {
         ResultSet rs = null;
         boolean isExisting = false;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(SystemJDBCConstants.GET_USER_ID_SQL);
             prepStmt.setString(1, userName);
             prepStmt.setInt(2, tenantId);
@@ -342,13 +342,19 @@ public class SystemUserRoleManager {
         Connection dbConnection = null;
         String password = (String) credential;
         try {
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String sqlStmt1 = SystemJDBCConstants.ADD_USER_SQL;
 
             String saltValue = null;
-            byte[] bytes = new byte[16];
-            random.nextBytes(bytes);
-            saltValue = Base64.encode(bytes);
+            try {
+                SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+                byte[] bytes = new byte[16];
+                //secureRandom is automatically seeded by calling nextBytes
+                secureRandom.nextBytes(bytes);
+                saltValue = Base64.encode(bytes);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+            }
 
             password = this.preparePassword(password, saltValue);
 
@@ -398,7 +404,7 @@ public class SystemUserRoleManager {
 
             List<String> lst = new LinkedList<String>();
 
-            dbConnection = getDBConnection();
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 
             if (dbConnection == null) {
                 throw new UserStoreException("null connection");
@@ -451,7 +457,7 @@ public class SystemUserRoleManager {
 //        PreparedStatement preparedStatement = null;
 //
 //        try {
-//            dbConnection = getDBConnection();
+//            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 //            preparedStatement = dbConnection.prepareStatement(SystemJDBCConstants.REMOVE_USER_SQL);
 //            preparedStatement.setString(1, userName);
 //            preparedStatement.execute();
@@ -492,7 +498,7 @@ public class SystemUserRoleManager {
 //        String sqlStmt = SystemJDBCConstants.UPDATE_ROLE_NAME_SQL;
 //        Connection dbConnection = null;
 //        try {
-//            dbConnection = getDBConnection();
+//            dbConnection = DatabaseUtil.getDBConnection(dataSource);
 //            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
 //                DatabaseUtil.updateDatabase(dbConnection, sqlStmt, newRoleName, roleName, tenantId);
 //            } else {
@@ -536,7 +542,7 @@ public class SystemUserRoleManager {
         try {
             if (dbConnection == null) {
                 localConnection = true;
-                dbConnection = getDBConnection();
+                dbConnection = DatabaseUtil.getDBConnection(dataSource);
             }
             prepStmt = dbConnection.prepareStatement(sqlStmt);
             if (params != null && params.length > 0) {
@@ -580,11 +586,5 @@ public class SystemUserRoleManager {
             }
             DatabaseUtil.closeAllConnections(null, prepStmt);
         }
-    }
-
-    private Connection getDBConnection() throws SQLException {
-        Connection dbConnection = dataSource.getConnection();
-        dbConnection.setAutoCommit(false);
-        return dbConnection;
     }
 }

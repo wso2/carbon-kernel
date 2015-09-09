@@ -427,6 +427,26 @@
 	 org.wso2.carbon.security.util.SecurityTokenStore
 	-->
 	<!--TokenStoreClassName>org.wso2.carbon.identity.sts.store.DBTokenStore</TokenStoreClassName-->
+
+        <XSSPreventionConfig>
+            <Enabled>true</Enabled>
+            <Rule>allow</Rule>
+            <Patterns>
+                <!--Pattern></Pattern-->
+            </Patterns>
+        </XSSPreventionConfig>
+
+        <CSRFPreventionConfig>
+            <Enabled>true</Enabled>
+            <Rule>allow</Rule>
+            <Patterns>
+                <!--Pattern></Pattern-->
+            </Patterns>
+            <WhiteList>
+                <Url>https://localhost:9443</Url>
+            </WhiteList>
+        </CSRFPreventionConfig>
+
     </Security>
 
     <!--

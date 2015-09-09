@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -331,7 +332,7 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
                 webappJarFile = new JarFile(webappFilePath);
                 contextXmlFileEntry = webappJarFile.getJarEntry(Constants.ApplicationContextXml);
                 if (contextXmlFileEntry != null) {
-                    ctx.setConfigFile(new URL("jar:file:" + webappFilePath + "!/" +
+                    ctx.setConfigFile(new URL("jar:file:" + URLEncoder.encode(webappFilePath, "UTF-8") + "!/" +
                             Constants.ApplicationContextXml));
                 }
             }

@@ -33,6 +33,9 @@ public class CharacterEncoder {
         if (text.indexOf('>') > -1) {
             text = text.replace(">", "&gt;");
         }
+        if(text.contains("\"")){
+            text = text.replace("\"", "&quot;");
+        }
         return text;
     }
 }
