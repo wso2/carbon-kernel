@@ -1265,20 +1265,23 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                         getConnectionCount(tCommittedAndRollbackedConnectionMap.get()) + 1)) {
                 // If this is the outer connection, then rollback all inner connections and then
                 // the outer connection.
-                Map<String, ManagedRegistryConnection> connections =
-                        tCommittedAndRollbackedConnectionMap.get();
-                for (Map.Entry<String, ManagedRegistryConnection> e : connections.entrySet()) {
-                    if (e.getValue() != null) {
-                        e.getValue().getConnection().rollback();
+                try {
+                    Map<String, ManagedRegistryConnection> connections =
+                            tCommittedAndRollbackedConnectionMap.get();
+                    for (Map.Entry<String, ManagedRegistryConnection> e : connections.entrySet()) {
+                        if (e.getValue() != null) {
+                            e.getValue().getConnection().rollback();
+                        }
                     }
+                }finally {
+                    // Clean up list of committed and rollbacked connections.
+                    tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String,
+                            ManagedRegistryConnection>());
+                    connection.rollback();
+                    // Clear the flag after rollback
+                    tRollbackedConnection.set(false);
+                    log.trace("Rolled back all transactions.");
                 }
-                // Clean up list of committed and rollbacked connections.
-                tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String,
-                        ManagedRegistryConnection>());
-                connection.rollback();
-                // Clear the flag after rollback
-                tRollbackedConnection.set(false);
-                log.trace("Rolled back all transactions.");
             } else if (tManagedConnectionMap.get().size() <
                     getConnectionCount(tCommittedAndRollbackedConnectionMap.get())) {
                 throw new SQLException("Total number of available connections are less than the " +
