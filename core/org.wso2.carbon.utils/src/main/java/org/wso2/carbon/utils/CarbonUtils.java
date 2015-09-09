@@ -50,6 +50,7 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.wso2.carbon.utils.resolver.CarbonEntityResolver;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
