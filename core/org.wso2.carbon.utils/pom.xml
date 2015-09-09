@@ -117,7 +117,6 @@
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>org.wso2.carbon.utils</Bundle-SymbolicName>
                         <Export-Package>
-                            !org.wso2.carbon.utils.resolver,
                             org.wso2.carbon,
                             org.wso2.carbon.utils.*,
                             org.wso2.carbon.context,
@@ -126,7 +125,6 @@
                         <Bundle-Activator>org.wso2.carbon.context.internal.CarbonContextActivator</Bundle-Activator>
                         <Private-Package>
                             org.wso2.carbon.context.internal,
-                            org.wso2.carbon.utils.resolver,
                         </Private-Package>
                         <Import-Package>
                             !org.wso2.carbon,
