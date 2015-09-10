@@ -2325,7 +2325,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             throws UserStoreException {
         boolean debug = log.isDebugEnabled();
         String userAttributeSeparator = ",";
-
+        String serviceNameAttribute = "sn";
         List<String> values = new ArrayList<String>();
         String searchFilter = realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_LIST_FILTER);
         String userPropertyName =
@@ -2341,9 +2341,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         if (debug) {
             log.debug("Listing users with Property: " + property + " SearchFilter: " + searchFilter);
         }
-
+        String[] returnedAttributes = new String[]{userPropertyName, serviceNameAttribute};
         try {
-            answer = this.searchForUser(searchFilter, new String[]{userPropertyName}, dirContext);
+            answer = this.searchForUser(searchFilter, returnedAttributes, dirContext);
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.next();
                 Attributes attributes = sr.getAttributes();
@@ -2370,6 +2370,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         // attribute, since we
                         // attach userAttributeSeparator.
                         if (propertyValue != null && propertyValue.trim().length() > userAttributeSeparator.length()) {
+                            if(attributes.get(serviceNameAttribute).get().equals(LDAPConstants.
+                                    SERVER_PRINCIPAL_ATTRIBUTE_VALUE)){
+                                continue;
+                                }
                             propertyValue = propertyValue.substring(0, propertyValue.length() -
                                     userAttributeSeparator.length());
                             values.add(propertyValue);
