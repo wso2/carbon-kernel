@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.ui.filters;
+package org.wso2.carbon.ui.filters.csrf;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;

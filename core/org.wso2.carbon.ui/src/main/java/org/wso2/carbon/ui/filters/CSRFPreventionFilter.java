@@ -19,6 +19,10 @@
 package org.wso2.carbon.ui.filters;
 
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.ui.filters.csrf.CSRFConstants;
+import org.wso2.carbon.ui.filters.csrf.CSRFFilterConfig;
+import org.wso2.carbon.ui.filters.csrf.CSRFProtector;
+import org.wso2.carbon.ui.filters.csrf.CSRFResponseWrapper;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
