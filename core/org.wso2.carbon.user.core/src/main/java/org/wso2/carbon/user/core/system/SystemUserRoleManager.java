@@ -57,7 +57,7 @@ public class SystemUserRoleManager {
                 this.dataSource);
     }
 
-    public void addSystemRole(String roleName, String[] userList) throws UserStoreException {cd ..cd
+    public void addSystemRole(String roleName, String[] userList) throws UserStoreException {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
