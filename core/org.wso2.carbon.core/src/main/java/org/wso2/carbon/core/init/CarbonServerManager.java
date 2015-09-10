@@ -495,8 +495,7 @@ public final class CarbonServerManager implements Controllable {
             if (GhostDeployerUtils.isGhostOn()) {
                 artifactsCleanupExec.scheduleAtFixedRate(genericArtifactUnloader,
                         CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS,
-                        CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS,
-                        TimeUnit.SECONDS);
+                        CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS, TimeUnit.SECONDS);
             }
             
             //Exposing metering.enabled system property. This is needed by the
