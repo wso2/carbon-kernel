@@ -42,20 +42,20 @@
 
     <!--This is for performing the character encoding in the JSPs. -->
     <filter>
-       <filter-name>CharsetFilter</filter-name>
-       <filter-class>org.wso2.carbon.tomcat.ext.filter.CharacterSetFilter</filter-class>
-       <init-param>
-          <param-name>requestEncoding</param-name>
-          <param-value>UTF-8</param-value>
-       </init-param>
+        <filter-name>CharsetFilter</filter-name>
+        <filter-class>org.wso2.carbon.tomcat.ext.filter.CharacterSetFilter</filter-class>
+        <init-param>
+            <param-name>requestEncoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
     </filter>
 
     <filter-mapping>
-       <filter-name>CharsetFilter</filter-name>
-       <url-pattern>/*</url-pattern>
+        <filter-name>CharsetFilter</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
-     <session-config>
+
+    <session-config>
         <session-timeout>15</session-timeout>
         <cookie-config>
             <secure>true</secure>
