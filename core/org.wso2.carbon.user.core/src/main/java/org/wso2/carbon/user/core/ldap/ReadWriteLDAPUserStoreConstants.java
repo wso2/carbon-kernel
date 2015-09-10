@@ -97,6 +97,7 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "", "", "");
+        setProperty("IsBulkImportSupported", "", "false", "Support Bulk User Import Operation for this user store");
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,

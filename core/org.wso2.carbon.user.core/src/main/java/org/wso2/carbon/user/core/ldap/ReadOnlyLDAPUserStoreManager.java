@@ -2771,7 +2771,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
     @Override
     public boolean isBulkImportSupported() throws UserStoreException {
-        return false;
+        return new Boolean(realmConfig.getUserStoreProperty("IsBulkImportSupported"));
     }
 
     /**
