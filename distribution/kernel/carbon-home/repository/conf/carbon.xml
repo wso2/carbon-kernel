@@ -441,7 +441,7 @@
             <!-- CSRFPreventionFilter configurations that adopts Synchronizer Token Pattern -->
             <CSRFPreventionFilter>
                 <!-- Set below to true to enable the CSRFPreventionFilter -->
-                <Enabled>true</Enabled>
+                <Enabled>false</Enabled>
                 <!-- Url Pattern to skip application of CSRF protection-->
                 <SkipUrlPattern>(.*)(/images|/css|/js|/docs)(.*)</SkipUrlPattern>
             </CSRFPreventionFilter>
