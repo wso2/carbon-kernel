@@ -180,64 +180,9 @@ public class CarbonTomcat extends Tomcat implements CarbonTomcatService {
      * @param webappFilePath File location of the web-app
      * @return {@link Context} object of the added web-app
      */
-    public Context addWebApp(String contextPath, String webappFilePath)
-            throws CarbonTomcatException {
-        String baseDir = webappFilePath.substring(0, webappFilePath.lastIndexOf(File.separator));
+    public Context addWebApp(String contextPath, String webappFilePath) throws CarbonTomcatException {
         Host defaultHost = (Host) this.getEngine().findChild(this.getEngine().getDefaultHost());
-        Host virtualHost = getMatchingVirtualHost(baseDir);
-
-        if (virtualHost != null) {
-            return this.addWebApp(virtualHost, contextPath, webappFilePath, null);
-        } else {
-            return this.addWebApp(defaultHost, contextPath, webappFilePath, null);
-        }
-    }
-
-    /**
-     *
-     * @param baseDir web application directory path
-     * @return host name that matches the directory path
-     */
-    private Host getMatchingVirtualHost(String baseDir) {
-        Host virtualHost = null;
-        Container[] virtualHosts = this.getEngine().findChildren();
-        for (Container vHost : virtualHosts) {
-            Host childHost = (Host) vHost;
-            String appBase = childHost.getAppBase().replace("/", File.separator);
-
-            if (appBase.endsWith(File.separator)) {
-                //append a file separator to make webAppFilePath equal to appBase
-                if (isEqualTo(baseDir + File.separator, appBase)) {
-                    virtualHost = childHost;
-                    break;
-                }
-            } else {
-                if (isEqualTo(baseDir + File.separator, appBase + File.separator)) {
-                    virtualHost = childHost;
-                    break;
-                }
-            }
-        }
-        return virtualHost;
-    }
-
-    /**
-     *
-     * @param webAppFilePath web application path
-     * @param baseName appBase value
-     * @return true if values are equal, false otherwise
-     */
-    private boolean isEqualTo(String webAppFilePath, String baseName) {
-        if (webAppFilePath.equals(baseName)) {
-            return true;
-        } else {
-            //if the webapp is uploaded to tenant-space (eg: <CARBON_HOME>/repository/tenants/1/webapps),
-            //webAppFilePath will not be equal to any of appBase value in catalina-server.xml
-            String baseDir = baseName.substring(0,baseName.lastIndexOf(File.separator));
-            baseDir = baseDir.substring(baseDir.lastIndexOf(File.separator) + 1, baseDir.length());
-            return webAppFilePath.contains(File.separator + "repository" + File.separator) &&
-                    webAppFilePath.contains(File.separator + baseDir + File.separator);
-        }
+        return this.addWebApp(defaultHost, contextPath, webappFilePath, null);
     }
 
     /**
