@@ -1266,17 +1266,15 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                 // If this is the outer connection, then rollback all inner connections and then
                 // the outer connection.
                 try {
-                    Map<String, ManagedRegistryConnection> connections =
-                            tCommittedAndRollbackedConnectionMap.get();
+                    Map<String, ManagedRegistryConnection> connections = tCommittedAndRollbackedConnectionMap.get();
                     for (Map.Entry<String, ManagedRegistryConnection> e : connections.entrySet()) {
                         if (e.getValue() != null) {
                             e.getValue().getConnection().rollback();
                         }
                     }
-                }finally {
+                } finally {
                     // Clean up list of committed and rollbacked connections.
-                    tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String,
-                            ManagedRegistryConnection>());
+                    tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String, ManagedRegistryConnection>());
                     connection.rollback();
                     // Clear the flag after rollback
                     tRollbackedConnection.set(false);
