@@ -401,7 +401,7 @@ public final class CarbonServerManager implements Controllable {
             long end = System.currentTimeMillis();
             if (log.isDebugEnabled()) {
                 log.debug("Completed super-tenant Axis2 ConfigurationContext creation in " +
-                          ((double) (end - start) / 1000) + " sec");
+                        ((double) (end - start) / 1000) + " sec");
             }
 
             // Initialize ListenerManager
@@ -438,9 +438,6 @@ public final class CarbonServerManager implements Controllable {
             serverConfigContext.setProperty(ServerConstants.WORK_DIR, serverWorkDir);
             // This is used inside the sever-admin component.
             serverConfigContext.setProperty(ServerConstants.CARBON_INSTANCE, this);
-
-            multitenantServerManager = new MultitenantServerManager();
-            multitenantServerManager.start(serverConfigContext);
 
             //TODO As a tempory solution this part is added here. But when ui bundle are seperated from the core bundles
             //TODO this should be fixed.
@@ -500,7 +497,7 @@ public final class CarbonServerManager implements Controllable {
                         CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS,
                         CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS, TimeUnit.SECONDS);
             }
-            
+
             //Exposing metering.enabled system property. This is needed by the
             //tomcat.patch bundle to decide whether or not to publish bandwidth stat data
             String isMeteringEnabledStr = serverConfig.getFirstProperty("EnableMetering");
@@ -510,7 +507,7 @@ public final class CarbonServerManager implements Controllable {
                 System.setProperty("metering.enabled", "false");
             }
 
-             //Registering the configuration contexts as an OSGi service.
+            //Registering the configuration contexts as an OSGi service.
             if (log.isDebugEnabled()) {
                 log.debug("Registering ConfigurationContextService...");
             }
@@ -518,6 +515,9 @@ public final class CarbonServerManager implements Controllable {
                     new ConfigurationContextService(serverConfigContext,
                             clientConfigContext),
                     null);
+
+            multitenantServerManager = new MultitenantServerManager();
+            multitenantServerManager.start(serverConfigContext);
 
         } catch (Throwable e) {
             log.fatal("WSO2 Carbon initialization Failed", e);
@@ -578,7 +578,7 @@ public final class CarbonServerManager implements Controllable {
         // Set the default max connections per host
         int defaultMaxConnPerHost = 500;
         Parameter defaultMaxConnPerHostParam =
-            clientConfigContextToReturn.getAxisConfiguration().getParameter("defaultMaxConnPerHost");
+                clientConfigContextToReturn.getAxisConfiguration().getParameter("defaultMaxConnPerHost");
         if(defaultMaxConnPerHostParam != null){
             defaultMaxConnPerHost = Integer.parseInt((String)defaultMaxConnPerHostParam.getValue());
         }
@@ -587,7 +587,7 @@ public final class CarbonServerManager implements Controllable {
         // Set the max total connections
         int maxTotalConnections = 15000;
         Parameter maxTotalConnectionsParam =
-            clientConfigContextToReturn.getAxisConfiguration().getParameter("maxTotalConnections");
+                clientConfigContextToReturn.getAxisConfiguration().getParameter("maxTotalConnections");
         if(maxTotalConnectionsParam != null){
             maxTotalConnections = Integer.parseInt((String)maxTotalConnectionsParam.getValue());
         }
@@ -598,7 +598,7 @@ public final class CarbonServerManager implements Controllable {
 
         httpConnectionManager.setParams(params);
         clientConfigContextToReturn.setProperty(HTTPConstants.MULTITHREAD_HTTP_CONNECTION_MANAGER,
-                                        httpConnectionManager);
+                httpConnectionManager);
         registerHouseKeepingTask(clientConfigContextToReturn);
         clientConfigContextToReturn.setProperty(ServerConstants.WORK_DIR, serverWorkDir);
         return clientConfigContextToReturn;
@@ -666,21 +666,21 @@ public final class CarbonServerManager implements Controllable {
         resource.discard();
     }
     // remove this method as this ListenerManager will destroy by CarbonCoreServiceComponent deactivate method.
-//    public void stopListenerManager() throws AxisFault {
-//        try {
-//            ListenerManager listenerManager = CarbonCoreDataHolder.getInstance().getListenerManager();
-//            if (listenerManager != null) {
-//                listenerManager.destroy();
-//            }
-//
-//            //we need to call this method to clean the temp files we created.
-//            if (serverConfigContext != null) {
-//                serverConfigContext.terminate();
-//            }
-//        } catch (Exception e) {
-//            log.error("Exception occurred while shutting down listeners", e);
-//        }
-//    }
+    //    public void stopListenerManager() throws AxisFault {
+    //        try {
+    //            ListenerManager listenerManager = CarbonCoreDataHolder.getInstance().getListenerManager();
+    //            if (listenerManager != null) {
+    //                listenerManager.destroy();
+    //            }
+    //
+    //            //we need to call this method to clean the temp files we created.
+    //            if (serverConfigContext != null) {
+    //                serverConfigContext.terminate();
+    //            }
+    //        } catch (Exception e) {
+    //            log.error("Exception occurred while shutting down listeners", e);
+    //        }
+    //    }
 
     private void registerHouseKeepingTask(ConfigurationContext configurationContext) {
         if (Boolean.valueOf(serverConfig.getFirstProperty("HouseKeeping.AutoStart"))) {
@@ -803,11 +803,11 @@ public final class CarbonServerManager implements Controllable {
                     log.info("Halting JVM");
                     System.exit(121);
 
-//                    if (System.getProperty("wrapper.key") != null) { // If Carbon was started using wrapper
-//                        WrapperManager.restart();
-//                    } else {  // If carbon was started using wso2server.sh/.bat
-//                        System.exit(121);
-//                    }
+                    //                    if (System.getProperty("wrapper.key") != null) { // If Carbon was started using wrapper
+                    //                        WrapperManager.restart();
+                    //                    } else {  // If carbon was started using wso2server.sh/.bat
+                    //                        System.exit(121);
+                    //                    }
                 }
             }).start();
         } catch (Exception e) {
@@ -843,7 +843,7 @@ public final class CarbonServerManager implements Controllable {
                 log.error(msg, e);
             }
             CarbonCoreServiceComponent.shutdown();
-//            stopListenerManager();
+            //            stopListenerManager();
             new JMXServerManager().stopJmxService();
             log.info("Shutting down OSGi framework...");
             EclipseStarter.shutdown();
@@ -962,4 +962,3 @@ public final class CarbonServerManager implements Controllable {
     }
 
 }
-
