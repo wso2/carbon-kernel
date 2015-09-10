@@ -38,14 +38,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.security.SecureRandom;
+import java.util.Random;
 
 public class SystemUserRoleManager {
 
     private static Log log = LogFactory.getLog(SystemUserRoleManager.class);
     int tenantId;
     private DataSource dataSource;
-    private static final String SHA_1_PRNG = "SHA1PRNG";
+    private Random random = new Random();
 
     public SystemUserRoleManager(DataSource dataSource, int tenantId) throws UserStoreException {
         super();
@@ -346,15 +346,9 @@ public class SystemUserRoleManager {
             String sqlStmt1 = SystemJDBCConstants.ADD_USER_SQL;
 
             String saltValue = null;
-            try {
-                SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
-                byte[] bytes = new byte[16];
-                //secureRandom is automatically seeded by calling nextBytes
-                secureRandom.nextBytes(bytes);
-                saltValue = Base64.encode(bytes);
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("SHA1PRNG algorithm could not be found.");
-            }
+            byte[] bytes = new byte[16];
+            random.nextBytes(bytes);
+            saltValue = Base64.encode(bytes);
 
             password = this.preparePassword(password, saltValue);
 
