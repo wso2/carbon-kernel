@@ -15,130 +15,130 @@
 -->
 <html>
 <head>
-<meta http-equiv="content-type" content="" />
-<title>WSO2 Carbon ${carbon.version} Release Notes</title>
+	<meta http-equiv="content-type" content="" />
+	<title>WSO2 Carbon ${carbon.version} Release Notes</title>
 </head>
 
 <body>
-	<h1>WSO2 Carbon ${carbon.version} Release Notes</h1>
+<h1>WSO2 Carbon ${carbon.version} Release Notes</h1>
 
-	<h3>${buildNumber}</h3>
+<h3>${buildNumber}</h3>
 
-    <p>WSO2 Carbon redefines middleware by providing an integrated and componentized middleware platform that adapts to
-        the specific needs of any enterprise IT project - on premise or in the cloud. 100% open source and standards-based,
-        WSO2 Carbon enables developers to rapidly orchestrate business processes, compose applications and develop
-        services using WSO2 Developer Studio and a broad range of business and technical services that integrate with
-        legacy, packaged and SaaS applications.</p>
+<p>WSO2 Carbon redefines middleware by providing an integrated and componentized middleware platform that adapts to
+	the specific needs of any enterprise IT project - on premise or in the cloud. 100% open source and standards-based,
+	WSO2 Carbon enables developers to rapidly orchestrate business processes, compose applications and develop
+	services using WSO2 Developer Studio and a broad range of business and technical services that integrate with
+	legacy, packaged and SaaS applications.</p>
 
-	<p>WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the WSO2 Carbon platform. It is a
-        composable server architecture which inherits modularity and dynamism from OSGi framework. WSO2 Carbon kernel
-        can be considered as a framework for server development. All the WSO2 products are composed as a collection
-        reusable components running on this kernel. These products/components inherits all the core services provided by
-        Carbon kernel such as Registry/repository, User management, Transports, Caching, Clustering, Logging, Deployment
-        related features.</p>
+<p>WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the WSO2 Carbon platform. It is a
+	composable server architecture which inherits modularity and dynamism from OSGi framework. WSO2 Carbon kernel
+	can be considered as a framework for server development. All the WSO2 products are composed as a collection
+	reusable components running on this kernel. These products/components inherits all the core services provided by
+	Carbon kernel such as Registry/repository, User management, Transports, Caching, Clustering, Logging, Deployment
+	related features.</p>
 
-	<p>
-		An open source product, WSO2 Carbon is available under the <a
-			target="_blank"
-			href="http://www.apache.org/licenses/LICENSE-2.0.html"> Apache Software License (v2.0) </a>
-	</p>
+<p>
+	An open source product, WSO2 Carbon is available under the <a
+		target="_blank"
+		href="http://www.apache.org/licenses/LICENSE-2.0.html"> Apache Software License (v2.0) </a>
+</p>
 
-	<h2>What's New In This Release</h2>
-	<ul>
-        <li>Java7/Java8 support - the new kernel can now be compiled and run on both Java7 and Java8.</li>
-        <li>Tomcat upgrade - Tomcat is upgraded to version 7.0.59. </li>
-        <li>Tenant Eager Loading - WSO2 Carbon Kernel can now be configured to load specified set of tenants at server start-up.</li>
-	</ul>
+<h2>What's New In This Release</h2>
+<ul>
+	<li>Java7/Java8 support - the new kernel can now be compiled and run on both Java7 and Java8.</li>
+	<li>Tomcat upgrade - Tomcat is upgraded to version 7.0.59. </li>
+	<li>Tenant Eager Loading - WSO2 Carbon Kernel can now be configured to load specified set of tenants at server start-up.</li>
+</ul>
 
-	<h2>Key Features</h2>
-	<ul>
-		<li>Composable Server Architecture - Provides a modular, light-weight, OSGi-based server development framework.</li>
+<h2>Key Features</h2>
+<ul>
+	<li>Composable Server Architecture - Provides a modular, light-weight, OSGi-based server development framework.</li>
 
-		<li>Carbon Application(CApp) deployment support.</li>
+	<li>Carbon Application(CApp) deployment support.</li>
 
-		<li>Multi-Profile Support for Carbon Platform - This enable a single product to run on multiple modes/profiles.</li>
+	<li>Multi-Profile Support for Carbon Platform - This enable a single product to run on multiple modes/profiles.</li>
 
-        <li>Carbon + Tomcat JNDI Context - Provide ability to access both carbon level and tomcat level JNDI resources to
-            applications using a single JNDI context.</li>
+	<li>Carbon + Tomcat JNDI Context - Provide ability to access both carbon level and tomcat level JNDI resources to
+		applications using a single JNDI context.</li>
 
-        <li>Distributed Caching and Clustering functionality - Carbon kernel provides a distributed cache and
-            clustering implementation which is based on Hazelcast- a group communication framework</li>
+	<li>Distributed Caching and Clustering functionality - Carbon kernel provides a distributed cache and
+		clustering implementation which is based on Hazelcast- a group communication framework</li>
 
-		<li>Pluggable Transports Framework - This is based on Axis2 transports module</li>
+	<li>Pluggable Transports Framework - This is based on Axis2 transports module</li>
 
-        <li>Registry/Repository API- Provide core registry/repository API for component developers</li>
+	<li>Registry/Repository API- Provide core registry/repository API for component developers</li>
 
-        <li>User Management API  - Provides a basic user management API for component developers</li>
+	<li>User Management API  - Provides a basic user management API for component developers</li>
 
-        <li>Logging - Carbon kernel supports both Java logging as well as Log4j. Logs from both these sources
-            will be aggregated to a single output</li>
+	<li>Logging - Carbon kernel supports both Java logging as well as Log4j. Logs from both these sources
+		will be aggregated to a single output</li>
 
-        <li>Pluggable artifact deployer framework - Kernel can be extended to deploy any kind of artifacts such as
-            Web services, Web apps, Business processes, Proxy services, User stores etc. </li>
+	<li>Pluggable artifact deployer framework - Kernel can be extended to deploy any kind of artifacts such as
+		Web services, Web apps, Business processes, Proxy services, User stores etc. </li>
 
-        <li>Deployment Synchronization - Provides synchronization of deployed artifacts across a product cluster.</li>
+	<li>Deployment Synchronization - Provides synchronization of deployed artifacts across a product cluster.</li>
 
-        <li>Ghost Deployment - Provides a lazy loading mechanism for deployed artifacts</li>
+	<li>Ghost Deployment - Provides a lazy loading mechanism for deployed artifacts</li>
 
-        <li>Multi-tenancy support - The roots of the multi-tenancy in Carbon platform lies in the Carbon kernel.
-            This feature includes tenant level isolation as well as lazy loading of tenants.</li>
-	</ul>
+	<li>Multi-tenancy support - The roots of the multi-tenancy in Carbon platform lies in the Carbon kernel.
+		This feature includes tenant level isolation as well as lazy loading of tenants.</li>
+</ul>
 
-        <h2>Fixed  Issues</h2>
-        <ol>
-                <li>All fixed issues have been recorded at <a
-                        href="https://wso2.org/jira/issues/?filter=12323" target="_blank">
-                        https://wso2.org/jira/issues/?filter=12181</a>
-                </li>
-        </ol>
+<h2>Fixed  Issues</h2>
+<ol>
+	<li>All fixed issues have been recorded at <a
+			href="https://wso2.org/jira/issues/?filter=12396" target="_blank">
+		https://wso2.org/jira/issues/?filter=12396</a>
+	</li>
+</ol>
 
-	<h2>Known Issues</h2>
-	<ol>
-		<li>All known issues have been recorded at <a
-			href="https://wso2.org/jira/browse/CARBON/fixforversion/11778" target="_blank">
-                        https://wso2.org/jira/browse/CARBON/fixforversion/11778</a>
-		</li>
-	</ol>
+<h2>Known Issues</h2>
+<ol>
+	<li>All known issues have been recorded at <a
+			href="https://wso2.org/jira/browse/CARBON/fixforversion/11816" target="_blank">
+		https://wso2.org/jira/browse/CARBON/fixforversion/11816</a>
+	</li>
+</ol>
 
-	<h2>Reporting Problems</h2>
-	<br /> Issues can be reported using the public JIRA available at
-	<a href="https://wso2.org/jira/browse/CARBON" target="_blank">
-        https://wso2.org/jira/browse/CARBON</a>
+<h2>Reporting Problems</h2>
+<br /> Issues can be reported using the public JIRA available at
+<a href="https://wso2.org/jira/browse/CARBON" target="_blank">
+	https://wso2.org/jira/browse/CARBON</a>
 
-	<h2>Contact us</h2>
-	WSO2 Carbon developers can be contacted via the mailing lists:
-	<br />
-	<strong>Carbon Developers List:</strong>
-	<a href="mailto:dev@wso2.org">dev@wso2.org</a>
-	<br />
-	<strong>Carbon Architecture List:</strong>
-	<a href="mailto:architecture@wso2.org">architecture@wso2.org</a>
-	<br /> For details on subscriptions see
-	<a href="http://wso2.org/mail">http://wso2.org/mail</a>
-	<br />
-	<strong>Wiki:</strong>
-	<a href="http://docs.wso2.org/wiki/display/Carbon440/WSO2+Carbon+Documentation"
-       target="_blank">http://docs.wso2.org/wiki/display/Carbon440/WSO2+Carbon+Documentation</a>
+<h2>Contact us</h2>
+WSO2 Carbon developers can be contacted via the mailing lists:
+<br />
+<strong>Carbon Developers List:</strong>
+<a href="mailto:dev@wso2.org">dev@wso2.org</a>
+<br />
+<strong>Carbon Architecture List:</strong>
+<a href="mailto:architecture@wso2.org">architecture@wso2.org</a>
+<br /> For details on subscriptions see
+<a href="http://wso2.org/mail">http://wso2.org/mail</a>
+<br />
+<strong>Wiki:</strong>
+<a href="http://docs.wso2.org/wiki/display/Carbon440/WSO2+Carbon+Documentation"
+   target="_blank">http://docs.wso2.org/wiki/display/Carbon440/WSO2+Carbon+Documentation</a>
 
-	<h2>Support</h2>
+<h2>Support</h2>
 
-	<p>
-		WSO2 Inc. offers a variety of development and production support
-		programs, ranging from Web-based support up through normal business
-		hours, to premium 24x7 phone support. <br /> <br /> For additional
-		support information please refer to <a target="_blank"
-			href="http://wso2.com/support/">http://wso2.com/support/</a>
-	</p>
+<p>
+	WSO2 Inc. offers a variety of development and production support
+	programs, ranging from Web-based support up through normal business
+	hours, to premium 24x7 phone support. <br /> <br /> For additional
+	support information please refer to <a target="_blank"
+										   href="http://wso2.com/support/">http://wso2.com/support/</a>
+</p>
 
-	<p>	
-		For more information on WSO2 Carbon, visit <a
-			href="http://wso2.com/products/carbon" target="_blank">WSO2 Carbon Home Page</a>
-	</p>
+<p>
+	For more information on WSO2 Carbon, visit <a
+		href="http://wso2.com/products/carbon" target="_blank">WSO2 Carbon Home Page</a>
+</p>
 
-	<p>Thank you for your interest in WSO2 Carbon</p>
-	<strong> <em>-The WSO2 Carbon Team</em>
-	</strong>
-	<hr />
+<p>Thank you for your interest in WSO2 Carbon</p>
+<strong> <em>-The WSO2 Carbon Team</em>
+</strong>
+<hr />
 
 </body>
 </html>
