@@ -36,7 +36,6 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -53,7 +52,6 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Result;
@@ -82,9 +80,6 @@ public class CarbonUtils {
             "org.wso2.carbon.tomcat.ext.transport.ServletTransportManager";
 	private static final String TRUE = "true";
 	private static Log log = LogFactory.getLog(CarbonUtils.class);
-    private static final int ENTITY_EXPANSION_LIMIT = 0;
-    private static final String SECURITY_MANAGER_PROPERTY = org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
-            org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
     private static boolean isServerConfigInitialized;
 
     public static boolean isAdminConsoleEnabled() {
@@ -1064,19 +1059,12 @@ public class CarbonUtils {
      * @throws CarbonException
      */
     public static InputStream replaceSystemVariablesInXml(InputStream xmlConfiguration) throws CarbonException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder;
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder;
         Document doc;
         try {
-            documentBuilderFactory.setNamespaceAware(true);
-            documentBuilderFactory.setExpandEntityReferences(false);
-            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            SecurityManager securityManager = new SecurityManager();
-            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
-            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            documentBuilder.setEntityResolver(new CarbonEntityResolver());
-            doc = documentBuilder.parse(xmlConfiguration);
+            builder = factory.newDocumentBuilder();
+            doc = builder.parse(xmlConfiguration);
         } catch (Exception e) {
             throw new CarbonException("Error in building Document", e);
         }
