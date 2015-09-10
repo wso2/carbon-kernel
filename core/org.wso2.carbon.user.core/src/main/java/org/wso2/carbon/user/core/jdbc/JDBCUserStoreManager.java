@@ -1536,7 +1536,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      * @return Always <code>true<code>.
      */
     public boolean isBulkImportSupported() {
-        return true;
+        return new Boolean(realmConfig.getUserStoreProperty("IsBulkImportSupported"));
     }
 
     public RealmConfiguration getRealmConfiguration() {

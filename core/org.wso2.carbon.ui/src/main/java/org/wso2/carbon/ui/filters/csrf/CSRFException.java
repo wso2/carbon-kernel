@@ -16,25 +16,13 @@
  * under the License.
  */
 
-package org.wso2.carbon.ui.filters;
+package org.wso2.carbon.ui.filters.csrf;
 
-public class CSRFFilterConfig {
-    private boolean enabled;
-    private String skipUrlPattern;
+public final class CSRFException extends SecurityException {
 
-    public boolean isEnabled() {
-        return enabled;
-    }
+    private static final long serialVersionUID = 445462536998242692L;
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public String getSkipUrlPattern() {
-        return skipUrlPattern;
-    }
-
-    public void setSkipUrlPattern(String skipUrlPattern) {
-        this.skipUrlPattern = skipUrlPattern;
+    public CSRFException(String s) {
+        super(s);
     }
 }
