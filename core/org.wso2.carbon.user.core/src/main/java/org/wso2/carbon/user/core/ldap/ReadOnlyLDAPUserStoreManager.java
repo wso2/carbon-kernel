@@ -2628,6 +2628,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      *
      */
     public Date getPasswordExpirationTime(String username) throws UserStoreException {
+
+        if (username != null && username.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+            return super.getPasswordExpirationTime(username);
+        }
+
         return null;
     }
 

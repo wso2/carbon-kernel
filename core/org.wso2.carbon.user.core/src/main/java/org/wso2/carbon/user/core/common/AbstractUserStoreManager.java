@@ -54,6 +54,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2685,6 +2686,25 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
+    }
+
+    /**
+     * Method to get the password expiration time.
+     *
+     * @param userName the user name.
+     *
+     * @return the password expiration time.
+     * @throws UserStoreException throw if the operation failed.
+     */
+    @Override
+    public Date getPasswordExpirationTime(String userName) throws UserStoreException {
+        UserStore userStore = getUserStore(userName);
+
+        if (userStore.isRecurssive()) {
+            return userStore.getUserStoreManager().getPasswordExpirationTime(userStore.getDomainFreeName());
+        }
+
+        return null;
     }
 
     private UserStore getUserStore(final String user) throws UserStoreException {
