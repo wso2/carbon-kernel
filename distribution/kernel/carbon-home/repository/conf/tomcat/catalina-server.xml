@@ -48,11 +48,13 @@
 	optional attributes:
 
 	proxyPort="443"
+	Added sslEnabledProtocols="TLSv1,TLSv1.1,TLSv1.2" for poodle vulnerability fix
     -->
     <Connector  protocol="org.apache.coyote.http11.Http11NioProtocol"
                 port="9443"
                 bindOnInit="false"
                 sslProtocol="TLS"
+                sslEnabledProtocols="TLSv1,TLSv1.1,TLSv1.2"
                 maxHttpHeaderSize="8192"
                 acceptorThreadCount="2"
                 maxThreads="250"
