@@ -1,5 +1,3 @@
-package org.wso2.carbon.utils;
-
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -18,19 +16,20 @@ package org.wso2.carbon.utils;
  * under the License.
  */
 
-        import org.xml.sax.EntityResolver;
-        import org.xml.sax.InputSource;
-        import org.xml.sax.SAXException;
+package org.wso2.carbon.utils.resolver;
 
-        import java.io.IOException;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
 
 public class CarbonEntityResolver implements EntityResolver {
 
     @Override
     public InputSource resolveEntity(String publicId, String systemId) throws SAXException,
-            IOException {
+                                                                              IOException {
         throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
     }
-
 
 }

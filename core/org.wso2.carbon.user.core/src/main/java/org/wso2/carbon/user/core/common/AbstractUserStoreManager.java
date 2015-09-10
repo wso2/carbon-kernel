@@ -449,7 +449,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    protected boolean authenticateInternal(String userName, Object credential, boolean domainProvided)
+    private boolean authenticateInternal(String userName, Object credential, boolean domainProvided)
             throws UserStoreException {
 
         boolean authenticated = false;
@@ -1436,7 +1436,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}
      */
-    public final void updateUserListOfRoleInternal(String roleName, String[] deletedUsers, String[] newUsers)
+    private final void updateUserListOfRoleInternal(String roleName, String[] deletedUsers, String[] newUsers)
             throws UserStoreException {
 
         String primaryDomain = getMyDomainName();
@@ -1549,7 +1549,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     /**
      * {@inheritDoc}
      */
-    public final void updateRoleListOfUserInternal(String userName, String[] deletedRoles, String[] newRoles)
+    private final void updateRoleListOfUserInternal(String userName, String[] deletedRoles, String[] newRoles)
             throws UserStoreException {
 
         String primaryDomain = realmConfig

@@ -58,6 +58,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.security.SecureRandom;
+import java.util.Random;
 
 public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
@@ -71,6 +72,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String SHA_1_PRNG = "SHA1PRNG";
 
     protected DataSource jdbcds = null;
+    protected Random random = new Random();
 
 
     public JDBCUserStoreManager() {

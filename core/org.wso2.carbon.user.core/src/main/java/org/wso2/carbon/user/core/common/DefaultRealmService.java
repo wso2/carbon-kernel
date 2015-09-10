@@ -220,7 +220,7 @@ public class DefaultRealmService implements RealmService {
         }
     }
 
-    public UserRealm getUserRealmInternal(RealmConfiguration tenantRealmConfig) throws UserStoreException {
+    private UserRealm getUserRealmInternal(RealmConfiguration tenantRealmConfig) throws UserStoreException {
         UserRealm userRealm = null;
         int tenantId = tenantRealmConfig.getTenantId();
         if (tenantId == MultitenantConstants.SUPER_TENANT_ID) {
