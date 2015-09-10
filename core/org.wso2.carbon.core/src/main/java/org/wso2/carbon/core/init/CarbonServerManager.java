@@ -494,7 +494,8 @@ public final class CarbonServerManager implements Controllable {
             // schedule the services cleanup task
             if (GhostDeployerUtils.isGhostOn()) {
                 artifactsCleanupExec.scheduleAtFixedRate(genericArtifactUnloader,
-                        CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS, CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS,
+                        CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS,
+                        CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS,
                         TimeUnit.SECONDS);
             }
             
