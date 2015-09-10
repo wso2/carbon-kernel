@@ -439,9 +439,6 @@ public final class CarbonServerManager implements Controllable {
             // This is used inside the sever-admin component.
             serverConfigContext.setProperty(ServerConstants.CARBON_INSTANCE, this);
 
-            multitenantServerManager = new MultitenantServerManager();
-            multitenantServerManager.start(serverConfigContext);
-
             //TODO As a tempory solution this part is added here. But when ui bundle are seperated from the core bundles
             //TODO this should be fixed.
             ServerConfigurationService config = CarbonCoreDataHolder.getInstance().getServerConfigurationService();
@@ -497,8 +494,8 @@ public final class CarbonServerManager implements Controllable {
             // schedule the services cleanup task
             if (GhostDeployerUtils.isGhostOn()) {
                 artifactsCleanupExec.scheduleAtFixedRate(genericArtifactUnloader,
-                        CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS,
-                        CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS, TimeUnit.SECONDS);
+                        CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS, CarbonConstants.SERVICE_CLEANUP_PERIOD_SECS,
+                        TimeUnit.SECONDS);
             }
             
             //Exposing metering.enabled system property. This is needed by the
@@ -518,6 +515,9 @@ public final class CarbonServerManager implements Controllable {
                     new ConfigurationContextService(serverConfigContext,
                             clientConfigContext),
                     null);
+
+            multitenantServerManager = new MultitenantServerManager();
+            multitenantServerManager.start(serverConfigContext);
 
         } catch (Throwable e) {
             log.fatal("WSO2 Carbon initialization Failed", e);
