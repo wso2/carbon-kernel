@@ -25,7 +25,7 @@
         <display-name>Carbon Bridge Servlet</display-name>
         <description>Carbon Bridge Servlet</description>
         <servlet-class>org.wso2.carbon.tomcat.ext.servlet.DelegationServlet</servlet-class>
-       
+
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
@@ -69,5 +69,8 @@
     
      <session-config>
         <session-timeout>15</session-timeout>
+        <cookie-config>
+            <secure>true</secure>
+        </cookie-config>
     </session-config>
 </web-app>
