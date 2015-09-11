@@ -40,7 +40,7 @@ import java.util.Map;
 
 public class DefaultClaimManager implements ClaimManager {
 
-    private static Log log = LogFactory.getLog(DefaultClaimManager.class);
+    private static final Log log = LogFactory.getLog(DefaultClaimManager.class);
     private ClaimManager claimMan = null;
     private DataSource dataSource = null;
     private RealmConfiguration realmConfig = null;
@@ -74,9 +74,9 @@ public class DefaultClaimManager implements ClaimManager {
         try {
             claimConfig = FileBasedClaimBuilder.buildClaimMappingsFromConfigFile();
         } catch (IOException e) {
-            log.error("Could not find claim configuration file ", e);
+            throw new UserStoreException("Could not find claim configuration file", e);
         } catch (XMLStreamException e) {
-            log.error("Error while parsing claim configuration file ", e);
+            throw new UserStoreException("Error while parsing claim configuration file", e);
         }
 
     }

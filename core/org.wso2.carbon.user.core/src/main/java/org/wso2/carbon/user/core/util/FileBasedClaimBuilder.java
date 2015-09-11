@@ -148,7 +148,7 @@ public class FileBasedClaimBuilder {
      * @throws org.wso2.carbon.user.core.UserStoreException
      */
     private static void validateSchema(OMElement claimElement) throws UserStoreException {
-        String message = null;
+        String message;
 
         if (claimElement.getFirstChildWithName(new QName(LOCAL_NAME_CLAIM_URI)) == null) {
             message = "In valid schema <ClaimUri> element not present";
@@ -191,7 +191,6 @@ public class FileBasedClaimBuilder {
         if (claimConfigXml.exists()) {
             inStream = new FileInputStream(claimConfigXml);
         }
-
         String warningMessage = "";
         if (inStream == null) {
             URL url;
@@ -202,9 +201,7 @@ public class FileBasedClaimBuilder {
                     warningMessage = "Bundle context could not find resource " + CLAIM_CONFIG +
                             " or user does not have sufficient permission to access the resource.";
                 }
-
             } else {
-
                 if ((url = FileBasedClaimBuilder.class.getClassLoader().getResource(CLAIM_CONFIG)) != null) {
                     inStream = url.openStream();
                 } else {

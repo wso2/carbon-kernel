@@ -22,7 +22,7 @@ package org.wso2.carbon.user.api;
  * <p/>
  * A claim is a name-value pair
  */
-public interface  ClaimManager {
+public interface ClaimManager {
 
     /**
      * @param domainName
@@ -30,7 +30,7 @@ public interface  ClaimManager {
      * @return
      * @throws UserStoreException
      */
-    public String getAttributeName(String domainName, String claimURI) throws UserStoreException;
+    String getAttributeName(String domainName, String claimURI) throws UserStoreException;
 
     /**
      * The Claim object of the claim URI

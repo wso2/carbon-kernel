@@ -22,33 +22,40 @@ import org.wso2.carbon.user.core.claim.ClaimMapping;
 
 import java.util.Map;
 
+/**
+ * ClaimConfig class used to create ClaimConfig object which is containing claims and properties of those claims. After
+ * reading the claim-config.xml file, which is done inside FileBasedClaimBuilder class. ClaimConfig will be created.
+ */
+
 public class ClaimConfig {
 
     /**
      * contains claim uri as the key and claim mapping of each claim as the value.
      */
-    private Map<String,ClaimMapping> claims;
+    private Map<String, ClaimMapping> claims;
 
     /**
-     *  inside map contains meta data value as the key and value of that meta data as the value (including claim
-     *  dialect info). PropertyHolder map contains that meta data map and the related claim uri as key value.
+     * inside map contains meta data value as the key and value of that meta data as the value (including claim dialect
+     * info). PropertyHolder map contains that meta data map and the related claim uri as key value.
      */
-    private Map<String,Map<String,String>> propertyHolder;
-    public ClaimConfig(){
+    private Map<String, Map<String, String>> propertyHolder;
+
+    public ClaimConfig() {
 
     }
 
     /**
      * Contains the claims and the related meta data info.
-     * @param claims contains claim uri as the key and claim mapping of each claim as the value.
+     *
+     * @param claims         contains claim uri as the key and claim mapping of each claim as the value.
      * @param propertyHolder inside map contains meta data value as the key and value of that meta data as the value
      *                       (including claim dialect info). PropertyHolder map contains that meta data map and the
      *                       related claim uri as key value.
      */
 
-    public ClaimConfig(Map<String, ClaimMapping> claims, Map<String, Map<String, String>> propertyHolder){
-        this.claims =claims;
-        this.propertyHolder=propertyHolder;
+    public ClaimConfig(Map<String, ClaimMapping> claims, Map<String, Map<String, String>> propertyHolder) {
+        this.claims = claims;
+        this.propertyHolder = propertyHolder;
     }
 
     public Map<String, ClaimMapping> getClaims() {
