@@ -40,7 +40,7 @@ public class ServerRestartTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory.getLog(ServerRestartTestCase.class);
     private static final long TIMEOUT = 5 * 60000;
-    private static final long TIMEOUT_ISPORTOPEN = 30 * 1000;
+    private static final long TIMEOUT_ISPORTOPEN = 2 * 60000;
 
     @BeforeClass(alwaysRun = true)
     public void initTests() throws Exception {
