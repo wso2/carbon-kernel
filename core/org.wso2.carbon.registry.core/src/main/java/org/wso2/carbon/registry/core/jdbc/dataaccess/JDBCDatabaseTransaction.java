@@ -1210,8 +1210,7 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                     // If this is the outer connection, then commit all inner connections and then
                     // the outer connection.
                     try {
-                        Map<String, ManagedRegistryConnection> connections =
-                                tCommittedAndRollbackedConnectionMap.get();
+                        Map<String, ManagedRegistryConnection> connections = tCommittedAndRollbackedConnectionMap.get();
                         for (Map.Entry<String, ManagedRegistryConnection> e : connections.entrySet()) {
                             if (e.getValue() != null) {
                                 e.getValue().getConnection().commit();
@@ -1220,8 +1219,8 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                         }
                     } finally {
                         // Clean up list of committed and rollbacked connections.
-                        tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String,
-                                ManagedRegistryConnection>());
+                        tCommittedAndRollbackedConnectionMap.
+                                set(new LinkedHashMap<String, ManagedRegistryConnection>());
                         connection.commit();
                         log.trace("Committed all transactions.");
                     }
