@@ -48,9 +48,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InvalidAttributeIdentifierException;
-import javax.naming.directory.InvalidAttributeValueException;
-import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.sql.DataSource;
@@ -499,7 +496,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     if (role.indexOf("/") > -1) {
                         role = (role.split("/"))[1];
                     }
-                    String grpSearchFilter = searchFilter.replace("?", role);
+                    String grpSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(role));
                     groupResults =
                             searchInGroupBase(grpSearchFilter, returningGroupAttributes,
                                     SearchControls.SUBTREE_SCOPE, mainDirContext,
@@ -750,7 +747,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         searchControls.setReturningAttributes(null);
 
         NamingEnumeration<SearchResult> returnedResultList = null;
-        String returnedUserEntry = "";
+        String returnedUserEntry = null;
 
         try {
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
@@ -883,7 +880,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
-            returnedUserEntry = returnedResultList.next().getName();
+            if(returnedResultList.hasMore()) {
+                returnedUserEntry = returnedResultList.next().getName();
+            }
 
         } catch (NamingException e) {
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
@@ -974,7 +973,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
-            returnedUserEntry = returnedResultList.next().getName();
+            if(returnedResultList.hasMore()) {
+                returnedUserEntry = returnedResultList.next().getName();
+            }
 
         } catch (NamingException e) {
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
@@ -1033,7 +1034,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             returnedResultList = dirContext.search(escapeDNForSearch(userSearchBase), userSearchFilter, searchControls);
             // assume only one user is returned from the search
             // TODO:what if more than one user is returned
-            returnedUserEntry = returnedResultList.next().getName();
+            if(returnedResultList.hasMore()) {
+                returnedUserEntry = returnedResultList.next().getName();
+            }
 
         } catch (NamingException e) {
             String errorMessage = "Results could not be retrieved from the directory context for user : " + userName;
@@ -1231,7 +1234,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     LDAPRoleContext context = (LDAPRoleContext) createRoleContext(deletedRole);
                     deletedRole = context.getRoleName();
                     String searchFilter = context.getSearchFilter();
-                    roleSearchFilter = searchFilter.replace("?", deletedRole);
+                    roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
                     String[] returningAttributes = new String[]{membershipAttribute};
                     String searchBase = context.getSearchBase();
                     NamingEnumeration<SearchResult> groupResults =
@@ -1263,7 +1266,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     String searchFilter = context.getSearchFilter();
 
                     if (isExistingRole(deletedRole)) {
-                        roleSearchFilter = searchFilter.replace("?", deletedRole);
+                        roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(deletedRole));
                         String[] returningAttributes = new String[]{membershipAttribute};
                         String searchBase = context.getSearchBase();
                         NamingEnumeration<SearchResult> groupResults =
@@ -1302,7 +1305,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                     String searchFilter = context.getSearchFilter();
 
                     if (isExistingRole(newRole)) {
-                        roleSearchFilter = searchFilter.replace("?", newRole);
+                        roleSearchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(newRole));
                         String[] returningAttributes = new String[]{membershipAttribute};
                         String searchBase = context.getSearchBase();
 
@@ -1374,7 +1377,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             DirContext mainDirContext = this.connectionSource.getContext();
 
             try {
-                searchFilter = searchFilter.replace("?", roleName);
+                searchFilter = searchFilter.replace("?", escapeSpecialCharactersForFilter(roleName));
                 String membershipAttributeName =
                         realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 String[] returningAttributes = new String[]{membershipAttributeName};
@@ -1632,7 +1635,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         try {
 
-            groupSearchFilter = groupSearchFilter.replace("?", roleName);
+            groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(roleName));
             String[] returningAttributes = {roleNameAttributeName};
             groupSearchResults = searchInGroupBase(groupSearchFilter, returningAttributes,
                     SearchControls.SUBTREE_SCOPE, mainContext, searchBase);
@@ -1686,7 +1689,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
         String roleName = context.getRoleName();
         String groupSearchFilter = ((LDAPRoleContext) context).getSearchFilter();
-        groupSearchFilter = groupSearchFilter.replace("?", context.getRoleName());
+        groupSearchFilter = groupSearchFilter.replace("?", escapeSpecialCharactersForFilter(context.getRoleName()));
         String[] returningAttributes = {((LDAPRoleContext) context).getRoleNameProperty()};
         String searchBase = ((LDAPRoleContext) context).getSearchBase();
 
@@ -1932,43 +1935,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         properties.setOptionalProperties(ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.toArray
                 (new Property[ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.size()]));
         return properties;
-    }
-
-    private void handleException(Exception e, String userName) throws UserStoreException{
-        if (e instanceof InvalidAttributeValueException) {
-            String errorMessage = "One or more attribute values provided are incompatible for user : " + userName
-                                  + "Please check and try again.";
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } else if (e instanceof InvalidAttributeIdentifierException) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                                  + "supported by underlying LDAP for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } else if (e instanceof NoSuchAttributeException) {
-            String errorMessage = "One or more attributes you are trying to add/update are not "
-                                  + "supported by underlying LDAP for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } else if (e instanceof NamingException) {
-            String errorMessage = "Profile information could not be updated in LDAP user store for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        } else if (e instanceof org.wso2.carbon.user.api.UserStoreException) {
-            String errorMessage = "Error in obtaining claim mapping for user : " + userName;
-            if (logger.isDebugEnabled()) {
-                logger.debug(errorMessage, e);
-            }
-            throw new UserStoreException(errorMessage, e);
-        }
     }
 
     /**
