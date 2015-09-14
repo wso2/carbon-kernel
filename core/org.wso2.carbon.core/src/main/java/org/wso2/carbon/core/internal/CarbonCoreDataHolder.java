@@ -48,6 +48,8 @@ public class CarbonCoreDataHolder {
     private  ConfigurationContext mainServerConfigContext;
     private  ServerConfigurationService serverConfigurationService;
     private TenantRegistryLoader tenantRegistryLoader;
+
+    //using a CopyOnWriteArrayList to safeguard the list write operations it is used by CarbonDeploymentSchedulerTask threads
     private  List<DeploymentSynchronizer> deploymentSynchronizers = new CopyOnWriteArrayList<DeploymentSynchronizer>();
 
     private List<CoordinatedActivity> coordinatedActivities = new ArrayList<CoordinatedActivity>() ;
