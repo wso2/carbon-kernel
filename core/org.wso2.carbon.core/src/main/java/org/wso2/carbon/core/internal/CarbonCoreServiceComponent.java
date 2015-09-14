@@ -26,12 +26,14 @@ import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
+import org.wso2.carbon.core.deployment.DeploymentSynchronizer;
 import org.wso2.carbon.core.init.CarbonServerManager;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
+import org.wso2.carbon.utils.deployment.GhostMetaArtifactsLoader;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
@@ -61,7 +63,9 @@ import java.util.List;
  * cardinality="0..n" policy="dynamic"  bind="addServerStartupObserver" unbind="removeServerStartupObserver"
  * @scr.reference name="carbonCoreInitializedEventService" interface="org.wso2.carbon.context.CarbonCoreInitializedEvent"
  * cardinality="1..1" policy="dynamic"  bind="setCarbonCoreInitializedEventService" unbind="unsetCarbonCoreInitializedEventService"
-  */
+ * @scr.reference name="carbonDeploymentSynchronizerService" interface="org.wso2.carbon.core.deployment.DeploymentSynchronizer"
+ * cardinality="0..n" policy="dynamic"  bind="setDeploymentSynchronizer" unbind="unsetDeploymentSynchronizer"
+ */
 public class CarbonCoreServiceComponent {
 
     private static Log log = LogFactory.getLog(CarbonCoreServiceComponent.class);
@@ -248,4 +252,13 @@ public class CarbonCoreServiceComponent {
     protected void unsetCarbonCoreInitializedEventService(CarbonCoreInitializedEvent carbonCoreInitializedEvent){}
 
     protected void setCarbonCoreInitializedEventService(CarbonCoreInitializedEvent carbonCoreInitializedEventService){}
+
+    protected void setDeploymentSynchronizer(DeploymentSynchronizer deploymentSynchronizer) {
+        CarbonCoreDataHolder.getInstance().addDeploymentSynchronizer(deploymentSynchronizer);
+    }
+
+    protected void unsetDeploymentSynchronizer(DeploymentSynchronizer deploymentSynchronizer) {
+        CarbonCoreDataHolder.getInstance().removeDeploymentSynchronizer(deploymentSynchronizer);
+    }
+
 }

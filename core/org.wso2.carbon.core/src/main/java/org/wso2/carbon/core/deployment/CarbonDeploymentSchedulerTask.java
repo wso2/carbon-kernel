@@ -25,17 +25,14 @@ import org.apache.axis2.deployment.scheduler.SchedulerTask;
 import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.deployment.GhostDeployerUtils;
-import org.wso2.carbon.utils.deployment.GhostMetaArtifactsLoader;
 import org.wso2.carbon.utils.multitenancy.MultitenantUtils;
 
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -91,39 +88,6 @@ public class CarbonDeploymentSchedulerTask extends SchedulerTask {
         carbonContext.setTenantDomain(tenantDomain);
         carbonContext.setApplicationName(null);
         super.run();
-        // this should run for tenants only
-        if (GhostDeployerUtils.isGhostOn() && GhostDeployerUtils.isPartialUpdateEnabled() &&
-                CarbonUtils.isWorkerNode() && tenantId > 0) {
-            doInitialGhostArtifactDeployement();
-        }
-    }
-
-    private void doInitialGhostArtifactDeployement() {
-        BundleContext bundleContext = CarbonCoreDataHolder.getInstance().getBundleContext();
-        ServiceReference reference = bundleContext.getServiceReference(GhostMetaArtifactsLoader.class.getName());
-        if (reference != null) {
-            ServiceTracker serviceTracker = new ServiceTracker(bundleContext,
-                                                               GhostMetaArtifactsLoader.class.getName(),
-                                                               null);
-            try {
-                serviceTracker.open();
-                for (Object obj : serviceTracker.getServices()) {
-                    GhostMetaArtifactsLoader artifactsLoader = (GhostMetaArtifactsLoader) obj;
-                    if(log.isDebugEnabled()){
-                        if(artifactsLoader.getClass().toString().contains("Service")) {
-                            log.debug("Loading ghost service meta artifacts for tenant: " + tenantDomain);
-                        } else if(artifactsLoader.getClass().toString().contains("Webapp")) {
-                            log.debug("Loading ghost webapp meta artifacts for tenant: " + tenantDomain);
-                        }
-                    }
-                    artifactsLoader.loadArtifacts(axisConfig, tenantDomain);
-                }
-            } catch (Throwable t) {
-                log.error("Ghost meta artifacts loading for tenant " + tenantId + " failed", t);
-            } finally {
-                serviceTracker.close();
-            }
-        }
     }
 
     @Override
@@ -155,39 +119,29 @@ public class CarbonDeploymentSchedulerTask extends SchedulerTask {
         if (log.isDebugEnabled()) {
             log.debug("Running deployment synchronizer update... tenant : " + tenantDomain);
         }
-        BundleContext bundleContext = CarbonCoreDataHolder.getInstance().getBundleContext();
-        if(bundleContext == null){
-            return;
-        }
-        ServiceReference reference = bundleContext.getServiceReference(DeploymentSynchronizer.class.getName());
-        if (reference != null) {
-            ServiceTracker serviceTracker = new ServiceTracker(bundleContext,
-                    DeploymentSynchronizer.class.getName(),
-                    null);
-            try {
-                serviceTracker.open();
-                for (Object obj : serviceTracker.getServices()) {
-                    DeploymentSynchronizer depsync = (DeploymentSynchronizer) obj;
-                    boolean repoUpdateRequired = isRepoUpdateRequired();
-                    if (!isInitialUpdateDone || isRepoUpdateFailed || repoUpdateRequired) {
-                        // Check if this is a partial update request
-                        if (GhostDeployerUtils.isGhostOn() && GhostDeployerUtils.isPartialUpdateEnabled() &&
+
+        List<DeploymentSynchronizer> deploymentSynchronizers = CarbonCoreDataHolder.getInstance().
+                getDeploymentSynchronizers();
+
+        try {
+            for (DeploymentSynchronizer depsync : deploymentSynchronizers) {
+                boolean repoUpdateRequired = isRepoUpdateRequired();
+                if (!isInitialUpdateDone || isRepoUpdateFailed || repoUpdateRequired) {
+                    // Check if this is a partial update request
+                    if (GhostDeployerUtils.isGhostOn() && GhostDeployerUtils.isPartialUpdateEnabled() &&
                             CarbonUtils.isWorkerNode() && tenantId > 0 && repoUpdateRequired) {
-                            String repoPath = MultitenantUtils.getAxis2RepositoryPath(tenantId);
-                            depsync.update(repoPath, repoPath, 3);
-                        } else { // do the normal update
-                            depsync.update(tenantId);
-                        }
-                        isInitialUpdateDone = true;
-                        isRepoUpdateFailed = false;
+                        String repoPath = MultitenantUtils.getAxis2RepositoryPath(tenantId);
+                        depsync.update(repoPath, repoPath, 3);
+                    } else { // do the normal update
+                        depsync.update(tenantId);
                     }
+                    isInitialUpdateDone = true;
+                    isRepoUpdateFailed = false;
                 }
-            } catch (Exception e) {
-                log.error("Deployment synchronization update for tenant " + tenantId + " failed", e);
-                setRepoUpdateFailed();
-            } finally {
-                serviceTracker.close();
             }
+        } catch (Exception e) {
+            log.error("Deployment synchronization update for tenant " + tenantId + " failed", e);
+            setRepoUpdateFailed();
         }
     }
 
@@ -285,26 +239,18 @@ public class CarbonDeploymentSchedulerTask extends SchedulerTask {
             log.debug("Running deployment synchronizer commit... tenant : " + tenantDomain);
         }
         boolean isFilesCommitted = false;
-        BundleContext bundleContext = CarbonCoreDataHolder.getInstance().getBundleContext();
-        ServiceReference reference = bundleContext.getServiceReference(DeploymentSynchronizer.class.getName());
-        if (reference != null) {
-            ServiceTracker serviceTracker = new ServiceTracker(bundleContext,
-                    DeploymentSynchronizer.class.getName(),
-                    null);
-            try {
-                serviceTracker.open();
-                for (Object obj : serviceTracker.getServices()) {
-                    DeploymentSynchronizer depsync = (DeploymentSynchronizer) obj;
-                    isFilesCommitted = depsync.commit(tenantId);
-                    if (isFilesCommitted) {
-                        break;
-                    }
+        List<DeploymentSynchronizer> deploymentSynchronizers = CarbonCoreDataHolder.getInstance().
+                getDeploymentSynchronizers();
+
+        try {
+            for (DeploymentSynchronizer depsync : deploymentSynchronizers) {
+                isFilesCommitted = depsync.commit(tenantId);
+                if (isFilesCommitted) {
+                    break;
                 }
-            } catch (Exception e) {
-                log.error("Deployment synchronization commit for tenant " + tenantId + " failed", e);
-            } finally {
-                serviceTracker.close();
             }
+        } catch (Exception e) {
+            log.error("Deployment synchronization commit for tenant " + tenantId + " failed", e);
         }
         return isFilesCommitted;
     }

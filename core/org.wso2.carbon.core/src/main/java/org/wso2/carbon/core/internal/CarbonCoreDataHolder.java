@@ -22,13 +22,16 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.http.HttpService;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.core.deployment.DeploymentSynchronizer;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
 
 import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This singleton data holder contains all the data required by the Carbon core OSGi bundle
@@ -45,6 +48,7 @@ public class CarbonCoreDataHolder {
     private  ConfigurationContext mainServerConfigContext;
     private  ServerConfigurationService serverConfigurationService;
     private TenantRegistryLoader tenantRegistryLoader;
+    private  List<DeploymentSynchronizer> deploymentSynchronizers = new CopyOnWriteArrayList<DeploymentSynchronizer>();
 
     private List<CoordinatedActivity> coordinatedActivities = new ArrayList<CoordinatedActivity>() ;
 
@@ -153,5 +157,17 @@ public class CarbonCoreDataHolder {
 
     public List<CoordinatedActivity> getCoordinatedActivities() {
         return coordinatedActivities ;
+    }
+
+    public List<DeploymentSynchronizer> getDeploymentSynchronizers() {
+        return deploymentSynchronizers;
+    }
+
+    public void addDeploymentSynchronizer(DeploymentSynchronizer deploymentSynchronizer) {
+        deploymentSynchronizers.add(deploymentSynchronizer);
+    }
+
+    public void removeDeploymentSynchronizer(DeploymentSynchronizer deploymentSynchronizer) {
+        deploymentSynchronizers.remove(deploymentSynchronizer);
     }
 }
