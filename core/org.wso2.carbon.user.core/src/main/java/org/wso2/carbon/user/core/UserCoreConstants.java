@@ -30,7 +30,6 @@ public class UserCoreConstants {
     public static final short BEHAVIOUR_HIDDEN = 1;
     public static final short BEHAVIOUR_OVERRIDDEN = 2;
 
-    public static final String INTERNAL_USERSTORE = "INTERNAL";
     public static final String EXTERNAL_USERSTORE = "External";
 
     public static final String DELEGATING_REALM = "Delegating";
