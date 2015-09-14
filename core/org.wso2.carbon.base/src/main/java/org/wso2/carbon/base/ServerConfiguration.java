@@ -467,6 +467,8 @@ public class ServerConfiguration implements ServerConfigurationService {
 				outputStream.toByteArray());
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		//Prevent expanding external entity reference nodes
+		factory.setExpandEntityReferences(false);
 		factory.setNamespaceAware(true);
 		return factory.newDocumentBuilder().parse(inputStream)
 				.getDocumentElement();

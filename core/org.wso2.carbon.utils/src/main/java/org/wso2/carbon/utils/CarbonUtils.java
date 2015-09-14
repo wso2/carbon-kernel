@@ -36,6 +36,8 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.util.*;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -49,9 +51,13 @@ import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.context.PrivilegedCarbonContext;
 import org.wso2.carbon.utils.component.xml.config.DeployerConfig;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Result;
@@ -78,6 +84,9 @@ public class CarbonUtils {
     private static final String REPOSITORY = "repository";
     private static final String TRANSPORT_MANAGER =
             "org.wso2.carbon.tomcat.ext.transport.ServletTransportManager";
+    private static final int ENTITY_EXPANSION_LIMIT = 0;
+    private static final String SECURITY_MANAGER_PROPERTY = org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
+            org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
 	private static final String TRUE = "true";
 	private static Log log = LogFactory.getLog(CarbonUtils.class);
     private static boolean isServerConfigInitialized;
@@ -1063,6 +1072,21 @@ public class CarbonUtils {
         DocumentBuilder builder;
         Document doc;
         try {
+
+            factory.setNamespaceAware(true);
+            factory.setExpandEntityReferences(false);
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            org.apache.xerces.util.SecurityManager securityManager = new SecurityManager();
+            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
+            factory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
+            builder = factory.newDocumentBuilder();
+            builder.setEntityResolver(new EntityResolver() {
+                @Override
+                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+                    throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
+                }
+            });
+
             builder = factory.newDocumentBuilder();
             doc = builder.parse(xmlConfiguration);
         } catch (Exception e) {
