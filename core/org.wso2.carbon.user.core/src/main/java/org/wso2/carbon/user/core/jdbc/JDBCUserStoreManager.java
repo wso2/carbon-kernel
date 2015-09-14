@@ -2235,6 +2235,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      *
      */
     public Date getPasswordExpirationTime(String userName) throws UserStoreException {
+
+        if (userName != null && userName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+            return super.getPasswordExpirationTime(userName);
+        }
+
         Connection dbConnection = null;
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
