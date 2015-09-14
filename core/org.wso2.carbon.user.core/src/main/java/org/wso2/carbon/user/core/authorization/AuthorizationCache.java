@@ -335,9 +335,7 @@ public class AuthorizationCache {
                             (UserCoreUtil.extractDomainFromName(username));
                     String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
                             .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
-                    if (isUsernameCaseInsensitiveString != null) {
-                        return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
-                    }
+                    return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
                 }
             } catch (UserStoreException e) {
                 if (log.isDebugEnabled()) {

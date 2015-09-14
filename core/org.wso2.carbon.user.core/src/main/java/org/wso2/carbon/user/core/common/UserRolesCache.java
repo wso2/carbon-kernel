@@ -93,9 +93,9 @@ public class UserRolesCache {
         if (isCacheNull(cache)) {
             return;
         }
-        if (!isCaseSensitiveUsername(userName, tenantId)){
-                        userName = userName.toLowerCase();
-                    }
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
+            userName = userName.toLowerCase();
+        }
         //create cache key
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
         //create cache entry
@@ -158,7 +158,7 @@ public class UserRolesCache {
     }
 
 
-    private boolean isCaseSensitiveUsername(String username, int tenantId){
+    private boolean isCaseSensitiveUsername(String username, int tenantId) {
 
         if (UserStoreMgtDSComponent.getRealmService() != null) {
             //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
@@ -171,9 +171,8 @@ public class UserRolesCache {
                             (UserCoreUtil.extractDomainFromName(username));
                     String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
                             .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
-                    if (isUsernameCaseInsensitiveString != null) {
-                        return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
-                    }
+                    return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
+
                 }
 
             } catch (UserStoreException e) {

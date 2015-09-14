@@ -726,11 +726,7 @@ public class HybridRoleManager {
     private boolean isCaseSensitiveUsername() throws UserStoreException{
 
         String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
-        if (isUsernameCaseInsensitiveString != null) {
-            return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
-        } else {
-            return true;
-        }
+        return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
     }
 
 }
