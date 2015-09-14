@@ -89,13 +89,6 @@
         </file>
 
         <file>
-            <source>carbon-home/repository/conf/etc/launch.ini</source>
-            <outputDirectory>webapp-mode/WEB-INF/eclipse</outputDirectory>
-            <fileMode>644</fileMode>
-        </file>
-
-
-        <file>
             <source>carbon-home/bin/wso2carbon-version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <fileMode>644</fileMode>
@@ -149,19 +142,6 @@
             </outputDirectory>
             <includes>
                 <include>org.apache.axis2:addressing:mar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>webapp-mode/WEB-INF/lib</outputDirectory>
-            <includes>
-                <include>org.wso2.carbon:org.wso2.carbon.bridge:jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>webapp-mode/bundles</outputDirectory>
-            <includes>
-                <include>org.wso2.carbon:org.wso2.carbon.servletbridge:jar</include>
-                <include>org.wso2.carbon:org.wso2.carbon.http.bridge:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
