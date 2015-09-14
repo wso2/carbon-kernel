@@ -141,7 +141,7 @@
                 <include>org.wso2.carbon:org.wso2.carbon.server:jar</include>
                 <include>org.wso2.carbon:org.wso2.carbon.logging:jar</include>
                 <include>commons-lang.wso2:commons-lang:jar</include>
- 		        <include>ant-contrib:ant-contrib:jar</include>
+                <include>ant-contrib:ant-contrib:jar</include>
                 <include>xerces.wso2:xercesImpl:jar</include>
             </includes>
         </dependencySet>
