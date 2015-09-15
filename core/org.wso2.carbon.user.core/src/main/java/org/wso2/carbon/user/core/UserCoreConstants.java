@@ -30,7 +30,6 @@ public class UserCoreConstants {
     public static final short BEHAVIOUR_HIDDEN = 1;
     public static final short BEHAVIOUR_OVERRIDDEN = 2;
 
-    public static final String INTERNAL_USERSTORE = "Internal";
     public static final String EXTERNAL_USERSTORE = "External";
 
     public static final String DELEGATING_REALM = "Delegating";
@@ -54,7 +53,7 @@ public class UserCoreConstants {
     public static final int MAX_USER_ROLE_LIST = 100;
     public static final int MAX_SEARCH_TIME = 10000;   // ms
 
-    public static final String INTERNAL_DOMAIN = "Internal";
+    public static final String INTERNAL_DOMAIN = "INTERNAL";
     public static final String APPLICATION_DOMAIN = "Application";
     public static final String PRIMARY_DEFAULT_DOMAIN_NAME = "PRIMARY";
     public static final String SYSTEM_DOMAIN_NAME = "SYSTEM";

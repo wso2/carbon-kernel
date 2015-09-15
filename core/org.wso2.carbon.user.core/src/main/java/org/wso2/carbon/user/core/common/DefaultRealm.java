@@ -441,7 +441,7 @@ public class DefaultRealm implements UserRealm {
         } else {
             try {
                 claimMappings.putAll(claimBuilder.buildClaimMappingsFromDatabase(dataSource,
-                        UserCoreConstants.INTERNAL_USERSTORE));
+                        UserCoreConstants.INTERNAL_DOMAIN));
             } catch (ClaimBuilderException e) {
                 String msg = "Error in building claims.";
                 if (log.isDebugEnabled()) {
