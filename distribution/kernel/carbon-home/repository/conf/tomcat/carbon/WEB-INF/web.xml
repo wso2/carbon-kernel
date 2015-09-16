@@ -50,6 +50,13 @@
         </init-param>
     </filter>
 
+    <!-- This filter sanitizes CR(\r) and LF(\n) characters in response headers centrally -->
+    <!-- and avoids response splitting vulnerability  -->
+    <filter>
+        <filter-name>CRLFPreventionFilter</filter-name>
+        <filter-class>org.wso2.carbon.ui.filters.CRLFPreventionFilter</filter-class>
+    </filter>
+
     <!--This filter prevents CSRF vulnerabilities in POST requests with CSRF Token validation-->
     <filter>
         <filter-name>CSRFPreventionFilter</filter-name>
@@ -58,6 +65,12 @@
 
     <filter-mapping>
         <filter-name>CharsetFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- The mapping for the CRLFPreventionFilter -->
+    <filter-mapping>
+        <filter-name>CRLFPreventionFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
