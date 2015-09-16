@@ -253,9 +253,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         searchControl.setReturningAttributes(returningAttributes);
         searchControl.setSearchScope(SearchControls.SUBTREE_SCOPE);
         DirContext subDirContext = null;
+        NamingEnumeration<SearchResult> searchResults = null;
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
-            NamingEnumeration<SearchResult> searchResults = dirContext.search(escapeDNForSearch(searchBase),
+            searchResults = dirContext.search(escapeDNForSearch(searchBase),
                     searchFilter, searchControl);
             SearchResult user = null;
             int count = 0;
@@ -305,6 +306,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             }
             throw new UserStoreException(error, e);
         } finally {
+            JNDIUtil.closeNamingEnumeration(searchResults);
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
@@ -331,9 +333,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         searchControl.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
         DirContext subDirContext = null;
+        NamingEnumeration<SearchResult> searchResults = null;
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
-            NamingEnumeration<SearchResult> searchResults = dirContext.search(escapeDNForSearch(searchBase),
+            searchResults = dirContext.search(escapeDNForSearch(searchBase),
                     searchFilter, searchControl);
             SearchResult user = null;
             int count = 0;
@@ -375,6 +378,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             }
             throw new UserStoreException(error, e);
         } finally {
+            JNDIUtil.closeNamingEnumeration(searchResults);
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
