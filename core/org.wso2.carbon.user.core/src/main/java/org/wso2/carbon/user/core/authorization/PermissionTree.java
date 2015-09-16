@@ -1057,22 +1057,20 @@ public class PermissionTree {
         return dbConnection;
     }
 
-    private boolean isCaseSensitiveUsername(String username, int tenantId){
+    private boolean isCaseSensitiveUsername(String username, int tenantId) {
 
         if (UserStoreMgtDSComponent.getRealmService() != null) {
             //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
             //as an example when running the unit tests.
             try {
-                UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
-                        .getTenantUserRealm(tenantId).getUserStoreManager();
-                UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                        (UserCoreUtil.extractDomainFromName(username));
-                String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
-                        .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
-                if (isUsernameCaseInsensitiveString != null) {
+                if (UserStoreMgtDSComponent.getRealmService().getTenantUserRealm(tenantId) != null) {
+                    UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
+                            .getTenantUserRealm(tenantId).getUserStoreManager();
+                    UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
+                            (UserCoreUtil.extractDomainFromName(username));
+                    String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
+                            .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
                     return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
-                } else {
-                    return true;
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
                 if (log.isDebugEnabled()) {
