@@ -2276,7 +2276,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     if (debug) {
                                         log.debug("Found user: " + name);
                                     }
-                                    name = UserCoreUtil.addDomainToName(name,
+                                    domain = UserCoreUtil.addDomainToName(name,
                                             domain);
                                     names.add(name);
                                 }
