@@ -14,9 +14,9 @@
     <url>http://wso2.org</url>
 
     <modules>
-        <module>org.wso2.carbon.student.mgt.feature</module>
         <module>org.wso2.carbon.student.mgt.server.feature</module>
         <module>org.wso2.carbon.student.mgt.ui.feature</module>
+        <module>org.wso2.carbon.student.mgt.feature</module>
     </modules>
 
 
