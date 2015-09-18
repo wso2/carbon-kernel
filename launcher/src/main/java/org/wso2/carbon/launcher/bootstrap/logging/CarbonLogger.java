@@ -24,6 +24,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.StreamHandler;
@@ -37,7 +38,7 @@ public class CarbonLogger {
     private static final String CARBON_BOOTSTRAP_LOG = "wso2carbon.log";
 
     public static synchronized Handler getDefaultHandler() throws IOException {
-        String logFilename = Utils.getRepositoryDir() + File.separator + "logs" + File.separator + CARBON_BOOTSTRAP_LOG;
+        String logFilename = Paths.get(Utils.getRepositoryDir(), "logs", CARBON_BOOTSTRAP_LOG).toString();
         return new CarbonLogger.SimpleFileHandler(new File(logFilename));
 
     }
