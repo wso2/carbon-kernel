@@ -2503,42 +2503,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     }
 
     /**
-     * @param password
-     * @param saltValue
-     * @return
-     * @throws UserStoreException
-     */
-    @Deprecated
-    protected String preparePassword(String password, String saltValue) throws UserStoreException {
-        try {
-            String digestInput = password;
-            if (saltValue != null) {
-                digestInput = password + saltValue;
-            }
-            String digsestFunction = realmConfig.getUserStoreProperties().get(
-                    JDBCRealmConstants.DIGEST_FUNCTION);
-            if (digsestFunction != null) {
-
-                if (digsestFunction
-                        .equals(UserCoreConstants.RealmConfig.PASSWORD_HASH_METHOD_PLAIN_TEXT)) {
-                    return password;
-                }
-
-                MessageDigest dgst = MessageDigest.getInstance(digsestFunction);
-                byte[] byteValue = dgst.digest(digestInput.getBytes());
-                password = Base64.encode(byteValue);
-            }
-            return password;
-        } catch (NoSuchAlgorithmException e) {
-            String msg = "Error occurred while preparing password.";
-            if (log.isDebugEnabled()) {
-                log.debug(msg, e);
-            }
-            throw new UserStoreException(msg, e);
-        }
-    }
-
-    /**
      * Prepare the password including the salt, and hashes if hash algorithm is provided
      *
      * @param password original password value

@@ -342,7 +342,7 @@ public class SystemUserRoleManager {
                               String[] roleList) throws UserStoreException {
 
         Connection dbConnection = null;
-        Secret credentialObj = null;
+        Secret credentialObj;
         try {
             credentialObj = Secret.getSecret(credential);
         } catch (UnsupportedSecretTypeException e) {

@@ -215,16 +215,6 @@ public class LDAPConnectionContext {
 
     }
 
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public void updateCredential(String connectionPassword) {
-        /*
-         * update the password otherwise it is not possible to connect again if admin password
-         * changed
-         */
-        this.environment.put(Context.SECURITY_CREDENTIALS, connectionPassword);
-    }
-
     /**
      * Updates the connection password
      *
@@ -318,22 +308,6 @@ public class LDAPConnectionContext {
             ldapURL = "ldaps://" + srvRecord.getHostIP() + ":" + srvRecord.getPort();
         }
         return ldapURL;
-    }
-
-    @Deprecated
-    public LdapContext getContextWithCredentials(String userDN, String password)
-            throws UserStoreException, NamingException, AuthenticationException {
-
-        //create a temp env for this particular authentication session by copying the original env
-        Hashtable<String, String> tempEnv = new Hashtable<String, String>();
-        for (Object key : environment.keySet()) {
-            tempEnv.put((String) key, (String) environment.get(key));
-        }
-        //replace connection name and password with the passed credentials to this method
-        tempEnv.put(Context.SECURITY_PRINCIPAL, userDN);
-        tempEnv.put(Context.SECURITY_CREDENTIALS, password);
-
-        return getContextForEnvironmentVariables(tempEnv);
     }
 
     /**

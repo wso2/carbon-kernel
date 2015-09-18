@@ -513,12 +513,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     }
                 }
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
-            String errorMessage = "Error while trying to check Tenant status for Tenant : " + tenantId;
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage, e);
+                String errorMessage = "Error while trying to check Tenant status for Tenant : " + tenantId;
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage, e);
+                }
+                throw new UserStoreException(errorMessage, e);
             }
-            throw new UserStoreException(errorMessage, e);
-        }
 
             // We are here due to two reason. Either there is no secondary UserStoreManager or no
             // domain name provided with user name.
@@ -813,15 +813,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
-            Class argTypes[] = new Class[]{String.class, Object.class, Object.class};
-            callSecure("updateCredential", new Object[]{userName, newCredential, oldCredential}, argTypes);
+            Class argTypes[] = new Class[] { String.class, Object.class, Object.class };
+            callSecure("updateCredential", new Object[] { userName, newCredential, oldCredential }, argTypes);
             return;
         }
 
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager().updateCredential(userStore.getDomainFreeName(),
-                    newCredential, oldCredential);
+                                                             newCredential, oldCredential);
             return;
         }
 
@@ -871,22 +871,22 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             // We directly authenticate user against the selected UserStoreManager.
             boolean isAuth = this.doAuthenticate(userName, oldCredentialObj);
 
-        if (isAuth) {
-            if (!checkUserPasswordValid(newCredential)) {
+            if (isAuth) {
+                if (!checkUserPasswordValid(newCredential)) {
 
-                String errorMsg = realmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+                    String errorMsg = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
 
-                if (errorMsg != null) {
-                    throw new UserStoreException(errorMsg);
+                    if (errorMsg != null) {
+                        throw new UserStoreException(errorMsg);
+                    }
+
+                    throw new UserStoreException(
+                            "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
                 }
-
-                throw new UserStoreException(
-                        "Credential not valid. Credential must be a non null string with following format, "
-                                + realmConfig
-                                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
-
-            }
 
                 this.doUpdateCredential(userName, newCredentialObj, oldCredentialObj);
 
@@ -905,13 +905,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
                 // #################### </Listeners> ##################################################
 
-            return;
-        } else {
-            String errorMessage = "Old credential does not match with the existing credentials.";
-            if (log.isDebugEnabled()) {
-                log.debug(errorMessage);
+                return;
+            } else {
+                String errorMessage = "Old credential does not match with the existing credentials.";
+                if (log.isDebugEnabled()) {
+                    log.debug(errorMessage);
+                }
+                throw new UserStoreException(errorMessage);
+
             }
-            throw new UserStoreException(errorMessage);
         } finally {
             newCredentialObj.clear();
             oldCredentialObj.clear();
@@ -965,27 +967,26 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
             }
 
+            if (!checkUserPasswordValid(newCredential)) {
+                String errorMsg = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
 
-        if (!checkUserPasswordValid(newCredential)) {
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+                if (errorMsg != null) {
+                    throw new UserStoreException(errorMsg);
+                }
 
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
+                throw new UserStoreException(
+                        "Credential not valid. Credential must be a non null string with following format, "
+                        + realmConfig
+                                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
             }
 
-            throw new UserStoreException(
-                    "Credential not valid. Credential must be a non null string with following format, "
-                            + realmConfig
-                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+            if (!doCheckExistingUser(userStore.getDomainFreeName())) {
+                throw new UserStoreException("User " + userName + " does not exisit in the user store");
+            }
 
-        }
-
-        if (!doCheckExistingUser(userStore.getDomainFreeName())) {
-            throw new UserStoreException("User " + userName + " does not exisit in the user store");
-        }
-
-        doUpdateCredentialByAdmin(userName, newCredential);
+            doUpdateCredentialByAdmin(userName, newCredential);
 
             // #################### <Listeners> #####################################################
             for (UserOperationEventListener listener : UMListenerServiceComponent.getUserOperationEventListeners()) {
@@ -1439,61 +1440,60 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
             // #################### </Listeners> #####################################################
 
-
             if (!checkUserNameValid(userStore.getDomainFreeName())) {
-            String message = "Username " + userStore.getDomainFreeName() + " is not valid. User name must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
+                String message = "Username " + userStore.getDomainFreeName() +
+                                 " is not valid. User name must be a non null string with following format, ";
+                String errorMsg = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
 
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
+                if (errorMsg != null) {
+                    throw new UserStoreException(errorMsg);
+                }
+
+                String regEx = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+                throw new UserStoreException(message + regEx);
             }
 
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
+            if (!checkUserPasswordValid(credential)) {
+                String message = "Credential not valid. Credential must be a non null string with following format, ";
+                String errorMsg = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
 
-        if (!checkUserPasswordValid(credential)) {
-            String message = "Credential not valid. Credential must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
+                if (errorMsg != null) {
+                    throw new UserStoreException(errorMsg);
+                }
+                String regEx = realmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
+                throw new UserStoreException(message + regEx);
             }
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
 
-        if (doCheckExistingUser(userStore.getDomainFreeName())) {
-            throw new UserStoreException("Username '" + userName
-                    + "' already exists in the system. Please pick another username.");
-        }
+            if (doCheckExistingUser(userStore.getDomainFreeName())) {
+                throw new UserStoreException("Username '" + userName
+                                             + "' already exists in the system. Please pick another username.");
+            }
 
-
-        List<String> internalRoles = new ArrayList<String>();
-        List<String> externalRoles = new ArrayList<String>();
-        int index;
-        if (roleList != null) {
-            for (String role : roleList) {
-                if (role != null && role.trim().length() > 0) {
-                    index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
-                    if (index > 0) {
-                        String domain = role.substring(0, index);
-                        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                            internalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                            continue;
-                        } else if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
-                            internalRoles.add(role);
-                            continue;
+            List<String> internalRoles = new ArrayList<String>();
+            List<String> externalRoles = new ArrayList<String>();
+            int index;
+            if (roleList != null) {
+                for (String role : roleList) {
+                    if (role != null && role.trim().length() > 0) {
+                        index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
+                        if (index > 0) {
+                            String domain = role.substring(0, index);
+                            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                                internalRoles.add(UserCoreUtil.removeDomainFromName(role));
+                                continue;
+                            } else if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                                internalRoles.add(role);
+                                continue;
+                            }
                         }
+                        externalRoles.add(UserCoreUtil.removeDomainFromName(role));
                     }
-                    externalRoles.add(UserCoreUtil.removeDomainFromName(role));
                 }
             }
-        }
 
             // check existance of roles and claims before user is adding
             for (String internalRole : internalRoles) {
