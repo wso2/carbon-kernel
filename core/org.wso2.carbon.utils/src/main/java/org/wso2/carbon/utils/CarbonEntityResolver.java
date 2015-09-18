@@ -16,6 +16,7 @@
  * under the License.
  */
 package org.wso2.carbon.utils;
+
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
