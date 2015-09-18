@@ -41,12 +41,7 @@ public class TenantRuntimeOSGiTest {
 
     @Inject
     private BundleContext bundleContext;
-
-    //TODO - validate the best practise
-    @Inject
-    private CarbonRuntime carbonRuntime22;
-
-
+    
     @Test
     public void testTenantRuntimeServiceStatus() {
 
