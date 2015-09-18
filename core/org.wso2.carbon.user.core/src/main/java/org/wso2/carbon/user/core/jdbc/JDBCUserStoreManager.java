@@ -77,7 +77,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
     private static final char SQL_FILTER_CHAR_ESCAPE = '\\';
-    private static final String SHA_1_PRNG = "SHA1PRNG";
     protected DataSource jdbcds = null;
     protected Random random = new Random();
 
@@ -2287,7 +2286,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private String generateSaltValue() {
         String saltValue = null;
         try {
-            SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+            SecureRandom secureRandom = SecureRandom.getInstance(UserCoreConstants.SHA_1_PRNG);
             byte[] bytes = new byte[16];
             //secureRandom is automatically seeded by calling nextBytes
             secureRandom.nextBytes(bytes);

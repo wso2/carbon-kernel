@@ -99,6 +99,8 @@ public class UserCoreConstants {
     public static final String USER_LOCKED = "true";
     public static final String USER_UNLOCKED = "false";
 
+    public static final String SHA_1_PRNG = "SHA1PRNG";
+
     public static final class RealmConfig {
         public static final String LOCAL_NAME_USER_MANAGER = "UserManager";
         public static final String LOCAL_NAME_REALM = "Realm";

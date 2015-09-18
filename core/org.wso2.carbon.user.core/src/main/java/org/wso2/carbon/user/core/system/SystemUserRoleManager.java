@@ -46,7 +46,6 @@ public class SystemUserRoleManager {
     private static Log log = LogFactory.getLog(SystemUserRoleManager.class);
     int tenantId;
     private DataSource dataSource;
-    private static final String SHA_1_PRNG = "SHA1PRNG";
     private Random random = new Random();
     public SystemUserRoleManager(DataSource dataSource, int tenantId) throws UserStoreException {
         super();
@@ -348,7 +347,7 @@ public class SystemUserRoleManager {
 
             String saltValue = null;
             try {
-                SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+                SecureRandom secureRandom = SecureRandom.getInstance(UserCoreConstants.SHA_1_PRNG);
                 byte[] bytes = new byte[16];
                 //secureRandom is automatically seeded by calling nextBytes
                 secureRandom.nextBytes(bytes);
