@@ -75,6 +75,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
     private static final String USER_NOT_FOUND = "UserNotFound";
+    private static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -831,6 +832,22 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (isAuth) {
 
+            if (!checkUserPasswordValid(newCredential)) {
+                String errorMsg = realmConfig
+                        .getUserStoreProperty(PROPERTY_PASSWORD_ERROR_MSG);
+
+                if (errorMsg != null) {
+                    throw new UserStoreException(errorMsg);
+                }
+
+                throw new UserStoreException(
+                        "Credential not valid. Credential must be a non null string with following format, "
+                                + realmConfig
+                                .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
+            }
+
+
             this.doUpdateCredential(userName, newCredential, oldCredential);
 
             // #################### <Listeners> ##################################################
@@ -901,6 +918,26 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### </Listeners> #####################################################
 
         doUpdateCredentialByAdmin(userName, newCredential);
+
+        if (!checkUserPasswordValid(newCredential)) {
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
+            throw new UserStoreException(
+                    "Credential not valid. Credential must be a non null string with following format, "
+                            + realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
+
+        }
+
+        if (!doCheckExistingUser(userStore.getDomainFreeName())) {
+            throw new UserStoreException("User " + userName + " does not exisit in the user store");
+        }
+
 
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
@@ -1315,6 +1352,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!checkUserPasswordValid(credential)) {
             String message = "Credential not valid. Credential must be a non null string with following format, ";
+            String errorMsg = realmConfig.getUserStoreProperty(PROPERTY_PASSWORD_ERROR_MSG);
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
             throw new UserStoreException(message + regEx);
@@ -3218,14 +3259,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String regularExpression = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-
-        if (MultitenantUtils.isEmailUserName()) {
-            regularExpression = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_WITH_EMAIL_JS_REG_EX);
-            if (regularExpression == null) {
-                regularExpression = UserCoreConstants.RealmConfig.EMAIL_VALIDATION_REGEX;
-            }
-        }
 
         if (regularExpression != null) {
             regularExpression = regularExpression.trim();
