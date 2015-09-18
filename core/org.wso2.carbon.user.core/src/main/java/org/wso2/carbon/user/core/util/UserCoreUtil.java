@@ -313,21 +313,47 @@ public final class UserCoreUtil {
      * @return
      * @throws UserStoreException
      */
-    public static char[] getPolicyFriendlyRandomPassword(String username) throws UserStoreException {
+    @Deprecated
+    public static String getPolicyFriendlyRandomPassword(String username) throws UserStoreException {
         return getPolicyFriendlyRandomPassword(username, 8);
+    }
+
+    /**
+     * This method generates a random password that adhere to most of the password policies defined by various LDAPs
+     * such as AD, ApacheDS 2.0 etc.
+     *
+     * @param username username of the end user
+     * @return random password generated as a character array
+     * @throws UserStoreException
+     */
+    public static char[] getPolicyFriendlyRandomPasswordInChars(String username) throws UserStoreException {
+        return getPolicyFriendlyRandomPasswordInChars(username, 8);
     }
 
     /**
      * This method generates a random password that adhere to most of the password policies defined
      * by various LDAPs such as AD, ApacheDS 2.0 etc
      *
-     * @param username
-     * @param length
-     * @return password
+     * @param username username of the end user
+     * @param length   length of the generating password
+     * @return random password as a String
      * @throws UserStoreException
      */
-    public static char[] getPolicyFriendlyRandomPassword(String username, int length)
-            throws UserStoreException {
+    @Deprecated
+    public static String getPolicyFriendlyRandomPassword(String username, int length) throws UserStoreException {
+        return new String(getPolicyFriendlyRandomPasswordInChars(username, length));
+    }
+
+    /**
+     * This method generates a random password that adhere to most of the password policies defined
+     * by various LDAPs such as AD, ApacheDS 2.0 etc
+     *
+     * @param username username of the end user
+     * @param length length of the generating password
+     * @return random password as a character array
+     * @throws UserStoreException
+     */
+    public static char[] getPolicyFriendlyRandomPasswordInChars(String username, int length) throws UserStoreException {
 
         if (length < 8 || length > 50) {
             length = 12;

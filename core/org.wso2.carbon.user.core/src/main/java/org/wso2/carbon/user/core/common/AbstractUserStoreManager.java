@@ -3304,7 +3304,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (!systemUserRoleManager.isExistingSystemUser(systemUser)) {
             systemUserRoleManager.addSystemUser(systemUser,
-                    UserCoreUtil.getPolicyFriendlyRandomPassword(systemUser), null);
+                    UserCoreUtil.getPolicyFriendlyRandomPasswordInChars(systemUser), null);
         }
 
         if (!systemUserRoleManager.isExistingRole(systemRole)) {
