@@ -49,7 +49,13 @@ import javax.naming.directory.NoSuchAttributeException;
 import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.*;
+import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -71,7 +77,6 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
     private static final char SQL_FILTER_CHAR_ESCAPE = '\\';
-
     protected DataSource jdbcds = null;
     protected Random random = new Random();
 
@@ -1285,9 +1290,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
             if ("true".equalsIgnoreCase(realmConfig.getUserStoreProperties()
                     .get(JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
-                byte[] bytes = new byte[16];
-                random.nextBytes(bytes);
-                saltValue = Base64.encode(bytes);
+                saltValue = generateSaltValue();
             }
 
             password = this.preparePassword(password, saltValue);
@@ -2202,9 +2205,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         String saltValue = null;
         if ("true".equalsIgnoreCase(realmConfig.getUserStoreProperties().get(
                 JDBCRealmConstants.STORE_SALTED_PASSWORDS))) {
-            byte[] bytes = new byte[16];
-            random.nextBytes(bytes);
-            saltValue = Base64.encode(bytes);
+            saltValue = generateSaltValue();
         }
 
         String password = this.preparePassword((String) newCredential, saltValue);
@@ -2277,6 +2278,24 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
         return date;
     }
 
+    /**
+     * This private method returns a saltValue using SecureRandom.
+     *
+     * @return saltValue
+     */
+    private String generateSaltValue() {
+        String saltValue = null;
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance(UserCoreConstants.SHA_1_PRNG);
+            byte[] bytes = new byte[16];
+            //secureRandom is automatically seeded by calling nextBytes
+            secureRandom.nextBytes(bytes);
+            saltValue = Base64.encode(bytes);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA1PRNG algorithm could not be found.");
+        }
+        return saltValue;
+    }
     /**
      * @param dbConnection
      * @param sqlStmt
