@@ -235,7 +235,7 @@ public final class CarbonUILoginUtil {
         try {
             authenticator = (CarbonUIAuthenticator) session
                     .getAttribute(CarbonSecuredHttpContext.CARBON_AUTHNETICATOR);
-            if (authenticator != null && authenticated) {
+            if (authenticator != null) {
                 authenticator.unauthenticate(request);
                 log.debug("Backend session invalidated");
             }
@@ -368,9 +368,12 @@ public final class CarbonUILoginUtil {
 //        	}
 
             String relayState = request.getParameter("RelayState");
-            if (relayState != null && relayState.endsWith("-logout")) {
-                session.setAttribute("logged-user", request.getParameter("username"));
-                response.sendRedirect("/carbon/admin/logout_action.jsp");
+            String idpSessionIndex = request.getParameter("idpSessionIndex");
+            if (relayState != null && relayState.endsWith("-logout")
+                    && idpSessionIndex != null && !"".equals(idpSessionIndex)) {
+                session.setAttribute(CarbonSecuredHttpContext.LOGGED_USER, request.getParameter("username"));
+                session.setAttribute("idpSessionIndex", idpSessionIndex);
+                response.sendRedirect("/carbon/sso-acs/redirect_ajaxprocessor.jsp?logout=true");
                 return false;
             }
 
@@ -428,6 +431,12 @@ public final class CarbonUILoginUtil {
 				if (log.isDebugEnabled()) {
 					log.debug("Security check failed for login request for " + userName);
 				}
+                return false;
+            }
+
+            if (relayState != null && relayState.endsWith("-logout")) {
+                session.setAttribute(CarbonSecuredHttpContext.LOGGED_USER, request.getParameter("username"));
+                response.sendRedirect("/carbon/admin/logout_action.jsp");
                 return false;
             }
 
