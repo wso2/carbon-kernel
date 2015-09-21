@@ -413,4 +413,9 @@ public final class CarbonConstants {
     // parameter to indicate whether HTTP access to Admin Console is enabled
     public static final String ENABLE_HTTP_ADMIN_CONSOLE = "EnableHTTPAdminConsole";
 
+    public static final String SECURITY_MANAGER_PROPERTY = org.apache.xerces.impl.Constants.XERCES_PROPERTY_PREFIX +
+            org.apache.xerces.impl.Constants.SECURITY_MANAGER_PROPERTY;
+
+    public static final int ENTITY_EXPANSION_LIMIT_0 = 0;
+
 }
