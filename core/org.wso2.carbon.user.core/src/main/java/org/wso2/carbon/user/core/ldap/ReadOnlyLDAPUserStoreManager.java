@@ -377,7 +377,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 for (String userDNPattern : userDNPatternList) {
                     name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                     // check if the same name is found and checked from cache
-                    if(failedUserDN!=null && failedUserDN.equals(name)){
+                    if(failedUserDN!=null && failedUserDN.equalsIgnoreCase(name)){
                         continue;
                     }
 
