@@ -525,10 +525,10 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            DatabaseUtil.updateDatabase(dbConnection,
+/*            DatabaseUtil.updateDatabase(dbConnection,
                     HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId,
                     tenantId);
-            dbConnection.commit();
+            dbConnection.commit();*/
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
                     roleName, tenantId);
             dbConnection.commit();
