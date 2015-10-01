@@ -203,10 +203,10 @@ public class RDBMSDataSourceUtils {
 		props.setDefaultCatalog(config.getDefaultCatalog());
 		props.setDriverClassName(config.getDriverClassName());
 		String username = config.getUsername();
-		if (null != username && !("").equals(username)) {
+		if (null != username && !username.isEmpty()) {
 			props.setUsername(username);
 			String password = config.getPassword();
-			if (null != password && !("").equals(password)) {
+			if (null != password && !password.isEmpty()) {
 				props.setPassword(password);
 			}
 		}
