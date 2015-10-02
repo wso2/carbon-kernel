@@ -3592,6 +3592,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         String adminUserName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminUserName());
         String adminRoleName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminRoleName());
+        String adminPassword = UserCoreUtil.removeDomainFromName(realmConfig.getAdminPassword());
         boolean userExist = false;
         boolean roleExist = false;
         boolean isInternalRole = false;
@@ -3633,6 +3634,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     log.error(message);
                 }
             } else if (addAdmin) {
+                if (!checkUserNameValid(adminUserName)) {
+                    String message = "Username " + adminUserName + " is not valid. User name must be a non null " +
+                            "string with following format, ";
+                    throw new UserStoreException(message);
+                }
+
+                if (!checkUserPasswordValid(adminPassword)) {
+                    String message = "Credential not valid. Credential must be a non null string with following format, ";
+                    String regEx = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
+                    throw new UserStoreException(message + regEx);
+                }
                 try {
                     this.doAddUser(adminUserName, realmConfig.getAdminPassword(),
                             null, null, null, false);
