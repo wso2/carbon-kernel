@@ -3693,33 +3693,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 isInternalRole = true;
             }
         }
-        if (!checkUserNameValid(adminUserName)) {
-            String message = INVALID_USER_NAME + "Username " + adminUserName + " is not valid. User name must be a non null " +
-                    "string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
-
-        if (!checkUserPasswordValid(adminPassword)) {
-            String message = "Credential not valid. Credential must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
 
         try {
             userExist = doCheckExistingUser(adminUserName);
@@ -3738,6 +3711,33 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     log.error(message);
                 }
             } else if (addAdmin) {
+                if (!checkUserNameValid(adminUserName)) {
+                    String message = INVALID_USER_NAME + "Username " + adminUserName + " is not valid. User name must be a non null " +
+                            "string with following format, ";
+                    String errorMsg = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
+
+                    if (errorMsg != null) {
+                        throw new UserStoreException(errorMsg);
+                    }
+
+                    String regEx = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+                    throw new UserStoreException(message + regEx);
+                }
+
+                if (!checkUserPasswordValid(adminPassword)) {
+                    String message = "Credential not valid. Credential must be a non null string with following format, ";
+                    String errorMsg = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+                    if (errorMsg != null) {
+                        throw new UserStoreException(errorMsg);
+                    }
+                    String regEx = realmConfig
+                            .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
+                    throw new UserStoreException(message + regEx);
+                }
                 try {
                     this.doAddUser(adminUserName, realmConfig.getAdminPassword(),
                             null, null, null, false);
