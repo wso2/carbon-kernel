@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.common;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -35,6 +36,7 @@ import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
+import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
@@ -72,6 +74,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
     private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
+    private static final String USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
     private static final String USER_NOT_FOUND = "UserNotFound";
@@ -718,10 +721,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (index > 0) {
             String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
             extractedDomain = names[0].trim();
+        } else {
+            extractedDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
+
+        UserStoreManager userManager = getSecondaryUserStoreManager(extractedDomain);
+        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) && userManager
+                instanceof JDBCUserStoreManager) {
+            if (userManager.isExistingUser(claimValue)) {
+                return new String[]{claimValue};
+            } else {
+                return new String[]{};
+            }
+        }
+
         claimValue = UserCoreUtil.removeDomainFromName(claimValue);
         //if domain is present, then we search within that domain only
-        if (extractedDomain != null && !extractedDomain.isEmpty()) {
+        if (!extractedDomain.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
             try{
                 property = claimManager.getAttributeName(extractedDomain, claim);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
