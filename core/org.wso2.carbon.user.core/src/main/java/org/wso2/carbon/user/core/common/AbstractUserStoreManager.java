@@ -72,7 +72,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected static final String FALSE_VALUE = "false";
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
-    private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
     public static final String USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
     private static final String USER_NOT_FOUND = "UserNotFound";
     private static final String EXISTING_USER = "UserAlreadyExisting";
