@@ -74,7 +74,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
     private static final String DISAPLAY_NAME_CLAIM = "http://wso2.org/claims/displayName";
-    public static final String USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
+    private static final String USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
     private static final String USER_NOT_FOUND = "UserNotFound";
@@ -737,8 +737,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         claimValue = UserCoreUtil.removeDomainFromName(claimValue);
         //if domain is present, then we search within that domain only
-        if (extractedDomain != null && !extractedDomain.isEmpty() && !extractedDomain.equals(UserCoreConstants
-                .PRIMARY_DEFAULT_DOMAIN_NAME)) {
+        if (!extractedDomain.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
             try{
                 property = claimManager.getAttributeName(extractedDomain, claim);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
