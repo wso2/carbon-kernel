@@ -154,9 +154,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		 */
 
         connectionSource = new LDAPConnectionContext(realmConfig);
-
+        DirContext dirContext = null;
         try {
-            connectionSource.getContext();
+            dirContext = connectionSource.getContext();
             if (this.isReadOnly()) {
                 log.info("LDAP connection created successfully in read-only mode");
             }
@@ -167,7 +167,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
+
         this.userRealm = realm;
         this.persistDomain();
         doInitialSetup();
@@ -380,7 +383,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 for (String userDNPattern : userDNPatternList) {
                     name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                     // check if the same name is found and checked from cache
-                    if(failedUserDN!=null && failedUserDN.equals(name)){
+                    if(failedUserDN!=null && failedUserDN.equalsIgnoreCase(name)){
                         continue;
                     }
 
@@ -1853,7 +1856,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     } else {
                         // create DN directly   but there is no way when multiple DNs are used. Need to improve letter
                         String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-                        if (userDNPattern != null & !"".equals(userDNPattern) && !userDNPattern.contains("#")) {
+                        if (userDNPattern != null & userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
 
                             searchBase = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                         }
@@ -1892,7 +1895,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
                 String nameInSpace;
-                if (userDNPattern != null && !"".equals(userDNPattern) && !userDNPattern.contains("#")) {
+                if (userDNPattern != null && userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
 
                     nameInSpace = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                 } else {
@@ -2458,7 +2461,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     // create DN directly   but there is no way when multiple DNs are used. Need to improve letter
                     String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-                    if (userDNPattern != null && !userDNPattern.contains("#")) {
+                    if (userDNPattern != null && userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
                         searchBases = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                     }
                 }
@@ -2511,7 +2514,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
             String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
             String nameInSpace;
-            if (userDNPattern != null && !userDNPattern.contains("#")) {
+            if (userDNPattern != null && userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
                 nameInSpace = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
             } else {
                 nameInSpace = this.getNameInSpaceForUserName(userName);
@@ -2628,6 +2631,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      *
      */
     public Date getPasswordExpirationTime(String username) throws UserStoreException {
+
+        if (username != null && username.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+            return super.getPasswordExpirationTime(username);
+        }
+
         return null;
     }
 
@@ -2823,8 +2831,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
         String[] returnedAttributes = {groupNameAttribute};
         List<String> groupNameAttributeValues = new ArrayList<String>();
+        DirContext dirContext = null;
         try {
-            DirContext dirContext = this.connectionSource.getContext();
+            dirContext = this.connectionSource.getContext();
 
             for (String group : groupDNs) {
                 if (debug) {
@@ -2854,6 +2863,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
         return groupNameAttributeValues;
     }

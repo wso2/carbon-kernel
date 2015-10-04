@@ -29,6 +29,7 @@ import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
 import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,15 +39,14 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.security.SecureRandom;
+import java.util.Random;
 
 public class SystemUserRoleManager {
 
     private static Log log = LogFactory.getLog(SystemUserRoleManager.class);
     int tenantId;
     private DataSource dataSource;
-    private static final String SHA_1_PRNG = "SHA1PRNG";
-
+    private Random random = new Random();
     public SystemUserRoleManager(DataSource dataSource, int tenantId) throws UserStoreException {
         super();
         this.dataSource = dataSource;
@@ -347,7 +347,7 @@ public class SystemUserRoleManager {
 
             String saltValue = null;
             try {
-                SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+                SecureRandom secureRandom = SecureRandom.getInstance(UserCoreConstants.SHA_1_PRNG);
                 byte[] bytes = new byte[16];
                 //secureRandom is automatically seeded by calling nextBytes
                 secureRandom.nextBytes(bytes);

@@ -433,8 +433,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                                        .getElementQName());
             mainOutMsgContext.getAxisService().addSchema(tenantOutMsgContext.getAxisService().getSchema());
             mainOutMsgContext.setEnvelope(tenantOutMsgContext.getEnvelope());
-	    mainOutMsgContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
-                                      tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
+    	    mainOutMsgContext.setProperty(Constants.Configuration.MESSAGE_TYPE,
+                                          tenantOutMsgContext.getProperty(Constants.Configuration.MESSAGE_TYPE));
             try {
                 AxisEngine.send(mainOutMsgContext);
             } finally {

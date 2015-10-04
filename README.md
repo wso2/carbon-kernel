@@ -28,7 +28,9 @@ WSO2 Carbon kernel, the lean, modular, OSGi-based platform, is the base of the W
 ##How to Contribute
 
 * WSO2 Carbon kernel code is hosted in [GitHub](https://github.com/wso2/carbon4-kernel/).
-* Please report issues at [Carbon JIRA](https://wso2.org/jira/browse/CARBON) and Send your pull requests to [development branch](https://github.com/wso2/carbon4-kernel/tree/development).
+* Please report issues at [Carbon JIRA](https://wso2.org/jira/browse/CARBON) and Send your pull requests to
+* [patch release branch](https://github.com/wso2/carbon4-kernel/tree/4.4.x)
+* [master branch 4.5.0](https://github.com/wso2/carbon4-kernel).
 
 ##Contact us
 
