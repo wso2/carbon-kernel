@@ -65,59 +65,59 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 		RDBMSConfiguration rdbmsConfiguration = loadConfig(xmlConfiguration);
 		DataSource dataSource = new RDBMSDataSource(rdbmsConfiguration).getDataSource();
 		Connection connection = null;
-        	try {
-            	    Class.forName(rdbmsConfiguration.getDriverClassName());
-	            if (rdbmsConfiguration.getUsername() != null) {
-	                connection = DriverManager.getConnection(rdbmsConfiguration.getUrl(), rdbmsConfiguration.getUsername(),
-	                                                         rdbmsConfiguration.getPassword());
-	            } else {
-	                connection = DriverManager.getConnection(rdbmsConfiguration.getUrl());
-	            }
-                } catch (ClassNotFoundException e) {
-                    throw new DataSourceException("Error loading Driver class:" + e.getMessage(), e);
-                } catch (SQLException e) {
-                    if (e.getSQLState().equals("08001")) {
-                        throw new DataSourceException("The data source URL is not accepted by any of the loaded drivers. " +
-                                                      e.getMessage(), e);
-                    } else if(e.getSQLState().equals("28000")) {
-                        throw new DataSourceException("The user is not associated with a trusted SQL Server connection." +
-                                                      e.getMessage(), e);
-                    } else {
-                        throw new DataSourceException("Error establishing data source connection: " + e.getMessage(), e);
-                    }
-                } finally {
-	            if (connection != null) {
-	                try {
-	                    connection.close();
-	                } catch (SQLException e) {
-	                    // ignore
-	                }
-	            }
-                }
-                try {
-	            connection = dataSource.getConnection();
-	        } catch (SQLException e) {
-	            throw new DataSourceException("Error establishing data source connection: " + e.getMessage(), e);
-	        }
-                if (connection != null) {
-                    String validationQuery = rdbmsConfiguration.getValidationQuery();
-                    if (validationQuery != null && !validationQuery.isEmpty()) {
-        	        PreparedStatement ps = null;
-                        try {
-                            ps = connection.prepareStatement(validationQuery.trim());
-                            ps.execute();
-                            ps.close();
-                        } catch (SQLException e) {
-	                    throw new DataSourceException("Error during executing validation query: " + e.getMessage(), e);
-                        }
-	            }
-                    try {
-		        connection.close();
-	            } catch (SQLException ignored) {
-
-	            }
-                }
- 	        return true;
+		try {
+			Class.forName(rdbmsConfiguration.getDriverClassName());
+			if (rdbmsConfiguration.getUsername() != null) {
+				connection = DriverManager.getConnection(rdbmsConfiguration.getUrl(), rdbmsConfiguration.getUsername(),
+				                                         rdbmsConfiguration.getPassword());
+			} else {
+				connection = DriverManager.getConnection(rdbmsConfiguration.getUrl());
+			}
+		} catch (ClassNotFoundException e) {
+			throw new DataSourceException("Error loading Driver class:" + e.getMessage(), e);
+		} catch (SQLException e) {
+			if (e.getSQLState().equals(RDBMSDataSourceConstants.NO_SUITABLE_DRIVER_FOUND)) {
+				throw new DataSourceException("The data source URL is not accepted by any of the loaded drivers. " +
+				                              e.getMessage(), e);
+			} else if (e.getSQLState().equals(RDBMSDataSourceConstants.ACCESS_DENIED)) {
+				throw new DataSourceException("The user is not associated with a trusted SQL Server connection." +
+				                              e.getMessage(), e);
+			} else {
+				throw new DataSourceException("Error establishing data source connection: " + e.getMessage(), e);
+			}
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					// ignore
+				}
+			}
+		}
+		try {
+			connection = dataSource.getConnection();
+		} catch (SQLException e) {
+			throw new DataSourceException("Error establishing data source connection: " + e.getMessage(), e);
+		}
+		if (connection != null) {
+			String validationQuery = rdbmsConfiguration.getValidationQuery();
+			if (validationQuery != null && !validationQuery.isEmpty()) {
+				PreparedStatement ps = null;
+				try {
+					ps = connection.prepareStatement(validationQuery.trim());
+					ps.execute();
+					ps.close();
+				} catch (SQLException e) {
+					throw new DataSourceException("Error during executing validation query: " + e.getMessage(), e);
+				} finally {
+					try {
+						connection.close();
+					} catch (SQLException ignored) {
+						//ignore
+					}
+				}
+			}
+		}
+		return true;
 	}
-
 }
