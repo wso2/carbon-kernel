@@ -1858,14 +1858,24 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     // get DNs of the groups to which this user belongs
                     List<String> groupDNs = this.getListOfNames(searchBase, searchFilter,
                             searchCtls, memberOfProperty, false);
-					/*
+                    List<LdapName> groups = new ArrayList<>();
+                    for (String groupDN : groupDNs) {
+                        try {
+                            groups.add(new LdapName(groupDN));
+                        } catch (InvalidNameException e) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("LDAP Name error :", e);
+                            }
+                        }
+                    }
+                    /*
 					 * to be compatible with AD as well, we need to do a search
 					 * over the groups and
 					 * find those groups' attribute value defined for group name
 					 * attribute and
 					 * return
 					 */
-                    list = this.getGroupNameAttributeValuesOfGroups(groupDNs);
+                    list = this.getGroupNameAttributeValuesOfGroups(groups);
                 }
             } else {
 
@@ -2820,13 +2830,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return false;
     }
 
+    private boolean isInSearchBase(LdapName name, LdapName searchBase) {
+        List<Rdn> baseRdns = searchBase.getRdns();
+        return name.endsWith(baseRdns);
+    }
 
     /**
      * @param groupDNs
      * @return
      * @throws UserStoreException
      */
-    private List<String> getGroupNameAttributeValuesOfGroups(List<String> groupDNs)
+    private List<String> getGroupNameAttributeValuesOfGroups(List<LdapName> groupDNs)
             throws UserStoreException {
         log.debug("GetGroupNameAttributeValuesOfGroups with DN");
         boolean debug = log.isDebugEnabled();
@@ -2839,10 +2853,20 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         try {
             DirContext dirContext = this.connectionSource.getContext();
 
-            for (String group : groupDNs) {
+            for (LdapName group : groupDNs) {
+                if (!isInSearchBase(group, new LdapName(groupSearchBase))) {
+                    continue;
+                }
                 if (debug) {
                     log.debug("Using DN: " + group);
                 }
+                /* check to see if the required attribute can be retrieved by the DN itself */
+                Rdn rdn = group.getRdn(group.getRdns().size() - 1);
+                if (rdn.getType().equalsIgnoreCase(groupNameAttribute)) {
+                    groupNameAttributeValues.add(rdn.getValue().toString());
+                    continue;
+                }
+
                 Attributes groupAttributes = dirContext.getAttributes(group, returnedAttributes);
                 if (groupAttributes != null) {
                     Attribute groupAttribute = groupAttributes.get(groupNameAttribute);
