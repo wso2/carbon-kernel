@@ -1146,19 +1146,24 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
             if (tManagedConnectionMap != null && tManagedConnectionMap.get() != null) {
                 ManagedRegistryConnection mrc = tManagedConnectionMap.get().get(
                         RegistryUtils.getConnectionId(connection));
-                if (mrc != null && reinstate) {
-                    if (tClosedConnectionMap != null && tClosedConnectionMap.get() != null &&
-                            tClosedConnectionMap.get().get(
-                                    RegistryUtils.getConnectionId(connection)) != null) {
-                        tClosedConnectionMap.get().put(
-                                RegistryUtils.getConnectionId(connection), null);
+                if (mrc != null) {
+                    if (RegistryUtils.getConnectionId(mrc) == null) {
+                        //if a connection's ID returns null
+                        //then that connection is not suitable for reusing
+                        return null;
                     }
-                    if (tCommittedAndRollbackedConnectionMap != null &&
-                            tCommittedAndRollbackedConnectionMap.get() != null &&
-                            tCommittedAndRollbackedConnectionMap.get().get(
-                                    RegistryUtils.getConnectionId(connection)) != null) {
-                        tCommittedAndRollbackedConnectionMap.get().put(
-                                RegistryUtils.getConnectionId(connection), null);
+                    if (reinstate) {
+                        if (tClosedConnectionMap != null && tClosedConnectionMap.get() != null &&
+                                tClosedConnectionMap.get().get(RegistryUtils.getConnectionId(connection)) != null) {
+                            tClosedConnectionMap.get().put(RegistryUtils.getConnectionId(connection), null);
+                        }
+                        if (tCommittedAndRollbackedConnectionMap != null &&
+                                tCommittedAndRollbackedConnectionMap.get() != null &&
+                                tCommittedAndRollbackedConnectionMap.get().
+                                        get(RegistryUtils.getConnectionId(connection)) != null) {
+                            tCommittedAndRollbackedConnectionMap.get().
+                                    put(RegistryUtils.getConnectionId(connection), null);
+                        }
                     }
                 }
                 return mrc;
@@ -1222,8 +1227,8 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                         tCommittedAndRollbackedConnectionMap.
                                 set(new LinkedHashMap<String, ManagedRegistryConnection>());
                         connection.commit();
-                        log.trace("Committed all transactions.");
                     }
+                    log.trace("Committed all transactions.");
                 } else if (tManagedConnectionMap.get().size() <
                         getConnectionCount(tCommittedAndRollbackedConnectionMap.get())) {
                     throw new SQLException("Total number of available connections are less than " +
@@ -1277,11 +1282,14 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                 } finally {
                     // Clean up list of committed and rollbacked connections.
                     tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String, ManagedRegistryConnection>());
-                    connection.rollback();
-                    // Clear the flag after rollback
-                    tRollbackedConnection.set(false);
-                    log.trace("Rolled back all transactions.");
+                    try {
+                        connection.rollback();
+                    } finally {
+                        // Clear the flag after rollback
+                        tRollbackedConnection.set(false);
+                    }
                 }
+                log.trace("Rolled back all transactions.");
             } else if (tManagedConnectionMap.get().size() <
                     getConnectionCount(tCommittedAndRollbackedConnectionMap.get())) {
                 throw new SQLException("Total number of available connections are less than the " +
