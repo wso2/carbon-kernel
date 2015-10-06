@@ -3802,9 +3802,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         doInitialUserAdding();
     }
 
-    private void validateUsernamePassword(String adminUserName, Object adminPassword) throws UserStoreException {
-        if (!checkUserNameValid(adminUserName)) {
-            String message = INVALID_USER_NAME + "Username " + adminUserName + " is not valid. User name must be a non null " +
+    private void validateUsernamePassword(String userName, Object password) throws UserStoreException {
+        if (!checkUserNameValid(userName)) {
+            String message = INVALID_USER_NAME + "Username " + userName + " is not valid. User name must be a non null " +
                     "string with following format, ";
             String errorMsg = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
@@ -3818,7 +3818,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException(message + regEx);
         }
 
-        if (!checkUserPasswordValid(adminPassword)) {
+        if (!checkUserPasswordValid(password)) {
             String message = "Credential not valid. Credential must be a non null string with following format, ";
             String errorMsg = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
