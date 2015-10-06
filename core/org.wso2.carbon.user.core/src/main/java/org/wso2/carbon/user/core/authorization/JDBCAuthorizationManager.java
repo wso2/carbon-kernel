@@ -466,10 +466,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         Connection dbConnection = null;
         try {
             dbConnection = getDBConnection();
-            /*DatabaseUtil.updateDatabase(dbConnection,
-                    DBConstants.ON_DELETE_PERMISSION_UM_ROLE_PERMISSIONS_SQL, resourceId, tenantId);
-            DatabaseUtil.updateDatabase(dbConnection,
-                    DBConstants.ON_DELETE_PERMISSION_UM_USER_PERMISSIONS_SQL, resourceId, tenantId);*/
             DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_PERMISSION_SQL,
                     resourceId, tenantId);
             permissionTree.clearResourceAuthorizations(resourceId);
@@ -922,7 +918,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 try{
                     rs.close();
                 } catch (SQLException e){
-                    log.error("Closing result set failed when adding role permission", e);
+                    log.error("Closing result set failed when adding user permission", e);
                 }
             }
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
