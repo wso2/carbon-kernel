@@ -2933,12 +2933,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
     }
 
-    private boolean isCaseSensitiveUsername(){
+    private boolean isCaseSensitiveUsername() {
         String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
-        if (isUsernameCaseInsensitiveString != null) {
-            return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
-        } else {
-            return true;
-        }
+        return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
     }
 }

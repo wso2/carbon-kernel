@@ -211,18 +211,18 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     roles = manager.doGetRoleListOfUser(userName, "*");
                 }
 
-                Set<String> allowedRoleSet = new HashSet<String>(Arrays.asList(allowedRoles));
-                Set<String> userRoleSet = new HashSet<String>(Arrays.asList(roles));
-                allowedRoleSet.retainAll(userRoleSet);
-
-                if (log.isDebugEnabled()) {
-                    for (String allowedRole : allowedRoleSet) {
-                        log.debug(userName + " user has permitted role :  " + allowedRole);
+                loopAllowedRoles:
+                for (String allowRole : allowedRoles) {
+                    for (String userRole : roles) {
+                        if (allowRole.equalsIgnoreCase(userRole)) {
+                            userAllowed = true;
+                            break loopAllowedRoles;
+                        }
                     }
                 }
 
-                if (!allowedRoleSet.isEmpty()) {
-                    userAllowed = true;
+                if (log.isDebugEnabled()) {
+                    log.debug(userName + " user has permitted resource :  " + resourceId + ", action :" + action);
                 }
 
             } else {
