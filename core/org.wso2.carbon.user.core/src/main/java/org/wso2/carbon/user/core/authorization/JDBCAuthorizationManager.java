@@ -812,7 +812,8 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     dbConnection.rollback();
                 }
             } catch (SQLException e1) {
-                throw new UserStoreException("Error in connection rollback ", e1);
+                throw new UserStoreException("Error in DB connection rollback for role : " + roleName + " & resource id : " + resourceId +
+                        " & action : " + action + " & allow : " + " & update cache : " + updateCache, e1);
             }
 
             if (log.isDebugEnabled()) {
@@ -903,7 +904,8 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                     dbConnection.rollback();
                 }
             } catch (SQLException e1) {
-                throw new UserStoreException("Error in connection rollback ", e1);
+                throw new UserStoreException("Error in DB connection rollback for user : " + userName + " & resource id : " + resourceId +
+                        " & action : " + action + " & allow : " + " & update cache : " + updateCache, e1);
             }
             if (log.isDebugEnabled()) {
                 log.debug("Error! " + e.getMessage(), e);
