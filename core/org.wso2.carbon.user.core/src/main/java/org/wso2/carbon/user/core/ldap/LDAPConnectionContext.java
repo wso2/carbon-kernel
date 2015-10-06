@@ -54,6 +54,8 @@ public class LDAPConnectionContext {
 
     private static final String CONNECTION_TIME_OUT = "LDAPConnectionTimeout";
 
+    private static final String READ_TIME_OUT = "ReadTimeout";
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     public LDAPConnectionContext(RealmConfiguration realmConfig) throws UserStoreException {
 
@@ -109,8 +111,7 @@ public class LDAPConnectionContext {
 
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         environment.put(Context.SECURITY_AUTHENTICATION, "simple");
-        environment.put("com.sun.jndi.ldap.read.timeout",realmConfig.
-                getUserStoreProperty(UserCoreConstants.RealmConfig.LDAP_READ_TIMEOUT));
+
 
         /**
          * In carbon JNDI context we need to by pass specific tenant context and we need the base
@@ -151,7 +152,10 @@ public class LDAPConnectionContext {
         if (binaryAttribute != null) {
             environment.put(LDAPConstants.LDAP_ATTRIBUTES_BINARY, binaryAttribute);
         }
-
+        String readTimeout = realmConfig.getUserStoreProperty(READ_TIME_OUT);
+        if(readTimeout != null && !readTimeout.trim().isEmpty()) {
+            environment.put("com.sun.jndi.ldap.read.timeout",readTimeout);
+        }
         //Set connect timeout if provided in configuration. Otherwise set default value
         String connectTimeout = realmConfig.getUserStoreProperty(CONNECTION_TIME_OUT);
         if (connectTimeout != null && !connectTimeout.trim().isEmpty()) {

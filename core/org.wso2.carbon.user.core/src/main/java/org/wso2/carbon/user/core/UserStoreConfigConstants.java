@@ -103,7 +103,7 @@ public class UserStoreConfigConstants {
     public static final String connectionPoolingEnabled = "ConnectionPoolingEnabled";
     public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
             "pooling.";
-    public static final String readTimeout = "readTimeout";
+    public static final String readTimeout = "ReadTimeout";
     public static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
     public static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
 }
