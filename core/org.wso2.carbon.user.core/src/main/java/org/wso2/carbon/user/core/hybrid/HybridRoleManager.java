@@ -50,6 +50,7 @@ public class HybridRoleManager {
     int tenantId;
     private DataSource dataSource;
     private RealmConfiguration realmConfig;
+    private String isCascadeDeleteEnabled;
     private boolean userRolesCacheEnabled = true;
     private static final String APPLICATION_DOMAIN = "Application";
     private static final String WORKFLOW_DOMAIN = "Workflow";
@@ -525,6 +526,11 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            if (!Boolean.parseBoolean(isCascadeDeleteEnabled)) {
+                DatabaseUtil.updateDatabase(dbConnection,
+                        HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId, tenantId);
+                dbConnection.commit();
+            }
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
                     roleName, tenantId);
             dbConnection.commit();

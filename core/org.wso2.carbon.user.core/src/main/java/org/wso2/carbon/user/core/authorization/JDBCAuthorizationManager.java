@@ -26,6 +26,8 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
+import org.wso2.carbon.user.core.common.DefaultRealmService;
+import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
@@ -62,6 +64,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private boolean verifyByRetrievingAllUserRoles;
     private String cacheIdentifier;
     private int tenantId;
+    private String isCascadeDeleteEnabled;
 
     public JDBCAuthorizationManager(RealmConfiguration realmConfig, Map<String, Object> properties,
                                     ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
@@ -96,6 +99,9 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             dataSource = DatabaseUtil.getRealmDataSource(realmConfig);
             properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
         }
+
+        this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreConstants.CASCADE_DELETE_ENABLED);
+
         this.permissionTree = new PermissionTree(cacheIdentifier, tenantId, dataSource);
         this.realmConfig = realmConfig;
         this.userRealm = realm;
@@ -466,6 +472,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         Connection dbConnection = null;
         try {
             dbConnection = getDBConnection();
+            if (!Boolean.parseBoolean(isCascadeDeleteEnabled)) {
+                DatabaseUtil.updateDatabase(dbConnection,
+                        DBConstants.ON_DELETE_PERMISSION_UM_ROLE_PERMISSIONS_SQL, resourceId, tenantId);
+                DatabaseUtil.updateDatabase(dbConnection,
+                        DBConstants.ON_DELETE_PERMISSION_UM_USER_PERMISSIONS_SQL, resourceId, tenantId);
+            }
             DatabaseUtil.updateDatabase(dbConnection, DBConstants.DELETE_PERMISSION_SQL,
                     resourceId, tenantId);
             permissionTree.clearResourceAuthorizations(resourceId);
@@ -824,10 +836,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
             throw new UserStoreException("Error! " + e.getMessage(), e);
         } finally {
-            if(rs != null){
-                try{
+            if (rs != null) {
+                try {
                     rs.close();
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     log.error("Closing result set failed when adding role permission", e);
                 }
             }
@@ -914,10 +926,10 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             }
             throw new UserStoreException("Error! " + e.getMessage(), e);
         } finally {
-            if(rs != null){
-                try{
+            if (rs != null) {
+                try {
                     rs.close();
-                } catch (SQLException e){
+                } catch (SQLException e) {
                     log.error("Closing result set failed when adding user permission", e);
                 }
             }
