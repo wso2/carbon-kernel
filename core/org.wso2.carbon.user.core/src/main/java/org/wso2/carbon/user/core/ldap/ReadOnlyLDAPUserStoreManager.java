@@ -151,9 +151,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		 */
 
         connectionSource = new LDAPConnectionContext(realmConfig);
+        DirContext dirContext = null;
 
         try {
-            connectionSource.getContext();
+            dirContext = connectionSource.getContext();
             if (this.isReadOnly()) {
                 log.info("LDAP connection created successfully in read-only mode");
             }
@@ -164,7 +165,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
+
         this.userRealm = realm;
         this.persistDomain();
         doInitialSetup();
@@ -2836,8 +2840,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
         String[] returnedAttributes = {groupNameAttribute};
         List<String> groupNameAttributeValues = new ArrayList<String>();
+        DirContext dirContext = null;
         try {
-            DirContext dirContext = this.connectionSource.getContext();
+            dirContext = this.connectionSource.getContext();
 
             for (String group : groupDNs) {
                 if (debug) {
@@ -2867,6 +2872,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
         return groupNameAttributeValues;
     }

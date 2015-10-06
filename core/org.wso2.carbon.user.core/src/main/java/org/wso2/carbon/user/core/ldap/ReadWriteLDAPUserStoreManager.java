@@ -137,12 +137,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             connectionSource = new LDAPConnectionContext(realmConfig);
         }
 
+        DirContext dirContext = null;
         try {
-            connectionSource.getContext();
+            dirContext = connectionSource.getContext();
             log.info("LDAP connection created successfully in read-write mode");
         } catch (Exception e) {
             throw new UserStoreException("Cannot create connection to LDAP server. Error message "
                     + e.getMessage());
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
         this.userRealm = realm;
         //persist domain
