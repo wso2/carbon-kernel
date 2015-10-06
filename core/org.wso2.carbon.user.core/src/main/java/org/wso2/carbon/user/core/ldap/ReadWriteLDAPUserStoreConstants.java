@@ -96,6 +96,7 @@ public class ReadWriteLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "", UserStoreConfigConstants.memberOfAttribute);
         setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
+        setProperty(UserStoreConfigConstants.readTimeout, "LDAP Read Timeout", "5000", UserStoreConfigConstants.readTimeoutDescription);
         setProperty("UniqueID", "", "", "");
         setProperty("IsBulkImportSupported", "", "false", "Support Bulk User Import Operation for this user store");
     }
