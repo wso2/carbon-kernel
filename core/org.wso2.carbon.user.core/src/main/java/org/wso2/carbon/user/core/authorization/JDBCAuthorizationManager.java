@@ -472,7 +472,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         Connection dbConnection = null;
         try {
             dbConnection = getDBConnection();
-            if (!Boolean.parseBoolean(isCascadeDeleteEnabled)) {
+            if(isCascadeDeleteEnabled == null || !Boolean.parseBoolean(isCascadeDeleteEnabled)) {
                 DatabaseUtil.updateDatabase(dbConnection,
                         DBConstants.ON_DELETE_PERMISSION_UM_ROLE_PERMISSIONS_SQL, resourceId, tenantId);
                 DatabaseUtil.updateDatabase(dbConnection,

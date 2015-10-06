@@ -63,6 +63,7 @@ public class HybridRoleManager {
         this.dataSource = dataSource;
         this.tenantId = tenantId;
         this.realmConfig = realmConfig;
+        this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreConstants.CASCADE_DELETE_ENABLED);
         this.userRealm = realm;
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
@@ -526,11 +527,9 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreConstants.CASCADE_DELETE_ENABLED);
-            if (!Boolean.parseBoolean(isCascadeDeleteEnabled)) {
+            if(isCascadeDeleteEnabled == null || !Boolean.parseBoolean(isCascadeDeleteEnabled)) {
                 DatabaseUtil.updateDatabase(dbConnection,
                         HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId, tenantId);
-                dbConnection.commit();
             }
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
                     roleName, tenantId);
