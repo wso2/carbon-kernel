@@ -526,6 +526,7 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
+            this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreConstants.CASCADE_DELETE_ENABLED);
             if (!Boolean.parseBoolean(isCascadeDeleteEnabled)) {
                 DatabaseUtil.updateDatabase(dbConnection,
                         HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId, tenantId);
