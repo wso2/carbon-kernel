@@ -20,13 +20,7 @@
 package org.wso2.carbon.internal;
 
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.clustering.spi.MembershipScheme;
-import org.wso2.carbon.internal.clustering.CarbonCluster;
-import org.wso2.carbon.internal.clustering.ClusterContext;
 import org.wso2.carbon.internal.runtime.RuntimeManager;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Carbon kernel DataHolder
@@ -34,11 +28,8 @@ import java.util.Map;
 public class DataHolder {
     private static DataHolder instance = new DataHolder();
     private BundleContext bundleContext;
-    private CarbonCluster carbonCluster;
-    private ClusterContext clusterContext;
 
     private RuntimeManager runtimeManager = null;
-    private Map<String, MembershipScheme> genericMembershipSchemes = new HashMap<>();
 
     public static DataHolder getInstance() {
         return instance;
@@ -51,23 +42,6 @@ public class DataHolder {
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
-
-    public CarbonCluster getCarbonCluster() {
-        return carbonCluster;
-    }
-
-    public void setCarbonCluster(CarbonCluster carbonCluster) {
-        this.carbonCluster = carbonCluster;
-    }
-
-    public ClusterContext getClusterContext() {
-        return clusterContext;
-    }
-
-    public void setClusterContext(ClusterContext clusterContext) {
-        this.clusterContext = clusterContext;
-    }
-
 
     /**
      * Getter method of RuntimeManager instance
@@ -85,17 +59,5 @@ public class DataHolder {
      */
     public void setRuntimeManager(RuntimeManager runtimeManager) {
         this.runtimeManager = runtimeManager;
-    }
-
-    public void addGenericMembershipScheme(String name, MembershipScheme genericMembershipScheme) {
-        genericMembershipSchemes.put(name, genericMembershipScheme);
-    }
-
-    public MembershipScheme getGenericMembershipScheme(String membershipSchemeName) {
-        return genericMembershipSchemes.get(membershipSchemeName);
-    }
-
-    public void removeGenericMembershipScheme(String membershipSchemeName) {
-        genericMembershipSchemes.remove(membershipSchemeName);
     }
 }

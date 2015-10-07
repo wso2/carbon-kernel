@@ -43,20 +43,8 @@ public class BaseTest {
         serverXmlPath = new File(confDir, serverXmlPath).getAbsolutePath();
     }
 
-    public File getServerXml() {
-        return new File(serverXmlPath);
-    }
-
     public File getTestResourceFile(String relativePath) {
         return new File(testResourceDir, relativePath);
-    }
-
-    public File getCarbonHome() {
-        return new File(carbonHome);
-    }
-
-    public File getConfDir() {
-        return new File(confDir);
     }
 
     public InputStream getTestResource(String relativePath) {
