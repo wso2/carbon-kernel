@@ -98,7 +98,4 @@ public class UserStoreConfigConstants {
     public static final String connectionPoolingEnabled = "ConnectionPoolingEnabled";
     public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
             "pooling.";
-    public static final String readTimeout = "ReadTimeout";
-    public static final String readTimeoutDescription = "Set this to configure the ldap connection timeout. By " +
-            "default it will be set as the TCP connection timeout.";
 }
