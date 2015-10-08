@@ -49,7 +49,13 @@ import javax.naming.directory.NoSuchAttributeException;
 import javax.sql.DataSource;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.*;
+import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -61,7 +67,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.security.SecureRandom;
+import java.util.Random;
 
 public class JDBCUserStoreManager extends AbstractUserStoreManager {
 
@@ -71,8 +77,8 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private static final String QUERY_FILTER_STRING_ANY = "*";
     private static final String SQL_FILTER_STRING_ANY = "%";
     private static final char SQL_FILTER_CHAR_ESCAPE = '\\';
-    private static final String SHA_1_PRNG = "SHA1PRNG";
     protected DataSource jdbcds = null;
+    protected Random random = new Random();
 
     public JDBCUserStoreManager() {
 
@@ -2222,6 +2228,11 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
      *
      */
     public Date getPasswordExpirationTime(String userName) throws UserStoreException {
+
+        if (userName != null && userName.contains(CarbonConstants.DOMAIN_SEPARATOR)) {
+            return super.getPasswordExpirationTime(userName);
+        }
+
         Connection dbConnection = null;
         ResultSet rs = null;
         PreparedStatement prepStmt = null;
@@ -2280,7 +2291,7 @@ public class JDBCUserStoreManager extends AbstractUserStoreManager {
     private String generateSaltValue() {
         String saltValue = null;
         try {
-            SecureRandom secureRandom = SecureRandom.getInstance(SHA_1_PRNG);
+            SecureRandom secureRandom = SecureRandom.getInstance(UserCoreConstants.SHA_1_PRNG);
             byte[] bytes = new byte[16];
             //secureRandom is automatically seeded by calling nextBytes
             secureRandom.nextBytes(bytes);

@@ -42,12 +42,19 @@
 
     <!--This is for performing the character encoding in the JSPs. -->
     <filter>
-       <filter-name>CharsetFilter</filter-name>
-       <filter-class>org.wso2.carbon.tomcat.ext.filter.CharacterSetFilter</filter-class>
-       <init-param>
-          <param-name>requestEncoding</param-name>
-          <param-value>UTF-8</param-value>
-       </init-param>
+        <filter-name>CharsetFilter</filter-name>
+        <filter-class>org.wso2.carbon.tomcat.ext.filter.CharacterSetFilter</filter-class>
+        <init-param>
+            <param-name>requestEncoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+
+    <!-- This filter sanitizes CR(\r) and LF(\n) characters in response headers centrally -->
+    <!-- and avoids response splitting vulnerability  -->
+    <filter>
+        <filter-name>CRLFPreventionFilter</filter-name>
+        <filter-class>org.wso2.carbon.ui.filters.CRLFPreventionFilter</filter-class>
     </filter>
 
     <!--This filter prevents CSRF vulnerabilities in POST requests with CSRF Token validation-->
@@ -57,8 +64,14 @@
     </filter>
 
     <filter-mapping>
-       <filter-name>CharsetFilter</filter-name>
-       <url-pattern>/*</url-pattern>
+        <filter-name>CharsetFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- The mapping for the CRLFPreventionFilter -->
+    <filter-mapping>
+        <filter-name>CRLFPreventionFilter</filter-name>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <!--Filter mapping for the CSRFPreventionFilter-->
@@ -66,8 +79,11 @@
         <filter-name>CSRFPreventionFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    
-     <session-config>
+
+    <session-config>
         <session-timeout>15</session-timeout>
+        <cookie-config>
+            <secure>true</secure>
+        </cookie-config>
     </session-config>
 </web-app>
