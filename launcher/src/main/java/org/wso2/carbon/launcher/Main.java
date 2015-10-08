@@ -25,6 +25,7 @@ import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,7 +93,7 @@ public class Main {
      * @return CarbonLaunchConfig
      */
     private static CarbonLaunchConfig<String, String> loadCarbonLaunchConfig() {
-        String launchPropFilePath = Utils.getLaunchConfigDir() + File.separator + LAUNCH_PROPERTIES_FILE;
+        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDir(), LAUNCH_PROPERTIES_FILE).toString();
         File launchPropFile = new File(launchPropFilePath);
 
         if (launchPropFile.exists()) {

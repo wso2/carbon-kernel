@@ -23,6 +23,7 @@ import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
@@ -70,15 +71,15 @@ public class Utils {
     }
 
     public static String getRepositoryConfDir() {
-        return System.getProperty(CARBON_HOME) + File.separator + Constants.REPOSITORY_CONF_DIR_PATH;
+        return Paths.get(System.getProperty(CARBON_HOME), Constants.REPOSITORY_CONF_DIR_PATH).toString();
     }
 
     public static String getRepositoryDir() {
-        return System.getProperty(Constants.CARBON_HOME) + File.separator + Constants.REPOSITORY_DIR_PATH;
+        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.REPOSITORY_DIR_PATH).toString();
     }
 
     public static String getLaunchConfigDir() {
-        return System.getProperty(Constants.CARBON_HOME) + File.separator + Constants.LAUNCH_CONF_DIR_PATH;
+        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.LAUNCH_CONF_DIR_PATH).toString();
     }
 
     public static boolean checkForNullOrEmpty(String arg) {
