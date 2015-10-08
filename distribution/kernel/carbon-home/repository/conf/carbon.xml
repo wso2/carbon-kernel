@@ -224,16 +224,15 @@
 
     <!--
         Eager loading or lazy loading is a design pattern commonly used in computer programming which
-        will initialize an object upon creation or load on-demand. In carbon, lazy loading is used to
-        load tenant when a request is received only. Similarly Eager loading is used to enable load
+        will initialize an object upon creation or load on-demand. In Carbon by default, lazy loading is used to
+        load tenant when a request is received only. Similarly Eager loading is used to load set of
         existing tenants after carbon server starts up. Using this feature, you will be able to include
         or exclude tenants which are to be loaded when server startup.
 
         We can enable only one LoadingPolicy at a given time.
 
-        1. Tenant Lazy Loading
-           This is the default behaviour and enabled by default. With this policy, tenants are not loaded at
-           server startup, but loaded based on-demand (i.e when a request is received for a tenant).
+        1. Tenant Idle Time
+           This will be the idle timeout value for the tenants which was not eager loaded.
            The default tenant idle time is 30 minutes.
 
         2. Tenant Eager Loading
@@ -245,14 +244,13 @@
                 (iii)Load only foo.com &  bar.com to be included    -   foo.com,bar.com
     -->
     <Tenant>
-        <LoadingPolicy>
-            <LazyLoading>
-                <IdleTime>30</IdleTime>
-            </LazyLoading>
-            <!-- <EagerLoading>
-                   <Include>*,!foo.com,!bar.com</Include>
-            </EagerLoading>-->
-        </LoadingPolicy>
+        <!-- Default tenant idle time in minutes -->
+        <IdleTime>30</IdleTime>
+        <!--<LoadingPolicy>
+            <EagerLoading>
+                <Include>*,!foo.com,!bar.com</Include>
+            </EagerLoading>
+        </LoadingPolicy>-->
     </Tenant>
 
     <!--

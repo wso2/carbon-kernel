@@ -37,6 +37,7 @@ public class TenantEagerLoader {
     private static final Log logger = LogFactory.getLog(TenantEagerLoader.class);
     private CarbonCoreDataHolder carbonCoreDataHolder = CarbonCoreDataHolder.getInstance();
     private TenantLoadingConfig tenantLoadingConfig = new TenantLoadingConfig();
+    public static ArrayList<String> eagerLoadingTenantList = new ArrayList<String>();
 
     public TenantEagerLoader() {
         tenantLoadingConfig.init();
@@ -112,24 +113,23 @@ public class TenantEagerLoader {
      * @return validated tenant domain list
      */
     private List<String> getTenantsToBeEagerLoaded(List<String> validTenantDomains) {
-        List<String> tenantsToBeLoaded = new ArrayList<>();
         if (tenantLoadingConfig.isEagerLoadingEnabled()) {
             List<String> includeTenantList =
                     validateTenantDomains(tenantLoadingConfig.getIncludeTenantList(), validTenantDomains);
             List<String> excludeTenantList =
                     validateTenantDomains(tenantLoadingConfig.getExcludeTenantList(), validTenantDomains);
             if (tenantLoadingConfig.includeAllTenants()) {
-                tenantsToBeLoaded.addAll(validTenantDomains);
+                eagerLoadingTenantList.addAll(validTenantDomains);
                 // Now that we have included  all tenants, let's see whether any tenant have been excluded
                 if (!excludeTenantList.isEmpty()) {
-                    tenantsToBeLoaded.removeAll(excludeTenantList);
+                    eagerLoadingTenantList.removeAll(excludeTenantList);
                 }
             } else { // include only tenants such as foo.com, bar.com
-                tenantsToBeLoaded.addAll(includeTenantList);
+                eagerLoadingTenantList.addAll(includeTenantList);
             }
         }
         // Nothing to do if lazy loading is enabled since the default lazy loading mechanism will kick in
-        return tenantsToBeLoaded;
+        return eagerLoadingTenantList;
     }
 
     /**
@@ -151,4 +151,14 @@ public class TenantEagerLoader {
         }
         return validatedTenantDomains;
     }
+
+    /**
+     * This method is a util method to get the list of tenant domains which eager loading has enabled
+     *
+     * @return The list of tenant domains which has enabled eager loading
+     */
+    public static ArrayList<String> getEagerLoadingTenantList() {
+        return eagerLoadingTenantList;
+    }
+
 }
