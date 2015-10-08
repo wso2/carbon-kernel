@@ -143,7 +143,6 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </UserStoreManager-->
 	
 	<!-- Active directory configuration is as follows.
@@ -334,7 +333,6 @@
 	    <Property name="StoreSaltedPassword">true</Property>
 	    <Property name="AuthenticateWithAnyCredential">true</Property>
 	    <Property name="DomainName">multipleCredentialUserStoreDomain</Property>
-	    <Property name="BulkImportSupported">true</Property>
 	        <MultipleCredentials>
 		    <Credential type="Default">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
 		    <Credential type="Email">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
