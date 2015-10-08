@@ -26,6 +26,7 @@ import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
 import org.wso2.carbon.user.core.common.UserRolesCache;
+import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
@@ -63,7 +64,7 @@ public class HybridRoleManager {
         this.dataSource = dataSource;
         this.tenantId = tenantId;
         this.realmConfig = realmConfig;
-        this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreConstants.CASCADE_DELETE_ENABLED);
+        this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreDBConstants.CASCADE_DELETE_ENABLED);
         this.userRealm = realm;
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);

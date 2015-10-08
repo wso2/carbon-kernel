@@ -28,6 +28,7 @@ import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.DefaultRealmService;
 import org.wso2.carbon.user.core.config.RealmConfigXMLProcessor;
+import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.listener.AuthorizationManagerListener;
@@ -100,7 +101,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             properties.put(UserCoreConstants.DATA_SOURCE, dataSource);
         }
 
-        this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreConstants.CASCADE_DELETE_ENABLED);
+        this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreDBConstants.CASCADE_DELETE_ENABLED);
 
         this.permissionTree = new PermissionTree(cacheIdentifier, tenantId, dataSource);
         this.realmConfig = realmConfig;
@@ -770,7 +771,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
 
-            prepStmt = dbConnection.prepareStatement(DBConstants.IS_EXISTING_ROLE_PERMISSION_MAPPING);
+            prepStmt = dbConnection.prepareStatement(UserCoreDBConstants.IS_EXISTING_ROLE_PERMISSION_MAPPING);
             prepStmt.setString(1, UserCoreUtil.removeDomainFromName(roleName));
             prepStmt.setString(2, resourceId);
             prepStmt.setString(3, action);
@@ -865,7 +866,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 this.addPermissionId(dbConnection, resourceId, action);
                 permissionId = this.getPermissionId(dbConnection, resourceId, action);
             }
-            prepStmt = dbConnection.prepareStatement(DBConstants.IS_EXISTING_USER_PERMISSION_MAPPING);
+            prepStmt = dbConnection.prepareStatement(UserCoreDBConstants.IS_EXISTING_USER_PERMISSION_MAPPING);
             prepStmt.setString(1, userName);
             prepStmt.setString(2, resourceId);
             prepStmt.setString(3, action);
