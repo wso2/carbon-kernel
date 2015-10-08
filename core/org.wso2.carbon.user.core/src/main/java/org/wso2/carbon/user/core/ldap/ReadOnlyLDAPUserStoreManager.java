@@ -1865,6 +1865,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     // get DNs of the groups to which this user belongs
                     List<String> groupDNs = this.getListOfNames(searchBase, searchFilter,
                             searchCtls, memberOfProperty, false);
+
+                    List<LdapName> groups = new ArrayList<>();
+
+                    for(String groupDN : groupDNs){
+                        try {
+                            groups.add(new LdapName(groupDN));
+                        } catch (InvalidNameException e) {
+                            if(log.isDebugEnabled()){
+                                log.debug("Naming error : ", e);
+                            }
+                        }
+                    }
 					/*
 					 * to be compatible with AD as well, we need to do a search
 					 * over the groups and
@@ -1872,7 +1884,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 					 * attribute and
 					 * return
 					 */
-                    list = this.getGroupNameAttributeValuesOfGroups(groupDNs);
+
+                    list = this.getGroupNameAttributeValuesOfGroups(groups);
                 }
             } else {
 
@@ -2282,8 +2295,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                     if (debug) {
                                         log.debug("Found user: " + name);
                                     }
-                                    domain = UserCoreUtil.addDomainToName(name,
-                                            domain);
                                     names.add(name);
                                 }
                             }
@@ -2467,9 +2478,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 }
 
 
-                // get DNs of the groups to which this user belongs
-                List<String> groupDNs = this.getListOfNames(searchBases, searchFilter,
-                        searchCtls, memberOfProperty, false);
 
                 list = this.getAttributeListOfOneElement(searchBases, searchFilter, searchCtls);
             }
@@ -2816,12 +2824,18 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     }
 
 
+    private boolean isInSearchBase(LdapName dn, LdapName searchBase){
+
+        List<Rdn> baseRdns = searchBase.getRdns();
+        return dn.endsWith(baseRdns);
+    }
+
     /**
      * @param groupDNs
      * @return
      * @throws UserStoreException
      */
-    private List<String> getGroupNameAttributeValuesOfGroups(List<String> groupDNs)
+    private List<String> getGroupNameAttributeValuesOfGroups(List<LdapName> groupDNs)
             throws UserStoreException {
         log.debug("GetGroupNameAttributeValuesOfGroups with DN");
         boolean debug = log.isDebugEnabled();
@@ -2835,10 +2849,28 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         try {
             dirContext = this.connectionSource.getContext();
 
-            for (String group : groupDNs) {
+            for (LdapName group : groupDNs) {
+                if(!isInSearchBase(group, new LdapName(groupSearchBase))){
+                    // ignore those groups outside the group search base
+                    continue;
+                }
                 if (debug) {
                     log.debug("Using DN: " + group);
                 }
+
+                Rdn rdn = group.getRdn(group.getRdns().size()-1);
+                // get the last element of the RDNs.
+
+                if (rdn.getType().equalsIgnoreCase(groupNameAttribute)){
+                    /*
+                    * Checking to see if the required information can be retrieved from the RDN
+                    * If so, we can add that value and continue without creating an LDAP context
+                    * Connection
+                    * */
+                    groupNameAttributeValues.add(rdn.getValue().toString());
+                    continue;
+                }
+
                 Attributes groupAttributes = dirContext.getAttributes(group, returnedAttributes);
                 if (groupAttributes != null) {
                     Attribute groupAttribute = groupAttributes.get(groupNameAttribute);
