@@ -232,9 +232,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
 
-		/* validity checks */
-        doAddUserValidityChecks(userName, credential); // TODO bring abstract
-
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
 
@@ -586,9 +583,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-        /* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
-
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
         // first search the existing user entry.
@@ -651,8 +645,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-        /* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
 
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;

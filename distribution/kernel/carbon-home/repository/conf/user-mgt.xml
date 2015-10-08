@@ -35,7 +35,7 @@
             <Property name="ConnectionPassword">admin</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>
             <Property name="Disabled">false</Property>           
-            <Property name="passwordHashMethod">SHA</Property>
+            <Property name="PasswordHashMethod">SHA</Property>
             <Property name="UserNameListFilter">(objectClass=person)</Property>
 	    <Property name="UserEntryObjectClass">wso2Person</Property>
             <Property name="UserSearchBase">ou=Users,dc=wso2,dc=org</Property>
@@ -50,6 +50,8 @@
 	    <Property name="WriteGroups">true</Property>
 	    <Property name="EmptyRolesAllowed">true</Property>
             <Property name="GroupSearchBase">ou=Groups,dc=wso2,dc=org</Property>
+            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="GroupEntryObjectClass">groupOfNames</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
@@ -88,8 +90,9 @@
             <Property name="UserNameUniqueAcrossTenants">false</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
-	    <Property name="UsernameJavaRegEx">^[^~!#$;%^*+={}\\|\\\\&lt;&gt;,\'\"]{3,30}$</Property>
+	    <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
 	    <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
 	    <Property name="RolenameJavaRegEx">^[^~!#$;%^*+={}\\|\\\\&lt;&gt;,\'\"]{3,30}$</Property>
 	    <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
@@ -114,7 +117,7 @@
             <Property name="ConnectionName">uid=admin,ou=system</Property>
             <Property name="ConnectionPassword">admin</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>
-	    <Property name="passwordHashMethod">PLAIN_TEXT</Property>
+	    <Property name="PasswordHashMethod">PLAIN_TEXT</Property>
             <Property name="UserSearchBase">ou=system</Property>
             <Property name="UserNameListFilter">(objectClass=person)</Property>
 	    <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
@@ -158,7 +161,7 @@
             <Property name="ConnectionName">CN=admin,CN=Users,DC=WSO2,DC=Com</Property>
             <Property name="ConnectionPassword">A1b2c3d4</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>
-	    <Property name="passwordHashMethod">PLAIN_TEXT</Property>
+	    <Property name="PasswordHashMethod">PLAIN_TEXT</Property>
             <Property name="UserSearchBase">CN=Users,DC=WSO2,DC=Com</Property>
             <Property name="UserEntryObjectClass">user</Property>
             <Property name="UserNameAttribute">cn</Property>
@@ -169,6 +172,8 @@
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
 	    <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
 	    <Property name="ReadGroups">true</Property>
@@ -207,7 +212,7 @@
             <Property name="ConnectionName">uid=admin,ou=system</Property>
             <Property name="ConnectionPassword">secret</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>
-            <Property name="passwordHashMethod">PLAIN_TEXT</Property>
+            <Property name="PasswordHashMethod">PLAIN_TEXT</Property>
             <Property name="UserNameListFilter">(objectClass=person)</Property>
 	    <Property name="UserEntryObjectClass">inetOrgPerson</Property>
             <Property name="UserSearchBase">ou=system</Property>
@@ -228,6 +233,8 @@
             <Property name="GroupNameAttribute">cn</Property>
             <Property name="SharedGroupNameAttribute">cn</Property>
             <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
+            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
             <Property name="SharedGroupEntryObjectClass">groupOfNames</Property>
             <Property name="SharedGroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="SharedGroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
@@ -260,7 +267,7 @@
             <Property name="ConnectionName">uid=admin,ou=system</Property>
             <Property name="ConnectionPassword">admin</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>
-            <Property name="passwordHashMethod">SHA</Property>
+            <Property name="PasswordHashMethod">SHA</Property>
             <Property name="UserNameListFilter">(objectClass=person)</Property>
             <Property name="UserEntryObjectClass">identityPerson</Property>
             <Property name="UserSearchBase">ou=Users,dc=wso2,dc=org</Property>
@@ -285,6 +292,7 @@
             <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
             <Property name="SharedGroupEntryObjectClass">groupOfNames</Property>
             <Property name="SharedGroupNameListFilter">(objectClass=groupOfNames)</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
             <Property name="SharedGroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="SharedTenantNameListFilter">(objectClass=organizationalUnit)</Property>
             <Property name="SharedTenantNameAttribute">ou</Property>
@@ -356,7 +364,7 @@ UserDNPattern - This property will be used when authenticating users. During aut
 RoleDNPattern - This property will be used when checking whether user has been assigned to a given role. Rather than searching the role in search base, by 
                 using this property direct search can be done.
 
-passwordHashMethod - This says how the password should be stored. Allowed values are as follows,
+PasswordHashMethod - This says how the password should be stored. Allowed values are as follows,
                      SHA - Uses SHA digest method
                      MD5 - Uses MD 5 digest method
                      PLAIN_TEXT - Plain text passwords

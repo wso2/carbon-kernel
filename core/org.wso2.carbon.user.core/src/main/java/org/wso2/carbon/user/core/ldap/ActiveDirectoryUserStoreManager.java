@@ -116,9 +116,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 
         boolean isUserBinded = false;
 
-		/* validity checks */
-        doAddUserValidityChecks(userName, credential); // / TODO
-
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
 
@@ -234,8 +231,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-		/* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
+        if (!isSSLConnection) {
+            logger.warn("Unsecured connection is being used. Password operations will fail");
+        }
 
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
@@ -316,8 +314,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-		/* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
+        if (!isSSLConnection) {
+            logger.warn("Unsecured connection is being used. Password operations will fail");
+        }
 
         DirContext dirContext = this.connectionSource.getContext();
         String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
