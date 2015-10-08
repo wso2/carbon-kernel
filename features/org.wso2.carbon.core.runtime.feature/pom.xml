@@ -29,7 +29,10 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon Kernel - Carbon Runtime Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the carbon core runtime features</description>
+    <description>
+        This feature contains the carbon core runtime related bundles and their dependencies
+        Eg : (OSGi Runtime, Declarative Service Runtime, Console, etc)
+    </description>
 
     <dependencies>
         <dependency>

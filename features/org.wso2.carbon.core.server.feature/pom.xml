@@ -29,7 +29,7 @@
     <packaging>pom</packaging>
     <name>WSO2 Carbon Kernel - Carbon Server Feature</name>
     <url>http://wso2.org</url>
-    <description>This feature contains the carbon core server features</description>
+    <description>This feature contains the carbon core bundle and its dependents</description>
 
     <dependencies>
         <dependency>

@@ -20,7 +20,7 @@
     <artifactId>org.wso2.carbon.launcher</artifactId>
     <packaging>jar</packaging>
     <name>WSO2 Carbon Kernel - Launcher</name>
-    <description>This module launch a Carbon instances</description>
+    <description>The main module which launches a carbon instance</description>
     <url>http://wso2.org</url>
 
     <dependencies>

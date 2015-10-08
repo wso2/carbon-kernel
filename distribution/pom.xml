@@ -28,7 +28,10 @@
     <artifactId>wso2carbon-kernel</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Kernel - Distribution</name>
-    <description>WSO2 Carbon Kernel - Distribution</description>
+    <description>
+        This module generates the product distribution (zip) by installing kernel core and runtime features
+        and finally assembles product specific configurations files and startup scripts using assembly plugin.
+    </description>
     <url>http://wso2.org</url>
 
     <dependencies>
