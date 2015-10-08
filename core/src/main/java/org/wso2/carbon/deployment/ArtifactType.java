@@ -42,17 +42,6 @@ public class ArtifactType<T> {
 
     @Override
     public boolean equals(Object other) {
-        if (other == null) {
-            return false;
-        }
-
-        if (this.getClass() != other.getClass()) {
-            return false;
-        }
-
-        if (!this.type.equals(((ArtifactType) other).get())) {
-            return false;
-        }
-        return true;
+        return other != null && this.getClass() == other.getClass() && this.type.equals(((ArtifactType) other).get());
     }
 }

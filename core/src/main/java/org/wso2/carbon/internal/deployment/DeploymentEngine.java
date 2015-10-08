@@ -58,13 +58,13 @@ public class DeploymentEngine {
     /**
      * The map which holds the set of registered deployers with this engine
      */
-    private Map<ArtifactType, Deployer> deployerMap = new ConcurrentHashMap<ArtifactType, Deployer>();
+    private Map<ArtifactType, Deployer> deployerMap = new ConcurrentHashMap<>();
 
     /**
      * A map to hold all currently deployed artifacts
      */
     private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
-            new ConcurrentHashMap<ArtifactType, ConcurrentHashMap<Object, Artifact>>();
+            new ConcurrentHashMap<>();
 
 
     public DeploymentEngine(String repositoryDir) throws DeploymentEngineException {
@@ -279,7 +279,7 @@ public class DeploymentEngine {
         ConcurrentHashMap<Object, Artifact> artifactMap = deployedArtifacts.
                 get(artifact.getType());
         if (artifactMap == null) {
-            artifactMap = new ConcurrentHashMap<Object, Artifact>();
+            artifactMap = new ConcurrentHashMap<>();
         }
         artifactMap.put(artifact.getKey(), artifact);
         deployedArtifacts.put(artifact.getType(), artifactMap);

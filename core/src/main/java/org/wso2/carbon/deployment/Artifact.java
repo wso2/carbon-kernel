@@ -71,7 +71,7 @@ public class Artifact {
     /**
      * To keep set of custom properties related to this artifact
      */
-    private Map<String, Object> properties = new HashMap<String, Object>();
+    private Map<String, Object> properties = new HashMap<>();
 
     /**
      * Default constructor which takes the associated file with this artifact instance

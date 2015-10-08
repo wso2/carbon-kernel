@@ -630,8 +630,8 @@
 
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.0.0-SNAPSHOT</carbon.kernel.version>
-        <carbon.kernel.package.export.version>5.0.0-SNAPSHOT</carbon.kernel.package.export.version>
-        <carbon.kernel.package.import.version.range>[5.0.0.SNAPSHOT, 5.1.0)</carbon.kernel.package.import.version.range>
+        <carbon.kernel.package.export.version>5.0.0</carbon.kernel.package.export.version>
+        <carbon.kernel.package.import.version.range>[5.0.0, 5.1.0)</carbon.kernel.package.import.version.range>
 
         <!--Logging API version range-->
         <commons.logging.package.import.version.range>[1.1.1, 1.2.0)</commons.logging.package.import.version.range>
