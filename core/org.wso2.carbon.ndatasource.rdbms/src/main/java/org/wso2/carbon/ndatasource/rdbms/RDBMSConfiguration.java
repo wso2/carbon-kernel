@@ -17,6 +17,7 @@ package org.wso2.carbon.ndatasource.rdbms;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * This class represents the RDBMS configuration properties.
@@ -101,6 +102,8 @@ public class RDBMSConfiguration {
 	private String dataSourceClassName;
 	
 	private List<DataSourceProperty> dataSourceProps;
+
+	private List<DBProperty> dbProps;
 
 	public String getUrl() {
 		return url;
@@ -418,6 +421,16 @@ public class RDBMSConfiguration {
 	public void setDataSourceClassName(String dataSourceClassName) {
 		this.dataSourceClassName = dataSourceClassName;
 	}
+
+	@XmlElementWrapper (name = RDBMSDataSourceConstants.DB_PROPS_NAME)
+	@XmlElement (name = "property")
+	public List<DBProperty> getDbProps() {
+		return dbProps;
+	}
+
+	public void setDbProps(List<DBProperty> dbProps) {
+		this.dbProps = dbProps;
+	}
 	
 	@XmlElementWrapper (name = RDBMSDataSourceConstants.DATASOURCE_PROPS_NAME)
 	@XmlElement (name = "property")
@@ -501,5 +514,42 @@ public class RDBMSConfiguration {
 		}
 		
 	}
-	
+
+	@XmlRootElement (name = "property")
+	public static class DBProperty {
+
+		private boolean encrypted = true;
+
+		private String name;
+
+		private String value;
+
+		@XmlAttribute (name = "encrypted")
+		public boolean isEncrypted() {
+			return encrypted;
+		}
+
+		public void setEncrypted(boolean encrypted) {
+			this.encrypted = encrypted;
+		}
+
+		@XmlAttribute (name = "name")
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		@XmlValue
+		public String getValue() {
+			return value;
+		}
+
+		public void setValue(String value) {
+			this.value = value;
+		}
+
+	}
 }
