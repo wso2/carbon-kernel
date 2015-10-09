@@ -3821,7 +3821,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
     }
 
-    protected void validateCredential( Object password) throws UserStoreException {
+    protected void validateCredential(Object password) throws UserStoreException {
 
 
         if (!checkUserPasswordValid(password)) {
