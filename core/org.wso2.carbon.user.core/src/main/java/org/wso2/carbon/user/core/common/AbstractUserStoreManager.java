@@ -1170,7 +1170,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        //check for null claim map
+        if (claims == null) {
+            claims = new HashMap<>();
+        }
         Map<String, String> refinedClaims = new HashMap<String, String>();
         if (claims != null && !claims.isEmpty()) {
             for (Map.Entry<String, String> entry : claims.entrySet()) {
@@ -2546,7 +2549,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        //check for null input arrays
+        if (userList == null) {
+            userList = new String[0];
+        }
+        if (permissions == null) {
+            permissions = new org.wso2.carbon.user.api.Permission[0];
+        }
         // This happens only once during first startup - adding administrator user/role.
         if (roleName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             roleName = userStore.getDomainFreeName();
