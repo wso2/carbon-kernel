@@ -125,8 +125,7 @@ public class ClaimDAO {
 
             dbConnection.commit();
         } catch (SQLException e) {
-            log.error("Database Error - " + e.getMessage(), e);
-            throw new UserStoreException("Database Error - " + e.getMessage(), e);
+            throw new UserStoreException("Database Error - when deleting dialect: " + dialectUri, e);
         } finally {
             DatabaseUtil.closeAllConnections(dbConnection, prepStmt);
         }
@@ -408,7 +407,6 @@ public class ClaimDAO {
     }
 
     /**
-     *
      * @param dialectUri
      * @throws UserStoreException
      */
