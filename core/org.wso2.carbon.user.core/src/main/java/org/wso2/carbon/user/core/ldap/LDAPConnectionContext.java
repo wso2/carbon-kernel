@@ -25,10 +25,7 @@ import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.utils.CarbonUtils;
 
-import javax.naming.AuthenticationException;
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
+import javax.naming.*;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -329,6 +326,9 @@ public class LDAPConnectionContext {
             } catch (AuthenticationException e) {
                 throw e;
 
+            } catch (TimeLimitExceededException e){
+                throw new UserStoreException(UserCoreConstants.RealmConfig.READ_TIME_EXCEEDED +": Time exceeded when reading the entry from " +
+                        "LDAP user store.");
             } catch (NamingException e) {
                 log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
                 log.info("Trying to connect with other Domain Controllers");

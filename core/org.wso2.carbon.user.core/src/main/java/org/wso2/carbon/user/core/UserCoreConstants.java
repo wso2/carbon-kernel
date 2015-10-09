@@ -199,6 +199,8 @@ public class UserCoreConstants {
         public static final String SHARED_GROUPS_ENABLED = "SharedGroupEnabled";
         public static final String DOMAIN_NAME_XPATH = "//UserStoreManager/Property[@name='DomainName']";
         public static final String LDAP_READ_TIMEOUT = "ReadTimeout";
+        public static final String READ_TIME_EXCEEDED = "LDAPReadTimeoutExceeded";
+        public static final String RETRY_ATTEMPTS = "RetryAttempts";
     }
 
     public static final class ClaimTypeURIs {

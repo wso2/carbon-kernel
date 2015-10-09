@@ -1089,9 +1089,25 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         LdapContext cxt = null;
         try {
+            int retries = 1;
+            boolean retry = false;
+            if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.RETRY_ATTEMPTS) != null) {
+                retries = Math.max(retries, Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants
+                        .RealmConfig.RETRY_ATTEMPTS)));
+            }
             // cxt = new InitialLdapContext(env, null);
-            cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
-            isAuthed = true;
+            do {
+                try {
+                    cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
+                    isAuthed = true;
+                    retry = false;
+                    retries--;
+                } catch (UserStoreException e) {
+                    if (e.getMessage().contains(UserCoreConstants.RealmConfig.READ_TIME_EXCEEDED)) {
+                        retry = true;
+                    }
+                }
+            } while (retry && (retries > 0));
         } catch (AuthenticationException e) {
 			/*
 			 * StringBuilder stringBuilder = new
