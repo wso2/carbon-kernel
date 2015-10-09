@@ -831,7 +831,6 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
             } catch (SQLException e1) {
                 throw new UserStoreException("Error in connection rollback ", e1);
             }
-
             if (log.isDebugEnabled()) {
                 log.debug("Error! " + e.getMessage(), e);
             }
