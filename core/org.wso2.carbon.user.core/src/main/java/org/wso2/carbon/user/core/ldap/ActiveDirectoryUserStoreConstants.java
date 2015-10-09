@@ -17,6 +17,7 @@ package org.wso2.carbon.user.core.ldap;
 
 
 import org.wso2.carbon.user.api.Property;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 import java.util.ArrayList;
@@ -86,8 +87,8 @@ public class ActiveDirectoryUserStoreConstants {
 //      AD Specific Properties
         setProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT", UserStoreConfigConstants.passwordHashMethodDescription);
         setProperty(UserStoreConfigConstants.passwordJavaScriptRegEx, "Password RegEx (Javascript)", "^[\\S]{5,30}$", UserStoreConfigConstants.passwordJavaScriptRegExDescription);
-        setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.usernameJavaScriptRegExDescription);
-        setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
+        setProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JS_REG_EX, "Username RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.usernameJavaScriptRegExDescription);
+        setProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
         setProperty(UserStoreConfigConstants.roleNameJavaRegEx, "Role Name RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.roleNameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.writeGroups, "Enable Write Groups", "true", UserStoreConfigConstants.writeGroupsDescription);
