@@ -17,7 +17,6 @@ package org.wso2.carbon.ndatasource.rdbms;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * This class represents the RDBMS configuration properties.
@@ -103,7 +102,7 @@ public class RDBMSConfiguration {
 	
 	private List<DataSourceProperty> dataSourceProps;
 
-	private List<DBProperty> dbProps;
+	private List<DataSourceProperty> databaseProps;
 
 	public String getUrl() {
 		return url;
@@ -422,14 +421,14 @@ public class RDBMSConfiguration {
 		this.dataSourceClassName = dataSourceClassName;
 	}
 
-	@XmlElementWrapper (name = RDBMSDataSourceConstants.DB_PROPS_NAME)
+	@XmlElementWrapper (name = "databaseProps")
 	@XmlElement (name = "property")
-	public List<DBProperty> getDbProps() {
-		return dbProps;
+	public List<DataSourceProperty> getDatabaseProps() {
+		return databaseProps;
 	}
 
-	public void setDbProps(List<DBProperty> dbProps) {
-		this.dbProps = dbProps;
+	public void setDatabaseProps(List<DataSourceProperty> databaseProps) {
+		this.databaseProps = databaseProps;
 	}
 	
 	@XmlElementWrapper (name = RDBMSDataSourceConstants.DATASOURCE_PROPS_NAME)
@@ -513,43 +512,5 @@ public class RDBMSConfiguration {
 			this.value = value;
 		}
 		
-	}
-
-	@XmlRootElement (name = "property")
-	public static class DBProperty {
-
-		private boolean encrypted = true;
-
-		private String name;
-
-		private String value;
-
-		@XmlAttribute (name = "encrypted")
-		public boolean isEncrypted() {
-			return encrypted;
-		}
-
-		public void setEncrypted(boolean encrypted) {
-			this.encrypted = encrypted;
-		}
-
-		@XmlAttribute (name = "name")
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		@XmlValue
-		public String getValue() {
-			return value;
-		}
-
-		public void setValue(String value) {
-			this.value = value;
-		}
-
 	}
 }

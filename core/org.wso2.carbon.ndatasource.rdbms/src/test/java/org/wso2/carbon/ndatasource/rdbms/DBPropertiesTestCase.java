@@ -25,9 +25,7 @@ import org.wso2.carbon.ndatasource.common.DataSourceException;
 import org.wso2.carbon.ndatasource.rdbms.utils.RDBMSDataSourceUtils;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +34,12 @@ public class DBPropertiesTestCase {
     @Test
     public void modifyDBConfig() throws DataSourceException {
         RDBMSConfiguration configuration = new RDBMSConfiguration();
-        List<RDBMSConfiguration.DBProperty> propertyList = new ArrayList<>();
-        RDBMSConfiguration.DBProperty property = new RDBMSConfiguration.DBProperty();
+        List<RDBMSConfiguration.DataSourceProperty> propertyList = new ArrayList<>();
+        RDBMSConfiguration.DataSourceProperty property = new RDBMSConfiguration.DataSourceProperty();
         property.setName("SetFloatAndDoubleUseBinary");
         property.setValue("true");
         propertyList.add(property);
-        configuration.setDbProps(propertyList);
+        configuration.setDatabaseProps(propertyList);
         PoolConfiguration poolConfiguration = RDBMSDataSourceUtils.createPoolConfiguration(configuration);
         Assert.assertEquals("true", poolConfiguration.getDbProperties().getProperty("SetFloatAndDoubleUseBinary"));
     }

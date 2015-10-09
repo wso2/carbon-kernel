@@ -24,8 +24,6 @@ public class RDBMSDataSourceConstants {
 	
 	public static final String DATASOURCE_PROPS_NAME = "dataSourceProps";
 
-	public static final String DB_PROPS_NAME = "databaseProps";
-
 	public static final String ROLLBACK_ON_RETURN = "rollbackOnReturn";
 	
 	public static final String STANDARD_JDBC_INTERCEPTORS = "ConnectionState;StatementFinalizer;" +
