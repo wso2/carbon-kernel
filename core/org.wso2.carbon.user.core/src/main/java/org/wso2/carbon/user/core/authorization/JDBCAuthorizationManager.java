@@ -771,7 +771,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 domain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
             }
 
-            prepStmt = dbConnection.prepareStatement(UserCoreDBConstants.IS_EXISTING_ROLE_PERMISSION_MAPPING);
+            prepStmt = dbConnection.prepareStatement(DBConstants.IS_EXISTING_ROLE_PERMISSION_MAPPING);
             prepStmt.setString(1, UserCoreUtil.removeDomainFromName(roleName));
             prepStmt.setString(2, resourceId);
             prepStmt.setString(3, action);
