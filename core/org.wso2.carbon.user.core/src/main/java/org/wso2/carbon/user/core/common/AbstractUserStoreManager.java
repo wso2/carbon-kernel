@@ -677,7 +677,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         }
-
+        // check for null claim list
+        if (claims == null) {
+            claims = new String[0];
+        }
         Map<String, String> finalValues = doGetUserClaimValues(userName, claims,
                 userStore.getDomainName(), profileName);
 
@@ -1113,7 +1116,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         }
-
+        if(claims == null){
+            claims = new HashMap<>();
+        }
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1215,7 +1220,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         }
 
-
+        if (claims == null) {
+            claims = new String[0];
+        }
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1277,7 +1284,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             userName = userStore.getDomainFreeName();
             roleList = UserCoreUtil.removeDomainFromNames(roleList);
         }
-
+        if (roleList == null) {
+            roleList = new String[0];
+        }
+        if (claims == null) {
+            claims = new HashMap<>();
+        }
         // #################### <Listeners> #####################################################
         for (UserStoreManagerListener listener : UMListenerServiceComponent
                 .getUserStoreManagerListeners()) {
@@ -1494,7 +1506,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        if (deletedUsers == null) {
+            deletedUsers = new String[0];
+        }
+        if (newUsers == null) {
+            newUsers = new String[0];
+        }
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1588,7 +1605,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        if (deletedRoles == null) {
+            deletedRoles = new String[0];
+        }
+        if (newRoles == null) {
+            newRoles = new String[0];
+        }
         // This happens only once during first startup - adding administrator user/role.
         if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             userName = userStore.getDomainFreeName();
@@ -2433,7 +2455,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        if (userList == null) {
+            userList = new String[0];
+        }
+        if (permissions == null) {
+            permissions = new org.wso2.carbon.user.api.Permission[0];
+        }
         // This happens only once during first startup - adding administrator user/role.
         if (roleName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             roleName = userStore.getDomainFreeName();
