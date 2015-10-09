@@ -1305,7 +1305,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
         // #################### </Listeners> #####################################################
-        validateUsernamePassword(userStore.getDomainFreeName(),credential);
+        validateUserName(userStore.getDomainFreeName());
+        validatePassword(credential);
 
         if (doCheckExistingUser(userStore.getDomainFreeName())) {
             throw new UserStoreException("Username '" + userName
@@ -3621,7 +3622,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     log.error(message);
                 }
             } else if (addAdmin) {
-                validateUsernamePassword(adminUserName, adminPassword);
+                validateUserName(adminUserName);
+                validatePassword(adminPassword);
                 try {
                     this.doAddUser(adminUserName, realmConfig.getAdminPassword(),
                             null, null, null, false);
@@ -3737,13 +3739,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         doInitialUserAdding();
     }
 
-    private void validateUsernamePassword(String userName, Object password) throws UserStoreException {
+    private void validateUserName(String userName) throws UserStoreException {
         if (!checkUserNameValid(userName)) {
             String message = "Username " + userName + " is not valid. User name must be a non null " +
                     "string with following format, ";
             throw new UserStoreException(message);
         }
+    }
 
+    private void validatePassword(Object password) throws UserStoreException {
         if (!checkUserPasswordValid(password)) {
             String message = "Credential not valid. Credential must be a non null string with following format, ";
             String regEx = realmConfig
