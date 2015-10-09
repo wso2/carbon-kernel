@@ -1368,7 +1368,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        validateUsernamePassword(userStore.getDomainFreeName(),credential);
+        validateUserName(userStore.getDomainFreeName());
+        validateCredential(credential);
 
         if (doCheckExistingUser(userStore.getDomainFreeName())) {
             throw new UserStoreException(EXISTING_USER + " Username '" + userName
@@ -3686,7 +3687,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     log.error(message);
                 }
             } else if (addAdmin) {
-                validateUsernamePassword(adminUserName, adminPassword);
+                validateUserName(adminUserName);
+                validateCredential(adminPassword);
                 try {
                     this.doAddUser(adminUserName, realmConfig.getAdminPassword(),
                             null, null, null, false);
@@ -3802,7 +3804,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         doInitialUserAdding();
     }
 
-    private void validateUsernamePassword(String userName, Object password) throws UserStoreException {
+    protected void validateUserName(String userName) throws UserStoreException {
         if (!checkUserNameValid(userName)) {
             String message = INVALID_USER_NAME + "Username " + userName + " is not valid. User name must be a non null " +
                     "string with following format, ";
@@ -3817,6 +3819,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
             throw new UserStoreException(message + regEx);
         }
+    }
+
+    protected void validateCredential( Object password) throws UserStoreException {
+
 
         if (!checkUserPasswordValid(password)) {
             String message = "Credential not valid. Credential must be a non null string with following format, ";
