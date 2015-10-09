@@ -51,7 +51,6 @@ public class LDAPConnectionContext {
 
     private static final String CONNECTION_TIME_OUT = "LDAPConnectionTimeout";
 
-    private static final String READ_TIME_OUT = "ReadTimeout";
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public LDAPConnectionContext(RealmConfiguration realmConfig) throws UserStoreException {
@@ -148,7 +147,7 @@ public class LDAPConnectionContext {
         if (binaryAttribute != null) {
             environment.put(LDAPConstants.LDAP_ATTRIBUTES_BINARY, binaryAttribute);
         }
-        String readTimeout = realmConfig.getUserStoreProperty(READ_TIME_OUT);
+        String readTimeout = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.LDAP_READ_TIMEOUT);
         if(readTimeout != null && !readTimeout.trim().isEmpty()) {
             environment.put("com.sun.jndi.ldap.read.timeout",readTimeout);
         }
