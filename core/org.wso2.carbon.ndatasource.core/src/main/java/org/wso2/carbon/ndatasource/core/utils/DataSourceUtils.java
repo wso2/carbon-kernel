@@ -56,7 +56,7 @@ public class DataSourceUtils {
 	private static Log log = LogFactory.getLog(DataSourceUtils.class);
 	
 	private static SecretResolver secretResolver;
-    private static final String XML_DECLARATION = "xml-declaration";
+    private static final String XML_DECLARATION="xml-declaration";
 	
 	private static ThreadLocal<String> dataSourceId = new ThreadLocal<String>() {
         protected synchronized String initialValue() {
@@ -96,9 +96,9 @@ public class DataSourceUtils {
 			/* be super tenant to retrieve the registry of a given tenant id */
 			PrivilegedCarbonContext.startTenantFlow();
 			PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(
-                    MultitenantConstants.SUPER_TENANT_ID);
+					MultitenantConstants.SUPER_TENANT_ID);
 			return DataSourceServiceComponent.getRegistryService().getGovernanceSystemRegistry(
-                    tenantId);
+					tenantId);
 		} catch (RegistryException e) {
 			throw new DataSourceException("Error in retrieving gov registry instance: " + 
 		            e.getMessage(), e);

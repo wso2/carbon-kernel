@@ -55,6 +55,7 @@ public class UserCoreConstants {
     public static final int MAX_SEARCH_TIME = 10000;   // ms
 
     public static final String INTERNAL_DOMAIN = "Internal";
+    public static final String APPLICATION_DOMAIN = "Application";
     public static final String PRIMARY_DEFAULT_DOMAIN_NAME = "PRIMARY";
     public static final String SYSTEM_DOMAIN_NAME = "SYSTEM";
 
@@ -223,6 +224,7 @@ public class UserCoreConstants {
         public static final String ACCOUNT_STATUS = IDENTITY_CLAIM_URI + "/accountLock";
         public static final String CHALLENGE_QUESTION_URI = IDENTITY_CLAIM_URI + "/challengeQuestion";
         public static final String TEMPORARY_EMAIL_ADDRESS = DEFAULT_CARBON_DIALECT + "/temporaryemailaddress";
+        public static final String DISPLAY_NAME = DEFAULT_CARBON_DIALECT + "/displayName";
     }
 
     public static final class TenantMgtConfig {

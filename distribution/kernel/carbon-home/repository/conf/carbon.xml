@@ -436,22 +436,17 @@
             </Patterns>
         </XSSPreventionConfig>
 
-        <!-- Configurations to avoid Cross Site Request Forgery vulnerabilities -->
         <CSRFPreventionConfig>
-            <!-- CSRFPreventionFilter configurations that adopts Synchronizer Token Pattern -->
-            <CSRFPreventionFilter>
-                <!-- Set below to true to enable the CSRFPreventionFilter -->
-                <Enabled>false</Enabled>
-                <!-- Url Pattern to skip application of CSRF protection-->
-                <SkipUrlPattern>(.*)(/images|/css|/js|/docs)(.*)</SkipUrlPattern>
-            </CSRFPreventionFilter>
+            <Enabled>true</Enabled>
+            <Rule>allow</Rule>
+            <Patterns>
+                <!--Pattern></Pattern-->
+            </Patterns>
+            <WhiteList>
+                <Url>https://localhost:9443</Url>
+            </WhiteList>
         </CSRFPreventionConfig>
 
-        <!-- Configuration to enable or disable CR and LF sanitization filter-->
-        <CRLFPreventionConfig>
-            <!--Set below to true to enable the CRLFPreventionFilter-->
-            <Enabled>true</Enabled>
-        </CRLFPreventionConfig>
     </Security>
 
     <!--

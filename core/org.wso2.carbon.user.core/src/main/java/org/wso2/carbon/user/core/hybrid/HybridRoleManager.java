@@ -68,9 +68,13 @@ public class HybridRoleManager {
         this.userRealm = realm;
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
+<<<<<<< HEAD
         UserCoreUtil.persistDomain(APPLICATION_DOMAIN, tenantId, dataSource);
         UserCoreUtil.persistDomain(WORKFLOW_DOMAIN, tenantId, dataSource);
 
+=======
+        UserCoreUtil.persistDomain(UserCoreConstants.APPLICATION_DOMAIN, tenantId, dataSource);
+>>>>>>> 1790d07038353ed809bc2d818173b30027f21923
     }
 
     /**
@@ -420,7 +424,11 @@ public class HybridRoleManager {
                 List<String> allRoles = new ArrayList<String>();
                 boolean isEveryone = false;
                 for (String role : roles) {
+<<<<<<< HEAD
                     if(!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+=======
+                    if (!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+>>>>>>> 1790d07038353ed809bc2d818173b30027f21923
                         role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
                                + role;
                     }
