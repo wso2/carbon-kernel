@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -151,7 +152,7 @@ public class LDAPConnectionContext {
             environment.put(LDAPConstants.LDAP_ATTRIBUTES_BINARY, binaryAttribute);
         }
         String readTimeout = realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.LDAP_READ_TIMEOUT);
-        if(readTimeout != null && !readTimeout.trim().isEmpty()) {
+        if(StringUtils.isNotEmpty(readTimeout)) {
             environment.put("com.sun.jndi.ldap.read.timeout",readTimeout);
         }
         //Set connect timeout if provided in configuration. Otherwise set default value
