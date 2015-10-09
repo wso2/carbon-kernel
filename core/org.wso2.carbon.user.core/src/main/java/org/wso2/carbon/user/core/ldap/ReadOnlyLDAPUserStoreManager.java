@@ -1091,13 +1091,11 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         try {
             int retries = 0;
             boolean retry = false;
-            if (realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.RETRY_ATTEMPTS) != null) {
-                try {
-                    retries = Math.max(retries, Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants
-                            .RealmConfig.RETRY_ATTEMPTS)));
-                } catch (NumberFormatException e) {
-                    retries = 0;
-                }
+            try {
+                retries = Math.max(retries, Integer.parseInt(realmConfig.getUserStoreProperty(UserCoreConstants
+                        .RealmConfig.RETRY_ATTEMPTS)));
+            } catch (NumberFormatException | NullPointerException e) {
+                retries = 0;
             }
             // cxt = new InitialLdapContext(env, null);
             do {
