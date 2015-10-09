@@ -1090,7 +1090,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             boolean retry;
             try {
                 retries = Integer.parseInt(realmConfig.getUserStoreProperty("LDAPRetryAttempts"));
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | NullPointerException e) {
                 retries = 0;
             }
             do {
