@@ -109,7 +109,6 @@ public class LDAPConnectionContext {
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         environment.put(Context.SECURITY_AUTHENTICATION, "simple");
 
-
         /**
          * In carbon JNDI context we need to by pass specific tenant context and we need the base
          * context for LDAP operations.
