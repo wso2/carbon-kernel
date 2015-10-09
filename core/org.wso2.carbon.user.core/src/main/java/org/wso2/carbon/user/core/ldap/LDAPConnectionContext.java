@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -158,7 +159,7 @@ public class LDAPConnectionContext {
             environment.put("com.sun.jndi.ldap.connect.timeout", "5000");
         }
 
-        if(readTimeout != null && !readTimeout.trim().isEmpty()){
+        if(StringUtils.isNotEmpty(readTimeout)){
             environment.put("com.sun.jndi.ldap.read.timeout",readTimeout);
         }
     }
