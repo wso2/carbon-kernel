@@ -95,7 +95,8 @@ public class ReadOnlyLDAPUserStoreConstants {
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setProperty("UniqueID", "", "", "");
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
-
+        setProperty("ReadTimeout", "LDAP Read Timeout", "5000", "Set the LDAP connection read time out. Setting it " +
+                "empty will set it to the TCP time out");
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,

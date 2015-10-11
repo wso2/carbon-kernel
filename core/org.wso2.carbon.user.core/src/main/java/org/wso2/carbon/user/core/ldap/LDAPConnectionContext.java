@@ -17,6 +17,7 @@
  */
 package org.wso2.carbon.user.core.ldap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -29,6 +30,7 @@ import javax.naming.AuthenticationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.TimeLimitExceededException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -53,6 +55,8 @@ public class LDAPConnectionContext {
     private boolean readOnly = false;
 
     private static final String CONNECTION_TIME_OUT = "LDAPConnectionTimeout";
+
+    private static final String READ_TIME_OUT = "ReadTimeout";
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public LDAPConnectionContext(RealmConfiguration realmConfig) throws UserStoreException {
@@ -152,10 +156,15 @@ public class LDAPConnectionContext {
 
         //Set connect timeout if provided in configuration. Otherwise set default value
         String connectTimeout = realmConfig.getUserStoreProperty(CONNECTION_TIME_OUT);
+        String readTimeout = realmConfig.getUserStoreProperty(READ_TIME_OUT);
         if (connectTimeout != null && !connectTimeout.trim().isEmpty()) {
             environment.put("com.sun.jndi.ldap.connect.timeout", connectTimeout);
         } else {
             environment.put("com.sun.jndi.ldap.connect.timeout", "5000");
+        }
+
+        if(StringUtils.isNotEmpty(readTimeout)){
+            environment.put("com.sun.jndi.ldap.read.timeout",readTimeout);
         }
     }
 
@@ -323,7 +332,9 @@ public class LDAPConnectionContext {
             } catch (AuthenticationException e) {
                 throw e;
 
-            } catch (NamingException e) {
+            } catch (TimeLimitExceededException e) {
+                throw new UserStoreException("TimeLimitExceeded : LDAP Read Timed Out");
+            }catch (NamingException e) {
                 log.error("Error obtaining connection to first Domain Controller." + e.getMessage(), e);
                 log.info("Trying to connect with other Domain Controllers");
 
