@@ -190,6 +190,7 @@
             <Property name="SharedTenantNameAttribute">ou</Property>
             <Property name="SharedTenantObjectClass">organizationalUnit</Property>
             <Property name="MembershipAttribute">member</Property>
+            <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="GroupNameListFilter">(objectcategory=group)</Property>
 	    <Property name="GroupNameSearchFilter">(&amp;(objectClass=group)(cn=?))</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
