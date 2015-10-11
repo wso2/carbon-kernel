@@ -19,14 +19,15 @@
 package org.wso2.carbon.base;
 
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Properties;
 
 /**
@@ -36,7 +37,7 @@ public class LoggingConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingConfiguration.class);
     private static LoggingConfiguration instance = new LoggingConfiguration();
-    private ConfigurationAdmin configurationAdmin;
+    private ManagedService configurationAdmin;
 
     /**
      * Method to retrieve an instance of the logging configuration.
@@ -47,7 +48,7 @@ public class LoggingConfiguration {
         return instance;
     }
 
-    public void setConfigurationAdminService(ConfigurationAdmin configurationAdminService) {
+    public void setConfigurationAdminService(ManagedService configurationAdminService) {
         configurationAdmin = configurationAdminService;
     }
 
@@ -58,12 +59,11 @@ public class LoggingConfiguration {
                     "Configuration admin service is not available."
             );
         }
-
         File configDir = new File(Utils.getCarbonConfigDirPath());
         if (!configDir.exists()) {
             return;
         }
-        File configFileName = new File(configDir, Constants.CONFIG_FILE_NAME);
+        File configFileName = new File(configDir, Constants.LOG4J2_CONFIG_FILE_NAME);
         createConfigurationForFile(configuration, configFileName);
     }
 
@@ -75,11 +75,15 @@ public class LoggingConfiguration {
             if ((configuration != null) && !Constants.LOGGING_CONFIG_PID.equals(configuration)) {
                 return;
             }
-            Properties prop = readProperties(configFileName);
-
+            Hashtable<String, String> prop = new Hashtable<>();
             synchronized (this) {
-                Configuration conf = configurationAdmin.getConfiguration(Constants.LOGGING_CONFIG_PID, null);
-                conf.update(prop);
+                prop.put(Constants.LOG4J2_CONFIG_FILE_KEY, configFileName.getAbsolutePath());
+                try {
+                    configurationAdmin.updated(prop);
+                } catch (ConfigurationException e) {
+                    logger.error("Fail to read Log4J configurations from file [" + configFileName.getAbsolutePath()
+                            + "]", e);
+                }
             }
             logger.debug("Logging registration configuration completed");
         }

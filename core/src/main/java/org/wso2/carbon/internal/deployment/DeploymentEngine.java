@@ -68,6 +68,7 @@ public class DeploymentEngine {
 
 
     public DeploymentEngine(String repositoryDir) throws DeploymentEngineException {
+        logger.debug("Initializing carbon deployment engine for repository : " + repositoryDir);
         init(repositoryDir);
     }
 

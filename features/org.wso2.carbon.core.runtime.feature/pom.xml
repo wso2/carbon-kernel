@@ -108,6 +108,10 @@
             <artifactId>pax-logging-service</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-log4j2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.equinox</groupId>
             <artifactId>cm</artifactId>
         </dependency>
@@ -243,7 +247,8 @@
                                 <bundleDef>org.eclipse:org.sat4j.core</bundleDef>
                                 <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
-                                <bundleDef>org.ops4j.pax.logging:pax-logging-service</bundleDef>
+                                <!--<bundleDef>org.ops4j.pax.logging:pax-logging-service</bundleDef>-->
+                                <bundleDef>org.ops4j.pax.logging:pax-logging-log4j2</bundleDef>
                                 <bundleDef>org.eclipse.equinox:cm</bundleDef>
                                 <bundleDef>
                                     org.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86

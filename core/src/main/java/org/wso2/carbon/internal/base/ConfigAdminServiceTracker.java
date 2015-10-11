@@ -19,8 +19,10 @@
 package org.wso2.carbon.internal.base;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,20 +32,21 @@ import org.wso2.carbon.base.LoggingConfiguration;
  * TODO: class level comment
  */
 public class ConfigAdminServiceTracker extends ServiceTracker {
-    private static final String CONFIG_ADMIN_SERVICE_NAME = ConfigurationAdmin.class.getName();
     private static final Logger logger = LoggerFactory.getLogger(ConfigAdminServiceTracker.class);
     private LoggingConfiguration loggingConfiguration;
 
-    @SuppressWarnings("unchecked")
     public ConfigAdminServiceTracker(BundleContext bundleContext, LoggingConfiguration configuration) {
-        super(bundleContext, CONFIG_ADMIN_SERVICE_NAME, null);
+        super(bundleContext, ManagedService.class.getName(), null);
         loggingConfiguration = configuration;
     }
 
     @Override
     public final Object addingService(ServiceReference serviceReference) {
-        @SuppressWarnings("unchecked") ConfigurationAdmin service =
-                (ConfigurationAdmin) super.addingService(serviceReference);
+        String pid = (String) serviceReference.getProperty(Constants.SERVICE_PID);
+        if (pid == null) {
+            return null;
+        }
+        ManagedService service = (ManagedService) context.getService(serviceReference);
         loggingConfiguration.setConfigurationAdminService(service);
 
         try {

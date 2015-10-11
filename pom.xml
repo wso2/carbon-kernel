@@ -567,6 +567,11 @@
                 <version>${pax.logging.services.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-log4j2</artifactId>
+                <version>${pax.logging.log4j2.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>cm</artifactId>
                 <version>${org.eclipse.equinox.cm.version}</version>
@@ -724,8 +729,9 @@
         </ecf.provider.filetransfer.httpclient.version>
 
         <!--PAX Logging related dependency versions-->
-        <pax.logging.api.version>1.7.2</pax.logging.api.version>
-        <pax.logging.services.version>1.7.2</pax.logging.services.version>
+        <pax.logging.api.version>1.8.4</pax.logging.api.version>
+        <pax.logging.services.version>1.8.4</pax.logging.services.version>
+        <pax.logging.log4j2.version>1.8.4</pax.logging.log4j2.version>
         <org.eclipse.equinox.cm.version>3.2.0-v20070116</org.eclipse.equinox.cm.version>
 
         <!--Maven Plugins -->
