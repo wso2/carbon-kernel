@@ -29,11 +29,16 @@ public class ActiveDirectoryUserStoreConstants {
     public static final ArrayList<Property> OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES = new ArrayList<Property>();
 
     //For multiple attribute separation
-    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
-    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
     private static final String DisplayNameAttributeDescription = "Attribute name to display as the Display Name";
     private static final String DisplayNameAttribute = "DisplayNameAttribute";
-
+    private static final String usernameJavaRegExViolationErrorMsg = "UsernameJavaRegExViolationErrorMsg";
+    private static final String usernameJavaRegExViolationErrorMsgDescription = "Error message when the Username is not " +
+            "matched with UsernameJavaRegEx";
+    private static final String passwordJavaRegEx = "PasswordJavaRegEx";
+    private static final String passwordJavaRegExViolationErrorMsg = "PasswordJavaRegExViolationErrorMsg";
+    private static final String passwordJavaRegExViolationErrorMsgDescription = "Error message when the Password is " +
+            "not matched with passwordJavaRegEx";
+    private static final String passwordJavaRegExDescription = "Policy that defines the password format in backend";
 
     static {
         //Set mandatory properties
@@ -67,8 +72,7 @@ public class ActiveDirectoryUserStoreConstants {
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
                 UserStoreConfigConstants.userDNPatternDescription);
-        setProperty(UserStoreConfigConstants.DisplayNameAttribute, "Display name attribute", "",
-                UserStoreConfigConstants.DisplayNameAttributeDescription);
+        setProperty(DisplayNameAttribute, "Display name attribute", "", DisplayNameAttributeDescription);
 
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
 
@@ -115,59 +119,21 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$",
                 UserStoreConfigConstants.usernameJavaScriptRegExDescription);
 
-        setProperty(UserStoreConfigConstants.usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
-                "Username pattern policy violated.",
-                UserStoreConfigConstants.usernameJavaRegExViolationErrorMsgDescription);
+        setProperty(usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
+                "Username pattern policy violated.", usernameJavaRegExViolationErrorMsgDescription);
 
-        setProperty(UserStoreConfigConstants.passwordJavaRegEx, "Password RegEx (Java)", "^[\\S]{5,30}$",
-                UserStoreConfigConstants.passwordJavaScriptRegExDescription);
+        setProperty(passwordJavaRegEx, "Password RegEx (Java)", "^[\\S]{5,30}$", passwordJavaRegExDescription);
         setProperty(UserStoreConfigConstants.passwordJavaScriptRegEx, "Password RegEx (Javascript)", "^[\\S]{5,30}$",
                 UserStoreConfigConstants.passwordJavaScriptRegExDescription);
 
-        setProperty(UserStoreConfigConstants.passwordJavaRegExViolationErrorMsg, "Password RegEx Violation Error Message",
-                "Password pattern policy violated.", UserStoreConfigConstants.passwordJavaRegExViolationErrorMsgDescription);
+        setProperty(passwordJavaRegExViolationErrorMsg, "Password RegEx Violation Error Message",
+                "Password pattern policy violated.", passwordJavaRegExViolationErrorMsgDescription);
 
         setProperty(UserStoreConfigConstants.roleNameJavaRegEx, "Role Name RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$",
                 UserStoreConfigConstants.roleNameJavaRegExDescription);
 
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$",
                 UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
-
-
-        //Set Advanced Properties
-
-        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants
-                .SCIMEnabledDescription);
-
-        setAdvancedProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");
-        setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true", UserStoreConfigConstants
-                .emptyRolesAllowedDescription);
-
-
-        setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
-                UserStoreConfigConstants.passwordHashMethodDescription);
-        setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
-        setAdvancedProperty("isADLDSRole", "Is ADLDS Role", "false", "Whether an Active Directory Lightweight Directory Services role");
-        setAdvancedProperty("userAccountControl", "User Account Control", "512", "Flags that control the behavior of the user account");
-
-
-        setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants
-                .maxUserNameListLengthDescription);
-        setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants
-                .maxRoleNameListLengthDescription);
-
-        setAdvancedProperty("kdcEnabled", "Enable KDC", "false", "Whether key distribution center enabled");
-        setAdvancedProperty("defaultRealmName", "Default Realm Name", "WSO2.ORG", "Default name for the realm");
-
-        setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants
-                .userRolesCacheEnabledDescription);
-
-        setAdvancedProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
-                UserStoreConfigConstants.connectionPoolingEnabledDescription);
-
-        setAdvancedProperty(UserStoreConfigConstants.LDAPConnectionTimeout, "LDAP Connection Timeout", "5000",
-                UserStoreConfigConstants.LDAPConnectionTimeoutDescription);
-        setAdvancedProperty("UniqueID", "", "", "");
 
     }
 
