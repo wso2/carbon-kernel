@@ -1383,32 +1383,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!checkUserNameValid(userStore.getDomainFreeName())) {
-            String message = INVALID_USER_NAME + "Username " + userStore.getDomainFreeName() + " is not valid. User name must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
-
-        if (!checkUserPasswordValid(credential)) {
-            String message = "Credential not valid. Credential must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
+        validateUserName(userStore.getDomainFreeName());
+        validateCredential(credential);
 
         if (doCheckExistingUser(userStore.getDomainFreeName())) {
             throw new UserStoreException(EXISTING_USER + " Username '" + userName
@@ -3684,6 +3660,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         String adminUserName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminUserName());
         String adminRoleName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminRoleName());
+        String adminPassword = realmConfig.getAdminPassword();
         boolean userExist = false;
         boolean roleExist = false;
         boolean isInternalRole = false;
@@ -3725,6 +3702,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     log.error(message);
                 }
             } else if (addAdmin) {
+                validateUserName(adminUserName);
+                validateCredential(adminPassword);
                 try {
                     this.doAddUser(adminUserName, realmConfig.getAdminPassword(),
                             null, null, null, false);
@@ -3838,6 +3817,40 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         doInitialUserAdding();
+    }
+
+    protected void validateUserName(String userName) throws UserStoreException {
+        if (!checkUserNameValid(userName)) {
+            String message = INVALID_USER_NAME + "Username " + userName + " is not valid. User name must be a non null " +
+                    "string with following format, ";
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+            throw new UserStoreException(message + regEx);
+        }
+    }
+
+    protected void validateCredential(Object password) throws UserStoreException {
+
+
+        if (!checkUserPasswordValid(password)) {
+            String message = "Credential not valid. Credential must be a non null string with following format, ";
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
+            throw new UserStoreException(message + regEx);
+        }
     }
 
     /**
