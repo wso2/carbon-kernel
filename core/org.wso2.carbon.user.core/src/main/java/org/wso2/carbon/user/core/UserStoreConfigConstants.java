@@ -61,11 +61,18 @@ public class UserStoreConfigConstants {
     public static final String userEntryObjectClass = "UserEntryObjectClass";
     public static final String userEntryObjectClassDescription = "Object Class used to construct user entries";
     public static final String passwordJavaScriptRegEx = "PasswordJavaScriptRegEx";
+    public static final String passwordJavaRegEx= "PasswordJavaRegEx";
+    public static final String passwordJavaRegExViolationErrorMsg= "PasswordJavaRegExViolationErrorMsg";
+    public static final String passwordJavaRegExViolationErrorMsgDescription= "Error message when the Password is " +
+            "not matched with passwordJavaRegEx";
+    public static final String passwordJavaRegExDescription = "Policy that defines the password format in backend";
     public static final String passwordJavaScriptRegExDescription = "Policy that defines the password format";
     public static final String usernameJavaScriptRegEx = "UsernameJavaScriptRegEx";
     public static final String usernameJavaScriptRegExDescription = "The regular expression used by the front-end components for username validation";
     public static final String usernameJavaRegEx = "UsernameJavaRegEx";
     public static final String usernameJavaRegExDescription = "A regular expression to validate user names";
+    public static final String usernameJavaRegExViolationErrorMsg = "UsernameJavaRegExViolationErrorMsg";
+    public static final String usernameJavaRegExViolationErrorMsgDescription = "Error message when the Username is not matched with UsernameJavaRegEx";
     public static final String roleNameJavaScriptRegEx = "RoleNameJavaScriptRegEx";
     public static final String roleNameJavaScriptRegExDescription = "The regular expression used by the front-end components for role name validation";
     public static final String roleNameJavaRegEx = "RoleNameJavaRegEx";
@@ -103,6 +110,9 @@ public class UserStoreConfigConstants {
     public static final String connectionPoolingEnabled = "ConnectionPoolingEnabled";
     public static final String connectionPoolingEnabledDescription = "Set this property to enable LDAP connection " +
             "pooling.";
+    public static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
+    public static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
+
 
     public static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
 }
