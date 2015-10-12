@@ -36,55 +36,55 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.launcher.gtk.linux.x86</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.ds</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.launcher</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.app</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.concurrent</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.frameworkadmin</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.console</artifactId>
         </dependency>
         <dependency>
@@ -108,68 +108,72 @@
             <artifactId>pax-logging-service</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>cm</artifactId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.cm</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.preferences</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.registry</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.p2.publisher</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.wso2.eclipse.core</groupId>
             <artifactId>org.eclipse.core.contenttype</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.wso2.eclipse.core</groupId>
             <artifactId>org.eclipse.core.expressions</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.wso2.eclipse.core</groupId>
             <artifactId>org.eclipse.core.jobs</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.wso2.eclipse.core</groupId>
             <artifactId>org.eclipse.core.runtime</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
+            <groupId>org.wso2.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
+            <groupId>org.wso2.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.filetransfer</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
+            <groupId>org.wso2.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.identity</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
+            <groupId>org.wso2.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse</groupId>
+            <groupId>org.wso2.eclipse</groupId>
             <artifactId>org.sat4j.core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse</groupId>
+            <groupId>org.wso2.eclipse</groupId>
             <artifactId>org.sat4j.pb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
         </dependency>
     </dependencies>
 
@@ -196,58 +200,59 @@
                                 </properties>
                             </adviceFile>
                             <bundles>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.common
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.common
                                 </bundleDef>
                                 <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator
+                                    org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator
                                 </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.ds</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.launcher
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.ds</bundleDef>
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.launcher
                                 </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.util</bundleDef>
-                                <bundleDef>org.eclipse.osgi:org.eclipse.osgi.services</bundleDef>
-                                <bundleDef>org.eclipse.osgi:org.eclipse.osgi</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.app</bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.concurrent
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.util</bundleDef>
+                                <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.services</bundleDef>
+                                <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi</bundleDef>
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.app</bundleDef>
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.concurrent
                                 </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.frameworkadmin
-                                </bundleDef>
-                                <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox
-                                </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.preferences
-                                </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.registry
-                                </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.security
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin
                                 </bundleDef>
                                 <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
+                                    org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox
                                 </bundleDef>
-                                <bundleDef>org.eclipse.equinox:org.eclipse.equinox.console
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.preferences
+                                </bundleDef>
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.registry
+                                </bundleDef>
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.security
+                                </bundleDef>
+                                <bundleDef>
+                                    org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
+                                </bundleDef>
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.console
                                 </bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.command
                                 </bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime
                                 </bundleDef>
                                 <bundleDef>org.apache.felix:org.apache.felix.gogo.shell</bundleDef>
-                                <bundleDef>org.eclipse.core:org.eclipse.core.contenttype</bundleDef>
-                                <bundleDef>org.eclipse.core:org.eclipse.core.expressions</bundleDef>
-                                <bundleDef>org.eclipse.core:org.eclipse.core.jobs</bundleDef>
-                                <bundleDef>org.eclipse.core:org.eclipse.core.runtime</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>
-                                <bundleDef>org.eclipse.ecf:org.eclipse.ecf.provider.filetransfer
+                                <bundleDef>org.wso2.eclipse.core:org.eclipse.core.contenttype</bundleDef>
+                                <bundleDef>org.wso2.eclipse.core:org.eclipse.core.expressions</bundleDef>
+                                <bundleDef>org.wso2.eclipse.core:org.eclipse.core.jobs</bundleDef>
+                                <bundleDef>org.wso2.eclipse.core:org.eclipse.core.runtime</bundleDef>
+                                <bundleDef>org.wso2.eclipse.ecf:org.eclipse.ecf</bundleDef>
+                                <bundleDef>org.wso2.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
+                                <bundleDef>org.wso2.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>
+                                <bundleDef>org.wso2.eclipse.ecf:org.eclipse.ecf.provider.filetransfer
                                 </bundleDef>
-                                <bundleDef>org.eclipse:org.sat4j.core</bundleDef>
-                                <bundleDef>org.eclipse:org.sat4j.pb</bundleDef>
+                                <bundleDef>org.wso2.eclipse:org.sat4j.core</bundleDef>
+                                <bundleDef>org.wso2.eclipse:org.sat4j.pb</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
                                 <bundleDef>org.ops4j.pax.logging:pax-logging-service</bundleDef>
-                                <bundleDef>org.eclipse.equinox:cm</bundleDef>
+                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.cm</bundleDef>
                                 <bundleDef>
-                                    org.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86
+                                    org.wso2.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86
                                 </bundleDef>
+                                <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.compatibility.state</bundleDef>
                             </bundles>
                         </configuration>
                     </execution>
