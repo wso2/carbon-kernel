@@ -53,7 +53,7 @@ public class UserCoreConstants {
     public static final int MAX_USER_ROLE_LIST = 100;
     public static final int MAX_SEARCH_TIME = 10000;   // ms
 
-    public static final String INTERNAL_DOMAIN = "Internal";
+    public static final String INTERNAL_DOMAIN = "INTERNAL";
     public static final String PRIMARY_DEFAULT_DOMAIN_NAME = "PRIMARY";
     public static final String SYSTEM_DOMAIN_NAME = "SYSTEM";
 
