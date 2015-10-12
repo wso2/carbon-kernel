@@ -54,14 +54,6 @@
             <Property name="GroupEntryObjectClass">groupOfNames</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameAttribute">cn</Property>
-            <Property name="SharedGroupNameAttribute">cn</Property>
-            <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
-            <Property name="SharedGroupEntryObjectClass">groupOfNames</Property>
-            <Property name="SharedGroupNameListFilter">(objectClass=groupOfNames)</Property>
-            <Property name="SharedGroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
-            <Property name="SharedTenantNameListFilter">(objectClass=organizationalUnit)</Property>
-            <Property name="SharedTenantNameAttribute">ou</Property>
-            <Property name="SharedTenantObjectClass">organizationalUnit</Property>
 	    <Property name="MembershipAttribute">member</Property>
 	    <Property name="UserRolesCacheEnabled">true</Property>
 	    <Property name="UserDNPattern">uid={0},ou=Users,dc=wso2,dc=org</Property>
@@ -88,14 +80,15 @@
             <Property name="UserNameUniqueAcrossTenants">false</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be within 5 to 30 characters</Property>
 	    <Property name="UsernameJavaRegEx">^[^~!#$;%^*+={}\\|\\\\&lt;&gt;,\'\"]{3,30}$</Property>
 	    <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
+	    <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated</Property>
 	    <Property name="RolenameJavaRegEx">^[^~!#$;%^*+={}\\|\\\\&lt;&gt;,\'\"]{3,30}$</Property>
 	    <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="MaxUserNameListLength">100</Property>
-	    <Property name="SharedGroupEnabled">false</Property>
             <Property name="SCIMEnabled">false</Property>
             <Property name="CaseInsensitiveUsername">true</Property>
             <Property name="MultiAttributeSeparator">,</Property>
@@ -119,24 +112,25 @@
             <Property name="UserNameListFilter">(objectClass=person)</Property>
 	    <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameAttribute">uid</Property>
+	    <Property name="UserDNPattern">uid={0},ou=Users,dc=wso2,dc=org</Property>
+	    <Property name="DisplayNameAttribute"/>
 	    <Property name="ReadGroups">true</Property>
             <Property name="GroupSearchBase">ou=system</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
 	    <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameAttribute">cn</Property>
-            <Property name="SharedGroupNameAttribute">cn</Property>
-            <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
-            <Property name="SharedGroupNameListFilter">(objectClass=groupOfNames)</Property>
-            <Property name="SharedTenantNameListFilter">(objectClass=organizationalUnit)</Property>
-            <Property name="SharedTenantNameAttribute">ou</Property>
-            <Property name="SharedTenantObjectClass">organizationalUnit</Property>
+	    <Property name="RoleDNPattern">cn={0},ou=Groups,dc=wso2,dc=org</Property>
 	    <Property name="MembershipAttribute">member</Property>
+            <Property name="MemberOfAttribute">memberOf</Property>
+	    <Property name="BackLinksEnabled">false</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
 	    <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
+	    <Property name="ReadTimeout"/>
+	    <Property name="RetryAttempts"/>
 	    <Property name="MultiAttributeSeparator">,</Property>
         </UserStoreManager-->
 	
@@ -168,7 +162,11 @@
 	    <Property name="UserNameSearchFilter">(&amp;(objectClass=user)(cn=?))</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
+	    <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated</Property>
+	    <Property name="UserDNPattern">cn={0},CN=Users,DC=WSO2,DC=Com</Property>
+            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be within 5 to 30 characters</Property>
 	    <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
 	    <Property name="ReadGroups">true</Property>
@@ -177,16 +175,11 @@
             <Property name="GroupSearchBase">CN=Users,DC=WSO2,DC=Com</Property>
 	    <Property name="GroupEntryObjectClass">group</Property>
             <Property name="GroupNameAttribute">cn</Property>
-            <Property name="SharedGroupNameAttribute">cn</Property>
-            <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
-            <Property name="SharedGroupEntryObjectClass">groups</Property>
-            <Property name="SharedTenantNameListFilter">(object=organizationalUnit)</Property>
-            <Property name="SharedTenantNameAttribute">ou</Property>
-            <Property name="SharedTenantObjectClass">organizationalUnit</Property>
             <Property name="MembershipAttribute">member</Property>
             <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="GroupNameListFilter">(objectcategory=group)</Property>
 	    <Property name="GroupNameSearchFilter">(&amp;(objectClass=group)(cn=?))</Property>
+	    <Property name="RoleDNPattern">cn={0},CN=Users,DC=WSO2,DC=Com</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="Referral">follow</Property>
 	    <Property name="BackLinksEnabled">true</Property>
@@ -227,14 +220,6 @@
             <Property name="GroupEntryObjectClass">groupOfNames</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameAttribute">cn</Property>
-            <Property name="SharedGroupNameAttribute">cn</Property>
-            <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
-            <Property name="SharedGroupEntryObjectClass">groupOfNames</Property>
-            <Property name="SharedGroupNameListFilter">(objectClass=groupOfNames)</Property>
-            <Property name="SharedGroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
-            <Property name="SharedTenantNameListFilter">(objectClass=organizationalUnit)</Property>
-            <Property name="SharedTenantNameAttribute">ou</Property>
-            <Property name="SharedTenantObjectClass">organizationalUnit</Property>
             <Property name="MembershipAttribute">member</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
 	    <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
@@ -267,11 +252,15 @@
             <Property name="UserSearchBase">ou=Users,dc=wso2,dc=org</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameAttribute">uid</Property>
+	    <Property name="DisplayNameAttribute"/>
+            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
 	    <Property name="ServicePasswordJavaRegEx">^[\\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be within 5 to 30 characters</Property>
 	    <Property name="ServiceNameJavaRegEx">^[\\S]{2,30}/[\\S]{2,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
+	    <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated</Property>
             <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
 	    <Property name="ReadGroups">true</Property>
@@ -282,15 +271,9 @@
 	    <Property name="GroupEntryObjectClass">groupOfNames</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameAttribute">cn</Property>
-            <Property name="SharedGroupNameAttribute">cn</Property>
-            <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
-            <Property name="SharedGroupEntryObjectClass">groupOfNames</Property>
-            <Property name="SharedGroupNameListFilter">(objectClass=groupOfNames)</Property>
-            <Property name="SharedGroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
-            <Property name="SharedTenantNameListFilter">(objectClass=organizationalUnit)</Property>
-            <Property name="SharedTenantNameAttribute">ou</Property>
-            <Property name="SharedTenantObjectClass">organizationalUnit</Property>
             <Property name="MembershipAttribute">member</Property>
+            <Property name="MemberOfAttribute">memberOf</Property>
+	    <Property name="BackLinksEnabled">true</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
 	    <Property name="UserDNPattern">uid={0},ou=Users,dc=wso2,dc=org</Property>
 	    <Property name="RoleDNPattern">cn={0},ou=Groups,dc=wso2,dc=org</Property>
