@@ -78,12 +78,20 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     protected static final String KRB5_PRINCIPAL_NAME_ATTRIBUTE = "krb5PrincipalName";
     protected static final String KRB5_KEY_VERSION_NUMBER_ATTRIBUTE = "krb5KeyVersionNumber";
     protected static final String EMPTY_ATTRIBUTE_STRING = "";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final ArrayList<Property> RW_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<Property>();
+    private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
+    private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
+
     /* To track whether this is the first time startup of the server. */
     protected static boolean isFirstStartup = true;
     private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
+    private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
+
     protected Random random = new Random();
 
     protected boolean kdcEnabled = false;
@@ -1937,6 +1945,40 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
 
     }
+
+
+    private static void setAdvancedProperties() {
+        //Set Advanced Properties
+
+        RW_LDAP_UM_ADVANCED_PROPERTIES.clear();
+        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants
+                .SCIMEnabledDescription);
+
+        setAdvancedProperty(BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");
+        setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true", UserStoreConfigConstants
+                .emptyRolesAllowedDescription);
+
+
+        setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
+                UserStoreConfigConstants.passwordHashMethodDescription);
+        setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
+
+
+        setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants
+                .maxUserNameListLengthDescription);
+        setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants
+                .maxRoleNameListLengthDescription);
+
+        setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants
+                .userRolesCacheEnabledDescription);
+
+        setAdvancedProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
+                UserStoreConfigConstants.connectionPoolingEnabledDescription);
+
+        setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
+        setAdvancedProperty("UniqueID", "", "", "");
+    }
+
 //
 //	/**
 //	 * Check and add the initial data to the user store for user manager to start properly.
@@ -1994,6 +2036,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 (new Property[ReadWriteLDAPUserStoreConstants.RWLDAP_USERSTORE_PROPERTIES.size()]));
         properties.setOptionalProperties(ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.toArray
                 (new Property[ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.size()]));
+        setAdvancedProperties();
+        properties.setAdvancedProperties(RW_LDAP_UM_ADVANCED_PROPERTIES.toArray
+                (new Property[RW_LDAP_UM_ADVANCED_PROPERTIES.size()]));
         return properties;
     }
 
@@ -2255,5 +2300,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } else {
             return dn;
         }
+    }
+    private static void setAdvancedProperty(String name, String displayName, String value,
+                                            String description) {
+        Property property = new Property(name, value, displayName + "#" + description, null);
+        RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
+
     }
 }

@@ -39,6 +39,9 @@ public class ActiveDirectoryUserStoreConstants {
     private static final String passwordJavaRegExViolationErrorMsgDescription = "Error message when the Password is " +
             "not matched with passwordJavaRegEx";
     private static final String passwordJavaRegExDescription = "Policy that defines the password format in backend";
+    private static final String roleDNPattern = "RoleDNPattern";
+    private static final String roleDNPatternDescription = "The patten for role's DN. It can be defined to improve " +
+            "the LDAP search";
 
     static {
         //Set mandatory properties
@@ -105,6 +108,8 @@ public class ActiveDirectoryUserStoreConstants {
                 UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectcategory=group)",
                 UserStoreConfigConstants.groupNameListFilterDescription);
+
+        setProperty(roleDNPattern, "Role DN Pattern", "", roleDNPatternDescription);
 
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member",
                 UserStoreConfigConstants.membershipAttributeDescription);

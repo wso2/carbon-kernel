@@ -868,6 +868,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     private static void setAdvancedProperties() {
         //Set Advanced Properties
 
+        ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants
                 .SCIMEnabledDescription);
 
