@@ -899,7 +899,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
 
         setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
-        setAdvancedProperty("UniqueID", "", "", "");
     }
 
 

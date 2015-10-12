@@ -79,6 +79,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "references to the object from other objects");
 
         setProperty("ReplaceEscapeCharactersAtUserLogin", "Enable Escape Characters at User Login", "true", "Whether replace escape character when user login");
+        setProperty("UniqueID", "", "", "");
 
     }
 
