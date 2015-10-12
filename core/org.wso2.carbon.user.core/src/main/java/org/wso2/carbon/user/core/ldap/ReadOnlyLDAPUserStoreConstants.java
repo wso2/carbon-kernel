@@ -95,6 +95,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
                 UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
+        setProperty(UserStoreConfigConstants.readTimeout, "LDAP Read Timeout", "5000", UserStoreConfigConstants.readTimeoutDescription);
 
     }
 

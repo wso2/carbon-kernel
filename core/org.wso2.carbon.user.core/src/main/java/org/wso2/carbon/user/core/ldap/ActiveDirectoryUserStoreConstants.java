@@ -82,7 +82,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.CASE_SENSITIVE_USERNAME, "Case Sensitive Username", "true",
                 UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
-
+        setProperty(UserStoreConfigConstants.readTimeout, "LDAP Read Timeout", "5000", UserStoreConfigConstants.readTimeoutDescription);
 
 //      AD Specific Properties
         setProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT", UserStoreConfigConstants.passwordHashMethodDescription);
