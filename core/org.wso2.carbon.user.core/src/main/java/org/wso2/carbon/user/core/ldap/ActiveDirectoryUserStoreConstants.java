@@ -104,6 +104,8 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty("BackLinksEnabled", "Enable Back Links", "true", " Whether to allow attributes to be result from references to the object from other objects");
         setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
+        setProperty("ReadTimeout", "LDAP Read Timeout", "5000", "Set the LDAP connection read time out. Setting it " +
+                "empty will set it to the TCP time out");
         setProperty("UniqueID", "", "", "");
         setProperty("IsBulkImportSupported", "", "false", "Support Bulk User Import Operation for this user store");
     }
