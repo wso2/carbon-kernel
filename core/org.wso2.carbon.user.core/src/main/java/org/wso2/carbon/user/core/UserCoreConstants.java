@@ -30,7 +30,6 @@ public class UserCoreConstants {
     public static final short BEHAVIOUR_HIDDEN = 1;
     public static final short BEHAVIOUR_OVERRIDDEN = 2;
 
-    public static final String INTERNAL_USERSTORE = "Internal";
     public static final String EXTERNAL_USERSTORE = "External";
 
     public static final String DELEGATING_REALM = "Delegating";
@@ -97,6 +96,8 @@ public class UserCoreConstants {
     public static final String LOCAL_NAME_PROPERTY = "Property";
     public static final String USER_LOCKED = "true";
     public static final String USER_UNLOCKED = "false";
+
+    public static final String SHA_1_PRNG = "SHA1PRNG";
 
     public static final class RealmConfig {
         public static final String LOCAL_NAME_USER_MANAGER = "UserManager";
@@ -197,6 +198,9 @@ public class UserCoreConstants {
 
         public static final String SHARED_GROUPS_ENABLED = "SharedGroupEnabled";
         public static final String DOMAIN_NAME_XPATH = "//UserStoreManager/Property[@name='DomainName']";
+        public static final String LDAP_READ_TIMEOUT = "ReadTimeout";
+        public static final String READ_TIME_EXCEEDED = "LDAPReadTimeoutExceeded";
+        public static final String RETRY_ATTEMPTS = "RetryAttempts";
     }
 
     public static final class ClaimTypeURIs {

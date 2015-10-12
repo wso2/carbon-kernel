@@ -1146,19 +1146,24 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
             if (tManagedConnectionMap != null && tManagedConnectionMap.get() != null) {
                 ManagedRegistryConnection mrc = tManagedConnectionMap.get().get(
                         RegistryUtils.getConnectionId(connection));
-                if (mrc != null && reinstate) {
-                    if (tClosedConnectionMap != null && tClosedConnectionMap.get() != null &&
-                            tClosedConnectionMap.get().get(
-                                    RegistryUtils.getConnectionId(connection)) != null) {
-                        tClosedConnectionMap.get().put(
-                                RegistryUtils.getConnectionId(connection), null);
+                if (mrc != null) {
+                    if (RegistryUtils.getConnectionId(mrc) == null) {
+                        //if a connection's ID returns null
+                        //then that connection is not suitable for reusing
+                        return null;
                     }
-                    if (tCommittedAndRollbackedConnectionMap != null &&
-                            tCommittedAndRollbackedConnectionMap.get() != null &&
-                            tCommittedAndRollbackedConnectionMap.get().get(
-                                    RegistryUtils.getConnectionId(connection)) != null) {
-                        tCommittedAndRollbackedConnectionMap.get().put(
-                                RegistryUtils.getConnectionId(connection), null);
+                    if (reinstate) {
+                        if (tClosedConnectionMap != null && tClosedConnectionMap.get() != null &&
+                                tClosedConnectionMap.get().get(RegistryUtils.getConnectionId(connection)) != null) {
+                            tClosedConnectionMap.get().put(RegistryUtils.getConnectionId(connection), null);
+                        }
+                        if (tCommittedAndRollbackedConnectionMap != null &&
+                                tCommittedAndRollbackedConnectionMap.get() != null &&
+                                tCommittedAndRollbackedConnectionMap.get().
+                                        get(RegistryUtils.getConnectionId(connection)) != null) {
+                            tCommittedAndRollbackedConnectionMap.get().
+                                    put(RegistryUtils.getConnectionId(connection), null);
+                        }
                     }
                 }
                 return mrc;
@@ -1209,18 +1214,20 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                         getConnectionCount(tCommittedAndRollbackedConnectionMap.get()) + 1)) {
                     // If this is the outer connection, then commit all inner connections and then
                     // the outer connection.
-                    Map<String, ManagedRegistryConnection> connections =
-                            tCommittedAndRollbackedConnectionMap.get();
-                    for (Map.Entry<String, ManagedRegistryConnection> e : connections.entrySet()) {
-                        if (e.getValue() != null) {
-                            e.getValue().getConnection().commit();
-                            connections.put(e.getKey(), null);
+                    try {
+                        Map<String, ManagedRegistryConnection> connections = tCommittedAndRollbackedConnectionMap.get();
+                        for (Map.Entry<String, ManagedRegistryConnection> e : connections.entrySet()) {
+                            if (e.getValue() != null) {
+                                e.getValue().getConnection().commit();
+                                connections.put(e.getKey(), null);
+                            }
                         }
+                    } finally {
+                        // Clean up list of committed and rollbacked connections.
+                        tCommittedAndRollbackedConnectionMap.
+                                set(new LinkedHashMap<String, ManagedRegistryConnection>());
+                        connection.commit();
                     }
-                    // Clean up list of committed and rollbacked connections.
-                    tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String,
-                            ManagedRegistryConnection>());
-                    connection.commit();
                     log.trace("Committed all transactions.");
                 } else if (tManagedConnectionMap.get().size() <
                         getConnectionCount(tCommittedAndRollbackedConnectionMap.get())) {
@@ -1265,19 +1272,23 @@ public class JDBCDatabaseTransaction implements DatabaseTransaction {
                         getConnectionCount(tCommittedAndRollbackedConnectionMap.get()) + 1)) {
                 // If this is the outer connection, then rollback all inner connections and then
                 // the outer connection.
-                Map<String, ManagedRegistryConnection> connections =
-                        tCommittedAndRollbackedConnectionMap.get();
-                for (Map.Entry<String, ManagedRegistryConnection> e : connections.entrySet()) {
-                    if (e.getValue() != null) {
-                        e.getValue().getConnection().rollback();
+                try {
+                    Map<String, ManagedRegistryConnection> connections = tCommittedAndRollbackedConnectionMap.get();
+                    for (Map.Entry<String, ManagedRegistryConnection> e : connections.entrySet()) {
+                        if (e.getValue() != null) {
+                            e.getValue().getConnection().rollback();
+                        }
+                    }
+                } finally {
+                    // Clean up list of committed and rollbacked connections.
+                    tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String, ManagedRegistryConnection>());
+                    try {
+                        connection.rollback();
+                    } finally {
+                        // Clear the flag after rollback
+                        tRollbackedConnection.set(false);
                     }
                 }
-                // Clean up list of committed and rollbacked connections.
-                tCommittedAndRollbackedConnectionMap.set(new LinkedHashMap<String,
-                        ManagedRegistryConnection>());
-                connection.rollback();
-                // Clear the flag after rollback
-                tRollbackedConnection.set(false);
                 log.trace("Rolled back all transactions.");
             } else if (tManagedConnectionMap.get().size() <
                     getConnectionCount(tCommittedAndRollbackedConnectionMap.get())) {

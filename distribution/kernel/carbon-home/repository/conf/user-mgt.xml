@@ -143,7 +143,6 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </UserStoreManager-->
 	
 	<!-- Active directory configuration is as follows.
@@ -195,6 +194,7 @@
             <Property name="SharedTenantNameAttribute">ou</Property>
             <Property name="SharedTenantObjectClass">organizationalUnit</Property>
             <Property name="MembershipAttribute">member</Property>
+            <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="GroupNameListFilter">(objectcategory=group)</Property>
 	    <Property name="GroupNameSearchFilter">(&amp;(objectClass=group)(cn=?))</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
@@ -334,7 +334,6 @@
 	    <Property name="StoreSaltedPassword">true</Property>
 	    <Property name="AuthenticateWithAnyCredential">true</Property>
 	    <Property name="DomainName">multipleCredentialUserStoreDomain</Property>
-	    <Property name="BulkImportSupported">true</Property>
 	        <MultipleCredentials>
 		    <Credential type="Default">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
 		    <Credential type="Email">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>

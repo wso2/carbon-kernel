@@ -36,6 +36,7 @@ import org.wso2.carbon.user.core.claim.ClaimMapping;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.internal.UMListenerServiceComponent;
+import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.ldap.LDAPConstants;
 import org.wso2.carbon.user.core.listener.UserOperationEventListener;
 import org.wso2.carbon.user.core.listener.UserStoreManagerConfigurationListener;
@@ -54,6 +55,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -70,7 +72,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected static final String FALSE_VALUE = "false";
     private static final String MAX_LIST_LENGTH = "100";
     private static final String MULIPLE_ATTRIBUTE_ENABLE = "MultipleAttributeEnable";
+    private static final String USERNAME_CLAIM_URI = "urn:scim:schemas:core:1.0:userName";
     private static final String USER_NOT_FOUND = "UserNotFound";
+    private static final String EXISTING_USER = "UserAlreadyExisting";
+    private static final String INVALID_CLAIM_URL = "InvalidClaimUrl";
+    private static final String INVALID_USER_NAME = "InvalidUserName";
+    private static final String EXISTING_ROLE = "RoleExisting";
+    private static final String READ_ONLY_STORE = "ReadOnlyUserStoreManager";
+    private static final String READ_ONLY_PRIMARY_STORE = "ReadOnlyPrimaryUserStoreManager";
+    private static final String INVALID_ROLE = "InvalidRole";
+    private static final String ANONYMOUS_USER = "AnonymousUser";
+    private static final String INVALID_OPERATION = "InvalidOperation";
+    private static final String NO_READ_WRITE_PERMISSIONS = "NoReadWritePermission";
+    private static final String SHARED_USER_ROLES = "SharedUserRoles";
+    private static final String REMOVE_ADMIN_USER  = "RemoveAdminUser";
+    private static final String LOGGED_IN_USER  = "LoggedInUser";
+    private static final String ADMIN_USER  = "AdminUser";
+    private static final String INVALID_PASSWORD = "PasswordInvalid";
     private static Log log = LogFactory.getLog(AbstractUserStoreManager.class);
     protected int tenantId;
     protected DataSource dataSource = null;
@@ -712,10 +730,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         if (index > 0) {
             String names[] = claimValue.split(CarbonConstants.DOMAIN_SEPARATOR);
             extractedDomain = names[0].trim();
+        } else {
+            extractedDomain = UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
         }
+
+        UserStoreManager userManager = getSecondaryUserStoreManager(extractedDomain);
+        if (USERNAME_CLAIM_URI.equalsIgnoreCase(claim) && userManager
+                instanceof JDBCUserStoreManager) {
+            if (userManager.isExistingUser(claimValue)) {
+                return new String[]{claimValue};
+            } else {
+                return new String[]{};
+            }
+        }
+
         claimValue = UserCoreUtil.removeDomainFromName(claimValue);
         //if domain is present, then we search within that domain only
-        if (extractedDomain != null && !extractedDomain.isEmpty()) {
+        if (!extractedDomain.equals(UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME)) {
             try{
                 property = claimManager.getAttributeName(extractedDomain, claim);
             } catch (org.wso2.carbon.user.api.UserStoreException e) {
@@ -800,7 +831,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
         // #################### <Listeners> #####################################################
@@ -834,7 +865,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
 
                 throw new UserStoreException(
-                        "Credential not valid. Credential must be a non null string with following format, "
+                        INVALID_PASSWORD + " Credential not valid. Credential must be a non null string with following format, "
                                 + realmConfig
                                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
 
@@ -883,7 +914,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
         // #################### <Listeners> #####################################################
@@ -922,7 +953,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
 
             throw new UserStoreException(
-                    "Credential not valid. Credential must be a non null string with following format, "
+                    INVALID_PASSWORD + "Credential not valid. Credential must be a non null string with following format, "
                             + realmConfig
                             .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX));
 
@@ -1013,7 +1044,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (loggedInUser != null && loggedInUser.equals(deletingUser)) {
             log.debug("User " + loggedInUser + " tried to delete him/her self");
-            throw new UserStoreException("Cannot delete logged in user");
+            throw new UserStoreException(LOGGED_IN_USER + " Cannot delete logged in user");
         }
 
         UserStore userStore = getUserStore(userName);
@@ -1025,15 +1056,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (UserCoreUtil.isPrimaryAdminUser(userName, realmConfig)) {
-            throw new UserStoreException("Cannot delete admin user");
+            throw new UserStoreException(ADMIN_USER + " Cannot delete admin user");
         }
 
         if (UserCoreUtil.isRegistryAnnonymousUser(userName)) {
-            throw new UserStoreException("Cannot delete anonymous user");
+            throw new UserStoreException(ANONYMOUS_USER + " Cannot delete anonymous user");
         }
 
         if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
         // #################### <Listeners> #####################################################
@@ -1091,7 +1122,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
         if (!doCheckExistingUser(userName)) {
@@ -1152,7 +1183,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         
         if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
         if (!doCheckExistingUser(userName)) {
@@ -1203,7 +1234,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
         if (!doCheckExistingUser(userName)) {
@@ -1253,7 +1284,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
         if (!doCheckExistingUser(userName)) {
@@ -1315,7 +1346,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (isReadOnly()) {
-            throw new UserStoreException("Invalid operation. User store is read only");
+            throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
 
         // This happens only once during first startup - adding administrator user/role.
@@ -1352,35 +1383,11 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
-        if (!checkUserNameValid(userStore.getDomainFreeName())) {
-            String message = "Username " + userStore.getDomainFreeName() + " is not valid. User name must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
-
-        if (!checkUserPasswordValid(credential)) {
-            String message = "Credential not valid. Credential must be a non null string with following format, ";
-            String errorMsg = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
-
-            if (errorMsg != null) {
-                throw new UserStoreException(errorMsg);
-            }
-            String regEx = realmConfig
-                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
-            throw new UserStoreException(message + regEx);
-        }
+        validateUserName(userStore.getDomainFreeName());
+        validateCredential(credential);
 
         if (doCheckExistingUser(userStore.getDomainFreeName())) {
-            throw new UserStoreException("Username '" + userName
+            throw new UserStoreException(EXISTING_USER + " Username '" + userName
                     + "' already exists in the system. Please pick another username.");
         }
 
@@ -1424,7 +1431,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     throw new UserStoreException(errorMessage, e);
                 }
                 if (claimMapping == null) {
-                    String errorMessage = "Invalid claim uri has been provided.";
+                    String errorMessage = INVALID_CLAIM_URL + " Invalid claim uri has been provided.";
                     throw new UserStoreException(errorMessage);
                 }
             }
@@ -1505,7 +1512,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     if (deletedUsers[i].equalsIgnoreCase(realmConfig.getAdminUserName())
                             || (primaryDomain + deletedUsers[i]).equalsIgnoreCase(realmConfig
                             .getAdminUserName())) {
-                        throw new UserStoreException("Cannot remove Admin user from Admin role");
+                        throw new UserStoreException(REMOVE_ADMIN_USER + " Cannot remove Admin user from Admin role");
                     }
 
                 }
@@ -1779,7 +1786,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 //        }
 
         if (isExistingRole(newRoleName)) {
-            throw new UserStoreException("Role name: " + newRoleName
+            throw new UserStoreException(EXISTING_ROLE +" Role name: " + newRoleName
                     + " in the system. Please pick another role name.");
         }
 
@@ -1796,7 +1803,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             doUpdateRoleName(userStore.getDomainFreeName(), userStoreNew.getDomainFreeName());
         } else {
             throw new UserStoreException(
-                    "Read-only UserStoreManager. Roles cannot be added or modified.");
+                    READ_ONLY_STORE +" Read-only UserStoreManager. Roles cannot be added or modified.");
         }
 
         // This is a special case. We need to pass domain aware name.
@@ -2439,7 +2446,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (isSharedRole && !isSharedGroupEnabled()) {
             throw new org.wso2.carbon.user.api.UserStoreException(
-                    "User store doesn't support shared user roles functionality");
+                    SHARED_USER_ROLES + " User store doesn't support shared user roles functionality");
         }
 
         if (userStore.isHybridRole()) {
@@ -2474,19 +2481,19 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // Check for validations
         if (isReadOnly()) {
             throw new UserStoreException(
-                    "Cannot add role to Read Only user store unless it is primary");
+                    READ_ONLY_PRIMARY_STORE + " Cannot add role to Read Only user store unless it is primary");
         }
 
         if (!isRoleNameValid(roleName)) {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
             throw new UserStoreException(
-                    "Role name not valid. Role name must be a non null string with following format, "
+                    INVALID_ROLE + " Role name not valid. Role name must be a non null string with following format, "
                             + regEx);
         }
 
         if (doCheckExistingRole(roleName)) {
-            throw new UserStoreException("Role name: " + roleName +
+            throw new UserStoreException(EXISTING_USER +" Role name: " + roleName +
                     " in the system. Please pick another role name.");
         }
 
@@ -2498,7 +2505,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             roleWithDomain = UserCoreUtil.addDomainToName(roleName, getMyDomainName());
         } else {
             throw new UserStoreException(
-                    "Role cannot be added. User store is read only or cannot write groups.");
+                    NO_READ_WRITE_PERMISSIONS + " Role cannot be added. User store is read only or cannot write groups.");
         }
 
         // add permission in to the the permission store
@@ -2646,6 +2653,25 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         // #################### </Listeners> #####################################################
 
+    }
+
+    /**
+     * Method to get the password expiration time.
+     *
+     * @param userName the user name.
+     *
+     * @return the password expiration time.
+     * @throws UserStoreException throw if the operation failed.
+     */
+    @Override
+    public Date getPasswordExpirationTime(String userName) throws UserStoreException {
+        UserStore userStore = getUserStore(userName);
+
+        if (userStore.isRecurssive()) {
+            return userStore.getUserStoreManager().getPasswordExpirationTime(userStore.getDomainFreeName());
+        }
+
+        return null;
     }
 
     private UserStore getUserStore(final String user) throws UserStoreException {
@@ -2840,8 +2866,6 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     protected void doAddInternalRole(String roleName, String[] userList,
                                      org.wso2.carbon.user.api.Permission[] permissions)
             throws UserStoreException {
-
-        // #################### Domain Name Free Zone Starts Here ################################
 
         if (hybridRoleManager.isExistingRole(roleName)) {
             throw new UserStoreException("Role name: " + roleName
@@ -3429,7 +3453,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             String regEx = realmConfig
                     .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
             throw new UserStoreException(
-                    "Role name not valid. Role name must be a non null string with following format, "
+                    INVALID_ROLE + " Role name not valid. Role name must be a non null string with following format, "
                             + regEx);
         }
 
@@ -3592,6 +3616,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
         String adminUserName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminUserName());
         String adminRoleName = UserCoreUtil.removeDomainFromName(realmConfig.getAdminRoleName());
+        String adminPassword = realmConfig.getAdminPassword();
         boolean userExist = false;
         boolean roleExist = false;
         boolean isInternalRole = false;
@@ -3633,6 +3658,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     log.error(message);
                 }
             } else if (addAdmin) {
+                validateUserName(adminUserName);
+                validateCredential(adminPassword);
                 try {
                     this.doAddUser(adminUserName, realmConfig.getAdminPassword(),
                             null, null, null, false);
@@ -3746,6 +3773,40 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         doInitialUserAdding();
+    }
+
+    protected void validateUserName(String userName) throws UserStoreException {
+        if (!checkUserNameValid(userName)) {
+            String message = INVALID_USER_NAME + "Username " + userName + " is not valid. User name must be a non null " +
+                    "string with following format, ";
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USERNAME_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX);
+            throw new UserStoreException(message + regEx);
+        }
+    }
+
+    protected void validateCredential(Object password) throws UserStoreException {
+
+
+        if (!checkUserPasswordValid(password)) {
+            String message = "Credential not valid. Credential must be a non null string with following format, ";
+            String errorMsg = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_PASSWORD_ERROR_MSG);
+
+            if (errorMsg != null) {
+                throw new UserStoreException(errorMsg);
+            }
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_JAVA_REG_EX);
+            throw new UserStoreException(message + regEx);
+        }
     }
 
     /**

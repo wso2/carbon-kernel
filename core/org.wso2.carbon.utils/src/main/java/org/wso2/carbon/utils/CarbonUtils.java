@@ -36,6 +36,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xerces.util.SecurityManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -52,6 +53,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Result;
@@ -60,7 +62,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -68,7 +76,11 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A collection of useful utility methods
@@ -1059,12 +1071,19 @@ public class CarbonUtils {
      * @throws CarbonException
      */
     public static InputStream replaceSystemVariablesInXml(InputStream xmlConfiguration) throws CarbonException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder;
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder;
         Document doc;
         try {
-            builder = factory.newDocumentBuilder();
-            doc = builder.parse(xmlConfiguration);
+            documentBuilderFactory.setNamespaceAware(true);
+            documentBuilderFactory.setExpandEntityReferences(false);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            SecurityManager securityManager = new SecurityManager();
+            securityManager.setEntityExpansionLimit(CarbonConstants.ENTITY_EXPANSION_LIMIT_0);
+            documentBuilderFactory.setAttribute(CarbonConstants.SECURITY_MANAGER_PROPERTY, securityManager);
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            documentBuilder.setEntityResolver(new CarbonEntityResolver());
+            doc = documentBuilder.parse(xmlConfiguration);
         } catch (Exception e) {
             throw new CarbonException("Error in building Document", e);
         }
