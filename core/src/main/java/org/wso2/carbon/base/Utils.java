@@ -18,8 +18,6 @@
  */
 package org.wso2.carbon.base;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -27,7 +25,6 @@ import java.io.File;
  * Generic Base Utility methods
  */
 public class Utils {
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     /**
      * Remove default constructor and make it not available to initialize.
@@ -39,7 +36,7 @@ public class Utils {
     }
 
     public static String getCarbonConfigDirPath() {
-        String configDirPath = null;
+        String configDirPath;
         String carbonRepoDirPath = System
                 .getProperty(Constants.CARBON_REPOSITORY);
         if (carbonRepoDirPath == null) {

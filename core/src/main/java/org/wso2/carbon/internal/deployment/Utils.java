@@ -24,7 +24,8 @@ import org.wso2.carbon.deployment.Artifact;
 import java.io.File;
 
 /**
- * Utils
+ * A utility class for handling deployment engine related tasks such as check for artifact modification, etc.
+ *
  */
 public class Utils {
 

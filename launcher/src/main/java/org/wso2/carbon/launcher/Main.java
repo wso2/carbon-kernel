@@ -99,7 +99,7 @@ public class Main {
             logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " +
                     launchPropFile.getAbsolutePath());
 
-            return new CarbonLaunchConfig<String, String>(launchPropFile);
+            return new CarbonLaunchConfig<>(launchPropFile);
         } else {
 
             if (logger.isLoggable(Level.FINE)) {
@@ -107,7 +107,7 @@ public class Main {
                         "in the classpath");
             }
 
-            return new CarbonLaunchConfig<String, String>();
+            return new CarbonLaunchConfig<>();
         }
     }
 

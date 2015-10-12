@@ -24,11 +24,22 @@ package org.wso2.carbon.deployment.exception;
  * can be thrown from CarbonDeployementEngine
  */
 public class CarbonDeploymentException extends Exception {
+    /**
+     * This will construct the CarbonDeploymentException with the detailed exception message
+     * @param message the detailed exception message to be included with CarbonDeploymentException
+     */
     public CarbonDeploymentException(String message) {
         super(message);
     }
 
-    public CarbonDeploymentException(String message, Exception e) {
-        super(message, e);
+    /**
+     * This will construct a new CarbonDeploymentException with the specified detail message and
+     * cause.
+     *
+     * @param message the exception message to be included with CarbonDeploymentException
+     * @param cause the cause exception to be included with CarbonDeploymentException
+     */
+    public CarbonDeploymentException(String message, Exception cause) {
+        super(message, cause);
     }
 }

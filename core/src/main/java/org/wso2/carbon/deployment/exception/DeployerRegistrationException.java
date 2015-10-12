@@ -20,16 +20,28 @@
 package org.wso2.carbon.deployment.exception;
 
 /**
- * The exception class for all deployer registration, unregistration related the exceptions that
+ * The exception class for all deployer registration, un-registration related the exceptions that
  * can be thrown from CarbonDeployementEngine
  */
 
 public class DeployerRegistrationException extends Exception {
+    /**
+     * This will construct the DeployerRegistrationException with the detailed exception message
+     *
+     * @param message the detailed exception message to be included with DeployerRegistrationException
+     */
     public DeployerRegistrationException(String message) {
         super(message);
     }
 
-    public DeployerRegistrationException(String message, Exception e) {
-        super(message, e);
+    /**
+     * This will construct a new DeployerRegistrationException with the specified detail message and
+     * cause.
+     *
+     * @param message the exception message to be included with DeployerRegistrationException
+     * @param cause the cause exception to be included with DeployerRegistrationException
+     */
+    public DeployerRegistrationException(String message, Exception cause) {
+        super(message, cause);
     }
 }

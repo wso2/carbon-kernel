@@ -54,6 +54,14 @@ public class DeploymentEngineComponent {
     private List<Deployer> deployerList = new ArrayList<>();
 
 
+    /**
+     * This is the activation method of DeploymentEngineComponent. This will be called when its references are
+     * satisfied.
+     *
+     * @param bundleContext the bundle context instance of the carbon core bundle used service registration, etc.
+     * @throws Exception this will be thrown if an issue occurs while executing the activate method
+     */
+
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
         try {
@@ -94,11 +102,24 @@ public class DeploymentEngineComponent {
         }
     }
 
+    /**
+     * This is the deactivation method of DeploymentEngineComponent. This will be called when this component
+     * is being stopped or references are satisfied during runtime.
+     *
+     * @throws Exception this will be thrown if an issue occurs while executing the activate method
+     */
+
     @Deactivate
     public void stop() throws Exception {
         serviceRegistration.unregister();
     }
 
+    /**
+     * The is the dependency of DeploymentEngineComponent for deployer registrations from other bundles.
+     * This is the bind method that gets called for deployer instance registrations that satisfy the policy.
+     *
+     * @param deployer the deployer instances that are registered as services.
+     */
     @Reference(
             name = "carbon.deployer.service",
             service = Deployer.class,
@@ -118,6 +139,11 @@ public class DeploymentEngineComponent {
         }
     }
 
+    /**
+     * This is the unbind method for the above reference that gets called for deployer instance un-registrations.
+     *
+     * @param deployer the deployer instances that are un-registered.
+     */
     protected void unregisterDeployer(Deployer deployer) {
         try {
             deploymentEngine.unregisterDeployer(deployer);
@@ -126,6 +152,12 @@ public class DeploymentEngineComponent {
         }
     }
 
+    /**
+     * The is another dependency of DeploymentEngineComponent for CarbonRuntime registrations from other bundles.
+     * This is the bind method that gets called for CarbonRuntime instance registrations that satisfy the policy.
+     *
+     * @param carbonRuntime the carbonRuntime instances that are registered as services.
+     */
     @Reference(
             name = "carbon.runtime.service",
             service = CarbonRuntime.class,
@@ -138,6 +170,11 @@ public class DeploymentEngineComponent {
         OSGiServiceHolder.getInstance().setCarbonRuntime(carbonRuntime);
     }
 
+    /**
+     * This is the unbind method for the above reference that gets called for carbonRuntime instance un-registrations.
+     *
+     * @param carbonRuntime the carbonRuntime instances that are un-registered.
+     */
     public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = null;
         OSGiServiceHolder.getInstance().setCarbonRuntime(null);

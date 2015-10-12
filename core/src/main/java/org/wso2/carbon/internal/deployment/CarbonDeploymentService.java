@@ -36,10 +36,25 @@ public class CarbonDeploymentService implements DeploymentService {
 
     private DeploymentEngine carbonDeploymentEngine;
 
+    /**
+     * This will construct the CarbonDeploymentService using the given DeploymentEngine instance
+     *
+     * @param carbonDeploymentEngine the DeploymentEngine instance used with constructing the CarbonDeploymentService
+     */
     public CarbonDeploymentService(DeploymentEngine carbonDeploymentEngine) {
         this.carbonDeploymentEngine = carbonDeploymentEngine;
     }
 
+    /**
+     * This method will be called externally to deploy an artifact by giving the artifact deployment
+     * directory and the path. The consumers of the DeploymentService will be calling this method.
+     *
+     * @param artifactPath path where the artifact resides. This has to be the full qualified path
+     *                     of the artifact
+     * @param artifactType the type of the artifact going to be dpeloyed
+     *                     Eg : webapp, dataservice, sequence
+     * @throws CarbonDeploymentException this will be thrown on error situation while trying deploy the given artifact
+     */
     public void deploy(String artifactPath, ArtifactType artifactType)
             throws CarbonDeploymentException {
         Deployer deployer = carbonDeploymentEngine.getDeployer(artifactType);
@@ -56,6 +71,17 @@ public class CarbonDeploymentService implements DeploymentService {
         }
     }
 
+    /**
+     * This method will be called externally to undeploy an artifact by giving the artifact deployment
+     * directory and the path. The consumers of the DeploymentService will be calling this method.
+     *
+     * @param key          artifact key to uniquely identify an artifact in a runtime
+     *                     Eg: for webapps this can be webapp context such as /foo , /bar, etc
+     *                     for service this can be service name such as EchoService, VersionService, etc
+     * @param artifactType the type of the artifact going to be deployed
+     *                     Eg : webapp, dataservice, sequence
+     * @throws CarbonDeploymentException this will be thrown on error situation while trying undeploy the given artifact
+     */
     public void undeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException {
         Deployer deployer = carbonDeploymentEngine.getDeployer(artifactType);
         if (deployer == null) {
@@ -72,6 +98,18 @@ public class CarbonDeploymentService implements DeploymentService {
         }
     }
 
+    /**
+     * This method is same as deploy and undeploy, will be called externally to undeploy an artifact by giving
+     * the artifact deployment directory and the path. The consumers of the DeploymentService will be calling
+     * this method.
+     *
+     * @param key          artifact key to uniquely identify an artifact in a runtime
+     *                     Eg: for webapps this can be webapp context such as /foo , /bar, etc
+     *                     for service this can be service name such as EchoService, VersionService, etc
+     * @param artifactType the type of the artifact going to be deployed
+     *                     Eg : webapp, dataservice, sequence
+     * @throws CarbonDeploymentException
+     */
     public void redeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException {
         // TODO implement this
     }

@@ -27,6 +27,11 @@ public class SchedulerTask implements Runnable {
 
     private RepositoryScanner repositoryScanner;
 
+    /**
+     * This will construct the SchedulerTask with the given RepositoryScanner instance
+     *
+     * @param repositoryScanner the repositoryScanner instance to be used with each task run
+     */
     public SchedulerTask(RepositoryScanner repositoryScanner) {
         this.repositoryScanner = repositoryScanner;
     }
