@@ -37,6 +37,7 @@
                 <exclude>**/native/*</exclude>
                 <exclude>**/wso2carbon-version.txt</exclude>
                 <exclude>**/carbon.xml</exclude>
+                <exclude>**/log4j2.xml</exclude>
                 <exclude>INSTALL.txt</exclude>
                 <exclude>README.txt</exclude>
                 <exclude>LICENSE.txt</exclude>
@@ -77,7 +78,7 @@
 
     <files>
         <file>
-            <source>carbon-home/repository/conf/log4j.properties</source>
+            <source>carbon-home/repository/conf/log4j2.xml</source>
             <outputDirectory>repository/conf</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>

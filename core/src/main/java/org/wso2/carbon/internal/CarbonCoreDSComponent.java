@@ -37,6 +37,11 @@ import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 
 import java.util.Map;
 
+/**
+ * The core service component responsible for configuring logging framework and
+ * initializing the carbon configuration.
+ */
+
 @Component(
         name = "org.wso2.carbon.internal.CarbonCoreDSComponent",
         immediate = true
@@ -46,7 +51,7 @@ public class CarbonCoreDSComponent {
     private LoggingConfiguration loggingConfiguration = LoggingConfiguration.getInstance();
 
     @Activate
-    public void start(BundleContext bundleContext) throws Exception {
+    protected void start(BundleContext bundleContext) throws Exception {
         DataHolder.getInstance().setBundleContext(bundleContext);
 
         // 1) Find to initialize the Carbon configuration provider
