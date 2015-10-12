@@ -169,18 +169,30 @@ public class ReadOnlyJDBCRealmTest extends BaseTestCase {
         stmt.addBatch();
         int[] count = stmt.executeBatch();
         assertEquals(6, count.length);
-        
 
-        sql = "INSERT INTO UM_HYBRID_ROLE (UM_ROLE_NAME) VALUES (?)";
+        sql = "INSERT INTO UM_DOMAIN (UM_DOMAIN_NAME, UM_IS_HYBRID) VALUES (?, ?)";
         stmt = dbCon.prepareStatement(sql);
-        stmt.setString(1, "adminx");
+        stmt.setString(1, "PRIMARY");
+        stmt.setBoolean(2, false);
         stmt.addBatch();
-        stmt.setString(1, "everyonex");
+        stmt.setString(1, "INTERNAL");
+        stmt.setBoolean(2, true);
+        stmt.addBatch();
+        stmt.executeBatch();
+        dbCon.commit();
+
+        sql = "INSERT INTO UM_HYBRID_ROLE (UM_DOMAIN_ID, UM_ROLE_NAME) VALUES (?, ?)";
+        stmt = dbCon.prepareStatement(sql);
+        stmt.setInt(1, 1);
+        stmt.setString(2, "adminx");
+        stmt.addBatch();
+        stmt.setInt(1, 2);
+        stmt.setString(2, "everyonex");
         stmt.addBatch();
         count = stmt.executeBatch();
         assertEquals(2, count.length);
         dbCon.commit();
-        
+
         dbCon.close();
     }
 }

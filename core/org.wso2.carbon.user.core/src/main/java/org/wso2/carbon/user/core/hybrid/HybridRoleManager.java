@@ -55,14 +55,66 @@ public class HybridRoleManager {
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
-        super();
         this.dataSource = dataSource;
         this.tenantId = tenantId;
         this.realmConfig = realmConfig;
         this.userRealm = realm;
         //persist internal domain
-        UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
-        UserCoreUtil.persistDomain(UserCoreConstants.APPLICATION_DOMAIN, tenantId, dataSource);
+        UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource, true);
+    }
+
+    /**
+     * @param domainName
+     * @throws UserStoreException
+     */
+    public void persistHybridDomain(String domainName) throws UserStoreException {
+        if (!UserCoreUtil.isExistingDomain(domainName, tenantId, dataSource)) {
+            UserCoreUtil.persistDomain(domainName, tenantId, dataSource, true);
+        } else if (!isHybridDomain(domainName)) {
+            throw new UserStoreException("Domain name : " + domainName + " already exists. Cannot persist as a " +
+                                         "hybrid domain");
+        }
+    }
+
+    /**
+     * Returns true if provided domain name is a hybrid domain, false otherwise
+     * @param domainName
+     * @return
+     * @throws UserStoreException
+     */
+    public boolean isHybridDomain(String domainName) throws UserStoreException {
+
+        if (domainName == null) {
+            return false;
+        }
+
+        if (domainName.equalsIgnoreCase(UserCoreConstants.INTERNAL_DOMAIN)) {
+            return true;
+        }
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet resultSet = null;
+
+        try {
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+
+            prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.IS_HYBRID_DOMAIN_SQL);
+            prepStmt.setString(1, domainName.toUpperCase());
+            prepStmt.setInt(2, tenantId);
+            prepStmt.setBoolean(3, true);
+            resultSet = prepStmt.executeQuery();
+            return resultSet.next();
+
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while checking domain type.";
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, resultSet, prepStmt);
+        }
     }
 
     /**
@@ -72,9 +124,10 @@ public class HybridRoleManager {
      */
     public void addHybridRole(String roleName, String[] userList) throws UserStoreException {
         Connection dbConnection = null;
-        try {
 
-            // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+        String domainName = getDomainName(roleName);
+
+        try {
 
             // This method is always invoked by the primary user store manager.
             String primaryDomainName = getMyDomainName();
@@ -86,8 +139,8 @@ public class HybridRoleManager {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
 
             if (!this.isExistingRole(roleName)) {
-                DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL,
-                        roleName, tenantId);
+                DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL, domainName.toUpperCase()
+                        , tenantId, UserCoreUtil.removeDomainFromName(roleName), tenantId);
                 dbConnection.commit();
             } else {
                 throw new UserStoreException("Role name: " + roleName
@@ -104,8 +157,9 @@ public class HybridRoleManager {
                     DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
                             sql, primaryDomainName, userList, tenantId, roleName, tenantId);
                 } else {
-                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
-                            sql, primaryDomainName, userList, roleName, tenantId, tenantId, tenantId);
+                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(
+                            dbConnection, sql, primaryDomainName, userList, UserCoreUtil.removeDomainFromName(roleName),
+                            tenantId, tenantId, getDomainName(roleName).toUpperCase(), tenantId, tenantId);
                 }
             }
             dbConnection.commit();
@@ -126,6 +180,17 @@ public class HybridRoleManager {
         }
     }
 
+    private String getDomainName(String roleName) {
+        String domainName = null;
+
+        if (roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            domainName = UserCoreUtil.extractDomainFromName(roleName);
+        } else {
+            domainName = UserCoreConstants.INTERNAL_DOMAIN;
+        }
+        return domainName;
+    }
+
     /**
      * @param tenantID
      */
@@ -144,6 +209,8 @@ public class HybridRoleManager {
      */
     public boolean isExistingRole(String roleName) throws UserStoreException {
 
+        String domainName = getDomainName(roleName);
+
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;
@@ -151,12 +218,15 @@ public class HybridRoleManager {
 
         try {
 
-            // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+            // ########### Roles with domain and Domain-aware Users from here onwards #############
 
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             prepStmt = dbConnection.prepareStatement(HybridJDBCConstants.GET_ROLE_ID);
-            prepStmt.setString(1, roleName);
+            prepStmt.setString(1, UserCoreUtil.removeDomainFromName(roleName));
             prepStmt.setInt(2, tenantId);
+            prepStmt.setString(3, domainName.toUpperCase());
+            prepStmt.setInt(4, tenantId);
+
             rs = prepStmt.executeQuery();
             if (rs.next()) {
                 int value = rs.getInt(1);
@@ -249,13 +319,104 @@ public class HybridRoleManager {
 
             if (rs != null) {
                 while (rs.next()) {
-                    String name = rs.getString(1);
-                    // Append the domain
-                    if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
-                        name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                               + name;
+                    String roleDomainName = rs.getString(1);
+                    String roleName = rs.getString(2);
+                    String roleWithDomain = UserCoreUtil.addDomainToName(roleName, roleDomainName);
+                    filteredRoles.add(roleWithDomain);
+                }
+            }
+            return filteredRoles.toArray(new String[filteredRoles.size()]);
+        } catch (SQLException e) {
+            String errorMessage = "Error occurred while getting hybrid roles from filter : " + filter;
+            if (log.isDebugEnabled()) {
+                log.debug(errorMessage, e);
+            }
+            throw new UserStoreException(errorMessage, e);
+        } finally {
+            DatabaseUtil.closeAllConnections(dbConnection, rs, prepStmt);
+        }
+    }
+
+    /**
+     *
+     * @param domainName
+     * @param filter
+     * @return
+     * @throws UserStoreException
+     */
+    public String[] getHybridRoles(String domainName, String filter) throws UserStoreException {
+
+        Connection dbConnection = null;
+        PreparedStatement prepStmt = null;
+        ResultSet rs = null;
+
+        String sqlStmt = HybridJDBCConstants.GET_ROLES;
+        int maxItemLimit;
+        int searchTime;
+
+        try {
+            maxItemLimit = Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_ROLE_LIST));
+        } catch (Exception e) {
+            maxItemLimit = DEFAULT_MAX_ROLE_LIST_SIZE;
+        }
+
+        try {
+            searchTime = Integer.parseInt(
+                    realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_MAX_SEARCH_TIME));
+        } catch (Exception e) {
+            searchTime = DEFAULT_MAX_SEARCH_TIME;
+        }
+
+        try {
+            if (filter != null && filter.trim().length() != 0) {
+                filter = filter.trim();
+                filter = filter.replace("*", "%");
+                filter = filter.replace("?", "_");
+            } else {
+                filter = "%";
+            }
+
+            dbConnection = DatabaseUtil.getDBConnection(dataSource);
+
+            if (dbConnection == null) {
+                throw new UserStoreException("null connection");
+            }
+
+            dbConnection.setAutoCommit(false);
+            dbConnection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
+            prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, filter);
+            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
+                prepStmt.setInt(2, tenantId);
+            }
+            prepStmt.setMaxRows(maxItemLimit);
+            try {
+                prepStmt.setQueryTimeout(searchTime);
+            } catch (Exception e) {
+                // this can be ignored since timeout method is not implemented
+                log.debug(e);
+            }
+            List<String> filteredRoles = new ArrayList<String>();
+
+            try {
+                rs = prepStmt.executeQuery();
+            } catch (SQLException e) {
+                log.error("Error while retrieving roles from Internal JDBC role store", e);
+                // May be due time out, therefore ignore this exception
+            }
+
+            if (rs != null) {
+                while (rs.next()) {
+
+                    String roleDomainName = rs.getString(1);
+
+                    String roleName = rs.getString(2);
+                    if(roleDomainName.equalsIgnoreCase(domainName)) {
+                        String roleWithDomain = UserCoreUtil.addDomainToName(roleName, roleDomainName);
+                        filteredRoles.add(roleWithDomain);
                     }
-                    filteredRoles.add(name);
                 }
             }
             return filteredRoles.toArray(new String[filteredRoles.size()]);
@@ -281,14 +442,17 @@ public class HybridRoleManager {
             return userRealm.getUserStoreManager().listUsers("*", -1);
         }
 
-        // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+        String domainName = getDomainName(roleName);
+
+        // ########### Roles with domain and Domain-aware Users from here onwards #############
 
         String sqlStmt = HybridJDBCConstants.GET_USER_LIST_OF_ROLE_SQL;
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            String[] names = DatabaseUtil.getStringValuesFromDatabaseForInternalRoles(dbConnection, sqlStmt,
-                    roleName, tenantId, tenantId);
+            String[] names = DatabaseUtil.getStringValuesFromDatabaseForInternalRoles(
+                    dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(roleName), tenantId, tenantId,
+                    domainName.toUpperCase(), tenantId);
             return names;
         } catch (SQLException e) {
             String errorMessage = "Error occurred while getting user list from hybrid role : " + roleName;
@@ -316,7 +480,7 @@ public class HybridRoleManager {
 
         try {
 
-            // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+            // ########### Roles with domain and Domain-aware Users from here onwards #############
             String primaryDomainName = getMyDomainName();
 
             if (primaryDomainName != null) {
@@ -346,8 +510,10 @@ public class HybridRoleManager {
                     DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
                             sqlStmt2, primaryDomainName, newUsers, tenantId, roleName, tenantId);
                 } else {
-                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(dbConnection,
-                            sqlStmt2, primaryDomainName, newUsers, roleName, tenantId, tenantId, tenantId);
+                    DatabaseUtil.udpateUserRoleMappingInBatchModeForInternalRoles(
+                            dbConnection, sqlStmt2, primaryDomainName, newUsers
+                            , UserCoreUtil.removeDomainFromName(roleName),
+                            tenantId, tenantId, getDomainName(roleName).toUpperCase(), tenantId, tenantId);
                 }
             }
 
@@ -411,22 +577,32 @@ public class HybridRoleManager {
                 domain = domain.toUpperCase();
             }
 
-            String[] roles = DatabaseUtil.getStringValuesFromDatabase(dbConnection, sqlStmt,
-                    UserCoreUtil.removeDomainFromName(userName), tenantId, tenantId, tenantId, domain);
+            List<String> roles = new ArrayList<>();
+            PreparedStatement prepStmt = dbConnection.prepareStatement(sqlStmt);
+            prepStmt.setString(1, UserCoreUtil.removeDomainFromName(userName));
+            prepStmt.setInt(2, tenantId);
+            prepStmt.setInt(3, tenantId);
+            prepStmt.setInt(4, tenantId);
+            prepStmt.setString(5, domain);
+
+            ResultSet rs = prepStmt.executeQuery();
+
+            while (rs.next()) {
+                String roleDomainName = rs.getString(1);
+                String roleName = rs.getString(2);
+                String roleWithDomain = UserCoreUtil.addDomainToName(roleName, roleDomainName);
+                roles.add(roleWithDomain);
+            }
 
             if (!CarbonConstants.REGISTRY_ANONNYMOUS_USERNAME.equals(userName)) {
                 // Adding everyone role
-                if (roles == null || roles.length == 0) {
+                if (roles.isEmpty()) {
                     return new String[]{realmConfig.getEveryOneRoleName()};
                 }
                 List<String> allRoles = new ArrayList<String>();
                 boolean isEveryone = false;
                 for (String role : roles) {
-                    if (!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
-                        role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                               + role;
-                    }
-                    if (role.equals(realmConfig.getEveryOneRoleName())) {
+                    if (role.equalsIgnoreCase(UserCoreConstants.INTERNAL_DOMAIN + realmConfig.getEveryOneRoleName())) {
                         isEveryone = true;
                     }
                     allRoles.add(role);
@@ -437,7 +613,7 @@ public class HybridRoleManager {
                 }
                 return allRoles.toArray(new String[allRoles.size()]);
             } else {
-                return roles;
+                return roles.toArray(new String[roles.size()]);
             }
         } catch (SQLException e) {
             String errorMessage = "Error occurred while getting hybrid role list of user : " + userName;
@@ -463,6 +639,31 @@ public class HybridRoleManager {
         String sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL;
         Connection dbConnection = null;
 
+        if (addRoles == null) {
+            addRoles = new String[0];
+        }
+
+        if (deletedRoles == null) {
+            deletedRoles = new String[0];
+        }
+
+        String[] addRolesWithoutDomain = new String[addRoles.length];
+        String[] addRoleDomainNames = new String[addRoles.length];
+
+        for (int i = 0; i < addRoles.length; i++) {
+            addRolesWithoutDomain[i] = UserCoreUtil.removeDomainFromName(addRoles[i]);
+            addRoleDomainNames[i] = getDomainName(addRoles[i]).toUpperCase();
+        }
+
+        String[] deletedRolesWithoutDomain = new String[deletedRoles.length];
+        String[] deletedRoleDomainNames = new String[deletedRoles.length];
+
+
+        for (int i = 0; i < deletedRoles.length; i++) {
+            deletedRolesWithoutDomain[i] = UserCoreUtil.removeDomainFromName(deletedRoles[i]);
+            deletedRoleDomainNames[i] = getDomainName(deletedRoles[i]).toUpperCase();
+        }
+
         try {
 
             user = UserCoreUtil.addDomainToName(user, getMyDomainName());
@@ -471,6 +672,7 @@ public class HybridRoleManager {
 
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             String type = DatabaseCreator.getDatabaseType(dbConnection);
+
             if (UserCoreConstants.MSSQL_TYPE.equals(type)) {
                 sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_MSSQL;
             }
@@ -479,18 +681,22 @@ public class HybridRoleManager {
                 domain = domain.toUpperCase();
             }
 
-            if (deletedRoles != null && deletedRoles.length > 0) {
-                DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt1, deletedRoles,
-                        tenantId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
+            if (deletedRoles.length > 0) {
+                DatabaseUtil.udpateUserRoleMappingInBatchMode(
+                        dbConnection, sqlStmt1, deletedRolesWithoutDomain, tenantId, tenantId, deletedRoleDomainNames
+                        , UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
             }
-            if (addRoles != null && addRoles.length > 0) {
+
+            if (addRoles.length > 0) {
                 if (UserCoreConstants.OPENEDGE_TYPE.equals(type)) {
                     sqlStmt2 = HybridJDBCConstants.ADD_ROLE_TO_USER_SQL_OPENEDGE;
                     DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, user,
-                            tenantId, addRoles, tenantId);
+                                                                  tenantId, addRoles, tenantId);
                 } else {
-                    DatabaseUtil.udpateUserRoleMappingInBatchMode(dbConnection, sqlStmt2, addRoles,
-                            tenantId, UserCoreUtil.removeDomainFromName(user), tenantId, tenantId, domain);
+                    DatabaseUtil.udpateUserRoleMappingInBatchMode(
+                            dbConnection, sqlStmt2, addRolesWithoutDomain, tenantId, tenantId
+                            , addRoleDomainNames, UserCoreUtil.removeDomainFromName(user), tenantId
+                            , tenantId, domain);
                 }
             }
             dbConnection.commit();
@@ -521,7 +727,9 @@ public class HybridRoleManager {
      */
     public void deleteHybridRole(String roleName) throws UserStoreException {
 
-        // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+        String domainName = getDomainName(roleName);
+
+        // ########### Roles with domain and Domain-aware Users from here onwards #############
 
         if (UserCoreUtil.isEveryoneRole(roleName, realmConfig)) {
             throw new UserStoreException("Invalid operation");
@@ -531,7 +739,7 @@ public class HybridRoleManager {
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
-                    roleName, tenantId);
+                    UserCoreUtil.removeDomainFromName(roleName), domainName.toUpperCase(), tenantId, tenantId);
             dbConnection.commit();
         } catch (SQLException e) {
             String errorMessage = "Error occurred while deleting hybrid role : " + roleName;
@@ -553,30 +761,26 @@ public class HybridRoleManager {
      */
     public void updateHybridRoleName(String roleName, String newRoleName) throws UserStoreException {
 
-        // ########### Domain-less Roles and Domain-aware Users from here onwards #############
+        String domainName = getDomainName(roleName);
+
+        // ########### Roles and Domain-aware Users from here onwards #############
 
         if (this.isExistingRole(newRoleName)) {
-            throw new UserStoreException("Role name: " + newRoleName
-                    + " in the system. Please pick another role name.");
+            throw new UserStoreException("Role name: " + newRoleName + " in the system. Please pick another role name.");
         }
 
         String sqlStmt = HybridJDBCConstants.UPDATE_ROLE_NAME_SQL;
-        if (sqlStmt == null) {
-            throw new UserStoreException("The sql statement for update hybrid role name is null");
-        }
 
         Connection dbConnection = null;
         try {
 
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            if (sqlStmt.contains(UserCoreConstants.UM_TENANT_COLUMN)) {
-                DatabaseUtil.updateDatabase(dbConnection, sqlStmt, newRoleName, roleName, tenantId);
-            } else {
-                DatabaseUtil.updateDatabase(dbConnection, sqlStmt, newRoleName, roleName);
-            }
+
+            DatabaseUtil.updateDatabase(dbConnection, sqlStmt, UserCoreUtil.removeDomainFromName(newRoleName)
+                    , UserCoreUtil.removeDomainFromName(roleName), tenantId, tenantId, domainName.toUpperCase());
+
             dbConnection.commit();
-            this.userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(roleName,
-                    newRoleName);
+            this.userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(roleName, newRoleName);
         } catch (SQLException e) {
             String errorMessage =
                     "Error occurred while updating hybrid role : " + roleName + " to new role : " + newRoleName;

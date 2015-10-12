@@ -28,6 +28,7 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.authorization.DBConstants;
 import org.wso2.carbon.user.core.common.UserStore;
 import org.wso2.carbon.user.core.dto.RoleDTO;
+import org.wso2.carbon.user.core.hybrid.HybridRoleManager;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
@@ -60,6 +61,8 @@ public final class UserCoreUtil {
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
     private static RealmService realmService = null;
+    private HybridRoleManager hybridRoleManager = null;
+
     /*
      * When user authenticates with out domain, need to set the domain of the user store that he
      * belongs to, as a thread local variable.
@@ -526,15 +529,15 @@ public final class UserCoreUtil {
      * @param names
      * @return
      */
-    public static String[] removeDomainFromNames(String[] names) {
+    public static String[] removeDomainFromNames(HybridRoleManager hybridRoleManagers, String[] names)
+            throws UserStoreException {
         List<String> nameList = new ArrayList<String>();
         int index;
         if (names != null && names.length != 0) {
             for (String name : names) {
                 if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
                     String domain = name.substring(0, index);
-                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                        && !UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (hybridRoleManagers.isHybridDomain(domain)) {
                         // remove domain name if exist
                         nameList.add(name.substring(index + 1));
                     } else {
@@ -715,7 +718,27 @@ public final class UserCoreUtil {
         return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
     }
 
+    /**
+     * Persist domain name
+     * @param domain
+     * @param tenantId
+     * @param dataSource
+     * @throws UserStoreException
+     */
     public static void persistDomain(String domain, int tenantId, DataSource dataSource) throws UserStoreException {
+        persistDomain(domain, tenantId, dataSource, false);
+    }
+
+    /**
+     * Persist domain name
+     * @param domain
+     * @param tenantId
+     * @param dataSource
+     * @param isHybridDomain
+     * @throws UserStoreException
+     */
+    public static void persistDomain(String domain, int tenantId, DataSource dataSource, boolean isHybridDomain)
+            throws UserStoreException {
         Connection dbConnection = null;
         try {
             String sqlStatement = JDBCRealmConstants.ADD_DOMAIN_SQL;
@@ -727,7 +750,7 @@ public final class UserCoreUtil {
             if (!isExistingDomain(domain, tenantId, dataSource)) {
                 dbConnection = DatabaseUtil.getDBConnection(dataSource);
                 dbConnection.setAutoCommit(false);
-                DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId);
+                DatabaseUtil.updateDatabase(dbConnection, sqlStatement, domain, tenantId, isHybridDomain);
                 dbConnection.commit();
             }
         } catch (UserStoreException e) {
@@ -860,7 +883,7 @@ public final class UserCoreUtil {
 //		}
 //    }
 
-    private static boolean isExistingDomain(String domain, int tenantId, DataSource dataSource)
+    public static boolean isExistingDomain(String domain, int tenantId, DataSource dataSource)
             throws UserStoreException {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;

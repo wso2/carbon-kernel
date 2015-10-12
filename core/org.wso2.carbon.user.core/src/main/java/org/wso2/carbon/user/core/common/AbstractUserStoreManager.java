@@ -1321,7 +1321,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // This happens only once during first startup - adding administrator user/role.
         if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             userName = userStore.getDomainFreeName();
-            roleList = UserCoreUtil.removeDomainFromNames(roleList);
+            roleList = UserCoreUtil.removeDomainFromNames(hybridRoleManager, roleList);
         }
 
         // #################### <Listeners> #####################################################
@@ -1393,14 +1393,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 if (role != null && role.trim().length() > 0) {
                     index = role.indexOf(CarbonConstants.DOMAIN_SEPARATOR);
                     if (index > 0) {
-                        String domain = role.substring(0, index);
-                        if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
-                            internalRoles.add(UserCoreUtil.removeDomainFromName(role));
-                            continue;
-                        } else if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                             internalRoles.add(role);
                             continue;
-                        }
                     }
                     externalRoles.add(UserCoreUtil.removeDomainFromName(role));
                 }
@@ -1526,28 +1520,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 throw new UserStoreException("Cannot update everyone role");
             }
 
-            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainFreeName(),
-                                                             deletedUsers, newUsers);
-            } else {
                 hybridRoleManager.updateUserListOfHybridRole(userStore.getDomainAwareName(),
                                                              deletedUsers, newUsers);
-            }
             clearUserRolesCacheByTenant(this.tenantId);
             return;
         }
 
         if (userStore.isSystemStore()) {
             systemUserRoleManager.updateUserListOfSystemRole(userStore.getDomainFreeName(),
-                    UserCoreUtil.removeDomainFromNames(deletedUsers),
-                    UserCoreUtil.removeDomainFromNames(newUsers));
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, deletedUsers),
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, newUsers));
             return;
         }
 
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager().updateUserListOfRole(userStore.getDomainFreeName(),
-                    UserCoreUtil.removeDomainFromNames(deletedUsers),
-                    UserCoreUtil.removeDomainFromNames(newUsers));
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, deletedUsers),
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, newUsers));
             return;
         }
 
@@ -1567,8 +1556,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 || (newUsers != null && newUsers.length > 0)) {
             if (!isReadOnly() && writeGroupsEnabled) {
                 doUpdateUserListOfRole(userStore.getDomainFreeName(),
-                        UserCoreUtil.removeDomainFromNames(deletedUsers),
-                        UserCoreUtil.removeDomainFromNames(newUsers));
+                        UserCoreUtil.removeDomainFromNames(hybridRoleManager, deletedUsers),
+                        UserCoreUtil.removeDomainFromNames(hybridRoleManager, newUsers));
             } else {
                 throw new UserStoreException(
                         "Read-only user store.Roles cannot be added or modified");
@@ -1633,15 +1622,15 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         UserStore userStore = getUserStore(userName);
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager().updateRoleListOfUser(userStore.getDomainFreeName(),
-                    UserCoreUtil.removeDomainFromNames(deletedRoles),
-                    UserCoreUtil.removeDomainFromNames(newRoles));
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, deletedRoles),
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, newRoles));
             return;
         }
 
         if (userStore.isSystemStore()) {
             systemUserRoleManager.updateSystemRoleListOfUser(userStore.getDomainFreeName(),
-                    UserCoreUtil.removeDomainFromNames(deletedRoles),
-                    UserCoreUtil.removeDomainFromNames(newRoles));
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, deletedRoles),
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, newRoles));
             return;
         }
 
@@ -1650,8 +1639,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // This happens only once during first startup - adding administrator user/role.
         if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             userName = userStore.getDomainFreeName();
-            deletedRoles = UserCoreUtil.removeDomainFromNames(deletedRoles);
-            newRoles = UserCoreUtil.removeDomainFromNames(newRoles);
+            deletedRoles = UserCoreUtil.removeDomainFromNames(hybridRoleManager, deletedRoles);
+            newRoles = UserCoreUtil.removeDomainFromNames(hybridRoleManager, newRoles);
         }
 
         List<String> internalRoleDel = new ArrayList<String>();
@@ -1670,9 +1659,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 if (index1 > 0) {
                     domain = deleteRole.substring(0, index1);
                 }
-                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
-                    internalRoleDel.add(UserCoreUtil.removeDomainFromName(deleteRole));
-                } else if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                if (hybridRoleManager.isHybridDomain(domain) || this.isReadOnly()) {
                     internalRoleDel.add(deleteRole);
                 } else {
                     // This is domain free role name.
@@ -1692,9 +1679,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 if (index2 > 0) {
                     domain = newRole.substring(0, index2);
                 }
-                if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain) || this.isReadOnly()) {
-                    internalRoleNew.add(UserCoreUtil.removeDomainFromName(newRole));
-                } else if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+                if (hybridRoleManager.isHybridDomain(domain) || this.isReadOnly()) {
                     internalRoleNew.add(newRole);
                 } else {
                     roleNew.add(UserCoreUtil.removeDomainFromName(newRole));
@@ -1775,13 +1760,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isHybridRole()) {
-            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                hybridRoleManager.updateHybridRoleName(userStore.getDomainFreeName(),
-                                                       userStoreNew.getDomainFreeName());
-            } else {
                 hybridRoleManager.updateHybridRoleName(userStore.getDomainAwareName(),
                                                        userStoreNew.getDomainAwareName());
-            }
 
             // This is a special case. We need to pass roles with domains.
             userRealm.getAuthorizationManager().resetPermissionOnUpdateRole(
@@ -1871,15 +1851,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         if (userStore.isHybridRole()) {
-            boolean exist;
-
-            if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                exist = hybridRoleManager.isExistingRole(userStore.getDomainAwareName());
-            } else {
-                exist = hybridRoleManager.isExistingRole(userStore.getDomainFreeName());
-            }
-
-            return exist;
+            return hybridRoleManager.isExistingRole(userStore.getDomainAwareName());
         }
 
         // This happens only once during first startup - adding administrator user/role.
@@ -1969,7 +1941,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String[] sharedRoles = ((AbstractUserStoreManager) manager).
                 doGetSharedRoleListOfUser(userStore.getDomainFreeName(), tenantDomain, filter);
-        return UserCoreUtil.removeDomainFromNames(sharedRoles);
+        return UserCoreUtil.removeDomainFromNames(hybridRoleManager, sharedRoles);
     }
 
     /**
@@ -1987,7 +1959,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         String[] users = ((AbstractUserStoreManager) manager).doGetUserListOfRole(roleName, filter);
-        return UserCoreUtil.removeDomainFromNames(users);
+        return UserCoreUtil.removeDomainFromNames(hybridRoleManager, users);
     }
 
     /**
@@ -2013,7 +1985,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         } catch (UserStoreException e) {
             throw new UserStoreException("Error while retrieving shared roles", e);
         }
-        return UserCoreUtil.removeDomainFromNames(sharedRoles);
+        return UserCoreUtil.removeDomainFromNames(hybridRoleManager, sharedRoles);
     }
 
 
@@ -2038,7 +2010,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         } catch (UserStoreException e) {
             throw new UserStoreException("Error while retrieving shared roles", e);
         }
-        return UserCoreUtil.removeDomainFromNames(sharedRoles);
+        return UserCoreUtil.removeDomainFromNames(hybridRoleManager, sharedRoles);
     }
 
 
@@ -2138,9 +2110,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
 
-        if (UserCoreConstants.INTERNAL_DOMAIN.
-                equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))
-            || UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(UserCoreUtil.extractDomainFromName(roleName))) {
+        if (hybridRoleManager.isHybridDomain(UserCoreUtil.extractDomainFromName(roleName))) {
             String[] internalRoles = doGetInternalRoleListOfUser(userName, "*");
             if (UserCoreUtil.isContain(roleName, internalRoles)) {
                 addToIsUserHasRole(modifiedUserName, roleName, roles);
@@ -2356,12 +2326,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String[] userNamesInHybrid = new String[0];
         if (userStore.isHybridRole()) {
-            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                userNamesInHybrid =
-                        hybridRoleManager.getUserListOfHybridRole(userStore.getDomainFreeName());
-            } else {
-                userNamesInHybrid = hybridRoleManager.getUserListOfHybridRole(userStore.getDomainAwareName());
-            }
+            userNamesInHybrid = hybridRoleManager.getUserListOfHybridRole(userStore.getDomainAwareName());
 
             // remove domain
             List<String> finalNameList = new ArrayList<String>();
@@ -2484,7 +2449,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         if (userStore.isRecurssive()) {
             userStore.getUserStoreManager().addRole(userStore.getDomainFreeName(),
-                    UserCoreUtil.removeDomainFromNames(userList), permissions, isSharedRole);
+                    UserCoreUtil.removeDomainFromNames(hybridRoleManager, userList), permissions, isSharedRole);
             return;
         }
 
@@ -2493,7 +2458,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // This happens only once during first startup - adding administrator user/role.
         if (roleName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             roleName = userStore.getDomainFreeName();
-            userList = UserCoreUtil.removeDomainFromNames(userList);
+            userList = UserCoreUtil.removeDomainFromNames(hybridRoleManager, userList);
         }
 
 
@@ -2634,11 +2599,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         // #################### Domain Name Free Zone Starts Here ################################
 
         if (userStore.isHybridRole()) {
-            if (UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(userStore.getDomainName())) {
-                hybridRoleManager.deleteHybridRole(roleName);
-            } else {
-                hybridRoleManager.deleteHybridRole(userStore.getDomainFreeName());
-            }
+            hybridRoleManager.deleteHybridRole(roleName);
             clearUserRolesCacheByTenant(tenantId);
             return;
         }
@@ -2727,8 +2688,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 return userStore;
             } else {
                 if (!domain.equalsIgnoreCase(getMyDomainName())) {
-                    if ((UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                         || UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain))) {
+                    if (hybridRoleManager.isHybridDomain(domain)) {
                         userStore.setHybridRole(true);
                     } else if (UserCoreConstants.SYSTEM_DOMAIN_NAME.equalsIgnoreCase(domain)) {
                         userStore.setSystemStore(true);
@@ -2846,6 +2806,18 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     /**
+     * Filter hybrid roles of the given hybrid domain
+     * @param domainName
+     * @param filter
+     * @return
+     * @throws UserStoreException
+     */
+    public String[] getHybridRoles(String domainName, String filter) throws UserStoreException {
+        return hybridRoleManager.getHybridRoles(domainName, "*");
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     public final String[] getRoleNames() throws UserStoreException {
@@ -2871,23 +2843,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
 
-        if (roleName.contains(UserCoreConstants.DOMAIN_SEPARATOR)
-            && roleName.toLowerCase().startsWith(UserCoreConstants.APPLICATION_DOMAIN.toLowerCase())) {
-            if (hybridRoleManager.isExistingRole(roleName)) {
-                throw new UserStoreException("Role name: " + roleName
-                                             + " in the system. Please pick another role name.");
-            }
-
-            hybridRoleManager.addHybridRole(roleName, userList);
-
-        } else {
-            if (hybridRoleManager.isExistingRole(UserCoreUtil.removeDomainFromName(roleName))) {
-                throw new UserStoreException("Role name: " + roleName
-                                             + " in the system. Please pick another role name.");
-            }
-
-            hybridRoleManager.addHybridRole(UserCoreUtil.removeDomainFromName(roleName), userList);
+        if (hybridRoleManager.isExistingRole(roleName)) {
+            throw new UserStoreException("Role name: " + roleName
+                                         + " in the system. Please pick another role name.");
         }
+
+        hybridRoleManager.addHybridRole(roleName, userList);
 
         if (permissions != null) {
             for (org.wso2.carbon.user.api.Permission permission : permissions) {
@@ -2939,10 +2900,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String[] roleList = new String[0];
 
-        if (!noInternalRoles && (filter.toLowerCase().startsWith(UserCoreConstants.APPLICATION_DOMAIN.toLowerCase()))) {
+        if (!noInternalRoles) {
             roleList = hybridRoleManager.getHybridRoles(filter);
-        } else if (!noInternalRoles) {
-            roleList = hybridRoleManager.getHybridRoles(UserCoreUtil.removeDomainFromName(filter));
         }
 
         if (!noSystemRole) {
@@ -2959,8 +2918,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             String domain = filter.substring(0, index);
 
             UserStoreManager secManager = getSecondaryUserStoreManager(domain);
-            if (UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
-                || UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
+            if (hybridRoleManager.isHybridDomain(domain)) {
                 return new String[0];
             }
             if (secManager != null) {
@@ -4203,4 +4161,23 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
     }
 
     protected void handleException(Exception e, String userName) throws UserStoreException {}
+
+    /**
+     * Persist a hybrid role domain
+     * @param domainName
+     * @throws UserStoreException
+     */
+    public void persistHybridDomain(String domainName) throws UserStoreException {
+        hybridRoleManager.persistHybridDomain(domainName);
+    }
+
+    /**
+     * Return true if provided domain is a hybrid domain false otherwise
+     * @param domainName
+     * @return
+     * @throws UserStoreException
+     */
+    public boolean isHybridDomain(String domainName) throws UserStoreException {
+        return hybridRoleManager.isHybridDomain(domainName);
+    }
 }

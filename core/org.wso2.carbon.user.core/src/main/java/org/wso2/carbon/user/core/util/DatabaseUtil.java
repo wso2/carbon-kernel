@@ -468,14 +468,14 @@ public class DatabaseUtil {
         boolean localConnection = false;
         try {
             prepStmt = dbConnection.prepareStatement(sqlStmt);
-            int batchParamIndex = -1;
+            List<Integer> batchParamIndexList = new ArrayList<>();
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
                     if (param == null) {
                         throw new UserStoreException("Null data provided.");
                     } else if (param instanceof String[]) {
-                        batchParamIndex = i;
+                        batchParamIndexList.add(i);
                     } else if (param instanceof String) {
                         prepStmt.setString(i + 1, (String) param);
                     } else if (param instanceof Integer) {
@@ -483,10 +483,14 @@ public class DatabaseUtil {
                     }
                 }
             }
-            if (batchParamIndex != -1) {
-                String[] values = (String[]) params[batchParamIndex];
-                for (String value : values) {
-                    prepStmt.setString(batchParamIndex + 1, value);
+
+            if (!batchParamIndexList.isEmpty()) {
+                int batchCount = ((String[])params[batchParamIndexList.get(0)]).length;
+                for (int batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+                    for (Integer batchParamIndex : batchParamIndexList) {
+                        String[] value = (String[]) params[batchParamIndex];
+                        prepStmt.setString(batchParamIndex + 1, value[batchIndex]);
+                    }
                     prepStmt.addBatch();
                 }
             }
@@ -531,6 +535,8 @@ public class DatabaseUtil {
                         prepStmt.setInt(i + 1, (Integer) param);
                     } else if (param instanceof Short) {
                         prepStmt.setShort(i + 1, (Short) param);
+                    } else if (param instanceof Boolean) {
+                        prepStmt.setBoolean(i + 1, (Boolean) param);
                     } else if (param instanceof Date) {
                         Date date = (Date) param;
                         Timestamp time = new Timestamp(date.getTime());

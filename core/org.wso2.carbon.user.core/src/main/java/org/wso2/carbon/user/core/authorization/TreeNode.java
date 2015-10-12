@@ -103,8 +103,8 @@ public class TreeNode {
      * @return Boolean.TRUE if authorized, Boolean.FALSE if not
      */
     public Boolean isRoleAuthorized(String role, Permission permission) {
-        BitSet bsAlow = roleAllowPermissions.get(role);
-        BitSet bsDeny = roleDenyPermissions.get(role);
+        BitSet bsAlow = roleAllowPermissions.get(role.toLowerCase());
+        BitSet bsDeny = roleDenyPermissions.get(role.toLowerCase());
         if (bsAlow == null && bsDeny == null) {
             return null;
         } else if (bsDeny != null && bsDeny.get(permission.ordinal())) {
