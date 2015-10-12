@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Properties;
 
 public class LoggingConfigurationTest extends BaseTest {
@@ -49,7 +50,7 @@ public class LoggingConfigurationTest extends BaseTest {
         testProperties.put(carbonConsoleThreshold, "DEBUG");
 
         File configFileName = new File(getTestResourceFile(PROPERTY_FILE).getAbsolutePath());
-        Properties properties = loggingConfiguration.readProperties(configFileName);
+        Hashtable properties = loggingConfiguration.readProperties(configFileName);
 
         Assert.assertEquals(testProperties.get(rootLogger), properties.get(rootLogger));
         Assert.assertEquals(testProperties.get(loggerOrgWso2), properties.get(loggerOrgWso2));

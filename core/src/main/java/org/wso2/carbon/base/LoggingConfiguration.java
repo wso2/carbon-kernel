@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Properties;
 
 /**
@@ -75,7 +76,7 @@ public class LoggingConfiguration {
             if ((configuration != null) && !Constants.LOGGING_CONFIG_PID.equals(configuration)) {
                 return;
             }
-            Properties prop = readProperties(configFileName);
+            Hashtable prop = readProperties(configFileName);
 
             synchronized (this) {
                 Configuration conf = configurationAdmin.getConfiguration(Constants.LOGGING_CONFIG_PID, null);
@@ -85,7 +86,7 @@ public class LoggingConfiguration {
         }
     }
 
-    public final Properties readProperties(File file)
+    public final Hashtable readProperties(File file)
             throws IllegalArgumentException {
         try (FileInputStream fis = new FileInputStream(file)) {
             Properties prop = new Properties();
