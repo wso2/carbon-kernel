@@ -673,6 +673,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 (new Property[ActiveDirectoryUserStoreConstants.ACTIVE_DIRECTORY_UM_PROPERTIES.size()]));
         properties.setOptionalProperties(ActiveDirectoryUserStoreConstants.OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.toArray
                 (new Property[ActiveDirectoryUserStoreConstants.OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.size()]));
+        properties.setAdvancedProperties(ActiveDirectoryUserStoreConstants.ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.toArray
+                (new Property[ActiveDirectoryUserStoreConstants.ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.size()]));
         return properties;
     }
 
