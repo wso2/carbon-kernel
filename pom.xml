@@ -633,6 +633,51 @@
                 <classifier>runtime</classifier>
                 <version>${jacoco.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-container-native</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-testng</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.exam</groupId>
+                <artifactId>pax-exam-link-mvn</artifactId>
+                <version>${pax.exam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.url</groupId>
+                <artifactId>pax-url-aether</artifactId>
+                <version>${pax.url.aether.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.spec.ee</groupId>
+                <artifactId>ow2-jta-1.1-spec</artifactId>
+                <version>${ow2.jta.spec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.ant</artifactId>
+                <version>${org.jacoco.ant.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr</artifactId>
+                <version>${apache.felix.scr.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -767,6 +812,7 @@
         <ow2.jta.spec.version>1.0.12</ow2.jta.spec.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
         <javax.inject.version>1</javax.inject.version>
+        <apache.felix.scr.version>2.0.2</apache.felix.scr.version>
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>

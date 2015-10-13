@@ -185,49 +185,46 @@
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam</artifactId>
-            <version>${pax.exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-container-native</artifactId>
-            <version>${pax.exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-testng</artifactId>
-            <version>${pax.exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
-            <version>${pax.exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-aether</artifactId>
-            <version>${pax.url.aether.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.api.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.spec.ee</groupId>
             <artifactId>ow2-jta-1.1-spec</artifactId>
-            <version>${ow2.jta.spec.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.ant</artifactId>
-            <version>${org.jacoco.ant.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr</artifactId>
             <scope>test</scope>
         </dependency>
 

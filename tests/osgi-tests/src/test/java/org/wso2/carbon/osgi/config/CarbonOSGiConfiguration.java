@@ -93,6 +93,8 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
                 mavenBundle().artifactId("org.eclipse.equinox.util").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.wso2.eclipse.osgi").
+                        versionAsInProject(),
+                mavenBundle().artifactId("org.apache.felix.scr").groupId("org.apache.felix").
                         versionAsInProject()
         );
     }
