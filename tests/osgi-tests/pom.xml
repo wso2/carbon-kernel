@@ -40,19 +40,15 @@
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-service</artifactId>
-            <!--<version>${version.pax.logging.services}</version>-->
+            <artifactId>pax-logging-log4j2</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-            <version>${carbon.kernel.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
-            <version>${javax.inject.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -227,7 +223,6 @@
             <artifactId>org.apache.felix.scr</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
     <profiles>
         <profile>
