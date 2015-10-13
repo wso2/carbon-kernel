@@ -28,6 +28,9 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 
 import javax.inject.Inject;
 
+/**
+ * CarbonRuntimeOSGiTest class is to test the availability and the functionality of the Carbon Runtime Service
+ */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class CarbonRuntimeOSGiTest {
