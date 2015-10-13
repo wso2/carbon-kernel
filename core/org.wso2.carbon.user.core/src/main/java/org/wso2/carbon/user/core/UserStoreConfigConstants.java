@@ -36,8 +36,8 @@ public class UserStoreConfigConstants {
     public static final String userRolesCacheEnabledDescription = "This is to indicate whether to cache the role list of a user";
     public static final String SCIMEnabled = "SCIMEnabled";
     public static final String SCIMEnabledDescription = "Whether SCIM is enabled for the user store";
-    public static final String DisplayNameAttribute = "DisplayNameAttribute";
-    public static final String DisplayNameAttributeDescription = "Attribute name to display as the Display Name";
+    public static final String displayNameAttribute = "displayNameAttribute";
+    public static final String displayNameAttributeDescription = "Attribute name to display as the Display Name";
     public static final String CASE_SENSITIVE_USERNAME = "CaseSensitiveUsername";
     public static final String CASE_SENSITIVE_USERNAME_DESCRIPTION = "Whether the username is case sensitive or not";
 
@@ -98,6 +98,8 @@ public class UserStoreConfigConstants {
     public static final String groupNameListFilter = "GroupNameListFilter";
     public static final String groupNameListFilterDescription = "Filtering criteria for listing all the group entries in LDAP";
     public static final String groupNameAttribute = "GroupNameAttribute";
+    public static final String roleDNPattern = "roleDNPattern";
+    public static final String roleDNPatternDescription = "The patten for role's DN. It can be defined to improve the LDAP search";
     public static final String groupNameAttributeDescription = "Attribute used for uniquely identifying a user entry";
     public static final String groupNameSearchFilter = "GroupNameSearchFilter";
     public static final String groupNameSearchFilterDescription = "Filtering criteria for searching a particular group entry";

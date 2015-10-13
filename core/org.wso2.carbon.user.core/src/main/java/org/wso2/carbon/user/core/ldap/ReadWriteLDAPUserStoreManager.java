@@ -1937,6 +1937,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 (new Property[ReadWriteLDAPUserStoreConstants.RWLDAP_USERSTORE_PROPERTIES.size()]));
         properties.setOptionalProperties(ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.toArray
                 (new Property[ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.size()]));
+        properties.setAdvancedProperties(ReadWriteLDAPUserStoreConstants.RW_LDAP_UM_ADVANCED_PROPERTIES.toArray
+                (new Property[ReadWriteLDAPUserStoreConstants.RW_LDAP_UM_ADVANCED_PROPERTIES.size()]));
         return properties;
     }
 

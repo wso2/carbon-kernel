@@ -36,7 +36,7 @@ public class ActiveDirectoryUserStoreConstants {
 
     static {
 
-        //Set mandatory properties
+       //Set mandatory properties
         setMandatoryProperty(UserStoreConfigConstants.connectionURL, "Connection URL",
                 "ldaps://", UserStoreConfigConstants.connectionURLDescription, false);
 
@@ -67,8 +67,8 @@ public class ActiveDirectoryUserStoreConstants {
 
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "",
                 UserStoreConfigConstants.userDNPatternDescription);
-        setProperty(UserStoreConfigConstants.DisplayNameAttribute, "Display name attribute", "",
-                UserStoreConfigConstants.DisplayNameAttributeDescription);
+        setProperty(UserStoreConfigConstants.displayNameAttribute, "Display name attribute", "",
+                UserStoreConfigConstants.displayNameAttributeDescription);
 
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
 
@@ -102,6 +102,9 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectcategory=group)",
                 UserStoreConfigConstants.groupNameListFilterDescription);
 
+        setProperty(UserStoreConfigConstants.roleDNPattern, "Role DN Pattern", "", UserStoreConfigConstants
+                .roleDNPatternDescription);
+
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member",
                 UserStoreConfigConstants.membershipAttributeDescription);
         setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "memberOf",
@@ -115,32 +118,31 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$",
                 UserStoreConfigConstants.usernameJavaScriptRegExDescription);
 
-        setProperty(UserStoreConfigConstants.usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
-                "Username pattern policy violated.",
-                UserStoreConfigConstants.usernameJavaRegExViolationErrorMsgDescription);
+        setProperty(UserStoreConfigConstants.usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error " +
+                "Message", "Username pattern policy violated.", UserStoreConfigConstants
+                .usernameJavaRegExViolationErrorMsgDescription);
 
         setProperty(UserStoreConfigConstants.passwordJavaRegEx, "Password RegEx (Java)", "^[\\S]{5,30}$",
-                UserStoreConfigConstants.passwordJavaScriptRegExDescription);
+                UserStoreConfigConstants.passwordJavaRegExDescription);
         setProperty(UserStoreConfigConstants.passwordJavaScriptRegEx, "Password RegEx (Javascript)", "^[\\S]{5,30}$",
                 UserStoreConfigConstants.passwordJavaScriptRegExDescription);
 
-        setProperty(UserStoreConfigConstants.passwordJavaRegExViolationErrorMsg, "Password RegEx Violation Error Message",
-                "Password pattern policy violated.", UserStoreConfigConstants.passwordJavaRegExViolationErrorMsgDescription);
+        setProperty(UserStoreConfigConstants.passwordJavaRegExViolationErrorMsg, "Password RegEx Violation Error " +
+                "Message", "Password pattern policy violated.", UserStoreConfigConstants
+                .passwordJavaRegExViolationErrorMsgDescription);
 
         setProperty(UserStoreConfigConstants.roleNameJavaRegEx, "Role Name RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$",
                 UserStoreConfigConstants.roleNameJavaRegExDescription);
 
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$",
                 UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
-
-
-
-        //Set Advanced Properties
+        setProperty("UniqueID", "", "", "");
 
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants
                 .SCIMEnabledDescription);
 
-        setAdvancedProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT, "Bulk Import Support","true","Bulk Import Supported");
+        setAdvancedProperty(UserStoreConfigConstants.BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import" +
+                " Supported");
         setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true", UserStoreConfigConstants
                 .emptyRolesAllowedDescription);
 
@@ -168,7 +170,6 @@ public class ActiveDirectoryUserStoreConstants {
 
         setAdvancedProperty(UserStoreConfigConstants.LDAPConnectionTimeout, "LDAP Connection Timeout", "5000",
                 UserStoreConfigConstants.LDAPConnectionTimeoutDescription);
-        setAdvancedProperty("UniqueID", "", "", "");
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
