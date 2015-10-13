@@ -18,28 +18,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.osgi</groupId>
+            <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.services</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -49,19 +39,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.http.servlet</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-service</artifactId>
-            <version>${version.pax.logging.services}</version>
+            <!--<version>${version.pax.logging.services}</version>-->
         </dependency>
 
         <dependency>
@@ -72,17 +52,12 @@
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
-            <version>1</version>
+            <version>${javax.inject.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -101,102 +76,102 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.wso2.eclipse.core</groupId>
             <artifactId>org.eclipse.core.contenttype</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.wso2.eclipse.core</groupId>
             <artifactId>org.eclipse.core.expressions</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.wso2.eclipse.core</groupId>
             <artifactId>org.eclipse.core.jobs</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.core</groupId>
+            <groupId>org.wso2.eclipse.core</groupId>
             <artifactId>org.eclipse.core.runtime</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
+            <groupId>org.wso2.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
+            <groupId>org.wso2.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.filetransfer</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
+            <groupId>org.wso2.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.identity</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.ecf</groupId>
+            <groupId>org.wso2.eclipse.ecf</groupId>
             <artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.app</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.common</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.concurrent</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.console</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.ds</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.frameworkadmin</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.frameworkadmin.equinox</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.launcher</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.preferences</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.registry</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.equinox</groupId>
+            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.util</artifactId>
             <scope>test</scope>
         </dependency>
@@ -210,49 +185,49 @@
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam</artifactId>
-            <version>${version.pax.exam}</version>
+            <version>${pax.exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-container-native</artifactId>
-            <version>${version.pax.exam}</version>
+            <version>${pax.exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-testng</artifactId>
-            <version>${version.pax.exam}</version>
+            <version>${pax.exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-link-mvn</artifactId>
-            <version>${version.pax.exam}</version>
+            <version>${pax.exam.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-aether</artifactId>
-            <version>${version.pax.url.aether}</version>
+            <version>${pax.url.aether.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${version.slf4j.api}</version>
+            <version>${slf4j.api.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.spec.ee</groupId>
             <artifactId>ow2-jta-1.1-spec</artifactId>
-            <version>${version.ow2.jta.spec}</version>
+            <version>${ow2.jta.spec.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.ant</artifactId>
-            <version>${version.org.jacoco.ant}</version>
+            <version>${org.jacoco.ant.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -384,7 +359,7 @@
                             <dependency>
                                 <groupId>org.jacoco</groupId>
                                 <artifactId>org.jacoco.ant</artifactId>
-                                <version>${version.org.jacoco.ant}</version>
+                                <version>${org.jacoco.ant.version}</version>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -406,13 +381,5 @@
             </build>
         </profile>
     </profiles>
-
-
-    <properties>
-
-
-
-
-    </properties>
 
 </project>
