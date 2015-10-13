@@ -46,53 +46,54 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
                 //must install the testng bundle
                 mavenBundle().artifactId("testng").groupId("org.testng").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon").versionAsInProject(),
-                mavenBundle().artifactId("hazelcast").groupId("org.wso2.orbit.com.hazelcast").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("javax.servlet-api").groupId("javax.servlet").versionAsInProject(),
                 mavenBundle().artifactId("org.apache.felix.gogo.command").groupId("org.apache.felix").
                         versionAsInProject(),
                 mavenBundle().artifactId("org.apache.felix.gogo.runtime").groupId("org.apache.felix").
                         versionAsInProject(),
                 mavenBundle().artifactId("org.apache.felix.gogo.shell").groupId("org.apache.felix").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.contenttype").groupId("org.eclipse.core").
+                mavenBundle().artifactId("org.eclipse.core.contenttype").groupId("org.wso2.eclipse.core").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.expressions").groupId("org.eclipse.core").
+                mavenBundle().artifactId("org.eclipse.core.expressions").groupId("org.wso2.eclipse.core").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.jobs").groupId("org.eclipse.core").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.runtime").groupId("org.eclipse.core").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.ecf").groupId("org.eclipse.ecf").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.ecf.filetransfer").groupId("org.eclipse.ecf").
+                mavenBundle().artifactId("org.eclipse.core.jobs").groupId("org.wso2.eclipse.core").versionAsInProject(),
+                mavenBundle().artifactId("org.eclipse.core.runtime").groupId("org.wso2.eclipse.core").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.ecf.identity").groupId("org.eclipse.ecf").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.ecf.provider.filetransfer").groupId("org.eclipse.ecf").
+                mavenBundle().artifactId("org.eclipse.ecf").groupId("org.wso2.eclipse.ecf").versionAsInProject(),
+                mavenBundle().artifactId("org.eclipse.ecf.filetransfer").groupId("org.wso2.eclipse.ecf").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.app").groupId("org.eclipse.equinox").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.common").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.ecf.identity").groupId("org.wso2.eclipse.ecf").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.concurrent").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.ecf.provider.filetransfer").groupId("org.wso2.eclipse.ecf").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.console").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.equinox.app").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.ds").groupId("org.eclipse.equinox").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.frameworkadmin").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.equinox.common").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.frameworkadmin.equinox").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.equinox.concurrent").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.http.servlet").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.equinox.console").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.launcher").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.equinox.ds").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.preferences").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.equinox.frameworkadmin").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.registry").groupId("org.eclipse.equinox").
+                mavenBundle().artifactId("org.eclipse.equinox.frameworkadmin.equinox").
+                        groupId("org.wso2.eclipse.equinox").versionAsInProject(),
+                mavenBundle().artifactId("org.eclipse.equinox.launcher").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject(),
+                mavenBundle().artifactId("org.eclipse.equinox.preferences").groupId("org.wso2.eclipse.equinox").
+                        versionAsInProject(),
+                mavenBundle().artifactId("org.eclipse.equinox.registry").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator.manipulator").
-                        groupId("org.eclipse.equinox").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.equinox.util").groupId("org.eclipse.equinox").
+                        groupId("org.wso2.eclipse.equinox").versionAsInProject(),
+                mavenBundle().artifactId("org.eclipse.equinox.util").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.eclipse.osgi").versionAsInProject()
+                mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.wso2.eclipse.osgi").
+                        versionAsInProject()
         );
     }
 }
