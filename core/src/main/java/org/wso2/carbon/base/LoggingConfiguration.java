@@ -18,26 +18,25 @@
 
 package org.wso2.carbon.base;
 
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.Hashtable;
-import java.util.Properties;
 
 /**
- * This class creates the Logging Configurations
+ * This class creates and initializes the logging configurations based on log4j2 for pax logging framework.
+ * It sets the log4j2 config file (log4j2.xml) to the ManagedService instance as a configuration property and
+ * update it.
  */
 public class LoggingConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggingConfiguration.class);
     private static LoggingConfiguration instance = new LoggingConfiguration();
-    private ManagedService configurationAdmin;
+    private ManagedService managedService;
 
     /**
      * Method to retrieve an instance of the logging configuration.
@@ -48,13 +47,27 @@ public class LoggingConfiguration {
         return instance;
     }
 
-    public void setConfigurationAdminService(ManagedService configurationAdminService) {
-        configurationAdmin = configurationAdminService;
+    /**
+     * This is the method that sets the ManagedService instance to LoggingConfiguration to be used for configuring the
+     * logging framework  with log4j2.xml config file
+     *
+     * @param managedService the manages service instance to be used.
+     */
+    public void setConfigurationAdminService(ManagedService managedService) {
+        this.managedService = managedService;
     }
 
-    public void registerConfigurations(String configuration)
-            throws IOException, InvalidSyntaxException, IllegalStateException {
-        if (configurationAdmin == null) {
+    /**
+     * This method will configure the logging framework with the log4j2 configuration. It uses the ManagedService
+     * to update the loggingConfigFile location that is looked up by the pax logging framework.
+     *
+     * @throws IllegalStateException this is thrown if the managedService instance is not set
+     * @throws FileNotFoundException this is thrown if the log4j2 config file is not found at the carbon default
+     *                               conf location
+     */
+    public void registerConfigurations()
+            throws IllegalStateException, FileNotFoundException {
+        if (managedService == null) {
             throw new IllegalStateException(
                     "Configuration admin service is not available."
             );
@@ -63,42 +76,22 @@ public class LoggingConfiguration {
         if (!configDir.exists()) {
             return;
         }
-        File configFileName = new File(configDir, Constants.LOG4J2_CONFIG_FILE_NAME);
-        createConfigurationForFile(configuration, configFileName);
-    }
-
-    private void createConfigurationForFile(String configuration, File configFileName)
-            throws IOException {
-
-        if (!configFileName.isDirectory()) {
-            // check if the service is the one that should be configured
-            if ((configuration != null) && !Constants.LOGGING_CONFIG_PID.equals(configuration)) {
-                return;
-            }
+        File loggingConfigFile = new File(configDir, Constants.LOG4J2_CONFIG_FILE_NAME);
+        if (loggingConfigFile.exists() && loggingConfigFile.isFile()) {
             Hashtable<String, String> prop = new Hashtable<>();
             synchronized (this) {
-                prop.put(Constants.LOG4J2_CONFIG_FILE_KEY, configFileName.getAbsolutePath());
+                prop.put(Constants.LOG4J2_CONFIG_FILE_KEY, loggingConfigFile.getAbsolutePath());
                 try {
-                    configurationAdmin.updated(prop);
+                    managedService.updated(prop);
                 } catch (ConfigurationException e) {
-                    logger.error("Fail to read Log4J configurations from file [" + configFileName.getAbsolutePath()
+                    logger.error("Fail to read Log4J2 configurations from file [" + loggingConfigFile.getAbsolutePath()
                             + "]", e);
                 }
             }
             logger.debug("Logging registration configuration completed");
+        } else {
+            throw new FileNotFoundException("Log4J2 configuration file is not found at : " +
+                    configDir.getAbsolutePath());
         }
-    }
-
-    public final Properties readProperties(File file)
-            throws IllegalArgumentException {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            Properties prop = new Properties();
-            prop.load(fis);
-            return prop;
-        } catch (IOException e) {
-            logger.error("Fail to read Properties from file [" + file.getAbsolutePath() +
-                    "] configuration property.", e);
-        }
-        return null;
     }
 }

@@ -20,7 +20,6 @@
 package org.wso2.carbon.internal;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -30,6 +29,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.base.Constants;
 import org.wso2.carbon.base.LoggingConfiguration;
 import org.wso2.carbon.internal.kernel.config.XMLBasedConfigProvider;
 import org.wso2.carbon.internal.kernel.context.CarbonRuntimeFactory;
@@ -88,23 +88,24 @@ public class CarbonCoreDSComponent {
      * and it will be called when ManagedService instance is registered and it satisfy the policy defined.
      *
      * @param managedService the managedService instance used for configuring the logging framework
-     * @param properties the properties of the ManagedService service registration used for checking the service.pid
+     * @param properties     the properties of the ManagedService service registration used for checking the service.pid
      */
-    @Reference (
-        name = "config.admin.managed.service",
-                service = ManagedService.class,
-                cardinality = ReferenceCardinality.MANDATORY,
-                policy = ReferencePolicy.DYNAMIC,
-                unbind = "unRegisterLoggingConfig"
+    @Reference(
+            name = "config.admin.managed.service",
+            service = ManagedService.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unRegisterLoggingConfig"
     )
     protected void registerLoggingConfig(ManagedService managedService, Map<String, ?> properties) {
         String pid = (String) properties.get(Constants.SERVICE_PID);
-        if (pid == null) {
+        // check if the service is the one that should be configured
+        if ((pid == null) || (!Constants.LOGGING_CONFIG_PID.equals(pid))) {
             return;
         }
         loggingConfiguration.setConfigurationAdminService(managedService);
         try {
-            loggingConfiguration.registerConfigurations(pid);
+            loggingConfiguration.registerConfigurations();
         } catch (Throwable e) {
             logger.error("Cannot load logging configuration", e);
         }
