@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2005-2009, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,7 @@
 package org.wso2.carbon.base;
 
 
-import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Generic Base Utility methods
@@ -35,23 +35,29 @@ public class Utils {
 
     }
 
+    /**
+     * @return returns the Carbon Configuration directory path
+     */
     public static String getCarbonConfigDirPath() {
         String configDirPath;
-        String carbonRepoDirPath = System
-                .getProperty(Constants.CARBON_REPOSITORY);
+        String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         if (carbonRepoDirPath == null) {
-            carbonRepoDirPath = System
-                    .getenv(Constants.CARBON_REPOSITORY_PATH_ENV);
+            carbonRepoDirPath = System.getenv(Constants.CARBON_REPOSITORY_PATH_ENV);
         }
         if (carbonRepoDirPath == null) {
-            configDirPath = getCarbonHome() + File.separator + "repository"
-                    + File.separator + "conf";
+            configDirPath = Paths.get(getCarbonHome(), "repository", "conf").toString();
         } else {
-            configDirPath = carbonRepoDirPath + File.separator + "conf";
+            configDirPath = Paths.get(carbonRepoDirPath, "conf").toString();
         }
         return configDirPath;
     }
 
+    /**
+     * Returns the Carbon Home directory path. If {@code carbon.home} system property is not found, gets the
+     * {@code CARBON_HOME_ENV} system property value and sets to the carbon home.
+     *
+     * @return returns the Carbon Home directory path
+     */
     public static String getCarbonHome() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
         if (carbonHome == null) {
