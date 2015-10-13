@@ -106,7 +106,7 @@ public class DeploymentEngineComponent {
      * This is the deactivation method of DeploymentEngineComponent. This will be called when this component
      * is being stopped or references are satisfied during runtime.
      *
-     * @throws Exception this will be thrown if an issue occurs while executing the activate method
+     * @throws Exception this will be thrown if an issue occurs while executing the de-activate method
      */
 
     @Deactivate
@@ -115,7 +115,7 @@ public class DeploymentEngineComponent {
     }
 
     /**
-     * The is the dependency of DeploymentEngineComponent for deployer registrations from other bundles.
+     * The is a dependency of DeploymentEngineComponent for deployer registrations from other bundles.
      * This is the bind method that gets called for deployer instance registrations that satisfy the policy.
      *
      * @param deployer the deployer instances that are registered as services.

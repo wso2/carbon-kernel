@@ -24,6 +24,7 @@ import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -50,6 +51,13 @@ public class CarbonCoreDSComponent {
     private static final Logger logger = LoggerFactory.getLogger(LoggingConfiguration.class);
     private LoggingConfiguration loggingConfiguration = LoggingConfiguration.getInstance();
 
+    /**
+     * This is the activation method of CarbonCoreDSComponent. This will be called when its references are
+     * satisfied.
+     *
+     * @param bundleContext the bundle context instance of the carbon core bundle used service registration, etc.
+     * @throws Exception this will be thrown if an issue occurs while executing the activate method
+     */
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
         DataHolder.getInstance().setBundleContext(bundleContext);
@@ -64,6 +72,24 @@ public class CarbonCoreDSComponent {
         bundleContext.registerService(CarbonRuntime.class.getName(), carbonRuntime, null);
     }
 
+    /**
+     * This is the deactivation method of DeploymentEngineComponent. This will be called when this component
+     * is being stopped or references are satisfied during runtime.
+     *
+     * @throws Exception this will be thrown if an issue occurs while executing the de-activate method
+     */
+    @Deactivate
+    protected void stop() throws Exception {
+        DataHolder.getInstance().setBundleContext(null);
+    }
+
+    /**
+     * The is a dependency of CarbonCoreDSComponent for ManagedService registration. This is the bind method
+     * and it will be called when ManagedService instance is registered and it satisfy the policy defined.
+     *
+     * @param managedService the managedService instance used for configuring the logging framework
+     * @param properties the properties of the ManagedService service registration used for checking the service.pid
+     */
     @Reference (
         name = "config.admin.managed.service",
                 service = ManagedService.class,
@@ -84,6 +110,12 @@ public class CarbonCoreDSComponent {
         }
     }
 
+    /**
+     * This is the unbind method for the above reference that gets called for ManagedService instance un-registrations.
+     *
+     * @param managedService the managedService instance that is un-registered. this is not used currently in
+     *                       this method.
+     */
     protected void unRegisterLoggingConfig(ManagedService managedService) {
         loggingConfiguration.setConfigurationAdminService(null);
     }
