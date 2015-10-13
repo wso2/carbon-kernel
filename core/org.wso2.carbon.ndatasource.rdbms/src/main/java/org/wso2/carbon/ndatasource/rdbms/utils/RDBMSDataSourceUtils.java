@@ -203,10 +203,10 @@ public class RDBMSDataSourceUtils {
 		props.setDefaultCatalog(config.getDefaultCatalog());
 		props.setDriverClassName(config.getDriverClassName());
 		String username = config.getUsername();
-		if (null != username && !("").equals(username)) {
+		if (null != username && !username.isEmpty()) {
 			props.setUsername(username);
 			String password = config.getPassword();
-			if (null != password && !("").equals(password)) {
+			if (null != password && !password.isEmpty()) {
 				props.setPassword(password);
 			}
 		}
@@ -290,6 +290,15 @@ public class RDBMSDataSourceUtils {
 		}
 		if (config.getDataSourceClassName() != null) {
 			handleExternalDataSource(props, config);
+		}
+		if (config.getDatabaseProps() != null) {
+			if (!config.getDatabaseProps().isEmpty()) {
+				Properties properties = new Properties();
+				for (RDBMSConfiguration.DatabaseProperty property : config.getDatabaseProps()) {
+					properties.setProperty(property.getName(), property.getValue());
+				}
+				props.setDbProperties(properties);
+			}
 		}
 		return props;
 	}

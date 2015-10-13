@@ -243,6 +243,7 @@ public class CarbonContext {
      *
      * @return the queue instance.
      */
+    @Deprecated
     public CarbonQueue<?> getQueue(String name) {
         return CarbonQueueManager.getInstance().getQueue(name);
     }

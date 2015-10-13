@@ -91,18 +91,12 @@ public class Utils {
                 "\n\t\t\t\t\tStart Carbon with OSGi debugging enabled. " +
                 "\n\t\t\t\t\tDebug options are loaded from the file repository/conf/etc/osgi-debug.options.");
         System.out.println("\t-Dsetup\t\t\t\tClean the Registry & other configuration, recreate DB, re-populate the configuration, and start Carbon");
-        System.out.println("\t-DhttpPort=<httpPort>\t\tOverrides the HTTP port defined in the carbon.xml file");
-        System.out.println("\t-DhttpsPort=<httpsPort>\t\tOverrides the HTTPS port defined in the carbon.xml file");
         System.out.println("\t-DportOffset=<offset>\t\tThe number by which all ports defined in the runtime ports will be offset");
         System.out.println("\t-DserverRoles=<roles>\t\tA comma separated list of roles. Used in deploying cApps");
         System.out.println("\t-DworkerNode\t\t\tSet this system property when starting as a worker node.");
         System.out.println("\t-Dprofile=<profileName>\t\tStarts the server as the specified profile. e.g. worker profile.");
         System.out.println("\t-Dtenant.idle.time=<time>\tIf a tenant is idle for the specified time, tenant will be unloaded. Default tenant idle time is 30mins.");
         System.out.println("\t\t\t\t\tThis is required in clustered setups with master and worker nodes.");
-        System.out.println("\t-Dcarbon.registry.root\t\tThe root of the Registry used by this Carbon instance.");
-        System.out.println("\t-Dweb.location=<path>\t\tThe directory into which the UI artifacts included in an Axis2 AAR file are extracted to.");
-        System.out.println("\t-Dcarbon.config.dir.path=<path>\tOverwrite the conf directory path where we keep all configuration files like carbon.xml, axis2.xml etc.");
-        System.out.println("\t-Dcarbon.logs.path=<path>\tDefine the path to keep Log files. If you want to change the logs directory, you need to update.");
         System.out.println();
     }
 

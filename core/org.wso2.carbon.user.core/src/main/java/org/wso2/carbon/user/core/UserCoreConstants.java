@@ -30,7 +30,6 @@ public class UserCoreConstants {
     public static final short BEHAVIOUR_HIDDEN = 1;
     public static final short BEHAVIOUR_OVERRIDDEN = 2;
 
-    public static final String INTERNAL_USERSTORE = "Internal";
     public static final String EXTERNAL_USERSTORE = "External";
 
     public static final String DELEGATING_REALM = "Delegating";
@@ -54,7 +53,8 @@ public class UserCoreConstants {
     public static final int MAX_USER_ROLE_LIST = 100;
     public static final int MAX_SEARCH_TIME = 10000;   // ms
 
-    public static final String INTERNAL_DOMAIN = "Internal";
+    public static final String INTERNAL_DOMAIN = "INTERNAL";
+    public static final String APPLICATION_DOMAIN = "Application";
     public static final String PRIMARY_DEFAULT_DOMAIN_NAME = "PRIMARY";
     public static final String SYSTEM_DOMAIN_NAME = "SYSTEM";
 
@@ -97,6 +97,8 @@ public class UserCoreConstants {
     public static final String LOCAL_NAME_PROPERTY = "Property";
     public static final String USER_LOCKED = "true";
     public static final String USER_UNLOCKED = "false";
+
+    public static final String SHA_1_PRNG = "SHA1PRNG";
 
     public static final class RealmConfig {
         public static final String LOCAL_NAME_USER_MANAGER = "UserManager";
@@ -152,6 +154,7 @@ public class UserCoreConstants {
         public static final String PROPERTY_JAVA_REG_EX = "PasswordJavaRegEx";
         public static final String PROPERTY_JS_REG_EX = "PasswordJavaScriptRegEx";
         public static final String PROPERTY_PASSWORD_ERROR_MSG = "PasswordJavaRegExViolationErrorMsg";
+        public static final String PROPERTY_USERNAME_ERROR_MSG = "UsernameJavaRegExViolationErrorMsg";
 
         public static final String PROPERTY_USER_NAME_JAVA_REG_EX = "UsernameJavaRegEx";
         public static final String PROPERTY_USER_NAME_JS_REG_EX = "UsernameJavaScriptRegEx";
@@ -196,6 +199,9 @@ public class UserCoreConstants {
 
         public static final String SHARED_GROUPS_ENABLED = "SharedGroupEnabled";
         public static final String DOMAIN_NAME_XPATH = "//UserStoreManager/Property[@name='DomainName']";
+        public static final String LDAP_READ_TIMEOUT = "ReadTimeout";
+        public static final String READ_TIME_EXCEEDED = "LDAPReadTimeoutExceeded";
+        public static final String RETRY_ATTEMPTS = "RetryAttempts";
     }
 
     public static final class ClaimTypeURIs {
@@ -221,6 +227,7 @@ public class UserCoreConstants {
         public static final String ACCOUNT_STATUS = IDENTITY_CLAIM_URI + "/accountLock";
         public static final String CHALLENGE_QUESTION_URI = IDENTITY_CLAIM_URI + "/challengeQuestion";
         public static final String TEMPORARY_EMAIL_ADDRESS = DEFAULT_CARBON_DIALECT + "/temporaryemailaddress";
+        public static final String DISPLAY_NAME = DEFAULT_CARBON_DIALECT + "/displayName";
     }
 
     public static final class TenantMgtConfig {

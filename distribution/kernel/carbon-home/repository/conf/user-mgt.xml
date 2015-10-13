@@ -43,6 +43,7 @@
             <Property name="UserNameAttribute">uid</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
+            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
 	    <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
@@ -90,6 +91,7 @@
             <Property name="UserNameUniqueAcrossTenants">false</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
+            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
 	    <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
@@ -141,7 +143,6 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </UserStoreManager-->
 	
 	<!-- Active directory configuration is as follows.
@@ -176,6 +177,7 @@
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
+            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
 	    <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
@@ -192,6 +194,7 @@
             <Property name="SharedTenantNameAttribute">ou</Property>
             <Property name="SharedTenantObjectClass">organizationalUnit</Property>
             <Property name="MembershipAttribute">member</Property>
+            <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="GroupNameListFilter">(objectcategory=group)</Property>
 	    <Property name="GroupNameSearchFilter">(&amp;(objectClass=group)(cn=?))</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
@@ -228,6 +231,7 @@
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
+            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
 	    <Property name="ReadGroups">true</Property>
 	    <Property name="WriteGroups">true</Property>
 	    <Property name="EmptyRolesAllowed">false</Property>
@@ -280,6 +284,7 @@
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
 	        <Property name="ServicePasswordJavaRegEx">^[\\S]{5,30}$</Property>
             <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
+            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
 	        <Property name="ServiceNameJavaRegEx">^[\\S]{2,30}/[\\S]{2,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
@@ -329,7 +334,6 @@
 	    <Property name="StoreSaltedPassword">true</Property>
 	    <Property name="AuthenticateWithAnyCredential">true</Property>
 	    <Property name="DomainName">multipleCredentialUserStoreDomain</Property>
-	    <Property name="BulkImportSupported">true</Property>
 	        <MultipleCredentials>
 		    <Credential type="Default">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
 		    <Credential type="Email">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>

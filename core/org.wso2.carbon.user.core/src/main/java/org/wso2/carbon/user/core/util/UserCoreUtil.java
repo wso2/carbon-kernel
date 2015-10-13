@@ -30,6 +30,7 @@ import org.wso2.carbon.user.core.common.UserStore;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.xml.StringUtils;
 
 import javax.sql.DataSource;
@@ -43,7 +44,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -461,19 +461,22 @@ public final class UserCoreUtil {
     }
 
     /**
-     * Append the distinguished name to the entry name
+     * Append the distinguished name to the tenantAwareEntry name
      *
-     * @param entry
+     * @param tenantAwareEntry
      * @param tenantDomain
      * @return
      */
-    public static String addTenantDomainToEntry(String entry, String tenantDomain) {
+    public static String addTenantDomainToEntry(String tenantAwareEntry, String tenantDomain) {
 
-        if (!StringUtils.isEmpty(tenantDomain)) {
-            entry = entry.split(UserCoreConstants.TENANT_DOMAIN_COMBINER)[0];
-            return entry + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+        if (StringUtils.isEmpty(tenantAwareEntry)){
+            throw new IllegalArgumentException();
+        } else if (!StringUtils.isEmpty(tenantDomain)) {
+            return tenantAwareEntry + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+        } else {
+            return tenantAwareEntry + UserCoreConstants.TENANT_DOMAIN_COMBINER + MultitenantConstants
+                    .SUPER_TENANT_DOMAIN_NAME;
         }
-        return entry;
     }
 
     /**
@@ -530,7 +533,8 @@ public final class UserCoreUtil {
             for (String name : names) {
                 if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
                     String domain = name.substring(0, index);
-                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                        && !UserCoreConstants.APPLICATION_DOMAIN.equalsIgnoreCase(domain)) {
                         // remove domain name if exist
                         nameList.add(name.substring(index + 1));
                     } else {

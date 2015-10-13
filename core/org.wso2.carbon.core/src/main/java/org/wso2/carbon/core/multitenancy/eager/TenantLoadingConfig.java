@@ -44,22 +44,16 @@ public class TenantLoadingConfig {
     public void init() {
         ServerConfigurationService serverConfigurationService =
                 CarbonCoreDataHolder.getInstance().getServerConfigurationService();
-        String tenantIdleTime =
-                serverConfigurationService.getFirstProperty("Tenant.LoadingPolicy.LazyLoading.IdleTime");
         String eagerLoadingString =
                 serverConfigurationService.getFirstProperty("Tenant.LoadingPolicy.EagerLoading.Include");
 
-        if (tenantIdleTime != null) {
-            logger.info("Using tenant lazy loading policy...");
-            System.setProperty(TENANT_IDLE_TIME, tenantIdleTime);
-            if (eagerLoadingString != null) {
-                logger.warn("Make sure that Eager loading configuration is disabled when Lazy loading in use.");
-            }
-        } else {
+        // If user defined eager loading configurations we'll configure tenant Eager Loading for those domains
+        if (eagerLoadingString != null) {
             // The eagerLoadingString could be something like; *,!wso2.com,!test.com
+            // Todo
             if (eagerLoadingString == null || eagerLoadingString.trim().isEmpty()) {
                 isOptional = true;
-                logger.info("Switching to default mode : Tenant lazy loading mechanism has been activated...");
+                logger.info("No domains defined under EagerLoading config - Switching to default Tenant lazy loading mechanism ...");
                 return;
             }
             isOptional = false;
