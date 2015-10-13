@@ -117,4 +117,6 @@ public class UserStoreConfigConstants {
 
 
     public static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
+    public static final String readTimeout = "ReadTimeout";
+    public static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
 }

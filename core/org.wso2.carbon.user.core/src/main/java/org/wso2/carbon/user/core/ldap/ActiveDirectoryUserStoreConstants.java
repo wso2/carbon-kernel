@@ -170,6 +170,7 @@ public class ActiveDirectoryUserStoreConstants {
 
         setAdvancedProperty(UserStoreConfigConstants.LDAPConnectionTimeout, "LDAP Connection Timeout", "5000",
                 UserStoreConfigConstants.LDAPConnectionTimeoutDescription);
+        setProperty(UserStoreConfigConstants.readTimeout, "LDAP Read Timeout", "5000", UserStoreConfigConstants.readTimeoutDescription);
     }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
