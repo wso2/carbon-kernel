@@ -24,7 +24,7 @@ public class Utils {
 
     /**
      * Set the carbon home for execute tests.
-     * Carbon home is set to /carbon-kernel/distribution/carbon-home
+     * Carbon home is set to /carbon-kernel/tests/osgi-tests/target/carbon-home
      */
     public static void setCarbonHome() {
         String currentDir = Paths.get("").toAbsolutePath().toString();
