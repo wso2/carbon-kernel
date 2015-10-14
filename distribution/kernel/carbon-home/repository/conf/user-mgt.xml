@@ -70,7 +70,6 @@
         <UserStoreManager class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
 	    <Property name="ReadOnly">false</Property>
-            <Property name="MaxUserNameListLength">100</Property>
             <Property name="IsEmailUserName">false</Property>
             <Property name="DomainCalculation">default</Property>
             <Property name="PasswordDigest">SHA-256</Property>
@@ -100,9 +99,6 @@
  	-->
         <!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
-            <Property name="ReadOnly">true</Property>
-            <Property name="Disabled">false</Property>                       
-	    <Property name="MaxUserNameListLength">100</Property>
             <Property name="ConnectionURL">ldap://localhost:10389</Property>
             <Property name="ConnectionName">uid=admin,ou=system</Property>
             <Property name="ConnectionPassword">admin</Property>
@@ -112,8 +108,8 @@
             <Property name="UserNameListFilter">(objectClass=person)</Property>
 	    <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameAttribute">uid</Property>
+	    <Property name="DisplayNameAttribute">uid</Property>
 	    <Property name="UserDNPattern">uid={0},ou=Users,dc=wso2,dc=org</Property>
-	    <Property name="DisplayNameAttribute"/>
 	    <Property name="ReadGroups">true</Property>
             <Property name="GroupSearchBase">ou=system</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
@@ -123,6 +119,9 @@
 	    <Property name="MembershipAttribute">member</Property>
             <Property name="MemberOfAttribute">memberOf</Property>
 	    <Property name="BackLinksEnabled">false</Property>
+	    <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
+	    <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+	    <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
 	    <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
             <Property name="MaxRoleNameListLength">100</Property>
@@ -146,7 +145,6 @@
 	<!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
             <Property name="defaultRealmName">WSO2.ORG</Property>
-            <Property name="Disabled">false</Property>                                   
             <Property name="kdcEnabled">false</Property>
             <Property name="ConnectionURL">ldaps://10.100.1.100:636</Property> 
             <Property name="ConnectionName">CN=admin,CN=Users,DC=WSO2,DC=Com</Property>
@@ -156,6 +154,7 @@
             <Property name="UserSearchBase">CN=Users,DC=WSO2,DC=Com</Property>
             <Property name="UserEntryObjectClass">user</Property>
             <Property name="UserNameAttribute">cn</Property>
+            <Property name="DisplayNameAttribute">cn</Property>
             <Property name="isADLDSRole">false</Property>
 	    <Property name="userAccountControl">512</Property>
             <Property name="UserNameListFilter">(objectClass=user)</Property>
@@ -241,7 +240,6 @@
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
             <Property name="defaultRealmName">WSO2.ORG</Property>
             <Property name="kdcEnabled">false</Property>
-            <Property name="Disabled">false</Property>                                   
             <Property name="ConnectionURL">ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}</Property>
             <Property name="ConnectionName">uid=admin,ou=system</Property>
             <Property name="ConnectionPassword">admin</Property>
@@ -252,7 +250,7 @@
             <Property name="UserSearchBase">ou=Users,dc=wso2,dc=org</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameAttribute">uid</Property>
-	    <Property name="DisplayNameAttribute"/>
+	    <Property name="DisplayNameAttribute">uid</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
 	    <Property name="ServicePasswordJavaRegEx">^[\\S]{5,30}$</Property>
