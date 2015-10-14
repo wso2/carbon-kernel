@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2005-2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2015 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -47,6 +47,9 @@ public abstract class CarbonTransport {
         start();
     }
 
+    /**
+     * Implementation of the transport start process.
+     */
     protected abstract void start();
 
     void stopTransport() {
@@ -58,6 +61,9 @@ public abstract class CarbonTransport {
         stop();
     }
 
+    /**
+     * Implementation of the transport stop process.
+     */
     protected abstract void stop();
 
     void beginTransportMaintenance() {
@@ -70,6 +76,9 @@ public abstract class CarbonTransport {
         beginMaintenance();
     }
 
+    /**
+     * Implementation of the transport start maintenance process.
+     */
     protected abstract void beginMaintenance();
 
     void endTransportMaintenance() {
@@ -81,6 +90,9 @@ public abstract class CarbonTransport {
         endMaintenance();
     }
 
+    /**
+     * Implementation of the transport end maintenance process.
+     */
     protected abstract void endMaintenance();
 
     private enum State {
