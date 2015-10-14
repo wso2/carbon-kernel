@@ -17,7 +17,7 @@
 package org.wso2.carbon.osgi.logging;
 
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerMethod;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.ops4j.pax.exam.util.Filter;
 import org.osgi.service.cm.Configuration;
@@ -37,7 +37,7 @@ import java.util.Hashtable;
 import javax.inject.Inject;
 
 @Listeners(PaxExam.class)
-@ExamReactorStrategy(PerMethod.class)
+@ExamReactorStrategy(PerClass.class)
 public class LoggingConfigurationOSGiTest {
     private static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
     private static final String LOG4J2_CONFIG_FILE_KEY = "org.ops4j.pax.logging.log4j2.config.file";
@@ -79,14 +79,13 @@ public class LoggingConfigurationOSGiTest {
         //default log level is "ERROR"
         Assert.assertEquals(logger.isErrorEnabled(), true);
         Assert.assertEquals(logger.isDebugEnabled(), false);
-        Assert.assertEquals(logger.isInfoEnabled(), false);
 
         Dictionary<String, Object> properties = new Hashtable<>();
         String log4jConfigFilePath = testResourceDir + File.separator + LOG4J2_CONFIG_FILE;
         properties.put(LOG4J2_CONFIG_FILE_KEY, log4jConfigFilePath);
         managedService.updated(properties);
 
-        //updated log level is "INFO"
-        Assert.assertEquals(logger.isInfoEnabled(), true);
+        //updated log level is "DEBUG"
+        Assert.assertEquals(logger.isDebugEnabled(), true);
     }
 }

@@ -20,6 +20,7 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
@@ -60,18 +61,29 @@ public class CarbonDeploymentEngineOSGiTest {
 
     @Test
     public void testRegisterDeployer() {
-        bundleContext.registerService(Deployer.class.getName(), customDeployer, null);
+        ServiceRegistration serviceRegistration = bundleContext.registerService(Deployer.class.getName(),
+                customDeployer, null);
         ServiceReference reference = bundleContext.getServiceReference(Deployer.class.getName());
         Assert.assertNotNull(reference, "Custom Deployer Service Reference is null");
         CustomDeployer deployer = (CustomDeployer) bundleContext.getService(reference);
         Assert.assertNotNull(deployer, "Custom Deployer Service is null");
-
+        serviceRegistration.unregister();
+        reference = bundleContext.getServiceReference(Deployer.class.getName());
+        Assert.assertNull(reference, "Custom Deployer Service Reference should be unregistered and null");
     }
 
     @Test(dependsOnMethods = {"testRegisterDeployer"})
     public void testDeploymentService() throws CarbonDeploymentException {
         Assert.assertNotNull(deploymentService);
         bundleContext.registerService(Deployer.class.getName(), customDeployer, null);
+        //deploy
         deploymentService.deploy(artifactPath, customDeployer.getArtifactType());
+
+        //undeploy
+        try {
+            deploymentService.undeploy(artifactPath, customDeployer.getArtifactType());
+        } catch (CarbonDeploymentException e) {
+            Assert.assertEquals(e.getMessage(), "Cannot find artifact with key : " + artifactPath + " to undeploy");
+        }
     }
 }
