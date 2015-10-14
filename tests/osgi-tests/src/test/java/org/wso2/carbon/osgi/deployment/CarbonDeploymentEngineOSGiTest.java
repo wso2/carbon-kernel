@@ -76,14 +76,16 @@ public class CarbonDeploymentEngineOSGiTest {
     public void testDeploymentService() throws CarbonDeploymentException {
         Assert.assertNotNull(deploymentService);
         bundleContext.registerService(Deployer.class.getName(), customDeployer, null);
-        //deploy
-        deploymentService.deploy(artifactPath, customDeployer.getArtifactType());
-
         //undeploy
         try {
             deploymentService.undeploy(artifactPath, customDeployer.getArtifactType());
         } catch (CarbonDeploymentException e) {
             Assert.assertEquals(e.getMessage(), "Cannot find artifact with key : " + artifactPath + " to undeploy");
         }
+        //deploy
+        deploymentService.deploy(artifactPath, customDeployer.getArtifactType());
+
+        //redeploy - this does not do anything for the moment.
+        deploymentService.redeploy(artifactPath, customDeployer.getArtifactType());
     }
 }
