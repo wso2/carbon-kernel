@@ -28,14 +28,13 @@ import org.wso2.carbon.deployment.api.DeploymentService;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;
 
-import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.inject.Inject;
 
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class CarbonDeploymentEngineOSGiTest {
-
-    private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
 
     @Inject
     private BundleContext bundleContext;
@@ -51,12 +50,11 @@ public class CarbonDeploymentEngineOSGiTest {
     static {
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
-            basedir = new File(".").getAbsolutePath();
+            basedir = Paths.get(".").toString();
         }
-        String testResourceDir = basedir + File.separator + "src" + File.separator + "test" +
-                File.separator + "resources";
+        Path testResourceDir = Paths.get(basedir, "src", "test", "resources");
         customDeployer = new CustomDeployer();
-        artifactPath = testResourceDir + File.separator + DEPLOYER_REPO + File.separator + "sample1.txt";
+        artifactPath = Paths.get(testResourceDir.toString(), "carbon-repo", "text-files", "sample1.txt").toString();
     }
 
     @Test

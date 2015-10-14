@@ -30,8 +30,8 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import javax.inject.Inject;
@@ -41,7 +41,7 @@ import javax.inject.Inject;
 public class LoggingConfigurationOSGiTest {
     private static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
     private static final String LOG4J2_CONFIG_FILE_KEY = "org.ops4j.pax.logging.log4j2.config.file";
-    private static final String LOG4J2_CONFIG_FILE = "logging" + File.separator + "log4j2.xml";
+    private static final String LOG4J2_CONFIG_FILE = "log4j2.xml";
 
     @Inject
     private ConfigurationAdmin configAdmin;
@@ -50,14 +50,14 @@ public class LoggingConfigurationOSGiTest {
     @Filter("(service.pid=org.ops4j.pax.logging)")
     private ManagedService managedService;
 
-    private static String testResourceDir;
+    private static String loggingConfigDirectory;
 
     static {
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
-            basedir = new File(".").getAbsolutePath();
+            basedir = Paths.get(".").toString();
         }
-        testResourceDir = basedir + File.separator + "src" + File.separator + "test" + File.separator + "resources";
+        loggingConfigDirectory = Paths.get(basedir, "src", "test", "resources", "logging").toString();
     }
 
     @Test
@@ -81,7 +81,7 @@ public class LoggingConfigurationOSGiTest {
         Assert.assertEquals(logger.isDebugEnabled(), false);
 
         Dictionary<String, Object> properties = new Hashtable<>();
-        String log4jConfigFilePath = testResourceDir + File.separator + LOG4J2_CONFIG_FILE;
+        String log4jConfigFilePath = Paths.get(loggingConfigDirectory, LOG4J2_CONFIG_FILE).toString();
         properties.put(LOG4J2_CONFIG_FILE_KEY, log4jConfigFilePath);
         managedService.updated(properties);
 
