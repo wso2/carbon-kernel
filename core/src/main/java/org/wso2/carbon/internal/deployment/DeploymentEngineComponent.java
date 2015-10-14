@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.deployment.api.DeploymentService;
+import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.kernel.CarbonRuntime;
@@ -74,12 +75,10 @@ public class DeploymentEngineComponent {
             deploymentEngine.start();
 
             // Add deployment engine to the data holder for later usages/references of this object
-            OSGiServiceHolder.getInstance().
-                    setCarbonDeploymentEngine(deploymentEngine);
+            OSGiServiceHolder.getInstance().setCarbonDeploymentEngine(deploymentEngine);
 
             // Register DeploymentService
-            DeploymentService deploymentService =
-                    new CarbonDeploymentService(deploymentEngine);
+            DeploymentService deploymentService = new CarbonDeploymentService(deploymentEngine);
             serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
                     deploymentService, null);
 
@@ -131,7 +130,7 @@ public class DeploymentEngineComponent {
         if (deploymentEngine != null) {
             try {
                 deploymentEngine.registerDeployer(deployer);
-            } catch (Exception e) {
+            } catch (DeployerRegistrationException e) {
                 logger.error("Error while adding deployer to the deployment engine", e);
             }
         } else { //carbon deployment engine is not initialized yet, so we keep them in a pending list
@@ -147,7 +146,7 @@ public class DeploymentEngineComponent {
     protected void unregisterDeployer(Deployer deployer) {
         try {
             deploymentEngine.unregisterDeployer(deployer);
-        } catch (Exception e) {
+        } catch (DeploymentEngineException e) {
             logger.error("Error while removing deployer from deployment engine", e);
         }
     }

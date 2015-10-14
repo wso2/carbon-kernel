@@ -42,8 +42,6 @@ public class CarbonDeploymentEngineOSGiTest {
     @Inject
     private DeploymentService deploymentService;
 
-    private static CustomDeployer customDeployer;
-
     private static String artifactPath;
 
 
@@ -53,14 +51,13 @@ public class CarbonDeploymentEngineOSGiTest {
             basedir = Paths.get(".").toString();
         }
         Path testResourceDir = Paths.get(basedir, "src", "test", "resources");
-        customDeployer = new CustomDeployer();
         artifactPath = Paths.get(testResourceDir.toString(), "carbon-repo", "text-files", "sample1.txt").toString();
     }
 
     @Test
     public void testRegisterDeployer() {
         ServiceRegistration serviceRegistration = bundleContext.registerService(Deployer.class.getName(),
-                customDeployer, null);
+                new CustomDeployer(), null);
         ServiceReference reference = bundleContext.getServiceReference(Deployer.class.getName());
         Assert.assertNotNull(reference, "Custom Deployer Service Reference is null");
         CustomDeployer deployer = (CustomDeployer) bundleContext.getService(reference);
@@ -68,11 +65,21 @@ public class CarbonDeploymentEngineOSGiTest {
         serviceRegistration.unregister();
         reference = bundleContext.getServiceReference(Deployer.class.getName());
         Assert.assertNull(reference, "Custom Deployer Service Reference should be unregistered and null");
+
+        //register faulty deployers
+        CustomDeployer deployer1 = new CustomDeployer();
+        deployer1.setArtifactType(null);
+        bundleContext.registerService(Deployer.class.getName(), deployer1, null);
+
+        CustomDeployer deployer2 = new CustomDeployer();
+        deployer2.setLocation(null);
+        bundleContext.registerService(Deployer.class.getName(), deployer2, null);
     }
 
     @Test(dependsOnMethods = {"testRegisterDeployer"})
     public void testDeploymentService() throws CarbonDeploymentException {
         Assert.assertNotNull(deploymentService);
+        CustomDeployer customDeployer = new CustomDeployer();
         bundleContext.registerService(Deployer.class.getName(), customDeployer, null);
         //undeploy
         try {

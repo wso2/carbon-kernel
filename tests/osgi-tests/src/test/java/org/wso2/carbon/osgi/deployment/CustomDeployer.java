@@ -34,18 +34,6 @@ import java.net.URL;
 
 public class CustomDeployer implements Deployer {
     private static final Logger logger = LoggerFactory.getLogger(CustomDeployer.class);
-    /**
-     * Has init() been called?
-     */
-    public static boolean initCalled;
-    /**
-     * Set to true if "XML1" has been deployed
-     */
-    public static boolean sample1Deployed;
-    /**
-     * Set to true if "XML1" has been updated
-     */
-    public static boolean sample1Updated;
 
     private String directory = "carbon-repo/text-files";
     private URL directoryLocation;
@@ -64,7 +52,6 @@ public class CustomDeployer implements Deployer {
 
     public void init() {
         logger.info("Initializing Deployer");
-        initCalled = true;
     }
 
     public String deploy(Artifact artifact) throws CarbonDeploymentException {
@@ -77,7 +64,6 @@ public class CustomDeployer implements Deployer {
             fis.read(b);
             String content = new String(b);
             if (content.contains("sample1")) {
-                sample1Deployed = true;
                 key = artifact.getName();
             }
         } catch (IOException e) {
@@ -101,7 +87,7 @@ public class CustomDeployer implements Deployer {
             fis.read(b);
             String content = new String(b);
             if (content.contains("sample1")) {
-                sample1Deployed = false;
+                logger.info("Undeployed : " + key);
             }
         } catch (IOException e) {
             throw new CarbonDeploymentException("Error while Un Deploying : " + key, e);
@@ -110,7 +96,6 @@ public class CustomDeployer implements Deployer {
 
     public String update(Artifact artifact) throws CarbonDeploymentException {
         logger.info("Updating : " + artifact.getName());
-        sample1Updated = true;
         return artifact.getName();
     }
 
