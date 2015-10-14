@@ -70,6 +70,7 @@ public class FileUtils {
             }
         } catch (IOException e) {
             logger.warn("Unable to copy file " + e.getMessage(), e);
+            throw new IOException("Unable to copy file ", e);
         }
     }
 

@@ -28,6 +28,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.wso2.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.cm</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
             <optional>true</optional>
