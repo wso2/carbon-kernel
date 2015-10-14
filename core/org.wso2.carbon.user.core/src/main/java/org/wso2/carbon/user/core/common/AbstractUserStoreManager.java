@@ -4021,34 +4021,25 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                 }
                 throw new UserStoreException(errmsg);
             } else {
-                Boolean isDisabled = false;
-                if (userStoreRealmConfig
-                        .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED) != null) {
-                    isDisabled = Boolean
-                            .parseBoolean(userStoreRealmConfig
-                                    .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
-                    if (isDisabled) {
-                        log.warn("Secondary user store disabled with domain "
-                                + domainName + ".");
-                    } else {
-                        // Fulfilled requirements for adding UserStore,
+                boolean isDisabled = Boolean.parseBoolean(userStoreRealmConfig
+                        .getUserStoreProperty(UserCoreConstants.RealmConfig.USER_STORE_DISABLED));
+                if (isDisabled) {
+                    log.warn("Secondary user store disabled with domain " + domainName + ".");
+                } else {
+                    // Fulfilled requirements for adding UserStore,
 
-                        // Now adding UserStoreManager to end of the UserStoreManager chain
-                        UserStoreManager tmpUserStoreManager = this;
-                        while (tmpUserStoreManager.getSecondaryUserStoreManager() != null) {
-                            tmpUserStoreManager = tmpUserStoreManager
-                                    .getSecondaryUserStoreManager();
-                        }
-                        tmpUserStoreManager.setSecondaryUserStoreManager(manager);
+                    // Now adding UserStoreManager to end of the UserStoreManager chain
+                    UserStoreManager tmpUserStoreManager = this;
+                    while (tmpUserStoreManager.getSecondaryUserStoreManager() != null) {
+                        tmpUserStoreManager = tmpUserStoreManager.getSecondaryUserStoreManager();
+                    }
+                    tmpUserStoreManager.setSecondaryUserStoreManager(manager);
 
-                        // update domainName-USM map to retrieve USM directly by its domain name
-                        this.addSecondaryUserStoreManager(domainName.toUpperCase(),
-                                tmpUserStoreManager.getSecondaryUserStoreManager());
+                    // update domainName-USM map to retrieve USM directly by its domain name
+                    this.addSecondaryUserStoreManager(domainName.toUpperCase(), tmpUserStoreManager.getSecondaryUserStoreManager());
 
-                        if (log.isDebugEnabled()) {
-                            log.debug("UserStoreManager : " + domainName
-                                    + "added to the list");
-                        }
+                    if (log.isDebugEnabled()) {
+                        log.debug("UserStoreManager : " + domainName + "added to the list");
                     }
                 }
             }
