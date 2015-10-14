@@ -23,8 +23,14 @@ import org.wso2.carbon.launcher.bootstrap.logging.ConsoleLogger;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -62,7 +68,10 @@ public class Main {
         // 4) Register a shutdown hook to stop the server
         registerShutdownHook(carbonServer);
 
-        // 5) Start Carbon server.
+        // 5) Write pid to wso2carbon.pid file
+        writePID(System.getProperty(CARBON_HOME));
+
+        // 6) Start Carbon server.
         try {
             // This method launches the OSGi framework, loads all the bundles and starts Carbon server completely.
             carbonServer.start();
@@ -146,6 +155,46 @@ public class Main {
             ex.printStackTrace();
             logger.log(Level.SEVERE, "Could not initialize logging", ex);
             throw new RuntimeException(ex);
+        }
+    }
+
+    /**
+     * Write the process ID of this process to the file
+     *
+     * @param carbonHome carbon.home sys property value.
+     */
+    private static void writePID(String carbonHome) {
+
+        String[] cmd = { "bash", "-c", "echo $PPID" };
+        Process p;
+        String pid = "";
+        try {
+            p = Runtime.getRuntime().exec(cmd);
+        } catch (IOException e) {
+            //ignored. We might be invoking this on a Window platform. Therefore if an error occurs
+            //we simply ignore the error.
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream(),
+                StandardCharsets.UTF_8))) {
+            StringBuilder builder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+            pid = builder.toString();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+
+        if (pid.length() != 0) {
+            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(carbonHome + File.separator + "wso2carbon.pid"), StandardCharsets.UTF_8))) {
+                writer.write(pid);
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Cannot write wso2carbon.pid file");
+            }
         }
     }
 }
