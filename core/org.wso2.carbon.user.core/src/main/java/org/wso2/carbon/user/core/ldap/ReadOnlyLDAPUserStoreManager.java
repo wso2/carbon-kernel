@@ -18,6 +18,7 @@
 package org.wso2.carbon.user.core.ldap;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
@@ -78,9 +79,6 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String PROPERTY_REFERRAL_IGNORE ="ignore";
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
-    private static final String readTimeout = "ReadTimeout";
-    private static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
-    private static final String RETRY_ATTEMPTS = "RetryAttempts";
 
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
@@ -802,7 +800,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
         String[] returnedAtts = null;
 
-        if (displayNameAttribute != null) {
+        if (StringUtils.isNotEmpty(displayNameAttribute)) {
             returnedAtts =
                     new String[]{userNameProperty, serviceNameAttribute,
                             displayNameAttribute};
@@ -862,7 +860,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 						 * if display name is provided, read that attribute
 						 */
                         Attribute displayName = null;
-                        if (displayNameAttribute != null) {
+                        if (StringUtils.isNotEmpty(displayNameAttribute)) {
                             displayName = sr.getAttributes().get(displayNameAttribute);
                             if (debug) {
                                 log.debug(displayNameAttribute + " : " + displayName);
@@ -926,7 +924,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         // DisplayNameAttribute combine and return
         String displayNameAttribute =
                 this.realmConfig.getUserStoreProperty(LDAPConstants.DISPLAY_NAME_ATTRIBUTE);
-        if (displayNameAttribute != null) {
+        if (StringUtils.isNotEmpty(displayNameAttribute)) {
             String userNameAttribute =
                     this.realmConfig.getUserStoreProperty(LDAPConstants.USER_NAME_ATTRIBUTE);
             String userSearchBase =
@@ -1694,7 +1692,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                                 log.debug("UserName: " + userName);
                             }
                         }
-                        if (displayNameAttribute != null) {
+                        if (StringUtils.isNotEmpty(displayNameAttribute)) {
                             Attribute displayAttribute = userAttributes.get(displayNameAttribute);
                             if (displayAttribute != null) {
                                 displayName = (String) displayAttribute.get();
@@ -2469,7 +2467,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     // create DN directly   but there is no way when multiple DNs are used. Need to improve letter
                     String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-                    if (userDNPattern != null && !userDNPattern.contains("#")) {
+                    if (StringUtils.isNotEmpty(userDNPattern) && !userDNPattern.contains("#")) {
                         searchBases = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                     }
                 }
@@ -2522,7 +2520,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
             String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
             String nameInSpace;
-            if (userDNPattern != null && !userDNPattern.contains("#")) {
+            if (StringUtils.isNotEmpty(userDNPattern) && !userDNPattern.contains("#")) {
                 nameInSpace = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
             } else {
                 nameInSpace = this.getNameInSpaceForUserName(userName);

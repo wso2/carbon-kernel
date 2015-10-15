@@ -55,23 +55,25 @@ public class JDBCUserStoreConstants {
         setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true", UserStoreConfigConstants.readLDAPGroupsDescription);
         setProperty(UserStoreConfigConstants.writeGroups, "Write Groups", "true", UserStoreConfigConstants.writeGroupsDescription);
         setProperty("UsernameJavaRegEx", "Username RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate user names");
-        setProperty(usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
-                "Username pattern policy violated.", usernameJavaRegExViolationErrorMsgDescription);
         setProperty("UsernameJavaScriptRegEx", "Username RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression " +
                 "used by the font-end components for username validation");
+        setProperty(usernameJavaRegExViolationErrorMsg, "Username RegEx Violation Error Message",
+                "Username pattern policy violated.", usernameJavaRegExViolationErrorMsgDescription);
+
         setProperty("PasswordJavaRegEx", "Password RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate passwords");
-        setProperty(passwordJavaRegExViolationErrorMsg, "Password RegEx Violation Error Message",
-                "Password pattern policy violated.", passwordJavaRegExViolationErrorMsgDescription);
         setProperty("PasswordJavaScriptRegEx", "Password RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression " +
                 "used by the font-end components for password validation");
+        setProperty(passwordJavaRegExViolationErrorMsg, "Password RegEx Violation Error Message",
+                "Password pattern policy violated.", passwordJavaRegExViolationErrorMsgDescription);
         setProperty("RolenameJavaRegEx", "Role Name RegEx (Java)", "^[\\S]{5,30}$", "A regular expression to validate role names");
         setProperty("RolenameJavaScriptRegEx", "Role Name RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for role name validation");
         setProperty(JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME, "Case Insensitive Username", "true",
                 JDBCCaseInsensitiveConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
 
         //set Advanced properties
-        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "", "false", UserStoreConfigConstants.SCIMEnabledDescription);
-        setAdvancedProperty("IsBulkImportSupported", "", "false", "Support Bulk User Import Operation for this user store");
+        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants.SCIMEnabledDescription);
+        setAdvancedProperty("IsBulkImportSupported", "Is Bulk Import Supported", "false", "Support Bulk User Import " +
+                "Operation for this user store");
         setAdvancedProperty(JDBCRealmConstants.DIGEST_FUNCTION, "Password Hashing Algorithm", "SHA-256", UserStoreConfigConstants
                 .passwordHashMethodDescription);
         setAdvancedProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS, "Enable Salted Passwords", "true", "Indicates whether to salt " +
