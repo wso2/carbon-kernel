@@ -47,7 +47,7 @@ public class ReadOnlyLDAPUserStoreConstants {
                 "User Entry Object Class", "wso2Person", UserStoreConfigConstants
                         .userEntryObjectClassDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute",
-                "uid", UserStoreConfigConstants.userNameAttributeDescription, false);
+                "", UserStoreConfigConstants.userNameAttributeDescription, false);
 
         setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
                 "(&amp;(objectClass=person)(uid=?))", UserStoreConfigConstants
