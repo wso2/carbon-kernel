@@ -23,6 +23,16 @@ import java.nio.file.Paths;
 public class Utils {
 
     /**
+     * setting the maven local repo system property, important when running in jenkins
+     */
+    public static void setupMavenLocalRepo() {
+        String localRepo = System.getProperty("maven.repo.local");
+        if (localRepo != null && !localRepo.equals("")) {
+            System.setProperty("org.ops4j.pax.url.mvn.localRepository", localRepo);
+        }
+    }
+
+    /**
      * Set the carbon home for execute tests.
      * Carbon home is set to /carbon-kernel/tests/osgi-tests/target/carbon-home
      */
@@ -31,5 +41,4 @@ public class Utils {
         Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
         System.setProperty("carbon.home", carbonHome.toString());
     }
-
 }
