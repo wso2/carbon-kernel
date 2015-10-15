@@ -34,6 +34,7 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
     //setting up the environment
     private void setup() {
         Utils.setCarbonHome();
+        Utils.setupMavenLocalRepo();
     }
 
     @Override
