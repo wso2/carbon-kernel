@@ -101,7 +101,8 @@ public class ReadWriteLDAPUserStoreConstants {
         setAdvancedProperty(UserStoreConfigConstants.readTimeout, "LDAP Read Timeout", "5000", UserStoreConfigConstants
                 .readTimeoutDescription);
         setAdvancedProperty(UserCoreConstants.RealmConfig.RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
-                " authentication in case ldap read timed out.");    }
+                " authentication in case ldap read timed out.");
+    }
 
     private static void setMandatoryProperty(String name, String displayName, String value,
                                              String description, boolean encrypt) {
