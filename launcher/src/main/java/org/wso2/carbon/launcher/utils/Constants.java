@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.launcher.utils;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 /**
