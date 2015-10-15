@@ -78,6 +78,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private static final String PROPERTY_REFERRAL_IGNORE ="ignore";
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
+    private static final String readTimeout = "ReadTimeout";
+    private static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
+    private static final String RETRY_ATTEMPTS = "RetryAttempts";
 
     // Todo: use a cache provided by carbon kernel
     Map<String, Object> userCache = new ConcurrentHashMap<String, Object>(MAX_USER_CACHE);
@@ -3257,6 +3260,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         setAdvancedProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
         setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
+
+        setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
+        setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
+                " authentication in case ldap read timed out.");
         setAdvancedProperty("UniqueID", "", "", "");
 
     }

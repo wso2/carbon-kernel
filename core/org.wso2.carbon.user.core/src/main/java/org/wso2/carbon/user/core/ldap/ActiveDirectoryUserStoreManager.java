@@ -69,6 +69,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
     private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
     private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
+    private static final String readTimeout = "ReadTimeout";
+    private static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
+    private static final String RETRY_ATTEMPTS = "RetryAttempts";
 
 
     public ActiveDirectoryUserStoreManager() {
@@ -899,6 +902,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
 
         setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
+
+        setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
+        setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
+                " authentication in case ldap read timed out.");
         setAdvancedProperty("UniqueID", "", "", "");
     }
 
