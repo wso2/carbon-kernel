@@ -1970,6 +1970,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 .maxUserNameListLengthDescription);
         setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants
                 .maxRoleNameListLengthDescription);
+        setAdvancedProperty("kdcEnabled", "Enable KDC", "false", "Whether key distribution center enabled");
+        setAdvancedProperty("defaultRealmName", "Default Realm Name", "WSO2.ORG", "Default name for the realm");
 
         setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants
                 .userRolesCacheEnabledDescription);
@@ -1981,7 +1983,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
         setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
                 " authentication in case ldap read timed out.");
-        setAdvancedProperty("UniqueID", "", "", "");
     }
 
 //

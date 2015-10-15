@@ -35,7 +35,8 @@ public class JDBCUserStoreConstants {
     private static final String passwordJavaRegExViolationErrorMsg = "PasswordJavaRegExViolationErrorMsg";
     private static final String passwordJavaRegExViolationErrorMsgDescription = "Error message when the Password is " +
             "not matched with passwordJavaRegEx";
-
+    private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
 
     static {
 
@@ -76,6 +77,8 @@ public class JDBCUserStoreConstants {
                 "Operation for this user store");
         setAdvancedProperty(JDBCRealmConstants.DIGEST_FUNCTION, "Password Hashing Algorithm", "SHA-256", UserStoreConfigConstants
                 .passwordHashMethodDescription);
+        setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
+
         setAdvancedProperty(JDBCRealmConstants.STORE_SALTED_PASSWORDS, "Enable Salted Passwords", "true", "Indicates whether to salt " +
                 "the password");
 

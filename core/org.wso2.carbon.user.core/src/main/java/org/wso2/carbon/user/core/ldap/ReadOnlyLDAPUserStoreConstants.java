@@ -49,7 +49,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setMandatoryProperty(UserStoreConfigConstants.userSearchBase, "User Search Base",
                 "ou=system", UserStoreConfigConstants.userSearchBaseDescription, false);
         setMandatoryProperty(UserStoreConfigConstants.userNameAttribute, "Username Attribute",
-                "uid", UserStoreConfigConstants.userNameAttributeDescription, false);
+                "", UserStoreConfigConstants.userNameAttributeDescription, false);
 
         setMandatoryProperty(UserStoreConfigConstants.usernameSearchFilter, "User Search Filter",
                 "(&amp;(objectClass=person)(uid=?))", UserStoreConfigConstants
@@ -61,7 +61,7 @@ public class ReadOnlyLDAPUserStoreConstants {
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
         setProperty(DisplayNameAttribute, "Display name attribute", "uid", DisplayNameAttributeDescription);
         setProperty(UserStoreConfigConstants.disabled, "Disabled", "false", UserStoreConfigConstants.disabledDescription);
-        setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "false", UserStoreConfigConstants
+        setProperty(UserStoreConfigConstants.readGroups, "Read Groups", "true", UserStoreConfigConstants
                 .readLDAPGroupsDescription);
         setProperty(UserStoreConfigConstants.groupSearchBase, "Group Search Base", "ou=Groups,dc=wso2,dc=org",
                 UserStoreConfigConstants.groupSearchBaseDescription);
