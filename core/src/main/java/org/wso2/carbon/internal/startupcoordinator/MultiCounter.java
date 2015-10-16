@@ -17,9 +17,6 @@
 */
 package org.wso2.carbon.internal.startupcoordinator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,22 +24,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * TODO fix this
+ * Counter implementation which maintains multiple key occurrences. This implementation is thread-safe.
  *
- * @param <K> k
+ * @param <K> the type of keys maintained by this map
  */
 public class MultiCounter<K> {
-    private static final Logger logger = LoggerFactory.getLogger(MultiCounter.class);
-
-    Map<K, AtomicInteger> counterMap = new ConcurrentHashMap<>();
+    private Map<K, AtomicInteger> counterMap = new ConcurrentHashMap<>();
 
     /**
-     * make this thread safe TODO  fix this
+     * Increment the count of the specified key by one and returns new value.
      *
-     * @param key
+     * @param key with which the associated value is incremented by one
+     * @return count after incrementing by one.
      */
-    public int incrementAndGet(K key) {
-        logger.info("!!!!! Increment {}", key);
+    public synchronized int incrementAndGet(K key) {
         if (!counterMap.containsKey(key)) {
             counterMap.put(key, new AtomicInteger(1));
             return 1;
@@ -51,10 +46,10 @@ public class MultiCounter<K> {
     }
 
     /**
-     * make this Thread safe
+     * Decrements the count of the specified key by one and returns the new value.
      *
-     * @param key
-     * @return
+     * @param key with which the associated value is decremented by one.
+     * @return count after decrementing by one.
      */
     public int decrementAndGet(K key) {
         if (counterMap.containsKey(key)) {
@@ -68,10 +63,24 @@ public class MultiCounter<K> {
         return -1;
     }
 
+    /**
+     * Returns count of the specified key.
+     *
+     * @param key to be used to retrieve the count.
+     * @return count of the specified key.
+     */
     public int get(K key) {
+        if (counterMap.get(key) == null) {
+            return 0;
+        }
         return counterMap.get(key).get();
     }
 
+    /**
+     * Returns all the keys managed by this counter.
+     *
+     * @return a list of Keys.
+     */
     public List<K> getAllKeys() {
         return new ArrayList<>(counterMap.keySet());
     }
