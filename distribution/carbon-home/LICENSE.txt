@@ -1,0 +1,62 @@
+
+This product is licensed by WSO2 Inc. under Apache License 2.0. The license
+can be downloaded from the following locations:
+	http://www.apache.org/licenses/LICENSE-2.0.html
+	http://www.apache.org/licenses/LICENSE-2.0.txt
+
+This product also contains software under different licenses. This table below
+all the contained libraries (jar files) and the license under which they are 
+provided to you.
+
+At the bottom of this file is a table that shows what each license indicated
+below is and where the actual text of the license can be found.
+
+Name                                                                            Type           License   
+---------------------------------------------------------------------------------------------------------
+org.apache.felix.gogo.command_0.10.0.v201209301215.jar                          bundle         apache2   1134      
+org.apache.felix.gogo.runtime_0.10.0.v201209301036.jar                          bundle         apache2   1133      
+org.apache.felix.gogo.shell_0.10.0.v201212101605.jar                            bundle         apache2   1132      
+org.eclipse.core.contenttype_3.4.200.v20140207-1251.jar                         bundle         epl1      1432      
+org.eclipse.core.expressions_3.4.600.v20140128-0851.jar                         bundle         epl1      1431      
+org.eclipse.core.jobs_3.6.1.v20141014-1248.jar                                  bundle         epl1      1430      
+org.eclipse.core.runtime_3.10.0.v20140318-2214.jar                              bundle         epl1      1429      
+org.eclipse.ecf.filetransfer_5.0.0.v20141221-2352.jar                           bundle         epl1      1428      
+org.eclipse.ecf.identity_3.4.0.v20141221-2352.jar                               bundle         epl1      1427      
+org.eclipse.ecf.provider.filetransfer_3.2.200.v20141221-2352.jar                bundle         epl1      1426      
+org.eclipse.ecf_3.4.0.v20141221-2352.jar                                        bundle         epl1      1425      
+org.eclipse.equinox.app_1.3.200.v20130910-1609.jar                              bundle         epl1      1424      
+org.eclipse.equinox.cm_1.1.0.v20131021-1936.jar                                 bundle         epl1      1423      
+org.eclipse.equinox.common_3.6.200.v20130402-1505.jar                           bundle         epl1      1122      
+org.eclipse.equinox.concurrent_1.1.0.v20130327-1442.jar                         bundle         epl1      1121      
+org.eclipse.equinox.console_1.1.0.v20140131-1639.jar                            bundle         epl1      1422      
+org.eclipse.equinox.ds_1.4.200.v20131126-2331.jar                               bundle         epl1      1421      
+org.eclipse.equinox.frameworkadmin.equinox_1.0.500.v20131211-1531.jar           bundle         epl1      1420      
+org.eclipse.equinox.frameworkadmin_2.0.100.v20131209-2144.jar                   bundle         epl1      1419      
+org.eclipse.equinox.launcher_1.3.0.v20140415-2008.jar                           bundle         epl1      1418      
+org.eclipse.equinox.preferences_3.5.200.v20140224-1527.jar                      bundle         epl1      1417      
+org.eclipse.equinox.registry_3.5.400.v20140428-1507.jar                         bundle         epl1      1416      
+org.eclipse.equinox.security_1.2.0.v20130424-1801.jar                           bundle         epl1      1097      
+org.eclipse.equinox.simpleconfigurator.manipulator_2.0.0.v20131217-1203.jar     bundle         epl1      1415      
+org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar                 bundle         epl1      1414      
+org.eclipse.equinox.util_1.0.500.v20130404-1337.jar                             bundle         epl1      1094      
+org.eclipse.osgi.compatibility.state_1.0.1.v20140709-1414.jar                   bundle         epl1      1413      
+org.eclipse.osgi.services_3.4.0.v20140312-2051.jar                              bundle         epl1      1412      
+org.eclipse.osgi_3.10.2.v20150203-1939.jar                                      bundle         epl1      1411      
+org.ops4j.pax.logging.pax-logging-api_1.8.4.jar                                 bundle         apache2   1410      
+org.ops4j.pax.logging.pax-logging-log4j2_1.8.4.jar                              bundle         apache2   1409      
+org.osgi.core-6.0.0.jar                                                         bundle         apache2   1407      
+org.sat4j.core_2.3.5.v201308161310.jar                                          bundle         epl1+lgpl21091      
+org.sat4j.pb_2.3.5.v201404071733.jar                                            bundle         epl1+lgpl2   
+org.wso2.carbon.core_5.0.0.jar                                                  bundle         apache2   5713      
+org.wso2.carbon.launcher-5.0.0.jar                                              bundle         apache2   5712      
+
+
+
+The license types used by the above libraries and their information is given below:
+
+apache2        Apache License Version 2.0
+               http://www.apache.org/licenses/LICENSE-2.0.html
+epl1+lgpl2     EPL1 + LGPL2
+               http://www.eclipse.org/legal/epl-v10.html + http://www.gnu.org/licenses/licenses.html
+epl1           Eclipse Public License
+               http://www.eclipse.org/legal/epl-v10.html
