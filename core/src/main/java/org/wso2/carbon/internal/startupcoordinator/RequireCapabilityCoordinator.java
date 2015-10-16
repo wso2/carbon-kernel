@@ -44,7 +44,17 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * TODO sameera
+ * RequireCapabilityCoordinator handles carbon component startup complexities. Here are two such cases
+ * <p>
+ * 1) In a Carbon base product, certain components must be initialized first before certain other components.
+ * <p>
+ * e.g. Deployment Engine must be initialized and all the deployers must be initiated before starting transports
+ * in a Carbon based product.
+ * <p>
+ * 2) A Carbon components needs to know whether all required services are registered as OSGi services. This is not
+ * possible in a standard OSGi containers.
+ * <p>
+ * e.g. A Transport Manager starts transports all at once
  */
 @Component(
         name = "org.wso2.carbon.internal.startupcoordinator.RequireCapabilityCoordinator",
@@ -54,13 +64,26 @@ public class RequireCapabilityCoordinator {
     private static final Logger logger = LoggerFactory.getLogger(RequireCapabilityCoordinator.class);
 
     private static final String PROVIDE_CAPABILITY = "Provide-Capability";
+    private static final String REQUIRED_SERVICE_INTERFACE = "required-service-interface";
+
     private AtomicInteger expectedRCListenerCount = new AtomicInteger(0);
     private Map<String, RequireCapabilityListener> listenerMap = new ConcurrentHashMap<>();
     private MultiCounter<String> capabilityCounter = new MultiCounter<>();
     private BundleContext bundleContext;
 
     private Timer checkServiceAvailabilityTimer = new Timer();
+    private Timer pendingServiceTimer = new Timer();
 
+
+    /**
+     * Process Provide-Capability headers and populate a counter which keep all the expected service counts. Register
+     * timers to track the service availability as well as pending service registrations.
+     *
+     * If there are no RequireCapabilityListener instances then this method returns.
+     *
+     * @param bundleContext OSGi bundle context of the Carbon.core bundle
+     * @throws Exception if the service component activation fails
+     */
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
         this.bundleContext = bundleContext;
@@ -71,18 +94,17 @@ public class RequireCapabilityCoordinator {
                     .filter(new ProvideCapabilityHeaderFilter<>())
                     .forEach(new ProvideCapabilityHeaderConsumer<>());
 
-            // 2) Register listeners to get service registrations events of the interested OSGi services.
-            capabilityCounter.getAllKeys().forEach(capability -> logger.info("#### {} = {}", capability,
-                    capabilityCounter.get(capability)));
-
-            // 3) Check whether there at least one expect RequireCapabilityLister. IF there is none, then simply return.
+            // 2) Check whether there at least one expect RequireCapabilityLister. IF there is none, then simply return.
             if (expectedRCListenerCount.get() == 0) {
-                // There is nothing to do here.
-                // TODO Clear all the populated maps.
+                // Clear all the populated maps.
+                capabilityCounter = null;
+                listenerMap = null;
                 return;
             }
 
-            // 4)
+            // 3) Schedule a timer to tack service registrations which have happend before populating the counter as
+            //      well as to clear all the listeners with zero available services in the runtime.
+            // TODO find a way to stop this timer. make this timer task configurable from the carbon.xml
             checkServiceAvailabilityTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
@@ -90,14 +112,17 @@ public class RequireCapabilityCoordinator {
                             .stream()
                             .filter(key -> capabilityCounter.get(key) == 0 && listenerMap.get(key) != null)
                             .forEach(key -> {
-                                listenerMap.remove(key).onAllRequiredCapabilitiesAvailable();
+                                synchronized (key.intern()) {
+                                    listenerMap.remove(key).onAllRequiredCapabilitiesAvailable();
+                                }
                             });
                 }
             }, 200, 200);
 
-            // TODO Start a timer to track pending service registrations.
+            // TODO 4) Start a timer to track pending service registrations.
         } catch (Throwable e) {
             logger.error("Error occurred while processing Provide-Capability manifest headers", e);
+            throw e;
         }
     }
 
@@ -105,6 +130,15 @@ public class RequireCapabilityCoordinator {
     public void stop(BundleContext bundleContext) throws Exception {
     }
 
+    /**
+     * Register RequireCapabilityListener instance as and when they are available.
+     *
+     * First extract the required OSGi service interface from the service properties and then register a
+     * {@link ServiceTracker} to track required OSGi services.
+     *
+     * @param listener an instance of the RequireCapabilityListener interface.
+     * @param propertyMap OSGi service properties registered with the listener.
+     */
     @Reference(
             name = "require.capability.listener.service",
             service = RequireCapabilityListener.class,
@@ -114,7 +148,8 @@ public class RequireCapabilityCoordinator {
     )
     public void registerRequireCapabilityListener(RequireCapabilityListener listener,
                                                   Map<String, String> propertyMap) {
-        String requiredServiceKey = propertyMap.get("required-service-interface");
+
+        String requiredServiceKey = propertyMap.get(REQUIRED_SERVICE_INTERFACE);
         if (requiredServiceKey == null || requiredServiceKey.equals("")) {
             logger.warn("RequireCapabilityListener service ({}) does not contain the required-service-interface proper",
                     listener.getClass().getName());
@@ -122,26 +157,23 @@ public class RequireCapabilityCoordinator {
             requiredServiceKey = requiredServiceKey.trim();
         }
 
-        final String serviceClazz = requiredServiceKey;
         listenerMap.put(requiredServiceKey, listener);
-        // Now register a service listener to listen to required service
-        // When a service is available incrementAndGet the requiredCapability Counter
-        // capabilityCounter.decrementAndGet(requiredServiceInterface);
 
-        //TODO close service trackers
+        //TODO close service trackers once all the service are available.
+        final String serviceClazz = requiredServiceKey;
         ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<Object, Object>(
                 bundleContext,
                 requiredServiceKey,
                 new ServiceTrackerCustomizer<Object, Object>() {
                     @Override
                     public Object addingService(ServiceReference<Object> reference) {
-                        Object obj = bundleContext.getService(reference);
-
-                        //TODO Syncronize this with the schedular task.
-                        if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
-                            listener.onAllRequiredCapabilitiesAvailable();
+                        assert serviceClazz != null;
+                        synchronized (serviceClazz.intern()) {
+                            if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
+                                listener.onAllRequiredCapabilitiesAvailable();
+                            }
                         }
-                        return obj;
+                        return bundleContext.getService(reference);
                     }
 
                     @Override
@@ -164,7 +196,9 @@ public class RequireCapabilityCoordinator {
     }
 
     /**
-     * @param <T>
+     * Implementation of the {@link Predicate} interface which filters OSGi manifest header with key Provide-Capability.
+     *
+     * @param <T> OSGi bundle
      */
     private static class ProvideCapabilityHeaderFilter<T extends Bundle> implements Predicate<T> {
         @Override
@@ -173,6 +207,11 @@ public class RequireCapabilityCoordinator {
         }
     }
 
+    /**
+     * Implementation of the {@link Consumer} interface which populates capability counter.
+     *
+     * @param <T> OSGi bundle
+     */
     private class ProvideCapabilityHeaderConsumer<T extends Bundle> implements Consumer<T> {
         @Override
         public void accept(T bundle) {
