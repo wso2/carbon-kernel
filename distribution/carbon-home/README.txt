@@ -7,8 +7,8 @@ Carbon kernel 5 is the next generation of WSO2 Carbon kernel, re-architected fro
 
 What's New In This Release
 ----------------------------
-1.Transport Management Framework
-2.Java 8 Support
+1.Pax Exam OSGi Test Framework Support
+2.Logging framework backend upgraded to log4j 2.0 support
 
 Installation & Running
 ----------------------
