@@ -20,13 +20,15 @@ import org.ops4j.pax.exam.Option;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.repositories;
 
 /**
- *  This class contains Utility methods to configure PAX-EXAM container.
+ * This class contains Utility methods to configure PAX-EXAM container.
  */
 public class Utils {
 
@@ -50,9 +52,15 @@ public class Utils {
         System.setProperty("carbon.home", carbonHome.toString());
     }
 
+    /**
+     * Returns an array of default PAX-EXAM options.
+     *
+     * @return array of Options
+     */
     public static Option[] getDefaultPaxOptions() {
         return options(
                 repositories("http://maven.wso2.org/nexus/content/groups/wso2-public"),
+
                 //must install the testng bundle
                 mavenBundle().artifactId("testng").groupId("org.testng").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon").versionAsInProject(),
@@ -111,5 +119,16 @@ public class Utils {
                 mavenBundle().artifactId("pax-logging-log4j2").groupId("org.ops4j.pax.logging").
                         versionAsInProject()
         );
+    }
+
+    /**
+     * Returns a merged array of user specified options and default options
+     *
+     * @param options custom options.
+     * @return a merged array.
+     */
+    public static Option[] getDefaultPaxOptions(Option[] options) {
+        return Stream.concat(Arrays.stream(getDefaultPaxOptions()), Arrays.stream(options))
+                .toArray(Option[]::new);
     }
 }
