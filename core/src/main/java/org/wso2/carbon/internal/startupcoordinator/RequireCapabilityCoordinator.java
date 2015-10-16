@@ -35,8 +35,10 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.startupcoordinator.RequireCapabilityListener;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -53,10 +55,11 @@ public class RequireCapabilityCoordinator {
 
     private static final String PROVIDE_CAPABILITY = "Provide-Capability";
     private AtomicInteger expectedRCListenerCount = new AtomicInteger(0);
-    private Map<String, RequireCapabilityListener> listenerMap = new HashMap<>();
+    private Map<String, RequireCapabilityListener> listenerMap = new ConcurrentHashMap<>();
     private MultiCounter<String> capabilityCounter = new MultiCounter<>();
-    //    private MultiCounter<String> availableCapabilityCounter = new MultiCounter<>();
     private BundleContext bundleContext;
+
+    private Timer checkServiceAvailabilityTimer = new Timer();
 
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
@@ -75,12 +78,24 @@ public class RequireCapabilityCoordinator {
             // 3) Check whether there at least one expect RequireCapabilityLister. IF there is none, then simply return.
             if (expectedRCListenerCount.get() == 0) {
                 // There is nothing to do here.
-                // Clear all the populated maps.
+                // TODO Clear all the populated maps.
                 return;
             }
 
-            // Start a timer to track pending service registrations.
-            logger.info("Dummy log");
+            // 4)
+            checkServiceAvailabilityTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    listenerMap.keySet()
+                            .stream()
+                            .filter(key -> capabilityCounter.get(key) == 0 && listenerMap.get(key) != null)
+                            .forEach(key -> {
+                                listenerMap.remove(key).onAllRequiredCapabilitiesAvailable();
+                            });
+                }
+            }, 200, 200);
+
+            // TODO Start a timer to track pending service registrations.
         } catch (Throwable e) {
             logger.error("Error occurred while processing Provide-Capability manifest headers", e);
         }
@@ -107,14 +122,13 @@ public class RequireCapabilityCoordinator {
             requiredServiceKey = requiredServiceKey.trim();
         }
 
-        logger.info("&&&&&&& " + listener.getClass().getName() + "  sdfds  " + requiredServiceKey);
-
         final String serviceClazz = requiredServiceKey;
         listenerMap.put(requiredServiceKey, listener);
         // Now register a service listener to listen to required service
         // When a service is available incrementAndGet the requiredCapability Counter
         // capabilityCounter.decrementAndGet(requiredServiceInterface);
 
+        //TODO close service trackers
         ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<Object, Object>(
                 bundleContext,
                 requiredServiceKey,
@@ -122,8 +136,8 @@ public class RequireCapabilityCoordinator {
                     @Override
                     public Object addingService(ServiceReference<Object> reference) {
                         Object obj = bundleContext.getService(reference);
-                        logger.info("Service {} available. Imple class {}", serviceClazz, obj.getClass().getName());
 
+                        //TODO Syncronize this with the schedular task.
                         if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
                             listener.onAllRequiredCapabilitiesAvailable();
                         }
