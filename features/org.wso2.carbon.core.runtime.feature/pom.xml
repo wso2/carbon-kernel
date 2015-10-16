@@ -206,141 +206,141 @@
                             <bundles>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.common</symbolicName>
-                                    <version>3.6.200.v20130402-1505</version>
+                                    <version>${equinox.common.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.simpleconfigurator</symbolicName>
-                                    <version>1.1.0.v20131217-1203</version>
+                                    <version>${equinox.simpleconfigurator.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.ds</symbolicName>
-                                    <version>1.4.200.v20131126-2331</version>
+                                    <version>${equinox.ds.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.launcher</symbolicName>
-                                    <version>1.3.0.v20140415-2008</version>
+                                    <version>${equinox.launcher.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.util</symbolicName>
-                                    <version>1.0.500.v20130404-1337</version>
+                                    <version>${equinox.util.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi.services</symbolicName>
-                                    <version>3.4.0.v20140312-2051</version>
+                                    <version>${equinox.osgi.services.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi</symbolicName>
-                                    <version>3.10.2.v20150203-1939</version>
+                                    <version>${equinox.osgi.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.app</symbolicName>
-                                    <version>1.3.200.v20130910-1609</version>
+                                    <version>${equinox.app.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.concurrent</symbolicName>
-                                    <version>1.1.0.v20130327-1442</version>
+                                    <version>${equinox.concurrent.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.frameworkadmin</symbolicName>
-                                    <version>2.0.100.v20131209-2144</version>
+                                    <version>${equinox.frameworkadmin.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.frameworkadmin.equinox</symbolicName>
-                                    <version>1.0.500.v20131211-1531</version>
+                                    <version>${equinox.frameworkadmin.equinox.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.preferences</symbolicName>
-                                    <version>3.5.200.v20140224-1527</version>
+                                    <version>${equinox.preferences.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.registry</symbolicName>
-                                    <version>3.5.400.v20140428-1507</version>
+                                    <version>${equinox.registry.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.security</symbolicName>
-                                    <version>1.2.0.v20130424-1801</version>
+                                    <version>${equinox.security.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.simpleconfigurator.manipulator</symbolicName>
-                                    <version>2.0.0.v20131217-1203</version>
+                                    <version>${equinox.simpleconfigurator.manipulator.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.console</symbolicName>
-                                    <version>1.1.0.v20140131-1639</version>
+                                    <version>${equinox.console.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.apache.felix.gogo.command</symbolicName>
-                                    <version>0.10.0.v201209301215</version>
+                                    <version>${apache.felix.gogo.command.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.apache.felix.gogo.runtime</symbolicName>
-                                    <version>0.10.0.v201209301036</version>
+                                    <version>${apache.felix.gogo.runtime.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.apache.felix.gogo.shell</symbolicName>
-                                    <version>0.10.0.v201212101605</version>
+                                    <version>${apache.felix.gogo.shell.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.core.contenttype</symbolicName>
-                                    <version>3.4.200.v20140207-1251</version>
+                                    <version>${equinox.core.contenttype.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.core.expressions</symbolicName>
-                                    <version>3.4.600.v20140128-0851</version>
+                                    <version>${equinox.core.expressions.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.core.jobs</symbolicName>
-                                    <version>3.6.1.v20141014-1248</version>
+                                    <version>${equinox.core.jobs.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.core.runtime</symbolicName>
-                                    <version>3.10.0.v20140318-2214</version>
+                                    <version>${equinox.core.runtime.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.ecf</symbolicName>
-                                    <version>3.4.0.v20141221-2352</version>
+                                    <version>${ecf.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.ecf.filetransfer</symbolicName>
-                                    <version>5.0.0.v20141221-2352</version>
+                                    <version>${ecf.filetransfer.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.ecf.identity</symbolicName>
-                                    <version>3.4.0.v20141221-2352</version>
+                                    <version>${ecf.identity.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.ecf.provider.filetransfer</symbolicName>
-                                    <version>3.2.200.v20141221-2352</version>
+                                    <version>${ecf.provider.filetransfer.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.sat4j.core</symbolicName>
-                                    <version>2.3.5.v201308161310</version>
+                                    <version>${sat4j.core.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.sat4j.pb</symbolicName>
-                                    <version>2.3.5.v201404071733</version>
+                                    <version>${sat4j.pb.version}</version>
                                 </bundle>
                                 <bundle>
                                     <!--<symbolicName>pax-logging-api</symbolicName>-->
                                     <symbolicName>org.ops4j.pax.logging.pax-logging-api</symbolicName>
-                                    <version>1.8.4</version>
+                                    <version>${pax.logging.api.version}</version>
                                 </bundle>
                                 <bundle>
                                     <!--<symbolicName>pax-logging-log4j2</symbolicName>-->
                                     <symbolicName>org.ops4j.pax.logging.pax-logging-log4j2</symbolicName>
-                                    <version>1.8.4</version>
+                                    <version>${pax.logging.log4j2.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.cm</symbolicName>
-                                    <version>1.1.0.v20131021-1936</version>
+                                    <version>${org.eclipse.equinox.cm.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.equinox.launcher.gtk.linux.x86</symbolicName>
-                                    <version>1.1.200.v20150204-1316</version>
+                                    <version>${equinox.launcher.gtk.linux.x86.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi.compatibility.state</symbolicName>
-                                    <version>1.0.1.v20140709-1414</version>
+                                    <version>${equinox.osgi.compatibility.statre.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
