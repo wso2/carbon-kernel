@@ -820,7 +820,7 @@
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
-        <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>2.0.0-SNAPSHOT</carbon.p2.plugin.version>
         <testng.version>6.9.4</testng.version>
         <wrapper.version>3.2.3</wrapper.version>
         <tycho.version>0.13.0</tycho.version>
