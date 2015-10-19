@@ -264,14 +264,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 user = searchResults.next();
                 count++;
             }
-            String userCNValue = null;
-            if (user.getAttributes() != null) {
-                Attribute cnAttribute = user.getAttributes().get("CN");
-                if (cnAttribute != null) {
-                    userCNValue = (String) cnAttribute.get();
-                } else {
-                    throw new UserStoreException("Can not update credential: CN attribute is null");
-                }
+            if (user == null) {
+                throw new UserStoreException("User :" + userName + " does not Exist");
             }
 
             ModificationItem[] mods = null;
@@ -292,7 +286,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 				 */
             }
             subDirContext = (DirContext) dirContext.lookup(searchBase);
-            subDirContext.modifyAttributes("CN" + "=" + escapeSpecialCharactersForDN(userCNValue), mods);
+            subDirContext.modifyAttributes(user.getName(), mods);
 
         } catch (NamingException e) {
             String error = "Can not access the directory service for user : " + userName;
@@ -346,14 +340,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 user = searchResults.next();
                 count++;
             }
-            String userCNValue = null;
-            if (user.getAttributes() != null) {
-                Attribute cnAttribute = user.getAttributes().get("CN");
-                if (cnAttribute != null) {
-                    userCNValue = (String) cnAttribute.get();
-                } else {
-                    throw new UserStoreException("Can not update credential: CN attribute is null");
-                }
+            if (user == null) {
+                throw new UserStoreException("User :" + userName + " does not Exist");
             }
 
             ModificationItem[] mods = null;
@@ -365,7 +353,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                         createUnicodePassword((String) newCredential)));
 
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
-                subDirContext.modifyAttributes("CN" + "=" + escapeSpecialCharactersForDN(userCNValue), mods);
+                subDirContext.modifyAttributes(user.getName(), mods);
             }
 
         } catch (NamingException e) {
