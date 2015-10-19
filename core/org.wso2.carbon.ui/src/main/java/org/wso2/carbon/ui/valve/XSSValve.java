@@ -127,7 +127,7 @@ public class XSSValve extends ValveBase {
         boolean patternMatched = false;
 
         for (String pattern : xssURIPatternList) {
-            if (context.startsWith(pattern)) {
+            if (context.contains(pattern)) {
                 patternMatched = true;
                 break;
             }
