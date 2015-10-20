@@ -106,6 +106,7 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.internal,
+                            org.wso2.carbon.internal.kernel.config.model.*;version="${carbon.kernel.package.export.version}",
                             org.wso2.carbon.deployment.*;version="${carbon.kernel.package.export.version}",
                             org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
                             org.wso2.carbon.utils.*;version="${carbon.kernel.package.export.version}",
