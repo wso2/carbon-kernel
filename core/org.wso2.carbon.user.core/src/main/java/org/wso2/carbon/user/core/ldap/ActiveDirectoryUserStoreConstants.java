@@ -17,6 +17,7 @@ package org.wso2.carbon.user.core.ldap;
 
 
 import org.wso2.carbon.user.api.Property;
+import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreConfigConstants;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty(UserStoreConfigConstants.groupNameListFilter, "Group Object Class", "(objectcategory=group)", UserStoreConfigConstants.groupNameListFilterDescription);
         setProperty(UserStoreConfigConstants.groupNameAttribute, "Group Name Attribute", "cn", UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.membershipAttribute, "Membership Attribute", "member", UserStoreConfigConstants.membershipAttributeDescription);
-        setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "", UserStoreConfigConstants.memberOfAttribute);
+        setProperty(UserStoreConfigConstants.memberOfAttribute, "Member Of Attribute", "memberOf", UserStoreConfigConstants.memberOfAttribute);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=group)(cn=?))", UserStoreConfigConstants.groupNameSearchFilterDescription);
         setProperty(UserStoreConfigConstants.userDNPattern, "User DN Pattern", "", UserStoreConfigConstants.userDNPatternDescription);
 
@@ -86,8 +87,9 @@ public class ActiveDirectoryUserStoreConstants {
 //      AD Specific Properties
         setProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT", UserStoreConfigConstants.passwordHashMethodDescription);
         setProperty(UserStoreConfigConstants.passwordJavaScriptRegEx, "Password RegEx (Javascript)", "^[\\S]{5,30}$", UserStoreConfigConstants.passwordJavaScriptRegExDescription);
-        setProperty(UserStoreConfigConstants.usernameJavaScriptRegEx, "Username RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.usernameJavaScriptRegExDescription);
-        setProperty(UserStoreConfigConstants.usernameJavaRegEx, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
+        setProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JS_REG_EX, "Username RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants
+                .usernameJavaScriptRegExDescription);
+        setProperty(UserCoreConstants.RealmConfig.PROPERTY_USER_NAME_JAVA_REG_EX, "Username RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.usernameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.roleNameJavaScriptRegEx, "Role Name RegEx (Javascript)", "^[\\S]{3,30}$", UserStoreConfigConstants.roleNameJavaScriptRegExDescription);
         setProperty(UserStoreConfigConstants.roleNameJavaRegEx, "Role Name RegEx (Java)", "[a-zA-Z0-9._-|//]{3,30}$", UserStoreConfigConstants.roleNameJavaRegExDescription);
         setProperty(UserStoreConfigConstants.writeGroups, "Enable Write Groups", "true", UserStoreConfigConstants.writeGroupsDescription);
@@ -102,6 +104,8 @@ public class ActiveDirectoryUserStoreConstants {
         setProperty("BackLinksEnabled", "Enable Back Links", "true", " Whether to allow attributes to be result from references to the object from other objects");
         setProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
                 UserStoreConfigConstants.connectionPoolingEnabledDescription);
+        setProperty("ReadTimeout", "LDAP Read Timeout", "5000", "Set the LDAP connection read time out. Setting it " +
+                "empty will set it to the TCP time out");
         setProperty("UniqueID", "", "", "");
         setProperty("IsBulkImportSupported", "", "false", "Support Bulk User Import Operation for this user store");
     }

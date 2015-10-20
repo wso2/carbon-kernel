@@ -137,12 +137,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             connectionSource = new LDAPConnectionContext(realmConfig);
         }
 
+        DirContext dirContext = null;
         try {
-            connectionSource.getContext();
+            dirContext = connectionSource.getContext();
             log.info("LDAP connection created successfully in read-write mode");
         } catch (Exception e) {
             throw new UserStoreException("Cannot create connection to LDAP server. Error message "
                     + e.getMessage());
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
         this.userRealm = realm;
         //persist domain
@@ -228,9 +231,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
-
-		/* validity checks */
-        doAddUserValidityChecks(userName, credential); // TODO bring abstract
 
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
@@ -583,9 +583,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-        /* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
-
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
         // first search the existing user entry.
@@ -648,8 +645,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-        /* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
 
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;

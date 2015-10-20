@@ -151,9 +151,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 		 */
 
         connectionSource = new LDAPConnectionContext(realmConfig);
+        DirContext dirContext = null;
 
         try {
-            connectionSource.getContext();
+            dirContext = connectionSource.getContext();
             if (this.isReadOnly()) {
                 log.info("LDAP connection created successfully in read-only mode");
             }
@@ -164,7 +165,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
+
         this.userRealm = realm;
         this.persistDomain();
         doInitialSetup();
@@ -377,7 +381,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 for (String userDNPattern : userDNPatternList) {
                     name = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                     // check if the same name is found and checked from cache
-                    if(failedUserDN!=null && failedUserDN.equals(name)){
+                    if(failedUserDN!=null && failedUserDN.equalsIgnoreCase(name)){
                         continue;
                     }
 
@@ -1086,8 +1090,25 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         LdapContext cxt = null;
         try {
             // cxt = new InitialLdapContext(env, null);
-            cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
-            isAuthed = true;
+            int retries;
+            boolean retry;
+            try {
+                retries = Integer.parseInt(realmConfig.getUserStoreProperty("RetryAttempts"));
+            } catch (NumberFormatException | NullPointerException e) {
+                retries = 0;
+            }
+            do {
+                retries--;
+                retry = false;
+                try {
+                    cxt = this.connectionSource.getContextWithCredentials(dn, credentials);
+                    isAuthed = true;
+                } catch (UserStoreException e) {
+                    if (e.getMessage().contains("TimeLimitExceeded")) {
+                        retry = true;
+                    }
+                }
+            } while (retry && (retries >= 0));
         } catch (AuthenticationException e) {
 			/*
 			 * StringBuilder stringBuilder = new
@@ -1849,7 +1870,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     } else {
                         // create DN directly   but there is no way when multiple DNs are used. Need to improve letter
                         String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-                        if (userDNPattern != null & !"".equals(userDNPattern) && !userDNPattern.contains("#")) {
+                        if (userDNPattern != null & userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
 
                             searchBase = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                         }
@@ -1858,14 +1879,24 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     // get DNs of the groups to which this user belongs
                     List<String> groupDNs = this.getListOfNames(searchBase, searchFilter,
                             searchCtls, memberOfProperty, false);
-					/*
+                    List<LdapName> groups = new ArrayList<>();
+                    for (String groupDN : groupDNs) {
+                        try {
+                            groups.add(new LdapName(groupDN));
+                        } catch (InvalidNameException e) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("LDAP Name error :", e);
+                            }
+                        }
+                    }
+                    /*
 					 * to be compatible with AD as well, we need to do a search
 					 * over the groups and
 					 * find those groups' attribute value defined for group name
 					 * attribute and
 					 * return
 					 */
-                    list = this.getGroupNameAttributeValuesOfGroups(groupDNs);
+                    list = this.getGroupNameAttributeValuesOfGroups(groups);
                 }
             } else {
 
@@ -1888,7 +1919,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         realmConfig.getUserStoreProperty(LDAPConstants.MEMBERSHIP_ATTRIBUTE);
                 String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
                 String nameInSpace;
-                if (userDNPattern != null && !"".equals(userDNPattern) && !userDNPattern.contains("#")) {
+                if (userDNPattern != null && userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
 
                     nameInSpace = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                 } else {
@@ -2460,7 +2491,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 } else {
                     // create DN directly   but there is no way when multiple DNs are used. Need to improve letter
                     String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
-                    if (userDNPattern != null && !userDNPattern.contains("#")) {
+                    if (userDNPattern != null && userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
                         searchBases = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
                     }
                 }
@@ -2513,7 +2544,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                     realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
             String userDNPattern = realmConfig.getUserStoreProperty(LDAPConstants.USER_DN_PATTERN);
             String nameInSpace;
-            if (userDNPattern != null && !userDNPattern.contains("#")) {
+            if (userDNPattern != null && userDNPattern.trim().length() > 0 && !userDNPattern.contains("#")) {
                 nameInSpace = MessageFormat.format(userDNPattern, escapeSpecialCharactersForDN(userName));
             } else {
                 nameInSpace = this.getNameInSpaceForUserName(userName);
@@ -2820,13 +2851,17 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
         return false;
     }
 
+    private boolean isInSearchBase(LdapName name, LdapName searchBase) {
+        List<Rdn> baseRdns = searchBase.getRdns();
+        return name.endsWith(baseRdns);
+    }
 
     /**
      * @param groupDNs
      * @return
      * @throws UserStoreException
      */
-    private List<String> getGroupNameAttributeValuesOfGroups(List<String> groupDNs)
+    private List<String> getGroupNameAttributeValuesOfGroups(List<LdapName> groupDNs)
             throws UserStoreException {
         log.debug("GetGroupNameAttributeValuesOfGroups with DN");
         boolean debug = log.isDebugEnabled();
@@ -2836,13 +2871,24 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 realmConfig.getUserStoreProperty(LDAPConstants.GROUP_NAME_ATTRIBUTE);
         String[] returnedAttributes = {groupNameAttribute};
         List<String> groupNameAttributeValues = new ArrayList<String>();
+        DirContext dirContext = null;
         try {
-            DirContext dirContext = this.connectionSource.getContext();
+            dirContext = this.connectionSource.getContext();
 
-            for (String group : groupDNs) {
+            for (LdapName group : groupDNs) {
+                if (!isInSearchBase(group, new LdapName(groupSearchBase))) {
+                    continue;
+                }
                 if (debug) {
                     log.debug("Using DN: " + group);
                 }
+                /* check to see if the required attribute can be retrieved by the DN itself */
+                Rdn rdn = group.getRdn(group.getRdns().size() - 1);
+                if (rdn.getType().equalsIgnoreCase(groupNameAttribute)) {
+                    groupNameAttributeValues.add(rdn.getValue().toString());
+                    continue;
+                }
+
                 Attributes groupAttributes = dirContext.getAttributes(group, returnedAttributes);
                 if (groupAttributes != null) {
                     Attribute groupAttribute = groupAttributes.get(groupNameAttribute);
@@ -2867,6 +2913,8 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                 log.debug(errorMessage, e);
             }
             throw new UserStoreException(errorMessage, e);
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
         return groupNameAttributeValues;
     }
