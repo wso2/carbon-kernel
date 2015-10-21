@@ -72,14 +72,10 @@ PRGDIR=`dirname "$PRG"`
 # Only set CARBON_HOME if not already set
 [ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$PRGDIR/.." ; pwd`
 
-# Set AXIS2_HOME. Needed for One Click JAR Download
-AXIS2_HOME=$CARBON_HOME
-
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
   [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
   [ -n "$CARBON_HOME" ] && CARBON_HOME=`cygpath --unix "$CARBON_HOME"`
-  [ -n "$AXIS2_HOME" ] && CARBON_HOME=`cygpath --unix "$CARBON_HOME"`
 fi
 
 # For OS400
@@ -101,8 +97,6 @@ if $mingw ; then
     CARBON_HOME="`(cd "$CARBON_HOME"; pwd)`"
   [ -n "$JAVA_HOME" ] &&
     JAVA_HOME="`(cd "$JAVA_HOME"; pwd)`"
-  [ -n "$AXIS2_HOME" ] &&
-    CARBON_HOME="`(cd "$CARBON_HOME"; pwd)`"
   # TODO classpath?
 fi
 
@@ -245,7 +239,6 @@ done
 if $cygwin; then
   JAVA_HOME=`cygpath --absolute --windows "$JAVA_HOME"`
   CARBON_HOME=`cygpath --absolute --windows "$CARBON_HOME"`
-  AXIS2_HOME=`cygpath --absolute --windows "$CARBON_HOME"`
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
   JAVA_ENDORSED_DIRS=`cygpath --path --windows "$JAVA_ENDORSED_DIRS"`
   CARBON_CLASSPATH=`cygpath --path --windows "$CARBON_CLASSPATH"`
@@ -281,7 +274,6 @@ do
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
     -Dcarbon.repository="$CARBON_HOME/repository" \
-    -Djava.util.logging.config.file="$CARBON_HOME/repository/conf/etc/logging-bridge.properties" \
     -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.JavaUtilLog \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
