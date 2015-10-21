@@ -15,8 +15,6 @@
  */
 package org.wso2.carbon.transports;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -97,7 +95,6 @@ public class TransportManagerTest {
         try {
             transportManager.registerTransport(carbonTransport2);
             transportManager.beginMaintenance();
-            //transportManager.stopTransport(carbonTransport.getId());
         } catch (IllegalStateException e) {
             String exceptionMessage = "Cannot put transport dummyId2 into maintenance. Current state: UNINITIALIZED";
             Assert.assertEquals(exceptionMessage, e.getMessage());
