@@ -2777,7 +2777,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
 
-        String domain = UserCoreUtil.getDomainName(realmConfig);
+        String domain = getMyDomainName();
         userStore.setUserStoreManager(this);
         if (index > 0) {
             userStore.setDomainAwareName(user);
