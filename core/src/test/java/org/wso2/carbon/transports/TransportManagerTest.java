@@ -24,7 +24,6 @@ import org.wso2.carbon.transports.transporter.CustomCarbonTransport;
 
 public class TransportManagerTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(TransportManagerTest.class);
     private TransportManager transportManager;
     private CustomCarbonTransport carbonTransport;
     private CustomCarbonTransport carbonTransport2;
@@ -34,7 +33,6 @@ public class TransportManagerTest {
 
     @BeforeTest
     public void setup() {
-        logger.info("Setting up TransportManager Test");
         transportManager = new TransportManager();
         carbonTransport = new CustomCarbonTransport("dummyId");
         carbonTransport2 = new CustomCarbonTransport("dummyId2");
