@@ -14,6 +14,9 @@
             <class name="org.wso2.carbon.runtime.RuntimeManagerTest" />
             <class name="org.wso2.carbon.runtime.RuntimeServiceExceptionTest" />
             <class name="org.wso2.carbon.runtime.RuntimeServiceTest" />
+
+            <class name="org.wso2.carbon.transports.TransportManagerTest" />
+            <!--<class name="org.wso2.carbon.utils.FileUtilsTest" />-->
         </classes>
     </test>
 </suite>
