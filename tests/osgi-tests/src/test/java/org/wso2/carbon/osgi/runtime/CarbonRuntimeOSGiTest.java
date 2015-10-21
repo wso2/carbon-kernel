@@ -1,31 +1,43 @@
 /*
-* Copyright 2015 WSO2, Inc. http://www.wso2.org
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.wso2.carbon.osgi.runtime;
 
+import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.internal.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.osgi.util.Utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javax.inject.Inject;
 
 /**
@@ -35,10 +47,19 @@ import javax.inject.Inject;
 @ExamReactorStrategy(PerClass.class)
 public class CarbonRuntimeOSGiTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(CarbonRuntimeOSGiTest.class);
     private static final String CARBON_RUNTIME_SERVICE = CarbonRuntime.class.getName();
 
     @Inject
     private BundleContext bundleContext;
+
+    @Configuration
+    public Option[] createConfiguration() {
+        Utils.setCarbonHome();
+        Utils.setupMavenLocalRepo();
+        copyCarbonXML();
+        return Utils.getDefaultPaxOptions();
+    }
 
     @Test
     public void testCarbonRuntimeService() {
@@ -53,11 +74,23 @@ public class CarbonRuntimeOSGiTest {
         Assert.assertNotNull(carbonConfiguration, "Carbon Configuration is null");
     }
 
-    @Test (dependsOnMethods = { "testCarbonRuntimeService" })
-    public void testCarbonConfiguration(){
+    @Test(dependsOnMethods = { "testCarbonRuntimeService" })
+    public void testCarbonConfiguration() {
 
-        //TODO - write
-//        getCarbonConfiguration().
+        CarbonConfiguration carbonConfiguration = getCarbonConfiguration();
+        Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
+        Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");
+        Assert.assertEquals(carbonConfiguration.getVersion(), "5.0.0");
+
+        Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0);
+
+        Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getMode(),
+                DeploymentModeEnum.fromValue("scheduled"));
+        Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getUpdateInterval(), 15);
+        String deploymentPath = Paths.get(System.getProperty("carbon.home"), "repository", "deployment",
+                "server").toString() + File.separator;
+        Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getRepositoryLocation(), deploymentPath);
+
     }
 
     /**
@@ -67,5 +100,24 @@ public class CarbonRuntimeOSGiTest {
         ServiceReference reference = bundleContext.getServiceReference(CARBON_RUNTIME_SERVICE);
         CarbonRuntime carbonRuntime = (CarbonRuntime) bundleContext.getService(reference);
         return carbonRuntime.getConfiguration();
+    }
+
+    /**
+     * Replace the existing carbon.xml file with populated carbon.xml file
+     */
+    private static void copyCarbonXML() {
+        Path carbonXmlFilePath;
+
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = Paths.get(".").toString();
+        }
+        try {
+            carbonXmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.xml");
+            Files.copy(carbonXmlFilePath, Paths.get(System.getProperty("carbon.home"), "repository", "conf",
+                    "carbon.xml"), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.error("Unable to copy the carbon.xml file", e);
+        }
     }
 }

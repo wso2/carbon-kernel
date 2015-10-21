@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
  ~ Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
  ~
@@ -14,8 +14,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
 -->
-
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -26,7 +25,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.core.server.feature</artifactId>
-    <packaging>pom</packaging>
+    <packaging>carbon-feature</packaging>
     <name>WSO2 Carbon Kernel - Carbon Server Feature</name>
     <url>http://wso2.org</url>
     <description>This feature contains the carbon core bundle and its dependents</description>
@@ -40,28 +39,34 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.wso2.maven</groupId>
-                <artifactId>carbon-p2-plugin</artifactId>
+                <groupId>org.wso2.carbon.maven</groupId>
+                <artifactId>carbon-feature-plugin</artifactId>
                 <version>${carbon.p2.plugin.version}</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>1-p2-feature-generation</id>
                         <goals>
-                            <goal>p2-feature-gen</goal>
+                            <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.core.server</id>
-                            <propertiesFile>../etc/feature.properties</propertiesFile>
-                            <adviceFile>
-                                <properties>
-                                    <propertyDef>org.wso2.carbon.p2.category.type:server
-                                    </propertyDef>
-                                    <propertyDef>org.eclipse.equinox.p2.type.group:false
-                                    </propertyDef>
-                                </properties>
-                            </adviceFile>
+
+                            <propertyFile>../etc/feature.properties</propertyFile>
+                            <adviceFileContents>
+                                <advice>
+                                    <name>org.wso2.carbon.p2.category.type</name>
+                                    <value>server</value>
+                                </advice>
+                                <advice>
+                                    <name>org.eclipse.equinox.p2.type.group</name>
+                                    <value>false</value>
+                                </advice>
+                            </adviceFileContents>
                             <bundles>
-                                <bundleDef>org.wso2.carbon:org.wso2.carbon.core</bundleDef>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.core</symbolicName>
+                                    <version>${carbon.kernel.osgi.version}</version>
+                                </bundle>
                             </bundles>
                         </configuration>
                     </execution>

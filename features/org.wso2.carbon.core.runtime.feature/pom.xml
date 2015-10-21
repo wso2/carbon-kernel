@@ -1,21 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
- ~ Copyright (c) WSO2 Inc. (http://wso2.com) All Rights Reserved.
- ~
- ~ Licensed under the Apache License, Version 2.0 (the "License");
- ~ you may not use this file except in compliance with the License.
- ~ You may obtain a copy of the License at
- ~
- ~      http://www.apache.org/licenses/LICENSE-2.0
- ~
- ~ Unless required by applicable law or agreed to in writing, software
- ~ distributed under the License is distributed on an "AS IS" BASIS,
- ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ~ See the License for the specific language governing permissions and
- ~ limitations under the License.
--->
+ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
@@ -26,7 +25,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.wso2.carbon.core.runtime.feature</artifactId>
-    <packaging>pom</packaging>
+    <packaging>carbon-feature</packaging>
     <name>WSO2 Carbon Kernel - Carbon Runtime Feature</name>
     <url>http://wso2.org</url>
     <description>
@@ -184,79 +183,165 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.wso2.maven</groupId>
-                <artifactId>carbon-p2-plugin</artifactId>
+                <groupId>org.wso2.carbon.maven</groupId>
+                <artifactId>carbon-feature-plugin</artifactId>
                 <version>${carbon.p2.plugin.version}</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>1-p2-feature-generation</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>p2-feature-gen</goal>
+                            <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <id>org.wso2.carbon.core.runtime</id>
-                            <propertiesFile>../etc/feature.properties</propertiesFile>
-                            <adviceFile>
-                                <properties>
-                                    <propertyDef>org.eclipse.equinox.p2.type.group:false
-                                    </propertyDef>
-                                </properties>
-                            </adviceFile>
+
+                            <propertyFile>../etc/feature.properties</propertyFile>
+                            <adviceFileContents>
+                                <advice>
+                                    <name>org.eclipse.equinox.p2.type.group</name>
+                                    <value>false</value>
+                                </advice>
+                            </adviceFileContents>
                             <bundles>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.common
-                                </bundleDef>
-                                <bundleDef>
-                                    org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.ds</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.launcher
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.util</bundleDef>
-                                <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.services</bundleDef>
-                                <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.app</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.concurrent
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin
-                                </bundleDef>
-                                <bundleDef>
-                                    org.wso2.eclipse.equinox:org.eclipse.equinox.frameworkadmin.equinox
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.preferences
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.registry
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.security
-                                </bundleDef>
-                                <bundleDef>
-                                    org.wso2.eclipse.equinox:org.eclipse.equinox.simpleconfigurator.manipulator
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.console
-                                </bundleDef>
-                                <bundleDef>org.apache.felix:org.apache.felix.gogo.command
-                                </bundleDef>
-                                <bundleDef>org.apache.felix:org.apache.felix.gogo.runtime
-                                </bundleDef>
-                                <bundleDef>org.apache.felix:org.apache.felix.gogo.shell</bundleDef>
-                                <bundleDef>org.wso2.eclipse.core:org.eclipse.core.contenttype</bundleDef>
-                                <bundleDef>org.wso2.eclipse.core:org.eclipse.core.expressions</bundleDef>
-                                <bundleDef>org.wso2.eclipse.core:org.eclipse.core.jobs</bundleDef>
-                                <bundleDef>org.wso2.eclipse.core:org.eclipse.core.runtime</bundleDef>
-                                <bundleDef>org.wso2.eclipse.ecf:org.eclipse.ecf</bundleDef>
-                                <bundleDef>org.wso2.eclipse.ecf:org.eclipse.ecf.filetransfer</bundleDef>
-                                <bundleDef>org.wso2.eclipse.ecf:org.eclipse.ecf.identity</bundleDef>
-                                <bundleDef>org.wso2.eclipse.ecf:org.eclipse.ecf.provider.filetransfer
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse:org.sat4j.core</bundleDef>
-                                <bundleDef>org.wso2.eclipse:org.sat4j.pb</bundleDef>
-                                <bundleDef>org.ops4j.pax.logging:pax-logging-api</bundleDef>
-                                <bundleDef>org.ops4j.pax.logging:pax-logging-log4j2</bundleDef>
-                                <bundleDef>org.wso2.eclipse.equinox:org.eclipse.equinox.cm</bundleDef>
-                                <bundleDef>
-                                    org.wso2.eclipse.equinox:org.eclipse.equinox.launcher.gtk.linux.x86
-                                </bundleDef>
-                                <bundleDef>org.wso2.eclipse.osgi:org.eclipse.osgi.compatibility.state</bundleDef>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.common</symbolicName>
+                                    <version>${equinox.common.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.simpleconfigurator</symbolicName>
+                                    <version>${equinox.simpleconfigurator.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.ds</symbolicName>
+                                    <version>${equinox.ds.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.launcher</symbolicName>
+                                    <version>${equinox.launcher.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.util</symbolicName>
+                                    <version>${equinox.util.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.osgi.services</symbolicName>
+                                    <version>${equinox.osgi.services.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.osgi</symbolicName>
+                                    <version>${equinox.osgi.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.app</symbolicName>
+                                    <version>${equinox.app.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.concurrent</symbolicName>
+                                    <version>${equinox.concurrent.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.frameworkadmin</symbolicName>
+                                    <version>${equinox.frameworkadmin.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.frameworkadmin.equinox</symbolicName>
+                                    <version>${equinox.frameworkadmin.equinox.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.preferences</symbolicName>
+                                    <version>${equinox.preferences.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.registry</symbolicName>
+                                    <version>${equinox.registry.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.security</symbolicName>
+                                    <version>${equinox.security.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.simpleconfigurator.manipulator</symbolicName>
+                                    <version>${equinox.simpleconfigurator.manipulator.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.console</symbolicName>
+                                    <version>${equinox.console.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.felix.gogo.command</symbolicName>
+                                    <version>${apache.felix.gogo.command.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.felix.gogo.runtime</symbolicName>
+                                    <version>${apache.felix.gogo.runtime.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.felix.gogo.shell</symbolicName>
+                                    <version>${apache.felix.gogo.shell.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.core.contenttype</symbolicName>
+                                    <version>${equinox.core.contenttype.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.core.expressions</symbolicName>
+                                    <version>${equinox.core.expressions.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.core.jobs</symbolicName>
+                                    <version>${equinox.core.jobs.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.core.runtime</symbolicName>
+                                    <version>${equinox.core.runtime.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.ecf</symbolicName>
+                                    <version>${ecf.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.ecf.filetransfer</symbolicName>
+                                    <version>${ecf.filetransfer.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.ecf.identity</symbolicName>
+                                    <version>${ecf.identity.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.ecf.provider.filetransfer</symbolicName>
+                                    <version>${ecf.provider.filetransfer.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.sat4j.core</symbolicName>
+                                    <version>${sat4j.core.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.sat4j.pb</symbolicName>
+                                    <version>${sat4j.pb.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <!--<symbolicName>pax-logging-api</symbolicName>-->
+                                    <symbolicName>org.ops4j.pax.logging.pax-logging-api</symbolicName>
+                                    <version>${pax.logging.api.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <!--<symbolicName>pax-logging-log4j2</symbolicName>-->
+                                    <symbolicName>org.ops4j.pax.logging.pax-logging-log4j2</symbolicName>
+                                    <version>${pax.logging.log4j2.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.cm</symbolicName>
+                                    <version>${org.eclipse.equinox.cm.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.equinox.launcher.gtk.linux.x86</symbolicName>
+                                    <version>${equinox.launcher.gtk.linux.x86.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.eclipse.osgi.compatibility.state</symbolicName>
+                                    <version>${equinox.osgi.compatibility.statre.version}</version>
+                                </bundle>
                             </bundles>
                         </configuration>
                     </execution>
