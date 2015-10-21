@@ -3524,7 +3524,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    public final String[]  doGetRoleListOfUser(String userName, String filter)
+    public final String[] doGetRoleListOfUser(String userName, String filter)
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
