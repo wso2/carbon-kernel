@@ -3524,7 +3524,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @return
      * @throws UserStoreException
      */
-    public final String[] doGetRoleListOfUser(String userName, String filter)
+    public final String[]  doGetRoleListOfUser(String userName, String filter)
             throws UserStoreException {
 
         if (!isSecureCall.get()) {
@@ -3536,10 +3536,16 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         String[] roleList;
 
         String[] internalRoles = doGetInternalRoleListOfUser(userName, filter);
+        String[] internalRolesTemp = internalRoles;
+        if (internalRoles.length == 1 && realmConfig.getEveryOneRoleName() != null &&
+            realmConfig.getEveryOneRoleName().equals(internalRoles[0])) {
+            internalRoles = new String[0];
+        }
 
         String[] modifiedExternalRoleList = new String[0];
 
         if (readGroupsEnabled && doCheckExistingUser(userName)) {
+            internalRoles = internalRolesTemp;
             List<String> roles = new ArrayList<String>();
             String[] externalRoles = doGetExternalRoleListOfUser(userName, "*");
             roles.addAll(Arrays.asList(externalRoles));

@@ -318,13 +318,13 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
            assertEquals(3, rolesOfSaman.length);
 
            // according to new implementation, getRoleListOfUser method would return everyone role name for all users
+           // Above statement is applicable for users reside in user store or UM_HYBRID_USER_ROLE table
            boolean  userExist = admin.isExistingUser("isuru");
            if(userExist){
                TestCase.assertTrue(false);
            } else {
                String[] rolesOfisuru = admin.getRoleListOfUser("isuru");
-               assertEquals(1, rolesOfisuru.length);
-               assertEquals(admin.getRealmConfiguration().getEveryOneRoleName(), rolesOfisuru[0]);
+               assertEquals(0, rolesOfisuru.length);
            }
 
            admin.updateUserListOfRole("role2", new String[] { "saman" }, null);
