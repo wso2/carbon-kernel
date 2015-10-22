@@ -26,7 +26,8 @@ public class UtilsTest {
         }
     }
 
-    @Test public void testGetCarbonConfigDirPathNonNullSystemProperty() throws Exception {
+    @Test
+    public void testGetCarbonConfigDirPathNonNullSystemProperty() throws Exception {
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Boolean needToClearCarbonRepoDirPathAtTheEnd = false;
 
@@ -42,7 +43,8 @@ public class UtilsTest {
         }
     }
 
-    @Test public void testGetCarbonConfigDirPathNullSystemPropertyScenarioOne() throws Exception {
+    @Test
+    public void testGetCarbonConfigDirPathNullSystemPropertyScenarioOne() throws Exception {
 
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Boolean needToSetCarbonRepoDirPathAtTheEnd = false;
@@ -70,7 +72,8 @@ public class UtilsTest {
 
     }
 
-    @Test public void testGetCarbonConfigDirPathNullSystemPropertyScenarioTwo() throws Exception {
+    @Test
+    public void testGetCarbonConfigDirPathNullSystemPropertyScenarioTwo() throws Exception {
         String backupCarbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Map<String, String> backupCarbonRepoPathEnv = System.getenv();
 
@@ -102,7 +105,8 @@ public class UtilsTest {
         }
     }
 
-    @Test public void testGetCarbonHome() throws Exception {
+    @Test
+    public void testGetCarbonHome() throws Exception {
 
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
         Boolean needToClearCarbonHomeAtTheEnd = false;
