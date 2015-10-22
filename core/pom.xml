@@ -105,27 +105,10 @@
                     <instructions>
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Activator>
-                            org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator
-                        </Bundle-Activator>
-                        <Private-Package>
-                            org.wso2.carbon.kernel.internal.*,
-                        </Private-Package>
-                        <Export-Package>
-                            !org.wso2.carbon.kernel.internal,
-                            org.wso2.carbon.deployment.*;version="${carbon.kernel.package.export.version}",
-                            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
-                        </Export-Package>
-                        <Import-Package>
-                            org.eclipse.osgi.util,
-                            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-                            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
-                            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
-                            javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
-                            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
-                            org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
-                            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-                        </Import-Package>
+                        <Bundle-Activator>${wso2.osgi.activator}</Bundle-Activator>
+                        <Private-Package>${wso2.osgi.private.pkg}</Private-Package>
+                        <Export-Package>${wso2.osgi.export.pkg}</Export-Package>
+                        <Import-Package>${wso2.osgi.import.pkg}</Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>
                 </configuration>

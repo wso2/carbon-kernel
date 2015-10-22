@@ -850,5 +850,28 @@
         <plexus.archiver.version>1.2</plexus.archiver.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
+
+        <!-- Maven Bundle Plugin Properties -->
+        <wso2.osgi.export.pkg>
+            !org.wso2.carbon.kernel.internal,
+            org.wso2.carbon.deployment.*;version="${carbon.kernel.package.export.version}",
+            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
+        </wso2.osgi.export.pkg>
+        <wso2.osgi.import.pkg>
+            org.eclipse.osgi.util,
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
+            javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
+            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
+            org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
+            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
+        </wso2.osgi.import.pkg>
+        <wso2.osgi.activator>
+            org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator
+        </wso2.osgi.activator>
+        <wso2.osgi.private.pkg>
+            org.wso2.carbon.kernel.internal.*,
+        </wso2.osgi.private.pkg>
     </properties>
 </project>
