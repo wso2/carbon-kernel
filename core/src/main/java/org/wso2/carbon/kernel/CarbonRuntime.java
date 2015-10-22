@@ -15,9 +15,7 @@
  */
 package org.wso2.carbon.kernel;
 
-import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.kernel.tenant.Tenant;
-import org.wso2.carbon.kernel.tenant.TenantRuntime;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
 /**
  * CarbonRuntime represents the complete server space. In previous Carbon kernel versions, we used the term
@@ -28,13 +26,9 @@ import org.wso2.carbon.kernel.tenant.TenantRuntime;
  * <p>
  * CarbonRuntime allows you to retrieve CarbonConfiguration instance, TenantRuntime instance etc.
  *
- * @see Tenant
- * @see TenantRuntime
  * @since 5.0.0
  */
 public interface CarbonRuntime {
-
-    // TODO FIX exposing the internal implementation of CarbonConfiguration..
 
     /**
      * Returns the CarbonConfiguration instance. It holds static configuration items specified
@@ -45,12 +39,4 @@ public interface CarbonRuntime {
      */
     public CarbonConfiguration getConfiguration();
 
-    /**
-     * Returns the TenantRuntime instance. It allows you to manage tenants in the runtime.
-     *
-     * @return the TenantRuntime instance
-     * @see Tenant
-     * @see TenantRuntime
-     */
-    public TenantRuntime<Tenant> getTenantRuntime();
 }
