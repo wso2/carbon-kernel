@@ -348,114 +348,9 @@
                 <version>${equinox.frameworkadmin.equinox.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.artifact.repository</artifactId>
-                <version>${equinox.p2.artifact.repository.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.core</artifactId>
-                <version>${equinox.p2.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.console</artifactId>
-                <version>${equinox.p2.console.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.publisher.eclipse</artifactId>
-                <version>${equinox.p2.publisher.eclipse.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.p2.publisher</artifactId>
                 <version>${equinox.p2.publisher.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.osgi</groupId>
-                <artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
-                <version>${equinox.p2.transport.ecf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.director</artifactId>
-                <version>${equinox.p2.director.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.director.app</artifactId>
-                <version>${equinox.p2.director.app.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.directorywatcher</artifactId>
-                <version>${equinox.p2.directorywatcher.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.engine</artifactId>
-                <version>${equinox.p2.engine.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.extensionlocation</artifactId>
-                <version>${equinox.p2.extensionlocation.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.garbagecollector</artifactId>
-                <version>${equinox.p2.garbagecollector.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.jarprocessor</artifactId>
-                <version>${equinox.p2.jarprocessor.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.metadata</artifactId>
-                <version>${equinox.p2.metadata.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.metadata.repository</artifactId>
-                <version>${equinox.p2.metadata.repository.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.reconciler.dropins</artifactId>
-                <version>${equinox.p2.reconciler.dropins.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.repository.tools</artifactId>
-                <version>${equinox.p2.repository.tools.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.repository</artifactId>
-                <version>${equinox.p2.repository.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.touchpoint.eclipse</artifactId>
-                <version>${equinox.p2.touchpoint.eclipse.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.touchpoint.natives</artifactId>
-                <version>${equinox.p2.touchpoint.natives.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.updatechecker</artifactId>
-                <version>${equinox.p2.updatechecker.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.eclipse.equinox.p2.updatesite</artifactId>
-                <version>${equinox.p2.updatesite.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.wso2.eclipse.equinox</groupId>
@@ -548,21 +443,6 @@
                 <version>${apache.felix.gogo.runtime.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>javax.el</artifactId>
-                <version>${javax.el.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.equinox</groupId>
-                <artifactId>org.apache.log4j</artifactId>
-                <version>${equinox.apache.log4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.ecf.provider.filetransfer</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>${ecf.provider.filetransfer.httpclient.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.eclipse.osgi</groupId>
                 <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
                 <version>${equinox.osgi.compatibility.statre.version}</version>
@@ -571,11 +451,6 @@
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>wrapper</groupId>
-                <artifactId>wrapper</artifactId>
-                <version>${wrapper.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
@@ -596,51 +471,6 @@
                 <groupId>org.wso2.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.cm</artifactId>
                 <version>${org.eclipse.equinox.cm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-plugin-api</artifactId>
-                <version>${maven.plugin.api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-core</artifactId>
-                <version>${maven.core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-model</artifactId>
-                <version>${maven.model.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-compat</artifactId>
-                <version>${maven.compat.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-artifact</artifactId>
-                <version>${maven.artifact.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>tycho-p2-facade</artifactId>
-                <version>${tycho.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>tycho-metadata-model</artifactId>
-                <version>${tycho.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-archiver</artifactId>
-                <version>${plexus.archiver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <version>${plexus.utils.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jacoco</groupId>
@@ -744,38 +574,7 @@
         <equinox.frameworkadmin.version>2.0.100.v20131209-2144</equinox.frameworkadmin.version>
         <equinox.frameworkadmin.equinox.version>1.0.500.v20131211-1531
         </equinox.frameworkadmin.equinox.version>
-        <equinox.p2.artifact.repository.version>1.1.200.v20130515-2028
-        </equinox.p2.artifact.repository.version>
-        <equinox.p2.core.version>2.3.0.v20130327-2119</equinox.p2.core.version>
-        <equinox.p2.console.version>1.0.300.v20130327-2119</equinox.p2.console.version>
-        <equinox.p2.publisher.eclipse.version>1.1.200.v20130516-1953
-        </equinox.p2.publisher.eclipse.version>
         <equinox.p2.publisher.version>1.3.0.v20140911-0143</equinox.p2.publisher.version>
-        <equinox.p2.transport.ecf.version>1.1.0.v20130516-1858</equinox.p2.transport.ecf.version>
-        <equinox.p2.director.version>2.3.0.v20130526-0335</equinox.p2.director.version>
-        <equinox.p2.director.app.version>1.0.300.v20130819-1621</equinox.p2.director.app.version>
-        <equinox.p2.directorywatcher.version>1.0.300.v20130327-2119
-        </equinox.p2.directorywatcher.version>
-        <equinox.p2.engine.version>2.3.0.v20130526-2122</equinox.p2.engine.version>
-        <equinox.p2.extensionlocation.version>1.2.100.v20130327-2119
-        </equinox.p2.extensionlocation.version>
-        <equinox.p2.garbagecollector.version>1.0.200.v20130327-2119
-        </equinox.p2.garbagecollector.version>
-        <equinox.p2.jarprocessor.version>1.0.300.v20130327-2119</equinox.p2.jarprocessor.version>
-        <equinox.p2.metadata.version>2.2.0.v20130523-1557</equinox.p2.metadata.version>
-        <equinox.p2.metadata.repository.version>1.2.100.v20130327-2119
-        </equinox.p2.metadata.repository.version>
-        <equinox.p2.reconciler.dropins.version>1.1.200.v20130419-1850
-        </equinox.p2.reconciler.dropins.version>
-        <equinox.p2.repository.tools.version>2.1.0.v20130327-2119
-        </equinox.p2.repository.tools.version>
-        <equinox.p2.repository.version>2.3.0.v20130412-2032</equinox.p2.repository.version>
-        <equinox.p2.touchpoint.eclipse.version>2.1.200.v20130327-2119
-        </equinox.p2.touchpoint.eclipse.version>
-        <equinox.p2.touchpoint.natives.version>1.1.100.v20130327-2119
-        </equinox.p2.touchpoint.natives.version>
-        <equinox.p2.updatechecker.version>1.1.200.v20130327-2119</equinox.p2.updatechecker.version>
-        <equinox.p2.updatesite.version>1.0.400.v20130515-2028</equinox.p2.updatesite.version>
         <equinox.preferences.version>3.5.200.v20140224-1527</equinox.preferences.version>
         <equinox.registry.version>3.5.400.v20140428-1507</equinox.registry.version>
         <equinox.security.version>1.2.0.v20130424-1801</equinox.security.version>
@@ -796,10 +595,6 @@
         <apache.felix.gogo.command.version>0.10.0.v201209301215</apache.felix.gogo.command.version>
         <apache.felix.gogo.shell.version>0.10.0.v201212101605</apache.felix.gogo.shell.version>
         <apache.felix.gogo.runtime.version>0.10.0.v201209301036</apache.felix.gogo.runtime.version>
-        <javax.el.version>2.2.0.v201303151357</javax.el.version>
-        <equinox.apache.log4j.version>1.2.13.v200706111418</equinox.apache.log4j.version>
-        <ecf.provider.filetransfer.httpclient.version>4.0.200.v20120319-0616
-        </ecf.provider.filetransfer.httpclient.version>
         <equinox.osgi.compatibility.statre.version>1.0.1.v20140709-1414</equinox.osgi.compatibility.statre.version>
 
         <!--PAX Logging related dependency versions-->
@@ -839,15 +634,6 @@
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
         <carbon.p2.plugin.version>2.0.0-m1</carbon.p2.plugin.version>
         <testng.version>6.9.4</testng.version>
-        <wrapper.version>3.2.3</wrapper.version>
-        <tycho.version>0.13.0</tycho.version>
-        <maven.plugin.api.version>3.2.1</maven.plugin.api.version>
-        <maven.core.version>3.2.1</maven.core.version>
-        <maven.model.version>3.2.1</maven.model.version>
-        <maven.artifact.version>3.2.1</maven.artifact.version>
-        <maven.compat.version>3.0</maven.compat.version>
-        <plexus.utils.version>3.0.17</plexus.utils.version>
-        <plexus.archiver.version>1.2</plexus.archiver.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
     </properties>
