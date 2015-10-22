@@ -32,6 +32,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.startupcoordinator.DynamicCapabilityListener;
 import org.wso2.carbon.startupcoordinator.RequireCapabilityListener;
 
 import java.util.Arrays;
@@ -153,6 +154,7 @@ public class RequireCapabilityCoordinator {
         if (requiredServiceKey == null || requiredServiceKey.equals("")) {
             logger.warn("RequireCapabilityListener service ({}) does not contain the required-service-interface proper",
                     listener.getClass().getName());
+            return;
         } else {
             requiredServiceKey = requiredServiceKey.trim();
         }
@@ -161,13 +163,12 @@ public class RequireCapabilityCoordinator {
 
         //TODO close service trackers once all the service are available.
         final String serviceClazz = requiredServiceKey;
-        ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<Object, Object>(
+        ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<>(
                 bundleContext,
                 requiredServiceKey,
                 new ServiceTrackerCustomizer<Object, Object>() {
                     @Override
                     public Object addingService(ServiceReference<Object> reference) {
-                        assert serviceClazz != null;
                         synchronized (serviceClazz.intern()) {
                             if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
                                 listener.onAllRequiredCapabilitiesAvailable();
@@ -186,13 +187,44 @@ public class RequireCapabilityCoordinator {
 
                     }
                 });
-
         serviceTracker.open();
-
     }
 
     public void deregisterRequireCapabilityListener(RequireCapabilityListener listener,
                                                     Map<String, String> propertyMap) {
+    }
+
+    /**
+     * Registers and updates the CapabilityCounter with the DynamicCapabilityName and the DynamicCapabilityCount
+     * value. The DynamicCapabilityName is used as the key and the integer value of the capability count that
+     * startup coordinator should wait before calling the onAllRequiredCapabilitiesAvailable callback method
+     * of an interested listener.
+     *
+     * @param listener an instance of the DynamicCapabilityListener when it is registered as an OSGi service.
+     */
+    @Reference(
+            name = "dynamic.capability.listener.service",
+            service = DynamicCapabilityListener.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterDynamicCapabilityCountListener"
+    )
+    public void registerDynamicCapabilityCountListener(DynamicCapabilityListener listener) {
+
+        String dynamicCapabilityName = listener.getDynamicCapabilityName();
+        if (dynamicCapabilityName == null || dynamicCapabilityName.equals("")) {
+            logger.warn("DynamicCapabilityCountListener service ({}) does not contain the dynamic capability name",
+                    listener.getClass().getName());
+        } else {
+            dynamicCapabilityName = dynamicCapabilityName.trim();
+            for (int i = 0; i < listener.getDynamicCapabilityCount(); i++) {
+                capabilityCounter.incrementAndGet(dynamicCapabilityName);
+            }
+        }
+    }
+
+    public void unregisterDynamicCapabilityCountListener(DynamicCapabilityListener listener) {
+
     }
 
     /**
@@ -222,7 +254,10 @@ public class RequireCapabilityCoordinator {
                         .stream()
                         .filter(element -> "osgi.service".equals(element.getValue()))
                         .forEach(element -> {
-                            if (RequireCapabilityListener.class.getName().equals(element.getAttribute("objectClass"))) {
+                            if (RequireCapabilityListener.class.getName().
+                                    equals(element.getAttribute("objectClass")) ||
+                                    DynamicCapabilityListener.class.getName().
+                                            equals(element.getAttribute("objectClass"))) {
                                 expectedRCListenerCount.incrementAndGet();
                             } else {
                                 capabilityCounter.incrementAndGet(element.getAttribute("objectClass"));

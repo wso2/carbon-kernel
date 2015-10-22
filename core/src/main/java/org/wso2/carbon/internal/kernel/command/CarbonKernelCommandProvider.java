@@ -23,7 +23,6 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -40,10 +39,10 @@ import java.util.List;
  * This service component is responsible for registering the Carbon kernel command provider
  */
 
-@Component(
-        name = "org.wso2.carbon.kernel.internal.CommandProvider",
-        immediate = true
-)
+//@Component(
+//        name = "org.wso2.carbon.kernel.internal.CommandProvider",
+//        immediate = true
+//)
 
 public class CarbonKernelCommandProvider implements CommandProvider {
 

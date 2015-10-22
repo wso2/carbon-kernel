@@ -19,13 +19,15 @@
 
 package org.wso2.carbon.internal.transports;
 
-import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.startupcoordinator.RequireCapabilityListener;
 import org.wso2.carbon.transports.CarbonTransport;
 import org.wso2.carbon.transports.TransportManager;
 
@@ -33,23 +35,22 @@ import java.util.Map;
 
 /**
  * OSGi declarative services component which handled registration & uregistration of Carbon transports
+ * and starts all the transports when all of them are registered
  */
 @Component(
-        name = "org.wso2.carbon.internal.transport.TransportServiceComponent",
-        immediate = true
+        name = "org.wso2.carbon.internal.transports.TransportServiceComponent",
+        immediate = true,
+        service = RequireCapabilityListener.class,
+        property = "required-service-interface=org.wso2.carbon.transports.CarbonTransport"
 )
-public class TransportServiceComponent {
+public class TransportServiceComponent implements RequireCapabilityListener {
+    private static final Logger logger = LoggerFactory.getLogger(TransportServiceComponent.class);
 
     private TransportManager transportManager = new TransportManager();
 
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
         bundleContext.registerService(TransportManager.class, transportManager, null);
-
-        // Registering transport management command provider implementation. This allows users to manage
-        // transports via the OSGi console.
-        bundleContext.registerService(CommandProvider.class.getName(),
-                new TransportMgtCommandProvider(transportManager), null);
     }
 
     @Reference(
@@ -65,5 +66,13 @@ public class TransportServiceComponent {
 
     protected void unregisterTransport(CarbonTransport transport, Map<String, ?> ref) {
         transportManager.unregisterTransport(transport);
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Starting Registered Transports");
+        }
+        transportManager.startTransports();
     }
 }
