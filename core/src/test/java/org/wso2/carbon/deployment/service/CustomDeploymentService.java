@@ -19,8 +19,8 @@ import org.wso2.carbon.deployment.Artifact;
 import org.wso2.carbon.deployment.ArtifactType;
 import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.deployment.spi.Deployer;
-import org.wso2.carbon.internal.deployment.CarbonDeploymentService;
-import org.wso2.carbon.internal.deployment.DeploymentEngine;
+import org.wso2.carbon.kernel.internal.deployment.CarbonDeploymentService;
+import org.wso2.carbon.kernel.internal.deployment.DeploymentEngine;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -89,7 +89,7 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <excludePackageNames>org.wso2.carbon.internal</excludePackageNames>
+                            <excludePackageNames>org.wso2.carbon.kernel.internal</excludePackageNames>
                             <additionalparam>-Xdoclint:none</additionalparam>
                             <show>public</show>
                             <nohelp>true</nohelp>
@@ -106,22 +106,15 @@
                         <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Activator>
-                            org.wso2.carbon.internal.CarbonCoreBundleActivator
+                            org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator
                         </Bundle-Activator>
                         <Private-Package>
-                            org.wso2.carbon.internal.*,
+                            org.wso2.carbon.kernel.internal.*,
                         </Private-Package>
                         <Export-Package>
-                            !org.wso2.carbon.internal,
-                            org.wso2.carbon.internal.kernel.config.model.*;version="${carbon.kernel.package.export.version}",
+                            !org.wso2.carbon.kernel.internal,
                             org.wso2.carbon.deployment.*;version="${carbon.kernel.package.export.version}",
                             org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
-                            org.wso2.carbon.utils.*;version="${carbon.kernel.package.export.version}",
-                            org.wso2.carbon.extensions.*;version="${carbon.kernel.package.export.version}",
-                            org.wso2.carbon.runtime.*;version="${carbon.kernel.package.export.version}",
-                            org.wso2.carbon.base.*;version="${carbon.kernel.package.export.version}",
-                            org.wso2.carbon.transports.*;version="${carbon.kernel.package.export.version}",
-                            org.wso2.carbon.startupcoordinator.*;version="${carbon.kernel.package.export.version}",
                         </Export-Package>
                         <Import-Package>
                             org.eclipse.osgi.util,
