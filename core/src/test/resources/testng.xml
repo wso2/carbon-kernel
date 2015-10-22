@@ -17,6 +17,7 @@
 
             <class name="org.wso2.carbon.transports.TransportManagerTest" />
             <class name="org.wso2.carbon.utils.FileUtilsTest" />
+            <class name="org.wso2.carbon.internal.runtime.RuntimeManagerTest" />
         </classes>
     </test>
 </suite>
