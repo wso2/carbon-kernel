@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.sample.transport.mgt.Transport;
 
 /**
- * TODO
+ * Sample HTTPTransport Service Component class.
  */
 @Component(
         name = "org.wso2.carbon.sample.transport.http.HTTPTransport",

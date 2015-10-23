@@ -26,7 +26,7 @@ import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
 /**
  * This service  component is responsible for retrieving the Runtime OSGi
- * service and register each runtime with runtime manager
+ * service and register each runtime with runtime manager.
  */
 @Component(
         name = "org.wso2.carbon.internal.runtime.RuntimeServiceListenerComponent",
@@ -39,7 +39,7 @@ public class RuntimeServiceListenerComponent {
     private RuntimeManager runtimeManager = DataHolder.getInstance().getRuntimeManager();
 
     /**
-     * Register the runtime instance
+     * Register the runtime instance.
      *
      * @param runtime - runtime instance
      */
@@ -60,7 +60,7 @@ public class RuntimeServiceListenerComponent {
     }
 
     /**
-     * Un-register the runtime instance
+     * Un-register the runtime instance.
      *
      * @param runtime - runtime instance
      */

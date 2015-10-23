@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
 /**
- * TODO
+ * Sample MSS Runtime Service Component class.
  */
 @Component(
         name = "org.wso2.carbon.sample.runtime.mss.MSSRuntime",

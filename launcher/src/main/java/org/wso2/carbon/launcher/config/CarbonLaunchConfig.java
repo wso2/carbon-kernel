@@ -48,7 +48,7 @@ import static org.wso2.carbon.launcher.utils.Constants.OSGI_INSTALL_AREA;
 import static org.wso2.carbon.launcher.utils.Constants.OSGI_INSTANCE_AREA;
 
 /**
- * TODO: class level comment
+ * TODO: class level comment.
  *
  * @param <K> TODO
  * @param <V> TODO

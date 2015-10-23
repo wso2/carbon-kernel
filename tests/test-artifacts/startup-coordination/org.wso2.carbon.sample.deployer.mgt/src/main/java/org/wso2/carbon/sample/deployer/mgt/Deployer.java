@@ -16,17 +16,17 @@
 package org.wso2.carbon.sample.deployer.mgt;
 
 /**
- * TODO
+ * Sample Deployer interface.
  */
 public interface Deployer {
 
     /**
-     *  TODO
+     *  Start the deployer.
      */
     void start();
 
     /**
-     *  TODO
+     *  Stop the deployer.
      */
     void stop();
 }

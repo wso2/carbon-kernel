@@ -35,6 +35,9 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import javax.inject.Inject;
 
+/**
+ * Logging Configuration OSGi test case.
+ */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class LoggingConfigurationOSGiTest {

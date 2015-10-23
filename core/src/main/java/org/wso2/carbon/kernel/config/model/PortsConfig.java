@@ -18,7 +18,7 @@ package org.wso2.carbon.kernel.config.model;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * JAXB mapping for Ports Config
+ * JAXB mapping for Ports Config.
  */
 public class PortsConfig {
 

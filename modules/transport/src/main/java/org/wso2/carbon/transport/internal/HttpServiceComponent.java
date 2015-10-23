@@ -30,7 +30,7 @@ import javax.servlet.ServletException;
 
 /**
  * This service  component is responsible for retrieving the HttpService
- * OSGi service and register servlets
+ * OSGi service and register servlets.
  */
 
 @Component(

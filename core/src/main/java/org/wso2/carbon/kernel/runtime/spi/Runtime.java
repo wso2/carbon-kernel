@@ -38,10 +38,10 @@ public interface Runtime {
 
     /**
      * <p>
-     * Initialize the Runtime
+     * Initialize the Runtime.
      * </p>
      * This will contain all the code segments that necessary to be called during runtime initialization
-     * process. This can be different from one Runtime to another
+     * process. This can be different from one Runtime to another.
      *
      * @throws RuntimeServiceException - on error while trying to initializing the Runtime
      */
@@ -49,10 +49,10 @@ public interface Runtime {
 
     /**
      * <p>
-     * Start the Runtime
+     * Start the Runtime.
      * </p>
      * This will contain all the code segments that necessary to be called during runtime start() get invoked
-     * This implementation will not be necessary for all the runtimes
+     * This implementation will not be necessary for all the runtimes.
      *
      * @throws RuntimeServiceException - on error while trying to starting the Runtime
      */
@@ -60,9 +60,9 @@ public interface Runtime {
 
     /**
      * <p>
-     * Stop the Runtime
+     * Stop the Runtime.
      * </p>
-     * This will contain all the code that need to be called when runtime need to be stopped
+     * This will contain all the code that need to be called when runtime need to be stopped.
      *
      * @throws RuntimeServiceException - on error while trying to stopping the Runtime
      */
@@ -70,9 +70,9 @@ public interface Runtime {
 
     /**
      * <p>
-     * Put the Runtime into maintenance mode
+     * Put the Runtime into maintenance mode.
      * </p>
-     * This will contain all the code that need to be called when runtime starting its MAINTENANCE state
+     * This will contain all the code that need to be called when runtime starting its MAINTENANCE state.
      *
      * @throws RuntimeServiceException - on error while trying to start maintenance of the Runtime
      */
@@ -80,16 +80,16 @@ public interface Runtime {
 
     /**
      * <p>
-     * Put the Runtime into INACTIVE state form MAINTENANCE state
+     * Put the Runtime into INACTIVE state form MAINTENANCE state.
      * </p>
-     * This will contain all the code that need to be called when runtime stops its maintenance mode
+     * This will contain all the code that need to be called when runtime stops its maintenance mode.
      *
      * @throws RuntimeServiceException - on error while trying to stop maintenance of the Runtime
      */
     void endMaintenance() throws RuntimeServiceException;
 
     /**
-     * Return the current state of the runtime
+     * Return the current state of the runtime.
      *
      * @return RuntimeState - current state of the Runtime
      * @see RuntimeState
@@ -97,7 +97,7 @@ public interface Runtime {
     Enum<RuntimeState> getState();
 
     /**
-     * Set current state of a runtime
+     * Set current state of a runtime.
      *
      * @param runtimeState - new Runtime state
      * @see RuntimeState

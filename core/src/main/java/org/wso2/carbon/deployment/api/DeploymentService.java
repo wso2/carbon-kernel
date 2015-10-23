@@ -32,7 +32,7 @@ import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 public interface DeploymentService {
     /**
      * User can call this method externally to deploy an artifact by giving the artifact deployment
-     * directory and the path
+     * directory and the path.
      *
      * @param artifactPath path where the artifact resides. This has to be the full qualified path
      *                     of the artifact
@@ -46,7 +46,7 @@ public interface DeploymentService {
     /**
      * When you want to undeploy an artifact, this method can be called by giving the key,
      * which uniquely identifies an artifact in a runtime and the artifact deployment
-     * directory
+     * directory.
      *
      * @param key          artifact key to uniquely identify an artifact in a runtime
      *                     Eg: for webapps this can be webapp context such as /foo , /bar, etc
@@ -61,7 +61,7 @@ public interface DeploymentService {
     /**
      * When you want to redeploy/update an artifact, this method can be called by giving the key,
      * which uniquely identifies an artifact in a runtime and the artifact deployment
-     * directory
+     * directory.
      *
      * @param key          artifact key to uniquely identify an artifact in a runtime
      *                     Eg: for webapps this can be webapp context such as /foo , /bar, etc

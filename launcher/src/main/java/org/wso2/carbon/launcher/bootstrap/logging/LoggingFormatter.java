@@ -22,7 +22,7 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 /**
- * Logging formatter of java.util.logging correspond to log4j logging pattern
+ * Logging formatter of java.util.logging correspond to log4j logging pattern.
  */
 public class LoggingFormatter extends Formatter {
     // Create a DateFormat to format the logger timestamp.

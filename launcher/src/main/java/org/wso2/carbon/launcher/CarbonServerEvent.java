@@ -18,7 +18,7 @@ package org.wso2.carbon.launcher;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 
 /**
- * An event from the CarbonServer
+ * An event from the CarbonServer.
  */
 public class CarbonServerEvent {
 
@@ -42,7 +42,7 @@ public class CarbonServerEvent {
     private final int type;
 
     /**
-     * Carbon launch configuration object
+     * Carbon launch configuration object.
      */
     private final CarbonLaunchConfig<String, String> config;
 

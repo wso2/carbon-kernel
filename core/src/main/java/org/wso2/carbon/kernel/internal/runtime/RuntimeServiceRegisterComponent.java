@@ -37,7 +37,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * This class is responsible of waiting till all runtime services get registered
+ * This class is responsible of waiting till all runtime services get registered.
  * once all runtime services get registered it will register RuntimeService OSGI service
  * This service can be used by carbon server to finalize start-up
  */
@@ -102,7 +102,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
     }
 
     /**
-     * populate the list of required services under the manifest header REQUIRED_RUNTIME_SERVICE
+     * populate the list of required services under the manifest header REQUIRED_RUNTIME_SERVICE.
      */
     private void populateRequiredServices() {
         Bundle[] bundles = bundleContext.getBundles();
@@ -146,7 +146,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
     }
 
     /**
-     * Complete Runtime initialization if all required runtime get registered
+     * Complete Runtime initialization if all required runtime get registered.
      * Then the RuntimeService will be registered
      *
      * @param bundleContext : bundle context object

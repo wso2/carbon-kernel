@@ -20,7 +20,7 @@ import org.wso2.carbon.kernel.utils.Utils;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * JAXB mapping for Deployment Config
+ * JAXB mapping for Deployment Config.
  */
 public class DeploymentConfig {
 

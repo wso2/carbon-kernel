@@ -19,6 +19,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.utils.Utils;
 
+/**
+ * Launcher Utils test class.
+ */
+
 @Test(groups = "utils")
 public class UtilsTest {
 

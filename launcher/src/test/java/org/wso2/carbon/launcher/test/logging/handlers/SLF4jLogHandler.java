@@ -20,6 +20,11 @@ import org.slf4j.Marker;
 
 import java.util.ArrayList;
 
+/**
+ * SLF4jLogHandler class which implements the Logger interface.
+ *
+ * @see Logger
+ */
 public class SLF4jLogHandler implements Logger {
     ArrayList<String> logList = new ArrayList<String>();
 

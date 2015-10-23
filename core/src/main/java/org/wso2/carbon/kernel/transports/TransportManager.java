@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Carbon Transport Manager
+ * Carbon Transport Manager.
  */
 public class TransportManager {
 

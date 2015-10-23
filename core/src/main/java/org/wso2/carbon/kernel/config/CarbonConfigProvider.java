@@ -28,7 +28,7 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 public interface CarbonConfigProvider {
 
     /**
-     * Returns a populated CarbonConfiguration instance
+     * Returns a populated CarbonConfiguration instance.
      *
      * @return a instance of the CarbonConfiguration
      */

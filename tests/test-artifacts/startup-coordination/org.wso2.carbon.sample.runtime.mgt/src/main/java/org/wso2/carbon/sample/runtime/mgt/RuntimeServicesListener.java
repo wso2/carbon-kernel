@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupcoordinator.RequireCapabilityListener;
 
 /**
- * TODO
+ * Sample Runtime Service Listener Service Component class.
  */
 @Component(
         name = "org.wso2.carbon.sample.runtime.mgt.RuntimeServicesListener",

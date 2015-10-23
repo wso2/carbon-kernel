@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+/**
+ * Test class for FileUtils class.
+ */
 public class FileUtilsTest {
 
     private static File testDir = Paths.get("target", "FileUtilTest").toFile();
