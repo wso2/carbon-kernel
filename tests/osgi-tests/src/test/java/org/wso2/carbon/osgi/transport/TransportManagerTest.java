@@ -58,7 +58,6 @@ public class TransportManagerTest {
         CustomCarbonTransport carbonTransport = new CustomCarbonTransport("dummyTransport");
         transportManager.registerTransport(carbonTransport);
         transportManager.startTransport("dummyTransport");
-        Assert.assertTrue(true);
     }
 
     @Test(dependsOnMethods = {"testSuccessfulStartTransport"})
