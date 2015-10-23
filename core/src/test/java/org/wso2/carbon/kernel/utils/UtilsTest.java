@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class UtilsTest {
 
-    protected static void set(Map<String, String> newenv) {
+    private static void set(Map<String, String> newenv) {
         try {
             Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
             Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
