@@ -10,13 +10,13 @@
             <class name="org.wso2.carbon.deployment.DeploymentEngineTest" />
             <class name="org.wso2.carbon.deployment.DeploymentServiceTest" />
 
-            <class name="org.wso2.carbon.runtime.CustomRuntimeTest" />
-            <class name="org.wso2.carbon.runtime.RuntimeManagerTest" />
-            <class name="org.wso2.carbon.runtime.RuntimeServiceExceptionTest" />
-            <class name="org.wso2.carbon.runtime.RuntimeServiceTest" />
+            <class name="org.wso2.carbon.kernel.runtime.CustomRuntimeTest" />
+            <class name="org.wso2.carbon.kernel.runtime.RuntimeManagerTest" />
+            <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceExceptionTest" />
+            <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceTest" />
 
-            <class name="org.wso2.carbon.transports.TransportManagerTest" />
-            <class name="org.wso2.carbon.utils.FileUtilsTest" />
+            <class name="org.wso2.carbon.kernel.transports.TransportManagerTest" />
+            <class name="org.wso2.carbon.kernel.utils.FileUtilsTest" />
         </classes>
     </test>
 </suite>
