@@ -20,7 +20,7 @@ import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
 /**
- * Implementation of Runtime interface to write test cases to RuntimeManager
+ * Implementation of Runtime interface to write test cases to RuntimeManager.
  */
 public class CustomRuntime implements Runtime {
     @Override
