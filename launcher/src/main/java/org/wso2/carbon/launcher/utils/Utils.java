@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
 
 /**
- * Carbon launcher Utils
+ * Carbon launcher Utils.
  */
 public class Utils {
 
@@ -41,7 +41,7 @@ public class Utils {
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
 
     /**
-     * Replace system property holders in the property values
+     * Replace system property holders in the property values.
      * e.g Replace ${carbon.home} with value of the carbon.home system property
      *
      * @param value System variable value to be replaced

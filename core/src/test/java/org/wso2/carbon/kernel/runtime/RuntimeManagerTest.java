@@ -26,6 +26,9 @@ import org.wso2.carbon.kernel.runtime.spi.Runtime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Runtime Manager Test class.
+ */
 public class RuntimeManagerTest {
     RuntimeManager runtimeManager;
     CustomRuntime customRuntime;

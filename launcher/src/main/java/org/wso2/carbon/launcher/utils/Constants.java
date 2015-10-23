@@ -18,7 +18,7 @@ package org.wso2.carbon.launcher.utils;
 import java.nio.file.Paths;
 
 /**
- * Carbon constants
+ * Carbon constants.
  */
 public class Constants {
 
@@ -55,7 +55,7 @@ public class Constants {
     public static final String LOG_LEVEL_DEBUG = "DEBUG";
 
     /**
-     * Carbon server process exit codes
+     * Carbon server process exit codes.
      */
     public static class ExitCodes {
         public static final int SUCCESSFUL_TERMINATION = 0;

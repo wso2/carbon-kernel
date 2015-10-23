@@ -157,7 +157,7 @@ public class Main {
     }
 
     /**
-     * Write the process ID of this process to the file
+     * Write the process ID of this process to the file.
      *
      * @param carbonHome carbon.home sys property value.
      */

@@ -18,7 +18,7 @@ package org.wso2.carbon.launcher.bootstrap.logging;
 import java.util.logging.Logger;
 
 /**
- * Logger class correspond to bootstrap logging
+ * Logger class correspond to bootstrap logging.
  */
 public class BootstrapLogger extends Logger {
     private static Logger bootstrapLogger = new BootstrapLogger(null, null);

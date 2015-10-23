@@ -30,6 +30,9 @@ import org.wso2.carbon.kernel.utils.FileUtils;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Deployment Service Test class.
+ */
 public class DeploymentServiceTest extends BaseTest {
 
     private static final String CARBON_REPO = "carbon-repo";

@@ -31,14 +31,14 @@ import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 public interface RuntimeService {
 
     /**
-     * Users can call this method to start all registered runtime on the Runtime Manager
+     * Users can call this method to start all registered runtime on the Runtime Manager.
      *
      * @throws RuntimeServiceException - on error while trying to starting registered runtimes
      */
     void startRuntimes() throws RuntimeServiceException;
 
     /**
-     * Users can call this method to stop all registered runtime on the Runtime Manager
+     * Users can call this method to stop all registered runtime on the Runtime Manager.
      *
      * @throws RuntimeServiceException - on error while trying to stop registered runtimes
      */
@@ -46,7 +46,7 @@ public interface RuntimeService {
 
     /**
      * Users can call this method to put the Carbon server on Maintenance Mode and this will affect
-     * all registered runtime into MAINTENANCE state
+     * all registered runtime into MAINTENANCE state.
      *
      * @throws RuntimeServiceException - on error while trying to start server Maintenance mode
      */
@@ -54,7 +54,7 @@ public interface RuntimeService {
 
     /**
      * Users can call this method to put the Carbon server back in normal state and this will affect
-     * all registered runtime into INACTIVE state
+     * all registered runtime into INACTIVE state.
      *
      * @throws RuntimeServiceException - on error while trying to end server Maintenance mode
      */

@@ -24,6 +24,9 @@ import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
 import java.io.File;
 import java.util.HashMap;
 
+/**
+ * Deployer Test class.
+ */
 public class DeployerTest extends BaseTest {
     private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private CustomDeployer customDeployer;

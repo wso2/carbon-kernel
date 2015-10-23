@@ -19,7 +19,7 @@ import org.wso2.carbon.kernel.PrivilegedCarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
 /**
- * TODO: class level comment
+ * TODO: class level comment.
  */
 public class DefaultCarbonRuntime implements PrivilegedCarbonRuntime {
     private CarbonConfiguration carbonConfiguration;

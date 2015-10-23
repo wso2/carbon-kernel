@@ -37,7 +37,7 @@ public class LoggingConfiguration {
     private static LoggingConfiguration instance = new LoggingConfiguration();
 
     /**
-     * Singleton LoggingConfiguration class
+     * Singleton LoggingConfiguration class.
      */
     private LoggingConfiguration() {
 
@@ -92,7 +92,7 @@ public class LoggingConfiguration {
 
     /**
      * This is the method remove the ManagedService instance to LoggingConfiguration to be used for configuring the
-     * logging framework  with log4j2.xml config file
+     * logging framework  with log4j2.xml config file.
      */
     public void unregister(ManagedService managedService) {
         //TODO properly remove logging config from config admin
