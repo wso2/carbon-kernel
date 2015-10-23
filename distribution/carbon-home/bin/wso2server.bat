@@ -1,19 +1,19 @@
 @echo off
 
 REM ---------------------------------------------------------------------------
-REM        Copyright 2005-2015 WSO2, Inc. http://www.wso2.org
+REM   Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 REM
-REM  Licensed under the Apache License, Version 2.0 (the "License");
-REM  you may not use this file except in compliance with the License.
-REM  You may obtain a copy of the License at
+REM   Licensed under the Apache License, Version 2.0 (the "License");
+REM   you may not use this file except in compliance with the License.
+REM   You may obtain a copy of the License at
 REM
-REM      http://www.apache.org/licenses/LICENSE-2.0
+REM   http://www.apache.org/licenses/LICENSE-2.0
 REM
-REM  Unless required by applicable law or agreed to in writing, software
-REM  distributed under the License is distributed on an "AS IS" BASIS,
-REM  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-REM  See the License for the specific language governing permissions and
-REM  limitations under the License.
+REM   Unless required by applicable law or agreed to in writing, software
+REM   distributed under the License is distributed on an "AS IS" BASIS,
+REM   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+REM   See the License for the specific language governing permissions and
+REM   limitations under the License.
 
 rem ---------------------------------------------------------------------------
 rem Main Script for WSO2 Carbon
@@ -52,7 +52,6 @@ rem find CARBON_HOME if it does not exist due to either an invalid value passed
 rem by the user or the %0 problem on Windows 9x
 if not exist "%CARBON_HOME%\bin\version.txt" goto noServerHome
 
-set AXIS2_HOME=%CARBON_HOME%
 goto updateClasspath
 
 :noServerHome
@@ -135,13 +134,13 @@ rem find the version of the jdk
 set CMD=RUN %*
 
 :checkJdk16
-"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "1.[6|7]" >NUL
+"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "1.[8]" >NUL
 IF ERRORLEVEL 1 goto unknownJdk
 goto jdk16
 
 :unknownJdk
 echo Starting WSO2 Carbon (in unsupported JDK)
-echo [ERROR] CARBON is supported only on JDK 1.6 and 1.7
+echo [ERROR] CARBON is supported only on JDK 1.8
 goto jdk16
 
 :jdk16
@@ -158,7 +157,7 @@ set CARBON_CLASSPATH=.\lib;%CARBON_CLASSPATH%
 
 set JAVA_ENDORSED=".\lib\endorsed";"%JAVA_HOME%\jre\lib\endorsed";"%JAVA_HOME%\lib\endorsed"
 
-set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%CARBON_HOME%\repository\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dcarbon.home="%CARBON_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%CARBON_HOME%\tmp" -Djava.util.logging.config.file="%CARBON_HOME%\repository\conf\etc\logging-bridge.properties" -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.JavaUtilLog -Dcarbon.repository="%CARBON_HOME%\repository"  -Dcom.sun.jndi.ldap.connect.pool.authentication=simple -Dcom.sun.jndi.ldap.connect.pool.timeout=3000  -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8
+set CMD_LINE_ARGS=-Xbootclasspath/a:%CARBON_XBOOTCLASSPATH% -Xms256m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="%CARBON_HOME%\repository\logs\heap-dump.hprof"  -Dcom.sun.management.jmxremote -classpath %CARBON_CLASSPATH% %JAVA_OPTS% -Djava.endorsed.dirs=%JAVA_ENDORSED%  -Dcarbon.home="%CARBON_HOME%"  -Djava.command="%JAVA_HOME%\bin\java" -Djava.opts="%JAVA_OPTS%" -Djava.io.tmpdir="%CARBON_HOME%\tmp" -Dorg.eclipse.jetty.util.log.class=org.eclipse.jetty.util.log.JavaUtilLog -Dcarbon.repository="%CARBON_HOME%\repository"  -Dcom.sun.jndi.ldap.connect.pool.authentication=simple -Dcom.sun.jndi.ldap.connect.pool.timeout=3000  -Dcarbon.classpath=%CARBON_CLASSPATH% -Dfile.encoding=UTF8
 
 :runJava
 echo JAVA_HOME environment variable is set to %JAVA_HOME%

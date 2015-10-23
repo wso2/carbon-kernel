@@ -31,7 +31,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 /**
- * Represents a Jetty transport in Carbon
+ * Represents a Jetty transport in Carbon.
  */
 public class JettyCarbonTransport extends CarbonTransport {
 

@@ -28,18 +28,21 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Custom Deployer class to test deployment.
+ */
 public class CustomDeployer implements Deployer {
     private static final Logger logger = LoggerFactory.getLogger(CustomDeployer.class);
     /**
-     * Has init() been called?
+     * Has init() been called?.
      */
     public static boolean initCalled;
     /**
-     * Set to true if "XML1" has been deployed
+     * Set to true if "XML1" has been deployed.
      */
     public static boolean sample1Deployed;
     /**
-     * Set to true if "XML1" has been updated
+     * Set to true if "XML1" has been updated.
      */
     public static boolean sample1Updated;
 

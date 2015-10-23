@@ -42,7 +42,7 @@ public class Utils {
     }
 
     /**
-     * Sets the last modified time to the given artifact
+     * Sets the last modified time to the given artifact.
      *
      * @param artifact artifact for update modified time
      */
@@ -54,7 +54,7 @@ public class Utils {
     }
 
     /**
-     * Request: file:sample.war
+     * Request: file:sample.war .
      * Response: file:/user/wso2carbon-kernel-5.0.0/repository/deployment/server/webapps/sample.war
      *
      * @param path       file path to resolve

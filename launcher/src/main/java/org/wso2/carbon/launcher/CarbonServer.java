@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 import static org.wso2.carbon.launcher.utils.Constants.CARBON_START_TIME;
 
 /**
- * Launches a Carbon instance
+ * Launches a Carbon instance.
  */
 public class CarbonServer {
 

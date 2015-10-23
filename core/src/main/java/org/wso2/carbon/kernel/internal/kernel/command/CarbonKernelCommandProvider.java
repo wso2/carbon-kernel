@@ -27,7 +27,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.kernel.CarbonRuntime;
 
 /**
- * This service component is responsible for registering the Carbon kernel command provider
+ * This service component is responsible for registering the Carbon kernel command provider.
  */
 
 @Component(

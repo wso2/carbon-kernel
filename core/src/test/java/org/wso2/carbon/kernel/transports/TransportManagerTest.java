@@ -42,7 +42,7 @@ public class TransportManagerTest {
     }
 
     @Test
-    public void testUnsuccessfulStartTransport() {
+    public void testUnsuccessfullStartTransport() {
         try {
             transportManager.startTransport("wrongId");
         } catch (IllegalArgumentException e) {
@@ -52,18 +52,18 @@ public class TransportManagerTest {
     }
 
 
-    @Test(dependsOnMethods = {"testUnsuccessfulStartTransport"})
-    public void testSuccessfulStartTransport() {
+    @Test(dependsOnMethods = {"testUnsuccessfullStartTransport"})
+    public void testSuccessfullStartTransport() {
         try {
             transportManager.startTransport("dummyId");
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue(false);
+            Assert.assertFalse(true);
         }
         Assert.assertTrue(true);
     }
 
-    @Test(dependsOnMethods = {"testSuccessfulStartTransport"})
-    public void testUnsuccessfulStopTransport() {
+    @Test(dependsOnMethods = {"testSuccessfullStartTransport"})
+    public void testUnsuccessfullStopTransport() {
         try {
             transportManager.stopTransport("wrongId");
         } catch (IllegalArgumentException e) {
@@ -72,8 +72,8 @@ public class TransportManagerTest {
         }
     }
 
-    @Test(dependsOnMethods = {"testUnsuccessfulStopTransport"})
-    public void testSuccessfulStopTransport() {
+    @Test(dependsOnMethods = {"testUnsuccessfullStopTransport"})
+    public void testSuccessfullStopTransport() {
         try {
             transportManager.stopTransport("dummyId");
         } catch (IllegalArgumentException e) {
@@ -82,7 +82,7 @@ public class TransportManagerTest {
         Assert.assertTrue(true);
     }
 
-    @Test(dependsOnMethods = {"testSuccessfulStopTransport"})
+    @Test(dependsOnMethods = {"testSuccessfullStopTransport"})
     public void testUnregisterTransport() {
         try {
             transportManager.unregisterTransport(carbonTransport);

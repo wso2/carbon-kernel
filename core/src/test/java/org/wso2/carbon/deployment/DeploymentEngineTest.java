@@ -28,6 +28,9 @@ import org.wso2.carbon.kernel.internal.deployment.RepositoryScanner;
 import java.io.File;
 import java.util.ArrayList;
 
+/**
+ * Deployment Engine Test class.
+ */
 public class DeploymentEngineTest extends BaseTest {
     private static final String CARBON_REPO = "carbon-repo";
     private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";

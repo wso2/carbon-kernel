@@ -16,7 +16,7 @@
 package org.wso2.carbon.kernel.internal;
 
 /**
- * Carbon internal Constants
+ * Carbon internal Constants.
  */
 public final class Constants {
 

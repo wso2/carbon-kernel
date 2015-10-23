@@ -40,37 +40,37 @@ import java.util.Map;
 public class Artifact {
 
     /**
-     * The file associated with the artifact instance
+     * The file associated with the artifact instance.
      */
     private File file;
 
     /**
-     * Keeps track of the last modified time of this artifact
+     * Keeps track of the last modified time of this artifact.
      */
     private long lastModifiedTime;
 
     /**
-     * Version of the artifact
+     * Version of the artifact.
      */
     private String version;
 
     /**
-     * A key to uniquely identify an Artifact within a runtime
+     * A key to uniquely identify an Artifact within a runtime.
      */
     private Object key;
 
     /**
-     * Deployment directory that the artifact is associated with  Eg : webapps, sequences, apis, etc
+     * Deployment directory that the artifact is associated with  Eg : webapps, sequences, apis, etc.
      */
     private ArtifactType type;
 
     /**
-     * To keep set of custom properties related to this artifact
+     * To keep set of custom properties related to this artifact.
      */
     private Map<String, Object> properties = new HashMap<>();
 
     /**
-     * Default constructor which takes the associated file with this artifact instance
+     * Default constructor which takes the associated file with this artifact instance.
      *
      * @param file the associated file
      */
@@ -88,7 +88,7 @@ public class Artifact {
     }
 
     /**
-     * A key is used to uniquely identify an Artifact within a runtime
+     * A key is used to uniquely identify an Artifact within a runtime.
      *
      * @return key
      */
@@ -97,7 +97,7 @@ public class Artifact {
     }
 
     /**
-     * Sets a given key to this artifact instance
+     * Sets a given key to this artifact instance.
      *
      * @param key key
      */
@@ -106,7 +106,7 @@ public class Artifact {
     }
 
     /**
-     * Path of the file associated with this artifact
+     * Path of the file associated with this artifact.
      *
      * @return path
      */
@@ -115,7 +115,7 @@ public class Artifact {
     }
 
     /**
-     * The file associated with the artifact
+     * The file associated with the artifact.
      *
      * @return file
      */
@@ -124,7 +124,7 @@ public class Artifact {
     }
 
     /**
-     * Version of the artifact
+     * Version of the artifact.
      *
      * @return version
      */
@@ -133,7 +133,7 @@ public class Artifact {
     }
 
     /**
-     * Sets a given version to this artifact instance
+     * Sets a given version to this artifact instance.
      *
      * @param version version to be set
      */
@@ -142,7 +142,7 @@ public class Artifact {
     }
 
     /**
-     * ArtifactType of the artifact
+     * ArtifactType of the artifact.
      * Eg : war, aar, dbs
      *
      * @return artifact directory
@@ -152,7 +152,7 @@ public class Artifact {
     }
 
     /**
-     * Sets the given directory for this artifact instance
+     * Sets the given directory for this artifact instance.
      *
      * @param type directory of the artifact to be set
      */
@@ -161,7 +161,7 @@ public class Artifact {
     }
 
     /**
-     * This will return the last modified time of this artifact
+     * This will return the last modified time of this artifact.
      *
      * @return last modified time
      */
@@ -170,7 +170,7 @@ public class Artifact {
     }
 
     /**
-     * Sets the last modified time of this artifact
+     * Sets the last modified time of this artifact.
      *
      * @param lastModifiedTime lastModifiedTime
      */
@@ -179,7 +179,7 @@ public class Artifact {
     }
 
     /**
-     * This will return the Map of custom properties for this artifact
+     * This will return the Map of custom properties for this artifact.
      *
      * @return custom properties map
      */
@@ -188,7 +188,7 @@ public class Artifact {
     }
 
     /**
-     * This method allows to set custom properties which are needed for this Artifact
+     * This method allows to set custom properties which are needed for this Artifact.
      *
      * @param properties map of custom properties
      */

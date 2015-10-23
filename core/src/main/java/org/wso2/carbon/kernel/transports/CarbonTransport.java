@@ -16,12 +16,12 @@
 package org.wso2.carbon.kernel.transports;
 
 /**
- * Represents a transport in Carbon
+ * Represents a transport in Carbon.
  */
 public abstract class CarbonTransport {
 
     /**
-     * Unique ID representing a transport
+     * Unique ID representing a transport.
      */
     protected String id;
 

@@ -21,7 +21,7 @@ import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
 /**
- * TODO: class level comment
+ * TODO: class level comment.
  */
 public class CarbonRuntimeFactory {
 

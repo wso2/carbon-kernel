@@ -32,7 +32,6 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.osgi.util.Utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +40,7 @@ import java.nio.file.StandardCopyOption;
 import javax.inject.Inject;
 
 /**
- * CarbonRuntimeOSGiTest class is to test the availability and the functionality of the Carbon Runtime Service
+ * CarbonRuntimeOSGiTest class is to test the availability and the functionality of the Carbon Runtime Service.
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -88,8 +87,9 @@ public class CarbonRuntimeOSGiTest {
                 DeploymentModeEnum.fromValue("scheduled"));
         Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getUpdateInterval(), 15);
         String deploymentPath = Paths.get(System.getProperty("carbon.home"), "repository", "deployment",
-                "server").toString() + File.separator;
-        Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getRepositoryLocation(), deploymentPath);
+                "server").toString();
+        Assert.assertEquals(Paths.get(carbonConfiguration.getDeploymentConfig().getRepositoryLocation()).toString(),
+                deploymentPath);
 
     }
 
@@ -103,7 +103,7 @@ public class CarbonRuntimeOSGiTest {
     }
 
     /**
-     * Replace the existing carbon.xml file with populated carbon.xml file
+     * Replace the existing carbon.xml file with populated carbon.xml file.
      */
     private static void copyCarbonXML() {
         Path carbonXmlFilePath;

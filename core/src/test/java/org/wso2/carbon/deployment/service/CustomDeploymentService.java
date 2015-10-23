@@ -25,7 +25,9 @@ import org.wso2.carbon.kernel.internal.deployment.DeploymentEngine;
 import java.io.File;
 import java.util.ArrayList;
 
-
+/**
+ * Custom Deployment Service class.
+ */
 public class CustomDeploymentService extends CarbonDeploymentService {
 
     private DeploymentEngine deploymentEngine;

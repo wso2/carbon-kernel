@@ -22,6 +22,9 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.util.HashMap;
 
+/**
+ * Artifact test class which extends the BaseTest class.
+ */
 public class ArtifactTest extends BaseTest {
     private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";
     private File file = new File(getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()

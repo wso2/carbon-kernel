@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This service component is responsible for initializing the DeploymentEnginene
+ * This service component is responsible for initializing the DeploymentEngine.
  */
 @Component(
         name = "org.wso2.carbon.internal.deployment.DeploymentEngineComponent",
