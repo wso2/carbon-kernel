@@ -52,7 +52,7 @@ public class TransportManagerTest {
     }
 
 
-    @Test(dependsOnMethods = {"testUnsuccessfullStartTransport"})
+    @Test(dependsOnMethods = {"testUnsuccessfulStartTransport"})
     public void testSuccessfulStartTransport() {
         try {
             transportManager.startTransport("dummyId");
@@ -62,7 +62,7 @@ public class TransportManagerTest {
         Assert.assertTrue(true);
     }
 
-    @Test(dependsOnMethods = {"testSuccessfullStartTransport"})
+    @Test(dependsOnMethods = {"testSuccessfulStartTransport"})
     public void testUnsuccessfulStopTransport() {
         try {
             transportManager.stopTransport("wrongId");
@@ -72,7 +72,7 @@ public class TransportManagerTest {
         }
     }
 
-    @Test(dependsOnMethods = {"testUnsuccessfullStopTransport"})
+    @Test(dependsOnMethods = {"testUnsuccessfulStopTransport"})
     public void testSuccessfulStopTransport() {
         try {
             transportManager.stopTransport("dummyId");
@@ -82,7 +82,7 @@ public class TransportManagerTest {
         Assert.assertTrue(true);
     }
 
-    @Test(dependsOnMethods = {"testSuccessfullStopTransport"})
+    @Test(dependsOnMethods = {"testSuccessfulStopTransport"})
     public void testUnregisterTransport() {
         try {
             transportManager.unregisterTransport(carbonTransport);
