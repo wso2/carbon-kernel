@@ -20,7 +20,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transports.CarbonTransport;
+import org.wso2.carbon.kernel.transports.CarbonTransport;
 
 /**
  * This is the base activator class which will create a Jetty server instance and register it as an

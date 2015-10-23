@@ -19,6 +19,11 @@ import org.apache.commons.logging.Log;
 
 import java.util.ArrayList;
 
+/**
+ * CommonsLogHandler class which implements the Log interface.
+ *
+ * @see Log
+ */
 public class CommonsLogHandler implements Log {
     ArrayList<Object> logList = new ArrayList<Object>();
 

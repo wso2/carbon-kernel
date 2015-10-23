@@ -16,12 +16,12 @@
 package org.wso2.carbon.deployment.exception;
 
 /**
- * Represents the Deployment Engine related Exception
+ * Represents the Deployment Engine related Exception.
  */
 public class DeploymentEngineException extends Exception {
 
     /**
-     * This will construct the DeploymentEngineException with the detailed exception message
+     * This will construct the DeploymentEngineException with the detailed exception message.
      *
      * @param message the detailed exception message to be included with DeploymentEngineException
      */

@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Custom Deployer class to test deployment engine OSGi test case.
+ */
 public class CustomDeployer implements Deployer {
     private static final Logger logger = LoggerFactory.getLogger(CustomDeployer.class);
 

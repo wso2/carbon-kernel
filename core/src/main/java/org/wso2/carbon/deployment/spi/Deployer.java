@@ -36,14 +36,14 @@ import java.net.URL;
 public interface Deployer {
 
     /**
-     * Initialize the Deployer
+     * Initialize the Deployer.
      * <p>
      * This will contain all the code that need to be called when the deployer is initialized
      */
     void init();
 
     /**
-     * Process a deployable artifact and add it to the relevant runtime configuration
+     * Process a deployable artifact and add it to the relevant runtime configuration.
      *
      * @param artifact the Artifact object to deploy
      * @return returns a key to uniquely identify an artifact within a runtime
@@ -52,7 +52,7 @@ public interface Deployer {
     Object deploy(Artifact artifact) throws CarbonDeploymentException;
 
     /**
-     * Remove a given artifact from the relevant runtime configuration
+     * Remove a given artifact from the relevant runtime configuration.
      *
      * @param key the key of the deployed artifact used for undeploying it from the relevant runtime
      * @throws CarbonDeploymentException - when an error occurs while running the undeployment
@@ -61,7 +61,7 @@ public interface Deployer {
 
 
     /**
-     * Updates a already deployed artifact and update its relevant runtime configuration
+     * Updates a already deployed artifact and update its relevant runtime configuration.
      *
      * @param artifact the Artifact object to deploy
      * @return returns a key to uniquely identify an artifact within a runtime
@@ -82,7 +82,7 @@ public interface Deployer {
     URL getLocation();
 
     /**
-     * Returns the type of the artifact that the deployer is capable of deploying
+     * Returns the type of the artifact that the deployer is capable of deploying.
      * Eg : webapp, dataservice
      *
      * @return ArtifactType object which contains info about the artifact type

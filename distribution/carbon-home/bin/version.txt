@@ -1,1 +1,1 @@
-${product.name} v${product.version}
+${server.name} v${server.version}

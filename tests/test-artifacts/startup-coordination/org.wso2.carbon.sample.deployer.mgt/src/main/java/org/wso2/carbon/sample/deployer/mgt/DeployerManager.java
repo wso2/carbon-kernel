@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO
+ * Sample Deployer Manager Service Component class.
  */
 @Component(
         name = "org.wso2.carbon.sample.deployer.mgt.DeployerManager",
