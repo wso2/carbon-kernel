@@ -13,36 +13,38 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.transports;
+package org.wso2.carbon.osgi.transport;
 
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.testng.listener.PaxExam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.transports.transporter.CustomCarbonTransport;
+import org.wso2.carbon.kernel.transports.TransportManager;
+
+import javax.inject.Inject;
 
 /**
- * Unit tests class for org.wso2.carbon.kernel.transports.TransportManager.
+ * OSGi tests class to test org.wso2.carbon.kernel.transports.TransportManager.
  */
+@Listeners(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class TransportManagerTest {
+    private static final Logger logger = LoggerFactory.getLogger(TransportManagerTest.class);
 
+    @Inject
     private TransportManager transportManager;
-    private CustomCarbonTransport carbonTransport;
-    private CustomCarbonTransport carbonTransport2;
-
-    public TransportManagerTest() {
-    }
-
-    @BeforeTest
-    public void setup() {
-        transportManager = new TransportManager();
-        carbonTransport = new CustomCarbonTransport("dummyId");
-        carbonTransport2 = new CustomCarbonTransport("dummyId2");
-        transportManager.registerTransport(carbonTransport);
-        transportManager.registerTransport(carbonTransport2);
-    }
 
     @Test
-    public void testUnsuccessfulStartTransport() {
+    public void testTransportManagerExistence() {
+        Assert.assertNotNull(transportManager, "TransportManager Service is null");
+    }
+
+    @Test(dependsOnMethods = {"testTransportManagerExistence"})
+    public void testUnsuccessfullStartTransport() {
         try {
             transportManager.startTransport("wrongId");
         } catch (IllegalArgumentException e) {
@@ -51,11 +53,12 @@ public class TransportManagerTest {
         }
     }
 
-
     @Test(dependsOnMethods = {"testUnsuccessfullStartTransport"})
-    public void testSuccessfulStartTransport() {
+    public void testSuccessfullStartTransport() {
         try {
-            transportManager.startTransport("dummyId");
+            CustomCarbonTransport carbonTransport = new CustomCarbonTransport("dummyTransport");
+            transportManager.registerTransport(carbonTransport);
+            transportManager.startTransport("dummyTransport");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(false);
         }
@@ -63,19 +66,9 @@ public class TransportManagerTest {
     }
 
     @Test(dependsOnMethods = {"testSuccessfullStartTransport"})
-    public void testUnsuccessfulStopTransport() {
-        try {
-            transportManager.stopTransport("wrongId");
-        } catch (IllegalArgumentException e) {
-            String exceptionMessage = "wrongId not found";
-            Assert.assertEquals(exceptionMessage, e.getMessage());
-        }
-    }
-
-    @Test(dependsOnMethods = {"testUnsuccessfullStopTransport"})
     public void testSuccessfulStopTransport() {
         try {
-            transportManager.stopTransport("dummyId");
+            transportManager.stopTransport("dummyTransport");
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(false);
         }
@@ -83,37 +76,52 @@ public class TransportManagerTest {
     }
 
     @Test(dependsOnMethods = {"testSuccessfullStopTransport"})
+    public void testUnsuccessfulStopTransport() {
+        try {
+            transportManager.stopTransport("wrongId");
+        } catch (IllegalArgumentException e) {
+            String exceptionMessage = "wrongId not found";
+            Assert.assertEquals(exceptionMessage, e.getMessage());
+        }
+        Assert.assertTrue(true);
+    }
+
+    @Test(dependsOnMethods = {"testUnsuccessfullStopTransport"})
     public void testUnregisterTransport() {
         try {
+            CustomCarbonTransport carbonTransport = new CustomCarbonTransport("dummyTransport");
             transportManager.unregisterTransport(carbonTransport);
             transportManager.stopTransport(carbonTransport.getId());
         } catch (IllegalArgumentException e) {
-            String exceptionMessage = "dummyId not found";
+            String exceptionMessage = "dummyTransport not found";
             Assert.assertEquals(exceptionMessage, e.getMessage());
         }
     }
 
     @Test(dependsOnMethods = {"testUnregisterTransport"})
     public void testUnsuccessfulBeginMaintenance() {
+        CustomCarbonTransport carbonTransport = new CustomCarbonTransport("dummyTransport");
         try {
-            transportManager.registerTransport(carbonTransport2);
+            transportManager.registerTransport(carbonTransport);
             transportManager.beginMaintenance();
         } catch (IllegalStateException e) {
-            String exceptionMessage = "Cannot put transport dummyId2 into maintenance. Current state: UNINITIALIZED";
+            String exceptionMessage =
+                    "Cannot put transport dummyTransport into maintenance. Current state: UNINITIALIZED";
+            transportManager.unregisterTransport(carbonTransport);
             Assert.assertEquals(exceptionMessage, e.getMessage());
         }
     }
 
     @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
     public void testSuccessfulBeginMaintenance() {
+        CustomCarbonTransport carbonTransport = new CustomCarbonTransport("dummyTransport");
         try {
-            transportManager.registerTransport(carbonTransport2);
-            transportManager.startTransport(carbonTransport2.getId());
+            transportManager.registerTransport(carbonTransport);
+            transportManager.startTransport(carbonTransport.getId());
             transportManager.beginMaintenance();
         } catch (IllegalStateException e) {
             Assert.assertTrue(false);
         }
         Assert.assertTrue(true);
     }
-
 }
