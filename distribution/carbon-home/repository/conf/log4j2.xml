@@ -17,15 +17,16 @@
 
 <Configuration>
     <Appenders>
-        <File name="CARBON_LOGFILE" fileName="repository/logs/wso2carbon.log">
-            <PatternLayout pattern="TID: [%d] %5p {%c} - %m {%c}%n"/>
+        <File name="CARBON_LOGFILE" fileName="${sys:carbon.home}/repository/logs/wso2carbon.log">
+            <PatternLayout pattern="[%d] %5p {%c} - %m%ex%n"/>
         </File>
         <Console name="CARBON_CONSOLE" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d] %5p {%c} - %m%n"/>
+            <PatternLayout pattern="[%d] %5p {%c} - %m%ex%n"/>
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="org.eclipse.equinox" level="off"/>
+        <!--setting fatal level equinox logs to log only the minimum information-->
+        <Logger name="org.eclipse.equinox" level="fatal"/>
         <Root level="info">
             <AppenderRef ref="CARBON_CONSOLE"/>
             <AppenderRef ref="CARBON_LOGFILE"/>
