@@ -20,7 +20,7 @@ Installing  WSO2 Carbon Kernel ${carbon.version}
 
 Hardware Requirements
 -------------------
-1. Minimum memory - 512GB
+1. Minimum memory - 512MB
 2. Processor      - Pentium 800MHz or equivalent at minimum
 
 Software Requirements
