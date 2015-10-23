@@ -15,35 +15,47 @@
  */
 package org.wso2.carbon.launcher.bootstrap.logging;
 
+import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Logger class correspond to bootstrap logging.
+ *
+ * @since 5.0.0
  */
 public class BootstrapLogger extends Logger {
-    private static Logger bootstrapLogger = new BootstrapLogger(null, null);
-
     /**
      * Protected method to construct a logger for a named subsystem.
      * The logger will be initially configured with a null Level
      * and with useParentHandlers true.
      *
-     * @param resourceBundleName name of ResourceBundle to be used for localizing
-     *                           messages for this logger.  May be null if none
-     *                           of the messages require localization.
-     * @param name               A name for the logger.  This should
-     *                           be a dot-separated name and should normally
-     *                           be based on the package name or class name
-     *                           of the subsystem, such as java.net
-     *                           or javax.swing.  It may be null for anonymous Loggers.
+     * @param name A name for the logger.  This should
+     *             be a dot-separated name and should normally
+     *             be based on the package name or class name
+     *             of the subsystem, such as java.net
+     *             or javax.swing.  It may be null for anonymous Loggers.
      * @throws java.util.MissingResourceException if the ResourceBundleName is non-null and
      *                                            no corresponding resource can be found.
      */
-    protected BootstrapLogger(String name, String resourceBundleName) {
-        super(name, resourceBundleName);
+    protected BootstrapLogger(String name) {
+        //Parsing null as resource Bundle as none of the messages require localization.
+        super(name, null);
     }
 
-    public static Logger getBootstrapLogger() {
-        return bootstrapLogger;
+    /**
+     * Adding log handlers to bootstrap logger.
+     *
+     * @return Carbon logger
+     */
+    public static Logger getCarbonLogger(String name) {
+        Logger logger = new BootstrapLogger(name);
+        try {
+            logger.addHandler(FileLogHandler.getInstance());
+            logger.addHandler(ConsoleLogHandler.getInstance());
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error while adding handler to bootstrap logger");
+        }
+        return logger;
     }
 }

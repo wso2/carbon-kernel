@@ -19,18 +19,20 @@ import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 
 /**
  * An event from the CarbonServer.
+ *
+ * @since 5.0.0
  */
 public class CarbonServerEvent {
 
     /**
-     * The CarbonServer is in the process of starting
+     * The CarbonServer is in the process of starting.
      * <p>
      * This event is fired just before the CarbonServer launches the OSGi framework.
      */
     public static final int STARTING = 0x00000001;
 
     /**
-     * The CarbonServer is in the process of stopping
+     * The CarbonServer is in the process of stopping.
      * <p>
      * This event is fired just after the CarbonServer stops the OSGi framework.
      */
@@ -44,9 +46,15 @@ public class CarbonServerEvent {
     /**
      * Carbon launch configuration object.
      */
-    private final CarbonLaunchConfig<String, String> config;
+    private final CarbonLaunchConfig config;
 
-    public CarbonServerEvent(int type, CarbonLaunchConfig<String, String> config) {
+    /**
+     * Constructor.
+     *
+     * @param type   event type
+     * @param config Carbon Launch Configuration
+     */
+    public CarbonServerEvent(int type, CarbonLaunchConfig config) {
         this.type = type;
         this.config = config;
     }
@@ -65,7 +73,7 @@ public class CarbonServerEvent {
      *
      * @return config
      */
-    public CarbonLaunchConfig<String, String> getConfig() {
+    public CarbonLaunchConfig getConfig() {
         return config;
     }
 }
