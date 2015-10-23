@@ -64,7 +64,6 @@ public class TransportManagerTest {
     @Test(dependsOnMethods = {"testSuccessfulStartTransport"})
     public void testSuccessfulStopTransport() {
         transportManager.stopTransport("dummyTransport");
-        Assert.assertTrue(true);
     }
 
     @Test(dependsOnMethods = {"testSuccessfulStopTransport"})
@@ -75,7 +74,6 @@ public class TransportManagerTest {
             String exceptionMessage = "wrongId not found";
             Assert.assertEquals(exceptionMessage, e.getMessage());
         }
-        Assert.assertTrue(true);
     }
 
     @Test(dependsOnMethods = {"testUnsuccessfulStopTransport"})
@@ -110,6 +108,5 @@ public class TransportManagerTest {
         transportManager.registerTransport(carbonTransport);
         transportManager.startTransport(carbonTransport.getId());
         transportManager.beginMaintenance();
-        Assert.assertTrue(true);
     }
 }
