@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class tests the functionality of org.wso2.carbon.kernel.internal.startupcoordinator.MultiCounterTest.
+ * This class tests the functionality of org.wso2.carbon.kernel.internal.startupcoordinator.MultiCounter.
  */
 public class MultiCounterTest {
 
