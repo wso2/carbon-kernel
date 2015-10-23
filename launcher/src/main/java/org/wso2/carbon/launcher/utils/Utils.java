@@ -18,10 +18,15 @@ package org.wso2.carbon.launcher.utils;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -92,12 +97,12 @@ public class Utils {
         }
     }
 
-    public static String[] tokenize(String list, String delim) {
+    public static String[] tokenize(String list, String delimiter) {
         if (checkForNullOrEmpty(list)) {
             return new String[0];
         }
         ArrayList<String> tokenList = new ArrayList<String>();
-        StringTokenizer stringTokenizer = new StringTokenizer(list, delim);
+        StringTokenizer stringTokenizer = new StringTokenizer(list, delimiter);
         while (stringTokenizer.hasMoreElements()) {
             String token = stringTokenizer.nextToken().trim();
             if (!checkForNullOrEmpty(token)) {
@@ -105,5 +110,20 @@ public class Utils {
             }
         }
         return tokenList.toArray(new String[tokenList.size()]);
+    }
+
+    /**
+     * Returns a {@code List} of child file path elements of the specified directory
+     *
+     * @param directory the directory whose child elements are to be returned
+     * @return a {@link List} of {@link Path} instances of the child elements of the specified directory
+     * @throws IOException if an I/O error occurs
+     */
+    public static List<Path> listFiles(Path directory) throws IOException {
+        List<Path> files = new ArrayList<>();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
+            directoryStream.forEach(files::add);
+        }
+        return files;
     }
 }
