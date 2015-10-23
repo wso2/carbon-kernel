@@ -50,7 +50,7 @@ public class XMLBasedConfigProviderTest extends BaseTest {
 
         Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
         Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");
-        Assert.assertEquals(carbonConfiguration.getVersion(), "5.0.0-SNAPSHOT");
+        Assert.assertEquals(carbonConfiguration.getVersion(), "1.2.3");
         Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0);
 
         DeploymentConfig deploymentConfig = carbonConfiguration.getDeploymentConfig();
