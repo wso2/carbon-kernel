@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.transports.transporter.CustomCarbonTransport;
 
 /**
- * Transport Manager test class.
+ * Unit tests class for org.wso2.carbon.kernel.transports.TransportManager.
  */
 public class TransportManagerTest {
 
