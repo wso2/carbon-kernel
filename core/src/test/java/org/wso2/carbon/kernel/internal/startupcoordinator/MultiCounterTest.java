@@ -22,6 +22,9 @@ import org.testng.annotations.Test;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This class tests the functionality of org.wso2.carbon.kernel.internal.startupcoordinator.MultiCounterTest.
+ */
 public class MultiCounterTest {
 
     private MultiCounter<String> multiCounter;
@@ -33,7 +36,7 @@ public class MultiCounterTest {
         multiCounter = new MultiCounter<>();
         Double randomNumber = Math.random() % 100;
         randomInt = randomNumber.intValue() + 100;
-        keySet = new HashSet<String>();
+        keySet = new HashSet<>();
         String key;
 
         for (int i = 0; i < randomInt; i++) {
