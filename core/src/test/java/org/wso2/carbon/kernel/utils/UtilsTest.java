@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class tests the functionality of org.wso2.carbon.kernel.utils.Utils class.
+ */
 public class UtilsTest {
 
     private static void setEnvironmentalVariables(Map<String, String> newenv) throws Exception {
