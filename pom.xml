@@ -699,6 +699,11 @@
                 <artifactId>org.apache.felix.scr</artifactId>
                 <version>${apache.felix.scr.version}</version>
             </dependency>
+            <dependency>
+                <groupId>commons-io.wso2</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -850,5 +855,6 @@
         <plexus.archiver.version>1.2</plexus.archiver.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
+        <commons.io.version>2.4.0.wso2v1</commons.io.version>
     </properties>
 </project>

@@ -65,7 +65,6 @@
         <dependency>
             <groupId>commons-io.wso2</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4.0.wso2v1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
