@@ -24,7 +24,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.transports.CarbonTransport;
+import org.wso2.carbon.kernel.transports.CarbonTransport;
 
 import java.nio.file.Paths;
 import java.util.Dictionary;

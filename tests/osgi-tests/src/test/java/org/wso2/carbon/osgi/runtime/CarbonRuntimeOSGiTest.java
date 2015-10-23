@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
-import org.wso2.carbon.internal.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 import org.wso2.carbon.osgi.util.Utils;
 
 import java.io.File;
