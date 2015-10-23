@@ -25,6 +25,9 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentConfig;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
 
+/**
+ * This class tests the functionality of org.wso2.carbon.kernel.internal.kernel.config.XMLBasedConfigProvider class.
+ */
 public class XMLBasedConfigProviderTest extends BaseTest {
 
     private XMLBasedConfigProvider xmlBasedConfigProvider;
