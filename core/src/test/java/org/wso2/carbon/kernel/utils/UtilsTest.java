@@ -1,3 +1,18 @@
+/*
+ *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.wso2.carbon.kernel.utils;
 
 import org.testng.Assert;
@@ -12,7 +27,7 @@ import java.util.Map;
 
 public class UtilsTest {
 
-    private static void set(Map<String, String> newenv) {
+    private static void setEnvironmentalVariables(Map<String, String> newenv) throws Exception {
         try {
             Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
             Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
@@ -25,28 +40,23 @@ public class UtilsTest {
             Map<String, String> cienv = (Map<String, String>) theCaseInsensitiveEnvironmentField.get(null);
             cienv.putAll(newenv);
         } catch (NoSuchFieldException e) {
-            try {
-                Class[] classes = Collections.class.getDeclaredClasses();
-                Map<String, String> env = System.getenv();
-                for (Class cl : classes) {
-                    if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
-                        Field field = cl.getDeclaredField("m");
-                        field.setAccessible(true);
-                        Object obj = field.get(env);
-                        Map<String, String> map = (Map<String, String>) obj;
-                        map.clear();
-                        map.putAll(newenv);
-                    }
+            Class[] classes = Collections.class.getDeclaredClasses();
+            Map<String, String> env = System.getenv();
+            for (Class cl : classes) {
+                if ("java.util.Collections$UnmodifiableMap".equals(cl.getName())) {
+                    Field field = cl.getDeclaredField("m");
+                    field.setAccessible(true);
+                    Object obj = field.get(env);
+                    Map<String, String> map = (Map<String, String>) obj;
+                    map.clear();
+                    map.putAll(newenv);
                 }
-            } catch (Exception e2) {
-                e2.printStackTrace();
             }
-        } catch (Exception e1) {
-            e1.printStackTrace();
         }
     }
 
-    @Test public void testGetCarbonConfigHomePathNonNullSystemProperty() throws Exception {
+    @Test
+    public void testGetCarbonConfigHomePathNonNullSystemProperty() throws Exception {
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Boolean needToClearCarbonRepoDirPathAtTheEnd = false;
 
@@ -78,7 +88,7 @@ public class UtilsTest {
 
         Map<String, String> backup = System.getenv();
 
-        set(envMap);
+        setEnvironmentalVariables(envMap);
 
         Assert.assertEquals(Utils.getCarbonConfigHome(), Paths.get("test-env/conf"));
 
@@ -86,11 +96,12 @@ public class UtilsTest {
             System.setProperty(Constants.CARBON_REPOSITORY, carbonRepoDirPath);
         }
 
-        set(backup);
+        setEnvironmentalVariables(backup);
 
     }
 
-    @Test public void testGetCarbonConfigHomePathNullSystemPropertyScenarioTwo() throws Exception {
+    @Test
+    public void testGetCarbonConfigHomePathNullSystemPropertyScenarioTwo() throws Exception {
         String backupCarbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Map<String, String> backupCarbonRepoPathEnv = System.getenv();
 
@@ -99,7 +110,7 @@ public class UtilsTest {
         }
 
         if (System.getenv(Constants.CARBON_REPOSITORY_PATH_ENV) != null) {
-            set(new HashMap<>());
+            setEnvironmentalVariables(new HashMap<>());
         }
 
         String backupCarbonHome = System.getProperty(Constants.CARBON_HOME);
@@ -115,14 +126,15 @@ public class UtilsTest {
             System.setProperty(Constants.CARBON_REPOSITORY, backupCarbonRepoDirPath);
         }
 
-        set(backupCarbonRepoPathEnv);
+        setEnvironmentalVariables(backupCarbonRepoPathEnv);
 
         if (backupCarbonHome == null) {
             System.clearProperty(Constants.CARBON_HOME);
         }
     }
 
-    @Test public void testGetCarbonHome() throws Exception {
+    @Test
+    public void testGetCarbonHome() throws Exception {
 
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
         Boolean needToClearCarbonHomeAtTheEnd = false;
@@ -139,7 +151,7 @@ public class UtilsTest {
 
         Map<String, String> backup = System.getenv();
 
-        set(envMap);
+        setEnvironmentalVariables(envMap);
 
         System.clearProperty(Constants.CARBON_HOME);
         Assert.assertEquals(Utils.getCarbonHome(), Paths.get("test-env"));
@@ -149,6 +161,6 @@ public class UtilsTest {
         } else {
             System.setProperty(Constants.CARBON_HOME, carbonHome);
         }
-        set(backup);
+        setEnvironmentalVariables(backup);
     }
 }
