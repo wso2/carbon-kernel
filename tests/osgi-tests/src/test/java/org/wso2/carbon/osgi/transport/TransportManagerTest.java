@@ -55,23 +55,15 @@ public class TransportManagerTest {
 
     @Test(dependsOnMethods = {"testUnsuccessfulStartTransport"})
     public void testSuccessfulStartTransport() {
-        try {
-            CustomCarbonTransport carbonTransport = new CustomCarbonTransport("dummyTransport");
-            transportManager.registerTransport(carbonTransport);
-            transportManager.startTransport("dummyTransport");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(false);
-        }
+        CustomCarbonTransport carbonTransport = new CustomCarbonTransport("dummyTransport");
+        transportManager.registerTransport(carbonTransport);
+        transportManager.startTransport("dummyTransport");
         Assert.assertTrue(true);
     }
 
     @Test(dependsOnMethods = {"testSuccessfulStartTransport"})
     public void testSuccessfulStopTransport() {
-        try {
-            transportManager.stopTransport("dummyTransport");
-        } catch (IllegalArgumentException e) {
-            Assert.assertTrue(false);
-        }
+        transportManager.stopTransport("dummyTransport");
         Assert.assertTrue(true);
     }
 
@@ -115,13 +107,9 @@ public class TransportManagerTest {
     @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
     public void testSuccessfulBeginMaintenance() {
         CustomCarbonTransport carbonTransport = new CustomCarbonTransport("dummyTransport");
-        try {
-            transportManager.registerTransport(carbonTransport);
-            transportManager.startTransport(carbonTransport.getId());
-            transportManager.beginMaintenance();
-        } catch (IllegalStateException e) {
-            Assert.assertTrue(false);
-        }
+        transportManager.registerTransport(carbonTransport);
+        transportManager.startTransport(carbonTransport.getId());
+        transportManager.beginMaintenance();
         Assert.assertTrue(true);
     }
 }
