@@ -33,7 +33,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 
-
+/**
+ * This class tests the functionality of org.wso2.carbon.kernel.config.model.CarbonConfiguration.
+ */
 public class CarbonConfigurationTest extends BaseTest {
 
     private CarbonConfiguration carbonConfiguration;
