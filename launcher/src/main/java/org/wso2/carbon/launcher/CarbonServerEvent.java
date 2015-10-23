@@ -18,7 +18,7 @@ package org.wso2.carbon.launcher;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 
 /**
- * An event from the CarbonServer
+ * An event from the CarbonServer.
  *
  * @since 5.0.0
  */

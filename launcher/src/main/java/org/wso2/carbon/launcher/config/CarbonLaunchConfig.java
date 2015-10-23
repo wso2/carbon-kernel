@@ -152,6 +152,7 @@ public class CarbonLaunchConfig {
 
     /**
      * Get the value of carbonOSGiRepository.
+     *
      * @return {@link #carbonOSGiRepository}
      */
     public URL getCarbonOSGiRepository() {
@@ -160,6 +161,7 @@ public class CarbonLaunchConfig {
 
     /**
      * Get the value of carbonOSGiFramework.
+     *
      * @return {@link #carbonOSGiFramework}
      */
     public URL getCarbonOSGiFramework() {
@@ -168,7 +170,8 @@ public class CarbonLaunchConfig {
 
     /**
      * Get the value of osgiInstallArea.
-     * @return  {@link #osgiInstallArea}
+     *
+     * @return {@link #osgiInstallArea}
      */
     public URL getOSGiInstallArea() {
         return osgiInstallArea;
@@ -176,6 +179,7 @@ public class CarbonLaunchConfig {
 
     /**
      * Get the value of osgiConfigurationArea.
+     *
      * @return {@link #osgiConfigurationArea}
      */
     public URL getOSGiConfigurationArea() {
@@ -184,7 +188,8 @@ public class CarbonLaunchConfig {
 
     /**
      * Get the value of osgiInstanceArea.
-     * @return  {@link #osgiInstanceArea}
+     *
+     * @return {@link #osgiInstanceArea}
      */
     public URL getOSGiInstanceArea() {
         return osgiInstanceArea;
@@ -192,6 +197,7 @@ public class CarbonLaunchConfig {
 
     /**
      * Get the value of eclipseP2DataArea.
+     *
      * @return {@link #eclipseP2DataArea}
      */
     public URL getEclipseP2DataArea() {
@@ -207,7 +213,8 @@ public class CarbonLaunchConfig {
 
     /**
      * Get the value of carbon home.
-     * @return  {@link #carbonHome}
+     *
+     * @return {@link #carbonHome}
      */
     public String getCarbonHome() {
         return carbonHome;
@@ -230,6 +237,7 @@ public class CarbonLaunchConfig {
 
     /**
      * Loading launch properties from launch configuration..
+     *
      * @param is launch configuration input stream
      */
     private void loadLaunchConfiguration(InputStream is) {
@@ -284,10 +292,10 @@ public class CarbonLaunchConfig {
     /**
      * Resolve a file path against a parent path.
      *
-     * @param path file path to resolve
+     * @param path       file path to resolve
      * @param parentPath parent path for the file
-     * @param key property key
-     * @return  URL for file
+     * @param key        property key
+     * @return URL for file
      */
     private URL resolvePath(String path, String parentPath, String key) {
         URL url;
@@ -314,6 +322,7 @@ public class CarbonLaunchConfig {
 
     /**
      * Populating bundles read from the initialBundleList.
+     *
      * @param initialBundleList comma separated bundle list
      */
     private void populateInitialBundlesList(String initialBundleList) {
@@ -359,6 +368,7 @@ public class CarbonLaunchConfig {
 
     /**
      * Adding carbon server listeners.
+     *
      * @param serverListenersList comma separated server listeners
      */
     private void loadCarbonServerListeners(String serverListenersList) {
@@ -386,7 +396,6 @@ public class CarbonLaunchConfig {
     }
 
     /**
-     *
      * @return an unmodifiable view of the specified map
      */
     public Map<String, String> getProperties() {

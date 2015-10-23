@@ -70,7 +70,6 @@ public class Utils {
      * Read repository path from properties.
      *
      * @return repository location path
-     *
      */
     public static Path getRepositoryDirectory() {
         return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.REPOSITORY_DIR_PATH);
@@ -80,7 +79,6 @@ public class Utils {
      * Read launch configuration directory path from properties.
      *
      * @return launch configuration directory path
-     *
      */
     public static Path getLaunchConfigDirectory() {
         return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.LAUNCH_CONF_DIR_PATH);

@@ -220,7 +220,7 @@ public class CarbonServer {
     }
 
     /**
-     * Installs a bundle from the specified locations
+     * Installs a bundle from the specified locations.
      *
      * @param bundleContext bundle's execution context within the Framework
      * @throws BundleException
@@ -242,7 +242,7 @@ public class CarbonServer {
     }
 
     /**
-     * Check if framework is active
+     * Check if framework is active.
      *
      * @return true if framework is in active or starting state, false otherwise
      */
@@ -251,7 +251,7 @@ public class CarbonServer {
     }
 
     /**
-     * Notify Carbon server listeners about the given event
+     * Notify Carbon server listeners about the given event.
      *
      * @param event number to notify
      */
