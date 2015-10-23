@@ -18,27 +18,49 @@ package org.wso2.carbon.launcher.config;
 import java.net.URL;
 
 /**
- * TODO: class level comment
+ * Class for initial bundle that loads while starting the server.
+ *
+ * @since 5.0.0
  */
 public class CarbonInitialBundle {
     public final URL location;
     public final int level;
     public final boolean start;
 
+    /**
+     * Initialize bundle.
+     *
+     * @param location URL for the bundle
+     * @param level    bundle start level
+     * @param start    true if bundle need to start, false otherwise
+     */
     CarbonInitialBundle(URL location, int level, boolean start) {
         this.location = location;
         this.level = level;
         this.start = start;
     }
 
+    /**
+     * Get Bundle location.
+     *
+     * @return location URL
+     */
     public URL getLocation() {
         return location;
     }
 
+    /**
+     * Get bundle start level.
+     *
+     * @return bundle start level
+     */
     public int getLevel() {
         return level;
     }
 
+    /**
+     * @return true if bundle should start, false otherwise
+     */
     public boolean shouldStart() {
         return start;
     }

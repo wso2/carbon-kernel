@@ -22,6 +22,8 @@ package org.wso2.carbon.launcher;
  * <p>
  * To register a CarbonServerListener, add the fully qualified class name to carbon.server.listeners property in
  * launch.properties file. This property accepts a list of comma separated fully qualified class names.
+ *
+ * @since 5.0.0
  */
 public interface CarbonServerListener {
 

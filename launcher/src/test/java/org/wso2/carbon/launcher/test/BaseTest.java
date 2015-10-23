@@ -43,7 +43,6 @@ public class BaseTest {
         }
     }
 
-    //    private static final String LOGS = "logs" + File.separator + "test.logs";
     protected String testDir = "src" + File.separator + "test" + File.separator;
     protected String testResourceDir = testDir + "resources";
 

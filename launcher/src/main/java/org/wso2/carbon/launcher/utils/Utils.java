@@ -15,41 +15,40 @@
  */
 package org.wso2.carbon.launcher.utils;
 
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
-
 /**
- * Carbon launcher Utils
+ * Carbon launcher Utils.
+ *
+ * @since 5.0.0
  */
 public class Utils {
 
-    private static final Logger logger = BootstrapLogger.getBootstrapLogger();
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(Utils.class.toString());
 
     private static final String VAR_REGEXP = "\\$\\{[^}]*}";
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);
 
     /**
-     * Replace system property holders in the property values
-     * e.g Replace ${carbon.home} with value of the carbon.home system property
+     * Replace system property holders in the property values.
+     * e.g Replace ${carbon.home} with value of the carbon.home system property.
      *
      * @param value System variable value to be replaced
      * @return resolved system property value
      */
-    public static String substituteVars(String value) {
+    public static String initializeSystemProperties(String value) {
         String newValue = value;
-
         Matcher matcher = varPattern.matcher(value);
         while (matcher.find()) {
             String sysPropKey = value.substring(matcher.start() + 2, matcher.end() - 1);
@@ -67,40 +66,52 @@ public class Utils {
         return newValue;
     }
 
-    public static String getRepositoryConfDir() {
-        return Paths.get(System.getProperty(CARBON_HOME), Constants.REPOSITORY_CONF_DIR_PATH).toString();
+    /**
+     * Read repository path from properties.
+     *
+     * @return repository location path
+     *
+     */
+    public static Path getRepositoryDirectory() {
+        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.REPOSITORY_DIR_PATH);
     }
 
-    public static String getRepositoryDir() {
-        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.REPOSITORY_DIR_PATH).toString();
+    /**
+     * Read launch configuration directory path from properties.
+     *
+     * @return launch configuration directory path
+     *
+     */
+    public static Path getLaunchConfigDirectory() {
+        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.LAUNCH_CONF_DIR_PATH);
     }
 
-    public static String getLaunchConfigDir() {
-        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.LAUNCH_CONF_DIR_PATH).toString();
-    }
-
-    public static boolean checkForNullOrEmpty(String arg) {
+    /**
+     * Checks the string value is null or empty.
+     *
+     * @param arg string value to check for null
+     * @return true if value is null or false otherwise
+     */
+    public static boolean isNullOrEmpty(String arg) {
         return (arg == null || arg.length() == 0);
     }
 
-    public static URL getURLFromString(String arg) {
-        File file = new File(arg);
-        try {
-            return file.toURI().toURL();
-        } catch (MalformedURLException e) {
-            return null;
-        }
-    }
-
-    public static String[] tokenize(String list, String delim) {
-        if (checkForNullOrEmpty(list)) {
+    /**
+     * Tokenize a String with a given delimiter.
+     *
+     * @param list      String to be tokenize
+     * @param delimiter delimiter
+     * @return Array of tokens
+     */
+    public static String[] tokenize(String list, String delimiter) {
+        if (isNullOrEmpty(list)) {
             return new String[0];
         }
-        ArrayList<String> tokenList = new ArrayList<String>();
-        StringTokenizer stringTokenizer = new StringTokenizer(list, delim);
+        List<String> tokenList = new ArrayList<>();
+        StringTokenizer stringTokenizer = new StringTokenizer(list, delimiter);
         while (stringTokenizer.hasMoreElements()) {
             String token = stringTokenizer.nextToken().trim();
-            if (!checkForNullOrEmpty(token)) {
+            if (!isNullOrEmpty(token)) {
                 tokenList.add(token);
             }
         }

@@ -45,7 +45,7 @@ public class ConsoleLoggerTest {
 
     @Test
     public void testJavaUtilLogs() {
-        logger = BootstrapLogger.getBootstrapLogger();
+        logger = BootstrapLogger.getCarbonLogger(ConsoleLoggerTest.class.toString());
         logger.addHandler(javaUtilLogHandler);
         String sampleMessage = "Sample javaUtilLog message-01";
         LogRecord record = new LogRecord(Level.INFO, sampleMessage);
