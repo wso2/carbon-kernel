@@ -15,10 +15,13 @@
  */
 package org.wso2.carbon.internal.runtime;
 
-import org.wso2.carbon.runtime.RuntimeState;
-import org.wso2.carbon.runtime.exception.RuntimeServiceException;
-import org.wso2.carbon.runtime.spi.Runtime;
+import org.wso2.carbon.kernel.runtime.RuntimeState;
+import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
+import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
+/**
+ * Implementation of Runtime interface to write test cases to RuntimeManager
+ */
 public class CustomRuntime implements Runtime {
     @Override
     public void init() throws RuntimeServiceException {

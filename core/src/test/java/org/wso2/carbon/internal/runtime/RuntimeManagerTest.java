@@ -20,18 +20,23 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.deployment.exception.DeploymentEngineException;
-import org.wso2.carbon.runtime.spi.Runtime;
+import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
+import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
 import java.util.List;
 
+/**
+ * Test class to test org.wso2.carbon.kernel.internal.runtime.RuntimeManager.
+ */
 public class RuntimeManagerTest {
 
     private RuntimeManager runtimeManager;
     private Runtime runtime;
+
     @BeforeTest
     public void setup() throws DeploymentEngineException, DeployerRegistrationException {
         runtimeManager = new RuntimeManager();
-        runtime =  new CustomRuntime();
+        runtime = new CustomRuntime();
         runtimeManager.registerRuntime(runtime);
     }
 
