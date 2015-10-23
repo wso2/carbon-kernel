@@ -47,6 +47,7 @@ public class CarbonLogger {
     private static class SimpleFileHandler extends StreamHandler {
 
         private SimpleFileHandler(File file) throws IOException {
+            this.setFormatter(new LoggingFormatter());
             open(file, true);
         }
 

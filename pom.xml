@@ -372,11 +372,11 @@
                 <artifactId>org.eclipse.equinox.p2.publisher</artifactId>
                 <version>${equinox.p2.publisher.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.eclipse.osgi</groupId>
-                <artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>
-                <version>${equinox.p2.transport.ecf.version}</version>
-            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.eclipse.osgi</groupId>-->
+                <!--<artifactId>org.eclipse.equinox.p2.transport.ecf</artifactId>-->
+                <!--<version>${equinox.p2.transport.ecf.version}</version>-->
+            <!--</dependency>-->
             <dependency>
                 <groupId>org.eclipse.equinox</groupId>
                 <artifactId>org.eclipse.equinox.p2.director</artifactId>
