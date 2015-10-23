@@ -13,12 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.launcher.utils;
+package org.wso2.carbon.launcher;
 
 import java.nio.file.Paths;
 
 /**
  * Carbon constants.
+ *
+ * @since 5.0.0
  */
 public class Constants {
 
@@ -44,15 +46,16 @@ public class Constants {
     public static final String REPOSITORY_CONF_DIR_PATH = Paths.get(REPOSITORY_DIR_PATH, "conf").toString();
     public static final String LAUNCH_CONF_DIR_PATH = Paths.get(REPOSITORY_CONF_DIR_PATH, "osgi").toString();
 
-    public static final int DEFAULT_BUNDLE_START_LEVEL = 4;
-
     public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
 
-    public static final String LOG_LEVEL_OFF = "OFF";
-    public static final String LOG_LEVEL_ERROR = "ERROR";
+    //Constants relevant to log level.
     public static final String LOG_LEVEL_WARN = "WARN";
-    public static final String LOG_LEVEL_INFO = "INFO";
-    public static final String LOG_LEVEL_DEBUG = "DEBUG";
+
+    /**
+     * Prevent instantiating the Constants class.
+     */
+    private Constants() {
+    }
 
     /**
      * Carbon server process exit codes.

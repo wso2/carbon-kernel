@@ -23,6 +23,8 @@ import java.util.logging.LogRecord;
 
 /**
  * Logging formatter of java.util.logging correspond to log4j logging pattern.
+ *
+ * @since 5.0.0
  */
 public class LoggingFormatter extends Formatter {
     // Create a DateFormat to format the logger timestamp.
@@ -35,7 +37,6 @@ public class LoggingFormatter extends Formatter {
      * @return formatted log message
      */
     public String format(LogRecord record) {
-        // TODO - add tenant id and other required logging elements to match with log4j.properties configuration
         StringBuilder builder = new StringBuilder(1000);
         builder.append("[").append(df.format(new Date(record.getMillis()))).append("] ");
         builder.append(record.getLevel());
