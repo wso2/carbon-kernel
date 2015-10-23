@@ -4,13 +4,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.Constants;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class UtilsTest {
 
@@ -62,13 +60,6 @@ public class UtilsTest {
         }
     }
 
-    public void test() throws IOException {
-        ProcessBuilder pb = new ProcessBuilder();
-
-        Process p = pb.start();
-
-
-    }
     @Test public void testGetCarbonConfigHomePathNonNullSystemProperty() throws Exception {
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Boolean needToClearCarbonRepoDirPathAtTheEnd = false;
