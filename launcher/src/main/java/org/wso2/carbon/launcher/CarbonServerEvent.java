@@ -50,8 +50,9 @@ public class CarbonServerEvent {
 
     /**
      * Constructor.
-     * @param type  event type
-     * @param config  Carbon Launch Configuration
+     *
+     * @param type   event type
+     * @param config Carbon Launch Configuration
      */
     public CarbonServerEvent(int type, CarbonLaunchConfig config) {
         this.type = type;
