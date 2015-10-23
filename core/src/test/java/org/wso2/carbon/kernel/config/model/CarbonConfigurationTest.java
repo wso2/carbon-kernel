@@ -73,7 +73,7 @@ public class CarbonConfigurationTest extends BaseTest {
 
     @Test
     public void testGetVersion() throws Exception {
-        Assert.assertEquals(carbonConfiguration.getVersion(), "5.0.0-SNAPSHOT");
+        Assert.assertEquals(carbonConfiguration.getVersion(), "1.2.3");
 
     }
 
