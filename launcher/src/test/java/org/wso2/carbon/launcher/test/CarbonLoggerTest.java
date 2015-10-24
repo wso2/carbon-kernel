@@ -32,6 +32,9 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
 
+/**
+ * CarbonLoggerTest class which extends BaseTest class for launcher tests.
+ */
 public class CarbonLoggerTest extends BaseTest {
     private static final String LOGS = "logs" + File.separator + "test.logs";
     protected String testDir = "src" + File.separator + "test" + File.separator;
@@ -48,7 +51,7 @@ public class CarbonLoggerTest extends BaseTest {
 
     @BeforeSuite
     public void doBeforeEachTest() throws IOException {
-        logger = BootstrapLogger.getBootstrapLogger();
+        logger = BootstrapLogger.getCarbonLogger(CarbonLoggerTest.class.toString());
         carbonLogHandler = new CarbonLogHandler(new File(getTestResourceFile(LOGS).getAbsolutePath()));
         carbonLogHandler.setFormatter(new LoggingFormatter());
         logger.addHandler(carbonLogHandler);

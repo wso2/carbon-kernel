@@ -16,7 +16,7 @@
 package org.wso2.carbon.kernel.config;
 
 
-import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
 /**
  * CarbonConfigProvider allows CarbonRuntime implementations to retrieve a CarbonConfiguration instance.
@@ -28,10 +28,11 @@ import org.wso2.carbon.internal.kernel.config.model.CarbonConfiguration;
 public interface CarbonConfigProvider {
 
     /**
-     * Returns a populated CarbonConfiguration instance
+     * Returns a populated CarbonConfiguration instance.
      *
      * @return a instance of the CarbonConfiguration
      */
     public CarbonConfiguration getCarbonConfiguration();
 
+    //TODO move the model to this package
 }

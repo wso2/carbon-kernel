@@ -19,6 +19,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.utils.Utils;
 
+/**
+ * Launcher Utils test class.
+ */
+
 @Test(groups = "utils")
 public class UtilsTest {
 
@@ -27,7 +31,7 @@ public class UtilsTest {
         String inputStr = "file:${profile}";
         String expectedOutputStr = "file:default";
 
-        String outputStr = Utils.substituteVars(inputStr);
+        String outputStr = Utils.initializeSystemProperties(inputStr);
         Assert.assertEquals(outputStr, expectedOutputStr);
     }
 
@@ -37,7 +41,7 @@ public class UtilsTest {
         String inputStr = "file:${carbon.home}/repository/components/${profile}";
         String expectedOutputStr = "file:/home/user/wso2carbon-kernel-5.0.0/repository/components/default";
 
-        String outputStr = Utils.substituteVars(inputStr);
+        String outputStr = Utils.initializeSystemProperties(inputStr);
         Assert.assertEquals(outputStr, expectedOutputStr);
     }
 
@@ -46,7 +50,7 @@ public class UtilsTest {
         String inputStr = "${profile}";
         String expectedOutputStr = "default";
 
-        String outputStr = Utils.substituteVars(inputStr);
+        String outputStr = Utils.initializeSystemProperties(inputStr);
         Assert.assertEquals(outputStr, expectedOutputStr);
     }
 

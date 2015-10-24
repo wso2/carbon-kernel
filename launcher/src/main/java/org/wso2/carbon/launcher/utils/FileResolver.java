@@ -20,14 +20,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * TODO: class level comment
+ * Resolving absolute path for a given file.
+ *
+ * @since 5.0.0
  */
 public class FileResolver {
 
     /**
-     * Request: file:org.eclipse.osgi_3.9.1.v20130814-1242.jar
+     * Request: file:org.eclipse.osgi_3.9.1.v20130814-1242.jar.
      * Response:
-     * file:/user/wso2carbon-kernel-5.0.0/repository/components/plugins/org.eclipse.osgi_3.9.1.v20130814-1242.jar
+     * file:/user/wso2carbon-kernel-5.0.0/repository/components/plugins/org.eclipse.osgi_3.9.1.v20130814-1242.jar.
      *
      * @param path       path to resolve
      * @param parentPath parent path

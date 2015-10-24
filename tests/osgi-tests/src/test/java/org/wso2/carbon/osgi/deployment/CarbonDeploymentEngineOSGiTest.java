@@ -32,6 +32,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.inject.Inject;
 
+/**
+ * Carbon Deployment Engine OSGi Test case.
+ */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class CarbonDeploymentEngineOSGiTest {

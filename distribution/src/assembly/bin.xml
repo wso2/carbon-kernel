@@ -36,6 +36,7 @@
                 <exclude>**/*.properties</exclude>
                 <exclude>**/native/*</exclude>
                 <exclude>**/wso2carbon-version.txt</exclude>
+                <exclude>**/version.txt</exclude>
                 <exclude>**/carbon.xml</exclude>
                 <exclude>**/log4j2.xml</exclude>
                 <exclude>INSTALL.txt</exclude>
@@ -114,12 +115,23 @@
             <filtered>true</filtered>
         </file>
         <file>
+            <source>carbon-home/release-notes.html</source>
+            <outputDirectory></outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>carbon-home/repository/conf/carbon.xml</source>
             <outputDirectory>repository/conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
-
+        <file>
+            <source>carbon-home/bin/version.txt</source>
+            <outputDirectory>bin/</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
     </files>
 
     <dependencySets>

@@ -37,25 +37,26 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
-import static org.wso2.carbon.launcher.utils.Constants.CARBON_INITIAL_OSGI_BUNDLES;
-import static org.wso2.carbon.launcher.utils.Constants.CARBON_OSGI_FRAMEWORK;
-import static org.wso2.carbon.launcher.utils.Constants.CARBON_OSGI_REPOSITORY;
-import static org.wso2.carbon.launcher.utils.Constants.CARBON_SERVER_LISTENERS;
-import static org.wso2.carbon.launcher.utils.Constants.ECLIPSE_P2_DATA_AREA;
-import static org.wso2.carbon.launcher.utils.Constants.OSGI_CONFIG_AREA;
-import static org.wso2.carbon.launcher.utils.Constants.OSGI_INSTALL_AREA;
-import static org.wso2.carbon.launcher.utils.Constants.OSGI_INSTANCE_AREA;
+import static org.wso2.carbon.launcher.Constants.CARBON_HOME;
+import static org.wso2.carbon.launcher.Constants.CARBON_INITIAL_OSGI_BUNDLES;
+import static org.wso2.carbon.launcher.Constants.CARBON_OSGI_FRAMEWORK;
+import static org.wso2.carbon.launcher.Constants.CARBON_OSGI_REPOSITORY;
+import static org.wso2.carbon.launcher.Constants.CARBON_SERVER_LISTENERS;
+import static org.wso2.carbon.launcher.Constants.ECLIPSE_P2_DATA_AREA;
+import static org.wso2.carbon.launcher.Constants.OSGI_CONFIG_AREA;
+import static org.wso2.carbon.launcher.Constants.OSGI_INSTALL_AREA;
+import static org.wso2.carbon.launcher.Constants.OSGI_INSTANCE_AREA;
+
 
 /**
- * TODO: class level comment
+ * Loading properties from launch configuration (launch.properties) file
+ * and initialize carbon server listeners.
  *
- * @param <K> TODO
- * @param <V> TODO
+ * @since 5.0.0
  */
-public class CarbonLaunchConfig<K, V> {
+public class CarbonLaunchConfig {
 
-    private static final Logger logger = BootstrapLogger.getBootstrapLogger();
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.toString());
 
     private URL carbonOSGiRepository;
     private URL carbonOSGiFramework;
@@ -79,7 +80,6 @@ public class CarbonLaunchConfig<K, V> {
      */
     public CarbonLaunchConfig() {
         loadFromClasspath();
-
         if (logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
             for (Map.Entry entry : properties.entrySet()) {
@@ -97,11 +97,11 @@ public class CarbonLaunchConfig<K, V> {
      */
     public CarbonLaunchConfig(File launchPropFile) {
         try (FileInputStream fileInputStream = new FileInputStream(launchPropFile)) {
-            // First load all the default properties
+            // First load all the default properties.
             loadFromClasspath();
 
             // Then load all the other properties defined in the file.
-            loadInternal(fileInputStream);
+            loadLaunchConfiguration(fileInputStream);
 
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
@@ -129,11 +129,11 @@ public class CarbonLaunchConfig<K, V> {
      */
     public CarbonLaunchConfig(URL launchPropURL) {
         try {
-            // First load all the default properties
+            // First load all the default properties.
             loadFromClasspath();
 
             // Then load all the other properties defined in the file.
-            loadInternal(launchPropURL.openStream());
+            loadLaunchConfiguration(launchPropURL.openStream());
 
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
@@ -150,56 +150,105 @@ public class CarbonLaunchConfig<K, V> {
         }
     }
 
+    /**
+     * Get the value of carbonOSGiRepository.
+     *
+     * @return {@link #carbonOSGiRepository}
+     */
     public URL getCarbonOSGiRepository() {
         return carbonOSGiRepository;
     }
 
+    /**
+     * Get the value of carbonOSGiFramework.
+     *
+     * @return {@link #carbonOSGiFramework}
+     */
     public URL getCarbonOSGiFramework() {
         return carbonOSGiFramework;
     }
 
+    /**
+     * Get the value of osgiInstallArea.
+     *
+     * @return {@link #osgiInstallArea}
+     */
     public URL getOSGiInstallArea() {
         return osgiInstallArea;
     }
 
+    /**
+     * Get the value of osgiConfigurationArea.
+     *
+     * @return {@link #osgiConfigurationArea}
+     */
     public URL getOSGiConfigurationArea() {
         return osgiConfigurationArea;
     }
 
+    /**
+     * Get the value of osgiInstanceArea.
+     *
+     * @return {@link #osgiInstanceArea}
+     */
     public URL getOSGiInstanceArea() {
         return osgiInstanceArea;
     }
 
+    /**
+     * Get the value of eclipseP2DataArea.
+     *
+     * @return {@link #eclipseP2DataArea}
+     */
     public URL getEclipseP2DataArea() {
         return eclipseP2DataArea;
     }
 
+    /**
+     * @return initial bundle list
+     */
     public List<CarbonInitialBundle> getInitialBundles() {
         return Collections.unmodifiableList(initialBundles);
     }
 
+    /**
+     * Get the value of carbon home.
+     *
+     * @return {@link #carbonHome}
+     */
     public String getCarbonHome() {
         return carbonHome;
     }
 
+    /**
+     * @return carbon server listeners
+     */
     public List<CarbonServerListener> getCarbonServerListeners() {
         return Collections.unmodifiableList(carbonServerListeners);
     }
 
+    /**
+     * Load launch configuration from file.
+     */
     private void loadFromClasspath() {
         InputStream stream = CarbonLaunchConfig.class.getClassLoader().getResourceAsStream("launch.properties");
-        loadInternal(stream);
+        loadLaunchConfiguration(stream);
     }
 
-    private void loadInternal(InputStream is) {
+    /**
+     * Loading launch properties from launch configuration..
+     *
+     * @param is launch configuration input stream
+     */
+    private void loadLaunchConfiguration(InputStream is) {
         try {
             Properties launchProps = new Properties();
             launchProps.load(is);
 
             // Load the Map from the properties object.
-            // Replace variables with proper value. eg. ${carbon.home}
+            // Replace variables with proper value. eg. ${carbon.home}.
             for (Map.Entry entry : launchProps.entrySet()) {
-                properties.put((String) entry.getKey(), Utils.substituteVars((String) entry.getValue()));
+                properties.put((String) entry.getKey(), Utils.initializeSystemProperties((String) entry.getValue()));
             }
 
         } catch (IOException e) {
@@ -216,6 +265,9 @@ public class CarbonLaunchConfig<K, V> {
         }
     }
 
+    /**
+     * Resolving and initializing properties.
+     */
     private void initializeProperties() {
         carbonHome = System.getProperty(CARBON_HOME);
 
@@ -240,15 +292,15 @@ public class CarbonLaunchConfig<K, V> {
     /**
      * Resolve a file path against a parent path.
      *
-     * @param path
-     * @param parentPath
-     * @param key
-     * @return
+     * @param path       file path to resolve
+     * @param parentPath parent path for the file
+     * @param key        property key
+     * @return URL for file
      */
     private URL resolvePath(String path, String parentPath, String key) {
         URL url;
 
-        if (Utils.checkForNullOrEmpty(path)) {
+        if (Utils.isNullOrEmpty(path)) {
             String errorMsg = "The property " + key + " must not be null or empty.";
             logger.log(Level.SEVERE, errorMsg);
             throw new RuntimeException("The property " + key + " must not be null or empty.");
@@ -268,19 +320,24 @@ public class CarbonLaunchConfig<K, V> {
         return url;
     }
 
+    /**
+     * Populating bundles read from the initialBundleList.
+     *
+     * @param initialBundleList comma separated bundle list
+     */
     private void populateInitialBundlesList(String initialBundleList) {
-        if (Utils.checkForNullOrEmpty(initialBundleList)) {
+        if (Utils.isNullOrEmpty(initialBundleList)) {
             return;
         }
 
         String[] strArray = Utils.tokenize(initialBundleList, ",");
 
         // Pattern to extract information from a initial bundle entry.
-        // e.g. file:plugins/org.eclipse.equinox.console_1.0.100.v20130429-0953.jar@2:true
+        // e.g. file:plugins/org.eclipse.equinox.console_1.0.100.v20130429-0953.jar@2:true.
         Pattern bundleEntryPattern = Pattern.compile("(file):(.*)@(.*):(.*)");
         for (String bundleEntry : strArray) {
 
-            if (Utils.checkForNullOrEmpty(bundleEntry)) {
+            if (Utils.isNullOrEmpty(bundleEntry)) {
                 continue;
             }
 
@@ -309,14 +366,19 @@ public class CarbonLaunchConfig<K, V> {
         }
     }
 
+    /**
+     * Adding carbon server listeners.
+     *
+     * @param serverListenersList comma separated server listeners
+     */
     private void loadCarbonServerListeners(String serverListenersList) {
-        if (Utils.checkForNullOrEmpty(serverListenersList)) {
+        if (Utils.isNullOrEmpty(serverListenersList)) {
             return;
         }
 
         String[] classNameArray = Utils.tokenize(serverListenersList, ",");
         for (String className : classNameArray) {
-            if (Utils.checkForNullOrEmpty(className)) {
+            if (Utils.isNullOrEmpty(className)) {
                 continue;
             }
 
@@ -333,6 +395,9 @@ public class CarbonLaunchConfig<K, V> {
         }
     }
 
+    /**
+     * @return an unmodifiable view of the specified map
+     */
     public Map<String, String> getProperties() {
         return Collections.unmodifiableMap(properties);
     }
