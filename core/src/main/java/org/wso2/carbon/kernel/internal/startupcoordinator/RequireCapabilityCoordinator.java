@@ -30,8 +30,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.startupcoordinator.RequireCapabilityListener;
-//import org.wso2.carbon.startupcoordinator.DynamicCapabilityListener;
+import org.wso2.carbon.kernel.startupcoordinator.RequiredCapabilityListener;
+//import org.wso2.carbon.kernel.startupcoordinator.DynamicCapabilityListener;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -67,8 +67,8 @@ public class RequireCapabilityCoordinator {
     private static final String PROVIDE_CAPABILITY = "Provide-Capability";
     private static final String REQUIRED_SERVICE_INTERFACE = "required-service-interface";
 
-    private AtomicInteger expectedRCListenerCount = new AtomicInteger(0);
-    private Map<String, RequireCapabilityListener> listenerMap = new ConcurrentHashMap<>();
+    private AtomicInteger requiredCapabilityListenerCount = new AtomicInteger(0);
+    private Map<String, RequiredCapabilityListener> listenerMap = new ConcurrentHashMap<>();
     private MultiCounter<String> capabilityCounter = new MultiCounter<>();
     private BundleContext bundleContext;
 
@@ -96,7 +96,7 @@ public class RequireCapabilityCoordinator {
                     .forEach(new ProvideCapabilityHeaderConsumer<>());
 
             // 2) Check whether there at least one expect RequireCapabilityLister. IF there is none, then simply return.
-            if (expectedRCListenerCount.get() == 0) {
+            if (requiredCapabilityListenerCount.get() == 0) {
                 // Clear all the populated maps.
                 capabilityCounter = null;
                 listenerMap = null;
@@ -142,12 +142,12 @@ public class RequireCapabilityCoordinator {
      */
     @Reference(
             name = "require.capability.listener.service",
-            service = RequireCapabilityListener.class,
+            service = RequiredCapabilityListener.class,
             cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "deregisterRequireCapabilityListener"
     )
-    public void registerRequireCapabilityListener(RequireCapabilityListener listener,
+    public void registerRequireCapabilityListener(RequiredCapabilityListener listener,
                                                   Map<String, String> propertyMap) {
 
         String requiredServiceKey = propertyMap.get(REQUIRED_SERVICE_INTERFACE);
@@ -190,7 +190,7 @@ public class RequireCapabilityCoordinator {
         serviceTracker.open();
     }
 
-    public void deregisterRequireCapabilityListener(RequireCapabilityListener listener,
+    public void deregisterRequireCapabilityListener(RequiredCapabilityListener listener,
                                                     Map<String, String> propertyMap) {
     }
 
@@ -211,13 +211,13 @@ public class RequireCapabilityCoordinator {
 //    )
 //    public void registerDynamicCapabilityCountListener(DynamicCapabilityListener listener) {
 //
-//        String dynamicCapabilityName = listener.getDynamicCapabilityName();
+//        String dynamicCapabilityName = listener.getName();
 //        if (dynamicCapabilityName == null || dynamicCapabilityName.equals("")) {
 //            logger.warn("DynamicCapabilityCountListener service ({}) does not contain the dynamic capability name",
 //                    listener.getClass().getName());
 //        } else {
 //            dynamicCapabilityName = dynamicCapabilityName.trim();
-//            for (int i = 0; i < listener.getDynamicCapabilityCount(); i++) {
+//            for (int i = 0; i < listener.getCount(); i++) {
 //                capabilityCounter.incrementAndGet(dynamicCapabilityName);
 //            }
 //        }
@@ -262,17 +262,9 @@ public class RequireCapabilityCoordinator {
                         .stream()
                         .filter(element -> "osgi.service".equals(element.getValue()))
                         .forEach(element -> {
-//                            if (RequireCapabilityListener.class.getName().
-//                                    equals(element.getAttribute("objectClass")) ||
-//                                    DynamicCapabilityListener.class.getName().
-//                                            equals(element.getAttribute("objectClass"))) {
-//                                expectedRCListenerCount.incrementAndGet();
-//                            } else {
-//                                capabilityCounter.incrementAndGet(element.getAttribute("objectClass"));
-//                            }
-                            if (RequireCapabilityListener.class.getName().
+                            if (RequiredCapabilityListener.class.getName().
                                     equals(element.getAttribute("objectClass"))) {
-                                expectedRCListenerCount.incrementAndGet();
+                                requiredCapabilityListenerCount.incrementAndGet();
                             } else {
                                 capabilityCounter.incrementAndGet(element.getAttribute("objectClass"));
                             }

@@ -1,4 +1,4 @@
-package org.wso2.carbon.startupcoordinator;
+package org.wso2.carbon.kernel.startupcoordinator;
 
 /**
  * The DynamicCapabilityListener is the way to inform startup coordinator about the capabilities that can be
@@ -18,20 +18,20 @@ package org.wso2.carbon.startupcoordinator;
  *      method of an interested listener.
  * <p>
  */
-public interface DynamicCapabilityListener {
+public interface CapabilityProvider {
 
     /**
-     * This method should return the full qualified name of the dynamic capability. This will be called by the
+     * This method should return the full qualified name of the provided capability. This will be called by the
      * RequireCapabilityCoordinator, which is the startup coordinator, when an implementation of this is registered
      * as an OSGi service. The capability name will be used as the key to store the count of the dynamically
      * registered capabilities.
      *
      * @return the full qualified name of the capability. Eg : "org.wso2.carbon.transports.CarbonTransport"
      */
-    String getDynamicCapabilityName();
+    String getName();
 
     /**
-     * This method should return count of the dynamic capability. This will be called by the
+     * This method should return count of the provided capabilities. This will be called by the
      * RequireCapabilityCoordinator, which is the startup coordinator, when an implementation of this is
      * registered as an OSGi service. The capability count will be used against the key that will be decremented
      * and checked when the capability is registered.
@@ -39,5 +39,5 @@ public interface DynamicCapabilityListener {
      * @return the integer value of the capability count that startup coordinator should wait before calling the
      * onAllRequiredCapabilitiesAvailable callback method of an interested listener
      */
-    int getDynamicCapabilityCount();
+    int getCount();
 }

@@ -21,7 +21,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.startupcoordinator.RequireCapabilityListener;
+import org.wso2.carbon.kernel.startupcoordinator.RequiredCapabilityListener;
 
 /**
  * Sample Transport Services Listener class.
@@ -29,10 +29,10 @@ import org.wso2.carbon.kernel.startupcoordinator.RequireCapabilityListener;
 @Component(
         name = "org.wso2.carbon.sample.transport.mgt.TransportServicesListener",
         immediate = true,
-        service = RequireCapabilityListener.class,
+        service = RequiredCapabilityListener.class,
         property = "required-service-interface=org.wso2.carbon.sample.transport.mgt.Transport"
 )
-public class TransportServicesListener implements RequireCapabilityListener {
+public class TransportServicesListener implements RequiredCapabilityListener {
     private static final Logger logger = LoggerFactory.getLogger(TransportServicesListener.class);
     private BundleContext bundleContext;
 

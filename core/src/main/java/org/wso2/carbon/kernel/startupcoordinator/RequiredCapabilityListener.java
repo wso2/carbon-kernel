@@ -16,11 +16,11 @@
 package org.wso2.carbon.kernel.startupcoordinator;
 
 /**
- * RequireCapabilityListener is a listener interface that may be implemented by a Carbon component developer. When
- * all the required capabilities are available, this event is asynchronously delivered to a RequireCapabilityListener.
+ * RequiredCapabilityListener is a listener interface that may be implemented by a Carbon component developer. When
+ * all the required capabilities are available, this event is asynchronously delivered to a RequiredCapabilityListener.
  * <p>
- * A RequireCapabilityListener must be registered as an OSGi service. A bundle which registers an implementation of this
- * interface should contain a corresponding Provide-Capability manifest header.
+ * A RequiredCapabilityListener must be registered as an OSGi service. A bundle which registers an implementation
+ * of this interface should contain a corresponding Provide-Capability manifest header.
  * <p>
  * e.g  Provide-Capability: osgi.service;effective:=active;
  * objectClass="org.wso2.carbon.startupcoordinator.RequireCapabilityListener";
@@ -30,10 +30,10 @@ package org.wso2.carbon.kernel.startupcoordinator;
  * in the above example. The value of this service property must be the key or the interface of the required OSGi
  * service.
  */
-public interface RequireCapabilityListener {
+public interface RequiredCapabilityListener {
 
     /**
-     * Receives a notification when all the required services are available in the OSGi service registery.
+     * Receives a notification when all the required services are available in the OSGi service registry.
      */
     void onAllRequiredCapabilitiesAvailable();
 }
