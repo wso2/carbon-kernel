@@ -1,16 +1,16 @@
 package org.wso2.carbon.kernel.startupcoordinator;
 
 /**
- * The DynamicCapabilityListener is the way to inform startup coordinator about the capabilities that can be
+ * The CapabilityProvider is the way to inform startup coordinator about the capabilities that can be
  * registered dynamically, where as @see RequireCapabilityListener is the way to statically inform startup
- * coordinator about the capabilities. DynamicCapabilityListener interface may be implemented by a carbon
+ * coordinator about the capabilities. CapabilityProvider interface may be implemented by a carbon
  * component developer who wants to have some dependency onto some capabilities until there are available.
  * <p>
- * A DynamicCapabilityListener must be registered as an OSGi service. A bundle which registers an implementation of this
- * interface should provide the DynamicCapabilityName and DynamicCapabilityCount
+ * A CapabilityProvider must be registered as an OSGi service. A bundle which registers an implementation of this
+ * interface should provide the CapabilityName and CapabilityCount
  * <p>
- * e.g  DynamicCapabilityName = "org.wso2.carbon.transports.CarbonTransport"
- *      DynamicCapabilityCount = 2
+ * e.g  CapabilityName = "org.wso2.carbon.transports.CarbonTransport"
+ *      CapabilityCount = 2
  *
  *      The above will inform startup coordinator that "org.wso2.carbon.transports.CarbonTransport" is a capability
  *      that other RequireCapabilityListener can listen on and there will be "two" service instances of the capability

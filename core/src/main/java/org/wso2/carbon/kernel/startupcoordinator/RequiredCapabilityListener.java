@@ -23,7 +23,7 @@ package org.wso2.carbon.kernel.startupcoordinator;
  * of this interface should contain a corresponding Provide-Capability manifest header.
  * <p>
  * e.g  Provide-Capability: osgi.service;effective:=active;
- * objectClass="org.wso2.carbon.startupcoordinator.RequireCapabilityListener";
+ * objectClass="org.wso2.carbon.startupresolver.RequireCapabilityListener";
  * required-service-interface="org.wso2.carbon.sample.transport.mgt.Transport"
  * <p>
  * This OSGi service must also be registered with a service property called "required-service-interface" as shown

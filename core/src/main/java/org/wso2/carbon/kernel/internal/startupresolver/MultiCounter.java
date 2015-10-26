@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.internal.startupcoordinator;
+package org.wso2.carbon.kernel.internal.startupresolver;
 
 import java.util.ArrayList;
 import java.util.List;

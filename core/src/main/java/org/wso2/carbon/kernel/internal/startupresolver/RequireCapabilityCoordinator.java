@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.internal.startupcoordinator;
+package org.wso2.carbon.kernel.internal.startupresolver;
 
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.Bundle;
@@ -31,7 +31,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupcoordinator.RequiredCapabilityListener;
-//import org.wso2.carbon.kernel.startupcoordinator.DynamicCapabilityListener;
+//import org.wso2.carbon.kernel.startupresolver.DynamicCapabilityListener;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -58,7 +58,7 @@ import java.util.function.Predicate;
  * e.g. A Transport Manager starts transports all at once
  */
 @Component(
-        name = "org.wso2.carbon.internal.startupcoordinator.RequireCapabilityCoordinator",
+        name = "org.wso2.carbon.internal.startupresolver.RequireCapabilityCoordinator",
         immediate = true
 )
 public class RequireCapabilityCoordinator {
