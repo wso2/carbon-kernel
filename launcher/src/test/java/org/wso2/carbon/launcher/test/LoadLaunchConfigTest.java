@@ -32,8 +32,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.wso2.carbon.launcher.Constants.*;
-
+import static org.wso2.carbon.launcher.Constants.DEFAULT_PROFILE;
+import static org.wso2.carbon.launcher.Constants.LAUNCH_PROPERTIES_FILE;
+import static org.wso2.carbon.launcher.Constants.LOG_LEVEL_WARN;
+import static org.wso2.carbon.launcher.Constants.PAX_DEFAULT_SERVICE_LOG_LEVEL;
+import static org.wso2.carbon.launcher.Constants.PROFILE;
 
 /**
  * Test loading launch configurations from launch.properties file
