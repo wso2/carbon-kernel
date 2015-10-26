@@ -24,9 +24,9 @@ import org.osgi.framework.ServiceRegistration;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.deployment.api.DeploymentService;
-import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
-import org.wso2.carbon.deployment.spi.Deployer;
+import org.wso2.carbon.kernel.deployment.Deployer;
+import org.wso2.carbon.kernel.deployment.DeploymentService;
+import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

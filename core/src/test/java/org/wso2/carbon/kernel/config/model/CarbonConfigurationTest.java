@@ -19,7 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.deployment.BaseTest;
+import org.wso2.carbon.kernel.deployment.BaseTest;
 import org.xml.sax.SAXException;
 
 import java.io.File;

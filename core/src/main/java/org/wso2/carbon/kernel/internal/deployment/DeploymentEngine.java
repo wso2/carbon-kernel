@@ -17,13 +17,13 @@ package org.wso2.carbon.kernel.internal.deployment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.deployment.Artifact;
-import org.wso2.carbon.deployment.ArtifactType;
-import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
-import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
-import org.wso2.carbon.deployment.exception.DeploymentEngineException;
-import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.deployment.Artifact;
+import org.wso2.carbon.kernel.deployment.ArtifactType;
+import org.wso2.carbon.kernel.deployment.Deployer;
+import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
+import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
+import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 
 import java.io.File;
 import java.util.List;
@@ -71,7 +71,7 @@ public class DeploymentEngine {
     /**
      * Configure and prepare the repository associated with this engine.
      *
-     * @throws org.wso2.carbon.deployment.exception.DeploymentEngineException on error
+     * @throws org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException on error
      */
     private void init(String repositoryDir) throws DeploymentEngineException {
         repositoryDirectory = new File(repositoryDir);

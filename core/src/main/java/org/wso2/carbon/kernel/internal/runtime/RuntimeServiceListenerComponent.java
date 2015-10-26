@@ -22,14 +22,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.internal.DataHolder;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
+import org.wso2.carbon.kernel.runtime.Runtime;
 
 /**
  * This service  component is responsible for retrieving the Runtime OSGi
  * service and register each runtime with runtime manager.
  */
 @Component(
-        name = "org.wso2.carbon.internal.runtime.RuntimeServiceListenerComponent",
+        name = "org.wso2.carbon.kernel.internal.runtime.RuntimeServiceListenerComponent",
         immediate = true
 )
 

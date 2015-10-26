@@ -17,10 +17,10 @@ package org.wso2.carbon.kernel.internal.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.runtime.Runtime;
+import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.runtime.RuntimeState;
-import org.wso2.carbon.kernel.runtime.api.RuntimeService;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
 import java.util.List;
 
