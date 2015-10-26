@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.internal.startupcoordinator;
+package org.wso2.carbon.kernel.internal.startupresolver;
 
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.Bundle;
@@ -30,7 +30,9 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.startupcoordinator.RequireCapabilityListener;
+import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+//import org.wso2.carbon.kernel.startupresolver.DynamicCapabilityListener;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -42,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 /**
  * RequireCapabilityCoordinator handles carbon component startup complexities. Here are two such cases
@@ -66,8 +69,8 @@ public class RequireCapabilityCoordinator {
     private static final String PROVIDE_CAPABILITY = "Provide-Capability";
     private static final String REQUIRED_SERVICE_INTERFACE = "required-service-interface";
 
-    private AtomicInteger expectedRCListenerCount = new AtomicInteger(0);
-    private Map<String, RequireCapabilityListener> listenerMap = new ConcurrentHashMap<>();
+    private AtomicInteger requiredCapabilityListenerCount = new AtomicInteger(0);
+    private Map<String, RequiredCapabilityListener> listenerMap = new ConcurrentHashMap<>();
     private MultiCounter<String> capabilityCounter = new MultiCounter<>();
     private BundleContext bundleContext;
 
@@ -95,7 +98,7 @@ public class RequireCapabilityCoordinator {
                     .forEach(new ProvideCapabilityHeaderConsumer<>());
 
             // 2) Check whether there at least one expect RequireCapabilityLister. IF there is none, then simply return.
-            if (expectedRCListenerCount.get() == 0) {
+            if (requiredCapabilityListenerCount.get() == 0) {
                 // Clear all the populated maps.
                 capabilityCounter = null;
                 listenerMap = null;
@@ -113,6 +116,8 @@ public class RequireCapabilityCoordinator {
                             .filter(key -> capabilityCounter.get(key) == 0 && listenerMap.get(key) != null)
                             .forEach(key -> {
                                 synchronized (key.intern()) {
+                                    logger.debug("Invoking {} from checkServiceAvailabilityTimer as its required " +
+                                            "capabilities are all available", key);
                                     listenerMap.remove(key).onAllRequiredCapabilitiesAvailable();
                                 }
                             });
@@ -141,18 +146,20 @@ public class RequireCapabilityCoordinator {
      */
     @Reference(
             name = "require.capability.listener.service",
-            service = RequireCapabilityListener.class,
+            service = RequiredCapabilityListener.class,
             cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "deregisterRequireCapabilityListener"
     )
-    public void registerRequireCapabilityListener(RequireCapabilityListener listener,
+    public void registerRequireCapabilityListener(RequiredCapabilityListener listener,
                                                   Map<String, String> propertyMap) {
 
         String requiredServiceKey = propertyMap.get(REQUIRED_SERVICE_INTERFACE);
         if (requiredServiceKey == null || requiredServiceKey.equals("")) {
-            logger.warn("RequireCapabilityListener service ({}) does not contain the required-service-interface proper",
+            logger.warn("RequireCapabilityListener service ({}) does not contain the proper " +
+                            "required-service-interface name",
                     listener.getClass().getName());
+            return;
         } else {
             requiredServiceKey = requiredServiceKey.trim();
         }
@@ -161,15 +168,16 @@ public class RequireCapabilityCoordinator {
 
         //TODO close service trackers once all the service are available.
         final String serviceClazz = requiredServiceKey;
-        ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<Object, Object>(
+        ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<>(
                 bundleContext,
                 requiredServiceKey,
                 new ServiceTrackerCustomizer<Object, Object>() {
                     @Override
                     public Object addingService(ServiceReference<Object> reference) {
-                        assert serviceClazz != null;
                         synchronized (serviceClazz.intern()) {
                             if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
+                                logger.debug("Invoking {} from serviceTracker as its required " +
+                                        "capabilities are all available", serviceClazz);
                                 listener.onAllRequiredCapabilitiesAvailable();
                             }
                         }
@@ -186,13 +194,46 @@ public class RequireCapabilityCoordinator {
 
                     }
                 });
-
         serviceTracker.open();
-
     }
 
-    public void deregisterRequireCapabilityListener(RequireCapabilityListener listener,
+    public void deregisterRequireCapabilityListener(RequiredCapabilityListener listener,
                                                     Map<String, String> propertyMap) {
+    }
+
+    /**
+     * Registers and updates the CapabilityCounter with the CapabilityName and the CapabilityCount value.
+     * The CapabilityName is used as the key and the integer value of the capability count that startup
+     * coordinator should wait before calling the onAllRequiredCapabilitiesAvailable callback method
+     * of an interested listener.
+     *
+     * @param provider an instance of the CapabilityProvider when it is registered as an OSGi service.
+     */
+    @Reference(
+            name = "capability.provider.service",
+            service = CapabilityProvider.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterCapabilityProvider"
+    )
+    public void registerCapabilityProvider(CapabilityProvider provider) {
+
+        String dynamicCapabilityName = provider.getName();
+        if (dynamicCapabilityName == null || dynamicCapabilityName.equals("")) {
+            logger.warn("CapabilityProvider service ({}) does not contain the capability name",
+                    provider.getClass().getName());
+        } else {
+            logger.debug("Updating CapabilityCounter with Capability-Name : {} , Capability-Count : {}",
+                    provider.getName(), provider.getCount());
+            final String capabilityName = dynamicCapabilityName.trim();
+            IntStream.range(0, provider.getCount()).forEach(
+                    count -> capabilityCounter.incrementAndGet(capabilityName)
+            );
+        }
+    }
+
+    public void unregisterCapabilityProvider(CapabilityProvider provider) {
+
     }
 
     /**
@@ -230,9 +271,14 @@ public class RequireCapabilityCoordinator {
                         .stream()
                         .filter(element -> "osgi.service".equals(element.getValue()))
                         .forEach(element -> {
-                            if (RequireCapabilityListener.class.getName().equals(element.getAttribute("objectClass"))) {
-                                expectedRCListenerCount.incrementAndGet();
+                            if (RequiredCapabilityListener.class.getName().
+                                    equals(element.getAttribute("objectClass"))) {
+                                logger.debug("Adding Capability-Listener {} to watch list from bundle ({})",
+                                        element.getAttribute("objectClass"), bundle.getSymbolicName());
+                                requiredCapabilityListenerCount.incrementAndGet();
                             } else {
+                                logger.debug("Updating Capability-Counter for {} from bundle ({})",
+                                        element.getAttribute("objectClass"), bundle.getSymbolicName());
                                 capabilityCounter.incrementAndGet(element.getAttribute("objectClass"));
                             }
                         });

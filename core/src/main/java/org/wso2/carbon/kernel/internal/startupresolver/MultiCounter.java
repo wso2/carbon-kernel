@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.internal.startupcoordinator;
+package org.wso2.carbon.kernel.internal.startupresolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,7 @@ public class MultiCounter<K> {
      * @param key with which the associated value is decremented by one.
      * @return count after decrementing by one.
      */
-    public int decrementAndGet(K key) {
+    public synchronized int decrementAndGet(K key) {
         if (counterMap.containsKey(key)) {
             int tally = counterMap.get(key).decrementAndGet();
             if (tally == 0) {
@@ -57,8 +57,10 @@ public class MultiCounter<K> {
                 return tally;
             }
             return tally;
+        } else {
+            counterMap.put(key, new AtomicInteger(-1));
+            return -1;
         }
-        return -1;
     }
 
     /**

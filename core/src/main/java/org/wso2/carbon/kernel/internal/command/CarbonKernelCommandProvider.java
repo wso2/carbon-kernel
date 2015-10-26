@@ -31,7 +31,7 @@ import org.wso2.carbon.kernel.CarbonRuntime;
  */
 
 @Component(
-        name = "org.wso2.carbon.kernel.internal.command.CommandProvider",
+        name = "org.wso2.carbon.kernel.internal.command.CarbonKernelCommandProvider",
         immediate = true
 )
 
