@@ -20,6 +20,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 
+/**
+ * Unit tests for org.wso2.carbon.kernel.internal.DataHolder class.
+ */
 public class DataHolderTest {
     private DataHolder dataHolder = null;
     private RuntimeManager runtimeManager = null;
