@@ -1,19 +1,3 @@
-/*
- *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *  http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
 package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
@@ -21,20 +5,20 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.Constants;
+import org.wso2.carbon.launcher.Main;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
-import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,16 +29,12 @@ import static org.wso2.carbon.launcher.Constants.PAX_DEFAULT_SERVICE_LOG_LEVEL;
 import static org.wso2.carbon.launcher.Constants.PROFILE;
 
 /**
- * Test loading launch configurations from launch.properties file.
+ * Test server start and stop events.
  */
-public class LoadLaunchConfigTest extends BaseTest {
+public class CarbonServerStartTest extends BaseTest {
     private Logger logger;
     private CarbonLaunchConfig launchConfig;
     private File logFile;
-
-    public LoadLaunchConfigTest() {
-        super();
-    }
 
     @BeforeClass
     public void init() {
@@ -62,7 +42,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         System.setProperty(Constants.CARBON_HOME, testResourceDir);
         logFile = new File(Utils.getRepositoryDirectory() + File.separator + "logs" +
                 File.separator + "wso2carbon.log");
-        logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
+        logger = BootstrapLogger.getCarbonLogger(CarbonServerStartTest.class.getName());
 
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
@@ -74,7 +54,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     }
 
     @Test
-    public void loadCarbonLaunchConfigTestCase() {
+    public void startCarbonServerTestCase() {
         String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(),
                 LAUNCH_PROPERTIES_FILE).toString();
         File launchPropFile = new File(launchPropFilePath);
@@ -86,36 +66,66 @@ public class LoadLaunchConfigTest extends BaseTest {
             //loading launch.properties file
             launchConfig = new CarbonLaunchConfig(launchPropFile);
         }
-        Assert.assertTrue(launchPropFile.exists(), "launch.properties file does not exists");
+        System.setProperty("carbon.server.restart", "true");
+        new Thread() {
+            public void run() {
+                Main.main(new String[]{});
+            }
+        }.start();
+
+        new Thread() {
+            public void run() {
+                try {
+                    while (readPID() == null) {
+                        sleep(100);
+                    }
+                    String cmd = "taskkill /F /PID " + readPID();
+                    Runtime.getRuntime().exec(cmd);
+                } catch (InterruptedException e) {
+                    logger.warning("Error while calling thread.sleep");
+                } catch (IOException e) {
+                    //Issue in terminating task with pid
+                }
+            }
+        }.start();
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigTestCase"})
-    public void loadLaunchConfigOSGiFrameworkTestCase() {
-        //test if property "carbon.osgi.framework" has set according to sample launch.properties file
-        URL url = launchConfig.getCarbonOSGiFramework();
-        Assert.assertEquals(url.getFile().split("plugins")[1],
-                "/org.eclipse.osgi_3.10.2.v20150203-1939.jar");
+    @Test(dependsOnMethods = {"startCarbonServerTestCase"})
+    public void processIDTestCase() throws IOException {
+        Assert.assertNotNull(readPID());
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigTestCase"})
-    public void loadLaunchConfigInitialBundlesTestCase() {
-        //test if property "carbon.initial.osgi.bundles" has set according to sample launch.properties file
-        List<CarbonInitialBundle> initialBundleList = launchConfig.getInitialBundles();
-        Assert.assertEquals(initialBundleList.get(0).getLocation().getFile().split("plugins")[1],
-                "/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar");
-    }
+    @Test(dependsOnMethods = {"startCarbonServerTestCase"})
+    public void serverTerminationTestCase() throws IOException {
+        String sampleMessage = "Sample message-Terminating server with PID " + readPID();
+        String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonServerStartTest} - " +
+                "Sample message-Terminating server with PID " + readPID();
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigTestCase"})
-    public void carbonLogAppendTestCase() throws FileNotFoundException {
-        String sampleMessage = "Sample message-test logging with class CarbonLaunchConfig";
-        String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest} - " +
-                "Sample message-test logging with class CarbonLaunchConfig";
         logger.info(sampleMessage);
         ArrayList<String> logRecords =
                 getLogsFromTestResource(new FileInputStream(logFile));
         //test if log records are added to wso2carbon.log
-        boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
-        Assert.assertTrue(isContainsInLogs);
+        boolean containsResultInLog = containsLogRecord(logRecords, resultLog);
+        Assert.assertTrue(containsResultInLog);
+    }
+
+    private String readPID() {
+        BufferedReader br = null;
+        String pid = null;
+        String pidFileName = Paths.get(testResourceDir, "wso2carbon.pid").toString();
+        try {
+            br = new BufferedReader(new FileReader(pidFileName));
+            pid = br.readLine();
+            if (pid == null) {
+                return null;
+            }
+        } catch (FileNotFoundException e) {
+            logger.severe("File not found with name " + pidFileName);
+        } catch (IOException e) {
+            logger.severe("Error reading file " + pidFileName);
+        }
+
+        return pid;
     }
 
     @AfterTest
@@ -124,4 +134,5 @@ public class LoadLaunchConfigTest extends BaseTest {
         writer.write((new String()).getBytes());
         writer.close();
     }
+
 }

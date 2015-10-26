@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/**
+ * Test adding info logs in wso2carbon.log file with log handlers in CarbonServer.class.
+ */
 public class CarbonSeverLoggerTest extends BaseTest {
     private Logger logger;
     private File logFile;
@@ -59,7 +62,8 @@ public class CarbonSeverLoggerTest extends BaseTest {
         ArrayList<String> logRecords =
                 getLogsFromTestResource(new FileInputStream(logFile));
         //test if log records are added to wso2carbon.log
-        Assert.assertTrue(logRecords.get(1).contains(resultLog));
+        boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
+        Assert.assertTrue(isContainsInLogs);
     }
 
     @AfterTest

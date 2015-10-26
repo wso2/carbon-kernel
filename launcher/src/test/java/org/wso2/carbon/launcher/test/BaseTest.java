@@ -80,4 +80,14 @@ public class BaseTest {
         }
         return logRecords;
     }
+
+    protected boolean containsLogRecord(ArrayList<String> logRecords, String record) {
+        for (String log : logRecords) {
+            if (log.contains(record)) {
+                return true;
+            }
+            continue;
+        }
+        return false;
+    }
 }
