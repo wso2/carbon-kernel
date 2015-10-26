@@ -19,11 +19,13 @@ package org.wso2.carbon.launcher.test;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.test.logging.handlers.CommonsLogHandler;
 import org.wso2.carbon.launcher.test.logging.handlers.JavaUtilLogHandler;
 import org.wso2.carbon.launcher.test.logging.handlers.SLF4jLogHandler;
 
+import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -38,6 +40,8 @@ public class ConsoleLoggerTest {
     CommonsLogHandler commonsLogHandler;
     SLF4jLogHandler slf4jLogHandler;
     private Logger logger;
+    protected String testDir = "src" + File.separator + "test" + File.separator;
+    protected String testResourceDir = testDir + "resources";
 
     @BeforeSuite
     public void doBeforeEachTest() {
@@ -48,6 +52,8 @@ public class ConsoleLoggerTest {
 
     @Test
     public void testJavaUtilLogs() {
+        //setting carbon.home system property to test/resources location
+        System.setProperty(Constants.CARBON_HOME, testResourceDir);
         logger = BootstrapLogger.getCarbonLogger(ConsoleLoggerTest.class.getName());
         logger.addHandler(javaUtilLogHandler);
         String sampleMessage = "Sample javaUtilLog message-01";
