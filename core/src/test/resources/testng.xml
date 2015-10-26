@@ -20,20 +20,29 @@ limitations under the License.
 <suite name="Carbon-Kernel-Core_Test-Suite">
     <test name="carbon-core-unit-tests" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.carbon.kernel.deployment.BaseTest" />
+            <class name="org.wso2.carbon.kernel.config.model.CarbonConfigurationTest"/>
+
             <class name="org.wso2.carbon.kernel.deployment.ArtifactTest" />
+            <class name="org.wso2.carbon.kernel.deployment.BaseTest" />
             <class name="org.wso2.carbon.kernel.deployment.DeployerTest" />
             <class name="org.wso2.carbon.kernel.deployment.DeploymentEngineTest" />
             <class name="org.wso2.carbon.kernel.deployment.DeploymentServiceTest" />
 
+            <class name="org.wso2.carbon.kernel.internal.config.XMLBasedConfigProviderTest"/>
+            <class name="org.wso2.carbon.kernel.internal.runtime.RuntimeManagerTest"/>
+            <class name="org.wso2.carbon.kernel.internal.startupcoordinator.MultiCounterTest"/>
+
             <class name="org.wso2.carbon.kernel.runtime.CustomRuntimeTest" />
-            <class name="org.wso2.carbon.kernel.runtime.RuntimeManagerTest" />
             <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceExceptionTest" />
             <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceTest" />
 
             <class name="org.wso2.carbon.kernel.transports.TransportManagerTest" />
+
+            <class name="org.wso2.carbon.kernel.runtime.RuntimeManagerTest" />
+
             <class name="org.wso2.carbon.kernel.utils.FileUtilsTest" />
-            <class name="org.wso2.carbon.kernel.internal.runtime.RuntimeManagerTest" />
+            <!-- TODO: Intermittently fails. Fix this -->
+            <!--<class name="org.wso2.carbon.kernel.utils.UtilsTest"/>-->
         </classes>
     </test>
 </suite>
