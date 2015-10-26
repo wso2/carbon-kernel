@@ -13,59 +13,48 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.runtime.runtime;
+package org.wso2.carbon.kernel.internal.runtime;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.runtime.RuntimeState;
+import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 
 /**
- * CustomRuntime class for used in test cases.
+ * Implementation of Runtime interface to write test cases to RuntimeManager.
  */
 public class CustomRuntime implements Runtime {
-    private static Log log = LogFactory.getLog(CustomRuntime.class);
-
-    private RuntimeState state = RuntimeState.PENDING;
-
-
     @Override
-    public void init() {
-        log.info("Initializing Runtime");
-        state = RuntimeState.INACTIVE;
+    public void init() throws RuntimeServiceException {
+
     }
 
     @Override
-    public void start() {
-        log.info("Starting Runtime");
-        state = RuntimeState.ACTIVE;
+    public void start() throws RuntimeServiceException {
+
     }
 
     @Override
-    public void stop() {
-        log.info("Stopping Runtime");
-        state = RuntimeState.INACTIVE;
+    public void stop() throws RuntimeServiceException {
+
     }
 
     @Override
-    public void beginMaintenance() {
-        log.info("Stopping Runtime");
-        state = RuntimeState.MAINTENANCE;
+    public void beginMaintenance() throws RuntimeServiceException {
+
     }
 
     @Override
-    public void endMaintenance() {
-        log.info("Stopping Runtime");
-        state = RuntimeState.INACTIVE;
+    public void endMaintenance() throws RuntimeServiceException {
+
     }
 
     @Override
     public Enum<RuntimeState> getState() {
-        return state;
+        return null;
     }
 
     @Override
     public void setState(RuntimeState runtimeState) {
-        this.state = runtimeState;
+
     }
 }

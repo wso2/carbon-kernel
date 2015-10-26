@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.osgi.deployment;
+package org.wso2.carbon.kernel.deployment.deployers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,19 +29,31 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Custom Deployer class to test deployment engine OSGi test case.
+ * Custom Deployer class to test deployment.
  */
 public class CustomDeployer implements Deployer {
     private static final Logger logger = LoggerFactory.getLogger(CustomDeployer.class);
+    /**
+     * Has init() been called?.
+     */
+    public static boolean initCalled;
+    /**
+     * Set to true if "XML1" has been deployed.
+     */
+    public static boolean sample1Deployed;
+    /**
+     * Set to true if "XML1" has been updated.
+     */
+    public static boolean sample1Updated;
 
-    private String directory = "carbon-repo/text-files";
+    private String directory = "text-files";
     private URL directoryLocation;
     private ArtifactType artifactType;
     private String testDir = "src" + File.separator + "test" + File.separator + "resources" +
             File.separator + "carbon-repo" + File.separator + directory;
 
     public CustomDeployer() {
-        artifactType = new ArtifactType<>("txt");
+        artifactType = new ArtifactType<String>("txt");
         try {
             directoryLocation = new URL("file:text-files");
         } catch (MalformedURLException e) {
@@ -51,6 +63,7 @@ public class CustomDeployer implements Deployer {
 
     public void init() {
         logger.info("Initializing Deployer");
+        initCalled = true;
     }
 
     public String deploy(Artifact artifact) throws CarbonDeploymentException {
@@ -63,6 +76,7 @@ public class CustomDeployer implements Deployer {
             fis.read(b);
             String content = new String(b);
             if (content.contains("sample1")) {
+                sample1Deployed = true;
                 key = artifact.getName();
             }
         } catch (IOException e) {
@@ -86,7 +100,7 @@ public class CustomDeployer implements Deployer {
             fis.read(b);
             String content = new String(b);
             if (content.contains("sample1")) {
-                logger.info("Undeployed : " + key);
+                sample1Deployed = false;
             }
         } catch (IOException e) {
             throw new CarbonDeploymentException("Error while Un Deploying : " + key, e);
@@ -95,6 +109,7 @@ public class CustomDeployer implements Deployer {
 
     public String update(Artifact artifact) throws CarbonDeploymentException {
         logger.info("Updating : " + artifact.getName());
+        sample1Updated = true;
         return artifact.getName();
     }
 

@@ -25,11 +25,11 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.deployment.api.DeploymentService;
-import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
-import org.wso2.carbon.deployment.exception.DeploymentEngineException;
-import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.deployment.Deployer;
+import org.wso2.carbon.kernel.deployment.DeploymentService;
+import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
+import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.List;
  * This service component is responsible for initializing the DeploymentEngine.
  */
 @Component(
-        name = "org.wso2.carbon.internal.deployment.DeploymentEngineComponent",
+        name = "org.wso2.carbon.kernel.internal.deployment.DeploymentEngineComponent",
         immediate = true
 )
 

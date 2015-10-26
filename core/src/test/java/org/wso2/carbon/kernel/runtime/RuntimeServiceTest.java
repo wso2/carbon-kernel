@@ -22,7 +22,6 @@ import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 import org.wso2.carbon.kernel.runtime.runtime.CustomRuntime;
 import org.wso2.carbon.kernel.runtime.service.CustomRuntimeService;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
 /**
  * Runtime Service Test class.
