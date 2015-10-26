@@ -30,7 +30,7 @@ limitations under the License.
 
             <class name="org.wso2.carbon.kernel.internal.config.XMLBasedConfigProviderTest"/>
             <class name="org.wso2.carbon.kernel.internal.runtime.RuntimeManagerTest"/>
-            <class name="org.wso2.carbon.kernel.internal.startupcoordinator.MultiCounterTest"/>
+            <class name="org.wso2.carbon.kernel.internal.startupresolver.MultiCounterTest"/>
 
             <class name="org.wso2.carbon.kernel.runtime.CustomRuntimeTest" />
             <class name="org.wso2.carbon.kernel.runtime.RuntimeServiceExceptionTest" />
