@@ -116,6 +116,8 @@ public class RequireCapabilityCoordinator {
                             .filter(key -> capabilityCounter.get(key) == 0 && listenerMap.get(key) != null)
                             .forEach(key -> {
                                 synchronized (key.intern()) {
+                                    logger.debug("Invoking {} from checkServiceAvailabilityTimer as its required " +
+                                            "capabilities are all available", key);
                                     listenerMap.remove(key).onAllRequiredCapabilitiesAvailable();
                                 }
                             });
@@ -174,6 +176,8 @@ public class RequireCapabilityCoordinator {
                     public Object addingService(ServiceReference<Object> reference) {
                         synchronized (serviceClazz.intern()) {
                             if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
+                                logger.debug("Invoking {} from serviceTracker as its required " +
+                                        "capabilities are all available", serviceClazz);
                                 listener.onAllRequiredCapabilitiesAvailable();
                             }
                         }
@@ -219,6 +223,8 @@ public class RequireCapabilityCoordinator {
             logger.warn("CapabilityProvider service ({}) does not contain the capability name",
                     provider.getClass().getName());
         } else {
+            logger.debug("Updating CapabilityCounter with Capability-Name : {} , Capability-Count : {}",
+                    provider.getName(), provider.getCount());
             final String capabilityName = dynamicCapabilityName.trim();
             IntStream.range(0, provider.getCount()).forEach(
                     count -> capabilityCounter.incrementAndGet(capabilityName)
@@ -267,8 +273,12 @@ public class RequireCapabilityCoordinator {
                         .forEach(element -> {
                             if (RequiredCapabilityListener.class.getName().
                                     equals(element.getAttribute("objectClass"))) {
+                                logger.debug("Adding Capability-Listener {} to watch list from bundle ({})",
+                                        element.getAttribute("objectClass"), bundle.getSymbolicName());
                                 requiredCapabilityListenerCount.incrementAndGet();
                             } else {
+                                logger.debug("Updating Capability-Counter for {} from bundle ({})",
+                                        element.getAttribute("objectClass"), bundle.getSymbolicName());
                                 capabilityCounter.incrementAndGet(element.getAttribute("objectClass"));
                             }
                         });
