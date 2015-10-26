@@ -66,8 +66,23 @@ public class MultiCounterTest {
         Assert.assertEquals(multiCounter.get("test-key"), randomInt - 1);
     }
 
-    @Test(dependsOnMethods = "testIncrementAndGet")
+    @Test(dependsOnMethods = "testGet")
+    public void testGetInvalidKeys() throws Exception {
+        Assert.assertEquals(0, multiCounter.get("wrong-key"));
+    }
+
+    @Test(dependsOnMethods = "testGetInvalidKeys")
     public void testGetAllKeys() throws Exception {
-        keySet.equals(multiCounter.getAllKeys());
+        Assert.assertEquals(keySet, multiCounter.getAllKeys());
+    }
+
+    @Test(dependsOnMethods = "testGetAllKeys")
+    public void testDecrementAndGetWithCountZero() throws Exception {
+        Assert.assertEquals(multiCounter.decrementAndGet("key-5"), 0);
+    }
+
+    @Test(dependsOnMethods = "testDecrementAndGetWithCountZero")
+    public void testDecrementAndGetWrongKey() throws Exception {
+        Assert.assertEquals(multiCounter.decrementAndGet("wrong-key"), -1);
     }
 }
