@@ -21,6 +21,8 @@ import org.osgi.service.component.annotations.Deactivate;
 
 /**
  * Sample JAR Runtime Service Component class.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.sample.runtime.jar.JARRuntime",

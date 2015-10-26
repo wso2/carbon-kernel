@@ -58,6 +58,8 @@ import java.util.stream.IntStream;
  * possible in a standard OSGi containers.
  * <p>
  * e.g. A Transport Manager starts transports all at once
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.kernel.internal.startupcoordinator.RequireCapabilityCoordinator",

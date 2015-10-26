@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 
 /**
  * Generic Base Utility methods.
+ *
+ * @since 5.0.0
  */
 public class Utils {
     private static final String VAR_REGEXP = "\\$\\{[^}]*}";

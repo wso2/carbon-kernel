@@ -17,6 +17,8 @@ package org.wso2.carbon.sample.runtime.mgt;
 
 /**
  * Sample Runtime interface.
+ *
+ * @since 5.0.0
  */
 public interface Runtime {
 

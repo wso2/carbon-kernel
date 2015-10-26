@@ -30,6 +30,8 @@ import java.util.Hashtable;
  * This class creates and initializes the logging configurations based on log4j2 for pax logging framework.
  * It sets the log4j2 config file (log4j2.xml) to the ManagedService instance as a configuration property and
  * update it.
+ *
+ * @since 5.0.0
  */
 public class LoggingConfiguration {
 

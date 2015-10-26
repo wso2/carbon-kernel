@@ -26,6 +26,8 @@ import java.util.HashMap;
 
 /**
  * Deployer Test class.
+ *
+ * @since 5.0.0
  */
 public class DeployerTest extends BaseTest {
     private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";

@@ -21,7 +21,9 @@ import org.wso2.carbon.sample.transport.mgt.Transport;
 
 /**
  * A custom transport implementation to test the dynamic registration of transport implementations and the startup order
- * resolver implementation
+ * resolver implementation.
+ *
+ * @since 5.0.0
  */
 public class CustomTransport implements Transport {
     private static final Logger logger = LoggerFactory.getLogger(CustomTransport.class);

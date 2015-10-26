@@ -18,6 +18,8 @@ package org.wso2.carbon.kernel.runtime.exception;
 
 /**
  * The super class for all the exception that can be thrown from RuntimeConfiguration.
+ *
+ * @since 5.0.0
  */
 
 public class RuntimeServiceException extends Exception {

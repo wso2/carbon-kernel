@@ -17,6 +17,8 @@ package org.wso2.carbon.kernel.transports;
 
 /**
  * Represents a transport in Carbon.
+ *
+ * @since 5.0.0
  */
 public abstract class CarbonTransport {
 

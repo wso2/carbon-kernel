@@ -27,6 +27,8 @@ import java.util.Map;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.utils.Utils class.
+ *
+ * @since 5.0.0
  */
 public class UtilsTest {
 

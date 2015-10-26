@@ -20,6 +20,8 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 /**
  * A singleton data holder pattern class for holding OSGi related service instances that are used within the scope
  * of this bundle. This class is internal to this bundle only.
+ *
+ * @since 5.0.0
  */
 public class OSGiServiceHolder {
     private static OSGiServiceHolder instance = new OSGiServiceHolder();

@@ -31,7 +31,11 @@ import org.wso2.carbon.kernel.transports.TransportManager;
 import java.util.Map;
 
 /**
- * OSGi declarative services component which handled registration & uregistration of Carbon transports.
+ * OSGi declarative services component which handled registration & un-registration of Carbon transports.
+ * It also acts as a RequiredCapabilityListener for all the CarbonTransport capabilities, and once they are
+ * available, it start the transports that are currently registered.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.kernel.internal.transports.TransportServiceComponent",

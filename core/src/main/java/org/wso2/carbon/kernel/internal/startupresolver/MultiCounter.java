@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Counter implementation which maintains multiple key occurrences. This implementation is thread-safe.
  *
+ * @since 5.0.0
  * @param <K> the type of keys maintained by this map
  */
 public class MultiCounter<K> {

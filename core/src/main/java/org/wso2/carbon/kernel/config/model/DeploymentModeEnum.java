@@ -19,6 +19,8 @@ import javax.xml.bind.annotation.XmlEnum;
 
 /**
  * JAXB mapping for Deployment Mode Enum.
+ *
+ * @since 5.0.0
  */
 @XmlEnum
 public enum DeploymentModeEnum {

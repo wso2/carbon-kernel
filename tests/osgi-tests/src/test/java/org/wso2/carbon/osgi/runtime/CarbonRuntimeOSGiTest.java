@@ -41,6 +41,8 @@ import javax.inject.Inject;
 
 /**
  * CarbonRuntimeOSGiTest class is to test the availability and the functionality of the Carbon Runtime Service.
+ *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

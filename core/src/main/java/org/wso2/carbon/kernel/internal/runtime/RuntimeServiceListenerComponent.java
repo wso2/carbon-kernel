@@ -27,6 +27,8 @@ import org.wso2.carbon.kernel.runtime.Runtime;
 /**
  * This service  component is responsible for retrieving the Runtime OSGi
  * service and register each runtime with runtime manager.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.kernel.internal.runtime.RuntimeServiceListenerComponent",

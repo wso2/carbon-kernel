@@ -41,6 +41,8 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  * zero provide-capability
  * one provide-capability
  * multiple provide-capability.
+ *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

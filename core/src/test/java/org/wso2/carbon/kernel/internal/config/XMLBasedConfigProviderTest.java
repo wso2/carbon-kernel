@@ -27,6 +27,8 @@ import org.wso2.carbon.kernel.deployment.BaseTest;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.internal.kernel.config.XMLBasedConfigProvider class.
+ *
+ * @since 5.0.0
  */
 public class XMLBasedConfigProviderTest extends BaseTest {
 

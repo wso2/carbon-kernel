@@ -23,6 +23,8 @@ import org.wso2.carbon.kernel.runtime.runtime.CustomRuntime;
 
 /**
  * Custom Runtime test class.
+ *
+ * @since 5.0.0
  */
 public class CustomRuntimeTest {
     CustomRuntime customRuntime;

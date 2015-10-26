@@ -34,6 +34,8 @@ import javax.inject.Inject;
 
 /**
  * Carbon Deployment Engine OSGi Test case.
+ *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

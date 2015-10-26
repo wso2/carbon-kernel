@@ -29,6 +29,8 @@ import javax.inject.Inject;
 
 /**
  * OSGi tests class to test org.wso2.carbon.kernel.transports.TransportManager.
+ *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

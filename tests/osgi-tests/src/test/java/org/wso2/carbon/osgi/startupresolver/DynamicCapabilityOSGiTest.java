@@ -35,6 +35,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  * This test case will test the dynamic capability registrations and then the listener implementation that waits for
  * the capabilities. In this test, we are testing both static and dynamic ways of registering a capability.
  *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

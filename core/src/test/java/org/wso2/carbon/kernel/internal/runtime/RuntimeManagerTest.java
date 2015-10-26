@@ -26,6 +26,8 @@ import java.util.List;
 
 /**
  * Test class to test org.wso2.carbon.kernel.internal.runtime.RuntimeManager.
+ *
+ * @since 5.0.0
  */
 public class RuntimeManagerTest {
 

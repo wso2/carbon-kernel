@@ -23,7 +23,9 @@ import org.wso2.carbon.osgi.util.Utils;
  * This class will provide the shared configurations for the OSGi tests.
  * <p>
  * In order to this file be affected, full qualified name of this class needs to be put into the
- * META-INF/services/org.ops4j.pax.exam.ConfigurationFactory resource file
+ * META-INF/services/org.ops4j.pax.exam.ConfigurationFactory resource file.
+ *
+ * @since 5.0.0
  */
 public class CarbonOSGiConfiguration implements ConfigurationFactory {
 

@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * Carbon Transport Manager.
+ *
+ * @since 5.0.0
  */
 public class TransportManager {
 

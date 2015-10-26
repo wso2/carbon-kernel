@@ -22,6 +22,8 @@ import org.wso2.carbon.kernel.runtime.RuntimeState;
 
 /**
  * CustomRuntime class for used in test cases.
+ *
+ * @since 5.0.0
  */
 public class CustomRuntime implements Runtime {
     private static Log log = LogFactory.getLog(CustomRuntime.class);

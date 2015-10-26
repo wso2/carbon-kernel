@@ -28,6 +28,8 @@ import static org.ops4j.pax.exam.CoreOptions.repositories;
 
 /**
  * This class contains Utility methods to configure PAX-EXAM container.
+ *
+ * @since 5.0.0
  */
 public class Utils {
 

@@ -35,6 +35,8 @@ import javax.xml.transform.stream.StreamSource;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.config.model.CarbonConfiguration.
+ *
+ * @since 5.0.0
  */
 public class CarbonConfigurationTest extends BaseTest {
 

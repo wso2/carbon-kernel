@@ -29,6 +29,8 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * File Utilities.
+ *
+ * @since 5.0.0
  */
 public class FileUtils {
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);

@@ -29,6 +29,8 @@ package org.wso2.carbon.kernel.startupresolver;
  * This OSGi service must also be registered with a service property called "required-service-interface" as shown
  * in the above example. The value of this service property must be the key or the interface of the required OSGi
  * service.
+ *
+ * @since 5.0.0
  */
 public interface RequiredCapabilityListener {
 

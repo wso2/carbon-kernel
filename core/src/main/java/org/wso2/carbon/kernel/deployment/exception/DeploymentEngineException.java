@@ -17,6 +17,8 @@ package org.wso2.carbon.kernel.deployment.exception;
 
 /**
  * Represents the Deployment Engine related Exception.
+ *
+ * @since 5.0.0
  */
 public class DeploymentEngineException extends Exception {
 

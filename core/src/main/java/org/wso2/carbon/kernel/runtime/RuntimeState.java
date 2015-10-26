@@ -17,6 +17,8 @@ package org.wso2.carbon.kernel.runtime;
 
 /**
  * Enum class to be used for Runtime states.
+ *
+ * @since 5.0.0
  */
 public enum RuntimeState {
 

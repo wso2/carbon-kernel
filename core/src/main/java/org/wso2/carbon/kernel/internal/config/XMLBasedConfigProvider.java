@@ -32,6 +32,8 @@ import javax.xml.bind.Unmarshaller;
 
 /**
  * This class takes care of parsing the carbon.xml file and creating the CarbonConfiguration object model.
+ *
+ * @since 5.0.0
  */
 public class XMLBasedConfigProvider implements CarbonConfigProvider {
     private static final Logger logger = LoggerFactory.getLogger(XMLBasedConfigProvider.class);

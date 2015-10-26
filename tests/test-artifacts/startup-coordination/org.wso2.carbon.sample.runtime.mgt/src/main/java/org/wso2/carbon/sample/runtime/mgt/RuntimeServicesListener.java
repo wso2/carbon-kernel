@@ -25,6 +25,8 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 /**
  * Sample Runtime Service Listener Service Component class.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.sample.runtime.mgt.RuntimeServicesListener",

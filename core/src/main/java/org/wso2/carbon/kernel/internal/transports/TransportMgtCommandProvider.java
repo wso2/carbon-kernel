@@ -23,6 +23,8 @@ import org.wso2.carbon.kernel.transports.TransportManager;
 
 /**
  * Provides OSGi console commands to manage Carbon transports.
+ *
+ * @since 5.0.0
  */
 public class TransportMgtCommandProvider implements CommandProvider {
 

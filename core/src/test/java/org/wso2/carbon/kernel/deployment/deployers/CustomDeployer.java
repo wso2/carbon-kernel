@@ -30,6 +30,8 @@ import java.net.URL;
 
 /**
  * Custom Deployer class to test deployment.
+ *
+ * @since 5.0.0
  */
 public class CustomDeployer implements Deployer {
     private static final Logger logger = LoggerFactory.getLogger(CustomDeployer.class);

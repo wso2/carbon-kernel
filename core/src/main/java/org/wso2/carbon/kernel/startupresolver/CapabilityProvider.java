@@ -16,7 +16,8 @@ package org.wso2.carbon.kernel.startupresolver;
  *      that other RequireCapabilityListener can listen on and there will be "two" service instances of the capability
  *      that the startup coordinator should wait before calling the onAllRequiredCapabilitiesAvailable callback
  *      method of an interested listener.
- * <p>
+ *
+ * @since 5.0.0
  */
 public interface CapabilityProvider {
 

@@ -39,7 +39,9 @@ import java.util.TimerTask;
 /**
  * This class is responsible of waiting till all runtime services get registered.
  * once all runtime services get registered it will register RuntimeService OSGI service
- * This service can be used by carbon server to finalize start-up
+ * This service can be used by carbon server to finalize start-up.
+ *
+ * @since 5.0.0
  */
 
 @Component(

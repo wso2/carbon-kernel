@@ -17,6 +17,8 @@ package org.wso2.carbon.sample.transport.mgt;
 
 /**
  * Sample Transport interface.
+ *
+ * @since 5.0.0
  */
 public interface Transport {
 

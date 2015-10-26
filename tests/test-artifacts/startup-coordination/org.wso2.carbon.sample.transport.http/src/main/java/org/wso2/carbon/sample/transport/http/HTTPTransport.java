@@ -24,6 +24,8 @@ import org.wso2.carbon.sample.transport.mgt.Transport;
 
 /**
  * Sample HTTPTransport Service Component class.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.sample.transport.http.HTTPTransport",

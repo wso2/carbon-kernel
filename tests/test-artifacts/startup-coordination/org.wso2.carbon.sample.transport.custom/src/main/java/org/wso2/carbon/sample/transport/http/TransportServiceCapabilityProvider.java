@@ -11,6 +11,8 @@ import java.util.stream.IntStream;
 /**
  * Sample TransportServiceCapabilityProvider class that registers CustomTransport as a service multiple times to test
  * the startup order resolver implementation.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.sample.transport.http.TransportServiceComponent",

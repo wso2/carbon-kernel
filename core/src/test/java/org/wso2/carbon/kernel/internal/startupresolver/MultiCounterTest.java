@@ -24,6 +24,8 @@ import java.util.Set;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.internal.startupresolver.MultiCounter.
+ *
+ * @since 5.0.0
  */
 public class MultiCounterTest {
 
