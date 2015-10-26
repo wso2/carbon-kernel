@@ -40,7 +40,7 @@ public class RuntimeServicesListener implements RequiredCapabilityListener {
 
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
-        logger.info("$$$$$$$$ HURRAYYYYYYYYY !!!! " + this.getClass().getName());
+        logger.info("All required services are available for : " + this.getClass().getName());
         bundleContext.registerService(RuntimeManager.class, new RuntimeManager(), null);
     }
 

@@ -37,7 +37,7 @@ public class HTTPTransport implements Transport {
 
     @Override
     public void start() {
-        logger.info("******** service " + this.getClass().getName());
+        logger.info("Transport service : " + this.getClass().getName());
     }
 
     @Override

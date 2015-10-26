@@ -40,7 +40,7 @@ public class TransportServicesListener implements RequiredCapabilityListener {
 
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
-        logger.info("$$$$$$$$ HURRAYYYYYYYYY !!!! " + this.getClass().getName());
+        logger.info("All required services are available for : " + this.getClass().getName());
         bundleContext.registerService(TransportManager.class, new TransportManager(), null);
     }
 
