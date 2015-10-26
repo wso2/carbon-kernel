@@ -50,7 +50,7 @@ public class CarbonSeverLoggerTest extends BaseTest {
     }
 
     @Test
-    public void testCarbonLogAppend() throws IOException {
+    public void testCarbonLogAppendTestCase() throws IOException {
         String sampleMessage = "Sample message-test logging with class CarbonServer";
         String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonSeverLoggerTest} - " +
                 "Sample message-test logging with class CarbonServer";

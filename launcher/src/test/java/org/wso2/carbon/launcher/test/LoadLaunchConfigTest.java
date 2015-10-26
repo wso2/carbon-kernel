@@ -17,6 +17,7 @@
 package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.launcher.Constants;
@@ -26,8 +27,13 @@ import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +50,7 @@ import static org.wso2.carbon.launcher.Constants.PROFILE;
 public class LoadLaunchConfigTest extends BaseTest {
     private Logger logger;
     private CarbonLaunchConfig launchConfig;
+    private File logFile;
 
     public LoadLaunchConfigTest() {
         super();
@@ -53,7 +60,9 @@ public class LoadLaunchConfigTest extends BaseTest {
     public void init() {
         //setting carbon.home system property to test/resources location
         System.setProperty(Constants.CARBON_HOME, testResourceDir);
-        logger = BootstrapLogger.getCarbonLogger(LoadLaunchConfigTest.class.getName());
+        logFile = new File(Utils.getRepositoryDirectory() + File.separator + "logs" +
+                File.separator + "wso2carbon.log");
+        logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
 
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
@@ -95,4 +104,24 @@ public class LoadLaunchConfigTest extends BaseTest {
         Assert.assertEquals(initialBundleList.get(0).getLocation().getFile().split("plugins")[1],
                 "/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar");
     }
+
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigTestCase"})
+    public void carbonLogAppendTestCase() throws FileNotFoundException {
+        String sampleMessage = "Sample message-test logging with class CarbonLaunchConfig";
+        String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest} - " +
+                "Sample message-test logging with class CarbonLaunchConfig";
+        logger.info(sampleMessage);
+        ArrayList<String> logRecords =
+                getLogsFromTestResource(new FileInputStream(logFile));
+        //test if log records are added to wso2carbon.log
+        Assert.assertTrue(logRecords.get(2).contains(resultLog));
+    }
+
+    @AfterTest
+    public void cleanupLogfile() throws IOException {
+        FileOutputStream writer = new FileOutputStream(logFile);
+        writer.write((new String()).getBytes());
+        writer.close();
+    }
+
 }
