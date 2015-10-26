@@ -61,16 +61,16 @@ public class UtilsTest {
     @Test
     public void testGetCarbonConfigHomePathNonNullSystemProperty() throws Exception {
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
-        Boolean needToClearCarbonRepoDirPathAtTheEnd = false;
+        boolean isCarbonHomeChanged = false;
 
         if (carbonRepoDirPath == null) {
             carbonRepoDirPath = "test-carbon-repo-dir-path";
             System.setProperty(Constants.CARBON_REPOSITORY, carbonRepoDirPath);
-            needToClearCarbonRepoDirPathAtTheEnd = true;
+            isCarbonHomeChanged = true;
         }
         Assert.assertEquals(Utils.getCarbonConfigHome(), Paths.get(carbonRepoDirPath + "/conf"));
 
-        if (needToClearCarbonRepoDirPathAtTheEnd) {
+        if (isCarbonHomeChanged) {
             System.clearProperty(Constants.CARBON_REPOSITORY);
         }
     }
@@ -79,12 +79,12 @@ public class UtilsTest {
     public void testGetCarbonConfigHomePathNullSystemPropertyScenarioOne() throws Exception {
 
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
-        Boolean needToSetCarbonRepoDirPathAtTheEnd = false;
+        boolean isCarbonRepoPathChanged = false;
 
         if (carbonRepoDirPath != null) {
             System.clearProperty(Constants.CARBON_REPOSITORY);
         } else {
-            needToSetCarbonRepoDirPathAtTheEnd = true;
+            isCarbonRepoPathChanged = true;
         }
 
         Map<String, String> envMap = new HashMap<>();
@@ -96,7 +96,7 @@ public class UtilsTest {
 
         Assert.assertEquals(Utils.getCarbonConfigHome(), Paths.get("test-env/conf"));
 
-        if (needToSetCarbonRepoDirPathAtTheEnd && carbonRepoDirPath != null) {
+        if (isCarbonRepoPathChanged && carbonRepoDirPath != null) {
             System.setProperty(Constants.CARBON_REPOSITORY, carbonRepoDirPath);
         }
 

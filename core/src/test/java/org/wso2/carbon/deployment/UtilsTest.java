@@ -21,6 +21,9 @@ import org.wso2.carbon.kernel.internal.deployment.Utils;
 
 import java.nio.file.Paths;
 
+/**
+ * This class tests the functionality of org.wso2.carbon.kernel.internal.deployment.Utils class.
+ */
 public class UtilsTest {
 
     @Test
