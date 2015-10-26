@@ -75,7 +75,8 @@ public class UtilsTest {
         }
     }
 
-    @Test public void testGetCarbonConfigHomePathNullSystemPropertyScenarioOne() throws Exception {
+    @Test
+    public void testGetCarbonConfigHomePathNullSystemPropertyScenarioOne() throws Exception {
 
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Boolean needToSetCarbonRepoDirPathAtTheEnd = false;
