@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
-//import org.wso2.carbon.kernel.startupresolver.DynamicCapabilityListener;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
