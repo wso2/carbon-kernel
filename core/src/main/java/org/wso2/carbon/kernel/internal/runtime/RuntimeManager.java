@@ -17,7 +17,7 @@ package org.wso2.carbon.kernel.internal.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
+import org.wso2.carbon.kernel.runtime.Runtime;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -122,7 +122,6 @@
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.kernel.internal,
-                            org.wso2.carbon.deployment.*;version="${carbon.kernel.package.export.version}",
                             org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
                         </Export-Package>
                         <Import-Package>
