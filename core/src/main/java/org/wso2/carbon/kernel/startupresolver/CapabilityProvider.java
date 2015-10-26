@@ -1,4 +1,4 @@
-package org.wso2.carbon.kernel.startupcoordinator;
+package org.wso2.carbon.kernel.startupresolver;
 
 /**
  * The CapabilityProvider is the way to inform startup coordinator about the capabilities that can be

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.startupcoordinator;
+package org.wso2.carbon.kernel.startupresolver;
 
 /**
  * RequiredCapabilityListener is a listener interface that may be implemented by a Carbon component developer. When

@@ -21,7 +21,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.startupcoordinator.RequiredCapabilityListener;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 /**
  * Sample Transport Services Listener class.

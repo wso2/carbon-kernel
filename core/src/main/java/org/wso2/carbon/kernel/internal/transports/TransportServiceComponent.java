@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
 
@@ -32,9 +33,10 @@ import java.util.Map;
  */
 @Component(
         name = "org.wso2.carbon.internal.transport.TransportServiceComponent",
-        immediate = true
+        immediate = true,
+        property = "required-service-interface=org.wso2.carbon.kernel.transports.CarbonTransport"
 )
-public class TransportServiceComponent {
+public class TransportServiceComponent implements RequiredCapabilityListener {
 
     private TransportManager transportManager = new TransportManager();
 
@@ -61,5 +63,10 @@ public class TransportServiceComponent {
 
     protected void unregisterTransport(CarbonTransport transport, Map<String, ?> ref) {
         transportManager.unregisterTransport(transport);
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable() {
+        transportManager.startTransports();
     }
 }

@@ -30,7 +30,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.startupcoordinator.RequiredCapabilityListener;
+import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 //import org.wso2.carbon.kernel.startupresolver.DynamicCapabilityListener;
 
 import java.security.AccessController;
@@ -43,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 /**
  * RequireCapabilityCoordinator handles carbon component startup complexities. Here are two such cases
@@ -152,7 +154,8 @@ public class RequireCapabilityCoordinator {
 
         String requiredServiceKey = propertyMap.get(REQUIRED_SERVICE_INTERFACE);
         if (requiredServiceKey == null || requiredServiceKey.equals("")) {
-            logger.warn("RequireCapabilityListener service ({}) does not contain the required-service-interface proper",
+            logger.warn("RequireCapabilityListener service ({}) does not contain the proper " +
+                            "required-service-interface name",
                     listener.getClass().getName());
             return;
         } else {
@@ -195,37 +198,37 @@ public class RequireCapabilityCoordinator {
     }
 
     /**
-     * Registers and updates the CapabilityCounter with the DynamicCapabilityName and the DynamicCapabilityCount
-     * value. The DynamicCapabilityName is used as the key and the integer value of the capability count that
-     * startup coordinator should wait before calling the onAllRequiredCapabilitiesAvailable callback method
+     * Registers and updates the CapabilityCounter with the CapabilityName and the CapabilityCount value.
+     * The CapabilityName is used as the key and the integer value of the capability count that startup
+     * coordinator should wait before calling the onAllRequiredCapabilitiesAvailable callback method
      * of an interested listener.
      *
-     * @param listener an instance of the DynamicCapabilityListener when it is registered as an OSGi service.
+     * @param provider an instance of the CapabilityProvider when it is registered as an OSGi service.
      */
-//    @Reference(
-//            name = "dynamic.capability.listener.service",
-//            service = DynamicCapabilityListener.class,
-//            cardinality = ReferenceCardinality.MULTIPLE,
-//            policy = ReferencePolicy.DYNAMIC,
-//            unbind = "unregisterDynamicCapabilityCountListener"
-//    )
-//    public void registerDynamicCapabilityCountListener(DynamicCapabilityListener listener) {
-//
-//        String dynamicCapabilityName = listener.getName();
-//        if (dynamicCapabilityName == null || dynamicCapabilityName.equals("")) {
-//            logger.warn("DynamicCapabilityCountListener service ({}) does not contain the dynamic capability name",
-//                    listener.getClass().getName());
-//        } else {
-//            dynamicCapabilityName = dynamicCapabilityName.trim();
-//            for (int i = 0; i < listener.getCount(); i++) {
-//                capabilityCounter.incrementAndGet(dynamicCapabilityName);
-//            }
-//        }
-//    }
-//
-//    public void unregisterDynamicCapabilityCountListener(DynamicCapabilityListener listener) {
-//
-//    }
+    @Reference(
+            name = "capability.provider.service",
+            service = CapabilityProvider.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unregisterCapabilityProvider"
+    )
+    public void registerCapabilityProvider(CapabilityProvider provider) {
+
+        String dynamicCapabilityName = provider.getName();
+        if (dynamicCapabilityName == null || dynamicCapabilityName.equals("")) {
+            logger.warn("CapabilityProvider service ({}) does not contain the capability name",
+                    provider.getClass().getName());
+        } else {
+            final String capabilityName = dynamicCapabilityName.trim();
+            IntStream.range(0, provider.getCount()).forEach(
+                    count -> capabilityCounter.incrementAndGet(capabilityName)
+            );
+        }
+    }
+
+    public void unregisterCapabilityProvider(CapabilityProvider provider) {
+
+    }
 
     /**
      * Implementation of the {@link Predicate} interface which filters OSGi manifest header with key Provide-Capability.
