@@ -34,6 +34,10 @@ limitations under the License.
             <class name="org.wso2.carbon.kernel.transports.TransportManagerTest" />
             <class name="org.wso2.carbon.kernel.utils.FileUtilsTest" />
             <class name="org.wso2.carbon.internal.runtime.RuntimeManagerTest" />
+            <class name="org.wso2.carbon.kernel.internal.kernel.config.XMLBasedConfigProviderTest"/>
+            <class name="org.wso2.carbon.kernel.config.model.CarbonConfigurationTest"/>
+            <class name="org.wso2.carbon.kernel.internal.startupcoordinator.MultiCounterTest"/>
+            <class name="org.wso2.carbon.kernel.utils.UtilsTest"/>
         </classes>
     </test>
 </suite>
