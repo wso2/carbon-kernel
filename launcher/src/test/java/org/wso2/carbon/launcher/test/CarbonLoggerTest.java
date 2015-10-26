@@ -51,7 +51,7 @@ public class CarbonLoggerTest extends BaseTest {
 
     @BeforeSuite
     public void doBeforeEachTest() throws IOException {
-        logger = BootstrapLogger.getCarbonLogger(CarbonLoggerTest.class.toString());
+        logger = BootstrapLogger.getCarbonLogger(CarbonLoggerTest.class.getName());
         carbonLogHandler = new CarbonLogHandler(new File(getTestResourceFile(LOGS).getAbsolutePath()));
         carbonLogHandler.setFormatter(new LoggingFormatter());
         logger.addHandler(carbonLogHandler);
