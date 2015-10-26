@@ -75,8 +75,7 @@ public class UtilsTest {
         }
     }
 
-    @Test
-    public void testGetCarbonConfigHomePathNullSystemPropertyScenarioOne() throws Exception {
+    @Test public void testGetCarbonConfigHomePathNullSystemPropertyScenarioOne() throws Exception {
 
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Boolean needToSetCarbonRepoDirPathAtTheEnd = false;
@@ -166,5 +165,43 @@ public class UtilsTest {
             System.setProperty(Constants.CARBON_HOME, carbonHome);
         }
         setEnvironmentalVariables(backup);
+    }
+
+    @Test
+    public void testSubstituteVarsSystemPropertyNotNull() {
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
+        Boolean needToClearCarbonHomeAtTheEnd = false;
+
+        if (carbonHome == null) {
+            carbonHome = "test-carbon-home";
+            System.setProperty(Constants.CARBON_HOME, carbonHome);
+            needToClearCarbonHomeAtTheEnd = true;
+        }
+
+        Assert.assertEquals(Utils.substituteVars("${carbon.home}"), carbonHome);
+
+        if (needToClearCarbonHomeAtTheEnd) {
+            System.clearProperty(Constants.CARBON_HOME);
+        }
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testSubstituteVarsSystemPropertyIsNull() {
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
+        Boolean needToSetCarbonHomeAtTheEnd = false;
+
+        if (carbonHome != null) {
+            System.clearProperty(Constants.CARBON_HOME);
+            needToSetCarbonHomeAtTheEnd = true;
+        }
+
+        try {
+            Utils.substituteVars("${carbon.home}");
+        } finally {
+            if (needToSetCarbonHomeAtTheEnd) {
+                System.setProperty(Constants.CARBON_HOME, carbonHome);
+            }
+        }
+
     }
 }
