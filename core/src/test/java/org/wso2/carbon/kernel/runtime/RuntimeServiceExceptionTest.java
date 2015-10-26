@@ -19,6 +19,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 
+/**
+ * Runtime Service Exception Test class.
+ *
+ * @since 5.0.0
+ */
 public class RuntimeServiceExceptionTest {
 
     @Test

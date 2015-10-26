@@ -22,14 +22,16 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.internal.DataHolder;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
+import org.wso2.carbon.kernel.runtime.Runtime;
 
 /**
  * This service  component is responsible for retrieving the Runtime OSGi
- * service and register each runtime with runtime manager
+ * service and register each runtime with runtime manager.
+ *
+ * @since 5.0.0
  */
 @Component(
-        name = "org.wso2.carbon.internal.runtime.RuntimeServiceListenerComponent",
+        name = "org.wso2.carbon.kernel.internal.runtime.RuntimeServiceListenerComponent",
         immediate = true
 )
 
@@ -39,7 +41,7 @@ public class RuntimeServiceListenerComponent {
     private RuntimeManager runtimeManager = DataHolder.getInstance().getRuntimeManager();
 
     /**
-     * Register the runtime instance
+     * Register the runtime instance.
      *
      * @param runtime - runtime instance
      */
@@ -60,7 +62,7 @@ public class RuntimeServiceListenerComponent {
     }
 
     /**
-     * Un-register the runtime instance
+     * Un-register the runtime instance.
      *
      * @param runtime - runtime instance
      */

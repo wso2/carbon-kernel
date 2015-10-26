@@ -28,7 +28,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * File Utilities
+ * File Utilities.
+ *
+ * @since 5.0.0
  */
 public class FileUtils {
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
@@ -110,7 +112,7 @@ public class FileUtils {
     }
 
     /**
-     * Archive a directory
+     * Archive a directory.
      *
      * @param destArchive destination of the archive
      * @param sourceDir   source directory

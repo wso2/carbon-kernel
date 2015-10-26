@@ -17,13 +17,15 @@ package org.wso2.carbon.kernel.internal.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
+import org.wso2.carbon.kernel.runtime.Runtime;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Runtime Manager class
+ * Runtime Manager class.
+ *
+ * @since 5.0.0
  */
 public class RuntimeManager {
     private static Logger logger = LoggerFactory.getLogger(RuntimeManager.class);
@@ -31,7 +33,7 @@ public class RuntimeManager {
 
 
     /**
-     * Register runtime instance on RuntimeManager
+     * Register runtime instance on RuntimeManager.
      *
      * @param runtime - runtime to be registered
      */
@@ -40,7 +42,7 @@ public class RuntimeManager {
     }
 
     /**
-     * Un-register runtime instance on RuntimeManager
+     * Un-register runtime instance on RuntimeManager.
      *
      * @param runtime - runtime to be un-registered
      */
@@ -49,7 +51,7 @@ public class RuntimeManager {
     }
 
     /**
-     * Return registered runtime list
+     * Return registered runtime list.
      *
      * @return List of rumtimes
      */

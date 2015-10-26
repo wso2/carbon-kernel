@@ -15,25 +15,29 @@
  */
 package org.wso2.carbon.kernel.internal.deployment;
 
-import org.wso2.carbon.deployment.Artifact;
-import org.wso2.carbon.deployment.ArtifactType;
-import org.wso2.carbon.deployment.api.DeploymentService;
-import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
-import org.wso2.carbon.deployment.spi.Deployer;
+import org.wso2.carbon.kernel.deployment.Artifact;
+import org.wso2.carbon.kernel.deployment.ArtifactType;
+import org.wso2.carbon.kernel.deployment.Deployer;
+import org.wso2.carbon.kernel.deployment.DeploymentService;
+import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
- * This class represent the implementation of deployment, undeployment and redeployment of Carbon Artifacts
+ * This class represent the implementation of deployment, undeployment and redeployment of Carbon Artifacts.
+ *
+ * @since 5.0.0
  */
 public class CarbonDeploymentService implements DeploymentService {
 
     private DeploymentEngine carbonDeploymentEngine;
 
     /**
-     * This will construct the CarbonDeploymentService using the given DeploymentEngine instance
+     * This will construct the CarbonDeploymentService using the given DeploymentEngine instance.
      *
      * @param carbonDeploymentEngine the DeploymentEngine instance used with constructing the CarbonDeploymentService
      */
@@ -57,11 +61,10 @@ public class CarbonDeploymentService implements DeploymentService {
         if (deployer == null) {
             throw new CarbonDeploymentException("Unknown artifactType : " + artifactType);
         }
-        String destinationDirectory = carbonDeploymentEngine.getRepositoryDirectory() +
-                File.separator + deployer.getLocation();
         try {
-            FileUtils.copyFileToDir(new File(artifactPath),
-                    new File(destinationDirectory));
+            Path destination = Paths.get(carbonDeploymentEngine.getRepositoryDirectory().getAbsolutePath(),
+                    deployer.getLocation().getFile());
+            FileUtils.copyFileToDir(new File(artifactPath), destination.toFile());
         } catch (IOException e) {
             throw new CarbonDeploymentException("Error wile copying artifact", e);
         }

@@ -28,11 +28,13 @@ import static org.ops4j.pax.exam.CoreOptions.repositories;
 
 /**
  * This class contains Utility methods to configure PAX-EXAM container.
+ *
+ * @since 5.0.0
  */
 public class Utils {
 
     /**
-     * setting the maven local repo system property, important when running in jenkins
+     * setting the maven local repo system property, important when running in jenkins.
      */
     public static void setupMavenLocalRepo() {
         String localRepo = System.getProperty("maven.repo.local");
@@ -121,7 +123,7 @@ public class Utils {
     }
 
     /**
-     * Returns a merged array of user specified options and default options
+     * Returns a merged array of user specified options and default options.
      *
      * @param options custom options.
      * @return a merged array.

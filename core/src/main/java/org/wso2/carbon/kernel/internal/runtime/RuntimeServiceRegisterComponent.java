@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.internal.DataHolder;
-import org.wso2.carbon.kernel.runtime.api.RuntimeService;
+import org.wso2.carbon.kernel.runtime.RuntimeService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,13 +37,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * This class is responsible of waiting till all runtime services get registered
+ * This class is responsible of waiting till all runtime services get registered.
  * once all runtime services get registered it will register RuntimeService OSGI service
- * This service can be used by carbon server to finalize start-up
+ * This service can be used by carbon server to finalize start-up.
+ *
+ * @since 5.0.0
  */
 
 @Component(
-        name = "org.wso2.carbon.runtime.internal.RuntimeServiceRegisterComponent",
+        name = "org.wso2.carbon.kernel.internal.runtime.RuntimeServiceRegisterComponent",
         immediate = true
 )
 
@@ -102,7 +104,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
     }
 
     /**
-     * populate the list of required services under the manifest header REQUIRED_RUNTIME_SERVICE
+     * populate the list of required services under the manifest header REQUIRED_RUNTIME_SERVICE.
      */
     private void populateRequiredServices() {
         Bundle[] bundles = bundleContext.getBundles();
@@ -146,7 +148,7 @@ public class RuntimeServiceRegisterComponent implements ServiceListener {
     }
 
     /**
-     * Complete Runtime initialization if all required runtime get registered
+     * Complete Runtime initialization if all required runtime get registered.
      * Then the RuntimeService will be registered
      *
      * @param bundleContext : bundle context object

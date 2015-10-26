@@ -16,17 +16,19 @@
 package org.wso2.carbon.sample.runtime.mgt;
 
 /**
- * TODO
+ * Sample Runtime interface.
+ *
+ * @since 5.0.0
  */
 public interface Runtime {
 
     /**
-     *  TODO
+     *  Start a runtime.
      */
     void start();
 
     /**
-     *  TODO
+     *  Stop a runtime.
      */
     void stop();
 }

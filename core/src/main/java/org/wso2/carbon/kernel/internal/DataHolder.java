@@ -19,7 +19,9 @@ import org.osgi.framework.BundleContext;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 
 /**
- * Carbon kernel DataHolder
+ * Carbon kernel DataHolder.
+ *
+ * @since 5.0.0
  */
 public class DataHolder {
     private static DataHolder instance = new DataHolder();
@@ -40,7 +42,7 @@ public class DataHolder {
     }
 
     /**
-     * Getter method of RuntimeManager instance
+     * Getter method of RuntimeManager instance.
      *
      * @return RuntimeManager   returns runtime manager instance
      */
@@ -49,7 +51,7 @@ public class DataHolder {
     }
 
     /**
-     * setter method of RuntimeManager
+     * setter method of RuntimeManager.
      *
      * @param runtimeManager - RuntimeManager instance to be set
      */

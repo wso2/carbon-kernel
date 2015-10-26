@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO
+ * Sample Rumtime Manager Service Component class.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.sample.runtime.mgt.RuntimeManager",

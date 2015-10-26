@@ -20,12 +20,12 @@ import org.wso2.carbon.kernel.Constants;
 import java.nio.file.Paths;
 
 /**
- * Kernel internal utils
+ * Kernel internal utils.
  */
 public class Utils {
 
     /**
-     * returns the carbon.xml location
+     * returns the carbon.xml location.
      *
      * @return String carbon.xml location
      */

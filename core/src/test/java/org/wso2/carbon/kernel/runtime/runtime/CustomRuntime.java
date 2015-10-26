@@ -17,9 +17,14 @@ package org.wso2.carbon.kernel.runtime.runtime;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.runtime.RuntimeState;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
+/**
+ * CustomRuntime class for used in test cases.
+ *
+ * @since 5.0.0
+ */
 public class CustomRuntime implements Runtime {
     private static Log log = LogFactory.getLog(CustomRuntime.class);
 

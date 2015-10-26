@@ -15,8 +15,7 @@
  */
 package org.wso2.carbon.launcher;
 
-import org.wso2.carbon.launcher.bootstrap.logging.CarbonLogger;
-import org.wso2.carbon.launcher.bootstrap.logging.ConsoleLogger;
+import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
 import org.wso2.carbon.launcher.utils.Utils;
 
@@ -32,44 +31,42 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.wso2.carbon.launcher.utils.Constants.CARBON_HOME;
-import static org.wso2.carbon.launcher.utils.Constants.DEFAULT_PROFILE;
-import static org.wso2.carbon.launcher.utils.Constants.ExitCodes;
-import static org.wso2.carbon.launcher.utils.Constants.LAUNCH_PROPERTIES_FILE;
-import static org.wso2.carbon.launcher.utils.Constants.LOG_LEVEL_WARN;
-import static org.wso2.carbon.launcher.utils.Constants.PAX_DEFAULT_SERVICE_LOG_LEVEL;
-import static org.wso2.carbon.launcher.utils.Constants.PROFILE;
+import static org.wso2.carbon.launcher.Constants.CARBON_HOME;
+import static org.wso2.carbon.launcher.Constants.DEFAULT_PROFILE;
+import static org.wso2.carbon.launcher.Constants.ExitCodes;
+import static org.wso2.carbon.launcher.Constants.LAUNCH_PROPERTIES_FILE;
+import static org.wso2.carbon.launcher.Constants.LOG_LEVEL_WARN;
+import static org.wso2.carbon.launcher.Constants.PAX_DEFAULT_SERVICE_LOG_LEVEL;
+import static org.wso2.carbon.launcher.Constants.PROFILE;
 
 /**
  * Starts a Carbon server instance.
+ *
+ * @since 5.0.0
  */
 public class Main {
 
-    private static final Logger logger = Logger.getLogger(Main.class.getName());
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(Main.class.toString());
 
     /**
      * @param args arguments
      */
     public static void main(String[] args) {
-
-        // 1) Initialize logging.
-        bootstrapLogging();
-
-        // 2) Initialize and/or verify System properties
+        // 1) Initialize and/or verify System properties
         initAndVerifySysProps();
 
-        // 3) Load the Carbon start configuration
-        CarbonLaunchConfig<String, String> config = loadCarbonLaunchConfig();
+        // 2) Load the Carbon start configuration
+        CarbonLaunchConfig config = loadCarbonLaunchConfig();
 
         CarbonServer carbonServer = new CarbonServer(config);
 
-        // 4) Register a shutdown hook to stop the server
+        // 3) Register a shutdown hook to stop the server
         registerShutdownHook(carbonServer);
 
-        // 5) Write pid to wso2carbon.pid file
+        // 4) Write pid to wso2carbon.pid file
         writePID(System.getProperty(CARBON_HOME));
 
-        // 6) Start Carbon server.
+        // 5) Start Carbon server.
         try {
             // This method launches the OSGi framework, loads all the bundles and starts Carbon server completely.
             carbonServer.start();
@@ -98,15 +95,16 @@ public class Main {
      *
      * @return CarbonLaunchConfig
      */
-    private static CarbonLaunchConfig<String, String> loadCarbonLaunchConfig() {
-        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDir(), LAUNCH_PROPERTIES_FILE).toString();
+    private static CarbonLaunchConfig loadCarbonLaunchConfig() {
+        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(),
+                LAUNCH_PROPERTIES_FILE).toString();
         File launchPropFile = new File(launchPropFilePath);
 
         if (launchPropFile.exists()) {
             logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " +
                     launchPropFile.getAbsolutePath());
 
-            return new CarbonLaunchConfig<>(launchPropFile);
+            return new CarbonLaunchConfig(launchPropFile);
         } else {
 
             if (logger.isLoggable(Level.FINE)) {
@@ -114,10 +112,15 @@ public class Main {
                         "in the classpath");
             }
 
-            return new CarbonLaunchConfig<>();
+            return new CarbonLaunchConfig();
         }
     }
 
+    /**
+     * Registers a new virtual-machine shutdown hook.
+     *
+     * @param carbonServer Carbon server to stop
+     */
     private static void registerShutdownHook(final CarbonServer carbonServer) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
@@ -126,6 +129,9 @@ public class Main {
         });
     }
 
+    /**
+     * Initialize and verify system properties.
+     */
     private static void initAndVerifySysProps() {
         String carbonHome = System.getProperty(CARBON_HOME);
         if (carbonHome == null || carbonHome.length() == 0) {
@@ -143,33 +149,20 @@ public class Main {
         System.setProperty(PAX_DEFAULT_SERVICE_LOG_LEVEL, LOG_LEVEL_WARN);
     }
 
-    private static void bootstrapLogging() {
-        try {
-            logger.addHandler(CarbonLogger.getDefaultHandler());
-            logger.addHandler(ConsoleLogger.getDefaultHandler());
-        } catch (IOException ex) {
-            // Following log may never get printed if logging is not properly initialized. Hence the sending the error
-            //  message to the standard out.
-            ex.printStackTrace();
-            logger.log(Level.SEVERE, "Could not initialize logging", ex);
-            throw new RuntimeException(ex);
-        }
-    }
-
     /**
-     * Write the process ID of this process to the file
+     * Write the process ID of this process to the file.
      *
      * @param carbonHome carbon.home sys property value.
      */
     private static void writePID(String carbonHome) {
 
-        String[] cmd = { "bash", "-c", "echo $PPID" };
+        String[] cmd = {"bash", "-c", "echo $PPID"};
         Process p;
         String pid = "";
         try {
             p = Runtime.getRuntime().exec(cmd);
         } catch (IOException e) {
-            //ignored. We might be invoking this on a Window platform. Therefore if an error occurs
+            //Ignored. We might be invoking this on a Window platform. Therefore if an error occurs
             //we simply ignore the error.
             return;
         }
@@ -188,7 +181,8 @@ public class Main {
 
         if (pid.length() != 0) {
             try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(carbonHome + File.separator + "wso2carbon.pid"), StandardCharsets.UTF_8))) {
+                    new FileOutputStream(Paths.get(carbonHome, "wso2carbon.pid").toString()),
+                    StandardCharsets.UTF_8))) {
                 writer.write(pid);
             } catch (IOException e) {
                 logger.log(Level.WARNING, "Cannot write wso2carbon.pid file");
@@ -196,3 +190,4 @@ public class Main {
         }
     }
 }
+

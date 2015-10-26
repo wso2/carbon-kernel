@@ -4,22 +4,25 @@ WSO2 Carbon Kernel ${carbon.version}
 Welcome to the WSO2 Carbon Kernel ${carbon.version} release
 
 Carbon Kernel 5 is the next generation of WSO2 Carbon kernel, re-architected from the ground up with the latest
-technologies and patterns to overcome the existing architectural limitations as well as to get rid of the dependencies
-to the legacy technologies like Apache Axis2.
+technologies and patterns to overcome the existing architectural limitations. Additionally, the Carbon Kernel
+is now a lightweight, general-purpose OSGi runtime specializing in hosting servers, providing key functionality
+for server developers. The result is a streamlined and even more powerful middleware platform than ever before.
 
 What's New In This Release
 ----------------------------
-1.Pax Exam OSGi Test Framework Support
-2.Logging framework backend upgraded to log4j 2.0 support
+1. Upgrade to Eclipse Luna SR2 OSGi Framework.
+2. Pax Exam OSGi Test Framework Support.
+3. Carbon Feature Plugin 2.0 integration.
+4. Logging framework backend upgraded to log4j 2.0 support.
 
 Installation & Running
 ----------------------
-1. Extract the downloaded zip file
-2. Run the wso2server.sh or wso2server.bat file in the bin directory
+1. Extract the downloaded zip file.
+2. Run the wso2server.sh or wso2server.bat file in the bin directory.
 3. You can enable/disable OSGi Console by un-commenting the osgi.console property in
    CARBON_HOME/repository/cont/osgi/launch.properties file.
 4. You can enable OSGi debug logs by un-commenting the osgi.debug property in
-   CARBON_HOME/repository/cont/osgi/launch.properties file
+   CARBON_HOME/repository/cont/osgi/launch.properties file.
 
 Hardware Requirements
 -------------------
@@ -63,7 +66,7 @@ Carbon Binary Distribution Directory Structure
           Contains all OSGi related libraries and configurations.
 
         - conf
-          Contains server configuration files. Ex: axis2.xml, carbon.xml
+          Contains server configuration files. Ex: carbon.xml
 
         - deployment
 	      All deployment artifacts should go into this directory.

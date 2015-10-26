@@ -17,9 +17,9 @@ package org.wso2.carbon.kernel.internal.deployment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.deployment.Artifact;
-import org.wso2.carbon.deployment.ArtifactType;
-import org.wso2.carbon.deployment.spi.Deployer;
+import org.wso2.carbon.kernel.deployment.Artifact;
+import org.wso2.carbon.kernel.deployment.ArtifactType;
+import org.wso2.carbon.kernel.deployment.Deployer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,25 +30,27 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The Repository Scanner which does the scanning of repository in carbon.
  * This will scan each registered deployer's deployment directory and sweep
- * the relevant artifact lists (deploy, undeploy, sweep)
+ * the relevant artifact lists (deploy, undeploy, sweep).
+ *
+ * @since 5.0.0
  */
 public class RepositoryScanner {
     private static final Logger logger = LoggerFactory.getLogger(RepositoryScanner.class);
     private final DeploymentEngine carbonDeploymentEngine;
     /**
-     * A list which holds the artifacts to be deployed
+     * A list which holds the artifacts to be deployed.
      */
     private ArrayList<Artifact> artifactsToDeploy = new ArrayList<>();
     /**
-     * A list which holds the artifact to be undeployed
+     * A list which holds the artifact to be undeployed.
      */
     private ArrayList<Artifact> artifactsToUndeploy = new ArrayList<>();
     /**
-     * A list which holds the artifact to be updated
+     * A list which holds the artifact to be updated.
      */
     private ArrayList<Artifact> artifactsToUpdate = new ArrayList<>();
     /**
-     * A list to hold the path of the artifacts to be deployed
+     * A list to hold the path of the artifacts to be deployed.
      */
     private List<String> artifactFilePathList = new ArrayList<>();
 
@@ -69,7 +71,7 @@ public class RepositoryScanner {
     /**
      * Search and add the artifacts in all deployment directories in the repository
      * and populate the relevant lists (deploy, undeploy, sweep) to carry out the
-     * deployment process
+     * deployment process.
      */
     private void mark() {
         File carbonRepo = carbonDeploymentEngine.getRepositoryDirectory();
@@ -111,7 +113,7 @@ public class RepositoryScanner {
 
     /**
      * Finds and add the artifacts in the given deployment directory to the
-     * deploy artifacts list
+     * deploy artifacts list.
      *
      * @param directoryToSearch the directory to scan
      * @param type              ArtifactType
@@ -128,7 +130,7 @@ public class RepositoryScanner {
     }
 
     /**
-     * Add given artifact to the list artifacts to deploy
+     * Add given artifact to the list artifacts to deploy.
      *
      * @param artifact artifact to deploy
      */

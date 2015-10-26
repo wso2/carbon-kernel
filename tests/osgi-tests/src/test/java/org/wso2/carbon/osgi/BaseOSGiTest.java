@@ -27,7 +27,9 @@ import org.testng.annotations.Test;
 import javax.inject.Inject;
 
 /**
- * Base OSGi class to test the OSGi status of the org.wso2.carbon.core bundle
+ * Base OSGi class to test the OSGi status of the org.wso2.carbon.core bundle.
+ *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

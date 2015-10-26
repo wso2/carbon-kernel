@@ -20,6 +20,11 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.transports.transporter.CustomCarbonTransport;
 
+/**
+ * Unit tests class for org.wso2.carbon.kernel.transports.TransportManager.
+ *
+ * @since 5.0.0
+ */
 public class TransportManagerTest {
 
     private TransportManager transportManager;

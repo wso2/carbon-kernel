@@ -15,13 +15,14 @@
  */
 package org.wso2.carbon.kernel.internal.deployment;
 
-import org.wso2.carbon.deployment.Artifact;
+import org.wso2.carbon.kernel.deployment.Artifact;
 
 import java.io.File;
 
 /**
  * A utility class for handling deployment engine related tasks such as check for artifact modification, etc.
  *
+ * @since 5.0.0
  */
 public class Utils {
 
@@ -42,7 +43,7 @@ public class Utils {
     }
 
     /**
-     * Sets the last modified time to the given artifact
+     * Sets the last modified time to the given artifact.
      *
      * @param artifact artifact for update modified time
      */
@@ -54,7 +55,7 @@ public class Utils {
     }
 
     /**
-     * Request: file:sample.war
+     * Request: file:sample.war .
      * Response: file:/user/wso2carbon-kernel-5.0.0/repository/deployment/server/webapps/sample.war
      *
      * @param path       file path to resolve

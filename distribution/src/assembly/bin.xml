@@ -115,6 +115,12 @@
             <filtered>true</filtered>
         </file>
         <file>
+            <source>carbon-home/release-notes.html</source>
+            <outputDirectory></outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>carbon-home/repository/conf/carbon.xml</source>
             <outputDirectory>repository/conf/</outputDirectory>
             <fileMode>644</fileMode>

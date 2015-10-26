@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.CarbonConfigProvider;
-import org.wso2.carbon.kernel.internal.kernel.config.XMLBasedConfigProvider;
-import org.wso2.carbon.kernel.internal.kernel.context.CarbonRuntimeFactory;
+import org.wso2.carbon.kernel.internal.config.XMLBasedConfigProvider;
+import org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory;
 import org.wso2.carbon.kernel.internal.logging.LoggingConfiguration;
 
 import java.util.Map;
@@ -36,10 +36,12 @@ import java.util.Map;
 /**
  * The core service component responsible for configuring logging framework and
  * initializing the carbon configuration.
+ *
+ * @since 5.0.0
  */
 
 @Component(
-        name = "org.wso2.carbon.internal.CarbonCoreDSComponent",
+        name = "org.wso2.carbon.kernel.internal.CarbonCoreDSComponent",
         immediate = true
 )
 public class CarbonCoreDSComponent {

@@ -16,17 +16,19 @@
 package org.wso2.carbon.sample.transport.mgt;
 
 /**
- * TODO
+ * Sample Transport interface.
+ *
+ * @since 5.0.0
  */
 public interface Transport {
 
     /**
-     *  TODO
+     *  Start the transport.
      */
     void start();
 
     /**
-     *  TODO
+     *  Stop the transport.
      */
     void stop();
 }

@@ -23,7 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * A simple servlet to test the servlet registration with jetty exposed HttpService
+ * A simple servlet to test the servlet registration with jetty exposed HttpService.
+ *
+ * @since 5.0.0
  */
 
 public class SampleServlet extends HttpServlet {

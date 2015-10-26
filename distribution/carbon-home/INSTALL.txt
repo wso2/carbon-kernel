@@ -20,10 +20,9 @@ Installing  WSO2 Carbon Kernel ${carbon.version}
 
 Hardware Requirements
 -------------------
-1. Minimum memory - 512GB
+1. Minimum memory - 512MB
 2. Processor      - Pentium 800MHz or equivalent at minimum
 
 Software Requirements
 -------------------
 1. Java SE Development Kit - 1.8
-2. Apache Ant - An Apache Ant version is required. Ant 1.7.0 version is recommended.

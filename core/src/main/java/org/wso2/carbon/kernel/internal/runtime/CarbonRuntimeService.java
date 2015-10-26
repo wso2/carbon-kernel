@@ -17,15 +17,17 @@ package org.wso2.carbon.kernel.internal.runtime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.runtime.Runtime;
+import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.runtime.RuntimeState;
-import org.wso2.carbon.kernel.runtime.api.RuntimeService;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
 import java.util.List;
 
 /**
- * Implementation class for the RuntimeService interface
+ * Implementation class for the RuntimeService interface.
+ *
+ * @since 5.0.0
  */
 
 public class CarbonRuntimeService implements RuntimeService {
@@ -37,7 +39,7 @@ public class CarbonRuntimeService implements RuntimeService {
     }
 
     /**
-     * Starts registered runtime
+     * Starts registered runtime.
      *
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */
@@ -58,7 +60,7 @@ public class CarbonRuntimeService implements RuntimeService {
     }
 
     /**
-     * Stops registered runtime
+     * Stops registered runtime.
      *
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */
@@ -75,7 +77,7 @@ public class CarbonRuntimeService implements RuntimeService {
     }
 
     /**
-     * Puts registered runtime into MAINTENANCE state
+     * Puts registered runtime into MAINTENANCE state.
      *
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */
@@ -92,7 +94,7 @@ public class CarbonRuntimeService implements RuntimeService {
     }
 
     /**
-     * Puts registered runtime into MAINTENANCE state
+     * Puts registered runtime into MAINTENANCE state.
      *
      * @throws RuntimeServiceException - thrown if any issues occur during the process
      */

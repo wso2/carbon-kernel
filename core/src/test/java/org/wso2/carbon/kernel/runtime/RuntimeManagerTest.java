@@ -21,11 +21,15 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 import org.wso2.carbon.kernel.runtime.runtime.CustomRuntime;
-import org.wso2.carbon.kernel.runtime.spi.Runtime;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Runtime Manager Test class.
+ *
+ * @since 5.0.0
+ */
 public class RuntimeManagerTest {
     RuntimeManager runtimeManager;
     CustomRuntime customRuntime;

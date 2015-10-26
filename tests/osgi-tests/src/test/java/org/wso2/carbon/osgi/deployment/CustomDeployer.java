@@ -17,10 +17,10 @@ package org.wso2.carbon.osgi.deployment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.deployment.Artifact;
-import org.wso2.carbon.deployment.ArtifactType;
-import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
-import org.wso2.carbon.deployment.spi.Deployer;
+import org.wso2.carbon.kernel.deployment.Artifact;
+import org.wso2.carbon.kernel.deployment.ArtifactType;
+import org.wso2.carbon.kernel.deployment.Deployer;
+import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +28,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Custom Deployer class to test deployment engine OSGi test case.
+ *
+ * @since 5.0.0
+ */
 public class CustomDeployer implements Deployer {
     private static final Logger logger = LoggerFactory.getLogger(CustomDeployer.class);
 

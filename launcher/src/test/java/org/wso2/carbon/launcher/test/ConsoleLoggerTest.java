@@ -28,6 +28,9 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+/**
+ * Console Logger Test class.
+ */
 public class ConsoleLoggerTest {
 
 
@@ -45,7 +48,7 @@ public class ConsoleLoggerTest {
 
     @Test
     public void testJavaUtilLogs() {
-        logger = BootstrapLogger.getBootstrapLogger();
+        logger = BootstrapLogger.getCarbonLogger(ConsoleLoggerTest.class.toString());
         logger.addHandler(javaUtilLogHandler);
         String sampleMessage = "Sample javaUtilLog message-01";
         LogRecord record = new LogRecord(Level.INFO, sampleMessage);

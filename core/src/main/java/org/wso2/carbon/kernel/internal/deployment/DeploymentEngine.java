@@ -17,13 +17,13 @@ package org.wso2.carbon.kernel.internal.deployment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.deployment.Artifact;
-import org.wso2.carbon.deployment.ArtifactType;
-import org.wso2.carbon.deployment.exception.CarbonDeploymentException;
-import org.wso2.carbon.deployment.exception.DeployerRegistrationException;
-import org.wso2.carbon.deployment.exception.DeploymentEngineException;
-import org.wso2.carbon.deployment.spi.Deployer;
 import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.deployment.Artifact;
+import org.wso2.carbon.kernel.deployment.ArtifactType;
+import org.wso2.carbon.kernel.deployment.Deployer;
+import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
+import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
+import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 
 import java.io.File;
 import java.util.List;
@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The Deployment Engine of Carbon which manages the deployment/undeployment of artifacts in carbon.
+ *
+ * @since 5.0.0
  */
 
 public class DeploymentEngine {
@@ -42,22 +44,22 @@ public class DeploymentEngine {
     private static final Logger logger = LoggerFactory.getLogger(DeploymentEngine.class);
 
     /**
-     * The repository scanner associated with this engine
+     * The repository scanner associated with this engine.
      */
     private RepositoryScanner repositoryScanner;
 
     /**
-     * Repository directory for this deployment engine
+     * Repository directory for this deployment engine.
      */
     private File repositoryDirectory = null;
 
     /**
-     * The map which holds the set of registered deployers with this engine
+     * The map which holds the set of registered deployers with this engine.
      */
     private Map<ArtifactType, Deployer> deployerMap = new ConcurrentHashMap<>();
 
     /**
-     * A map to hold all currently deployed artifacts
+     * A map to hold all currently deployed artifacts.
      */
     private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
             new ConcurrentHashMap<>();
@@ -71,7 +73,7 @@ public class DeploymentEngine {
     /**
      * Configure and prepare the repository associated with this engine.
      *
-     * @throws org.wso2.carbon.deployment.exception.DeploymentEngineException on error
+     * @throws org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException on error
      */
     private void init(String repositoryDir) throws DeploymentEngineException {
         repositoryDirectory = new File(repositoryDir);
@@ -151,7 +153,7 @@ public class DeploymentEngine {
     }
 
     /**
-     * Removes a deployer from the deployment engine configuration
+     * Removes a deployer from the deployment engine configuration.
      *
      * @param deployer the deployer instance to un-register
      * @throws DeploymentEngineException Throwing deployment registration exception
@@ -170,7 +172,7 @@ public class DeploymentEngine {
     }
 
     /**
-     * Retrieve the deployer from the current deployers map, by giving the associated directory
+     * Retrieve the deployer from the current deployers map, by giving the associated directory.
      *
      * @param type the artifact type that the deployer is associated with
      * @return Deployer instance
@@ -181,7 +183,7 @@ public class DeploymentEngine {
     }
 
     /**
-     * Return the registered deployers as a Map
+     * Return the registered deployers as a Map.
      *
      * @return registered deployers
      */
@@ -191,7 +193,7 @@ public class DeploymentEngine {
 
 
     /**
-     * Returns the repository directory that the deployment engine is registered with
+     * Returns the repository directory that the deployment engine is registered with.
      * Eg: CARBON_HOME/repository/deployment/server
      *
      * @return repository directory
@@ -222,7 +224,7 @@ public class DeploymentEngine {
     }
 
     /**
-     * Deploy the artifacts found in the artifacts to be deployed list
+     * Deploy the artifacts found in the artifacts to be deployed list.
      *
      * @param artifactsToDeploy list of artifacts to deploy
      */
@@ -248,7 +250,7 @@ public class DeploymentEngine {
     }
 
     /**
-     * Updates the artifacts found in the artifacts to be updated list
+     * Updates the artifacts found in the artifacts to be updated list.
      *
      * @param artifactsToUpdate list of artifacts to update
      */
@@ -283,7 +285,7 @@ public class DeploymentEngine {
     }
 
     /**
-     * Undeploy the artifacts found in the artifact to be undeployed list
+     * Undeploy the artifacts found in the artifact to be undeployed list.
      *
      * @param artifactsToUndeploy list of artifacts to undeploy
      */

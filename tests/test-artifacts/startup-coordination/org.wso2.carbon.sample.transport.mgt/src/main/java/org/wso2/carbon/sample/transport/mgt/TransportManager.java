@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO
+ * Sample Transport Manager Service Component class.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.sample.transport.mgt.TransportManager",

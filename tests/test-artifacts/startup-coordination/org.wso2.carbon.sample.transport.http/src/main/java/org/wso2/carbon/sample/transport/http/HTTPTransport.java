@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.sample.transport.mgt.Transport;
 
 /**
- * TODO
+ * Sample HTTPTransport Service Component class.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.sample.transport.http.HTTPTransport",
@@ -35,7 +37,7 @@ public class HTTPTransport implements Transport {
 
     @Override
     public void start() {
-        logger.info("******** service " + this.getClass().getName());
+        logger.info("Transport service : " + this.getClass().getName());
     }
 
     @Override

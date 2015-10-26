@@ -22,20 +22,28 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
 
 import java.util.Map;
 
 /**
- * OSGi declarative services component which handled registration & uregistration of Carbon transports
+ * OSGi declarative services component which handled registration & un-registration of Carbon transports.
+ * It also acts as a RequiredCapabilityListener for all the CarbonTransport capabilities, and once they are
+ * available, it start the transports that are currently registered.
+ *
+ * @since 5.0.0
  */
 @Component(
-        name = "org.wso2.carbon.internal.transport.TransportServiceComponent",
-        immediate = true
+        name = "org.wso2.carbon.kernel.internal.transports.TransportServiceComponent",
+        immediate = true,
+        property = "required-service-interface=org.wso2.carbon.kernel.transports.CarbonTransport"
 )
-public class TransportServiceComponent {
-
+public class TransportServiceComponent implements RequiredCapabilityListener {
+    private static final Logger logger = LoggerFactory.getLogger(TransportServiceComponent.class);
     private TransportManager transportManager = new TransportManager();
 
     @Activate
@@ -61,5 +69,13 @@ public class TransportServiceComponent {
 
     protected void unregisterTransport(CarbonTransport transport, Map<String, ?> ref) {
         transportManager.unregisterTransport(transport);
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Starting all transports");
+        }
+        transportManager.startTransports();
     }
 }
