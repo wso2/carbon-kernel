@@ -13,42 +13,41 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.runtime;
+package org.wso2.carbon.kernel.internal.runtime;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
-import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
-import org.wso2.carbon.kernel.runtime.runtime.CustomRuntime;
+import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
+import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.kernel.runtime.Runtime;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Runtime Manager Test class.
+ * Test class to test org.wso2.carbon.kernel.internal.runtime.RuntimeManager.
  */
 public class RuntimeManagerTest {
-    RuntimeManager runtimeManager;
-    CustomRuntime customRuntime;
-    private List<Runtime> runtimeList = new ArrayList<Runtime>();
+
+    private RuntimeManager runtimeManager;
+    private Runtime runtime;
 
     @BeforeTest
-    public void setup() throws RuntimeServiceException {
-        customRuntime = new CustomRuntime();
+    public void setup() throws DeploymentEngineException, DeployerRegistrationException {
         runtimeManager = new RuntimeManager();
+        runtime = new CustomRuntime();
+        runtimeManager.registerRuntime(runtime);
     }
 
     @Test
-    public void testRegisterRuntime() {
-        runtimeManager.registerRuntime(customRuntime);
-        Assert.assertEquals(1, runtimeManager.getRuntimeList().size());
+    public void testGetRuntimesList() {
+        List<Runtime> runtimeList = runtimeManager.getRuntimeList();
+        Assert.assertTrue(runtimeList.size() == 1 && runtimeList.get(0) == runtime);
     }
 
-    @Test(dependsOnMethods = {"testRegisterRuntime"})
+    @Test(dependsOnMethods = {"testGetRuntimesList"})
     public void testUnRegisterRuntime() {
-        runtimeManager.unRegisterRuntime(customRuntime);
-        Assert.assertEquals(0, runtimeManager.getRuntimeList().size());
+        runtimeManager.unRegisterRuntime(runtime);
+        Assert.assertTrue(runtimeManager.getRuntimeList().size() == 0);
     }
-
 }

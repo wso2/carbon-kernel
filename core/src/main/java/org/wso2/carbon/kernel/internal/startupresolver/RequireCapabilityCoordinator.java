@@ -60,7 +60,7 @@ import java.util.stream.IntStream;
  * e.g. A Transport Manager starts transports all at once
  */
 @Component(
-        name = "org.wso2.carbon.internal.startupresolver.RequireCapabilityCoordinator",
+        name = "org.wso2.carbon.kernel.internal.startupcoordinator.RequireCapabilityCoordinator",
         immediate = true
 )
 public class RequireCapabilityCoordinator {

@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.kernel.internal.deployment;
 
-import org.wso2.carbon.deployment.Artifact;
+import org.wso2.carbon.kernel.deployment.Artifact;
 
 import java.io.File;
 

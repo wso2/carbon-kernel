@@ -32,7 +32,7 @@ import java.util.Map;
  * OSGi declarative services component which handled registration & uregistration of Carbon transports.
  */
 @Component(
-        name = "org.wso2.carbon.internal.transport.TransportServiceComponent",
+        name = "org.wso2.carbon.kernel.internal.transports.TransportServiceComponent",
         immediate = true,
         property = "required-service-interface=org.wso2.carbon.kernel.transports.CarbonTransport"
 )

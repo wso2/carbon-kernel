@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.internal.DataHolder;
-import org.wso2.carbon.kernel.runtime.api.RuntimeService;
+import org.wso2.carbon.kernel.runtime.RuntimeService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ import java.util.TimerTask;
  */
 
 @Component(
-        name = "org.wso2.carbon.runtime.internal.RuntimeServiceRegisterComponent",
+        name = "org.wso2.carbon.kernel.internal.runtime.RuntimeServiceRegisterComponent",
         immediate = true
 )
 
