@@ -62,7 +62,7 @@ import java.util.stream.IntStream;
  * @since 5.0.0
  */
 @Component(
-        name = "org.wso2.carbon.kernel.internal.startupcoordinator.RequireCapabilityCoordinator",
+        name = "org.wso2.carbon.kernel.internal.startupresolver.RequireCapabilityCoordinator",
         immediate = true
 )
 public class RequireCapabilityCoordinator {
