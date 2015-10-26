@@ -1,4 +1,0 @@
-[2015-10-26 11:01:47,374] INFO {org.wso2.carbon.launcher.test.CarbonLoggerTest} - Sample message-01
-[2015-10-26 11:05:38,970] INFO {org.wso2.carbon.launcher.test.CarbonLoggerTest} - Sample message-01
-[2015-10-26 11:09:16,343] INFO {org.wso2.carbon.launcher.test.CarbonLoggerTest} - Sample message-01
-[2015-10-26 11:10:02,952] INFO {org.wso2.carbon.launcher.test.CarbonLoggerTest} - Sample message-01

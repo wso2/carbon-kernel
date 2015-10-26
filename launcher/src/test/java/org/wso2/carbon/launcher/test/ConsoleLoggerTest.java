@@ -25,7 +25,6 @@ import org.wso2.carbon.launcher.test.logging.handlers.CommonsLogHandler;
 import org.wso2.carbon.launcher.test.logging.handlers.JavaUtilLogHandler;
 import org.wso2.carbon.launcher.test.logging.handlers.SLF4jLogHandler;
 
-import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -33,15 +32,17 @@ import java.util.logging.Logger;
 /**
  * Console Logger Test class.
  */
-public class ConsoleLoggerTest {
+public class ConsoleLoggerTest extends BaseTest {
 
 
     JavaUtilLogHandler javaUtilLogHandler;
     CommonsLogHandler commonsLogHandler;
     SLF4jLogHandler slf4jLogHandler;
     private Logger logger;
-    protected String testDir = "src" + File.separator + "test" + File.separator;
-    protected String testResourceDir = testDir + "resources";
+
+    public ConsoleLoggerTest() {
+        super();
+    }
 
     @BeforeSuite
     public void doBeforeEachTest() {

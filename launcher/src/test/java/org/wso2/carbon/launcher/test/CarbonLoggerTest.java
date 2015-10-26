@@ -38,16 +38,11 @@ import java.util.logging.StreamHandler;
  */
 public class CarbonLoggerTest extends BaseTest {
     private static final String LOGS = "logs" + File.separator + "test.logs";
-    protected String testDir = "src" + File.separator + "test" + File.separator;
-    protected String testResourceDir = testDir + "resources";
     Logger logger;
     CarbonLogHandler carbonLogHandler;
 
-    /**
-     * @param testName
-     */
-    public CarbonLoggerTest(String testName) {
-        super(testName);
+    public CarbonLoggerTest() {
+        super();
     }
 
     @BeforeSuite
