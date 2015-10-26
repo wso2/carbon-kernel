@@ -48,7 +48,7 @@ public class FileUtilsTest {
 
     @Test
     public void testCopyFile() {
-        File destination = Paths.get("target", "FileUtilTest", "sample.txt").toFile();
+        File destination = Paths.get("target", "FileUtilTest", "tempFolder", "sample.txt").toFile();
         try {
             FileUtils.copyFile(sampleTextFile, destination);
             Assert.assertTrue(destination.exists());
@@ -57,9 +57,9 @@ public class FileUtilsTest {
         }
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testCopyFile"})
     public void testCopyFileToDir() {
-        File destination = Paths.get("target", "FileUtilTest", "sample.txt").toFile();
+        File destination = Paths.get("target", "FileUtilTest", "testSampleDirStructure", "sample.txt").toFile();
         try {
             FileUtils.copyFileToDir(sampleTextFile, testSampleDirStructure);
             Assert.assertTrue(destination.exists());
@@ -68,7 +68,7 @@ public class FileUtilsTest {
         }
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testCopyFileToDir"})
     public void testArchiveDir() {
         try {
             File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
@@ -79,7 +79,19 @@ public class FileUtilsTest {
         }
     }
 
-    @Test(dependsOnMethods = {"testCopyFile"})
+    @Test(dependsOnMethods = {"testArchiveDir"})
+    public void testFailArchiveDir() throws IOException {
+        File destination = Paths.get("target", "FileUtilTest", "testSampleDirStructure", "sample.txt").toFile();
+        try {
+            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
+            FileUtils.archiveDir(zipFile.getAbsolutePath(), destination.getAbsolutePath());
+            Assert.assertTrue(false);
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(), (destination.getAbsolutePath() + " is not a directory"));
+        }
+    }
+
+    @Test(dependsOnMethods = {"testFailArchiveDir"})
     public void testUDeleteDir() {
         Assert.assertTrue(FileUtils.deleteDir(testDir));
     }
