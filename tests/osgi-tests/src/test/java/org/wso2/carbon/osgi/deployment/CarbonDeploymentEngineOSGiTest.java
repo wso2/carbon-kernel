@@ -21,6 +21,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -31,6 +32,9 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.deployment.Deployer;
 import org.wso2.carbon.kernel.deployment.DeploymentService;
 import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
+import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
+import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.kernel.internal.deployment.DeploymentEngine;
 import org.wso2.carbon.osgi.util.Utils;
 
 import java.io.IOException;
@@ -38,6 +42,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import javax.inject.Inject;
 
 /**
@@ -66,6 +72,7 @@ public class CarbonDeploymentEngineOSGiTest {
     @Inject
     private DeploymentService deploymentService;
 
+    private static String CARBON_REPO;
     private static String artifactPath;
 
 
@@ -75,6 +82,7 @@ public class CarbonDeploymentEngineOSGiTest {
             basedir = Paths.get(".").toString();
         }
         Path testResourceDir = Paths.get(basedir, "src", "test", "resources");
+        CARBON_REPO = Paths.get(testResourceDir.toString(), "carbon-repo").toString();
         artifactPath = Paths.get(testResourceDir.toString(), "carbon-repo", "text-files", "sample1.txt").toString();
     }
 
@@ -116,6 +124,32 @@ public class CarbonDeploymentEngineOSGiTest {
 
         //redeploy - this does not do anything for the moment.
         deploymentService.redeploy(artifactPath, customDeployer.getArtifactType());
+    }
+
+
+    @Test(dependsOnMethods = {"testDeploymentService"})
+    public void testDeploymentEngine() throws DeploymentEngineException, InvalidSyntaxException,
+            CarbonDeploymentException, DeployerRegistrationException {
+        DeploymentEngine deploymentEngine = new DeploymentEngine(CARBON_REPO);
+        CustomDeploymentService customDeploymentService = new CustomDeploymentService(deploymentEngine);
+        Dictionary<String, String> properties = new Hashtable<>();
+        properties.put("ServiceType", "Custom");
+
+        ServiceRegistration serviceRegistration = bundleContext.registerService(DeploymentService.class,
+                customDeploymentService, properties);
+
+        String filter = "(ServiceType=Custom)";
+        ServiceReference<?>[] references = bundleContext.getServiceReferences(DeploymentService.class.getName(),
+                filter);
+        Assert.assertNotNull(references, "Custom Deployment Service Reference is null");
+
+        CustomDeployer customDeployer = new CustomDeployer();
+        deploymentEngine.registerDeployer(customDeployer);
+        //deploy
+        customDeploymentService.deploy(artifactPath, customDeployer.getArtifactType());
+        //un-register
+        deploymentEngine.unregisterDeployer(customDeployer);
+        serviceRegistration.unregister();
     }
 
     /**
