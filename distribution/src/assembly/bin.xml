@@ -54,13 +54,6 @@
             </includes>
             <fileMode>755</fileMode>
         </fileSet>
-        <fileSet>
-            <directory>../tools/target</directory>
-            <outputDirectory>lib/tools</outputDirectory>
-            <includes>
-                <include>org.wso2.carbon.tools.5.0.0-SNAPSHOT.jar</include>
-            </includes>
-        </fileSet>
 
         <!-- copy scripts for embedded database -->
         <fileSet>
@@ -146,6 +139,12 @@
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.launcher:jar</include>
                 <include>org.osgi:org.osgi.core:jar</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>lib/tools</outputDirectory>
+            <includes>
+                <include>org.wso2.carbon:org.wso2.carbon.tools:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
