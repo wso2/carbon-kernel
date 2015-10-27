@@ -46,7 +46,8 @@ public class BootstrapLogger extends Logger {
     /**
      * Adding log handlers to bootstrap logger.
      *
-     * @return Carbon logger
+     * @param name class name
+     * @return Logger Carbon logger instance
      */
     public static Logger getCarbonLogger(String name) {
         Logger logger = new BootstrapLogger(name);
