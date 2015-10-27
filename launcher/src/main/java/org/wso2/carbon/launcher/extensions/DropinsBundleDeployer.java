@@ -26,7 +26,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -57,12 +62,12 @@ public class DropinsBundleDeployer implements CarbonServerListener {
         Path dropinsDirectory = Paths.get(Utils.getRepositoryDirectory().toString(), "components", "dropins");
         try {
             if (Files.exists(dropinsDirectory)) {
-                List<BundleInfoLine> newBundleInfoLines = getNewBundleInfoLines(dropinsDirectory);
+                List<BundleInfo> newBundleInfoLines = getNewBundleInfoLines(dropinsDirectory);
                 Path bundleInfoDirectory = Paths
                         .get(Utils.getRepositoryDirectory().toString(), "components", profileName, "configuration",
                                 "org.eclipse.equinox.simpleconfigurator");
                 Path bundleInfoFile = Paths.get(bundleInfoDirectory.toString(), "bundles.info");
-                Map<String, List<BundleInfoLine>> bundleInfoLineMap = processBundleInfoFile(bundleInfoFile,
+                Map<String, List<BundleInfo>> bundleInfoLineMap = processBundleInfoFile(bundleInfoFile,
                         newBundleInfoLines);
                 addNewBundleInfoLines(newBundleInfoLines, bundleInfoLineMap);
                 updateBundlesInfoFile(bundleInfoFile, bundleInfoLineMap);
@@ -73,14 +78,14 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     }
 
     /**
-     * Scans through the dropins directory and constructs corresponding {@code BundleInfoLine} instances.
+     * Scans through the dropins directory and constructs corresponding {@code BundleInfo} instances.
      *
      * @param sourceBundleDirectory the source directory which contains the OSGi bundles
-     * @return a {@link List} of {@link BundleInfoLine} instances
+     * @return a {@link List} of {@link BundleInfo} instances
      * @throws IOException if an I/O error occurs
      */
-    private static List<BundleInfoLine> getNewBundleInfoLines(Path sourceBundleDirectory) throws IOException {
-        List<BundleInfoLine> existingBundleInfoLines = new ArrayList<>();
+    private static List<BundleInfo> getNewBundleInfoLines(Path sourceBundleDirectory) throws IOException {
+        List<BundleInfo> existingBundleInfoLines = new ArrayList<>();
         Stream<Path> children = Files.list(sourceBundleDirectory);
 
         children.forEach(child -> {
@@ -113,7 +118,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                             //  Checking whether this bundle is a fragment or not.
                             boolean isFragment = jarFile.getManifest().getMainAttributes().
                                     getValue(FRAGMENT_HOST) != null;
-                            existingBundleInfoLines.add(new BundleInfoLine(bundleSymbolicName, bundleVersion,
+                            existingBundleInfoLines.add(new BundleInfo(bundleSymbolicName, bundleVersion,
                                     String.format("../../dropins/%s", childFileName.toString()),
                                     DEFAULT_BUNDLE_START_LEVEL, isFragment));
                         }
@@ -131,20 +136,20 @@ public class DropinsBundleDeployer implements CarbonServerListener {
      * removed.
      *
      * @param bundleInfoFile     the bundles.info file to be read
-     * @param newBundleInfoLines the {@link List} of {@link BundleInfoLine} instances corresponding to the new OSGi
+     * @param newBundleInfoLines the {@link List} of {@link BundleInfo} instances corresponding to the new OSGi
      *                           bundles in dropins folder
      * @return a {@link Map} of existing OSGi bundle information with stale references removed
      * @throws Exception if an error occurs when reading the bundles.info file
      */
-    private static Map<String, List<BundleInfoLine>> processBundleInfoFile(Path bundleInfoFile,
-            List<BundleInfoLine> newBundleInfoLines) throws Exception {
-        Map<String, List<BundleInfoLine>> bundleInfoLineMap = new HashMap<>();
+    private static Map<String, List<BundleInfo>> processBundleInfoFile(Path bundleInfoFile,
+            List<BundleInfo> newBundleInfoLines) throws Exception {
+        Map<String, List<BundleInfo>> bundleInfoLineMap = new HashMap<>();
 
         if (Files.exists(bundleInfoFile)) {
             List<String> fileContent = Files.readAllLines(bundleInfoFile, Charset.forName("UTF-8"));
             for (String line : fileContent) {
                 if (!line.startsWith("#")) {
-                    BundleInfoLine bundleInfoLine = BundleInfoLine.getInstance(line);
+                    BundleInfo bundleInfoLine = BundleInfo.getInstance(line);
                     if (bundleInfoLine.isFromDropins()) {
                         /*
                             This bundle is from the dropins directory. We need to check whether this bundle
@@ -154,7 +159,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                             equal.
                          */
                         boolean found = false;
-                        for (BundleInfoLine newBundleInfoLine : newBundleInfoLines) {
+                        for (BundleInfo newBundleInfoLine : newBundleInfoLines) {
                             if (newBundleInfoLine.getBundleSymbolicName().equals(bundleInfoLine.getBundleSymbolicName())
                                     && newBundleInfoLine.getBundleVersion().equals(bundleInfoLine.getBundleVersion())) {
                                 /*
@@ -172,8 +177,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                             continue;
                         }
                     }
-                    List<BundleInfoLine> bundleInfoLines = bundleInfoLineMap
-                            .get(bundleInfoLine.getBundleSymbolicName());
+                    List<BundleInfo> bundleInfoLines = bundleInfoLineMap.get(bundleInfoLine.getBundleSymbolicName());
                     if (bundleInfoLines == null) {
                         bundleInfoLines = new ArrayList<>();
                         bundleInfoLines.add(bundleInfoLine);
@@ -188,21 +192,21 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     }
 
     /**
-     * Adds the new {@code BundleInfoLine} instance(s) to the existing OSGi bundle information.
+     * Adds the new {@code BundleInfo} instance(s) to the existing OSGi bundle information.
      *
-     * @param newBundleInfoLines        the list of new {@link BundleInfoLine} instances available in the dropins
+     * @param newBundleInfoLines        the list of new {@link BundleInfo} instances available in the dropins
      *                                  directory
      * @param existingBundleInfoLineMap the list of bundles currently available in the system
      */
 
-    private static void addNewBundleInfoLines(List<BundleInfoLine> newBundleInfoLines,
-            Map<String, List<BundleInfoLine>> existingBundleInfoLineMap) {
+    private static void addNewBundleInfoLines(List<BundleInfo> newBundleInfoLines,
+            Map<String, List<BundleInfo>> existingBundleInfoLineMap) {
         newBundleInfoLines.forEach(newBundleInfoLine -> {
             String symbolicName = newBundleInfoLine.getBundleSymbolicName();
             String version = newBundleInfoLine.getBundleVersion();
             boolean isFragment = newBundleInfoLine.isFragment();
 
-            List<BundleInfoLine> bundleInfoLineList = existingBundleInfoLineMap.get(symbolicName);
+            List<BundleInfo> bundleInfoLineList = existingBundleInfoLineMap.get(symbolicName);
 
             if (bundleInfoLineList == null) {
                 //  Bundle does not exists in the bundles.info line, hence we add it.
@@ -213,7 +217,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
             } else {
                 //  Bundle symbolic names exists. Now we need to check whether their versions are equal.
                 boolean found = false;
-                for (BundleInfoLine existingBundleInfoLine : bundleInfoLineList) {
+                for (BundleInfo existingBundleInfoLine : bundleInfoLineList) {
 
                     if (existingBundleInfoLine.getBundleVersion().equals(version)) {
                         /*
@@ -279,7 +283,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
      * @param bundleInfoLineMap the {@link Map} containing the complete OSGi bundle information
      * @throws Exception if an error occurs when updating the existing bundles.info file
      */
-    private static void updateBundlesInfoFile(Path bundlesInfoFile, Map<String, List<BundleInfoLine>> bundleInfoLineMap)
+    private static void updateBundlesInfoFile(Path bundlesInfoFile, Map<String, List<BundleInfo>> bundleInfoLineMap)
             throws Exception {
         //  Generates the new bundles.info file into a temp location.
         String tempDirectory = System.getProperty("java.io.tmpdir");
@@ -299,7 +303,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
 
             List<String> bundleInfoLines = new ArrayList<>();
             for (String key : keyArray) {
-                List<BundleInfoLine> bundleInfoLineList = bundleInfoLineMap.get(key);
+                List<BundleInfo> bundleInfoLineList = bundleInfoLineMap.get(key);
                 bundleInfoLineList.forEach(bundleInfoLine -> bundleInfoLines.add(bundleInfoLine.toString()));
             }
             Files.write(bundlesInfoFile, bundleInfoLines, Charset.forName("UTF-8"));

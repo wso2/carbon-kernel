@@ -335,11 +335,11 @@ public class BundleGeneratorUtils {
     /**
      * Creates a new {@code FileSystem} instance for the .zip or .jar file specified.
      *
-     * @param zipFilePath the {@link Path} to the .zip or .jar file, from which a {@link FileSystem}
+     * @param zipFilePath the {@link Path} representation of the .zip or .jar file, from which a {@link FileSystem}
      *                    instance is to be created
      * @param create      true if a .zip or .jar file is to be created at the specified {@link Path}, else false
      * @return the new {@code FileSystem} instance for the .zip or .jar file specified
-     * @throws IOException                   if an I/O error occurs creating the file system
+     * @throws IOException                   if an I/O error occurs, when creating the file system
      * @throws JarToBundleConverterException if the specified {@link Path} file format is not .zip or .jar or
      *                                       if the {@link Path} representing the zip file name has zero elements
      */
