@@ -44,12 +44,13 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 public class RuntimeServiceListenerComponent implements RequiredCapabilityListener {
     private static Logger logger = LoggerFactory.getLogger(RuntimeServiceListenerComponent.class);
-    private RuntimeManager runtimeManager = DataHolder.getInstance().getRuntimeManager();
+    private RuntimeManager runtimeManager = new RuntimeManager();
     private BundleContext bundleContext;
 
     @Activate
     protected void start(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+        DataHolder.getInstance().setRuntimeManager(runtimeManager);
     }
     /**
      * Register the runtime instance.
