@@ -19,7 +19,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
-import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.bootstrap.logging.LoggingFormatter;
 
@@ -47,8 +46,7 @@ public class CarbonLoggerTest extends BaseTest {
 
     @BeforeSuite
     public void doBeforeEachTest() throws IOException {
-        //setting carbon.home system property to test/resources location
-        System.setProperty(Constants.CARBON_HOME, testResourceDir);
+        setupCarbonHome();
         logger = BootstrapLogger.getCarbonLogger(CarbonLoggerTest.class.getName());
         carbonLogHandler = new CarbonLogHandler(new File(getTestResourceFile(LOGS).getAbsolutePath()));
         carbonLogHandler.setFormatter(new LoggingFormatter());

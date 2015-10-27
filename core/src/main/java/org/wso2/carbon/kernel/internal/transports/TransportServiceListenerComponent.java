@@ -42,8 +42,8 @@ import java.util.Map;
         immediate = true,
         property = "required-service-interface=org.wso2.carbon.kernel.transports.CarbonTransport"
 )
-public class TransportServiceComponent implements RequiredCapabilityListener {
-    private static final Logger logger = LoggerFactory.getLogger(TransportServiceComponent.class);
+public class TransportServiceListenerComponent implements RequiredCapabilityListener {
+    private static final Logger logger = LoggerFactory.getLogger(TransportServiceListenerComponent.class);
     private TransportManager transportManager = new TransportManager();
 
     @Activate

@@ -30,6 +30,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
@@ -73,7 +74,6 @@ public class RequireCapabilityCoordinator {
     private AtomicInteger requiredCapabilityListenerCount = new AtomicInteger(0);
     private Map<String, RequiredCapabilityListener> listenerMap = new ConcurrentHashMap<>();
     private MultiCounter<String> capabilityCounter = new MultiCounter<>();
-    private BundleContext bundleContext;
 
     private Timer checkServiceAvailabilityTimer = new Timer();
     private Timer pendingServiceTimer = new Timer();
@@ -90,7 +90,6 @@ public class RequireCapabilityCoordinator {
      */
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
-        this.bundleContext = bundleContext;
         try {
             // 1) Process all Provide-Capability headers and get the provided OSGi services and the count.
             Arrays.asList(bundleContext.getBundles())
@@ -167,35 +166,38 @@ public class RequireCapabilityCoordinator {
 
         listenerMap.put(requiredServiceKey, listener);
 
-        //TODO close service trackers once all the service are available.
-        final String serviceClazz = requiredServiceKey;
-        ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<>(
-                bundleContext,
-                requiredServiceKey,
-                new ServiceTrackerCustomizer<Object, Object>() {
-                    @Override
-                    public Object addingService(ServiceReference<Object> reference) {
-                        synchronized (serviceClazz.intern()) {
-                            if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
-                                logger.debug("Invoking {} from serviceTracker as its required " +
-                                        "capabilities are all available", serviceClazz);
-                                listener.onAllRequiredCapabilitiesAvailable();
+        BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
+        if (bundleContext != null) {
+            //TODO close service trackers once all the service are available.
+            final String serviceClazz = requiredServiceKey;
+            ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<>(
+                    bundleContext,
+                    requiredServiceKey,
+                    new ServiceTrackerCustomizer<Object, Object>() {
+                        @Override
+                        public Object addingService(ServiceReference<Object> reference) {
+                            synchronized (serviceClazz.intern()) {
+                                if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
+                                    logger.debug("Invoking {} from serviceTracker as its required " +
+                                            "capabilities are all available", serviceClazz);
+                                    listener.onAllRequiredCapabilitiesAvailable();
+                                }
                             }
+                            return bundleContext.getService(reference);
                         }
-                        return bundleContext.getService(reference);
-                    }
 
-                    @Override
-                    public void modifiedService(ServiceReference<Object> reference, Object service) {
+                        @Override
+                        public void modifiedService(ServiceReference<Object> reference, Object service) {
 
-                    }
+                        }
 
-                    @Override
-                    public void removedService(ServiceReference<Object> reference, Object service) {
+                        @Override
+                        public void removedService(ServiceReference<Object> reference, Object service) {
 
-                    }
-                });
-        serviceTracker.open();
+                        }
+                    });
+            serviceTracker.open();
+        }
     }
 
     public void deregisterRequireCapabilityListener(RequiredCapabilityListener listener,
