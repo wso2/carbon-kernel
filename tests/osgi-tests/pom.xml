@@ -14,7 +14,9 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>carbon-kernel-tests</artifactId>
         <groupId>org.wso2.carbon</groupId>
@@ -389,21 +391,21 @@
                                     <target xmlns:jacoco="antlib:org.jacoco.ant">
                                         //this task is to provide class/src files locations for jacoco report generation
                                         <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-                                            <classpath path="${project.build.directory}" />
+                                            <classpath path="${project.build.directory}"/>
                                         </taskdef>
                                         <jacoco:report>
                                             <executiondata>
-                                                <file file="${project.build.directory}/jacoco.exec" />
+                                                <file file="${project.build.directory}/jacoco.exec"/>
                                             </executiondata>
                                             <structure name="Carbon Core OSGi Tests">
                                                 <classfiles>
-                                                    <fileset dir="../../core/target/classes" />
+                                                    <fileset dir="../../core/target/classes"/>
                                                 </classfiles>
                                                 <sourcefiles encoding="UTF-8">
-                                                    <fileset dir="../../core/src" />
+                                                    <fileset dir="../../core/src"/>
                                                 </sourcefiles>
                                             </structure>
-                                            <html destdir="${project.build.directory}/site/jacoco" />
+                                            <html destdir="${project.build.directory}/site/jacoco"/>
                                         </jacoco:report>
                                     </target>
                                 </configuration>
