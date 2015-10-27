@@ -7,8 +7,9 @@ import org.osgi.framework.BundleContext;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.kernel.runtime.*;
 import org.wso2.carbon.kernel.runtime.Runtime;
+import org.wso2.carbon.kernel.runtime.RuntimeService;
+import org.wso2.carbon.kernel.runtime.RuntimeState;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 
 import javax.inject.Inject;

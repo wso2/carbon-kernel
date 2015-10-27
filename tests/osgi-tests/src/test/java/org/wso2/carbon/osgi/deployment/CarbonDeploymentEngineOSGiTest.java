@@ -72,7 +72,7 @@ public class CarbonDeploymentEngineOSGiTest {
     @Inject
     private DeploymentService deploymentService;
 
-    private static String CARBON_REPO;
+    private static String carbonRepo;
     private static String artifactPath;
 
 
@@ -82,7 +82,7 @@ public class CarbonDeploymentEngineOSGiTest {
             basedir = Paths.get(".").toString();
         }
         Path testResourceDir = Paths.get(basedir, "src", "test", "resources");
-        CARBON_REPO = Paths.get(testResourceDir.toString(), "carbon-repo").toString();
+        carbonRepo = Paths.get(testResourceDir.toString(), "carbon-repo").toString();
         artifactPath = Paths.get(testResourceDir.toString(), "carbon-repo", "text-files", "sample1.txt").toString();
     }
 
@@ -130,7 +130,7 @@ public class CarbonDeploymentEngineOSGiTest {
     @Test(dependsOnMethods = {"testDeploymentService"})
     public void testDeploymentEngine() throws DeploymentEngineException, InvalidSyntaxException,
             CarbonDeploymentException, DeployerRegistrationException {
-        DeploymentEngine deploymentEngine = new DeploymentEngine(CARBON_REPO);
+        DeploymentEngine deploymentEngine = new DeploymentEngine(carbonRepo);
         CustomDeploymentService customDeploymentService = new CustomDeploymentService(deploymentEngine);
         Dictionary<String, String> properties = new Hashtable<>();
         properties.put("ServiceType", "Custom");
