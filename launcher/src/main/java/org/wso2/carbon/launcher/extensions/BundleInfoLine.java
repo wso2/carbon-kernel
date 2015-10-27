@@ -16,11 +16,11 @@
 package org.wso2.carbon.launcher.extensions;
 
 /**
- * a Java class which defines an instance holding an OSGi bundle's information
+ * A Java class which defines an instance holding an OSGi bundle's information.
  * <p>
  * {@since 5.0.0}
  */
-public class BundleInfo {
+public class BundleInfoLine {
     private String bundleSymbolicName;
     private String bundleVersion;
     private String bundlePath;
@@ -28,7 +28,7 @@ public class BundleInfo {
     private boolean isFragment;
     private boolean isFromDropins;
 
-    public BundleInfo(String bundleSymbolicName, String bundleVersion, String bundlePath, int startLevel,
+    public BundleInfoLine(String bundleSymbolicName, String bundleVersion, String bundlePath, int startLevel,
             boolean isFragment) {
         this.bundleSymbolicName = bundleSymbolicName;
         this.bundleVersion = bundleVersion;
@@ -82,13 +82,13 @@ public class BundleInfo {
         return isFromDropins;
     }
 
-    public static BundleInfo getInstance(String bundleInfoLineStr) throws Exception {
+    public static BundleInfoLine getInstance(String bundleInfoLineStr) throws Exception {
         String[] parts = bundleInfoLineStr.split(",");
         if (parts.length != 5) {
             throw new RuntimeException("Invalid line in the bundles.info file: " + bundleInfoLineStr);
         }
 
-        return new BundleInfo(parts[0].trim(), parts[1].trim(), parts[2].trim(), Integer.parseInt(parts[3].trim()),
+        return new BundleInfoLine(parts[0].trim(), parts[1].trim(), parts[2].trim(), Integer.parseInt(parts[3].trim()),
                 !Boolean.parseBoolean(parts[4].trim()));
     }
 
@@ -97,4 +97,3 @@ public class BundleInfo {
                 bundlePath + "," + startLevel + "," + Boolean.toString(!isFragment);
     }
 }
-
