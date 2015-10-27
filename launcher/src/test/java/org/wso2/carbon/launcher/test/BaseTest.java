@@ -25,6 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 /**
@@ -89,5 +93,33 @@ public class BaseTest {
             continue;
         }
         return false;
+    }
+
+    /**
+     * Set the carbon home for execute tests.
+     * Carbon home is set to target/carbon-home
+     */
+    public void setupCarbonHome() {
+        String currentDir = Paths.get("").toAbsolutePath().toString();
+        Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
+        System.setProperty("carbon.home", carbonHome.toString());
+        try {
+            Path launchPropertyFileLocation = Paths.get(testResourceDir, "launch.properties");
+            Path osgiConfLocation = Paths.get(carbonHome.toString(), "repository", "conf", "osgi");
+            if (!osgiConfLocation.toFile().exists()) {
+                Files.createDirectories(osgiConfLocation);
+                Files.copy(launchPropertyFileLocation,
+                        osgiConfLocation.resolve(launchPropertyFileLocation.getFileName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+            Path pidFileLocation = Paths.get(testResourceDir, "wso2carbon.pid");
+            if (!Paths.get(carbonHome.toString(),"wso2carbon.pid").toFile().exists()) {
+                Files.copy(pidFileLocation, carbonHome.resolve(pidFileLocation.getFileName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Could not setup carbon home", e.getMessage(), e);
+        }
     }
 }

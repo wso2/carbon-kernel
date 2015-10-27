@@ -20,7 +20,6 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
@@ -58,8 +57,7 @@ public class LoadLaunchConfigTest extends BaseTest {
 
     @BeforeClass
     public void init() {
-        //setting carbon.home system property to test/resources location
-        System.setProperty(Constants.CARBON_HOME, testResourceDir);
+        setupCarbonHome();
         logFile = new File(Utils.getRepositoryDirectory() + File.separator + "logs" +
                 File.separator + "wso2carbon.log");
         logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
