@@ -46,7 +46,7 @@ import static org.wso2.carbon.launcher.Constants.PROFILE;
  */
 public class Main {
 
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(Main.class.toString());
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(Main.class.getName());
 
     /**
      * @param args arguments

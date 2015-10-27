@@ -41,7 +41,7 @@ import static org.wso2.carbon.launcher.Constants.CARBON_START_TIME;
  */
 public class CarbonServer {
 
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(CarbonServer.class.toString());
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(CarbonServer.class.getName());
 
     private CarbonLaunchConfig config;
     private Framework framework;
