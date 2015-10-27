@@ -113,12 +113,11 @@ public class BaseTest {
                         StandardCopyOption.REPLACE_EXISTING);
             }
             Path pidFileLocation = Paths.get(testResourceDir, "wso2carbon.pid");
-            if (!Paths.get(carbonHome.toString(),"wso2carbon.pid").toFile().exists()) {
+            if (!Paths.get(carbonHome.toString(), "wso2carbon.pid").toFile().exists()) {
                 Files.copy(pidFileLocation, carbonHome.resolve(pidFileLocation.getFileName()),
                         StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Could not setup carbon home", e.getMessage(), e);
         }
     }
