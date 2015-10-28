@@ -88,7 +88,7 @@ public class BundleGenerator {
         } else {
             String message = "Usage: wso2jartobundle.sh [source] [destination].\nBoth arguments source and destination"
                     + " are compulsory.";
-            logger.log(Level.WARNING, message);
+            logger.log(Level.SEVERE, message);
         }
     }
 
