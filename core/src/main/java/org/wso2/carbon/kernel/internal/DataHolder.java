@@ -20,6 +20,8 @@ import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 
 /**
  * Carbon kernel DataHolder.
+ *
+ * @since 5.0.0
  */
 public class DataHolder {
     private static DataHolder instance = new DataHolder();

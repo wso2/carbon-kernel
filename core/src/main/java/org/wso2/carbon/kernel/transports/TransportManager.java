@@ -19,7 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Carbon Transport Manager.
+ * This class is responsible for managing the Carbon Transports available in the kernel.
+ *
+ * @since 5.0.0
  */
 public class TransportManager {
 
@@ -56,14 +58,20 @@ public class TransportManager {
     }
 
     public void stopTransports() {
-        transports.values().forEach(CarbonTransport::stopTransport);
+        transports.entrySet()
+                .stream()
+                .forEach(entry -> entry.getValue().stopTransport());
     }
 
     public void beginMaintenance() {
-        transports.values().forEach(CarbonTransport::beginTransportMaintenance);
+        transports.entrySet()
+                .stream()
+                .forEach(entry -> entry.getValue().beginMaintenance());
     }
 
     public void endMaintenance() {
-        transports.values().forEach(CarbonTransport::endTransportMaintenance);
+        transports.entrySet()
+                .stream()
+                .forEach(entry -> entry.getValue().endMaintenance());
     }
 }

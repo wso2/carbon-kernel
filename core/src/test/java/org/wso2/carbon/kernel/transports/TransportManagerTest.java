@@ -22,6 +22,8 @@ import org.wso2.carbon.kernel.transports.transporter.CustomCarbonTransport;
 
 /**
  * Unit tests class for org.wso2.carbon.kernel.transports.TransportManager.
+ *
+ * @since 5.0.0
  */
 public class TransportManagerTest {
 
@@ -106,17 +108,6 @@ public class TransportManagerTest {
     }
 
     @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
-    public void testUnSuccessfulEndMaintenance() {
-        try {
-            transportManager.endMaintenance();
-            Assert.assertTrue(false);
-        } catch (IllegalStateException e) {
-            String exceptionMessage = "Cannot end maintenance of transport dummyId2. Current state: UNINITIALIZED";
-            Assert.assertEquals(e.getMessage(), exceptionMessage);
-        }
-    }
-
-    @Test(dependsOnMethods = {"testUnSuccessfulEndMaintenance"})
     public void testSuccessfulBeginMaintenance() {
         try {
             transportManager.startTransport(carbonTransport2.getId());

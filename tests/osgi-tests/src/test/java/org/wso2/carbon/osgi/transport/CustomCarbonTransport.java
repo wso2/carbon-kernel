@@ -19,6 +19,8 @@ import org.wso2.carbon.kernel.transports.CarbonTransport;
 
 /**
  * Implementation of CarbonTransport abstract class to write OSGI tests.
+ *
+ * @since 5.0.0
  */
 public class CustomCarbonTransport extends CarbonTransport {
     public CustomCarbonTransport(String id) {

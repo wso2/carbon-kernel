@@ -30,6 +30,8 @@ import java.util.Hashtable;
  * This class creates and initializes the logging configurations based on log4j2 for pax logging framework.
  * It sets the log4j2 config file (log4j2.xml) to the ManagedService instance as a configuration property and
  * update it.
+ *
+ * @since 5.0.0
  */
 public class LoggingConfiguration {
 
@@ -56,6 +58,7 @@ public class LoggingConfiguration {
      * This method will configure the logging framework with the log4j2 configuration. It uses the ManagedService
      * to update the loggingConfigFile location that is looked up by the pax logging framework.
      *
+     * @param managedService managed service
      * @throws IllegalStateException this is thrown if the managedService instance is not set
      * @throws FileNotFoundException this is thrown if the log4j2 config file is not found at the carbon default
      *                               conf location
@@ -93,6 +96,8 @@ public class LoggingConfiguration {
     /**
      * This is the method remove the ManagedService instance to LoggingConfiguration to be used for configuring the
      * logging framework  with log4j2.xml config file.
+     *
+     * @param managedService managed service
      */
     public void unregister(ManagedService managedService) {
         //TODO properly remove logging config from config admin

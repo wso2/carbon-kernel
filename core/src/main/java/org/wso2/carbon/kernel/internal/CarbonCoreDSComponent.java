@@ -36,6 +36,8 @@ import java.util.Map;
 /**
  * The core service component responsible for configuring logging framework and
  * initializing the carbon configuration.
+ *
+ * @since 5.0.0
  */
 
 @Component(

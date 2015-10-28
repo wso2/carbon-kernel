@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.osgi.startupcoordinator;
+package org.wso2.carbon.osgi.startupresolver;
 
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
@@ -41,6 +41,8 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  * zero provide-capability
  * one provide-capability
  * multiple provide-capability.
+ *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

@@ -37,6 +37,8 @@ import javax.inject.Inject;
 
 /**
  * Logging Configuration OSGi test case.
+ *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)

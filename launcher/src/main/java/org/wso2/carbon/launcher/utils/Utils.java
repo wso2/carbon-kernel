@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  */
 public class Utils {
 
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(Utils.class.toString());
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(Utils.class.getName());
 
     private static final String VAR_REGEXP = "\\$\\{[^}]*}";
     private static final Pattern varPattern = Pattern.compile(VAR_REGEXP);

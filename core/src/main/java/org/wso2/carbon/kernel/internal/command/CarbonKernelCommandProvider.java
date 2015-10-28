@@ -28,10 +28,12 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 
 /**
  * This service component is responsible for registering the Carbon kernel command provider.
+ *
+ * @since 5.0.0
  */
 
 @Component(
-        name = "org.wso2.carbon.kernel.internal.command.CommandProvider",
+        name = "org.wso2.carbon.kernel.internal.command.CarbonKernelCommandProvider",
         immediate = true
 )
 

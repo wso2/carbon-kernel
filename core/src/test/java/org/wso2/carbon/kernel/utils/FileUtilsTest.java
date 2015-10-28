@@ -25,6 +25,8 @@ import java.nio.file.Paths;
 
 /**
  * Test class for FileUtils class.
+ *
+ * @since 5.0.0
  */
 public class FileUtilsTest {
 

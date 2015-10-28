@@ -21,7 +21,10 @@ import org.wso2.carbon.kernel.config.CarbonConfigProvider;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
 /**
- * TODO: class level comment.
+ * This is a factory class which creates a DefaultCarbonRuntime using a provided CarbonConfigProvider,
+ * i.e the carbon.xml configuration model.
+ *
+ * @since 5.0.0
  */
 public class CarbonRuntimeFactory {
 

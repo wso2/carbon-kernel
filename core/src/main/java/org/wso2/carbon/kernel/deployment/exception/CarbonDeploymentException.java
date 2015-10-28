@@ -18,6 +18,8 @@ package org.wso2.carbon.kernel.deployment.exception;
 /**
  * The exception class for all deployment related the exception that
  * can be thrown from CarbonDeployementEngine.
+ *
+ * @since 5.0.0
  */
 public class CarbonDeploymentException extends Exception {
     /**

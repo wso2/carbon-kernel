@@ -32,6 +32,8 @@ import java.io.IOException;
 
 /**
  * Deployment Service Test class.
+ *
+ * @since 5.0.0
  */
 public class DeploymentServiceTest extends BaseTest {
 

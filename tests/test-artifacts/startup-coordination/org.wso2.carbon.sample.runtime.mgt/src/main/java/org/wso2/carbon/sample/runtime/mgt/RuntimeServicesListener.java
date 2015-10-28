@@ -21,24 +21,26 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.startupcoordinator.RequireCapabilityListener;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 /**
  * Sample Runtime Service Listener Service Component class.
+ *
+ * @since 5.0.0
  */
 @Component(
         name = "org.wso2.carbon.sample.runtime.mgt.RuntimeServicesListener",
         immediate = true,
-        service = RequireCapabilityListener.class,
+        service = RequiredCapabilityListener.class,
         property = "required-service-interface=org.wso2.carbon.sample.runtime.mgt.Runtime"
 )
-public class RuntimeServicesListener implements RequireCapabilityListener {
+public class RuntimeServicesListener implements RequiredCapabilityListener {
     private static final Logger logger = LoggerFactory.getLogger(RuntimeServicesListener.class);
     private BundleContext bundleContext;
 
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
-        logger.info("$$$$$$$$ HURRAYYYYYYYYY !!!! " + this.getClass().getName());
+        logger.info("All required services are available for : " + this.getClass().getName());
         bundleContext.registerService(RuntimeManager.class, new RuntimeManager(), null);
     }
 

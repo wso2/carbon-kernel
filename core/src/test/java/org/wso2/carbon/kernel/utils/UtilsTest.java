@@ -27,6 +27,8 @@ import java.util.Map;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.utils.Utils class.
+ *
+ * @since 5.0.0
  */
 public class UtilsTest {
 
@@ -35,6 +37,7 @@ public class UtilsTest {
             Class<?> processEnvironmentClass = Class.forName("java.lang.ProcessEnvironment");
             Field theEnvironmentField = processEnvironmentClass.getDeclaredField("theEnvironment");
             theEnvironmentField.setAccessible(true);
+
             Map<String, String> env = (Map<String, String>) theEnvironmentField.get(null);
             env.putAll(newenv);
             Field theCaseInsensitiveEnvironmentField = processEnvironmentClass
@@ -61,30 +64,62 @@ public class UtilsTest {
     @Test
     public void testGetCarbonConfigHomePathNonNullSystemProperty() throws Exception {
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
-        Boolean needToClearCarbonRepoDirPathAtTheEnd = false;
+        boolean isCarbonHomeChanged = false;
 
         if (carbonRepoDirPath == null) {
             carbonRepoDirPath = "test-carbon-repo-dir-path";
             System.setProperty(Constants.CARBON_REPOSITORY, carbonRepoDirPath);
-            needToClearCarbonRepoDirPathAtTheEnd = true;
+            isCarbonHomeChanged = true;
         }
         Assert.assertEquals(Utils.getCarbonConfigHome(), Paths.get(carbonRepoDirPath + "/conf"));
 
-        if (needToClearCarbonRepoDirPathAtTheEnd) {
+        if (isCarbonHomeChanged) {
             System.clearProperty(Constants.CARBON_REPOSITORY);
         }
     }
 
+
     @Test
+    public void testGetCarbonHome() throws Exception {
+
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
+        boolean isCarbonHomeChanged = false;
+
+        if (carbonHome == null) {
+            carbonHome = "test-carbon-home";
+            System.setProperty(Constants.CARBON_HOME, carbonHome);
+            isCarbonHomeChanged = true;
+        }
+        Assert.assertEquals(Utils.getCarbonHome(), Paths.get(carbonHome));
+
+        Map<String, String> envMap = new HashMap<>();
+        envMap.put(Constants.CARBON_HOME_ENV, "test-env");
+
+        Map<String, String> backup = System.getenv();
+
+        setEnvironmentalVariables(envMap);
+
+        System.clearProperty(Constants.CARBON_HOME);
+        Assert.assertEquals(Utils.getCarbonHome(), Paths.get("test-env"));
+
+        if (isCarbonHomeChanged) {
+            System.clearProperty(Constants.CARBON_HOME);
+        } else {
+            System.setProperty(Constants.CARBON_HOME, carbonHome);
+        }
+        setEnvironmentalVariables(backup);
+    }
+
+    @Test(dependsOnMethods = "testGetCarbonHome")
     public void testGetCarbonConfigHomePathNullSystemPropertyScenarioOne() throws Exception {
 
         String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
-        Boolean needToSetCarbonRepoDirPathAtTheEnd = false;
+        boolean isCarbonRepoPathChanged = false;
 
         if (carbonRepoDirPath != null) {
             System.clearProperty(Constants.CARBON_REPOSITORY);
         } else {
-            needToSetCarbonRepoDirPathAtTheEnd = true;
+            isCarbonRepoPathChanged = true;
         }
 
         Map<String, String> envMap = new HashMap<>();
@@ -96,7 +131,7 @@ public class UtilsTest {
 
         Assert.assertEquals(Utils.getCarbonConfigHome(), Paths.get("test-env/conf"));
 
-        if (needToSetCarbonRepoDirPathAtTheEnd && carbonRepoDirPath != null) {
+        if (isCarbonRepoPathChanged && carbonRepoDirPath != null) {
             System.setProperty(Constants.CARBON_REPOSITORY, carbonRepoDirPath);
         }
 
@@ -104,7 +139,7 @@ public class UtilsTest {
 
     }
 
-    @Test
+    @Test(dependsOnMethods = {"testGetCarbonHome", "testGetCarbonConfigHomePathNullSystemPropertyScenarioOne"})
     public void testGetCarbonConfigHomePathNullSystemPropertyScenarioTwo() throws Exception {
         String backupCarbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
         Map<String, String> backupCarbonRepoPathEnv = System.getenv();
@@ -137,34 +172,41 @@ public class UtilsTest {
         }
     }
 
-    @Test
-    public void testGetCarbonHome() throws Exception {
 
+    @Test
+    public void testSubstituteVarsSystemPropertyNotNull() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
-        Boolean needToClearCarbonHomeAtTheEnd = false;
+        boolean isCarbonHomeChanged = false;
 
         if (carbonHome == null) {
             carbonHome = "test-carbon-home";
             System.setProperty(Constants.CARBON_HOME, carbonHome);
-            needToClearCarbonHomeAtTheEnd = true;
+            isCarbonHomeChanged = true;
         }
-        Assert.assertEquals(Utils.getCarbonHome(), Paths.get(carbonHome));
 
-        Map<String, String> envMap = new HashMap<>();
-        envMap.put(Constants.CARBON_HOME_ENV, "test-env");
+        Assert.assertEquals(Utils.substituteVars("${carbon.home}"), carbonHome);
 
-        Map<String, String> backup = System.getenv();
-
-        setEnvironmentalVariables(envMap);
-
-        System.clearProperty(Constants.CARBON_HOME);
-        Assert.assertEquals(Utils.getCarbonHome(), Paths.get("test-env"));
-
-        if (needToClearCarbonHomeAtTheEnd) {
+        if (isCarbonHomeChanged) {
             System.clearProperty(Constants.CARBON_HOME);
-        } else {
-            System.setProperty(Constants.CARBON_HOME, carbonHome);
         }
-        setEnvironmentalVariables(backup);
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testSubstituteVarsSystemPropertyIsNull() {
+        String carbonHome = System.getProperty(Constants.CARBON_HOME);
+        boolean isCarbonHomeChanged = false;
+
+        if (carbonHome != null) {
+            System.clearProperty(Constants.CARBON_HOME);
+            isCarbonHomeChanged = true;
+        }
+
+        try {
+            Utils.substituteVars("${carbon.home}");
+        } finally {
+            if (isCarbonHomeChanged) {
+                System.setProperty(Constants.CARBON_HOME, carbonHome);
+            }
+        }
     }
 }

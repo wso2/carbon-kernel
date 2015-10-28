@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.internal.startupcoordinator;
+package org.wso2.carbon.kernel.internal.startupresolver;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -23,7 +23,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * This class tests the functionality of org.wso2.carbon.kernel.internal.startupcoordinator.MultiCounter.
+ * This class tests the functionality of org.wso2.carbon.kernel.internal.startupresolver.MultiCounter.
+ *
+ * @since 5.0.0
  */
 public class MultiCounterTest {
 

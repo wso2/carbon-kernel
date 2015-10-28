@@ -25,6 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 /**
@@ -32,7 +36,6 @@ import java.util.ArrayList;
  */
 public class BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
-
     /**
      * Basedir for all file I/O. Important when running tests from the reactor.
      * Note that anyone can use this statically.
@@ -49,10 +52,7 @@ public class BaseTest {
     protected String testDir = "src" + File.separator + "test" + File.separator;
     protected String testResourceDir = testDir + "resources";
 
-    /**
-     * @param testName
-     */
-    public BaseTest(String testName) {
+    public BaseTest() {
         testDir = new File(basedir, testDir).getAbsolutePath();
         testResourceDir = new File(basedir, testResourceDir).getAbsolutePath();
     }
@@ -74,7 +74,7 @@ public class BaseTest {
 
     public ArrayList<String> getLogsFromTestResource(FileInputStream testResource) {
         ArrayList<String> logRecords = new ArrayList<String>();
-        try (BufferedReader bufferedReader  = new BufferedReader(new InputStreamReader(testResource))) {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(testResource))) {
             String strLine;
             while ((strLine = bufferedReader.readLine()) != null) {
                 logRecords.add(strLine);
@@ -83,5 +83,42 @@ public class BaseTest {
             logger.error("Could not get logs", e);
         }
         return logRecords;
+    }
+
+    protected boolean containsLogRecord(ArrayList<String> logRecords, String record) {
+        for (String log : logRecords) {
+            if (log.contains(record)) {
+                return true;
+            }
+            continue;
+        }
+        return false;
+    }
+
+    /**
+     * Set the carbon home for execute tests.
+     * Carbon home is set to target/carbon-home
+     */
+    public void setupCarbonHome() {
+        String currentDir = Paths.get("").toAbsolutePath().toString();
+        Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
+        System.setProperty("carbon.home", carbonHome.toString());
+        try {
+            Path launchPropertyFileLocation = Paths.get(testResourceDir, "launch.properties");
+            Path osgiConfLocation = Paths.get(carbonHome.toString(), "repository", "conf", "osgi");
+            if (!osgiConfLocation.toFile().exists()) {
+                Files.createDirectories(osgiConfLocation);
+                Files.copy(launchPropertyFileLocation,
+                        osgiConfLocation.resolve(launchPropertyFileLocation.getFileName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+            Path pidFileLocation = Paths.get(testResourceDir, "wso2carbon.pid");
+            if (!Paths.get(carbonHome.toString(), "wso2carbon.pid").toFile().exists()) {
+                Files.copy(pidFileLocation, carbonHome.resolve(pidFileLocation.getFileName()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (Exception e) {
+            logger.error("Could not setup carbon home", e.getMessage(), e);
+        }
     }
 }

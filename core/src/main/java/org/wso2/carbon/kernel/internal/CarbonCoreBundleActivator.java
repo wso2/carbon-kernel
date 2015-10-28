@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Activator class for carbon core.
+ *
+ * @since 5.0.0
  */
 public class CarbonCoreBundleActivator implements BundleActivator {
 

@@ -25,7 +25,9 @@ import org.wso2.carbon.kernel.transports.CarbonTransport;
 /**
  * This is the base activator class which will create a Jetty server instance and register it as an
  * OSGi service. This will also expose the OSGi HttpService by registering the HttpServiceServlet
- * with Jetty
+ * with Jetty.
+ *
+ * @since 5.0.0
  */
 
 public class CarbonTransportBundleActivator implements BundleActivator {

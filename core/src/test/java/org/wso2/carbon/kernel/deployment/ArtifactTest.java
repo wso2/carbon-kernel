@@ -24,6 +24,8 @@ import java.util.HashMap;
 
 /**
  * Artifact test class which extends the BaseTest class.
+ *
+ * @since 5.0.0
  */
 public class ArtifactTest extends BaseTest {
     private static final String DEPLOYER_REPO = "carbon-repo" + File.separator + "text-files";

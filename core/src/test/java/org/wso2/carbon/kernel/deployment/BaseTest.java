@@ -22,6 +22,8 @@ import java.io.InputStream;
 
 /**
  * BaseTest class for deployment tests.
+ *
+ * @since 5.0.0
  */
 public class BaseTest {
 

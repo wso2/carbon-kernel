@@ -36,6 +36,8 @@ import java.util.Map;
  * within a runtime.
  * </p>
  * An artifact can have custom properties that are needed for relevant runtime environment.
+ *
+ * @since 5.0.0
  */
 public class Artifact {
 

@@ -56,7 +56,7 @@ import static org.wso2.carbon.launcher.Constants.OSGI_INSTANCE_AREA;
  */
 public class CarbonLaunchConfig {
 
-    private static final Logger logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.toString());
+    private static final Logger logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
 
     private URL carbonOSGiRepository;
     private URL carbonOSGiFramework;

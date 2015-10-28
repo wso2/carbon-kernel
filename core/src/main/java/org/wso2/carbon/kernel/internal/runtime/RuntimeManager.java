@@ -24,6 +24,8 @@ import java.util.List;
 
 /**
  * Runtime Manager class.
+ *
+ * @since 5.0.0
  */
 public class RuntimeManager {
     private static Logger logger = LoggerFactory.getLogger(RuntimeManager.class);

@@ -31,13 +31,17 @@ import java.util.logging.Logger;
 /**
  * Console Logger Test class.
  */
-public class ConsoleLoggerTest {
+public class ConsoleLoggerTest extends BaseTest {
 
 
     JavaUtilLogHandler javaUtilLogHandler;
     CommonsLogHandler commonsLogHandler;
     SLF4jLogHandler slf4jLogHandler;
     private Logger logger;
+
+    public ConsoleLoggerTest() {
+        super();
+    }
 
     @BeforeSuite
     public void doBeforeEachTest() {
@@ -48,7 +52,8 @@ public class ConsoleLoggerTest {
 
     @Test
     public void testJavaUtilLogs() {
-        logger = BootstrapLogger.getCarbonLogger(ConsoleLoggerTest.class.toString());
+        setupCarbonHome();
+        logger = BootstrapLogger.getCarbonLogger(ConsoleLoggerTest.class.getName());
         logger.addHandler(javaUtilLogHandler);
         String sampleMessage = "Sample javaUtilLog message-01";
         LogRecord record = new LogRecord(Level.INFO, sampleMessage);

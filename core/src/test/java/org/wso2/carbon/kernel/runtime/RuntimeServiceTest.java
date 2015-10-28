@@ -20,11 +20,12 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
-import org.wso2.carbon.kernel.runtime.runtime.CustomRuntime;
 import org.wso2.carbon.kernel.runtime.service.CustomRuntimeService;
 
 /**
  * Runtime Service Test class.
+ *
+ * @since 5.0.0
  */
 public class RuntimeServiceTest {
     CustomRuntime customRuntime;

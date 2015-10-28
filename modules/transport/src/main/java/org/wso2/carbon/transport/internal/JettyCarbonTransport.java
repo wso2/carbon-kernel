@@ -32,6 +32,8 @@ import java.util.Hashtable;
 
 /**
  * Represents a Jetty transport in Carbon.
+ *
+ * @since 5.0.0
  */
 public class JettyCarbonTransport extends CarbonTransport {
 

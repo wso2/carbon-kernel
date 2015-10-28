@@ -17,6 +17,8 @@ package org.wso2.carbon.sample.deployer.mgt;
 
 /**
  * Sample Deployer interface.
+ *
+ * @since 5.0.0
  */
 public interface Deployer {
 

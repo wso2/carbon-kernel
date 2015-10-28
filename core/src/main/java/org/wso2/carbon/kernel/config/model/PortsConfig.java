@@ -19,6 +19,8 @@ import javax.xml.bind.annotation.XmlElement;
 
 /**
  * JAXB mapping for Ports Config.
+ *
+ * @since 5.0.0
  */
 public class PortsConfig {
 

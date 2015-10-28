@@ -18,6 +18,8 @@ package org.wso2.carbon.kernel.internal.deployment;
 /**
  * The Scheduler Task which gets called periodically by the executor service and
  * calls the repository scanner internally.
+ *
+ * @since 5.0.0
  */
 public class SchedulerTask implements Runnable {
 
