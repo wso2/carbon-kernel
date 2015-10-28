@@ -83,12 +83,12 @@ public class UtilsTest {
     public void testGetCarbonHome() throws Exception {
 
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
-        Boolean needToClearCarbonHomeAtTheEnd = false;
+        boolean isCarbonHomeChanged = false;
 
         if (carbonHome == null) {
             carbonHome = "test-carbon-home";
             System.setProperty(Constants.CARBON_HOME, carbonHome);
-            needToClearCarbonHomeAtTheEnd = true;
+            isCarbonHomeChanged = true;
         }
         Assert.assertEquals(Utils.getCarbonHome(), Paths.get(carbonHome));
 
@@ -102,7 +102,7 @@ public class UtilsTest {
         System.clearProperty(Constants.CARBON_HOME);
         Assert.assertEquals(Utils.getCarbonHome(), Paths.get("test-env"));
 
-        if (needToClearCarbonHomeAtTheEnd) {
+        if (isCarbonHomeChanged) {
             System.clearProperty(Constants.CARBON_HOME);
         } else {
             System.setProperty(Constants.CARBON_HOME, carbonHome);
@@ -176,17 +176,17 @@ public class UtilsTest {
     @Test
     public void testSubstituteVarsSystemPropertyNotNull() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
-        Boolean needToClearCarbonHomeAtTheEnd = false;
+        boolean isCarbonHomeChanged = false;
 
         if (carbonHome == null) {
             carbonHome = "test-carbon-home";
             System.setProperty(Constants.CARBON_HOME, carbonHome);
-            needToClearCarbonHomeAtTheEnd = true;
+            isCarbonHomeChanged = true;
         }
 
         Assert.assertEquals(Utils.substituteVars("${carbon.home}"), carbonHome);
 
-        if (needToClearCarbonHomeAtTheEnd) {
+        if (isCarbonHomeChanged) {
             System.clearProperty(Constants.CARBON_HOME);
         }
     }
@@ -194,17 +194,17 @@ public class UtilsTest {
     @Test(expectedExceptions = RuntimeException.class)
     public void testSubstituteVarsSystemPropertyIsNull() {
         String carbonHome = System.getProperty(Constants.CARBON_HOME);
-        Boolean needToSetCarbonHomeAtTheEnd = false;
+        boolean isCarbonHomeChanged = false;
 
         if (carbonHome != null) {
             System.clearProperty(Constants.CARBON_HOME);
-            needToSetCarbonHomeAtTheEnd = true;
+            isCarbonHomeChanged = true;
         }
 
         try {
             Utils.substituteVars("${carbon.home}");
         } finally {
-            if (needToSetCarbonHomeAtTheEnd) {
+            if (isCarbonHomeChanged) {
                 System.setProperty(Constants.CARBON_HOME, carbonHome);
             }
         }
