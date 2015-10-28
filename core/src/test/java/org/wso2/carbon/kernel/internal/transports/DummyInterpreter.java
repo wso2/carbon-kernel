@@ -18,6 +18,18 @@ public class DummyInterpreter implements CommandInterpreter {
         counter = 0;
     }
 
+    public void setTransportIdListValuesToNull() {
+        transportIdList = new String[2];
+        transportIdList[0] = null;
+        transportIdList[1] = null;
+    }
+
+    public void setTransportIdListValuesToEmptyString() {
+        transportIdList = new String[2];
+        transportIdList[0] = "";
+        transportIdList[1] = "";
+    }
+
 
     @Override
     public String nextArgument() {

@@ -112,9 +112,38 @@ public class TransportMgtCommandProviderTest {
 
     }
 
-    @Test (expectedExceptions = UnsupportedOperationException.class)
+    @Test (dependsOnMethods = "test_endMaintenance", expectedExceptions = UnsupportedOperationException.class)
     public void test_listTransports() throws Exception {
         commandInterpreter.resetCounter();
         transportMgtCommandProvider._listTransports(commandInterpreter);
+    }
+
+    @Test (dependsOnMethods = "test_listTransports", expectedExceptions = IllegalArgumentException.class)
+    public void test_startTransportForNullTransportValue() {
+        commandInterpreter.resetCounter();
+        commandInterpreter.setTransportIdListValuesToNull();
+        transportMgtCommandProvider._startTransport(commandInterpreter);
+    }
+
+    @Test(dependsOnMethods = "test_startTransportForNullTransportValue",
+            expectedExceptions = IllegalArgumentException.class)
+    public void test_stopTransportForNullTransportValue() {
+        commandInterpreter.resetCounter();
+        transportMgtCommandProvider._stopTransport(commandInterpreter);
+    }
+
+    @Test (dependsOnMethods = "test_stopTransportForNullTransportValue",
+            expectedExceptions = IllegalArgumentException.class)
+    public void test_startTransportForEmptyStringTransportValue() {
+        commandInterpreter.resetCounter();
+        commandInterpreter.setTransportIdListValuesToEmptyString();
+        transportMgtCommandProvider._startTransport(commandInterpreter);
+    }
+
+    @Test(dependsOnMethods = "test_startTransportForEmptyStringTransportValue",
+            expectedExceptions = IllegalArgumentException.class)
+    public void test_stopTransportForEmptyStringTransportValue() {
+        commandInterpreter.resetCounter();
+        transportMgtCommandProvider._stopTransport(commandInterpreter);
     }
 }
