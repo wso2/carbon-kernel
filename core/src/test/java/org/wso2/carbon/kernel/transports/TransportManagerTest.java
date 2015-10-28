@@ -105,7 +105,7 @@ public class TransportManagerTest {
     }
 
 
-        @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
+    @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
     public void testUnSuccessfulEndMaintenance() {
         try {
             transportManager.endMaintenance();
@@ -119,7 +119,6 @@ public class TransportManagerTest {
     @Test(dependsOnMethods = {"testUnSuccessfulEndMaintenance"})
     public void testSuccessfulBeginMaintenance() {
         try {
-          //  transportManager.registerTransport(carbonTransport2);
             transportManager.startTransport(carbonTransport2.getId());
             transportManager.beginMaintenance();
         } catch (IllegalStateException e) {
@@ -129,4 +128,13 @@ public class TransportManagerTest {
     }
 
 
+
+    @Test(dependsOnMethods = {"testSuccessfulBeginMaintenance"})
+    public void testSuccessfulEndMaintenance() {
+        try {
+            transportManager.endMaintenance();
+        } catch (IllegalStateException e) {
+            Assert.assertTrue(false);
+        }
+    }
 }
