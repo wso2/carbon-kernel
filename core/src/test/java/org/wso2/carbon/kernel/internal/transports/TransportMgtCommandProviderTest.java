@@ -5,6 +5,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.transports.TransportManager;
 
+/**
+ * This class test the functionality of org.wso2.carbon.kernel.internal.transports.TransportMgtCommandProvider.
+ *
+ * @since 5.0.0
+ */
 public class TransportMgtCommandProviderTest {
     private DummyTransport dummyTransportOne;
     private TransportManager transportManager;

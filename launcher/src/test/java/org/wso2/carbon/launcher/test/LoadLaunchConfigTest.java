@@ -50,6 +50,8 @@ import static org.wso2.carbon.launcher.Constants.PROFILE;
 
 /**
  * Test loading launch configurations from launch.properties file.
+ *
+ * @since 5.0.0
  */
 public class LoadLaunchConfigTest extends BaseTest {
     private Logger logger;

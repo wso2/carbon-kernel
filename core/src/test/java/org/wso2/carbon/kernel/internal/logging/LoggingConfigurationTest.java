@@ -24,6 +24,8 @@ import java.io.FileNotFoundException;
 
 /**
  * Unit testing class for org.wso2.carbon.kernel.internal.logging.LoggingConfiguration.
+ *
+ * @since 5.0.0
  */
 public class LoggingConfigurationTest extends BaseTest {
     LoggingConfiguration loggingConfiguration = null;

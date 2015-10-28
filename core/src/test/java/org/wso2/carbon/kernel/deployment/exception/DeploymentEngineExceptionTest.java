@@ -20,6 +20,8 @@ import org.testng.annotations.Test;
 
 /**
  * Unit test class for org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException.
+ *
+ * @since 5.0.0
  */
 public class DeploymentEngineExceptionTest {
 

@@ -22,6 +22,8 @@ import java.util.Dictionary;
 
 /**
  * Custom implementation of ManagedService interface for unit testing purposes.
+ *
+ * @since 5.0.0
  */
 public class CustomManagedService implements ManagedService {
     @Override

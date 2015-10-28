@@ -30,6 +30,8 @@ import java.util.logging.Logger;
 
 /**
  * Console Logger Test class.
+ *
+ * @since 5.0.0
  */
 public class ConsoleLoggerTest extends BaseTest {
 

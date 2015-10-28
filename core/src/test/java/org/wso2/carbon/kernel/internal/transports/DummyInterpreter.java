@@ -5,6 +5,12 @@ import org.osgi.framework.Bundle;
 
 import java.util.Dictionary;
 
+/**
+ * This class acts as a dummy command interpreter for the test case
+ * org.wso2.carbon.kernel.internal.transports.TransportMgtCommandProviderTest.
+ *
+ * @since 5.0.0
+ */
 public class DummyInterpreter implements CommandInterpreter {
     private String[] transportIdList;
     private int counter;

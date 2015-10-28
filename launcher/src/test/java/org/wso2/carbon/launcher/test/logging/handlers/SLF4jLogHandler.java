@@ -24,6 +24,7 @@ import java.util.ArrayList;
  * SLF4jLogHandler class which implements the Logger interface.
  *
  * @see Logger
+ * @since 5.0.0
  */
 public class SLF4jLogHandler implements Logger {
     ArrayList<String> logList = new ArrayList<String>();

@@ -33,6 +33,8 @@ import java.util.ArrayList;
 
 /**
  * BaseTest class for launcher tests.
+ *
+ * @since 5.0.0
  */
 public class BaseTest {
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);

@@ -20,6 +20,8 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
 /**
  * Custom implementation for CarbonConfigProvider to be used in unit test cases.
+ *
+ * @since 5.0.0
  */
 public class CarbonConfigProviderImpl implements CarbonConfigProvider {
     @Override
