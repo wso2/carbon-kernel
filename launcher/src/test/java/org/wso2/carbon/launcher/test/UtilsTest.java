@@ -17,6 +17,7 @@ package org.wso2.carbon.launcher.test;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.utils.Utils;
 
 /**
@@ -24,7 +25,7 @@ import org.wso2.carbon.launcher.utils.Utils;
  */
 
 @Test(groups = "utils")
-public class UtilsTest {
+public class UtilsTest extends BaseTest {
 
     public void substituteVarsTest() {
         System.setProperty("profile", "default");
@@ -36,10 +37,11 @@ public class UtilsTest {
     }
 
     public void substituteVarsTest2() {
+        setupCarbonHome();
         System.setProperty("profile", "default");
-        System.setProperty("carbon.home", "/home/user/wso2carbon-kernel-5.0.0");
         String inputStr = "file:${carbon.home}/repository/components/${profile}";
-        String expectedOutputStr = "file:/home/user/wso2carbon-kernel-5.0.0/repository/components/default";
+        String expectedOutputStr = "file:" + System.getProperty(Constants.CARBON_HOME) +
+                "/repository/components/default";
 
         String outputStr = Utils.initializeSystemProperties(inputStr);
         Assert.assertEquals(outputStr, expectedOutputStr);
