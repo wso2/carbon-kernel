@@ -21,7 +21,7 @@ package org.wso2.carbon.tools.exceptions;
 public class JarToBundleConverterException extends Exception {
 
     /**
-     * Constructs a new exception with the specified detail message
+     * Constructs a new exception with the specified detail message.
      *
      * @param message the detail message of the exception
      */
