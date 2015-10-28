@@ -30,7 +30,7 @@
     <name>WSO2 Carbon Kernel - Core</name>
     <description>
         The single bundle of kernel which includes all core features of kernel
-        Eg : (Deployment Framework, Logging Framework, Transport Framework, etc)
+        Eg : (Logging Framework, Transport Framework, etc)
     </description>
     <url>http://wso2.org</url>
 
