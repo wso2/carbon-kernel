@@ -60,7 +60,7 @@ public class DeploymentEngineTest extends BaseTest {
     }
 
     @Test(expectedExceptions = DeploymentEngineException.class,
-            expectedExceptionsMessageRegExp = "Cannot find repository : /fake/path")
+            expectedExceptionsMessageRegExp = "Cannot find repository : .*")
     public void testUninitializedDeploymentEngine() throws DeploymentEngineException {
         DeploymentEngine engine = new DeploymentEngine("/fake/path");
         engine.start();
