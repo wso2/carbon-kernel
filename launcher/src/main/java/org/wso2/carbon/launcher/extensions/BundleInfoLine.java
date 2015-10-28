@@ -17,8 +17,8 @@ package org.wso2.carbon.launcher.extensions;
 
 /**
  * A Java class which defines an instance holding an OSGi bundle's information.
- * <p>
- * {@since 5.0.0}
+ *
+ * @since 5.0.0
  */
 public class BundleInfoLine {
     private String bundleSymbolicName;

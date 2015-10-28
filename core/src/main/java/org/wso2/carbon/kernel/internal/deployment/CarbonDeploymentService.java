@@ -107,7 +107,7 @@ public class CarbonDeploymentService implements DeploymentService {
      *                     for service this can be service name such as EchoService, VersionService, etc
      * @param artifactType the type of the artifact going to be deployed
      *                     Eg : webapp, dataservice, sequence
-     * @throws CarbonDeploymentException
+     * @throws CarbonDeploymentException throws redeployment exceptions
      */
     public void redeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException {
         // TODO implement this

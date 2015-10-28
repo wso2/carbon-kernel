@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Carbon Transport Manager.
+ * This class is responsible for managing the Carbon Transports available in the kernel.
  *
  * @since 5.0.0
  */

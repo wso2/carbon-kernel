@@ -79,6 +79,9 @@ public class Utils {
     /**
      * Replace system property holders in the property values.
      * e.g. Replace ${carbon.home} with value of the carbon.home system property.
+     *
+     * @param value string value to substitute
+     * @return String substituted string
      */
     public static String substituteVars(String value) {
         //TODO this method is duplicated in org.wso2.carbon.launcher.utils package. FIX IT.
