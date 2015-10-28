@@ -16,7 +16,8 @@
 package org.wso2.carbon.kernel.transports;
 
 /**
- * Represents a transport in Carbon.
+ * This class represents a transport in Carbon. When adding a new transport to the kernel, this class needs to be
+ * extended, implement the start, stop, beginMaintenance, endMaintenance methods and register as an OSGi Service.
  *
  * @since 5.0.0
  */
