@@ -147,14 +147,26 @@ public class TransportManagerTest {
             transportManager.startTransports();
             Assert.assertTrue(false);
         } catch (IllegalStateException e) {
-            Assert.assertEquals("Cannot start transport dummyId3. Current state: STARTED", e.getMessage());
+            String exceptionMessage = "Cannot start transport dummyId3. Current state: STARTED";
+            Assert.assertEquals(exceptionMessage, e.getMessage());
         }
     }
 
     @Test(dependsOnMethods = {"testUnSuccessfulStartOfAlreadyStartedTransports"})
+    public void testUnSuccessfulStoppingAlreadyStoppedTransport() {
+        try {
+            transportManager.stopTransport(carbonTransport3.getId());
+            transportManager.stopTransports();
+            Assert.assertTrue(false);
+        } catch (IllegalStateException e) {
+            String exceptionMessage = "Cannot stop transport dummyId3. Current state: STOPPED";
+            Assert.assertEquals(exceptionMessage, e.getMessage());
+        }
+    }
+
+    @Test(dependsOnMethods = {"testUnSuccessfulStoppingAlreadyStoppedTransport"})
     public void testSuccessfulStartTransports() {
         try {
-            transportManager.stopTransports();
             transportManager.startTransports();
         } catch (IllegalStateException e) {
             Assert.assertTrue(false);
