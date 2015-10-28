@@ -1,7 +1,7 @@
 ${product.name} v${product.version}
 
 
-This file explains the usages of all the scipts contained within
+This file explains the usages of all the scripts contained within
 this directory.
 
 1. README.txt
