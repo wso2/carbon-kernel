@@ -49,8 +49,8 @@ public class FileLogHandler extends StreamHandler {
     /**
      * Initialize logging handler for Carbon log file.
      *
-     * @return CarbonLogFileHandler
-     * @throws IOException
+     * @return Handler CarbonLogFileHandler
+     * @throws IOException throws IO error
      */
     public static synchronized Handler getInstance() throws IOException {
         return new FileLogHandler();
