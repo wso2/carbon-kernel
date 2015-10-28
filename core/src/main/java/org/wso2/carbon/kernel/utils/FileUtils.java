@@ -150,18 +150,10 @@ public class FileUtils {
                 }
                 //if we reached here, the File object f was not a directory
                 //create a FileInputStream on top of f
-                FileInputStream fis = new FileInputStream(f);
-                try {
+                try (FileInputStream fis = new FileInputStream(f)) {
                     //now write the content of the file to the ZipOutputStream
                     while ((bytesIn = fis.read(readBuffer)) != -1) {
                         zos.write(readBuffer, 0, bytesIn);
-                    }
-                } finally {
-                    try {
-                        //close the Stream
-                        fis.close();
-                    } catch (IOException e) {
-                        logger.error("Unable to close the InputStream " + e.getMessage());
                     }
                 }
             }
