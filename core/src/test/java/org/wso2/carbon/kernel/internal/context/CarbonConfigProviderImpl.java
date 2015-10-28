@@ -13,36 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.transports.transporter;
+package org.wso2.carbon.kernel.internal.context;
 
-import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.kernel.config.CarbonConfigProvider;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 
 /**
- * Custom Carbon Transport class.
+ * Custom implementation for CarbonConfigProvider to be used in unit test cases.
  */
-public class CustomCarbonTransport extends CarbonTransport {
-
-    public CustomCarbonTransport(String id) {
-        super(id);
-    }
-
+public class CarbonConfigProviderImpl implements CarbonConfigProvider {
     @Override
-    public void start() {
-
-    }
-
-    @Override
-    protected void stop() {
-
-    }
-
-    @Override
-    protected void beginMaintenance() {
-
-    }
-
-    @Override
-    protected void endMaintenance() {
-
+    public CarbonConfiguration getCarbonConfiguration() {
+        return new CarbonConfiguration();
     }
 }

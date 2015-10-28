@@ -13,36 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.transports.transporter;
+package org.wso2.carbon.kernel.internal.context;
 
-import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.CarbonRuntime;
 
 /**
- * Custom Carbon Transport class.
+ * Unit test class for org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory.
  */
-public class CustomCarbonTransport extends CarbonTransport {
+public class CarbonRuntimeFactoryTest {
+    private CarbonRuntime carbonRuntime;
 
-    public CustomCarbonTransport(String id) {
-        super(id);
+    @BeforeTest
+    public void setup() throws Exception {
+        carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(new CarbonConfigProviderImpl());
     }
 
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    protected void stop() {
-
-    }
-
-    @Override
-    protected void beginMaintenance() {
-
-    }
-
-    @Override
-    protected void endMaintenance() {
-
+    @Test
+    public void testDefaultCarbonRuntime() {
+        Assert.assertNotNull(carbonRuntime.getConfiguration());
     }
 }

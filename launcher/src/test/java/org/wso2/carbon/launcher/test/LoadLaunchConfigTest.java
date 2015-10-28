@@ -20,9 +20,12 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.launcher.CarbonServerListener;
+import org.wso2.carbon.launcher.Constants;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
+import org.wso2.carbon.launcher.extensions.DropinsBundleDeployer;
 import org.wso2.carbon.launcher.utils.Utils;
 
 import java.io.File;
@@ -30,7 +33,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +77,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     }
 
     @Test
-    public void loadCarbonLaunchConfigTestCase() {
+    public void loadCarbonLaunchConfigFromFileTestCase() {
         String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(),
                 LAUNCH_PROPERTIES_FILE).toString();
         File launchPropFile = new File(launchPropFilePath);
@@ -87,7 +92,22 @@ public class LoadLaunchConfigTest extends BaseTest {
         Assert.assertTrue(launchPropFile.exists(), "launch.properties file does not exists");
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigTestCase"})
+    @Test
+    public void loadCarbonLaunchConfigTestCase() {
+        launchConfig = new CarbonLaunchConfig();
+
+    }
+
+    @Test
+    public void loadCarbonLaunchConfigFromURLTestCase() throws MalformedURLException {
+        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(),
+                LAUNCH_PROPERTIES_FILE).toString();
+        URL launchPropFileURL = new File(launchPropFilePath).toURI().toURL();
+
+        launchConfig = new CarbonLaunchConfig(launchPropFileURL);
+    }
+
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
     public void loadLaunchConfigOSGiFrameworkTestCase() {
         //test if property "carbon.osgi.framework" has set according to sample launch.properties file
         URL url = launchConfig.getCarbonOSGiFramework();
@@ -95,7 +115,7 @@ public class LoadLaunchConfigTest extends BaseTest {
                 "/org.eclipse.osgi_3.10.2.v20150203-1939.jar");
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigTestCase"})
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
     public void loadLaunchConfigInitialBundlesTestCase() {
         //test if property "carbon.initial.osgi.bundles" has set according to sample launch.properties file
         List<CarbonInitialBundle> initialBundleList = launchConfig.getInitialBundles();
@@ -103,7 +123,22 @@ public class LoadLaunchConfigTest extends BaseTest {
                 "/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar");
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigTestCase"})
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    public void loadLaunchConfigOsgiRepoTestCase() throws MalformedURLException {
+        //test if property "carbon.osgi.repository" has set according to sample launch.properties file
+        URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
+        Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "repository", "components");
+        Assert.assertEquals(osgiRepoURL, expectedPath.toUri().toURL());
+    }
+
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    public void loadLaunchConfigServerListnersTestCase() throws MalformedURLException {
+        //test if property "carbon.server.listeners" has set according to sample launch.properties file
+        CarbonServerListener carbonServerListener = launchConfig.getCarbonServerListeners().get(0);
+        Assert.assertTrue(carbonServerListener instanceof DropinsBundleDeployer);
+    }
+
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
     public void carbonLogAppendTestCase() throws FileNotFoundException {
         String sampleMessage = "Sample message-test logging with class CarbonLaunchConfig";
         String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest} - " +
