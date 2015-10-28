@@ -78,7 +78,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                 }
             } catch (Exception e) {
                 logger.log(Level.SEVERE, "An error has occurred when updating the bundles.info using the OSGi " +
-                                         "bundle information", e);
+                        "bundle information", e);
             }
         }
     }
@@ -101,7 +101,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                     try (JarFile jarFile = new JarFile(child.toString())) {
                         if ((jarFile.getManifest() == null) || (jarFile.getManifest().getMainAttributes() == null)) {
                             logger.log(Level.WARNING, "Invalid bundle found in the dropins directory: " +
-                                                      jarFile.toString());
+                                    jarFile.toString());
                         } else {
                             String bundleSymbolicName = jarFile.getManifest().getMainAttributes().
                                     getValue(BUNDLE_SYMBOLIC_NAME);
@@ -109,7 +109,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                                     getValue(BUNDLE_VERSION);
                             if (bundleSymbolicName == null || bundleVersion == null) {
                                 logger.log(Level.WARNING, "Required bundle manifest headers do not exists: " +
-                                                          jarFile.toString());
+                                        jarFile.toString());
                             } else {
                                 /*
                                     BSN can have values like, Bundle-SymbolicName: com.example.acme;singleton:=true
@@ -165,7 +165,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                         boolean found = false;
                         for (BundleInfoLine newBundleInfoLine : newBundleInfoLines) {
                             if (newBundleInfoLine.getBundleSymbolicName().equals(bundleInfoLine.getBundleSymbolicName())
-                                && newBundleInfoLine.getBundleVersion().equals(bundleInfoLine.getBundleVersion())) {
+                                    && newBundleInfoLine.getBundleVersion().equals(bundleInfoLine.getBundleVersion())) {
                                 /*
                                     Now the symbolicName and the version is equal. Now we need to check the
                                     fragment-ness of these bundles.
@@ -205,7 +205,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
      */
 
     private static void addNewBundleInfoLines(List<BundleInfoLine> newBundleInfoLines,
-                                              Map<String, List<BundleInfoLine>> existingBundleInfoLineMap) {
+            Map<String, List<BundleInfoLine>> existingBundleInfoLineMap) {
         newBundleInfoLines.forEach(newBundleInfoLine -> {
             String symbolicName = newBundleInfoLine.getBundleSymbolicName();
             String version = newBundleInfoLine.getBundleVersion();
@@ -219,7 +219,7 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                 bundleInfoLineList.add(newBundleInfoLine);
                 existingBundleInfoLineMap.put(symbolicName, bundleInfoLineList);
                 logger.log(Level.INFO, "Deploying bundle: " + newBundleInfoLine.getBundleSymbolicName() + "_" +
-                                       newBundleInfoLine.getBundleVersion() + ".jar");
+                        newBundleInfoLine.getBundleVersion() + ".jar");
             } else {
                 //  Bundle symbolic names exists. Now we need to check whether their versions are equal.
                 boolean found = false;
@@ -235,8 +235,8 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                             if (!existingBundleInfoLine.getBundlePath().equals(newBundleInfoLine.getBundlePath())) {
                                 logger.log(Level.WARNING, String.format(
                                         "Ignoring the deployment of bundle: %s, because it is already available in the"
-                                        + " system: %s. Bundle-SymbolicName and Bundle-Version headers are "
-                                        + "identical.", newBundleInfoLine.toString(),
+                                                + " system: %s. Bundle-SymbolicName and Bundle-Version headers are "
+                                                + "identical.", newBundleInfoLine.toString(),
                                         existingBundleInfoLine.getBundlePath()));
                                 found = true;
                                 break;
@@ -257,8 +257,8 @@ public class DropinsBundleDeployer implements CarbonServerListener {
                                 //  We have an exact match, but their locations are different.
                                 logger.log(Level.WARNING, String.format(
                                         "Ignoring the deployment of bundle: %s, because it is already available in the"
-                                        + " system: %s. Bundle-SymbolicName and Bundle-Version headers are "
-                                        + "identical.", newBundleInfoLine.toString(),
+                                                + " system: %s. Bundle-SymbolicName and Bundle-Version headers are "
+                                                + "identical.", newBundleInfoLine.toString(),
                                         existingBundleInfoLine.getBundlePath()));
                                 found = true;
                                 break;

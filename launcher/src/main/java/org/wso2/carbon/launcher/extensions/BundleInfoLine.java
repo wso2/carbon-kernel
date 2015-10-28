@@ -29,7 +29,7 @@ public class BundleInfoLine {
     private boolean isFromDropins;
 
     public BundleInfoLine(String bundleSymbolicName, String bundleVersion, String bundlePath, int startLevel,
-                          boolean isFragment) {
+            boolean isFragment) {
         this.bundleSymbolicName = bundleSymbolicName;
         this.bundleVersion = bundleVersion;
         this.bundlePath = bundlePath;
@@ -94,7 +94,6 @@ public class BundleInfoLine {
 
     public String toString() {
         return bundleSymbolicName + "," + bundleVersion + "," +
-               bundlePath + "," + startLevel + "," + Boolean.toString(!isFragment);
+                bundlePath + "," + startLevel + "," + Boolean.toString(!isFragment);
     }
 }
-
