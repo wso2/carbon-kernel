@@ -28,6 +28,7 @@ public class TransportManagerTest {
     private TransportManager transportManager;
     private CustomCarbonTransport carbonTransport;
     private CustomCarbonTransport carbonTransport2;
+    private CustomCarbonTransport carbonTransport3;
 
     public TransportManagerTest() {
     }
@@ -37,6 +38,7 @@ public class TransportManagerTest {
         transportManager = new TransportManager();
         carbonTransport = new CustomCarbonTransport("dummyId");
         carbonTransport2 = new CustomCarbonTransport("dummyId2");
+        carbonTransport3 = new CustomCarbonTransport("dummyId3");
         transportManager.registerTransport(carbonTransport);
         transportManager.registerTransport(carbonTransport2);
     }
@@ -50,7 +52,6 @@ public class TransportManagerTest {
             Assert.assertEquals(exceptionMessage, e.getMessage());
         }
     }
-
 
     @Test(dependsOnMethods = {"testUnsuccessfullStartTransport"})
     public void testSuccessfullStartTransport() {
@@ -104,7 +105,6 @@ public class TransportManagerTest {
         }
     }
 
-
     @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
     public void testUnSuccessfulEndMaintenance() {
         try {
@@ -127,12 +127,35 @@ public class TransportManagerTest {
         Assert.assertTrue(true);
     }
 
-
-
     @Test(dependsOnMethods = {"testSuccessfulBeginMaintenance"})
     public void testSuccessfulEndMaintenance() {
         try {
             transportManager.endMaintenance();
+            transportManager.unregisterTransport(carbonTransport2);
+        } catch (IllegalStateException e) {
+            Assert.assertTrue(false);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testSuccessfulEndMaintenance"})
+    public void testUnSuccessfulStartOfAlreadyStartedTransports() {
+        try {
+            transportManager.registerTransport(carbonTransport3);
+            transportManager.startTransport(carbonTransport3.getId());
+            //startTransports will try to start a transport which is already started. Thus this
+            //will throw an IllegalStateException.
+            transportManager.startTransports();
+            Assert.assertTrue(false);
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Cannot start transport dummyId3. Current state: STARTED", e.getMessage());
+        }
+    }
+
+    @Test(dependsOnMethods = {"testUnSuccessfulStartOfAlreadyStartedTransports"})
+    public void testSuccessfulStartTransports() {
+        try {
+            transportManager.stopTransports();
+            transportManager.startTransports();
         } catch (IllegalStateException e) {
             Assert.assertTrue(false);
         }
