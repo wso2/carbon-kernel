@@ -41,29 +41,18 @@ public class LoggingConfigurationTest extends BaseTest {
         Assert.assertNotNull(loggingConfiguration);
     }
 
-    @Test(dependsOnMethods = "testGetInstance")
-    public void testRegisterNullManagedService() {
-        try {
-            loggingConfiguration.register(null);
-            Assert.assertTrue(false);
-        } catch (IllegalStateException e) {
-            String message = "Configuration admin service is not available.";
-            Assert.assertEquals(e.getMessage(), message);
-        } catch (FileNotFoundException e) {
-            Assert.assertTrue(false);
-        }
+    @Test(dependsOnMethods = "testGetInstance", expectedExceptions = IllegalStateException.class,
+            expectedExceptionsMessageRegExp = "Configuration admin service is not available.")
+    public void testRegisterNullManagedService() throws FileNotFoundException {
+        loggingConfiguration.register(null);
+        Assert.assertTrue(false, "Logger register method did not throw an exception when passing null as the " +
+                "MangedService");
     }
 
     @Test(dependsOnMethods = "testRegisterNullManagedService")
-    public void testRegisterReadingLog4J2Config() {
+    public void testRegisterReadingLog4J2Config() throws FileNotFoundException {
         System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("xsd").getAbsolutePath());
-        try {
-            loggingConfiguration.register(new CustomManagedService());
-        } catch (IllegalStateException e) {
-            Assert.assertTrue(false);
-        } catch (FileNotFoundException e) {
-            Assert.assertTrue(false);
-        }
+        loggingConfiguration.register(new CustomManagedService());
         System.clearProperty(Constants.CARBON_REPOSITORY);
     }
 
@@ -73,7 +62,7 @@ public class LoggingConfigurationTest extends BaseTest {
         try {
             loggingConfiguration.register(new CustomManagedService());
         } catch (IllegalStateException e) {
-            Assert.assertTrue(false);
+            Assert.assertTrue(false, "IllegalStateException thrown when expected is FileNotFoundException");
         } catch (FileNotFoundException e) {
             Assert.assertTrue(true);
         }
