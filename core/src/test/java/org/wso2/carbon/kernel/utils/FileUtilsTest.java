@@ -59,6 +59,12 @@ public class FileUtilsTest {
         }
     }
 
+    @Test(expectedExceptions = IOException.class)
+    public void testCopyFileWithNonExistingSource() throws IOException {
+        File destination = Paths.get("target", "FileUtilTest", "tempFolder", "sample.txt").toFile();
+        FileUtils.copyFile(new File("non-existing-file"), destination);
+    }
+
     @Test(dependsOnMethods = {"testCopyFile"})
     public void testCopyFileToDir() {
         File destination = Paths.get("target", "FileUtilTest", "testSampleDirStructure", "sample.txt").toFile();
