@@ -22,6 +22,9 @@ import org.wso2.carbon.kernel.deployment.BaseTest;
 
 import java.io.FileNotFoundException;
 
+/**
+ * Unit testing class for org.wso2.carbon.kernel.internal.logging.LoggingConfiguration.
+ */
 public class LoggingConfigurationTest extends BaseTest {
     LoggingConfiguration loggingConfiguration = null;
 
@@ -39,7 +42,7 @@ public class LoggingConfigurationTest extends BaseTest {
     }
 
     @Test(dependsOnMethods = "testGetInstance")
-    public void testregisterNullManagedService() {
+    public void testRegisterNullManagedService() {
         try {
             loggingConfiguration.register(null);
             Assert.assertTrue(false);
@@ -51,8 +54,8 @@ public class LoggingConfigurationTest extends BaseTest {
         }
     }
 
-    @Test(dependsOnMethods = "testregisterNullManagedService")
-    public void testregisterReadingLog4J2Config() {
+    @Test(dependsOnMethods = "testRegisterNullManagedService")
+    public void testRegisterReadingLog4J2Config() {
         System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("xsd").getAbsolutePath());
         try {
             loggingConfiguration.register(new CustomManagedService());
@@ -64,8 +67,8 @@ public class LoggingConfigurationTest extends BaseTest {
         System.clearProperty(Constants.CARBON_REPOSITORY);
     }
 
-    @Test(dependsOnMethods = "testregisterReadingLog4J2Config")
-    public void testregisterReadingNonExistingfile() {
+    @Test(dependsOnMethods = "testRegisterReadingLog4J2Config")
+    public void testRegisterReadingNonExistingfile() {
         System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("carbon-repo").getAbsolutePath());
         try {
             loggingConfiguration.register(new CustomManagedService());

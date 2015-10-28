@@ -18,6 +18,9 @@ package org.wso2.carbon.kernel.deployment.exception;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**
+ * Unit test class for org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException.
+ */
 public class DeploymentEngineExceptionTest {
 
     @Test

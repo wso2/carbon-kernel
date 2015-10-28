@@ -22,6 +22,9 @@ import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 
+/**
+ * Unit testing class for org.wso2.carbon.kernel.internal.context.DefaultCarbonRuntime.
+ */
 public class DefaultCarbonRuntimeTest {
     private DefaultCarbonRuntime carbonRuntime;
     private CarbonConfiguration carbonConfiguration;

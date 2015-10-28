@@ -20,6 +20,9 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.CarbonRuntime;
 
+/**
+ * Unit test class for org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory.
+ */
 public class CarbonRuntimeFactoryTest {
     private CarbonRuntime carbonRuntime;
 
