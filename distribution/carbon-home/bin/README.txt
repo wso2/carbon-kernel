@@ -39,12 +39,12 @@ this directory.
 				Overwrite the conf directory path where we keep all 
 				configuration files like carbon.xml, etc.
 
-4. wso2jartobundle.sh script
+4. carbonjartobundle.sh script
     - The script file which runs the org.wso2.carbon.jartobundle-tool.jar tool.
 
     - This tool is capable of converting specified jar files to their corresponding OSGi bundles.
 
-    Usage: wso2jartobundle.sh [source] [destination]
+    Usage: carbonjartobundle.sh [source] [destination]
 
         -- source       source jar file/directory path containing jar file(s) to be converted to
                            OSGi bundle(s)

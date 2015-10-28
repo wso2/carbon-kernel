@@ -60,8 +60,9 @@ public class BundleGenerator {
                                 directoryContent.forEach(aDirectoryItem -> {
                                     if (aDirectoryItem.toString().endsWith(".jar")) {
                                         try {
-                                            BundleGeneratorUtils.convertFromJarToBundle(aDirectoryItem, destination,
-                                                    new Manifest(), "");
+                                            BundleGeneratorUtils
+                                                    .convertFromJarToBundle(aDirectoryItem, destination, new Manifest(),
+                                                            "");
                                         } catch (IOException | JarToBundleConverterException e) {
                                             logger.log(Level.SEVERE, e.getMessage(), e);
                                         }
@@ -78,13 +79,17 @@ public class BundleGenerator {
                 } else {
                     String message =
                             "The source location and/or bundle destination may not have appropriate read/write "
-                            + "permissions.";
+                                    + "permissions.";
                     logger.log(Level.WARNING, message);
                 }
             } else {
                 String message = "Invalid file path(s). Please try again.";
                 logger.log(Level.WARNING, message);
             }
+        } else {
+            String message = "Usage: wso2jartobundle.sh [source] [destination].\nBoth arguments source and destination"
+                    + " are compulsory.";
+            logger.log(Level.WARNING, message);
         }
     }
 
