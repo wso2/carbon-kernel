@@ -1,1 +1,1 @@
-java -cp ".\*;..\lib\tools\*" org.wso2.carbon.tools.tool.BundleGenerator "%1" "%2"
+java -cp ".\*;..\lib\tools\*" org.wso2.carbon.tools.BundleGenerator "%1" "%2"
