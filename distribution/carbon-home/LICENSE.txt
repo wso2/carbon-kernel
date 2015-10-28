@@ -48,7 +48,8 @@ org.osgi.core-6.0.0.jar                                                         
 org.sat4j.core_2.3.5.v201308161310.jar                                          bundle         epl1+lgpl21091      
 org.sat4j.pb_2.3.5.v201404071733.jar                                            bundle         epl1+lgpl2   
 org.wso2.carbon.core_5.0.0.jar                                                  bundle         apache2   5713      
-org.wso2.carbon.launcher-5.0.0.jar                                              bundle         apache2   5712      
+org.wso2.carbon.launcher-5.0.0.jar                                              bundle         apache2   5712
+org.wso2.carbon.tools-5.0.0.jar                                                 bundle         apache2
 
 
 
