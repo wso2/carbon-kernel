@@ -97,7 +97,7 @@ public class CarbonServerStartTest extends BaseTest {
     public void serverTerminationTestCase() throws IOException {
         String sampleMessage = "Sample message-Terminating server with PID " + readPID();
         String resultLog = "INFO {org.wso2.carbon.launcher.test.CarbonServerStartTest} - " +
-                "Sample message-Terminating server with PID " + readPID();
+                "Sample message-Terminating server";
 
         logger.info(sampleMessage);
         ArrayList<String> logRecords =
