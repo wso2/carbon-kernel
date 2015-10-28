@@ -70,7 +70,7 @@ public class TransportManagerTest {
         try {
             transportManager.stopTransport("dummyId");
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue(false);
+            Assert.assertTrue(false, "failed to stop the transport.");
         }
     }
 
