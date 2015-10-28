@@ -13,36 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.transports.transporter;
+package org.wso2.carbon.kernel.internal.logging;
 
-import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
+
+import java.util.Dictionary;
 
 /**
- * Custom Carbon Transport class.
+ * Custom implementation of ManagedService interface for unit testing purposes.
  */
-public class CustomCarbonTransport extends CarbonTransport {
-
-    public CustomCarbonTransport(String id) {
-        super(id);
-    }
-
+public class CustomManagedService implements ManagedService {
     @Override
-    public void start() {
-
-    }
-
-    @Override
-    protected void stop() {
-
-    }
-
-    @Override
-    protected void beginMaintenance() {
-
-    }
-
-    @Override
-    protected void endMaintenance() {
+    public void updated(Dictionary<String, ?> dictionary) throws ConfigurationException {
 
     }
 }

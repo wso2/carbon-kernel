@@ -30,6 +30,7 @@ public class TransportManagerTest {
     private TransportManager transportManager;
     private CustomCarbonTransport carbonTransport;
     private CustomCarbonTransport carbonTransport2;
+    private CustomCarbonTransport carbonTransport3;
 
     public TransportManagerTest() {
     }
@@ -39,6 +40,7 @@ public class TransportManagerTest {
         transportManager = new TransportManager();
         carbonTransport = new CustomCarbonTransport("dummyId");
         carbonTransport2 = new CustomCarbonTransport("dummyId2");
+        carbonTransport3 = new CustomCarbonTransport("dummyId3");
         transportManager.registerTransport(carbonTransport);
         transportManager.registerTransport(carbonTransport2);
     }
@@ -53,21 +55,20 @@ public class TransportManagerTest {
         }
     }
 
-
     @Test(dependsOnMethods = {"testUnsuccessfullStartTransport"})
     public void testSuccessfullStartTransport() {
         try {
             transportManager.startTransport("dummyId");
         } catch (IllegalArgumentException e) {
-            Assert.assertFalse(true);
+            Assert.assertFalse(false);
         }
-        Assert.assertTrue(true);
     }
 
     @Test(dependsOnMethods = {"testSuccessfullStartTransport"})
     public void testUnsuccessfullStopTransport() {
         try {
             transportManager.stopTransport("wrongId");
+            Assert.assertTrue(false);
         } catch (IllegalArgumentException e) {
             String exceptionMessage = "wrongId not found";
             Assert.assertEquals(exceptionMessage, e.getMessage());
@@ -81,21 +82,21 @@ public class TransportManagerTest {
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(false);
         }
-        Assert.assertTrue(true);
     }
 
     @Test(dependsOnMethods = {"testSuccessfullStopTransport"})
-    public void testUnregisterTransport() {
+    public void testUnregisterTransportFail() {
         try {
             transportManager.unregisterTransport(carbonTransport);
             transportManager.stopTransport(carbonTransport.getId());
+            Assert.assertTrue(false);
         } catch (IllegalArgumentException e) {
             String exceptionMessage = "dummyId not found";
             Assert.assertEquals(exceptionMessage, e.getMessage());
         }
     }
 
-    @Test(dependsOnMethods = {"testUnregisterTransport"})
+    @Test(dependsOnMethods = {"testUnregisterTransportFail"})
     public void testUnsuccessfulBeginMaintenance() {
         try {
             transportManager.registerTransport(carbonTransport2);
@@ -109,7 +110,6 @@ public class TransportManagerTest {
     @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
     public void testSuccessfulBeginMaintenance() {
         try {
-            transportManager.registerTransport(carbonTransport2);
             transportManager.startTransport(carbonTransport2.getId());
             transportManager.beginMaintenance();
         } catch (IllegalStateException e) {
@@ -118,4 +118,49 @@ public class TransportManagerTest {
         Assert.assertTrue(true);
     }
 
+    @Test(dependsOnMethods = {"testSuccessfulBeginMaintenance"})
+    public void testSuccessfulEndMaintenance() {
+        try {
+            transportManager.endMaintenance();
+            transportManager.unregisterTransport(carbonTransport2);
+        } catch (IllegalStateException e) {
+            Assert.assertTrue(false);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testSuccessfulEndMaintenance"})
+    public void testUnSuccessfulStartOfAlreadyStartedTransports() {
+        try {
+            transportManager.registerTransport(carbonTransport3);
+            transportManager.startTransport(carbonTransport3.getId());
+            //startTransports will try to start a transport which is already started. Thus this
+            //will throw an IllegalStateException.
+            transportManager.startTransports();
+            Assert.assertTrue(false);
+        } catch (IllegalStateException e) {
+            String exceptionMessage = "Cannot start transport dummyId3. Current state: STARTED";
+            Assert.assertEquals(exceptionMessage, e.getMessage());
+        }
+    }
+
+    @Test(dependsOnMethods = {"testUnSuccessfulStartOfAlreadyStartedTransports"})
+    public void testUnSuccessfulStoppingAlreadyStoppedTransport() {
+        try {
+            transportManager.stopTransport(carbonTransport3.getId());
+            transportManager.stopTransports();
+            Assert.assertTrue(false);
+        } catch (IllegalStateException e) {
+            String exceptionMessage = "Cannot stop transport dummyId3. Current state: STOPPED";
+            Assert.assertEquals(exceptionMessage, e.getMessage());
+        }
+    }
+
+    @Test(dependsOnMethods = {"testUnSuccessfulStoppingAlreadyStoppedTransport"})
+    public void testSuccessfulStartTransports() {
+        try {
+            transportManager.startTransports();
+        } catch (IllegalStateException e) {
+            Assert.assertTrue(false);
+        }
+    }
 }
