@@ -23,6 +23,7 @@ import java.util.logging.LogRecord;
  * JavaUtilLogHandler class which extends the ConsoleHandler class.
  *
  * @see ConsoleHandler
+ * @since 5.0.0
  */
 public class JavaUtilLogHandler extends ConsoleHandler {
     ArrayList<LogRecord> logList = new ArrayList<LogRecord>();

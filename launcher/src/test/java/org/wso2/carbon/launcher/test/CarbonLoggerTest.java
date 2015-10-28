@@ -34,6 +34,8 @@ import java.util.logging.StreamHandler;
 
 /**
  * CarbonLoggerTest class which extends BaseTest class for launcher tests.
+ *
+ * @since 5.0.0
  */
 public class CarbonLoggerTest extends BaseTest {
     private static final String LOGS = "logs" + File.separator + "test.logs";

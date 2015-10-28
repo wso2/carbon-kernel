@@ -2,6 +2,12 @@ package org.wso2.carbon.kernel.internal.transports;
 
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 
+/**
+ * This class acts as a dummy command transport for the test case
+ * org.wso2.carbon.kernel.internal.transports.TransportMgtCommandProviderTest.
+ *
+ * @since 5.0.0
+ */
 public class DummyTransport extends CarbonTransport {
     private Boolean started = false;
     private Boolean stopped = false;

@@ -33,6 +33,8 @@ import java.util.logging.Logger;
 
 /**
  * Test adding info logs in wso2carbon.log file with log handlers in CarbonServer.class.
+ *
+ * @since 5.0.0
  */
 public class CarbonSeverLoggerTest extends BaseTest {
     private Logger logger;

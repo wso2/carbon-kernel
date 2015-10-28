@@ -21,6 +21,8 @@ import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
 
 /**
  * Custom Runtime Service Test class.
+ *
+ * @since 5.0.0
  */
 public class CustomRuntimeService extends CarbonRuntimeService {
 //    CarbonRuntimeService carbonRuntimeService;

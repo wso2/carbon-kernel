@@ -19,6 +19,8 @@ import org.wso2.carbon.kernel.transports.CarbonTransport;
 
 /**
  * Custom Carbon Transport class.
+ *
+ * @since 5.0.0
  */
 public class CustomCarbonTransport extends CarbonTransport {
 

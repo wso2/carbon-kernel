@@ -23,6 +23,7 @@ import java.util.ArrayList;
  * CommonsLogHandler class which implements the Log interface.
  *
  * @see Log
+ * @since 5.0.0
  */
 public class CommonsLogHandler implements Log {
     ArrayList<Object> logList = new ArrayList<Object>();

@@ -22,6 +22,8 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 
 /**
  * Unit test class for org.wso2.carbon.kernel.internal.context.CarbonRuntimeFactory.
+ *
+ * @since 5.0.0
  */
 public class CarbonRuntimeFactoryTest {
     private CarbonRuntime carbonRuntime;
