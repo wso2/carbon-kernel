@@ -57,15 +57,15 @@ public class TransportManagerTest {
         try {
             transportManager.startTransport("dummyId");
         } catch (IllegalArgumentException e) {
-            Assert.assertFalse(true);
+            Assert.assertFalse(false);
         }
-        Assert.assertTrue(true);
     }
 
     @Test(dependsOnMethods = {"testSuccessfullStartTransport"})
     public void testUnsuccessfullStopTransport() {
         try {
             transportManager.stopTransport("wrongId");
+            Assert.assertTrue(false);
         } catch (IllegalArgumentException e) {
             String exceptionMessage = "wrongId not found";
             Assert.assertEquals(exceptionMessage, e.getMessage());
@@ -79,21 +79,21 @@ public class TransportManagerTest {
         } catch (IllegalArgumentException e) {
             Assert.assertTrue(false);
         }
-        Assert.assertTrue(true);
     }
 
     @Test(dependsOnMethods = {"testSuccessfullStopTransport"})
-    public void testUnregisterTransport() {
+    public void testUnregisterTransportFail() {
         try {
             transportManager.unregisterTransport(carbonTransport);
             transportManager.stopTransport(carbonTransport.getId());
+            Assert.assertTrue(false);
         } catch (IllegalArgumentException e) {
             String exceptionMessage = "dummyId not found";
             Assert.assertEquals(exceptionMessage, e.getMessage());
         }
     }
 
-    @Test(dependsOnMethods = {"testUnregisterTransport"})
+    @Test(dependsOnMethods = {"testUnregisterTransportFail"})
     public void testUnsuccessfulBeginMaintenance() {
         try {
             transportManager.registerTransport(carbonTransport2);
@@ -104,10 +104,22 @@ public class TransportManagerTest {
         }
     }
 
-    @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
+
+        @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
+    public void testUnSuccessfulEndMaintenance() {
+        try {
+            transportManager.endMaintenance();
+            Assert.assertTrue(false);
+        } catch (IllegalStateException e) {
+            String exceptionMessage = "Cannot end maintenance of transport dummyId2. Current state: UNINITIALIZED";
+            Assert.assertEquals(e.getMessage(), exceptionMessage);
+        }
+    }
+
+    @Test(dependsOnMethods = {"testUnSuccessfulEndMaintenance"})
     public void testSuccessfulBeginMaintenance() {
         try {
-            transportManager.registerTransport(carbonTransport2);
+          //  transportManager.registerTransport(carbonTransport2);
             transportManager.startTransport(carbonTransport2.getId());
             transportManager.beginMaintenance();
         } catch (IllegalStateException e) {
@@ -115,5 +127,6 @@ public class TransportManagerTest {
         }
         Assert.assertTrue(true);
     }
+
 
 }
