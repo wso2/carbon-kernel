@@ -87,8 +87,9 @@ public class BundleGenerator {
                 logger.log(Level.WARNING, message);
             }
         } else {
-            String message = "Usage: wso2jartobundle.sh [source] [destination].\nBoth arguments source and destination"
-                    + " are compulsory.";
+            String message =
+                    "Usage: wso2jartobundle.sh/.bat [source] [destination].\nBoth arguments source and destination"
+                            + " are compulsory.";
             logger.log(Level.WARNING, message);
         }
     }
