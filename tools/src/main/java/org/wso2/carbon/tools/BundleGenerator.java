@@ -45,7 +45,7 @@ public class BundleGenerator {
         int sourceIndex = 0;
         int destinationIndex = 1;
 
-        if (args.length == 2) {
+        if (args.length == 2 && args[0].length() > 0 && args[1].length() > 0) {
             Path source = getPath(args[sourceIndex]);
             Path destination = getPath(args[destinationIndex]);
 
