@@ -57,8 +57,8 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
-            <version>${equinox.simpleconfigurator.manipulator.version}</version>
+            <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+            <version>${equinox.simpleconfigurator.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -72,6 +72,26 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-plugins</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
+                            <includeTypes>jar</includeTypes>
+                            <includeArtifactIds>
+                                org.eclipse.equinox.simpleconfigurator,
+                                org.eclipse.osgi
+                            </includeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -114,7 +114,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "carbon.osgi.framework" has set according to sample launch.properties file
         URL url = launchConfig.getCarbonOSGiFramework();
         Assert.assertEquals(url.getFile().split("plugins")[1],
-                "/org.eclipse.osgi_3.10.2.v20150203-1939.jar");
+                "/org.eclipse.osgi-3.10.2.v20150203-1939.jar");
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
@@ -122,7 +122,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "carbon.initial.osgi.bundles" has set according to sample launch.properties file
         List<CarbonInitialBundle> initialBundleList = launchConfig.getInitialBundles();
         Assert.assertEquals(initialBundleList.get(0).getLocation().getFile().split("plugins")[1],
-                "/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar");
+                "/org.eclipse.equinox.simpleconfigurator-1.1.0.v20131217-1203.jar");
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
