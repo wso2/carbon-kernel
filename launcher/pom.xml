@@ -80,15 +80,27 @@
                         <id>copy-plugins</id>
                         <phase>compile</phase>
                         <goals>
-                            <goal>copy-dependencies</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
-                            <includeTypes>jar</includeTypes>
-                            <includeArtifactIds>
-                                org.eclipse.equinox.simpleconfigurator,
-                                org.eclipse.osgi
-                            </includeArtifactIds>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.osgi</groupId>
+                                    <artifactId>org.eclipse.osgi</artifactId>
+                                    <version>${equinox.osgi.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
+                                    <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+                                    <version>${equinox.simpleconfigurator.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
+                                    <destFileName>org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>
