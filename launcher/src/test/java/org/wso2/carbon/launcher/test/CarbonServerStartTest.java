@@ -1,5 +1,6 @@
 package org.wso2.carbon.launcher.test;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -58,6 +59,7 @@ public class CarbonServerStartTest extends BaseTest {
                     while (carbonServer.getServerCurrentStatus() != ServerStatus.STARTED) {
                         sleep(100);
                     }
+                    Assert.assertEquals(carbonServer.getServerCurrentStatus(), ServerStatus.STARTED);
                     carbonServer.stop();
                 } catch (InterruptedException e) {
                     logger.warning("Error while calling thread.sleep");
