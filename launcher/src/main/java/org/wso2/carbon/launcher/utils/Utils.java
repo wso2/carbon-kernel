@@ -53,7 +53,7 @@ public class Utils {
         while (matcher.find()) {
             String sysPropKey = value.substring(matcher.start() + 2, matcher.end() - 1);
             String sysPropValue = System.getProperty(sysPropKey);
-            if (sysPropValue == null || sysPropValue.length() == 0) {
+            if (isNullOrEmpty(sysPropValue)) {
                 throw new RuntimeException("System property " + sysPropKey + " cannot be null");
             }
             newValue = newValue.replaceFirst(VAR_REGEXP, sysPropValue);
