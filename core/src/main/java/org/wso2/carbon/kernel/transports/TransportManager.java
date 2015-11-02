@@ -52,26 +52,26 @@ public class TransportManager {
     }
 
     public void startTransports() {
-        transports.entrySet()
+        transports.values()
                 .stream()
-                .forEach(entry -> entry.getValue().startTransport());
+                .forEach(CarbonTransport::startTransport);
     }
 
     public void stopTransports() {
-        transports.entrySet()
+        transports.values()
                 .stream()
-                .forEach(entry -> entry.getValue().stopTransport());
+                .forEach(CarbonTransport::stopTransport);
     }
 
     public void beginMaintenance() {
-        transports.entrySet()
+        transports.values()
                 .stream()
-                .forEach(entry -> entry.getValue().beginMaintenance());
+                .forEach(CarbonTransport::beginMaintenance);
     }
 
     public void endMaintenance() {
-        transports.entrySet()
+        transports.values()
                 .stream()
-                .forEach(entry -> entry.getValue().endMaintenance());
+                .forEach(CarbonTransport::endMaintenance);
     }
 }
