@@ -48,7 +48,8 @@ import java.util.stream.IntStream;
  */
 public class BundleGeneratorUtils {
 
-    private static final Path jar_to_bundle_temp_directory = Paths.get(Constants.JAR_TO_BUNDLE_TEMP_DIRECTORY_NAME);
+    private static final Path JAR_TO_BUNDLE_TEMP_DIRECTORY = Paths.get(Constants.JAR_TO_BUNDLE_TEMP_DIRECTORY_NAME);
+
     private static final Logger logger = Logger.getLogger(BundleGeneratorUtils.class.getName());
 
     /**
@@ -57,11 +58,11 @@ public class BundleGeneratorUtils {
      */
     static {
         try {
-            if (Files.exists(jar_to_bundle_temp_directory)) {
-                delete(jar_to_bundle_temp_directory);
+            if (Files.exists(JAR_TO_BUNDLE_TEMP_DIRECTORY)) {
+                delete(JAR_TO_BUNDLE_TEMP_DIRECTORY);
             }
         } catch (IOException e) {
-            String message = "Failed to delete " + jar_to_bundle_temp_directory;
+            String message = "Failed to delete " + JAR_TO_BUNDLE_TEMP_DIRECTORY;
             logger.log(Level.SEVERE, message, e);
         }
     }
@@ -78,8 +79,7 @@ public class BundleGeneratorUtils {
      *                                       error occurs when generating the bundle
      */
     public static void convertFromJarToBundle(Path jarFile, Path targetDirectory, Manifest manifest,
-                                              String extensionPrefix) throws IOException,
-                                                                             JarToBundleConverterException {
+            String extensionPrefix) throws IOException, JarToBundleConverterException {
         //  checks for validity of the arguments
         if (!Files.isDirectory(targetDirectory)) {
             String message = "Path target directory does not point to a directory.";
@@ -123,12 +123,12 @@ public class BundleGeneratorUtils {
                 if (!(Files.exists(extensionBundle))) {
                     logger.log(Level.FINE, "Creating the OSGi bundle for JAR file " + jarFile.toString());
                     logger.log(Level.FINE, "Creating an OSGi bundle for JAR file " + tempJarFilePathHolder.toString() +
-                                           ", at target directory " + extensionBundle.toString() + ".");
+                            ", at target directory " + extensionBundle.toString() + ".");
                     BundleGeneratorUtils.createBundle(jarFile, extensionBundle, manifest);
                     logger.log(Level.FINE, "Created an OSGi bundle for JAR file " + tempJarFilePathHolder.toString()
-                                           + ", at target directory " + extensionBundle.toString() + ".");
+                            + ", at target directory " + extensionBundle.toString() + ".");
                     logger.log(Level.INFO, "Created the OSGi bundle " + pluginName + " for JAR file " +
-                                           jarFile.toString());
+                            jarFile.toString());
                 } else {
                     logger.log(Level.INFO, "OSGi bundle " + pluginName + " already exists in the target directory.");
                 }
@@ -176,7 +176,7 @@ public class BundleGeneratorUtils {
         Path tempJarFilePathHolder = jarFile.getFileName();
         if (tempJarFilePathHolder != null) {
             if (manifest != null) {
-                Path tempBundleHolder = Paths.get(jar_to_bundle_temp_directory.toString(),
+                Path tempBundleHolder = Paths.get(JAR_TO_BUNDLE_TEMP_DIRECTORY.toString(),
                         ("" + System.currentTimeMillis() + Math.random()));
                 if (!Files.exists(tempBundleHolder)) {
                     Files.createDirectories(tempBundleHolder);
@@ -187,16 +187,16 @@ public class BundleGeneratorUtils {
                     Files.createFile(p2InfFile);
                 }
                 try (OutputStream manifestOutputStream = Files.newOutputStream(manifestFile);
-                     OutputStream p2InfOutputStream = Files.newOutputStream(p2InfFile);
-                     FileSystem zipFileSystem = createZipFileSystem(bundlePath, true)) {
+                        OutputStream p2InfOutputStream = Files.newOutputStream(p2InfFile);
+                        FileSystem zipFileSystem = createZipFileSystem(bundlePath, true)) {
                     manifest.write(manifestOutputStream);
-                    logger.log(Level.FINE, "Generated the OSGi bundlePath MANIFEST.MF for the JAR file " +
-                                           jarFile.toString());
+                    logger.log(Level.FINE,
+                            "Generated the OSGi bundlePath MANIFEST.MF for the JAR file " + jarFile.toString());
                     p2InfOutputStream.write("instructions.configure=markStarted(started:true);"
                             .getBytes(Charset.forName("UTF-8")));
                     p2InfOutputStream.flush();
-                    logger.log(Level.FINE, "Generated the OSGi bundlePath p2.inf for the JAR file " +
-                                           jarFile.toString());
+                    logger.log(Level.FINE,
+                            "Generated the OSGi bundlePath p2.inf for the JAR file " + jarFile.toString());
 
                     Path manifestFolderPath = zipFileSystem.getPath("META-INF");
                     if (!Files.exists(manifestFolderPath)) {
@@ -310,16 +310,14 @@ public class BundleGeneratorUtils {
 
                         // walk the file tree and add the directories and files to the list
                         Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-                            @Override
-                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                            @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                                     throws IOException {
                                 zipFileContent.add(file);
                                 return FileVisitResult.CONTINUE;
                             }
 
-                            @Override
-                            public FileVisitResult preVisitDirectory(Path directory,
-                                                                     BasicFileAttributes attrs) throws IOException {
+                            @Override public FileVisitResult preVisitDirectory(Path directory,
+                                    BasicFileAttributes attrs) throws IOException {
                                 zipFileContent.add(directory);
                                 return FileVisitResult.CONTINUE;
                             }
@@ -348,7 +346,7 @@ public class BundleGeneratorUtils {
      * @throws JarToBundleConverterException if the specified {@link Path} file format is not .zip or .jar or
      *                                       if the {@link Path} representing the zip file name has zero elements
      */
-    private static FileSystem createZipFileSystem(Path zipFilePath, boolean create)
+    public static FileSystem createZipFileSystem(Path zipFilePath, boolean create)
             throws IOException, JarToBundleConverterException {
         Path zipFileName = zipFilePath.getFileName();
         if (zipFileName != null) {

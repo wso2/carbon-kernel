@@ -13,22 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools.exceptions;
+package org.wso2.carbon.test.implementation;
+
+import org.wso2.carbon.test.interfaces.Greeting;
 
 /**
- * A custom Java {@code Exception} class used for the tool specific exception handling.
+ * A Java class implementing the Greeting.java interface.
  *
  * @since 5.0.0
  */
-public class JarToBundleConverterException extends Exception {
+public class HelloWorld implements Greeting {
 
-    /**
-     * Constructs a new exception with the specified detail message.
-     *
-     * @param message the detail message of the exception
-     */
-    public JarToBundleConverterException(String message) {
-        super(message);
+    @Override public String welcome(String greeting) {
+        return greeting + " my friend!!!";
     }
 
 }

@@ -29,6 +29,7 @@
 
     <modules>
         <module>startup-coordination</module>
+        <module>tool-test-artifact</module>
     </modules>
 
 

@@ -37,11 +37,20 @@ public class BundleGenerator {
     private static final Logger logger = Logger.getLogger(BundleGenerator.class.getName());
 
     /**
-     * Executes the JAR to OSGi bundle conversion process.
+     * Application executor of the JAR to OSGi bundle conversion tool.
      *
      * @param args a {@link String} array providing the source and destination {@link String} path values
      */
     public static void main(String[] args) {
+        execute(args);
+    }
+
+    /**
+     * Executes the JAR to OSGi bundle conversion process.
+     *
+     * @param args a {@link String} array providing the source and destination {@link String} path values
+     */
+    public static void execute(String[] args) {
         int sourceIndex = 0;
         int destinationIndex = 1;
 
@@ -60,8 +69,9 @@ public class BundleGenerator {
                                 directoryContent.forEach(aDirectoryItem -> {
                                     if (aDirectoryItem.toString().endsWith(".jar")) {
                                         try {
-                                            BundleGeneratorUtils.convertFromJarToBundle(aDirectoryItem, destination,
-                                                    new Manifest(), "");
+                                            BundleGeneratorUtils
+                                                    .convertFromJarToBundle(aDirectoryItem, destination, new Manifest(),
+                                                            "");
                                         } catch (IOException | JarToBundleConverterException e) {
                                             logger.log(Level.SEVERE, e.getMessage(), e);
                                         }
@@ -78,7 +88,7 @@ public class BundleGenerator {
                 } else {
                     String message =
                             "The source location and/or bundle destination may not have appropriate read/write "
-                           + "permissions.";
+                                    + "permissions.";
                     logger.log(Level.WARNING, message);
                 }
             } else {

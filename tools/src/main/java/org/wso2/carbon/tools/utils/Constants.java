@@ -22,7 +22,7 @@ package org.wso2.carbon.tools.utils;
  */
 public class Constants {
 
-    //  Bundle manifest constants
+    //  OSGi Bundle manifest constants
     protected static final String MANIFEST_VERSION = "Manifest-Version";
     protected static final String BUNDLE_MANIFEST_VERSION = "Bundle-ManifestVersion";
     protected static final String BUNDLE_NAME = "Bundle-Name";
@@ -36,5 +36,11 @@ public class Constants {
     protected static final String JAR_TO_BUNDLE_TEMP_DIRECTORY_NAME = "temp";
     protected static final String MANIFEST_FILE_NAME = "MANIFEST.MF";
     protected static final String P2_INF_FILE_NAME = "p2.inf";
+
+    /**
+     * A constructor which prevents instantiating the Constants class.
+     */
+    private Constants() {
+    }
 
 }

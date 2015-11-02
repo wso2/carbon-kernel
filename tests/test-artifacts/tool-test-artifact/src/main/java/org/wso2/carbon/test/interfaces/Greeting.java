@@ -13,22 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.tools.exceptions;
+package org.wso2.carbon.test.interfaces;
 
 /**
- * A custom Java {@code Exception} class used for the tool specific exception handling.
+ * A Java test Greeting interface.
  *
  * @since 5.0.0
  */
-public class JarToBundleConverterException extends Exception {
-
-    /**
-     * Constructs a new exception with the specified detail message.
-     *
-     * @param message the detail message of the exception
-     */
-    public JarToBundleConverterException(String message) {
-        super(message);
-    }
-
+public interface Greeting {
+    String welcome(String greeting);
 }
