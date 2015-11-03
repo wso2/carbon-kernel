@@ -128,15 +128,6 @@ public class FileManipulator {
             }
         }
     }
-
-    public static void copyFile1(Path src, Path dest){
-        try {
-            //Its not the moving we have to do.. Change this..
-            Files.move(src, dest, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException e) {
-            log.warn("Error in copying file");
-        }
-    }
     
     /**
      * Copies src file to dst directory.
