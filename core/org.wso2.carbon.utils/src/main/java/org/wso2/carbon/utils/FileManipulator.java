@@ -24,6 +24,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,6 +126,15 @@ public class FileManipulator {
             } catch (IOException e) {
                 log.warn("Unable to close the OutputStream " + e.getMessage(), e);
             }
+        }
+    }
+
+    public static void copyFile1(Path src, Path dest){
+        try {
+            //Its not the moving we have to do.. Change this..
+            Files.move(src, dest, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e) {
+            log.warn("Error in copying file");
         }
     }
     
