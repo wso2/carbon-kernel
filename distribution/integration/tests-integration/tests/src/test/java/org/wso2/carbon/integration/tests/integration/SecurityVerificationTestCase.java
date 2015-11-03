@@ -34,7 +34,6 @@ import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.utils.FileManipulator;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
@@ -42,6 +41,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Calendar;
 
 /**
@@ -95,9 +95,9 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
             return;
         }
         assert carbonHome != null : "carbonHome cannot be null";
-        //File srcFile = new File(secVerifierDir + "SecVerifier.aar");
+
         Path srcFile = Paths.get(secVerifierDir, "SecVerifier.aar");
-       // assert srcFile.exists() : srcFile.getAbsolutePath() + " does not exist";
+
         assert srcFile.toFile().exists() : srcFile.toFile().getAbsolutePath() + " does not exist";
 
         String deploymentPath = carbonHome + File.separator + "repository" + File.separator
@@ -106,26 +106,13 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         if (!depFile.exists() && !depFile.mkdir()) {
             throw new IOException("Error while creating the deployment folder : " + deploymentPath);
         }
-        //File dstFile = new File(depFile.getAbsolutePath() + File.separator + "SecVerifier.aar");
+
         Path dstFile = Paths.get(depFile.getAbsolutePath(), "SecVerifier.aar");
-        //log.info("Copying " + srcFile.getAbsolutePath() + " => " + dstFile.getAbsolutePath());
         log.info("Copying " + srcFile.toFile().getAbsolutePath() + " => " + dstFile.toFile().getAbsolutePath());
-        //FileManipulator.copyFile(srcFile, dstFile);
-        //Thread.sleep(20000);
-        FileManipulator.copyFile1(srcFile, dstFile);
 
-        assert isFileCopied(dstFile) : dstFile.toFile().getAbsolutePath() + "has not been copied";
-    }
+        Files.move(srcFile, dstFile, StandardCopyOption.ATOMIC_MOVE);
 
-    private static boolean isFileCopied(Path path) {
-        Calendar startTime = Calendar.getInstance();
-        while (Calendar.getInstance().getTimeInMillis() - startTime.getTimeInMillis() < 90000)
-            ;
-
-        if (Files.exists(path)) {
-            return true;
-        }
-        return false;
+        assert Files.exists(dstFile) : dstFile.toFile().getAbsolutePath() + "has not been copied";
     }
 
     private static boolean isWebAppDeployed(String webAppName, String endpoint) {
@@ -148,7 +135,6 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
             } catch (InterruptedException ignored) {
 
             }
-
         }
         return false;
     }
