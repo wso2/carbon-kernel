@@ -40,11 +40,7 @@ import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.LDAPUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import javax.naming.AuthenticationException;
-import javax.naming.InvalidNameException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.PartialResultException;
+import javax.naming.*;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -2081,7 +2077,14 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
             SearchResult userObj = null;
             String[] searchBases = searchBase.split("#");
             for (String base : searchBases) {
-                answer = dirContext.search(escapeDNForSearch(base), searchFilter, searchCtls);
+                try {
+                    answer = dirContext.search(escapeDNForSearch(base), searchFilter, searchCtls);
+                } catch (NameNotFoundException e) {
+                    if (debug) {
+                        log.debug("User " + userName + "doesn't exist in search base : " + base);
+                    }
+                    continue;
+                }
                 if (answer.hasMore()) {
                     userObj = (SearchResult) answer.next();
                     if (userObj != null) {
