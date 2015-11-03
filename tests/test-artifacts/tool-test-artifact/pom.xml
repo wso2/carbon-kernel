@@ -18,7 +18,7 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>test-artifacts</artifactId>
+        <artifactId>carbon-kernel-tests</artifactId>
         <groupId>org.wso2.carbon</groupId>
         <version>5.0.0-SNAPSHOT</version>
     </parent>
@@ -38,9 +38,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <outputDirectory>../../../tools/src/test/resources/test-artifacts/source</outputDirectory>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

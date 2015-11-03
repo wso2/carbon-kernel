@@ -40,14 +40,14 @@ public class ConversionTest {
     @Test(expectedExceptions = { IOException.class,
             JarToBundleConverterException.class }) public void destinationIsAFileUtilsTest()
             throws IOException, JarToBundleConverterException {
-        Path jarFile = getTestJarFilePath();
+        Path jarFile = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         //  OSGi bundle destination path refers to a file - must refer to a directory
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"), "sample.txt");
         BundleGeneratorUtils.convertFromJarToBundle(jarFile, destination, new Manifest(), "");
     }
 
-    @Test public void destinationIsAFileExecutionTest() throws IOException {
-        Path jarFile = getTestJarFilePath();
+    @Test public void destinationIsAFileExecutorTest() throws IOException {
+        Path jarFile = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         //  OSGi bundle destination path refers to a file - must refer to a directory
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"), "sample.txt");
         TestUtils.createFile(destination);
@@ -67,20 +67,11 @@ public class ConversionTest {
     }
 
     @Test(expectedExceptions = { IOException.class,
-            JarToBundleConverterException.class }) public void equalSourceAndDestinationTest()
-            throws IOException, JarToBundleConverterException {
-        //  the source file path and destination file path are the same - cannot be the same
-        Path source = Paths.get(System.getProperty("java.io.tmpdir"));
-        Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
-        BundleGeneratorUtils.convertFromJarToBundle(source, destination, new Manifest(), "");
-    }
-
-    @Test(expectedExceptions = { IOException.class,
             JarToBundleConverterException.class }) public void convertTextFileTest()
             throws IOException, JarToBundleConverterException {
         //  the source file path refers to a text file
-        Path textFilePath = TestUtils.loadResourceFile(ListZipFileContentTest.class,
-                Paths.get("test-artifacts", "source", "sample.txt").toString());
+        Path textFilePath = TestUtils
+                .loadResourceFile(ListZipFileContentTest.class, Paths.get("test-artifact", "sample.txt").toString());
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         BundleGeneratorUtils.convertFromJarToBundle(textFilePath, destination, new Manifest(), "");
     }
@@ -88,7 +79,7 @@ public class ConversionTest {
     @Test(expectedExceptions = { IOException.class,
             JarToBundleConverterException.class }) public void createBundleWithNoManifestTest()
             throws IOException, JarToBundleConverterException {
-        Path jarFile = getTestJarFilePath();
+        Path jarFile = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         //  no manifest file for the OSGi bundle to be created - invalid argument
         BundleGeneratorUtils.createBundle(jarFile, destination, null);
@@ -102,7 +93,7 @@ public class ConversionTest {
     }
 
     @Test public void nonExistentDestinationTest() {
-        Path jarFile = getTestJarFilePath();
+        Path jarFile = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"), TestConstants.CHILD_TEST_DIRECTORY_ONE);
         executeConversion(jarFile, destination);
         Path jarFilePath = jarFile.getFileName();
@@ -117,7 +108,7 @@ public class ConversionTest {
     }
 
     @Test public void improperExecutorArgumentsTest() {
-        Path jarFile = getTestJarFilePath();
+        Path jarFile = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(null, destination);
         Path jarFilePath = jarFile.getFileName();
@@ -132,7 +123,7 @@ public class ConversionTest {
     }
 
     @Test public void convertFromJarFileToOSGiBundleTest() throws IOException, JarToBundleConverterException {
-        Path jarFile = getTestJarFilePath();
+        Path jarFile = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(jarFile, destination);
 
@@ -149,12 +140,11 @@ public class ConversionTest {
     }
 
     @Test public void convertDirectoryContentToOSGiBundlesTest() throws IOException, JarToBundleConverterException {
-        Path source = TestUtils
-                .loadResourceFile(ConversionTest.class, Paths.get("test-artifacts", "source").toString());
+        Path source = Paths.get("target", "test-resources");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
 
-        Path jarFile = getTestJarFilePath();
+        Path jarFile = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         Path jarFilePath = jarFile.getFileName();
         if (jarFilePath != null) {
             String jarFileName = getBundleSymbolicName(jarFilePath);
@@ -209,11 +199,6 @@ public class ConversionTest {
         } else {
             return null;
         }
-    }
-
-    private Path getTestJarFilePath() {
-        Path jarPath = Paths.get("test-artifacts", "source", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
-        return TestUtils.loadResourceFile(ListPackagesTest.class, jarPath.toString());
     }
 
 }

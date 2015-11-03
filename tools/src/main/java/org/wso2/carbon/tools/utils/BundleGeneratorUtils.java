@@ -68,7 +68,7 @@ public class BundleGeneratorUtils {
     }
 
     /**
-     * Converts a specified JAR file to an OSGi bundle at the specified destination.
+     * Converts a specified non-OSGi JAR file to an OSGi bundle at the specified destination.
      *
      * @param jarFile         the JAR file to be bundled
      * @param targetDirectory the directory into which the created OSGi bundle needs to be placed
@@ -84,26 +84,23 @@ public class BundleGeneratorUtils {
         if (!Files.isDirectory(targetDirectory)) {
             String message = "Path target directory does not point to a directory.";
             throw new JarToBundleConverterException(message);
-        } else {
-            Path tempJarFileParent = jarFile.getParent();
-            if ((tempJarFileParent != null) && (tempJarFileParent.equals(targetDirectory))) {
-                String message = "Paths JAR file parent directory and target directory cannot be the same.";
-                throw new JarToBundleConverterException(message);
-            }
         }
 
         Path tempJarFilePathHolder = jarFile.getFileName();
         if (tempJarFilePathHolder != null) {
             String fileName = tempJarFilePathHolder.toString();
             if (fileName.endsWith(".jar")) {
+                if (BundleGeneratorUtils.isOSGiBundle(jarFile)) {
+                    String message = "Path jarFile refers to an OSGi bundle.";
+                    throw new JarToBundleConverterException(message);
+                }
+
                 if (manifest == null) {
                     manifest = new Manifest();
                 }
-
                 String exportedPackages = BundleGeneratorUtils
                         .generateExportPackageList(BundleGeneratorUtils.listPackages(jarFile));
                 fileName = fileName.replaceAll("-", "_");
-
                 fileName = fileName.substring(0, fileName.length() - 4);
                 String symbolicName = extensionPrefix + fileName;
                 String pluginName = extensionPrefix + fileName + "_1.0.0.jar";
@@ -162,6 +159,27 @@ public class BundleGeneratorUtils {
     }
 
     /**
+     * Returns true if the {@code jarFilePath} refers to an OSGi bundle, else false.
+     *
+     * @param jaFilePath the {@link Path} instance to be checked if it is an OSGi bundle
+     * @return true if the {@code jarFilePath} refers to an OSGi bundle, else false.
+     * @throws IOException                   if an I/O error occurs
+     * @throws JarToBundleConverterException if {@link Path} {@code zipFilePath} does not refer to a .jar file or if
+     *                                       {@link Path} {@code zipFilePath} has zero elements
+     */
+    private static boolean isOSGiBundle(Path jaFilePath) throws IOException, JarToBundleConverterException {
+        boolean hasSymbolicName, hasVersion;
+        try (FileSystem zipFileSystem = BundleGeneratorUtils.createZipFileSystem(jaFilePath, false)) {
+            Path manifestPath = zipFileSystem.getPath("META-INF", "MANIFEST.MF");
+            Manifest manifest = new Manifest(Files.newInputStream(manifestPath));
+            Attributes attributes = manifest.getMainAttributes();
+            hasSymbolicName = attributes.getValue(Constants.BUNDLE_SYMBOLIC_NAME) != null;
+            hasVersion = attributes.getValue(Constants.BUNDLE_VERSION) != null;
+        }
+        return (hasSymbolicName && hasVersion);
+    }
+
+    /**
      * Creates an OSGi bundle out of a JAR file.
      *
      * @param jarFile    the JAR file to be bundled
@@ -207,6 +225,11 @@ public class BundleGeneratorUtils {
                     Files.copy(jarFile, zipFileSystem.getPath(tempJarFilePathHolder.toString()));
                     Files.copy(manifestFile, manifestPathInBundle);
                     Files.copy(p2InfFile, p2InfPathInBundle);
+
+                    //  clean up the temporary files and folders
+                    BundleGeneratorUtils.delete(manifestFile);
+                    BundleGeneratorUtils.delete(p2InfFile);
+                    BundleGeneratorUtils.delete(tempBundleHolder);
                 }
             } else {
                 String message = "Manifest cannot refer to null.";

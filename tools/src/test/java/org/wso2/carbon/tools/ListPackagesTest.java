@@ -33,10 +33,9 @@ import java.util.List;
 public class ListPackagesTest {
 
     @Test public void listPackagesFromJarTest() throws IOException, JarToBundleConverterException {
-        Path jarFile = TestUtils.loadResourceFile(ListPackagesTest.class,
-                Paths.get("test-artifacts", "source", "tool-test-artifact-5.0.0-SNAPSHOT.jar").toString());
+        Path jarFilePath = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         List<Object> actual = new ArrayList<>();
-        BundleGeneratorUtils.listPackages(jarFile).forEach(actual::add);
+        BundleGeneratorUtils.listPackages(jarFilePath).forEach(actual::add);
         List<Object> expected = new ArrayList<>();
         expectedPackageList().forEach(expected::add);
 

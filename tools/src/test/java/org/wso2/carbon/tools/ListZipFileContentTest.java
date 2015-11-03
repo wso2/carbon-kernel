@@ -35,21 +35,22 @@ import java.util.List;
 public class ListZipFileContentTest {
 
     @Test public void listZipFileContentOfExistingFileTest() throws IOException, JarToBundleConverterException {
-        Path bundlePath = TestUtils.loadResourceFile(ListZipFileContentTest.class,
-                Paths.get("test-artifacts", "osgi", "org.wso2.carbon.sample.deployer.mgt-5.0.0-SNAPSHOT.jar")
-                        .toString());
+        Path jarFilePath = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         List<String> expectedPaths = expectedPaths();
-        List<Path> actualPaths = BundleGeneratorUtils.listZipFileContent(bundlePath);
+        List<Path> actualPaths = BundleGeneratorUtils.listZipFileContent(jarFilePath);
         assert isMatching(expectedPaths, actualPaths);
-        Files.deleteIfExists(bundlePath);
     }
 
     @Test(expectedExceptions = { IOException.class,
             JarToBundleConverterException.class }) public void listZipFileContentOfTextFileTest()
             throws IOException, JarToBundleConverterException {
         Path textFilePath = TestUtils.loadResourceFile(ListZipFileContentTest.class,
-                Paths.get("test-artifacts", "source", "sample.txt").toString());
+                Paths.get("test-artifact", "sample.txt").toString());
+        if (!Files.exists(textFilePath)) {
+            Files.createFile(textFilePath);
+        }
         BundleGeneratorUtils.listZipFileContent(textFilePath);
+        Files.deleteIfExists(textFilePath);
     }
 
     @Test(expectedExceptions = { IOException.class,
@@ -96,12 +97,13 @@ public class ListZipFileContentTest {
         paths.add(metaInfDirectory);
         paths.add(metaInfDirectory + "maven" + File.separator);
         paths.add(metaInfDirectory + "maven" + File.separator + "org.wso2.carbon" + File.separator);
-        paths.add(metaInfDirectory + "maven" + File.separator + "org.wso2.carbon" + File.separator
-                + "org.wso2.carbon.sample.deployer.mgt" + File.separator);
-        paths.add(metaInfDirectory + "maven" + File.separator + "org.wso2.carbon" + File.separator
-                + "org.wso2.carbon.sample.deployer.mgt" + File.separator + "pom.properties");
-        paths.add(metaInfDirectory + "maven" + File.separator + "org.wso2.carbon" + File.separator
-                + "org.wso2.carbon.sample.deployer.mgt" + File.separator + "pom.xml");
+
+        String metaInfSubDirectory =
+                metaInfDirectory + "maven" + File.separator + "org.wso2.carbon" + File.separator + "tool-test-artifact"
+                        + File.separator;
+        paths.add(metaInfSubDirectory);
+        paths.add(metaInfSubDirectory + "pom.properties");
+        paths.add(metaInfSubDirectory + "pom.xml");
 
         paths.add(metaInfDirectory + "DEPENDENCIES");
         paths.add(metaInfDirectory + "LICENSE");
@@ -111,25 +113,15 @@ public class ListZipFileContentTest {
         paths.add(File.separator + "org" + File.separator);
         paths.add(File.separator + "org" + File.separator + "wso2" + File.separator);
         paths.add(File.separator + "org" + File.separator + "wso2" + File.separator + "carbon" + File.separator);
-        paths.add(
-                File.separator + "org" + File.separator + "wso2" + File.separator + "carbon" + File.separator + "sample"
-                        + File.separator);
-        paths.add(
-                File.separator + "org" + File.separator + "wso2" + File.separator + "carbon" + File.separator + "sample"
-                        + File.separator + "deployer" + File.separator);
-        String packageName =
-                File.separator + "org" + File.separator + "wso2" + File.separator + "carbon" + File.separator + "sample"
-                        + File.separator + "deployer" + File.separator + "mgt" + File.separator;
-        paths.add(packageName);
-        paths.add(packageName + "Deployer.class");
-        paths.add(packageName + "DeployerManager.class");
-        paths.add(packageName + "DeployerServicesListener.class");
 
-        paths.add(File.separator + "OSGI-INF" + File.separator);
-        paths.add(File.separator + "OSGI-INF" + File.separator
-                + "org.wso2.carbon.sample.deployer.mgt.DeployerManager.xml");
-        paths.add(File.separator + "OSGI-INF" + File.separator
-                + "org.wso2.carbon.sample.deployer.mgt.DeployerServicesListener.xml");
+        String rootPackage =
+                File.separator + "org" + File.separator + "wso2" + File.separator + "carbon" + File.separator + "test"
+                        + File.separator;
+        paths.add(rootPackage);
+        paths.add(rootPackage + "implementation" + File.separator);
+        paths.add(rootPackage + "implementation" + File.separator + "HelloWorld.class");
+        paths.add(rootPackage + "interfaces" + File.separator);
+        paths.add(rootPackage + "interfaces" + File.separator + "Greeting.class");
 
         return paths;
     }
