@@ -97,7 +97,7 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
 
         Path srcFile = Paths.get(secVerifierDir, "SecVerifier.aar");
 
-        assert srcFile.toFile().exists() : srcFile.toFile().getAbsolutePath() + " does not exist";
+        assert Files.exists(srcFile) : srcFile.toFile().getAbsolutePath() + " does not exist";
 
         String deploymentPath = carbonHome + File.separator + "repository" + File.separator
                 + "deployment" + File.separator + "server" + File.separator + "axis2services";
@@ -109,7 +109,7 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         Path dstFile = Paths.get(depFile.getAbsolutePath(), "SecVerifier.aar");
         log.info("Copying " + srcFile.toFile().getAbsolutePath() + " => " + dstFile.toFile().getAbsolutePath());
 
-        Files.move(srcFile, dstFile, StandardCopyOption.ATOMIC_MOVE);
+        Files.copy(srcFile, dstFile, StandardCopyOption.REPLACE_EXISTING);
 
         assert Files.exists(dstFile) : dstFile.toFile().getAbsolutePath() + "has not been copied";
     }
@@ -122,17 +122,22 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         while ((System.currentTimeMillis() - startTime) < 90000) {
             try {
                 response = HttpRequestUtil.sendGetRequest(endpoint, null);
-                if (response != null && !response.getData().isEmpty()) {
+                if (!response.getData().isEmpty()) {
                     return true;
                 }
-            } catch (IOException e) {
-                //Ignore IOExceptions
+            } catch (IOException ignored) {
+                //Ignore IOExceptions as this is simply checking the availability of the given webservice continuously
+                //until a positive response is received within a time limit. An IOException could occur during the
+                //connection establishment but failures in connection establishment shouldn't affect the busy waiting
+                //for a positive response and it doesn't need to be specifically handled
             }
 
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ignored) {
-
+                //Here sleep is used just to reduce the frequency of the while loop since time gap between a
+                //web service's undeployed and deployed status is higher than the time for one cycle in while loop.
+                //Therefore an interruption is not a concern hence ignored
             }
         }
         return false;
