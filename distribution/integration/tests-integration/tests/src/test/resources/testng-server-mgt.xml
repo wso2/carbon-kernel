@@ -26,34 +26,33 @@
         <listener class-name="org.wso2.carbon.automation.engine.testlisteners.TestTransformerListener"/>
     </listeners>
 
-   <!-- <test name="patching-tests" preserve-order="true" parallel="false">
+    <test name="patching-tests" preserve-order="true" parallel="false">
         <classes>
-            &lt;!&ndash; TODO: https://wso2.org/jira/browse/CARBON-15314 &ndash;&gt;
-            &lt;!&ndash; <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/> &ndash;&gt;
+            <!-- TODO: https://wso2.org/jira/browse/CARBON-15314 -->
+            <!-- <class name="org.wso2.carbon.integration.tests.patching.CARBON14488ForceFullyStopTestCase"/> -->
             <class name="org.wso2.carbon.integration.tests.patching.PatchApplyingTestCase"/>
         </classes>
-    </test>-->
+    </test>
 
     <test name="carbon-integration-tests-server-mgt" preserve-order="true" parallel="false">
         <classes>
-            <!-- TODO: Fix this. Commenting out due to CARBON-15609 -->
             <class name="org.wso2.carbon.integration.tests.integration.SecurityVerificationTestCase"/>
-            <!--<class name="org.wso2.carbon.integration.tests.integration.AccessNonExistentServiceTestCase"/>
+            <class name="org.wso2.carbon.integration.tests.integration.AccessNonExistentServiceTestCase"/>
             <class name="org.wso2.carbon.integration.tests.integration.LoginLogoutTestCase"/>
             <class name="org.wso2.carbon.integration.tests.integration.MaintenanceModeTestCase"/>
             <class name="org.wso2.carbon.integration.tests.integration.MultipleCarbonInstancesTestCase"/>
 
             <class name="org.wso2.carbon.integration.tests.integration.ServerAdminTestCase"/>
             <class name="org.wso2.carbon.integration.tests.integration.ServerRestartTestCase"/>
-            <class name="org.wso2.carbon.integration.tests.integration.ServerShutdownTestCase"/>-->
+            <class name="org.wso2.carbon.integration.tests.integration.ServerShutdownTestCase"/>
         </classes>
     </test>
 
-    <!--<test name="carbon-tools-tests" preserve-order="true" parallel="false">
+    <test name="carbon-tools-tests" preserve-order="true" parallel="false">
         <packages>
             <package name="org.wso2.carbon.integration.tests.carbontools"/>
         </packages>
-    </test>-->
+    </test>
 
     <!--<test name="feature-management-tests" preserve-order="true" parallel="false">-->
         <!--<packages>-->
@@ -61,10 +60,10 @@
         <!--</packages>-->
     <!--</test>-->
 
-    <!--<test name="Jira-Fixes" preserve-order="true" parallel="false" >
+    <test name="Jira-Fixes" preserve-order="true" parallel="false" >
         <classes>
             <class name="org.wso2.carbon.integration.tests.jira.issues.test.CARBON15322SkipLoginPageTestCase" />
         </classes>
-    </test>-->
+    </test>
 
 </suite>
