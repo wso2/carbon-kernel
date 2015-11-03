@@ -42,7 +42,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Calendar;
 
 /**
  * A test case which verifies that all admin services deployed on this Carbon server are properly
@@ -116,11 +115,11 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
     }
 
     private static boolean isWebAppDeployed(String webAppName, String endpoint) {
-        log.info("waiting " + 90000 + " millis for webApp deployment " + webAppName);
+        log.info("waiting " + 90000 + " millis for web service deployment " + webAppName);
         HttpResponse response;
 
-        Calendar startTime = Calendar.getInstance();
-        while ((Calendar.getInstance().getTimeInMillis() - startTime.getTimeInMillis()) < 90000) {
+        long startTime = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - startTime) < 90000) {
             try {
                 response = HttpRequestUtil.sendGetRequest(endpoint, null);
                 if (response != null && !response.getData().isEmpty()) {
