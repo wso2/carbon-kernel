@@ -33,7 +33,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -127,7 +126,7 @@ public class XSSValve extends ValveBase {
         boolean patternMatched = false;
 
         for (String pattern : xssURIPatternList) {
-            if (context.startsWith(pattern)) {
+            if (context.contains(pattern)) {
                 patternMatched = true;
                 break;
             }
