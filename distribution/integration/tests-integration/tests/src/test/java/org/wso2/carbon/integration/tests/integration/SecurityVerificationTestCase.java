@@ -72,7 +72,7 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
                         + "/services/SecurityVerifierService");
 
         String address = epr.getAddress();
-        assert isWebAppDeployed("SecurityVerifierService", address) : address + "does not exist";
+        assert isWebServiceDeployed("SecurityVerifierService", address) : address + "does not exist";
         opts.setTo(epr);
 
         client.setOptions(opts);
@@ -114,8 +114,8 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         assert Files.exists(dstFile) : dstFile.toFile().getAbsolutePath() + "has not been copied";
     }
 
-    private static boolean isWebAppDeployed(String webAppName, String endpoint) {
-        log.info("waiting " + 90000 + " millis for web service deployment " + webAppName);
+    private static boolean isWebServiceDeployed(String webServiceName, String endpoint) {
+        log.info("waiting " + 90000 + " millis for web service deployment " + webServiceName);
         HttpResponse response;
 
         long startTime = System.currentTimeMillis();
