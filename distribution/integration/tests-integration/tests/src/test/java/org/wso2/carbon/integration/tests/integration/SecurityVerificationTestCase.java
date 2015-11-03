@@ -116,7 +116,7 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
     }
 
     private static boolean isWebAppDeployed(String webAppName, String endpoint) {
-        log.info("waiting " + 90000 + " millis for webApp undeployment " + webAppName);
+        log.info("waiting " + 90000 + " millis for webApp deployment " + webAppName);
         HttpResponse response;
 
         Calendar startTime = Calendar.getInstance();
