@@ -51,11 +51,6 @@ public class TestUtils {
         }
     }
 
-    protected static Path loadResourceFile(Class className, String filePath) {
-        ClassLoader classLoader = className.getClassLoader();
-        return Paths.get(classLoader.getResource(filePath).getFile());
-    }
-
     protected static boolean createDirectoryWithChildren(Path parentDirectory) {
         List<Path> children = getChildPaths(parentDirectory);
         return ((TestUtils.createDirectory(parentDirectory)) && (TestUtils.createFile(children.get(0))) && TestUtils

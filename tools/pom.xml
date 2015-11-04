@@ -40,6 +40,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.37</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -115,6 +121,12 @@
                                 <artifactItem>
                                     <groupId>org.wso2.carbon</groupId>
                                     <artifactId>tool-test-artifact</artifactId>
+                                    <type>jar</type>
+                                    <outputDirectory>${project.build.directory}/test-resources</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>mysql</groupId>
+                                    <artifactId>mysql-connector-java</artifactId>
                                     <type>jar</type>
                                     <outputDirectory>${project.build.directory}/test-resources</outputDirectory>
                                 </artifactItem>

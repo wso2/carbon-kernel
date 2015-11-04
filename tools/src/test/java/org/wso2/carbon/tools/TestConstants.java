@@ -15,12 +15,16 @@
  */
 package org.wso2.carbon.tools;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * A Java class which defines constants used in test classes.
  *
  * @since 5.0.0
  */
 public class TestConstants {
+
     protected static final String TEST_DIRECTORY_ONE = "testDirectoryOne";
     protected static final String TEST_DIRECTORY_TWO = "testDirectoryTwo";
     protected static final String CHILD_TEST_FILE_ONE = "sampleOne.txt";
@@ -31,9 +35,13 @@ public class TestConstants {
     protected static final String EXPORT_PACKAGE = "Export-Package";
     protected static final String IMPORT_PACKAGE = "DynamicImport-Package";
 
+    protected static final Path SAMPLE_JAR_FILE = Paths
+            .get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
+
     /**
      * A constructor which prevents instantiating the TestConstants class.
      */
     private TestConstants() {
     }
+
 }

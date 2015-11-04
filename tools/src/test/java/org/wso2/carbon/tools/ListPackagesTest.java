@@ -20,8 +20,6 @@ import org.wso2.carbon.tools.exceptions.JarToBundleConverterException;
 import org.wso2.carbon.tools.utils.BundleGeneratorUtils;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +31,8 @@ import java.util.List;
 public class ListPackagesTest {
 
     @Test public void listPackagesFromJarTest() throws IOException, JarToBundleConverterException {
-        Path jarFilePath = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
         List<Object> actual = new ArrayList<>();
-        BundleGeneratorUtils.listPackages(jarFilePath).forEach(actual::add);
+        BundleGeneratorUtils.listPackages(TestConstants.SAMPLE_JAR_FILE).forEach(actual::add);
         List<Object> expected = new ArrayList<>();
         expectedPackageList().forEach(expected::add);
 

@@ -35,7 +35,8 @@ public class Constants {
     //  File path constants
     protected static final String JAR_TO_BUNDLE_TEMP_DIRECTORY_NAME = "temp";
     protected static final String MANIFEST_FILE_NAME = "MANIFEST.MF";
-    protected static final String P2_INF_FILE_NAME = "p2.inf";
+    protected static final String P2_INF_FILE_NAME = "p2";
+    protected static final String P2_INF_FILE_EXTENSION = ".inf";
 
     /**
      * A constructor which prevents instantiating the Constants class.

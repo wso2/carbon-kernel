@@ -35,8 +35,7 @@ import java.nio.file.Paths;
 public class CreateZipFileSystemTest {
 
     @Test public void createZipFileSystemFromExistingTest() throws IOException, JarToBundleConverterException {
-        Path jarFilePath = Paths.get("target", "test-resources", "tool-test-artifact-5.0.0-SNAPSHOT.jar");
-        FileSystem fileSystem = BundleGeneratorUtils.createZipFileSystem(jarFilePath, false);
+        FileSystem fileSystem = BundleGeneratorUtils.createZipFileSystem(TestConstants.SAMPLE_JAR_FILE, false);
         Assert.assertNotNull(fileSystem);
         fileSystem.close();
     }
@@ -51,8 +50,8 @@ public class CreateZipFileSystemTest {
     @Test(expectedExceptions = { IOException.class,
             JarToBundleConverterException.class }) public void createZipFileSystemFromTextTest()
             throws JarToBundleConverterException, IOException {
-        Path textFilePath = TestUtils.loadResourceFile(CreateZipFileSystemTest.class,
-                Paths.get("test-artifact", "sample.txt").toString());
+        Path textFilePath = Files.createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "sample", ".txt");
+        textFilePath.toFile().deleteOnExit();
         BundleGeneratorUtils.createZipFileSystem(textFilePath, false);
     }
 

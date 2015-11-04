@@ -53,21 +53,6 @@ public class BundleGeneratorUtils {
     private static final Logger logger = Logger.getLogger(BundleGeneratorUtils.class.getName());
 
     /**
-     * If exists, deletes the temporary directory which holds the unarchived bundle directories during the
-     * conversion from JAR files to OSGi bundles.
-     */
-    static {
-        try {
-            if (Files.exists(JAR_TO_BUNDLE_TEMP_DIRECTORY)) {
-                delete(JAR_TO_BUNDLE_TEMP_DIRECTORY);
-            }
-        } catch (IOException e) {
-            String message = "Failed to delete " + JAR_TO_BUNDLE_TEMP_DIRECTORY;
-            logger.log(Level.SEVERE, message, e);
-        }
-    }
-
-    /**
      * Converts a specified non-OSGi JAR file to an OSGi bundle at the specified destination.
      *
      * @param jarFile         the JAR file to be bundled
@@ -194,16 +179,15 @@ public class BundleGeneratorUtils {
         Path tempJarFilePathHolder = jarFile.getFileName();
         if (tempJarFilePathHolder != null) {
             if (manifest != null) {
-                Path tempBundleHolder = Paths.get(JAR_TO_BUNDLE_TEMP_DIRECTORY.toString(),
-                        ("" + System.currentTimeMillis() + Math.random()));
-                if (!Files.exists(tempBundleHolder)) {
-                    Files.createDirectories(tempBundleHolder);
-                }
+                Path tempBundleHolder = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")),
+                        JAR_TO_BUNDLE_TEMP_DIRECTORY.toString());
+                tempBundleHolder.toFile().deleteOnExit();
+
                 Path manifestFile = Paths.get(tempBundleHolder.toString(), Constants.MANIFEST_FILE_NAME);
-                Path p2InfFile = Paths.get(tempBundleHolder.toString(), Constants.P2_INF_FILE_NAME);
-                if (!Files.exists(p2InfFile)) {
-                    Files.createFile(p2InfFile);
-                }
+                Path p2InfFile = Files
+                        .createTempFile(tempBundleHolder, Constants.P2_INF_FILE_NAME, Constants.P2_INF_FILE_EXTENSION);
+                p2InfFile.toFile().deleteOnExit();
+
                 try (OutputStream manifestOutputStream = Files.newOutputStream(manifestFile);
                         OutputStream p2InfOutputStream = Files.newOutputStream(p2InfFile);
                         FileSystem zipFileSystem = createZipFileSystem(bundlePath, true)) {
@@ -220,16 +204,15 @@ public class BundleGeneratorUtils {
                     if (!Files.exists(manifestFolderPath)) {
                         Files.createDirectories(manifestFolderPath);
                     }
-                    Path manifestPathInBundle = zipFileSystem.getPath("META-INF", "MANIFEST.MF");
-                    Path p2InfPathInBundle = zipFileSystem.getPath("META-INF", "p2.inf");
+                    Path manifestPathInBundle = zipFileSystem.getPath("META-INF", Constants.MANIFEST_FILE_NAME);
+                    Path p2InfPathInBundle = zipFileSystem
+                            .getPath("META-INF", Constants.P2_INF_FILE_NAME + Constants.P2_INF_FILE_EXTENSION);
                     Files.copy(jarFile, zipFileSystem.getPath(tempJarFilePathHolder.toString()));
                     Files.copy(manifestFile, manifestPathInBundle);
                     Files.copy(p2InfFile, p2InfPathInBundle);
 
-                    //  clean up the temporary files and folders
-                    BundleGeneratorUtils.delete(manifestFile);
-                    BundleGeneratorUtils.delete(p2InfFile);
-                    BundleGeneratorUtils.delete(tempBundleHolder);
+                    //  delete temporary manifest file
+                    delete(manifestFile);
                 }
             } else {
                 String message = "Manifest cannot refer to null.";
