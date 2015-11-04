@@ -114,7 +114,7 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         assert Files.exists(dstFile) : dstFile.toFile().getAbsolutePath() + "has not been copied";
     }
 
-    private static boolean isWebServiceDeployed(String webServiceName, String endpoint) {
+    private boolean isWebServiceDeployed(String webServiceName, String endpoint) {
         log.info("waiting " + 90000 + " millis for web service deployment " + webServiceName);
         HttpResponse response;
 
