@@ -40,7 +40,12 @@ import org.wso2.carbon.user.core.util.JNDIUtil;
 import org.wso2.carbon.user.core.util.LDAPUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
-import javax.naming.*;
+import javax.naming.AuthenticationException;
+import javax.naming.InvalidNameException;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.PartialResultException;
+import javax.naming.NameNotFoundException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
