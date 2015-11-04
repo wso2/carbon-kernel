@@ -53,7 +53,6 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void initTests() throws Exception {
-
         super.init(TestUserMode.SUPER_TENANT_ADMIN);
     }
 
@@ -62,10 +61,8 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
 
         copySecurityVerificationService(CarbonBaseUtils.getCarbonHome());
 
-
         ServiceClient client = new ServiceClient(null, null);
         Options opts = new Options();
-
         EndpointReference epr =
                 new EndpointReference("http://" + automationContext.getInstance().getHosts().get("default") + ":" +
                         FrameworkConstants.SERVER_DEFAULT_HTTP_PORT
@@ -73,8 +70,8 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
 
         String address = epr.getAddress();
         assert isWebServiceDeployed("SecurityVerifierService", address) : address + "does not exist";
-        opts.setTo(epr);
 
+        opts.setTo(epr);
         client.setOptions(opts);
         client.sendRobust(createPayLoad());   // robust send. Will get reply only if there is a fault
         log.info("sent the message");
@@ -96,7 +93,6 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         assert carbonHome != null : "carbonHome cannot be null";
 
         Path srcFile = Paths.get(secVerifierDir, "SecVerifier.aar");
-
         assert Files.exists(srcFile) : srcFile.toFile().getAbsolutePath() + " does not exist";
 
         String deploymentPath = carbonHome + File.separator + "repository" + File.separator
@@ -105,19 +101,15 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         if (!depFile.exists() && !depFile.mkdir()) {
             throw new IOException("Error while creating the deployment folder : " + deploymentPath);
         }
-
         Path dstFile = Paths.get(depFile.getAbsolutePath(), "SecVerifier.aar");
         log.info("Copying " + srcFile.toFile().getAbsolutePath() + " => " + dstFile.toFile().getAbsolutePath());
-
         Files.copy(srcFile, dstFile, StandardCopyOption.REPLACE_EXISTING);
-
         assert Files.exists(dstFile) : dstFile.toFile().getAbsolutePath() + "has not been copied";
     }
 
     private boolean isWebServiceDeployed(String webServiceName, String endpoint) {
         log.info("waiting " + 90000 + " millis for web service deployment " + webServiceName);
         HttpResponse response;
-
         long startTime = System.currentTimeMillis();
         while ((System.currentTimeMillis() - startTime) < 90000) {
             try {
@@ -131,7 +123,6 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
                 //connection establishment but failures in connection establishment shouldn't affect the busy waiting
                 //for a positive response and it doesn't need to be specifically handled
             }
-
             try {
                 Thread.sleep(500);
             } catch (InterruptedException ignored) {
