@@ -34,29 +34,30 @@ import java.nio.file.Paths;
  */
 public class CreateZipFileSystemTest {
 
-    @Test public void createZipFileSystemFromExistingTest() throws IOException, JarToBundleConverterException {
+    @Test
+    public void createZipFileSystemFromExistingTest() throws IOException, JarToBundleConverterException {
         FileSystem fileSystem = BundleGeneratorUtils.createZipFileSystem(TestConstants.SAMPLE_JAR_FILE, false);
         Assert.assertNotNull(fileSystem);
         fileSystem.close();
     }
 
-    @Test public void createZipFileSystemFromNonExistingTest() throws IOException, JarToBundleConverterException {
+    @Test
+    public void createZipFileSystemFromNonExistingTest() throws IOException, JarToBundleConverterException {
         Path zipFilePath = Paths.get(System.getProperty("java.io.tmpdir"), "temp.zip");
         BundleGeneratorUtils.createZipFileSystem(zipFilePath, true);
         assert Files.exists(zipFilePath);
         Files.deleteIfExists(zipFilePath);
     }
 
-    @Test(expectedExceptions = { IOException.class,
-            JarToBundleConverterException.class }) public void createZipFileSystemFromTextTest()
-            throws JarToBundleConverterException, IOException {
+    @Test(expectedExceptions = { IOException.class, JarToBundleConverterException.class })
+    public void createZipFileSystemFromTextTest() throws JarToBundleConverterException, IOException {
         Path textFilePath = Files.createTempFile(Paths.get(System.getProperty("java.io.tmpdir")), "sample", ".txt");
         textFilePath.toFile().deleteOnExit();
         BundleGeneratorUtils.createZipFileSystem(textFilePath, false);
     }
 
-    @Test(expectedExceptions = JarToBundleConverterException.class) public void createZipFileSystemFromRoot()
-            throws IOException, JarToBundleConverterException {
+    @Test(expectedExceptions = JarToBundleConverterException.class)
+    public void createZipFileSystemFromRoot() throws IOException, JarToBundleConverterException {
         Path root = Paths.get(File.separator);
         BundleGeneratorUtils.createZipFileSystem(root, false);
     }

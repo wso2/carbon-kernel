@@ -30,7 +30,8 @@ import java.util.List;
  */
 public class ListPackagesTest {
 
-    @Test public void listPackagesFromJarTest() throws IOException, JarToBundleConverterException {
+    @Test
+    public void listPackagesFromJarTest() throws IOException, JarToBundleConverterException {
         List<Object> actual = new ArrayList<>();
         BundleGeneratorUtils.listPackages(TestConstants.SAMPLE_JAR_FILE).forEach(actual::add);
         List<Object> expected = new ArrayList<>();

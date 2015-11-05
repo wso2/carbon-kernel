@@ -37,7 +37,8 @@ public class ListFilesTest {
         TestUtils.createDirectoryWithChildren(DIRECTORY);
     }
 
-    @Test public void listFilesTest() throws IOException {
+    @Test
+    public void listFilesTest() throws IOException {
         List<Object> expected = new ArrayList<>();
         expectedPaths().forEach(expected::add);
         List<Object> actual = new ArrayList<>();

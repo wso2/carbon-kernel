@@ -24,7 +24,8 @@ import org.wso2.carbon.test.interfaces.Greeting;
  */
 public class HelloWorld implements Greeting {
 
-    @Override public String welcome(String greeting) {
+    @Override
+    public String welcome(String greeting) {
         return greeting + " my friend!!!";
     }
 

@@ -316,14 +316,15 @@ public class BundleGeneratorUtils {
 
                         // walk the file tree and add the directories and files to the list
                         Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-                            @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                                    throws IOException {
+                            @Override
+                            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                                 zipFileContent.add(file);
                                 return FileVisitResult.CONTINUE;
                             }
 
-                            @Override public FileVisitResult preVisitDirectory(Path directory,
-                                    BasicFileAttributes attrs) throws IOException {
+                            @Override
+                            public FileVisitResult preVisitDirectory(Path directory, BasicFileAttributes attrs)
+                                    throws IOException {
                                 zipFileContent.add(directory);
                                 return FileVisitResult.CONTINUE;
                             }

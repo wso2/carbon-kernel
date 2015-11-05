@@ -38,7 +38,8 @@ public class DeletePathTest {
         TestUtils.createDirectory(DIRECTORY);
     }
 
-    @Test public void deleteChildlessDirectoryTest() {
+    @Test
+    public void deleteChildlessDirectoryTest() {
         boolean deleted;
         if (Files.exists(DIRECTORY)) {
             try {
@@ -52,7 +53,8 @@ public class DeletePathTest {
         Assert.assertTrue(deleted);
     }
 
-    @Test public void deleteDirectoryWithChildrenTest() {
+    @Test
+    public void deleteDirectoryWithChildrenTest() {
         boolean deleted;
         if (Files.exists(DIRECTORY_WITH_CHILDREN)) {
             try {
