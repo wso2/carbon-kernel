@@ -32,11 +32,18 @@ public class Constants {
     protected static final String BUNDLE_CLASSPATH = "Bundle-ClassPath";
     protected static final String DYNAMIC_IMPORT_PACKAGE = "DynamicImport-Package";
 
-    //  File path constants
+    //  File path name and extension constants
     protected static final String JAR_TO_BUNDLE_TEMP_DIRECTORY_NAME = "temp";
+    protected static final String JAR_MANIFEST_FOLDER = "META-INF";
     protected static final String MANIFEST_FILE_NAME = "MANIFEST.MF";
     protected static final String P2_INF_FILE_NAME = "p2";
     protected static final String P2_INF_FILE_EXTENSION = ".inf";
+    protected static final String JAR_FILE_EXTENSION = ".jar";
+    protected static final String ZIP_FILE_EXTENSION = ".zip";
+
+    //  Create zip file system properties
+    protected static final String CREATE_NEW_ZIP_FILE_PROPERTY = "create";
+    protected static final String ENCODING_TYPE_PROPERTY = "encoding";
 
     /**
      * A constructor which prevents instantiating the Constants class.
