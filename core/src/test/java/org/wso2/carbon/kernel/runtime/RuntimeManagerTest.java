@@ -20,7 +20,6 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
-import org.wso2.carbon.kernel.runtime.runtime.CustomRuntime;
 
 import java.util.ArrayList;
 import java.util.List;

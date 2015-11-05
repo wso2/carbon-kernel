@@ -21,10 +21,12 @@ import org.wso2.carbon.launcher.utils.Utils;
 
 /**
  * Launcher Utils test class.
+ *
+ * @since 5.0.0
  */
 
 @Test(groups = "utils")
-public class UtilsTest {
+public class UtilsTest extends BaseTest {
 
     public void substituteVarsTest() {
         System.setProperty("profile", "default");
@@ -43,6 +45,7 @@ public class UtilsTest {
 
         String outputStr = Utils.initializeSystemProperties(inputStr);
         Assert.assertEquals(outputStr, expectedOutputStr);
+        setupCarbonHome();
     }
 
     public void substituteVarsTest3() {

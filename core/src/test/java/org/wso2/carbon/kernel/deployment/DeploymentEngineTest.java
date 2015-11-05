@@ -59,14 +59,11 @@ public class DeploymentEngineTest extends BaseTest {
         artifactsList.add(artifact);
     }
 
-    @Test
-    public void testUninitializedDeploymentEngine() {
-        try {
-            DeploymentEngine engine = new DeploymentEngine("/fake/path");
-            engine.start();
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("Cannot find repository"));
-        }
+    @Test(expectedExceptions = DeploymentEngineException.class,
+            expectedExceptionsMessageRegExp = "Cannot find repository : .*")
+    public void testUninitializedDeploymentEngine() throws DeploymentEngineException {
+        DeploymentEngine engine = new DeploymentEngine("/fake/path");
+        engine.start();
     }
 
     @Test
@@ -76,35 +73,27 @@ public class DeploymentEngineTest extends BaseTest {
         repositoryScanner = new RepositoryScanner(deploymentEngine);
     }
 
-    @Test
-    public void testDummyDeployer1() {
-        try {
-            deploymentEngine.registerDeployer(null);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("Deployer Class Name is null"));
-        }
+    @Test(expectedExceptions = DeployerRegistrationException.class,
+            expectedExceptionsMessageRegExp = "Failed to add Deployer : Deployer Class Name is null")
+    public void testDummyDeployer1() throws DeployerRegistrationException {
+        deploymentEngine.registerDeployer(null);
     }
 
-    @Test
-    public void testDummyDeployer2() {
-        try {
-            CustomDeployer dummy = new CustomDeployer();
-            dummy.setLocation(null);
-            deploymentEngine.registerDeployer(dummy);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("missing 'directory' attribute"));
-        }
+    @Test(expectedExceptions = DeployerRegistrationException.class,
+            expectedExceptionsMessageRegExp = "Failed to add Deployer .*: missing 'directory' " +
+                                              "attribute in deployer instance")
+    public void testDummyDeployer2() throws DeployerRegistrationException {
+        CustomDeployer dummy = new CustomDeployer();
+        dummy.setLocation(null);
+        deploymentEngine.registerDeployer(dummy);
     }
 
-    @Test
-    public void testDummyDeployer3() {
-        try {
-            CustomDeployer dummy = new CustomDeployer();
-            dummy.setArtifactType(null);
-            deploymentEngine.registerDeployer(dummy);
-        } catch (Exception e) {
-            Assert.assertTrue(e.getMessage().contains("Artifact Type"));
-        }
+    @Test(expectedExceptions = DeployerRegistrationException.class,
+            expectedExceptionsMessageRegExp = "Artifact Type for Deployer : .* is null")
+    public void testDummyDeployer3() throws DeployerRegistrationException {
+        CustomDeployer dummy = new CustomDeployer();
+        dummy.setArtifactType(null);
+        deploymentEngine.registerDeployer(dummy);
     }
 
     @Test(dependsOnMethods = {"testCarbonDeploymentEngine"})

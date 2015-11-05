@@ -31,7 +31,7 @@ import org.wso2.carbon.kernel.transports.TransportManager;
 import java.util.Map;
 
 /**
- * OSGi declarative services component which handled registration & un-registration of Carbon transports.
+ * OSGi declarative services component which handled registration and unregistration of Carbon transports.
  * It also acts as a RequiredCapabilityListener for all the CarbonTransport capabilities, and once they are
  * available, it start the transports that are currently registered.
  *
@@ -42,8 +42,8 @@ import java.util.Map;
         immediate = true,
         property = "required-service-interface=org.wso2.carbon.kernel.transports.CarbonTransport"
 )
-public class TransportServiceComponent implements RequiredCapabilityListener {
-    private static final Logger logger = LoggerFactory.getLogger(TransportServiceComponent.class);
+public class TransportServiceListenerComponent implements RequiredCapabilityListener {
+    private static final Logger logger = LoggerFactory.getLogger(TransportServiceListenerComponent.class);
     private TransportManager transportManager = new TransportManager();
 
     @Activate

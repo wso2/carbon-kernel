@@ -22,6 +22,8 @@ import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 
 /**
  * Unit tests for org.wso2.carbon.kernel.internal.DataHolder class.
+ *
+ * @since 5.0.0
  */
 public class DataHolderTest {
     private DataHolder dataHolder = null;

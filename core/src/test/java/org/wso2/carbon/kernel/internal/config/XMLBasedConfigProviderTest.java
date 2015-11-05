@@ -44,6 +44,14 @@ public class XMLBasedConfigProviderTest extends BaseTest {
     }
 
     @Test
+    public void testGetCarbonConfigurationFailScenario() throws Exception {
+        System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("wrongPath").getAbsolutePath());
+        CarbonConfiguration carbonConfiguration = xmlBasedConfigProvider.getCarbonConfiguration();
+        Assert.assertNull(carbonConfiguration);
+        System.clearProperty(Constants.CARBON_REPOSITORY);
+    }
+
+    @Test(dependsOnMethods = "testGetCarbonConfigurationFailScenario")
     public void testGetCarbonConfiguration() throws Exception {
         String backupRepoLocation = System.getProperty(Constants.CARBON_REPOSITORY);
         System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("xsd").getAbsolutePath());

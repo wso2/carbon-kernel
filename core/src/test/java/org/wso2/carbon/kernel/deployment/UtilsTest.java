@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.deployment;
+package org.wso2.carbon.kernel.deployment;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -23,6 +23,8 @@ import java.nio.file.Paths;
 
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.internal.deployment.Utils class.
+ *
+ * @since 5.0.0
  */
 public class UtilsTest {
 

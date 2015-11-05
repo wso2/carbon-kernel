@@ -27,7 +27,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -65,29 +64,29 @@ public class CarbonConfigurationTest extends BaseTest {
     }
 
     @Test
-    public void testGetId() throws Exception {
+    public void testGetId() {
         Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
     }
 
     @Test
-    public void testGetName() throws Exception {
+    public void testGetName() {
         Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");
 
     }
 
     @Test
-    public void testGetVersion() throws Exception {
+    public void testGetVersion() {
         Assert.assertEquals(carbonConfiguration.getVersion(), "1.2.3");
 
     }
 
     @Test
-    public void testGetPortsConfig() throws Exception {
+    public void testGetPortsConfig() {
         Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0);
     }
 
     @Test
-    public void testGetDeploymentConfig() throws Exception {
+    public void testGetDeploymentConfig() {
         DeploymentConfig deploymentConfig = carbonConfiguration.getDeploymentConfig();
         Assert.assertEquals(deploymentConfig.getMode(), DeploymentModeEnum.scheduled);
         Assert.assertEquals(deploymentConfig.getRepositoryLocation(), "repository-path");

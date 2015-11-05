@@ -21,6 +21,8 @@ import java.nio.file.Paths;
 
 /**
  * Kernel internal utils.
+ *
+ * @since 5.0.0
  */
 public class Utils {
 

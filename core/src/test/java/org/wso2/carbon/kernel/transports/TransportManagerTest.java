@@ -30,6 +30,7 @@ public class TransportManagerTest {
     private TransportManager transportManager;
     private CustomCarbonTransport carbonTransport;
     private CustomCarbonTransport carbonTransport2;
+    private CustomCarbonTransport carbonTransport3;
 
     public TransportManagerTest() {
     }
@@ -39,39 +40,29 @@ public class TransportManagerTest {
         transportManager = new TransportManager();
         carbonTransport = new CustomCarbonTransport("dummyId");
         carbonTransport2 = new CustomCarbonTransport("dummyId2");
+        carbonTransport3 = new CustomCarbonTransport("dummyId3");
         transportManager.registerTransport(carbonTransport);
         transportManager.registerTransport(carbonTransport2);
     }
 
-    @Test
+    @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "wrongId not found")
     public void testUnsuccessfullStartTransport() {
-        try {
-            transportManager.startTransport("wrongId");
-        } catch (IllegalArgumentException e) {
-            String exceptionMessage = "wrongId not found";
-            Assert.assertEquals(exceptionMessage, e.getMessage());
-        }
+        transportManager.startTransport("wrongId");
     }
-
 
     @Test(dependsOnMethods = {"testUnsuccessfullStartTransport"})
     public void testSuccessfullStartTransport() {
         try {
             transportManager.startTransport("dummyId");
         } catch (IllegalArgumentException e) {
-            Assert.assertFalse(true);
+            Assert.assertFalse(false, "");
         }
-        Assert.assertTrue(true);
     }
 
-    @Test(dependsOnMethods = {"testSuccessfullStartTransport"})
+    @Test(dependsOnMethods = {"testSuccessfullStartTransport"}, expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "wrongId not found")
     public void testUnsuccessfullStopTransport() {
-        try {
-            transportManager.stopTransport("wrongId");
-        } catch (IllegalArgumentException e) {
-            String exceptionMessage = "wrongId not found";
-            Assert.assertEquals(exceptionMessage, e.getMessage());
-        }
+        transportManager.stopTransport("wrongId");
     }
 
     @Test(dependsOnMethods = {"testUnsuccessfullStopTransport"})
@@ -79,23 +70,18 @@ public class TransportManagerTest {
         try {
             transportManager.stopTransport("dummyId");
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue(false);
-        }
-        Assert.assertTrue(true);
-    }
-
-    @Test(dependsOnMethods = {"testSuccessfullStopTransport"})
-    public void testUnregisterTransport() {
-        try {
-            transportManager.unregisterTransport(carbonTransport);
-            transportManager.stopTransport(carbonTransport.getId());
-        } catch (IllegalArgumentException e) {
-            String exceptionMessage = "dummyId not found";
-            Assert.assertEquals(exceptionMessage, e.getMessage());
+            Assert.assertTrue(false, "failed to stop the transport.");
         }
     }
 
-    @Test(dependsOnMethods = {"testUnregisterTransport"})
+    @Test(dependsOnMethods = {"testSuccessfullStopTransport"}, expectedExceptions = IllegalArgumentException.class,
+            expectedExceptionsMessageRegExp = "dummyId not found")
+    public void testUnregisterTransportFail() {
+        transportManager.unregisterTransport(carbonTransport);
+        transportManager.stopTransport(carbonTransport.getId());
+    }
+
+    @Test(dependsOnMethods = {"testUnregisterTransportFail"})
     public void testUnsuccessfulBeginMaintenance() {
         try {
             transportManager.registerTransport(carbonTransport2);
@@ -108,14 +94,44 @@ public class TransportManagerTest {
 
     @Test(dependsOnMethods = {"testUnsuccessfulBeginMaintenance"})
     public void testSuccessfulBeginMaintenance() {
-        try {
-            transportManager.registerTransport(carbonTransport2);
-            transportManager.startTransport(carbonTransport2.getId());
-            transportManager.beginMaintenance();
-        } catch (IllegalStateException e) {
-            Assert.assertTrue(false);
-        }
-        Assert.assertTrue(true);
+        transportManager.startTransport(carbonTransport2.getId());
+        transportManager.beginMaintenance();
     }
 
+    @Test(dependsOnMethods = {"testSuccessfulBeginMaintenance"})
+    public void testSuccessfulEndMaintenance() {
+        try {
+            transportManager.endMaintenance();
+            transportManager.unregisterTransport(carbonTransport2);
+        } catch (IllegalStateException e) {
+            Assert.assertTrue(false, "attempting to unregister transport in an illegal state");
+        }
+    }
+
+    @Test(dependsOnMethods = {"testSuccessfulEndMaintenance"}, expectedExceptions = IllegalStateException.class,
+            expectedExceptionsMessageRegExp = "Cannot start transport dummyId3. Current state: STARTED")
+    public void testUnSuccessfulStartOfAlreadyStartedTransports() {
+        transportManager.registerTransport(carbonTransport3);
+        transportManager.startTransport(carbonTransport3.getId());
+        //startTransports will try to start a transport which is already started. Thus this
+        //will throw an IllegalStateException.
+        transportManager.startTransports();
+    }
+
+    @Test(dependsOnMethods = {"testUnSuccessfulStartOfAlreadyStartedTransports"},
+            expectedExceptions = IllegalStateException.class,
+            expectedExceptionsMessageRegExp = "Cannot stop transport dummyId3. Current state: STOPPED")
+    public void testUnSuccessfulStoppingAlreadyStoppedTransport() {
+        transportManager.stopTransport(carbonTransport3.getId());
+        transportManager.stopTransports();
+    }
+
+    @Test(dependsOnMethods = {"testUnSuccessfulStoppingAlreadyStoppedTransport"})
+    public void testSuccessfulStartTransports() {
+        try {
+            transportManager.startTransports();
+        } catch (IllegalStateException e) {
+            Assert.assertTrue(false, "Illegal state of transport when trying to start the transport.");
+        }
+    }
 }
