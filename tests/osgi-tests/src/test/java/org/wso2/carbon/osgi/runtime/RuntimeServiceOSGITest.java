@@ -28,7 +28,9 @@ import org.wso2.carbon.kernel.runtime.RuntimeService;
 import javax.inject.Inject;
 
 /**
- * RuntimeServiceOSGITest class is to test the availability and the functionality of the Runtime Service
+ * RuntimeServiceOSGITest class is to test the availability and the functionality of the Runtime Service.
+ *
+ * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
