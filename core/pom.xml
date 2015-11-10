@@ -105,39 +105,32 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Activator>
-                            org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator
-                        </Bundle-Activator>
-                        <Private-Package>
-                            org.wso2.carbon.kernel.internal.*,
-                        </Private-Package>
-                        <Export-Package>
-                            !org.wso2.carbon.kernel.internal,
-                            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
-                        </Export-Package>
-                        <Import-Package>
-                            org.eclipse.osgi.util,
-                            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-                            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
-                            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
-                            javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
-                            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
-                            org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
-                            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-                        </Import-Package>
-                        <_dsannotations>*</_dsannotations>
-                    </instructions>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <maven.bundle.plugin.name>${project.name}</maven.bundle.plugin.name>
+        <maven.bundle.plugin.activator>
+            org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator
+        </maven.bundle.plugin.activator>
+        <maven.bundle.plugin.private.package>
+            org.wso2.carbon.kernel.internal.*,
+        </maven.bundle.plugin.private.package>
+        <maven.bundle.plugin.export.package>
+            !org.wso2.carbon.kernel.internal,
+            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
+        </maven.bundle.plugin.export.package>
+        <maven.bundle.plugin.import.package>
+            org.eclipse.osgi.util,
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
+            javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
+            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
+            org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
+            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}"
+        </maven.bundle.plugin.import.package>
+        <maven.bundle.plugin.dsannotations>*</maven.bundle.plugin.dsannotations>
+    </properties>
 
 </project>
