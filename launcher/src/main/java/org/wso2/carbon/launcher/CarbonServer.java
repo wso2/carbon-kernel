@@ -45,7 +45,7 @@ public class CarbonServer {
 
     private CarbonLaunchConfig config;
     private Framework framework;
-
+    private ServerStatus serverStatus;
     /**
      * Constructor.
      *
@@ -74,6 +74,7 @@ public class CarbonServer {
             FrameworkFactory fwkFactory = loadOSGiFwkFactory(fwkClassLoader);
             framework = fwkFactory.newFramework(config.getProperties());
 
+            setServerCurrentStatus(ServerStatus.STARTING);
             // Notify Carbon server start.
             dispatchEvent(CarbonServerEvent.STARTING);
 
@@ -83,9 +84,11 @@ public class CarbonServer {
             // Loads initial bundles listed in the launch.properties file.
             loadInitialBundles(framework.getBundleContext());
 
+            setServerCurrentStatus(ServerStatus.STARTED);
             // This thread waits until the OSGi framework comes to a complete shutdown.
             waitForServerStop(framework);
 
+            setServerCurrentStatus(ServerStatus.STOPPING);
             // Notify Carbon server shutdown.
             dispatchEvent(CarbonServerEvent.STOPPING);
 
@@ -248,6 +251,22 @@ public class CarbonServer {
      */
     private boolean isFrameworkActive() {
         return framework != null && (framework.getState() == Bundle.ACTIVE || framework.getState() == Bundle.STARTING);
+    }
+
+    /**
+     * set status of Carbon server.
+     */
+    private void setServerCurrentStatus(ServerStatus status) {
+        serverStatus = status;
+    }
+
+    /**
+     * Check status of Carbon server.
+     *
+     * @return Server status
+     */
+    public ServerStatus getServerCurrentStatus() {
+        return serverStatus;
     }
 
     /**

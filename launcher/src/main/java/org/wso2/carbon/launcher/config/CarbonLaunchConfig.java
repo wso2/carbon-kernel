@@ -112,7 +112,7 @@ public class CarbonLaunchConfig {
 
             initializeProperties();
         } catch (FileNotFoundException e) {
-            String errorMsg = "File " + launchPropFile + "does not exists";
+            String errorMsg = "File " + launchPropFile + " does not exists";
             logger.log(Level.SEVERE, errorMsg, e);
             throw new RuntimeException(errorMsg, e);
         } catch (IOException e) {
