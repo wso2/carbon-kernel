@@ -70,6 +70,10 @@ public class FileUtils {
      * @throws java.io.IOException If an Exception occurs while copying
      */
     public static void copyFile(File src, File dst) throws IOException {
+        if (!src.exists()) {
+            throw new IOException("Source file does not exist: " + src);
+        }
+        
         String dstAbsPath = dst.getAbsolutePath();
         String dstDir = dstAbsPath.substring(0, dstAbsPath.lastIndexOf(File.separator));
         File dir = new File(dstDir);

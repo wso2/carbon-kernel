@@ -57,8 +57,8 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
-            <version>${equinox.simpleconfigurator.manipulator.version}</version>
+            <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+            <version>${equinox.simpleconfigurator.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -72,6 +72,38 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-plugins</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.osgi</groupId>
+                                    <artifactId>org.eclipse.osgi</artifactId>
+                                    <version>${equinox.osgi.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
+                                    <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+                                    <version>${equinox.simpleconfigurator.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
+                                    <destFileName>org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

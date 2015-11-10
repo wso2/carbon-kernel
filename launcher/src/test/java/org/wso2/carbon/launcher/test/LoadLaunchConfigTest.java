@@ -68,7 +68,6 @@ public class LoadLaunchConfigTest extends BaseTest {
         logFile = new File(Utils.getRepositoryDirectory() + File.separator + "logs" +
                 File.separator + "wso2carbon.log");
         logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
-
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
@@ -141,6 +140,42 @@ public class LoadLaunchConfigTest extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    public void loadOSGiInstallAreaTestCase() throws MalformedURLException {
+        //test if property "osgi.install.area" has set according to sample launch.properties file
+        URL installArea = launchConfig.getOSGiInstallArea();
+        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
+                "components", "profile", "default").toString();
+        Assert.assertEquals(expectedLocation, installArea.getPath());
+    }
+
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    public void loadOSGiConfigurationAreaTestCase() throws MalformedURLException {
+        //test if property "osgi.configuration.area" has set according to sample launch.properties file
+        URL osGiConfigurationArea = launchConfig.getOSGiConfigurationArea();
+        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
+                "components", "profile", "default", "configuration").toString();
+        Assert.assertEquals(expectedLocation, osGiConfigurationArea.getPath());
+    }
+
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    public void loadOSGiInstanceAreaTestCase() throws MalformedURLException {
+        //test if property "osgi.instance.area" has set according to sample launch.properties file
+        URL osGiInstanceArea = launchConfig.getOSGiInstanceArea();
+        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
+                "components", "profile", "default", "workspace").toString();
+        Assert.assertEquals(expectedLocation, osGiInstanceArea.getPath());
+    }
+
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    public void loadEclipseP2DataAreaTestCase() throws MalformedURLException {
+        //test if property "eclipse.p2.data.area" has set according to sample launch.properties file
+        URL eclipseP2DataArea = launchConfig.getEclipseP2DataArea();
+        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
+                "components", "p2").toString();
+        Assert.assertEquals(expectedLocation, eclipseP2DataArea.getPath());
+    }
+
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
     public void carbonLogAppendTestCase() throws FileNotFoundException {
         String sampleMessage = "Sample message-test logging with class CarbonLaunchConfig";
         String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest} - " +
@@ -156,7 +191,6 @@ public class LoadLaunchConfigTest extends BaseTest {
     @AfterTest
     public void cleanupLogfile() throws IOException {
         FileOutputStream writer = new FileOutputStream(logFile);
-        writer.write((new String()).getBytes());
         writer.close();
     }
 }
