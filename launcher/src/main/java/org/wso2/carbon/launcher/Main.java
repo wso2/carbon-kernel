@@ -96,9 +96,7 @@ public class Main {
      * @return CarbonLaunchConfig
      */
     private static CarbonLaunchConfig loadCarbonLaunchConfig() {
-        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(),
-                LAUNCH_PROPERTIES_FILE).toString();
-        File launchPropFile = new File(launchPropFilePath);
+        File launchPropFile = Utils.getLaunchConfigDirectory().resolve(LAUNCH_PROPERTIES_FILE).toFile();
 
         if (launchPropFile.exists()) {
             logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " +

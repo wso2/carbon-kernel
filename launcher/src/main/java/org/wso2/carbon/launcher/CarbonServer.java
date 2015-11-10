@@ -166,7 +166,7 @@ public class CarbonServer {
     /**
      * Wait until this Framework has completely stopped.
      *
-     * @param framework osgi framework
+     * @param framework OSGi framework
      * @throws java.lang.Exception
      */
     private void waitForServerStop(Framework framework) throws Exception {
@@ -189,9 +189,9 @@ public class CarbonServer {
     }
 
     /**
-     * Create osgi framework class loader.
+     * Create OSGi framework class loader.
      *
-     * @return new osgi class loader
+     * @return new OSGi class loader
      */
     private ClassLoader createOSGiFwkClassLoader() {
         if (logger.isLoggable(Level.FINE)) {
@@ -204,7 +204,7 @@ public class CarbonServer {
 
     /**
      * Creates a new service loader for the given service type and class loader.
-     * Load osgi framework factory for the given class loader.
+     * Load OSGi framework factory for the given class loader.
      *
      * @param classLoader The class loader to be used to load provider-configurations
      * @return framework factory for creating framework instances
@@ -276,12 +276,12 @@ public class CarbonServer {
      */
     private void dispatchEvent(int event) {
         CarbonServerEvent carbonServerEvent = new CarbonServerEvent(event, config);
-        for (CarbonServerListener listener : config.getCarbonServerListeners()) {
+        config.getCarbonServerListeners().forEach(listener -> {
             if (logger.isLoggable(Level.FINE)) {
                 String eventName = (event == CarbonServerEvent.STARTING) ? "STARTING" : "STOPPING";
                 logger.log(Level.FINE, "Dispatching " + eventName + " event to " + listener.getClass().getName());
             }
             listener.notify(carbonServerEvent);
-        }
+        });
     }
 }
