@@ -37,11 +37,20 @@ public class BundleGenerator {
     private static final Logger logger = Logger.getLogger(BundleGenerator.class.getName());
 
     /**
-     * Executes the JAR to OSGi bundle conversion process.
+     * Application executor of the JAR to OSGi bundle conversion tool.
      *
      * @param args a {@link String} array providing the source and destination {@link String} path values
      */
     public static void main(String[] args) {
+        execute(args);
+    }
+
+    /**
+     * Executes the JAR to OSGi bundle conversion process.
+     *
+     * @param args a {@link String} array providing the source and destination {@link String} path values
+     */
+    public static void execute(String[] args) {
         int sourceIndex = 0;
         int destinationIndex = 1;
 
@@ -51,34 +60,30 @@ public class BundleGenerator {
 
             if ((source != null) && (destination != null)) {
                 if ((Files.isReadable(source)) && (Files.isWritable(destination))) {
-                    if (Files.isDirectory(destination)) {
-                        try {
-                            if (!Files.isDirectory(source)) {
-                                BundleGeneratorUtils.convertFromJarToBundle(source, destination, new Manifest(), "");
-                            } else {
-                                List<Path> directoryContent = BundleGeneratorUtils.listFiles(source);
-                                directoryContent.forEach(aDirectoryItem -> {
-                                    if (aDirectoryItem.toString().endsWith(".jar")) {
-                                        try {
-                                            BundleGeneratorUtils.convertFromJarToBundle(aDirectoryItem, destination,
-                                                    new Manifest(), "");
-                                        } catch (IOException | JarToBundleConverterException e) {
-                                            logger.log(Level.SEVERE, e.getMessage(), e);
-                                        }
+                    try {
+                        if (!Files.isDirectory(source)) {
+                            BundleGeneratorUtils.convertFromJarToBundle(source, destination, new Manifest(), "");
+                        } else {
+                            List<Path> directoryContent = BundleGeneratorUtils.listFiles(source);
+                            directoryContent.forEach(aDirectoryItem -> {
+                                if (aDirectoryItem.toString().endsWith(".jar")) {
+                                    try {
+                                        BundleGeneratorUtils
+                                                .convertFromJarToBundle(aDirectoryItem, destination, new Manifest(),
+                                                        "");
+                                    } catch (IOException | JarToBundleConverterException e) {
+                                        logger.log(Level.SEVERE, e.getMessage(), e);
                                     }
-                                });
-                            }
-                        } catch (IOException | JarToBundleConverterException e) {
-                            logger.log(Level.SEVERE, e.getMessage(), e);
+                                }
+                            });
                         }
-                    } else {
-                        String message = "The destination file path is not a directory.";
-                        logger.log(Level.WARNING, message);
+                    } catch (IOException | JarToBundleConverterException e) {
+                        logger.log(Level.SEVERE, e.getMessage(), e);
                     }
                 } else {
                     String message =
                             "The source location and/or bundle destination may not have appropriate read/write "
-                           + "permissions.";
+                                    + "permissions.";
                     logger.log(Level.WARNING, message);
                 }
             } else {
