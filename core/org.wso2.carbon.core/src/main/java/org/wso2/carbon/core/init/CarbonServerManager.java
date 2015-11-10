@@ -764,6 +764,7 @@ public final class CarbonServerManager implements Controllable {
         }
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
         new JMXServerManager().stopJmxService();
+        CarbonCoreServiceComponent.restart();
 
         try {
             ServerStatus.setServerRestarting();
