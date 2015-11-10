@@ -4,7 +4,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.2-SNAPSHOT</version>
+    <version>4.4.3-SNAPSHOT</version>
     <name>WSO2 Carbon - Aggregate Pom</name>
     <description>WSO2 Carbon Platform with all its components, features and products
     </description>
@@ -40,6 +40,16 @@
                 <configuration>
                     <preparationGoals>clean install</preparationGoals>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <excludePackageNames>*.internal.*</excludePackageNames>
+                    <show>public</show>
+                    <nohelp>true</nohelp>
                 </configuration>
             </plugin>
         </plugins>
