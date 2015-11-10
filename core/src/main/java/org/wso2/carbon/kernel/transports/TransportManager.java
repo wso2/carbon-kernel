@@ -53,25 +53,21 @@ public class TransportManager {
 
     public void startTransports() {
         transports.values()
-                .stream()
                 .forEach(CarbonTransport::startTransport);
     }
 
     public void stopTransports() {
         transports.values()
-                .stream()
                 .forEach(CarbonTransport::stopTransport);
     }
 
     public void beginMaintenance() {
         transports.values()
-                .stream()
                 .forEach(CarbonTransport::beginMaintenance);
     }
 
     public void endMaintenance() {
         transports.values()
-                .stream()
                 .forEach(CarbonTransport::endMaintenance);
     }
 }
