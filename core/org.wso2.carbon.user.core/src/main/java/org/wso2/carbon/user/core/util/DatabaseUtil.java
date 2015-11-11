@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.user.core.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -153,6 +154,12 @@ public class DatabaseUtil {
         if (realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
             poolProperties.setValidationQuery(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.VALIDATION_QUERY));
+            poolProperties.setTestOnBorrow(true);
+        }
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_INTERVAL)) &&
+            StringUtils.isNumeric(realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_INTERVAL)) ) {
+            poolProperties.setValidationInterval(Long.parseLong(realmConfig.getUserStoreProperty(
+                    JDBCRealmConstants.VALIDATION_INTERVAL)));
         }
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }

@@ -78,7 +78,9 @@ public class JDBCUserStoreConstants {
         setProperty("RolenameJavaScriptRegEx", "Role Name RegEx (Javascript)", "^[\\S]{5,30}$", "The regular expression used by the font-end components for role name validation");
         setProperty(UserStoreConfigConstants.SCIMEnabled, "", "false", UserStoreConfigConstants.SCIMEnabledDescription);
         setProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
-
+        setProperty(JDBCRealmConstants.VALIDATION_QUERY, "validationQuery for the database", "", "validationQuery is the SQL query that will be used to validate connections. This query " +
+                                                                                "MUST be an SQL SELECT statement that returns at least one row");
+        setProperty(JDBCRealmConstants.VALIDATION_INTERVAL, "Validation Interval(time in milliseconds)", "", "Used to avoid excess validation, only run validation at most at this frequency");
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER_SQL, "Select User SQL",JDBCRealmConstants.SELECT_USER_SQL, "");
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER_CASE_INSENSITIVE, "Select User SQL With Case Insensitivie" +
