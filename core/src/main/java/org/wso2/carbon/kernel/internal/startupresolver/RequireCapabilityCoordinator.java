@@ -179,8 +179,9 @@ public class RequireCapabilityCoordinator {
                             synchronized (serviceClazz.intern()) {
                                 if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
                                     logger.debug("Invoking {} from serviceTracker as its required " +
-                                            "capabilities are all available", serviceClazz);
-                                    listener.onAllRequiredCapabilitiesAvailable();
+                                            "capabilities are all available for {}", serviceClazz,
+                                            listener.getClass().getName());
+                                    listenerMap.remove(serviceClazz).onAllRequiredCapabilitiesAvailable();
                                 }
                             }
                             return bundleContext.getService(reference);
