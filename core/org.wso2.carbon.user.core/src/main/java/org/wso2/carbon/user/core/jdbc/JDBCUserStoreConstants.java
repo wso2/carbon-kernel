@@ -37,6 +37,7 @@ public class JDBCUserStoreConstants {
             "not matched with passwordJavaRegEx";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
     private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final String VALIDATION_INTERVAL = "validationInterval";
 
     static {
 
@@ -93,7 +94,9 @@ public class JDBCUserStoreConstants {
         setAdvancedProperty("UserNameUniqueAcrossTenants", "Make Username Unique Across Tenants", "false", "An attribute used for multi-tenancy");
 
 
-
+        setProperty(JDBCRealmConstants.VALIDATION_QUERY, "validationQuery for the database", "", "validationQuery is the SQL query that will be used to validate connections. This query " +
+                                                                                "MUST be an SQL SELECT statement that returns at least one row");
+        setProperty(VALIDATION_INTERVAL, "Validation Interval(time in milliseconds)", "", "Used to avoid excess validation, only run validation at most at this frequency");
         //Advanced Properties (No descriptions added for each property)
         setAdvancedProperty(JDBCRealmConstants.SELECT_USER, "Select User SQL", JDBCRealmConstants.SELECT_USER_SQL, "");
         setAdvancedProperty(JDBCCaseInsensitiveConstants.SELECT_USER_CASE_INSENSITIVE, "Select User SQL With " +
