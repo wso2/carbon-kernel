@@ -2380,8 +2380,9 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         // attribute, since we
                         // attach userAttributeSeparator.
                         if (propertyValue != null && propertyValue.trim().length() > userAttributeSeparator.length()) {
-                            if (attributes.get(serviceNameAttribute).get()
-                                    .equals(LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
+                            Object serviceNameValue = attributes.get(serviceNameAttribute).get();
+                            if (serviceNameValue != null && serviceNameValue.equals(LDAPConstants
+                                    .SERVER_PRINCIPAL_ATTRIBUTE_VALUE)) {
                                 continue;
                             }
                             propertyValue = propertyValue.substring(0, propertyValue.length() -
