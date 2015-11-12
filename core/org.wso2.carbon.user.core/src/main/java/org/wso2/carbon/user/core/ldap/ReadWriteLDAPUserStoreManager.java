@@ -288,7 +288,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
      */
     protected DirContext getSearchBaseDirectoryContext() throws UserStoreException {
         DirContext mainDirContext = this.connectionSource.getContext();
-        String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE).split("#")[0];
         try {
             return (DirContext) mainDirContext.lookup(searchBase);
         } catch (NamingException e) {
