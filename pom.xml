@@ -42,6 +42,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>archetypes</module>
                 <module>launcher</module>
                 <module>core</module>
                 <module>tests</module>
@@ -272,6 +273,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.archetypes</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core</artifactId>
