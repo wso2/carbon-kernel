@@ -82,8 +82,8 @@ public class BundleGenerator {
                     }
                 } else {
                     String message =
-                            "The source location and/or bundle destination may not have appropriate read/write "
-                                    + "permissions.";
+                            "The source location and/or bundle destination may not have appropriate read/write " +
+                                    "permissions.";
                     logger.log(Level.WARNING, message);
                 }
             } else {
@@ -91,8 +91,8 @@ public class BundleGenerator {
                 logger.log(Level.WARNING, message);
             }
         } else {
-            String message = "Usage: wso2jartobundle.sh [source] [destination].\nBoth arguments source and destination"
-                    + " are compulsory.";
+            String message = "Usage: wso2jartobundle.sh [source] [destination].\nBoth arguments source " +
+                    "and destination are compulsory.";
             logger.log(Level.SEVERE, message);
         }
     }
