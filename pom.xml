@@ -647,5 +647,7 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
+        <tool.test.artifact.version>${project.version}</tool.test.artifact.version>
+        <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
     </properties>
 </project>
