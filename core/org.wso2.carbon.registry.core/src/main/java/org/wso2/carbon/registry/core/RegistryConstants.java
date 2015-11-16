@@ -17,6 +17,7 @@
 package org.wso2.carbon.registry.core;
 
 import org.wso2.carbon.CarbonConstants;
+import org.wso2.carbon.caching.impl.CachingConstants;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 /**
@@ -1001,15 +1002,21 @@ public final class RegistryConstants {
     /**
      * The id of the path cache for registry resources.
      */
-    public static final String PATH_CACHE_ID = "REG_PATH_CACHE";
+    public static final String PATH_CACHE_ID = CachingConstants.LOCAL_CACHE_PREFIX+"REG_PATH_CACHE";
     /**
      * The id of the UUID cache for registry paths.
      */
     public static final String UUID_CACHE_ID = "REG_UUID_CACHE";
     /**
-     * The id of the registry cache
+     * The id of the registry  cache. Switch to distributed mode when clustering is enabled.
      */
     public static final String REGISTRY_CACHE_BACKED_ID = "REG_CACHE_BACKED_ID";
+
+    /**
+     * The id of the registry  local cache.
+     */
+    public static final String REGISTRY_LOCAL_CACHE_ID =
+            CachingConstants.LOCAL_CACHE_PREFIX + "REG_LOCAL_CACHE_BACKED_ID";
 
     /**
      * Symbolic link property: actual path
