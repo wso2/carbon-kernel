@@ -29,7 +29,7 @@
     <artifactId>org.wso2.carbon.archetypes.bundle</artifactId>
     <packaging>maven-archetype</packaging>
     <description>
-        This is an archetype for a Carbon bundle
+        This is an archetype for an OSGi bundle
     </description>
 
 </project>
