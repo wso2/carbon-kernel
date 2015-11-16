@@ -22,9 +22,10 @@ import java.util.logging.Logger;
 /**
  * This is a sample bundle activator class.
  */
-public class SampleBundleActivator implements BundleActivator {
+public class Activator implements BundleActivator {
     Logger logger = Logger.getLogger(SampleBundleActivator.class.getName());
 
+    //TODO: Use the sample class here
     public void start(BundleContext bundleContext) throws Exception {
         logger.info("This bundle is activated");
     }

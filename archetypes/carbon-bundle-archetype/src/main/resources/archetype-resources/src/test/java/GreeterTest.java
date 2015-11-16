@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for Hello class.
  */
-public class HelloTest {
+public class GreeterTest {
     @Test
     public void shouldAnswerWithTrue() {
         assertTrue(true);

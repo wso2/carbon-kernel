@@ -15,6 +15,16 @@
  */
 package ${package};
 
-public class Hello {
-    // This is a sample class.
+import java.util.logging.Logger;
+
+public class Greeter {
+    Logger logger = Logger.getLogger(Greeter.class.getName());
+
+    public void sayHello(){
+        logger.info("Hello World !");
+    }
+
+    public void sayGoodbye(){
+        logger.info("Good Bye !");
+    }
 }
