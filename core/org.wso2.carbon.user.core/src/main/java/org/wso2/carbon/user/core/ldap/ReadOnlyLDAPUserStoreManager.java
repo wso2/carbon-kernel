@@ -2857,7 +2857,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private boolean isInSearchBase(LdapName dn, LdapName searchBase){
 
         List<Rdn> baseRdns = searchBase.getRdns();
-        return dn.endsWith(baseRdns);
+        return dn.startsWith(baseRdns);
     }
 
     /**
