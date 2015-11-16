@@ -30,6 +30,6 @@ public class SampleBundleActivator implements BundleActivator {
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-        logger.info("This bundle is deactivated")
+        logger.info("This bundle is deactivated");
     }
 }
