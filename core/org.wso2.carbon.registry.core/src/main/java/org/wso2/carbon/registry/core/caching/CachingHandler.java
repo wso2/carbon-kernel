@@ -39,6 +39,7 @@ import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -55,7 +56,6 @@ public class CachingHandler extends Handler {
             new HashMap<String, DataBaseConfiguration>();
     private Map<String, String> pathMap =
             new HashMap<String, String>();
-
     /**
      * Default Constructor
      */
@@ -75,8 +75,12 @@ public class CachingHandler extends Handler {
         }
     }
 
-    private static Cache<RegistryCacheKey, GhostResource> getCache() {
+    private static Cache<RegistryCacheKey, GhostResource> getDistributedCache() {
         return RegistryUtils.getResourceCache(RegistryConstants.REGISTRY_CACHE_BACKED_ID);
+    }
+
+    private static Cache<RegistryCacheKey, GhostResource> getLocalCache() {
+        return RegistryUtils.getResourceCache(RegistryConstants.REGISTRY_LOCAL_CACHE_ID);
     }
 
     private static Cache<String,String> getUUIDCache() {
@@ -187,7 +191,8 @@ public class CachingHandler extends Handler {
 
         removeFromCache(connectionId, tenantId, cleanupPath, doGlobalCacheInvalidation);
         String parentPath = RegistryUtils.getParentPath(cleanupPath);
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(cachePath);
+
         Iterator<RegistryCacheKey> keys = cache.keys();
         while (keys.hasNext()) {
             RegistryCacheKey key = keys.next();
@@ -210,12 +215,30 @@ public class CachingHandler extends Handler {
         clearAncestry(connectionId, tenantId, parentPath, doGlobalCacheInvalidation);
     }
 
+    /**
+     * used to get the cache instance. Return distributed cache for mounted paths and
+     * returns local cache for non mounted paths
+     *
+     * @param cachePath cached resource path
+     * @return          cache instance
+     */
+    private Cache<RegistryCacheKey, GhostResource> getCache(String cachePath) {
+        Cache<RegistryCacheKey, GhostResource> cache;
+        if(cachePath != null && IsSubPathOfMountPaths(cachePath)){
+            cache = getDistributedCache();
+        } else {
+            cache = getLocalCache();
+        }
+        return cache;
+    }
+
     private void clearAncestry(String connectionId, int tenantId, String parentPath, boolean doGlobalCacheInvalidation) {
         boolean cleared = removeFromCache(connectionId, tenantId, parentPath, doGlobalCacheInvalidation);
         String pagedParentPathPrefix = "^" + Pattern.quote((parentPath == null) ? "" : parentPath)
                 + "(" + RegistryConstants.PATH_SEPARATOR + ")?(;start=.*)?$";
         Pattern pattern = Pattern.compile(pagedParentPathPrefix);
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(parentPath);
+
         Iterator<RegistryCacheKey> keys = cache.keys();
         while (keys.hasNext()) {
             RegistryCacheKey key = keys.next();
@@ -238,7 +261,7 @@ public class CachingHandler extends Handler {
 
     private boolean removeFromCache(String connectionId, int tenantId, String path, boolean doGlobalCacheInvalidation) {
         RegistryCacheKey cacheKey = RegistryUtils.buildRegistryCacheKey(connectionId, tenantId, path);
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
         Cache<String, String> UUIDCache = getUUIDCache();
         Resource resource;
         if (cache.containsKey(cacheKey)) {
@@ -274,6 +297,24 @@ public class CachingHandler extends Handler {
         } else {
             return false;
         }
+    }
+
+    /**
+     * This method is used to check if resource path is under subdirectory of mount paths
+     *
+     * @param path  path of the resource
+     *
+     * @return      true if path is a subdirectory of mount paths.
+     */
+    private boolean IsSubPathOfMountPaths(String path) {
+        RegistryContext registryContext = RegistryContext.getBaseInstance();
+        List<Mount> mounts = registryContext.getMounts();
+        for (Mount mount : mounts) {
+            if (path.startsWith(mount.getPath())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
