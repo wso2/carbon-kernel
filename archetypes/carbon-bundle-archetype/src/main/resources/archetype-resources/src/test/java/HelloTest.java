@@ -23,7 +23,8 @@ import static org.junit.Assert.assertTrue;
  * Unit test for Hello class.
  */
 public class HelloTest {
-    @Test public void shouldAnswerWithTrue() {
+    @Test
+    public void shouldAnswerWithTrue() {
         assertTrue(true);
     }
 }
