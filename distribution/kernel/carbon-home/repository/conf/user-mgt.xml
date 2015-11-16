@@ -100,7 +100,7 @@
 	    1.Referral - (comment out this property if this feature is not reuired) This enables LDAP referral support.
 	    2.BackLinksEnabled - (Do not comment, set to true or false) In some cases LDAP works with BackLinksEnabled. In which role is stored
 	     at user level. Depending on this value we need to change the Search Base within code.
-	    3.isADLDSRole - (Do not comment) Set to true if connecting to an AD LDS instance else set to false.  
+	    3.IsADLDSRole - (Do not comment) Set to true if connecting to an AD LDS instance else set to false.  
 	-->
 	<!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
@@ -139,12 +139,12 @@
             <Property name="EmptyRolesAllowed">true</Property>
             <Property name="PasswordHashMethod">PLAIN_TEXT</Property>
             <Property name="MultiAttributeSeparator">,</Property>
-            <Property name="isADLDSRole">false</Property>
-            <Property name="userAccountControl">512</Property>
+            <Property name="IsADLDSRole">false</Property>
+            <Property name="UserAccountControl">512</Property>
             <Property name="MaxUserNameListLength">100</Property>     
             <Property name="MaxRoleNameListLength">100</Property>                     
             <Property name="kdcEnabled">false</Property>
-            <Property name="defaultRealmName">WSO2.ORG</Property>
+            <Property name="DefaultRealmName">WSO2.ORG</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="ConnectionPoolingEnabled">false</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>
@@ -200,7 +200,7 @@
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="MaxRoleNameListLength">100</Property>
             <Property name="kdcEnabled">false</Property>
-            <Property name="defaultRealmName">WSO2.ORG</Property>
+            <Property name="DefaultRealmName">WSO2.ORG</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="ConnectionPoolingEnabled">false</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>
