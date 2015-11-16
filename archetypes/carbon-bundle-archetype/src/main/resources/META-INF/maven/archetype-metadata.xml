@@ -16,7 +16,8 @@
 -->
 
 <archetype-descriptor
-        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0
+        http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd"
         name="sample-carbon-component"
         xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -37,16 +38,16 @@
 
     <requiredProperties>
         <requiredProperty key="groupId">
-            <defaultValue>org.example</defaultValue>
+            <defaultValue>org.wso2.carbon</defaultValue>
         </requiredProperty>
         <requiredProperty key="artifactId">
-            <defaultValue>org.example.project</defaultValue>
+            <defaultValue>org.wso2.carbon.helloworld</defaultValue>
         </requiredProperty>
         <requiredProperty key="version">
             <defaultValue>1.0.0-SNAPSHOT</defaultValue>
         </requiredProperty>
         <requiredProperty key="package">
-            <defaultValue>org.example.project</defaultValue>
+            <defaultValue>org.wso2.carbon.helloworld</defaultValue>
         </requiredProperty>
     </requiredProperties>
 </archetype-descriptor>
