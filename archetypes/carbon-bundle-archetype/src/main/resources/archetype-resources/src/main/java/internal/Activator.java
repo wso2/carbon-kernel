@@ -17,20 +17,18 @@ package ${package}.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import java.util.logging.Logger;
+import org.wso2.carbon.helloworld.Greeter;
 
 /**
  * This is a sample bundle activator class.
  */
 public class Activator implements BundleActivator {
-    Logger logger = Logger.getLogger(SampleBundleActivator.class.getName());
 
-    //TODO: Use the sample class here
     public void start(BundleContext bundleContext) throws Exception {
-        logger.info("This bundle is activated");
+        (new Greeter()).sayHello();
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-        logger.info("This bundle is deactivated");
+        (new Greeter()).sayGoodbye();
     }
 }

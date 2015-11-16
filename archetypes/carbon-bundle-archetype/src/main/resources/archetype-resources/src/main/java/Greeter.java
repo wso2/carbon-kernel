@@ -17,6 +17,9 @@ package ${package};
 
 import java.util.logging.Logger;
 
+/**
+ * This is a sample class.
+ */
 public class Greeter {
     Logger logger = Logger.getLogger(Greeter.class.getName());
 

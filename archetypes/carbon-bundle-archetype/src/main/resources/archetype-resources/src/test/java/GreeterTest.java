@@ -13,14 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package $package;
+package ${package};
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit test for Hello class.
+ * Unit test for Greeter class.
  */
 public class GreeterTest {
     @Test
