@@ -29,6 +29,9 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.archetypes.bundle</artifactId>
     <packaging>maven-archetype</packaging>
+    <description>
+        This is an archetype for a simple carbon component
+    </description>
 
     <build>
         <extensions>

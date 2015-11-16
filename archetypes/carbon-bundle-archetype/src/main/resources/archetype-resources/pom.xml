@@ -21,7 +21,7 @@
     <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - sample bundle</name>
+    <name>WSO2 Carbon - Sample Carbon Component</name>
     <url>http://wso2.org</url>
 
     <dependencies>
