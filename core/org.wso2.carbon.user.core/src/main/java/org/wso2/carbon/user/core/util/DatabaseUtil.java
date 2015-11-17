@@ -46,6 +46,7 @@ public class DatabaseUtil {
     private static Log log = LogFactory.getLog(DatabaseUtil.class);
     private static DataSource dataSource = null;
     private static final String VALIDATION_INTERVAL = "validationInterval";
+    private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
 
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
@@ -158,9 +159,11 @@ public class DatabaseUtil {
             poolProperties.setTestOnBorrow(true);
         }
         if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL)) &&
-            StringUtils.isNumeric(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL)) ) {
+            StringUtils.isNumeric(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL))) {
             poolProperties.setValidationInterval(Long.parseLong(realmConfig.getUserStoreProperty(
                     VALIDATION_INTERVAL)));
+        } else {
+            poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
