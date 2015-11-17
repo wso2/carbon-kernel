@@ -232,8 +232,8 @@ public class RequireCapabilityCoordinator {
             final String capabilityName = dynamicCapabilityName.trim();
             IntStream.range(0, provider.getCount()).forEach(
                     count -> {
-                        capabilityCounter.incrementAndGet(capabilityName);
-                        logger.debug("Current count for {} capability is {}", capabilityName, count);
+                        int currentCount = capabilityCounter.incrementAndGet(capabilityName);
+                        logger.debug("Current count for {} capability is {}", capabilityName, currentCount);
                     }
             );
         }
