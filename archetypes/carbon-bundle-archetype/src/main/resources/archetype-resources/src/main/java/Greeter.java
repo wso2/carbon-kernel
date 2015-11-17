@@ -23,11 +23,11 @@ import java.util.logging.Logger;
 public class Greeter {
     Logger logger = Logger.getLogger(Greeter.class.getName());
 
-    public void sayHello(){
+    public void sayHello() {
         logger.info("Hello World !");
     }
 
-    public void sayGoodbye(){
+    public void sayGoodbye() {
         logger.info("Good Bye !");
     }
 }
