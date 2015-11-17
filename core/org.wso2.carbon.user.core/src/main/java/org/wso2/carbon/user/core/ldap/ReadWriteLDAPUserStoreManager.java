@@ -2092,15 +2092,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
 
         if (replaceEscapeCharactersAtUserLoginString != null) {
-            replaceEscapeCharacters = Boolean
-                    .parseBoolean(replaceEscapeCharactersAtUserLoginString);
+            replaceEscapeCharacters = Boolean.parseBoolean(replaceEscapeCharactersAtUserLoginString);
             if (log.isDebugEnabled()) {
-                log.debug("Replace escape characters configured to: "
-                        + replaceEscapeCharactersAtUserLoginString);
+                log.debug("Replace escape characters configured to: " + replaceEscapeCharactersAtUserLoginString);
             }
         }
 
-        if(replaceEscapeCharacters) {
+        if (replaceEscapeCharacters) {
             StringBuilder sb = new StringBuilder();
             if ((text.length() > 0) && ((text.charAt(0) == ' ') || (text.charAt(0) == '#'))) {
                 sb.append('\\'); // add the leading backslash if needed
@@ -2109,7 +2107,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 char currentChar = text.charAt(i);
                 switch (currentChar) {
                     case '\\':
-                        if(text.charAt(i+1) == '*'){
+                        if (text.charAt(i + 1) == '*') {
                             sb.append("*");
                             i++;
                             break;
@@ -2161,7 +2159,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     private String escapeSpecialCharactersForFilter(String dnPartial){
         boolean replaceEscapeCharacters = true;
 
-        dnPartial.replace("\\*","*");
+        dnPartial.replace("\\*", "*");
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);

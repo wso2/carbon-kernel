@@ -137,7 +137,8 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                                    "components" + File.separator + "dropins");
 
             long startTime = System.currentTimeMillis();
-            while (!isJarCreated && (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
+            while (!isJarCreated &&
+                   (System.currentTimeMillis() - startTime) < CarbonIntegrationConstants.DEFAULT_WAIT_MS) {
                 if (folder.exists() && folder.isDirectory()) {
                     File[] listOfFiles = folder.listFiles();
                     if (listOfFiles != null) {
@@ -149,8 +150,9 @@ public class RunBuildXMLTestCase extends CarbonIntegrationBaseTest {
                             }
                         }
                     }
-                }else{
-                    log.info("LanguageBundle not created yet time " + (System.currentTimeMillis() - startTime) + " milliseconds");
+                } else {
+                    log.info("LanguageBundle not created yet time " + (System.currentTimeMillis() - startTime) +
+                             " milliseconds");
                     Thread.sleep(1000);// Sleeping 1 second
                 }
             }
