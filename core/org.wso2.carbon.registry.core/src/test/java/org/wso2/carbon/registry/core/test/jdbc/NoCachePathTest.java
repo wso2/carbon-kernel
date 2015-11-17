@@ -22,6 +22,10 @@ import org.wso2.carbon.registry.core.jdbc.EmbeddedRegistryService;
 import org.wso2.carbon.registry.core.test.utils.BaseTestCase;
 import org.wso2.carbon.user.api.RealmConfiguration;
 
+/**
+ * This class tests adding and removing resource paths from NoCachePath List which was
+ * changed to a CopyOnWriteArrayList in RegistryContext class.
+ */
 public class NoCachePathTest extends BaseTestCase {
 
     protected static EmbeddedRegistryService embeddedRegistryService = null;
@@ -47,6 +51,9 @@ public class NoCachePathTest extends BaseTestCase {
         }
     }
 
+    /**
+     * Method to check adding resource paths to NoCachePath List of RegistryContext class.
+     */
     public void testAddToNoCachePath() {
         String path = "_/system/governance/trunk/test1";
         RegistryContext registryContext = registry.getRegistryContext();
@@ -55,6 +62,9 @@ public class NoCachePathTest extends BaseTestCase {
         registryContext.removeNoCachePath(path);
     }
 
+    /**
+     * Method to check removing resource paths from NoCachePath List of RegistryContext class.
+     */
     public void testRemoveFromNoCachePath() {
         String path = "_/system/governance/trunk/test2";
         RegistryContext registryContext = registry.getRegistryContext();
