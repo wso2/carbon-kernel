@@ -35,6 +35,7 @@
 
     <modules>
         <module>carbon-bundle-archetype</module>
+        <module>carbon-component-archetype</module>
     </modules>
 
     <build>
