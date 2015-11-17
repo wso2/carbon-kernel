@@ -34,8 +34,10 @@ import org.wso2.carbon.user.core.UserStoreException;
 import org.wso2.carbon.user.core.claim.ClaimManager;
 import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.RoleContext;
+import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
 import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
+import org.wso2.carbon.user.core.service.RealmService;
 import org.wso2.carbon.user.core.tenant.Tenant;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.JNDIUtil;
@@ -2501,7 +2503,10 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
 
             // adding roles list in to the cache
             if (list != null) {
-                addAllRolesToUserRolesCache(userName, list);
+                RealmService defaultRealmService = UserStoreMgtDSComponent.getRealmService();
+                if(defaultRealmService != null && defaultRealmService.getCachedUserRealm(tenantId) != null){
+                    addAllRolesToUserRolesCache(userName, list);
+                }
                 for (String role : list) {
                     if (role.equalsIgnoreCase(roleName)) {
                         return true;
