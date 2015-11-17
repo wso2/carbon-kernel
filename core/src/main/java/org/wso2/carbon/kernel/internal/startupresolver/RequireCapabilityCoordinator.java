@@ -164,6 +164,8 @@ public class RequireCapabilityCoordinator {
             requiredServiceKey = requiredServiceKey.trim();
         }
 
+        logger.debug("Updating listenerMap for {}, from {}", requiredServiceKey, listener.getClass().getName());
+
         listenerMap.put(requiredServiceKey, listener);
 
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
@@ -177,12 +179,10 @@ public class RequireCapabilityCoordinator {
                         @Override
                         public Object addingService(ServiceReference<Object> reference) {
                             synchronized (serviceClazz.intern()) {
-                                if (capabilityCounter.decrementAndGet(serviceClazz) == 0) {
-                                    logger.debug("Invoking {} from serviceTracker as its required " +
-                                            "capabilities are all available for {}", serviceClazz,
-                                            listener.getClass().getName());
-                                    listenerMap.remove(serviceClazz).onAllRequiredCapabilitiesAvailable();
-                                }
+                                int count = capabilityCounter.decrementAndGet(serviceClazz);
+                                logger.debug("Decrementing count for {} from serviceTracker on required " +
+                                                "capabilities service registration for {} . Current count is {}",
+                                        serviceClazz, listener.getClass().getName(), count);
                             }
                             return bundleContext.getService(reference);
                         }
@@ -231,7 +231,10 @@ public class RequireCapabilityCoordinator {
                     provider.getName(), provider.getCount());
             final String capabilityName = dynamicCapabilityName.trim();
             IntStream.range(0, provider.getCount()).forEach(
-                    count -> capabilityCounter.incrementAndGet(capabilityName)
+                    count -> {
+                        capabilityCounter.incrementAndGet(capabilityName);
+                        logger.debug("Current count for {} capability is {}", capabilityName, count);
+                    }
             );
         }
     }
