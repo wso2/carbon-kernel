@@ -18,16 +18,22 @@ package ${package};
 import java.util.logging.Logger;
 
 /**
- * This is a sample class.
+ * This class greets.
  */
 public class Greeter {
     Logger logger = Logger.getLogger(Greeter.class.getName());
 
+    private String name;
+
+    public Greeter(String name) {
+        this.name = name;
+    }
+
     public void sayHello() {
-        logger.info("Hello World !");
+        logger.info("Hello " + name);
     }
 
     public void sayGoodbye() {
-        logger.info("Good Bye !");
+        logger.info("Good Bye " + name);
     }
 }
