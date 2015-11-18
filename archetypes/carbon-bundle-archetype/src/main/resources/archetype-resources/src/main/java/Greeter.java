@@ -29,10 +29,16 @@ public class Greeter {
         this.name = name;
     }
 
+    /**
+     * This method outputs an info log saying Hello.
+     */
     public void sayHello() {
         logger.info("Hello " + name);
     }
 
+    /**
+     * This method outputs an info log saying good bye.
+     */
     public void sayGoodbye() {
         logger.info("Good Bye " + name);
     }

@@ -25,11 +25,23 @@ import ${package}.Greeter;
 public class Activator implements BundleActivator {
     private Greeter greeter;
 
+    /**
+     * This is called when the bundle is started.
+     *
+     * @param bundleContext BundleContext of this bundle
+     * @throws Exception Could be thrown while bundle starting
+     */
     public void start(BundleContext bundleContext) throws Exception {
         greeter =  new Greeter("WSO2");
         greeter.sayHello();
     }
 
+    /**
+     * This is called when the bundle is stopped.
+     *
+     * @param bundleContext BundleContext of this bundle
+     * @throws Exception Could be thrown while bundle stopping
+     */
     public void stop(BundleContext bundleContext) throws Exception {
         greeter.sayGoodbye();
     }
