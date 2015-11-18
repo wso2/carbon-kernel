@@ -60,13 +60,14 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Private-package>${package}.internal.*</Private-package>
+                        <Private-package>${package}.internal</Private-package>
                         <Export-package>
-                            !${package}.internal.*,
-                            ${package}.*
+                            !${package}.internal,
+                            ${package}.*;version=${project.version}
                         </Export-package>
                         <Import-Package>
-                            org.wso2.carbon.kernel
+                            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+                            org.wso2.carbon.kernel;version="${carbon.kernel.package.import.version.range}"
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>
