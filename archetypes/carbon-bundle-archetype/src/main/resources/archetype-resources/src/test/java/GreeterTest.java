@@ -15,9 +15,8 @@
  */
 package ${package};
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * Unit test for Greeter class.
@@ -25,6 +24,6 @@ import static org.junit.Assert.assertTrue;
 public class GreeterTest {
     @Test
     public void shouldAnswerWithTrue() {
-        assertTrue(true);
+        Assert.assertTrue(true);
     }
 }
