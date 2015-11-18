@@ -15,8 +15,13 @@ import org.wso2.carbon.kernel.CarbonRuntime;
         immediate = true)
 public class ServiceComponent {
 
+    /**
+     * This bind method will be called when CarbonRuntime OSGi service is registered.
+     *
+     * @param carbonRuntime The CarbonRuntime instance registered by Carbon Kernel as an OSGi service
+     */
     @Reference(
-            name = "carbon.runtime",
+            name = "carbon.runtime.service",
             service = CarbonRuntime.class,
             cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,
@@ -25,6 +30,11 @@ public class ServiceComponent {
         DataHolder.getInstance().setCarbonRuntime(carbonRuntime);
     }
 
+    /**
+     * This is the unbind method which gets called at the un-registration of CarbonRuntime OSGi service.
+     *
+     * @param carbonRuntime The CarbonRuntime instance registered by Carbon Kernel as an OSGi service
+     */
     protected void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
         DataHolder.getInstance().unsetCarbonRuntime();
     }
