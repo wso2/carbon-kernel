@@ -54,7 +54,7 @@
                         <Private-package>${package}.internal</Private-package>
                         <Export-package>
                             !${package}.internal,
-                            ${package}.*;version=${project.version}
+                            ${package}.*;version="${project.version}"
                         </Export-package>
                         <Import-Package>
                             org.osgi.framework.*;version="^osgi.framework.package.import.version.range^"
