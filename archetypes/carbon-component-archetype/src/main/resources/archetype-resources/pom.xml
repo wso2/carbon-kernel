@@ -30,8 +30,8 @@
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Sample Carbon Component</name>
     <description>
-        This is a sample implementation of a Carbon Component which consumes
-        a CarbonRuntime instance which has been registered as an OSGi service by Carbon Kernel
+        This is a sample implementation of a Carbon Component
+        which consumes an OSGi service registered by Carbon Kernel
     </description>
     <url>http://wso2.org</url>
 
