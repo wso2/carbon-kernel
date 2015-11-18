@@ -101,7 +101,7 @@
                                 </bundleDef>
                                 <bundleDef>commons-io.wso2:commons-io:${orbit.version.commons.io}</bundleDef>
                                 <bundleDef>
-                                    commons-collections.wso2:commons-collections:${orbit.version.commons.collection}
+                                    org.wso2.orbit.commons-collections:commons-collections:${orbit.version.commons.collection}
                                 </bundleDef>
                                 <bundleDef>org.apache.httpcomponents.wso2:httpcore:${orbit.version.httpcore}</bundleDef>
                                 <bundleDef>org.compass-project.wso2:compass:${version.compass}</bundleDef>
