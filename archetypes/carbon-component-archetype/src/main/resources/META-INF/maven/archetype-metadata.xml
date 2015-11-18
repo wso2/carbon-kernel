@@ -35,13 +35,13 @@
             <defaultValue>org.wso2.carbon</defaultValue>
         </requiredProperty>
         <requiredProperty key="artifactId">
-            <defaultValue>org.wso2.carbon.serviceconsumer</defaultValue>
+            <defaultValue>org.wso2.carbon.component</defaultValue>
         </requiredProperty>
         <requiredProperty key="version">
             <defaultValue>1.0.0-SNAPSHOT</defaultValue>
         </requiredProperty>
         <requiredProperty key="package">
-            <defaultValue>org.wso2.carbon.serviceconsumer</defaultValue>
+            <defaultValue>org.wso2.carbon.component</defaultValue>
         </requiredProperty>
     </requiredProperties>
 </archetype-descriptor>
