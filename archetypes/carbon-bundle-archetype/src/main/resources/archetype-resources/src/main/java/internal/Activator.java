@@ -17,18 +17,20 @@ package ${package}.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.wso2.carbon.helloworld.Greeter;
+import ${package}.Greeter;
 
 /**
  * This is a sample bundle activator class.
  */
 public class Activator implements BundleActivator {
+    private Greeter greeter;
 
     public void start(BundleContext bundleContext) throws Exception {
-        (new Greeter()).sayHello();
+        greeter =  new Greeter("WSO2");
+        greeter.sayHello();
     }
 
     public void stop(BundleContext bundleContext) throws Exception {
-        (new Greeter()).sayGoodbye();
+        greeter.sayGoodbye();
     }
 }
