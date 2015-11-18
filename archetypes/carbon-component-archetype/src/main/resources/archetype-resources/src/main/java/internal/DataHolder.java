@@ -36,7 +36,7 @@ public class DataHolder {
         if (carbonRuntime != null) {
             logger.info("CarbonRuntime instance was successfully set");
         } else {
-            logger.warning("carbonRuntime value is null");
+            logger.warning("CarbonRuntime value is null");
         }
     }
 }
