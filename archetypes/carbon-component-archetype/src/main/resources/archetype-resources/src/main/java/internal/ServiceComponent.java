@@ -1,10 +1,17 @@
 package ${package}.internal;
 
+import ${package}.Greeter;
+import ${package}.GreeterImpl;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.wso2.carbon.kernel.CarbonRuntime;
+
+import java.util.logging.Logger;
 
 /**
  * Service component to consume CarbonRuntime instance which has been registered as an OSGi service
@@ -14,6 +21,34 @@ import org.wso2.carbon.kernel.CarbonRuntime;
         name = "${package}.internal.ServiceComponent",
         immediate = true)
 public class ServiceComponent {
+
+    Logger logger = Logger.getLogger(ServiceComponent.class.getName());
+
+    /**
+     * This is the activation method of ServiceComponent. This will be called when its references are
+     * satisfied.
+     *
+     * @param bundleContext the bundle context instance of this bundle.
+     * @throws Exception this will be thrown if an issue occurs while executing the activate method
+     */
+    @Activate
+    protected void start(BundleContext bundleContext) throws Exception {
+        logger.info("Service Component is activated");
+
+        // Register GreeterImpl instance as an OSGi service.
+        bundleContext.registerService(Greeter.class.getName(), new GreeterImpl("WSO2"), null);
+    }
+
+    /**
+     * This is the deactivation method of ServiceComponent. This will be called when this component
+     * is being stopped or references are satisfied during runtime.
+     *
+     * @throws Exception this will be thrown if an issue occurs while executing the de-activate method
+     */
+    @Deactivate
+    protected void stop() throws Exception {
+        logger.info("Service Component is deactivated");
+    }
 
     /**
      * This bind method will be called when CarbonRuntime OSGi service is registered.
@@ -36,6 +71,6 @@ public class ServiceComponent {
      * @param carbonRuntime The CarbonRuntime instance registered by Carbon Kernel as an OSGi service
      */
     protected void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
-        DataHolder.getInstance().unsetCarbonRuntime();
+        DataHolder.getInstance().setCarbonRuntime(carbonRuntime);
     }
 }

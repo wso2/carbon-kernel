@@ -22,21 +22,11 @@ public class DataHolder {
         return instance;
     }
 
-    public void unsetCarbonRuntime() {
-        carbonRuntime = null;
-        logger.info("CarbonRuntime was unset");
-    }
-
     public CarbonRuntime getCarbonRuntime() {
         return carbonRuntime;
     }
 
     public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = carbonRuntime;
-        if (carbonRuntime != null) {
-            logger.info("CarbonRuntime instance was successfully set");
-        } else {
-            logger.warning("CarbonRuntime value is null");
-        }
     }
 }
