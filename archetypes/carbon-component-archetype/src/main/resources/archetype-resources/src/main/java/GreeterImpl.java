@@ -24,7 +24,7 @@ public class GreeterImpl implements Greeter {
     }
 
     /**
-     * Outputs an info log saying Goodbye
+     * Outputs an info log saying Goodbye.
      */
     public void sayGoodBye() {
         logger.info("GoodBye " + name);
