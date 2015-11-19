@@ -7,9 +7,11 @@ package org.wso2.carbon.kernel.startupresolver;
  * component developer who wants to have some dependency onto some capabilities until there are available.
  * <p>
  * A CapabilityProvider must be registered as an OSGi service. A bundle which registers an implementation of this
- * interface should provide the CapabilityName and CapabilityCount
+ * interface should provide the CapabilityName and CapabilityCount. The CapabilityName should be given using the
+ * "provided-capability-interface" OSGi service registration property and the count should be given by implementing
+ * the getCount method of CapabilityProvider interface.
  * <p>
- * e.g  CapabilityName = "org.wso2.carbon.transports.CarbonTransport"
+ * e.g  capability-name = "org.wso2.carbon.transports.CarbonTransport"
  *      CapabilityCount = 2
  *
  *      The above will inform startup coordinator that "org.wso2.carbon.transports.CarbonTransport" is a capability
@@ -20,16 +22,6 @@ package org.wso2.carbon.kernel.startupresolver;
  * @since 5.0.0
  */
 public interface CapabilityProvider {
-
-    /**
-     * This method should return the full qualified name of the provided capability. This will be called by the
-     * RequireCapabilityCoordinator, which is the startup coordinator, when an implementation of this is registered
-     * as an OSGi service. The capability name will be used as the key to store the count of the dynamically
-     * registered capabilities.
-     *
-     * @return the full qualified name of the capability. Eg : "org.wso2.carbon.transports.CarbonTransport"
-     */
-    String getName();
 
     /**
      * This method should return count of the provided capabilities. This will be called by the
