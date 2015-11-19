@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 
 /**
  * This class greets.
+ *
+ * @since ${version}
  */
 public class Greeter {
     Logger logger = Logger.getLogger(Greeter.class.getName());

@@ -20,6 +20,8 @@ import org.testng.annotations.Test;
 
 /**
  * Unit test for Greeter class.
+ *
+ * @since ${version}
  */
 public class GreeterTest {
     @Test

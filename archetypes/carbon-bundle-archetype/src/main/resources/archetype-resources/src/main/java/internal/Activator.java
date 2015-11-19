@@ -21,6 +21,8 @@ import ${package}.Greeter;
 
 /**
  * This is a sample bundle activator class.
+ *
+ * @since ${version}
  */
 public class Activator implements BundleActivator {
     private Greeter greeter;
