@@ -4,6 +4,8 @@ import java.util.logging.Logger;
 
 /**
  * This class implements the Greeter interface.
+ *
+ * @since ${version}
  */
 public class GreeterImpl implements Greeter {
     Logger logger = Logger.getLogger(GreeterImpl.class.getName());

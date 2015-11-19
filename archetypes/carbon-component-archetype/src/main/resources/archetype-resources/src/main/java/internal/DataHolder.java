@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 /**
  * DataHolder to hold org.wso2.carbon.kernel.CarbonRuntime instance referenced through
  * org.wso2.carbon.helloworld.internal.ServiceComponent.
+ *
+ * @since ${version}
  */
 public class DataHolder {
     Logger logger = Logger.getLogger(DataHolder.class.getName());

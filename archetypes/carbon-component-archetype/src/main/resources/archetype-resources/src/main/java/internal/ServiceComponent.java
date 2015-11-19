@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 /**
  * Service component to consume CarbonRuntime instance which has been registered as an OSGi service
  * by Carbon Kernel.
+ *
+ * @since ${version}
  */
 @Component(
         name = "${package}.internal.ServiceComponent",
