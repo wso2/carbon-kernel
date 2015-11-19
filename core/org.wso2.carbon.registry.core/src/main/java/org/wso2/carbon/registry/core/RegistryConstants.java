@@ -1002,7 +1002,7 @@ public final class RegistryConstants {
     /**
      * The id of the path cache for registry resources.
      */
-    public static final String PATH_CACHE_ID = CachingConstants.LOCAL_CACHE_PREFIX+"REG_PATH_CACHE";
+    public static final String PATH_CACHE_ID = CachingConstants.LOCAL_CACHE_PREFIX + "REG_PATH_CACHE";
     /**
      * The id of the UUID cache for registry paths.
      */

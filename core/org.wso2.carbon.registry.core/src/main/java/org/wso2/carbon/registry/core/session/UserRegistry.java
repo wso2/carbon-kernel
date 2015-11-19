@@ -602,7 +602,7 @@ public class UserRegistry implements Registry {
     }
 
     private Resource getInternal(String path) throws RegistryException {
-        if(path == null){
+        if (path == null) {
             throw new RegistryException("Resource path is null");
         }
         if (log.isTraceEnabled()) {

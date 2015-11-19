@@ -224,7 +224,7 @@ public class CachingHandler extends Handler {
      */
     private Cache<RegistryCacheKey, GhostResource> getCache(String cachePath) {
         Cache<RegistryCacheKey, GhostResource> cache;
-        if(cachePath != null && IsSubPathOfMountPaths(cachePath)){
+        if (cachePath != null && IsSubPathOfMountPaths(cachePath)) {
             cache = getDistributedCache();
         } else {
             cache = getLocalCache();

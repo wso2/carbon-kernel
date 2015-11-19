@@ -255,7 +255,7 @@ public class CacheBackedRegistry implements Registry {
      */
     private Cache<RegistryCacheKey, GhostResource> getCache(String path) {
         Cache<RegistryCacheKey, GhostResource> cache;
-        if(path != null && isResourcePathMounted(path)){
+        if (path != null && isResourcePathMounted(path)) {
             cache = getDistributedCache();
         } else {
             cache = getLocalCache();
