@@ -74,6 +74,8 @@ public class StartupCoordinatorOSGiTest {
                 mavenBundle().artifactId("org.wso2.carbon.sample.runtime.bps").groupId(
                         "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.runtime.webapp").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.runtime.custom").groupId(
                         "org.wso2.carbon").versionAsInProject()
         );
 
@@ -102,7 +104,7 @@ public class StartupCoordinatorOSGiTest {
     public void testCoordinationWithMultipleService() {
         Assert.assertNotNull(runtimeManager, "RuntimeManager Service is null");
 
-        int expectedTransportCount = 4;
+        int expectedTransportCount = 7;
         int actualTransportCount = runtimeManager.getRuntimeCount();
         Assert.assertEquals(actualTransportCount, expectedTransportCount, "Runtime count is not correct");
     }
