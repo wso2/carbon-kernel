@@ -1116,7 +1116,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
         }
-        if(claims == null) {
+        if (claims == null) {
             claims = new HashMap<>();
         }
         // #################### <Listeners> #####################################################
