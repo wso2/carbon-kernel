@@ -30,13 +30,18 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.TestUserMode;
+import org.wso2.carbon.automation.test.utils.http.client.HttpRequestUtil;
+import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.base.CarbonBaseUtils;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.utils.FileManipulator;
 
 import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * A test case which verifies that all admin services deployed on this Carbon server are properly
@@ -48,7 +53,6 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void initTests() throws Exception {
-
         super.init(TestUserMode.SUPER_TENANT_ADMIN);
     }
 
@@ -57,16 +61,17 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
 
         copySecurityVerificationService(CarbonBaseUtils.getCarbonHome());
 
-
         ServiceClient client = new ServiceClient(null, null);
         Options opts = new Options();
-
         EndpointReference epr =
                 new EndpointReference("http://" + automationContext.getInstance().getHosts().get("default") + ":" +
                         FrameworkConstants.SERVER_DEFAULT_HTTP_PORT
                         + "/services/SecurityVerifierService");
-        opts.setTo(epr);
 
+        String address = epr.getAddress();
+        assert isWebServiceDeployed("SecurityVerifierService", address) : address + "does not exist";
+
+        opts.setTo(epr);
         client.setOptions(opts);
         client.sendRobust(createPayLoad());   // robust send. Will get reply only if there is a fault
         log.info("sent the message");
@@ -86,8 +91,9 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
             return;
         }
         assert carbonHome != null : "carbonHome cannot be null";
-        File srcFile = new File(secVerifierDir + "SecVerifier.aar");
-        assert srcFile.exists() : srcFile.getAbsolutePath() + " does not exist";
+
+        Path srcFile = Paths.get(secVerifierDir, "SecVerifier.aar");
+        assert Files.exists(srcFile) : srcFile.toFile().getAbsolutePath() + " does not exist";
 
         String deploymentPath = carbonHome + File.separator + "repository" + File.separator
                 + "deployment" + File.separator + "server" + File.separator + "axis2services";
@@ -95,9 +101,36 @@ public class SecurityVerificationTestCase extends CarbonIntegrationBaseTest {
         if (!depFile.exists() && !depFile.mkdir()) {
             throw new IOException("Error while creating the deployment folder : " + deploymentPath);
         }
-        File dstFile = new File(depFile.getAbsolutePath() + File.separator + "SecVerifier.aar");
-        log.info("Copying " + srcFile.getAbsolutePath() + " => " + dstFile.getAbsolutePath());
-        FileManipulator.copyFile(srcFile, dstFile);
-        Thread.sleep(20000);
+        Path dstFile = Paths.get(depFile.getAbsolutePath(), "SecVerifier.aar");
+        log.info("Copying " + srcFile.toFile().getAbsolutePath() + " => " + dstFile.toFile().getAbsolutePath());
+        Files.copy(srcFile, dstFile, StandardCopyOption.REPLACE_EXISTING);
+        assert Files.exists(dstFile) : dstFile.toFile().getAbsolutePath() + "has not been copied";
+    }
+
+    private boolean isWebServiceDeployed(String webServiceName, String endpoint) {
+        log.info("waiting " + 90000 + " millis for web service deployment " + webServiceName);
+        HttpResponse response;
+        long startTime = System.currentTimeMillis();
+        while ((System.currentTimeMillis() - startTime) < 90000) {
+            try {
+                response = HttpRequestUtil.sendGetRequest(endpoint, null);
+                if (!response.getData().isEmpty()) {
+                    return true;
+                }
+            } catch (IOException ignored) {
+                //Ignore IOExceptions as this is simply checking the availability of the given webservice continuously
+                //until a positive response is received within a time limit. An IOException could occur during the
+                //connection establishment but failures in connection establishment shouldn't affect the busy waiting
+                //for a positive response and it doesn't need to be specifically handled
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {
+                //Here sleep is used just to reduce the frequency of the while loop since time gap between a
+                //web service's undeployed and deployed status is higher than the time for one cycle in while loop.
+                //Therefore an interruption is not a concern hence ignored
+            }
+        }
+        return false;
     }
 }
