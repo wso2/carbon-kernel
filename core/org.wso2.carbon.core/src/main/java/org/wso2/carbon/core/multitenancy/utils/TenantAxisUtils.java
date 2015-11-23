@@ -340,10 +340,7 @@ public final class TenantAxisUtils {
                 tenantConfigCtx.setProperty(ServerConstants.WORK_DIR,
                                             mainConfigCtx.getProperty(ServerConstants.WORK_DIR));
                 PrivilegedCarbonContext.getThreadLocalCarbonContext().setTenantId(tenantId);
-                /*new TransportPersistenceManager(tenantAxisConfig).
-                        updateEnabledTransports(tenantAxisConfig.getTransportsIn().values(),
-                                                tenantAxisConfig.getTransportsOut().values());*/
-
+                
                 // Notify all observers
                 BundleContext bundleContext = dataHolder.getBundleContext();
                 if (bundleContext != null) {
