@@ -685,6 +685,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
+        //check for null claims array
+        if (claims == null) {
+            claims = new String[0];
+        }
         if (!doCheckExistingUser(userName)) {
             throw new UserStoreException(USER_NOT_FOUND + ": User " + userName + "does not exist in: "
                     + realmConfig.getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_DOMAIN_NAME));
@@ -1166,7 +1170,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        //check for null claim map
+        if (claims == null) {
+            claims = new HashMap<>();
+        }
         Map<String, String> refinedClaims = new HashMap<String, String>();
         if (claims != null && !claims.isEmpty()) {
             for (Map.Entry<String, String> entry : claims.entrySet()) {
@@ -1282,7 +1289,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     claims, profileName);
             return;
         }
-
+        // ######################### Domain Free Zone Starts Here ###############################
+        if (claims == null) {
+            claims = new String[0];
+        }
         if (isReadOnly()) {
             throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
@@ -1345,6 +1355,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // #################### Domain Name Free Zone Starts Here ################################
 
+        //null check for claims and roles lists
+        if (roleList == null) {
+            roleList = new String[0];
+        }
+        if (claims == null) {
+            claims = new HashMap<>();
+        }
         if (isReadOnly()) {
             throw new UserStoreException(INVALID_OPERATION + " Invalid operation. User store is read only");
         }
@@ -1559,7 +1576,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        // check for null in role lists
+        if (deletedUsers == null) {
+            deletedUsers = new String[0];
+        }
+        if (newUsers == null) {
+            newUsers = new String[0];
+        }
         // #################### <Listeners> #####################################################
         for (UserOperationEventListener listener : UMListenerServiceComponent
                 .getUserOperationEventListeners()) {
@@ -1653,7 +1676,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        //check for null lists since we send them to listeners
+        if (deletedRoles == null) {
+            deletedRoles = new String[0];
+        }
+        if (newRoles == null) {
+            newRoles = new String[0];
+        }
         // This happens only once during first startup - adding administrator user/role.
         if (userName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             userName = userStore.getDomainFreeName();
@@ -2496,7 +2525,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // #################### Domain Name Free Zone Starts Here ################################
-
+        //check for null input arrays
+        if (userList == null) {
+            userList = new String[0];
+        }
+        if (permissions == null) {
+            permissions = new org.wso2.carbon.user.api.Permission[0];
+        }
         // This happens only once during first startup - adding administrator user/role.
         if (roleName.indexOf(CarbonConstants.DOMAIN_SEPARATOR) > 0) {
             roleName = userStore.getDomainFreeName();
@@ -3071,7 +3106,10 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                     profileName}, argTypes);
             return (Map<String, String>) object;
         }
-
+        // check null claim list
+        if (claims == null) {
+            claims = new String[0];
+        }
         // Here the user name should be domain-less.
         boolean requireRoles = false;
         boolean requireIntRoles = false;
