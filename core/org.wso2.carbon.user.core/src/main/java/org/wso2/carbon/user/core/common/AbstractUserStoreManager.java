@@ -3045,7 +3045,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         log.error(e);
                     }
                 } else {
-                    storeManager.getRoleNames();
+                    roleList = UserCoreUtil.combineArrays(roleList, storeManager.getRoleNames());
                 }
             }
         }
