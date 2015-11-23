@@ -8,8 +8,8 @@ package org.wso2.carbon.kernel.startupresolver;
  * <p>
  * A CapabilityProvider must be registered as an OSGi service. A bundle which registers an implementation of this
  * interface should provide the CapabilityName and CapabilityCount. The CapabilityName should be given using the
- * "provided-capability-interface" OSGi service registration property and the count should be given by implementing
- * the getCount method of CapabilityProvider interface.
+ * "capability-name" OSGi service registration property and the count should be given by implementing the getCount
+ * method of CapabilityProvider interface.
  * <p>
  * e.g  capability-name = "org.wso2.carbon.transports.CarbonTransport"
  *      CapabilityCount = 2
