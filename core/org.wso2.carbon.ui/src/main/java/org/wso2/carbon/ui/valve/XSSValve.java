@@ -33,7 +33,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -54,27 +53,7 @@ public class XSSValve extends ValveBase {
     private static String patterPath;
     private static ArrayList<Pattern> patternList;
 
-    protected static final Log log = LogFactory.getLog(XSSValve.class);
-
-
-    private static Pattern[] patterns = new Pattern[] {
-            Pattern.compile("<input", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<body", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<link", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<script>(.*?)</script>", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("src[\r\n]*=[\r\n]*\\\'(.*?)\\\'",
-                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("src[\r\n]*=[\r\n]*\\\"(.*?)\\\"",
-                    Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("</script>", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("<script(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("eval\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("expression\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
-            Pattern.compile("<img", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("javascript:", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("vbscript:", Pattern.CASE_INSENSITIVE),
-            Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
-    };
+    private static final Log log = LogFactory.getLog(XSSValve.class);
 
     @Override
     protected void initInternal() throws LifecycleException {
@@ -147,7 +126,7 @@ public class XSSValve extends ValveBase {
         boolean patternMatched = false;
 
         for (String pattern : xssURIPatternList) {
-            if (context.startsWith(pattern)) {
+            if (context.contains(pattern)) {
                 patternMatched = true;
                 break;
             }
@@ -155,8 +134,12 @@ public class XSSValve extends ValveBase {
         return patternMatched;
     }
 
+    /**
+     * Load build script patterns from property file
+     */
     private void buildScriptPatterns() {
-        patternList = new ArrayList<Pattern>(Arrays.asList(patterns));
+
+        patternList = new ArrayList<Pattern>();
         if (patterPath != null && !patterPath.isEmpty()) {
             InputStream inStream = null;
             File xssPatternConfigFile = new File(patterPath);
@@ -182,7 +165,8 @@ public class XSSValve extends ValveBase {
             if (!properties.isEmpty()) {
                 for (String key : properties.stringPropertyNames()) {
                     String value = properties.getProperty(key);
-                    patternList.add(Pattern.compile(value, Pattern.CASE_INSENSITIVE));
+                    patternList
+                            .add(Pattern.compile(value, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL));
                 }
             }
 

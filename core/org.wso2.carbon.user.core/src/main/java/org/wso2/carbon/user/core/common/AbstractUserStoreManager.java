@@ -2771,7 +2771,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
             }
         }
 
-        String domain = UserCoreUtil.getDomainName(realmConfig);
+        String domain = getMyDomainName();
         userStore.setUserStoreManager(this);
         if (index > 0) {
             userStore.setDomainAwareName(user);
@@ -3048,7 +3048,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
                         log.error(e);
                     }
                 } else {
-                    storeManager.getRoleNames();
+                    roleList = UserCoreUtil.combineArrays(roleList, storeManager.getRoleNames());
                 }
             }
         }
