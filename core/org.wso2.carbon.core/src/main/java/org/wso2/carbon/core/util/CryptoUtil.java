@@ -302,15 +302,8 @@ public class CryptoUtil {
             c = Cipher.getInstance(algorithm);
             c.init(Cipher.ENCRYPT_MODE, symmetricKey);
             encryptedData = c.doFinal(plainText);
-        } catch (NoSuchAlgorithmException e) {
-            throw new CryptoException("Error when encrypting data.", e);
-        } catch (IllegalBlockSizeException e) {
-            throw new CryptoException("Error when encrypting data.", e);
-        } catch (BadPaddingException e) {
-            throw new CryptoException("Error when encrypting data.", e);
-        } catch (NoSuchPaddingException e) {
-            throw new CryptoException("Error when encrypting data.", e);
-        } catch (InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException |
+                NoSuchPaddingException | InvalidKeyException e) {
             throw new CryptoException("Error when encrypting data.", e);
         }
         return encryptedData;
@@ -322,11 +315,7 @@ public class CryptoUtil {
         try {
             c.init(Cipher.DECRYPT_MODE, symmetricKey);
             decryptedData = c.doFinal(encryptionBytes);
-        } catch (InvalidKeyException e) {
-            throw new CryptoException("Error when decrypting data.", e);
-        } catch (BadPaddingException e) {
-            throw new CryptoException("Error when decrypting data.", e);
-        } catch (IllegalBlockSizeException e) {
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             throw new CryptoException("Error when decrypting data.", e);
         }
         return decryptedData;
