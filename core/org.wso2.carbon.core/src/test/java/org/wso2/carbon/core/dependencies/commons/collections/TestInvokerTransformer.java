@@ -18,9 +18,9 @@
 
 package org.wso2.carbon.core.dependencies.commons.collections;
 
-import junit.framework.Assert;
 import org.apache.commons.collections.functors.InvokerTransformer;
-import org.junit.Test;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,13 +37,13 @@ import java.io.ObjectOutputStream;
 public class TestInvokerTransformer {
 
     /**
-     * to serialize/deserialize InvokerTransformer, this property should be set to true
+     * To serialize/deserialize InvokerTransformer, this property should be set to true
      * (commons-collections 3.2.2 onwards)
      */
-    public final static String ENABLE_UNSAFE_SERIALIZATION = 
+    public final static String ENABLE_UNSAFE_SERIALIZATION =
             "org.apache.commons.collections.enableUnsafeSerialization";
 
-    @Test(expected = java.lang.UnsupportedOperationException.class)
+    @Test(expectedExceptions = java.lang.UnsupportedOperationException.class)
     public void testSerialization() throws Exception {
         InvokerTransformer transformer = new InvokerTransformer("toString", new Class[0], new Object[0]);
         byte[] data = serialize(transformer);
@@ -58,7 +58,7 @@ public class TestInvokerTransformer {
         System.setProperty(ENABLE_UNSAFE_SERIALIZATION, "false");
     }
 
-    @Test(expected = java.lang.UnsupportedOperationException.class)
+    @Test(expectedExceptions = java.lang.UnsupportedOperationException.class)
     public void testDeserialization() throws IOException, ClassNotFoundException {
         InvokerTransformer transformer = new InvokerTransformer("toString", new Class[0], new Object[0]);
         System.setProperty(ENABLE_UNSAFE_SERIALIZATION, "true");
