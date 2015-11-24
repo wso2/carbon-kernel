@@ -60,6 +60,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.bouncycastle.wso2</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
