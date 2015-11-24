@@ -118,6 +118,8 @@ public class Utils {
                 mavenBundle().artifactId("pax-logging-api").groupId("org.ops4j.pax.logging").
                         versionAsInProject(),
                 mavenBundle().artifactId("pax-logging-log4j2").groupId("org.ops4j.pax.logging").
+                        versionAsInProject(),
+                mavenBundle().artifactId("snakeyaml").groupId("org.wso2.orbit.org.yaml").
                         versionAsInProject()
         );
     }
