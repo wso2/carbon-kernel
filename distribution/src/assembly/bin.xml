@@ -38,6 +38,7 @@
                 <exclude>**/wso2carbon-version.txt</exclude>
                 <exclude>**/version.txt</exclude>
                 <exclude>**/carbon.xml</exclude>
+                <exclude>**/carbon.yml</exclude>
                 <exclude>**/log4j2.xml</exclude>
                 <exclude>INSTALL.txt</exclude>
                 <exclude>README.txt</exclude>
@@ -121,6 +122,12 @@
         </file>
         <file>
             <source>carbon-home/repository/conf/carbon.xml</source>
+            <outputDirectory>repository/conf/</outputDirectory>
+            <fileMode>644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>carbon-home/repository/conf/carbon.yml</source>
             <outputDirectory>repository/conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
