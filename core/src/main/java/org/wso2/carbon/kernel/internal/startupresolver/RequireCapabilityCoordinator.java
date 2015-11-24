@@ -126,7 +126,23 @@ public class RequireCapabilityCoordinator {
                 }
             }, 200, 200);
 
-            // TODO 4) Start a timer to track pending service registrations.
+            // 4) Start a timer to track pending service registrations.
+            pendingServiceTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    listenerMap.keySet()
+                            .stream()
+                            .forEach(key -> {
+                                synchronized (key.intern()) {
+                                    if (capabilityProviderCounter.get(key) == 0 && capabilityCounter.get(key) > 0) {
+                                        logger.warn("Waiting on pending capability registration for {}", key);
+                                    } else if (capabilityProviderCounter.get(key) > 0) {
+                                        logger.warn("Waiting on pending capability provider registration for {}", key);
+                                    }
+                                }
+                            });
+                }
+            }, 60000, 30000);
         } catch (Throwable e) {
             logger.error("Error occurred while processing Provide-Capability manifest headers", e);
             throw e;
@@ -289,7 +305,7 @@ public class RequireCapabilityCoordinator {
                                 requiredCapabilityListenerCount.incrementAndGet();
                             } else if (CapabilityProvider.class.getName().equals(element.getAttribute("objectClass"))) {
                                 String capability = element.getAttribute(CAPABILITY_NAME);
-                                if (!capability.isEmpty()) {
+                                if (capability != null && !capability.isEmpty()) {
                                     logger.debug("Adding Capability-Provider for {} to watch list from bundle ({})",
                                             capability, bundle.getSymbolicName());
                                     capabilityProviderCounter.incrementAndGet(capability.trim());
