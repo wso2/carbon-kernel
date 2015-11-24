@@ -60,7 +60,7 @@ public class CarbonCoreDSComponent {
         DataHolder.getInstance().setBundleContext(bundleContext);
 
         // 1) Find to initialize the Carbon configuration provider
-        CarbonConfigProvider configProvider = new YAMLBasedConfigProvider(); // XMLBasedConfigProvider();
+        CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();
 
         // 2) Creates the CarbonRuntime instance using the Carbon configuration provider.
         CarbonRuntime carbonRuntime = CarbonRuntimeFactory.createCarbonRuntime(configProvider);
