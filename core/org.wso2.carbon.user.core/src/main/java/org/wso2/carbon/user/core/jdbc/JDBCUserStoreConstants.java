@@ -71,6 +71,11 @@ public class JDBCUserStoreConstants {
                 UserStoreConfigConstants.CASE_SENSITIVE_USERNAME_DESCRIPTION);
 
         //set Advanced properties
+        setAdvancedProperty(JDBCRealmConstants.VALIDATION_QUERY, "validationQuery for the database", "",
+                "validationQuery is the SQL query that will be used to validate connections. This query MUST be an " +
+                        "SQL SELECT statement that returns at least one row");
+        setAdvancedProperty(JDBCRealmConstants.VALIDATION_INTERVAL, "Validation Interval(time in milliseconds)", "",
+                "Used to avoid excess validation, only run validation at most at this frequency");
         setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants.SCIMEnabledDescription);
         setAdvancedProperty("IsBulkImportSupported", "Is Bulk Import Supported", "false", "Support Bulk User Import " +
                 "Operation for this user store");
