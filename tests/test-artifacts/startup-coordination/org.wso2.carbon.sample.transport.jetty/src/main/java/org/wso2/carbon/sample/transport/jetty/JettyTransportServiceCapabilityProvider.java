@@ -12,7 +12,7 @@ import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
  * @since 5.0.0
  */
 @Component(
-        name = "org.wso2.carbon.sample.transport.jetty.JettyTransportServiceCapabilityProviderr",
+        name = "org.wso2.carbon.sample.transport.jetty.JettyTransportServiceCapabilityProvider",
         immediate = true,
         property = "capability-name=org.wso2.carbon.sample.transport.mgt.Transport"
 )
