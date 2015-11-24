@@ -72,7 +72,7 @@ public class CryptoUtil {
      *
      * @return
      */
-    public static CryptoUtil getDefaultCryptoUtil() throws CryptoException {
+    public static CryptoUtil getDefaultCryptoUtil() {
         return getDefaultCryptoUtil(CarbonCoreDataHolder.getInstance().
                 getServerConfigurationService(), lookupRegistryService());
     }
@@ -99,7 +99,7 @@ public class CryptoUtil {
      */
     public synchronized static CryptoUtil getDefaultCryptoUtil(
             ServerConfigurationService serverConfigService,
-            RegistryService registryService) throws CryptoException {
+            RegistryService registryService) {
         if (instance == null) {
             instance = new CryptoUtil(serverConfigService, registryService);
         }
@@ -107,12 +107,11 @@ public class CryptoUtil {
     }
 
     private CryptoUtil(ServerConfigurationService serverConfigService,
-                       RegistryService registryService) throws CryptoException {
+                       RegistryService registryService) {
         this.serverConfigService = serverConfigService;
         this.registryService = registryService;
         this.keyAlias = this.serverConfigService.getFirstProperty("Security.KeyStore.KeyAlias");
         this.keyPass = this.serverConfigService.getFirstProperty("Security.KeyStore.KeyPassword");
-        generateEncryptedSymmetricKey();
     }
 
     public ServerConfigurationService getServerConfigService() {

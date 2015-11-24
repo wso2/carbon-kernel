@@ -27,6 +27,7 @@ import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
 import org.wso2.carbon.core.init.CarbonServerManager;
+import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
@@ -34,6 +35,7 @@ import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
 import org.wso2.carbon.utils.Axis2ConfigurationContextObserver;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +91,11 @@ public class CarbonCoreServiceComponent {
             ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null) ;
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(ctxt.getBundleContext());
+            Class c = CryptoUtil.class;
+            Object object = CryptoUtil.getDefaultCryptoUtil();
+            Method method =c.getDeclaredMethod("generateEncryptedSymmetricKey", null);
+            method.setAccessible(true);
+            method.invoke(object, null);
         } catch (Throwable e) {
             log.error("Failed to activate Carbon Core bundle ", e);
         }
