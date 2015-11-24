@@ -23,11 +23,25 @@ import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.i18n.Messages;
+import sun.security.krb5.KrbCryptoException;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.util.Properties;
 
 /**
  * The utility class to encrypt/decrypt passwords to be stored in the
@@ -47,7 +61,9 @@ public class CryptoUtil {
 
     private static CryptoUtil instance = null;
 
+    private static SecretKey symmetricKey = null;
 
+    private static String algorithm = "AES";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -145,7 +161,7 @@ public class CryptoUtil {
      */
     public String encryptAndBase64Encode(byte[] plainText) throws
             CryptoException {
-        return Base64.encode(encrypt(plainText));
+        return Base64.encode(encryptWithSymmetricKey(plainText));
     }
 
     /**
@@ -186,7 +202,123 @@ public class CryptoUtil {
      */
     public byte[] base64DecodeAndDecrypt(String base64CipherText) throws
             CryptoException {
-        return decrypt(Base64.decode(base64CipherText));
+        return decryptWithSymmetricKey(Base64.decode(base64CipherText));
+    }
+
+    private void generateEncryptedSymmetricKey() throws CryptoException {
+        //Generate Symmetric key
+        KeyGenerator generator = null;
+        byte[] encryptedSymmetricKey = null;
+        try {
+            generator = KeyGenerator.getInstance(algorithm);
+            generator.init(128);
+            SecretKey key = generator.generateKey();
+            symmetricKey = key;
+            byte[] symmetricKey = key.getEncoded();
+            encryptedSymmetricKey = encrypt(symmetricKey);
+            storeEncryptedSymmetricKey(encryptedSymmetricKey);
+        } catch (NoSuchAlgorithmException e) {
+            throw new CryptoException("Error in generating symmetric key", e);
+        }
+    }
+
+/*    private byte[] decryptSymmetricKey(){
+        //get the symmetric key from file/registry
+        byte[] decryptedSymmetricKey = new byte[0];
+        try {
+            decryptedSymmetricKey = decrypt(new byte[0]);
+        } catch (CryptoException e) {
+            e.printStackTrace();
+        }
+        return decryptedSymmetricKey;
+    }*/
+
+    private void storeEncryptedSymmetricKey(byte[] encryptedKey) throws CryptoException {
+        FileInputStream fileInputStream = null;
+        OutputStream output = null;
+        String symmetricKey;
+
+        String configPath = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator + "conf" +
+                File.separator + "symmetric-key.properties";
+
+        symmetricKey = Base64.encode(encryptedKey);
+
+        File registryXML = new File(configPath);
+        try {
+            if(!registryXML.exists()) {
+                registryXML.createNewFile();
+            }
+
+            output = new FileOutputStream(registryXML);
+            Properties properties = new Properties();
+            if(!properties.containsKey("symmetric.key") || properties.getProperty("symmetric.key") == null || properties.getProperty("symmetric.key") == "") {
+                properties.setProperty("symmetric.key", symmetricKey);
+                properties.store(output, null);
+            }
+        } catch (IOException e) {
+            throw new CryptoException("Error in storing symmetric key", e);
+        }
+
+       /* if (registryXML.exists()) {
+            try {
+                fileInputStream = new FileInputStream(registryXML);
+                Properties properties = new Properties();
+                properties.load(fileInputStream);
+                SecretResolver secretResolver = SecretResolverFactory.create(properties);
+                //Resolved the secret password.
+                String secretAlias = "symmetric.key.value";
+
+                if (secretResolver != null && secretResolver.isInitialized()) {
+                    if (secretResolver.isTokenProtected(secretAlias)) {
+                        symmetricKey = secretResolver.resolve(secretAlias);
+                    } else {
+                        symmetricKey = (String) properties.get(secretAlias);
+                    }
+                }
+                if(!StringUtils.isEmpty(symmetricKey)) {
+                   output
+                }
+            } catch (IOException e) {
+            } finally {
+                if (fileInputStream != null) {
+                    try {
+                        fileInputStream.close();
+                    } catch (IOException e) {
+                        log.error("Failed to close the FileInputStream, file : " + configPath);
+                    }
+                }
+            }
+        }*/
+    }
+
+/*    private void retrieveSymmetricKey(byte[] encryptedKey){
+        // retrieve the symmetric key from memory
+    }*/
+
+    private byte[] encryptWithSymmetricKey(byte[] plainText) throws CryptoException {
+        Cipher c = null;
+        byte[] encryptedData = null;
+        try {
+            c = Cipher.getInstance(algorithm);
+            c.init(Cipher.ENCRYPT_MODE, symmetricKey);
+            encryptedData = c.doFinal(plainText);
+        } catch (NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException |
+                NoSuchPaddingException | InvalidKeyException e) {
+            throw new CryptoException("Error when encrypting data.", e);
+        }
+        return encryptedData;
+    }
+
+    private byte[] decryptWithSymmetricKey(byte[] encryptionBytes) throws CryptoException {
+        Cipher c = null;
+        byte[] decryptedData = null;
+        try {
+            c.init(Cipher.DECRYPT_MODE, symmetricKey);
+            decryptedData = c.doFinal(encryptionBytes);
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+            throw new CryptoException("Error when decrypting data.", e);
+        }
+        return decryptedData;
     }
 }
 
