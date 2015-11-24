@@ -136,6 +136,7 @@
                             org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
                             org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
                             org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
+                            org.yaml.snakeyaml.*;version="${org.snakeyaml.version}"
                         </Import-Package>
                         <_dsannotations>*</_dsannotations>
                     </instructions>
