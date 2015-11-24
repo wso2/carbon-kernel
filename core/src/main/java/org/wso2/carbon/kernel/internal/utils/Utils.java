@@ -36,4 +36,14 @@ public class Utils {
                 Constants.CARBON_CONFIG_XML).toString();
     }
 
+    /**
+     * returns the carbon.yml location.
+     *
+     * @return String carbon.yml location
+     */
+    public static String getCarbonYAMLLocation() {
+        return Paths.get(org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().toString(),
+                Constants.CARBON_CONFIG_YAML).toString();
+    }
+
 }
