@@ -26,6 +26,7 @@ import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
+import org.wso2.carbon.core.encryption.SymmetricEncryption;
 import org.wso2.carbon.core.init.CarbonServerManager;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.registry.core.service.RegistryService;
@@ -89,13 +90,8 @@ public class CarbonCoreServiceComponent {
             carbonContext.setTenantDomain(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID);
             ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null);
-
-            Class c = CryptoUtil.class;
-            Object object = CryptoUtil.getDefaultCryptoUtil();
-            Method method = c.getDeclaredMethod("generateSymmetricKey", null);
-            method.setAccessible(true);
-            method.invoke(object, null);
-
+            SymmetricEncryption encryption = SymmetricEncryption.getInstance();
+            encryption.generateSymmetricKey();
             carbonServerManager = new CarbonServerManager();
             carbonServerManager.start(ctxt.getBundleContext());
         } catch (Throwable e) {
