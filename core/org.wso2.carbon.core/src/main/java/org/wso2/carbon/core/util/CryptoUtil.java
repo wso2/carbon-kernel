@@ -19,38 +19,16 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
-import org.wso2.carbon.context.CarbonContext;
+import org.wso2.carbon.core.encryption.SymmetricEncryption;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
-import org.wso2.carbon.registry.core.Resource;
 import org.wso2.carbon.registry.core.service.RegistryService;
-import org.wso2.carbon.registry.core.session.UserRegistry;
-import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.i18n.Messages;
-import org.wso2.securevault.SecretResolver;
-import org.wso2.securevault.SecretResolverFactory;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.OutputStream;
-import java.security.InvalidKeyException;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * The utility class to encrypt/decrypt passwords to be stored in the
@@ -69,16 +47,6 @@ public class CryptoUtil {
     private RegistryService registryService;
 
     private static CryptoUtil instance = null;
-
-    private static SecretKey symmetricKey = null;
-    private static boolean isSymmetricKeyFromFile = false;
-    private static String symmetricKeyEncryptAlgoDefault = "AES";
-    private static String symmetricKeySecureVaultAliasDefault = "symmetric.key.value";
-    private String propertyKey = "symmetric.key";
-    private String symmetricKeyEncryptEnabled;
-    private String symmetricKeyEncryptAlgo;
-    private String symmetricKeySecureVaultAlias;
-    private static final String resourcePath = "identity/config/symmetricKey";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -147,10 +115,11 @@ public class CryptoUtil {
     public byte[] encrypt(byte[] plainTextBytes) throws CryptoException {
 
         byte[] encryptedKey;
+        SymmetricEncryption encryption = SymmetricEncryption.getInstance();
 
         try {
-            if (Boolean.valueOf(symmetricKeyEncryptEnabled)) {
-                encryptedKey = encryptWithSymmetricKey(plainTextBytes);
+            if (Boolean.valueOf(encryption.getSymmetricKeyEncryptEnabled())) {
+                encryptedKey = encryption.encryptWithSymmetricKey(plainTextBytes);
             } else {
                 KeyStoreManager keyMan = KeyStoreManager.getInstance(
                         MultitenantConstants.SUPER_TENANT_ID,
@@ -194,10 +163,11 @@ public class CryptoUtil {
     public byte[] decrypt(byte[] cipherTextBytes) throws CryptoException {
 
         byte[] decyptedValue;
+        SymmetricEncryption encryption = SymmetricEncryption.getInstance();
 
         try {
-            if (Boolean.valueOf(symmetricKeyEncryptEnabled)) {
-                decyptedValue = decryptWithSymmetricKey(cipherTextBytes);
+            if (Boolean.valueOf(encryption.getSymmetricKeyEncryptEnabled())) {
+                decyptedValue = encryption.decryptWithSymmetricKey(cipherTextBytes);
             } else {
                 KeyStoreManager keyMan = KeyStoreManager.getInstance(
                         MultitenantConstants.SUPER_TENANT_ID,
@@ -228,151 +198,6 @@ public class CryptoUtil {
     public byte[] base64DecodeAndDecrypt(String base64CipherText) throws
             CryptoException {
         return decrypt(Base64.decode(base64CipherText));
-    }
-
-    private void generateSymmetricKey() throws CryptoException {
-
-        FileInputStream fileInputStream = null;
-        OutputStream output = null;
-        KeyGenerator generator = null;
-        String secretAlias;
-        String encryptionAlgo = null;
-        Properties properties;
-
-        try {
-            ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
-            symmetricKeyEncryptEnabled = serverConfiguration.getFirstProperty("SymmetricEncryption.IsEnabled");
-            symmetricKeyEncryptAlgo = serverConfiguration.getFirstProperty("SymmetricEncryption.Algorithm");
-            symmetricKeySecureVaultAlias = serverConfiguration.getFirstProperty("SymmetricEncryption.SecureVaultAlias");
-
-            String filePath = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator + "resources" +
-                    File.separator + "security" + File.separator + "symmetric-key.properties";
-
-            File file = new File(filePath);
-            if (file.exists()) {
-                fileInputStream = new FileInputStream(file);
-                properties = new Properties();
-                properties.load(fileInputStream);
-
-                SecretResolver secretResolver = SecretResolverFactory.create(properties);
-                if (symmetricKeySecureVaultAlias == null) {
-                    secretAlias = symmetricKeySecureVaultAliasDefault;
-                } else {
-                    secretAlias = symmetricKeySecureVaultAlias;
-                }
-
-                if (symmetricKeyEncryptAlgo == null) {
-                    encryptionAlgo = symmetricKeyEncryptAlgoDefault;
-                } else {
-                    encryptionAlgo = symmetricKeyEncryptAlgo;
-                }
-
-                if (secretResolver != null && secretResolver.isInitialized()) {
-                    if (secretResolver.isTokenProtected(secretAlias)) {
-                        symmetricKey = new SecretKeySpec(Base64.decode(secretResolver.resolve(secretAlias)), 0,
-                                Base64.decode(secretResolver.resolve(secretAlias)).length, encryptionAlgo);
-                    } else {
-                        symmetricKey = new SecretKeySpec(Base64.decode((String) properties.get(secretAlias)), 0,
-                                Base64.decode((String) properties.get(secretAlias)).length, encryptionAlgo);
-                    }
-                } else if (properties.containsKey(propertyKey)) {
-                    symmetricKey = new SecretKeySpec(Base64.decode(properties.getProperty(propertyKey)), 0,
-                            Base64.decode(properties.getProperty(propertyKey)).length, encryptionAlgo);
-                }
-
-                if (symmetricKey != null) {
-                    isSymmetricKeyFromFile = true;
-                }
-            }
-
-            if (!isSymmetricKeyFromFile) {
-                //create a new symmetric key and store it in the registry
-                generator = KeyGenerator.getInstance(encryptionAlgo);
-                SecretKey key = generator.generateKey();
-                symmetricKey = key;
-                byte[] symmetricKey = key.getEncoded();
-                String stringKey = Base64.encode(symmetricKey);
-                properties = new Properties();
-                properties.setProperty(propertyKey, stringKey);
-
-                UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext
-                        .getThreadLocalCarbonContext().getTenantId());
-                if (!userRegistry.resourceExists(resourcePath)) {
-                    Resource resource = userRegistry.newResource();
-                    Set<String> names = properties.stringPropertyNames();
-                    for (String keyName : names) {
-                        List<String> value = new ArrayList<String>();
-                        String valueStr = properties.getProperty(keyName);
-                        value.add(valueStr);
-                        resource.setProperty(keyName, value);
-                    }
-                    userRegistry.put(resourcePath, resource);
-                }
-            }
-        } catch (Exception e) {
-            throw new CryptoException("Error in generating symmetric key", e);
-        }
-    }
-
-    private byte[] encryptWithSymmetricKey(byte[] plainText) throws CryptoException {
-        Cipher c = null;
-        byte[] encryptedData = null;
-        String encryptionAlgo;
-        String symmetricKeyInRegistry;
-        try {
-            if (symmetricKeyEncryptAlgo == null) {
-                encryptionAlgo = symmetricKeyEncryptAlgoDefault;
-            } else {
-                encryptionAlgo = symmetricKeyEncryptAlgo;
-            }
-            c = Cipher.getInstance(encryptionAlgo);
-            if (!isSymmetricKeyFromFile) {
-                UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext
-                        .getThreadLocalCarbonContext().getTenantId());
-                Resource resource = userRegistry.get(resourcePath);
-                Properties props = resource.getProperties();
-                Properties readerProps = new Properties();
-
-                for (Map.Entry<Object, Object> entry : props.entrySet()) {
-                    String key = (String) entry.getKey();
-                    List<String> listValue = (List<String>) entry.getValue();
-                    String value = listValue.get(0);
-                    readerProps.put(key, value);
-                }
-
-                symmetricKeyInRegistry = readerProps.getProperty(propertyKey);
-
-                if (!symmetricKeyInRegistry.equals(Base64.encode(symmetricKey.getEncoded()))) {
-                    symmetricKey = new SecretKeySpec(Base64.decode(symmetricKeyInRegistry), 0,
-                            Base64.decode(symmetricKeyInRegistry).length, encryptionAlgo);
-                }
-            }
-            c.init(Cipher.ENCRYPT_MODE, symmetricKey);
-            encryptedData = c.doFinal(plainText);
-        } catch (Exception e) {
-            throw new CryptoException("Error when encrypting data.", e);
-        }
-        return encryptedData;
-    }
-
-    private byte[] decryptWithSymmetricKey(byte[] encryptionBytes) throws CryptoException {
-        Cipher c = null;
-        byte[] decryptedData = null;
-        String encryptionAlgo;
-        try {
-            if (symmetricKeyEncryptAlgo == null) {
-                encryptionAlgo = symmetricKeyEncryptAlgoDefault;
-            } else {
-                encryptionAlgo = symmetricKeyEncryptAlgo;
-            }
-            c = Cipher.getInstance(encryptionAlgo);
-            c.init(Cipher.DECRYPT_MODE, symmetricKey);
-            decryptedData = c.doFinal(encryptionBytes);
-        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException |
-                NoSuchAlgorithmException | NoSuchPaddingException e) {
-            throw new CryptoException("Error when decrypting data.", e);
-        }
-        return decryptedData;
     }
 }
 
