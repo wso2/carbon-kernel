@@ -23,6 +23,7 @@ import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
+import org.wso2.carbon.core.internal.CarbonCoreServiceComponent;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.i18n.Messages;
@@ -161,7 +162,6 @@ public class CryptoUtil {
                 encryptedKey = cipher.doFinal(plainTextBytes);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new
                     CryptoException(Messages.getMessage("erorDuringEncryption"), e);
         }
@@ -210,7 +210,6 @@ public class CryptoUtil {
                 decyptedValue = cipher.doFinal(cipherTextBytes);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new CryptoException("errorDuringDecryption", e);
         }
         return decyptedValue;
@@ -304,12 +303,8 @@ public class CryptoUtil {
                     properties.store(output, null);
                 }*/
             }
-        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException | IOException e) {
             throw new CryptoException("Error in generating symmetric key", e);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
