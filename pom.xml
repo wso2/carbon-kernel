@@ -638,8 +638,5 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
-
-        <!--Maven bundle plugin configuration-->
-        <maven.bundle.plugin.obrrepository>NONE</maven.bundle.plugin.obrrepository>
     </properties>
 </project>
