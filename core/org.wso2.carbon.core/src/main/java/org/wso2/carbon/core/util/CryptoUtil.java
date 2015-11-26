@@ -15,15 +15,20 @@
  */
 package org.wso2.carbon.core.util;
 
+import org.apache.abdera.model.Base;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.base.MultitenantConstants;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.base.api.ServerConfigurationService;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.internal.CarbonCoreDataHolder;
 import org.wso2.carbon.core.internal.CarbonCoreServiceComponent;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.exceptions.RegistryException;
 import org.wso2.carbon.registry.core.service.RegistryService;
+import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.i18n.Messages;
 import org.wso2.securevault.SecretResolver;
@@ -47,7 +52,11 @@ import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * The utility class to encrypt/decrypt passwords to be stored in the
@@ -75,6 +84,7 @@ public class CryptoUtil {
     private String symmetricKeyEncryptEnabled;
     private String symmetricKeyEncryptAlgo;
     private String symmetricKeySecureVaultAlias;
+    private static final String resourcePath = "identity/config/symmetricKey";
 
     /**
      * This method returns CryptoUtil object, where this should only be used at runtime,
@@ -232,7 +242,7 @@ public class CryptoUtil {
         OutputStream output = null;
         KeyGenerator generator = null;
         String secretAlias;
-        String encryptionAlgo;
+        String encryptionAlgo = null;
         Properties properties;
 
         try {
@@ -282,9 +292,30 @@ public class CryptoUtil {
             }
 
             if (!isSymmetricKeyFromFile) {
-                throw new CryptoException("Error in generating symmetric key. Symmetric key is not available.");
+                //create a new symmetric key and store it in the registry
+                generator = KeyGenerator.getInstance(encryptionAlgo);
+                SecretKey key = generator.generateKey();
+                symmetricKey = key;
+                byte[] symmetricKey = key.getEncoded();
+                String stringKey = Base64.encode(symmetricKey);
+                properties = new Properties();
+                properties.setProperty(propertyKey, stringKey);
+
+                UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext
+                        .getThreadLocalCarbonContext().getTenantId());
+                if (!userRegistry.resourceExists(resourcePath)) {
+                    Resource resource = userRegistry.newResource();
+                    Set<String> names = properties.stringPropertyNames();
+                    for (String keyName : names) {
+                        List<String> value = new ArrayList<String>();
+                        String valueStr = properties.getProperty(keyName);
+                        value.add(valueStr);
+                        resource.setProperty(keyName, value);
+                    }
+                    userRegistry.put(resourcePath, resource);
+                }
             }
-        } catch (NoSuchAlgorithmException | IOException e) {
+        } catch (Exception e) {
             throw new CryptoException("Error in generating symmetric key", e);
         }
     }
@@ -293,6 +324,7 @@ public class CryptoUtil {
         Cipher c = null;
         byte[] encryptedData = null;
         String encryptionAlgo;
+        String symmetricKeyInRegistry;
         try {
             if (symmetricKeyEncryptAlgo == null) {
                 encryptionAlgo = symmetricKeyEncryptAlgoDefault;
@@ -300,10 +332,30 @@ public class CryptoUtil {
                 encryptionAlgo = symmetricKeyEncryptAlgo;
             }
             c = Cipher.getInstance(encryptionAlgo);
+            if (!isSymmetricKeyFromFile) {
+                UserRegistry userRegistry = registryService.getGovernanceSystemRegistry(CarbonContext
+                        .getThreadLocalCarbonContext().getTenantId());
+                Resource resource = userRegistry.get(resourcePath);
+                Properties props = resource.getProperties();
+                Properties readerProps = new Properties();
+
+                for (Map.Entry<Object, Object> entry : props.entrySet()) {
+                    String key = (String) entry.getKey();
+                    List<String> listValue = (List<String>) entry.getValue();
+                    String value = listValue.get(0);
+                    readerProps.put(key, value);
+                }
+
+                symmetricKeyInRegistry = readerProps.getProperty(propertyKey);
+
+                if (!symmetricKeyInRegistry.equals(Base64.encode(symmetricKey.getEncoded()))) {
+                    symmetricKey = new SecretKeySpec(Base64.decode(symmetricKeyInRegistry), 0,
+                            Base64.decode(symmetricKeyInRegistry).length, encryptionAlgo);
+                }
+            }
             c.init(Cipher.ENCRYPT_MODE, symmetricKey);
             encryptedData = c.doFinal(plainText);
-        } catch (NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException |
-                NoSuchPaddingException | InvalidKeyException e) {
+        } catch (Exception e) {
             throw new CryptoException("Error when encrypting data.", e);
         }
         return encryptedData;
