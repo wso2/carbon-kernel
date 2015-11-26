@@ -142,7 +142,7 @@ public class RequireCapabilityCoordinator {
                                 }
                             });
                 }
-            }, 60000, 30000);
+            }, 60000, 60000);
         } catch (Throwable e) {
             logger.error("Error occurred while processing Provide-Capability manifest headers", e);
             throw e;
