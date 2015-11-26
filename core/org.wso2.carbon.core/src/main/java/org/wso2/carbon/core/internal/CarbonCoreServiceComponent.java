@@ -26,12 +26,12 @@ import org.wso2.carbon.core.ServerRestartHandler;
 import org.wso2.carbon.core.ServerShutdownHandler;
 import org.wso2.carbon.core.ServerStartupHandler;
 import org.wso2.carbon.core.ServerStartupObserver;
-import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
-import org.wso2.carbon.core.encryption.SymmetricEncryption;
 import org.wso2.carbon.core.init.CarbonServerManager;
 import org.wso2.carbon.registry.core.service.RegistryService;
 import org.wso2.carbon.registry.core.service.TenantRegistryLoader;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.core.clustering.api.CoordinatedActivity;
+import org.wso2.carbon.core.encryption.SymmetricEncryption;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.util.ArrayList;
