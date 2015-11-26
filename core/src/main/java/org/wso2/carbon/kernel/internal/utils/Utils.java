@@ -37,7 +37,7 @@ public class Utils {
     }
 
     /**
-     * returns the carbon.yml location.
+     * Returns the carbon.yml location.
      *
      * @return String carbon.yml location
      */

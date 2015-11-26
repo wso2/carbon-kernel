@@ -39,10 +39,10 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
 
     /**
      * Parse the carbon.yml and returns the CarbonConfiguration object.
+     *
      * @return CarbonConfiguration
      */
     public CarbonConfiguration getCarbonConfiguration() {
-
         String configFileLocation = Utils.getCarbonYAMLLocation();
         try (Reader in = new InputStreamReader(new FileInputStream(configFileLocation), StandardCharsets.ISO_8859_1)) {
             Yaml yaml = new Yaml();
@@ -51,7 +51,6 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
         } catch (IOException e) {
             logger.error("Could not load " + configFileLocation, e);
         }
-        // We need to populate a CarbonConfiguration from the carbon.xml file.
         return null;
     }
 }
