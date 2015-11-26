@@ -106,9 +106,9 @@ public class RequireCapabilityCoordinator {
                 return;
             }
 
-            // 3) Schedule a timer to tack service registrations which have happend before populating the counter as
+            // 3) Schedule a timer to tack service registrations which have happened before populating the counter as
             //      well as to clear all the listeners with zero available services in the runtime.
-            // TODO find a way to stop this timer. make this timer task configurable from the carbon.xml
+            // TODO find a way to stop these timers and make this timer task configurable from the carbon.yaml
             checkServiceAvailabilityTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
@@ -135,9 +135,10 @@ public class RequireCapabilityCoordinator {
                             .forEach(key -> {
                                 synchronized (key.intern()) {
                                     if (capabilityProviderCounter.get(key) == 0 && capabilityCounter.get(key) > 0) {
-                                        logger.warn("Waiting on pending capability registration for {}", key);
+                                        logger.warn("Waiting on pending capability registration for ({})", key);
                                     } else if (capabilityProviderCounter.get(key) > 0) {
-                                        logger.warn("Waiting on pending capability provider registration for {}", key);
+                                        logger.warn("Waiting on pending capability provider registration for ({})",
+                                                key);
                                     }
                                 }
                             });

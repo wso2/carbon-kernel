@@ -51,7 +51,8 @@ public class PendingCapabilityRegistrationOSGiTest {
      * This configuration registers the capability "org.wso2.carbon.sample.transport.mgt.Transport" statically using
      * Provider-Capability header with "org.wso2.carbon.sample.transport.http" bundle and also dynamically registers
      * the same capability with the implementation of @see TransportServiceCapabilityProvider in
-     * "org.wso2.carbon.sample.transport.http" bundle. Since other
+     * "org.wso2.carbon.sample.transport.http" bundle. It also includes "transport.jetty" bundle which is used for
+     * testing the pending capability registration negative scenario.
      *
      * @return the bundle configurations that will be used for this test case.
      */
@@ -82,7 +83,7 @@ public class PendingCapabilityRegistrationOSGiTest {
         }
         ServiceReference reference = bundleContext.getServiceReference(TransportManager.class);
         //this reference should be null since TransportManager will not be registered due to missing capability
-        //registrations
+        //registrations from transport.jetty bundle.
         Assert.assertNull(reference, "Service reference of TransportManager should be null");
     }
 }
