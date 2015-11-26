@@ -109,7 +109,6 @@
     </build>
 
     <properties>
-        <obrrepository>NONE</obrrepository>
         <bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
         <private.package>org.wso2.carbon.kernel.internal.*,</private.package>
         <export.package>
