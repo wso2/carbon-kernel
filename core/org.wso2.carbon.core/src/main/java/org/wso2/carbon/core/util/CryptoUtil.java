@@ -15,7 +15,6 @@
  */
 package org.wso2.carbon.core.util;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -284,24 +283,6 @@ public class CryptoUtil {
 
             if (!isSymmetricKeyFromFile) {
                 throw new CryptoException("Error in generating symmetric key. Symmetric key is not available.");
-                /*generator = KeyGenerator.getInstance(encryptionAlgo);
-                SecretKey key = generator.generateKey();
-                symmetricKey = key;
-                byte[] symmetricKey = key.getEncoded();
-                String stringKey = Base64.encode(symmetricKey);
-
-                // TODO : store in registry (since this file may not be sync with other nodes)
-                if (!file.exists()) {
-                    file.createNewFile();
-                }
-                output = new FileOutputStream(file);
-                fileInputStream = new FileInputStream(file);
-                properties = new Properties();
-                properties.load(fileInputStream);
-                if (!properties.containsKey(propertyKey)) {
-                    properties.setProperty(propertyKey, stringKey);
-                    properties.store(output, null);
-                }*/
             }
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new CryptoException("Error in generating symmetric key", e);
