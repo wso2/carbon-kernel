@@ -284,7 +284,7 @@ public class CryptoUtil {
             }
 
             if (!isSymmetricKeyFromFile) {
-
+                throw new CryptoException("Error in generating symmetric key. Symmetric key is not available.");
                 /*generator = KeyGenerator.getInstance(encryptionAlgo);
                 SecretKey key = generator.generateKey();
                 symmetricKey = key;
