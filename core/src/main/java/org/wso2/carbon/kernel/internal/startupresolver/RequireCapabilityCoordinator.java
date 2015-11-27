@@ -191,7 +191,6 @@ public class RequireCapabilityCoordinator {
 
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
         if (bundleContext != null) {
-            //TODO close service trackers once all the service are available.
             final String serviceClazz = requiredServiceKey;
             ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<>(
                     bundleContext,
