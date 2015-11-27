@@ -61,7 +61,7 @@ public class CarbonDeploymentEngineOSGiTest {
     public Option[] createConfiguration() {
         Utils.setCarbonHome();
         Utils.setupMavenLocalRepo();
-        copyCarbonXML();
+        copyCarbonYAML();
         return Utils.getDefaultPaxOptions();
     }
 
@@ -153,21 +153,21 @@ public class CarbonDeploymentEngineOSGiTest {
     }
 
     /**
-     * Replace the existing carbon.xml file with populated carbon.xml file.
+     * Replace the existing carbon.yml file with populated carbon.xml file.
      */
-    private static void copyCarbonXML() {
-        Path carbonXmlFilePath;
+    private static void copyCarbonYAML() {
+        Path carbonYAMLFilePath;
 
         String basedir = System.getProperty("basedir");
         if (basedir == null) {
             basedir = Paths.get(".").toString();
         }
         try {
-            carbonXmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.xml");
-            Files.copy(carbonXmlFilePath, Paths.get(System.getProperty("carbon.home"), "repository", "conf",
-                    "carbon.xml"), StandardCopyOption.REPLACE_EXISTING);
+            carbonYAMLFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
+            Files.copy(carbonYAMLFilePath, Paths.get(System.getProperty("carbon.home"), "repository", "conf",
+                    "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.error("Unable to copy the carbon.xml file", e);
+            logger.error("Unable to copy the carbon.yml file", e);
         }
     }
 }
