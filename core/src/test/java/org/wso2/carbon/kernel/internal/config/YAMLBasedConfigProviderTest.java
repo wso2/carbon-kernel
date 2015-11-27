@@ -30,23 +30,23 @@ import org.wso2.carbon.kernel.deployment.BaseTest;
  *
  * @since 5.0.0
  */
-public class XMLBasedConfigProviderTest extends BaseTest {
+public class YAMLBasedConfigProviderTest extends BaseTest {
 
-    private XMLBasedConfigProvider xmlBasedConfigProvider;
+    private YAMLBasedConfigProvider yamlBasedConfigProvider;
 
-    public XMLBasedConfigProviderTest(String testName) {
+    public YAMLBasedConfigProviderTest(String testName) {
         super(testName);
     }
 
     @BeforeClass
     public void init() {
-        xmlBasedConfigProvider = new XMLBasedConfigProvider();
+        yamlBasedConfigProvider = new YAMLBasedConfigProvider();
     }
 
     @Test
     public void testGetCarbonConfigurationFailScenario() throws Exception {
         System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("wrongPath").getAbsolutePath());
-        CarbonConfiguration carbonConfiguration = xmlBasedConfigProvider.getCarbonConfiguration();
+        CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
         Assert.assertNull(carbonConfiguration);
         System.clearProperty(Constants.CARBON_REPOSITORY);
     }
@@ -54,9 +54,9 @@ public class XMLBasedConfigProviderTest extends BaseTest {
     @Test(dependsOnMethods = "testGetCarbonConfigurationFailScenario")
     public void testGetCarbonConfiguration() throws Exception {
         String backupRepoLocation = System.getProperty(Constants.CARBON_REPOSITORY);
-        System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("xsd").getAbsolutePath());
+        System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("yaml").getAbsolutePath());
 
-        CarbonConfiguration carbonConfiguration = xmlBasedConfigProvider.getCarbonConfiguration();
+        CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
 
         Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
         Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");

@@ -25,15 +25,6 @@ import org.wso2.carbon.kernel.Constants;
 public class Utils {
 
     /**
-     * returns the carbon.xml location.
-     *
-     * @return String carbon.xml location
-     */
-    public static String getCarbonXMLLocation() {
-        return org.wso2.carbon.kernel.utils.Utils.getCarbonConfigHome().resolve(Constants.CARBON_CONFIG_XML).toString();
-    }
-
-    /**
      * Returns the carbon.yml location.
      *
      * @return String carbon.yml location

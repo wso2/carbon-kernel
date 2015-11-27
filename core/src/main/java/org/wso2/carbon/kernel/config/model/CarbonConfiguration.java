@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * CarbonConfiguration class holds static configuration parameters specified in the carbon.xml file.
+ * CarbonConfiguration class holds static configuration parameters specified in the carbon.yml file.
  *
  * @since 5.0.0
  */
