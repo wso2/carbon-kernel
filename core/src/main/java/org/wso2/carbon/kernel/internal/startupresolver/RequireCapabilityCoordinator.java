@@ -108,7 +108,7 @@ public class RequireCapabilityCoordinator {
 
             // 3) Schedule a timer to tack service registrations which have happend before populating the counter as
             //      well as to clear all the listeners with zero available services in the runtime.
-            // TODO find a way to stop this timer. make this timer task configurable from the carbon.xml
+            // TODO find a way to stop this timer. make this timer task configurable from the carbon.yml
             checkServiceAvailabilityTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {

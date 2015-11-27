@@ -153,7 +153,7 @@ public class CarbonDeploymentEngineOSGiTest {
     }
 
     /**
-     * Replace the existing carbon.yml file with populated carbon.xml file.
+     * Replace the existing carbon.yml file with populated carbon.yml file.
      */
     private static void copyCarbonYAML() {
         Path carbonYAMLFilePath;
