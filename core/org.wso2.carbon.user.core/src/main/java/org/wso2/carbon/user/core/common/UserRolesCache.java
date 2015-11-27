@@ -23,6 +23,7 @@ import org.wso2.carbon.user.api.UserStoreException;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.internal.UserStoreMgtDSComponent;
+import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -166,7 +167,7 @@ public class UserRolesCache {
                 UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
                         .getTenantUserRealm(tenantId).getUserStoreManager();
                 UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                        (getDomainFromName(username));
+                        (removeUserInRoleIdentifier(UserCoreUtil.extractDomainFromName(username)));
                 if (userAvailableUserStoreManager instanceof AbstractUserStoreManager) {
                     return ((AbstractUserStoreManager) userAvailableUserStoreManager).isCaseSensitiveUsername();
                 } else {
@@ -181,12 +182,11 @@ public class UserRolesCache {
         return false;
     }
 
-    private String getDomainFromName(String name) {
-        int index;
-        if ((index = name.indexOf("/")) > 0) {
-            String domain = name.substring(0, index);
-            return domain;
+    private String removeUserInRoleIdentifier(String modifiedName) {
+        String originalName = modifiedName;
+        if (originalName.contains(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER)) {
+            originalName = modifiedName.replace(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER, "");
         }
-        return UserCoreConstants.PRIMARY_DEFAULT_DOMAIN_NAME;
+        return originalName;
     }
 }
