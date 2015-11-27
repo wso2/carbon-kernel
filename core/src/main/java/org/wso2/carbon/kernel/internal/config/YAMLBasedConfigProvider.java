@@ -25,9 +25,7 @@ import org.yaml.snakeyaml.introspector.BeanAccess;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 
 /**
  * This class takes care of parsing the carbon.yml file and creating the CarbonConfiguration object model.
@@ -44,7 +42,7 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
      */
     public CarbonConfiguration getCarbonConfiguration() {
         String configFileLocation = Utils.getCarbonYAMLLocation();
-        try (Reader in = new InputStreamReader(new FileInputStream(configFileLocation), StandardCharsets.ISO_8859_1)) {
+        try (InputStream in = new FileInputStream(configFileLocation)) {
             Yaml yaml = new Yaml();
             yaml.setBeanAccess(BeanAccess.FIELD);
             return yaml.loadAs(in, CarbonConfiguration.class);
