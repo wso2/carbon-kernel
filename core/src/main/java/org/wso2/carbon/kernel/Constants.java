@@ -26,7 +26,7 @@ public final class Constants {
     public static final String CARBON_REPOSITORY_PATH_ENV = "CARBON_REPOSITORY";
     public static final String CARBON_HOME = "carbon.home";
     public static final String CARBON_HOME_ENV = "CARBON_HOME";
-    public static final String CARBON_CONFIG_XML = "carbon.xml";
+    public static final String CARBON_CONFIG_YAML = "carbon.yml";
 
     /**
      * Remove default constructor and make it not available to initialize.

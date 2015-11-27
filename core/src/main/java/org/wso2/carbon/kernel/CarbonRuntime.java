@@ -32,7 +32,7 @@ public interface CarbonRuntime {
 
     /**
      * Returns the CarbonConfiguration instance. It holds static configuration items specified
-     * in the carbon.xml file.
+     * in the carbon.yml file.
      *
      * @return the carbon configuration
      * @see CarbonConfiguration
