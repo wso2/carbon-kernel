@@ -168,7 +168,7 @@ public class UserRolesCache {
                     UserStoreManager userStoreManager = (UserStoreManager) UserStoreMgtDSComponent.getRealmService()
                             .getTenantUserRealm(tenantId).getUserStoreManager();
                     UserStoreManager userAvailableUserStoreManager = userStoreManager.getSecondaryUserStoreManager
-                            (UserCoreUtil.extractDomainFromName(username));
+                            (removeUserInRoleIdentifier(UserCoreUtil.extractDomainFromName(username)));
                     String isUsernameCaseInsensitiveString = userAvailableUserStoreManager.getRealmConfiguration()
                             .getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
                     return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
@@ -182,5 +182,13 @@ public class UserRolesCache {
             }
         }
         return true;
+    }
+
+    private String removeUserInRoleIdentifier(String modifiedName){
+        String originalName = modifiedName;
+        if(originalName.contains(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER)) {
+            originalName = modifiedName.replace(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER, "");
+        }
+        return originalName;
     }
 }
