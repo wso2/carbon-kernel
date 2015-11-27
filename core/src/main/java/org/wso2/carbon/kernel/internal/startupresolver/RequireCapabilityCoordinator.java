@@ -73,6 +73,7 @@ public class RequireCapabilityCoordinator {
 
     private AtomicInteger requiredCapabilityListenerCount = new AtomicInteger(0);
     private Map<String, RequiredCapabilityListener> listenerMap = new ConcurrentHashMap<>();
+    private Map<String, ServiceTracker> capabilityTrackerMap = new ConcurrentHashMap<>();
     private MultiCounter<String> capabilityCounter = new MultiCounter<>();
     private MultiCounter<String> capabilityProviderCounter = new MultiCounter<>();
 
@@ -121,6 +122,7 @@ public class RequireCapabilityCoordinator {
                                     logger.debug("Invoking listener ({}) as all its required capabilities are " +
                                             "available for ({})", listenerMap.get(key).getClass().getName(), key);
                                     listenerMap.remove(key).onAllRequiredCapabilitiesAvailable();
+                                    closeCapabilityTracker(key);
                                 }
                             });
                 }
@@ -217,11 +219,26 @@ public class RequireCapabilityCoordinator {
                         }
                     });
             serviceTracker.open();
+            capabilityTrackerMap.put(requiredServiceKey, serviceTracker);
         }
     }
 
     public void deregisterRequireCapabilityListener(RequiredCapabilityListener listener,
                                                     Map<String, String> propertyMap) {
+    }
+
+    /**
+     * Closes the service tracker instance opened for the given capability name.
+     *
+     * @param capabilityName the key in which capability service trackers are mapped against.
+     */
+    private void closeCapabilityTracker(String capabilityName) {
+        if (capabilityTrackerMap.containsKey(capabilityName) && capabilityTrackerMap.get(capabilityName) != null) {
+            logger.debug("Closing service tracker instance for ({}) capability", capabilityName);
+            capabilityTrackerMap.remove(capabilityName).close();
+        } else {
+            logger.warn("A service tracker instance is not found for ({}) capability", capabilityName);
+        }
     }
 
     /**
