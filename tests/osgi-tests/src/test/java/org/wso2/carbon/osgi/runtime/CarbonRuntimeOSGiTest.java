@@ -119,7 +119,7 @@ public class CarbonRuntimeOSGiTest {
             Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "repository", "conf",
                     "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.error("Unable to copy the carbon.xml file", e);
+            logger.error("Unable to copy the carbon.yml file", e);
         }
     }
 }
