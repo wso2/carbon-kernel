@@ -106,9 +106,9 @@ public class RequireCapabilityCoordinator {
                 return;
             }
 
-            // 3) Schedule a timer to tack service registrations which have happend before populating the counter as
+            // 3) Schedule a timer to tack service registrations which have happened before populating the counter as
             //      well as to clear all the listeners with zero available services in the runtime.
-            // TODO find a way to stop this timer. make this timer task configurable from the carbon.yml
+            // TODO find a way to stop these timers and make this timer task configurable from the carbon.yaml
             checkServiceAvailabilityTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
@@ -118,15 +118,32 @@ public class RequireCapabilityCoordinator {
                                     capabilityProviderCounter.get(key) == 0)
                             .forEach(key -> {
                                 synchronized (key.intern()) {
-                                    logger.debug("Invoking {} from checkServiceAvailabilityTimer as its required " +
-                                            "capabilities are all available", key);
+                                    logger.debug("Invoking listener ({}) as all its required capabilities are " +
+                                            "available for ({})", listenerMap.get(key).getClass().getName(), key);
                                     listenerMap.remove(key).onAllRequiredCapabilitiesAvailable();
                                 }
                             });
                 }
             }, 200, 200);
 
-            // TODO 4) Start a timer to track pending service registrations.
+            // 4) Start a timer to track pending service registrations.
+            pendingServiceTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    listenerMap.keySet()
+                            .stream()
+                            .forEach(key -> {
+                                synchronized (key.intern()) {
+                                    if (capabilityProviderCounter.get(key) == 0 && capabilityCounter.get(key) > 0) {
+                                        logger.warn("Waiting on pending capability registration for ({})", key);
+                                    } else if (capabilityProviderCounter.get(key) > 0) {
+                                        logger.warn("Waiting on pending capability provider registration for ({})",
+                                                key);
+                                    }
+                                }
+                            });
+                }
+            }, 60000, 30000);
         } catch (Throwable e) {
             logger.error("Error occurred while processing Provide-Capability manifest headers", e);
             throw e;
@@ -166,7 +183,7 @@ public class RequireCapabilityCoordinator {
             requiredServiceKey = requiredServiceKey.trim();
         }
 
-        logger.debug("Updating listenerMap for {}, from {}", requiredServiceKey, listener.getClass().getName());
+        logger.debug("Updating listenerMap for ({}), from ({})", requiredServiceKey, listener.getClass().getName());
 
         listenerMap.put(requiredServiceKey, listener);
 
@@ -182,8 +199,8 @@ public class RequireCapabilityCoordinator {
                         public Object addingService(ServiceReference<Object> reference) {
                             synchronized (serviceClazz.intern()) {
                                 int count = capabilityCounter.decrementAndGet(serviceClazz);
-                                logger.debug("Decrementing count for {} from serviceTracker on required " +
-                                                "capabilities service registration for {} . Current count is {}",
+                                logger.debug("Decrementing count for ({}) from serviceTracker on required " +
+                                                "capability registration from ({}). Current count is {}",
                                         serviceClazz, listener.getClass().getName(), count);
                             }
                             return bundleContext.getService(reference);
@@ -230,14 +247,14 @@ public class RequireCapabilityCoordinator {
                     provider.getClass().getName());
         } else {
             final String capabilityName = dynamicCapabilityName.trim();
-            logger.debug("Updating CapabilityCounter with Capability-Name : {} , Capability-Count : {}",
+            logger.debug("Updating CapabilityCounter with Capability-Name : ({}) , Capability-Count : {}",
                     capabilityName, provider.getCount());
             int providerCount = capabilityProviderCounter.decrementAndGet(capabilityName);
-            logger.debug("Current provider count for {} capability is {}", capabilityName, providerCount);
+            logger.debug("Current provider count for ({}) capability is {}", capabilityName, providerCount);
             IntStream.range(0, provider.getCount()).forEach(
                     count -> {
                         int currentCount = capabilityCounter.incrementAndGet(capabilityName);
-                        logger.debug("Current count for {} capability is {}", capabilityName, currentCount);
+                        logger.debug("Current count for ({}) capability is {}", capabilityName, currentCount);
                     }
             );
         }
@@ -255,11 +272,8 @@ public class RequireCapabilityCoordinator {
     private static class ProvideCapabilityHeaderFilter<T extends Bundle> implements Predicate<T> {
         @Override
         public boolean test(T bundle) {
-            return AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-                public Boolean run() {
-                    return bundle.getHeaders(PROVIDE_CAPABILITY).get(PROVIDE_CAPABILITY) != null;
-                }
-            });
+            return AccessController.doPrivileged((PrivilegedAction<Boolean>) () ->
+                    bundle.getHeaders(PROVIDE_CAPABILITY).get(PROVIDE_CAPABILITY) != null);
         }
     }
 
@@ -271,11 +285,8 @@ public class RequireCapabilityCoordinator {
     private class ProvideCapabilityHeaderConsumer<T extends Bundle> implements Consumer<T> {
         @Override
         public void accept(T bundle) {
-            String headerValue = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                public String run() {
-                    return bundle.getHeaders(PROVIDE_CAPABILITY).get(PROVIDE_CAPABILITY);
-                }
-            });
+            String headerValue = AccessController.doPrivileged((PrivilegedAction<String>) () ->
+                    bundle.getHeaders(PROVIDE_CAPABILITY).get(PROVIDE_CAPABILITY));
             try {
                 ManifestElement[] elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, headerValue);
                 Arrays.asList(elements)
@@ -284,18 +295,18 @@ public class RequireCapabilityCoordinator {
                         .forEach(element -> {
                             if (RequiredCapabilityListener.class.getName().
                                     equals(element.getAttribute("objectClass"))) {
-                                logger.debug("Adding Capability-Listener {} to watch list from bundle ({})",
+                                logger.debug("Adding Capability-Listener ({}) to watch list from bundle ({})",
                                         element.getAttribute("objectClass"), bundle.getSymbolicName());
                                 requiredCapabilityListenerCount.incrementAndGet();
                             } else if (CapabilityProvider.class.getName().equals(element.getAttribute("objectClass"))) {
                                 String capability = element.getAttribute(CAPABILITY_NAME);
-                                if (!capability.isEmpty()) {
-                                    logger.debug("Adding Capability-Provider for {} to watch list from bundle ({})",
+                                if (capability != null && !capability.isEmpty()) {
+                                    logger.debug("Adding Capability-Provider for ({}) to watch list from bundle ({})",
                                             capability, bundle.getSymbolicName());
                                     capabilityProviderCounter.incrementAndGet(capability.trim());
                                 }
                             } else {
-                                logger.debug("Updating Capability-Counter for {} from bundle ({})",
+                                logger.debug("Updating Capability-Counter for ({}) from bundle ({})",
                                         element.getAttribute("objectClass"), bundle.getSymbolicName());
                                 capabilityCounter.incrementAndGet(element.getAttribute("objectClass"));
                             }
