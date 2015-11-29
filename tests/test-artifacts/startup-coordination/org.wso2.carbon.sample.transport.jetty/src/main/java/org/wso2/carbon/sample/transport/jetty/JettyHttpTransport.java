@@ -13,25 +13,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel;
+package org.wso2.carbon.sample.transport.jetty;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wso2.carbon.sample.transport.mgt.Transport;
 
 /**
- * Carbon Constants.
+ * A jetty based http transport implementation to test the dynamic registration of transport implementations and the
+ * startup order resolver implementation.
  *
  * @since 5.0.0
  */
-public final class Constants {
+public class JettyHttpTransport implements Transport {
+    private static final Logger logger = LoggerFactory.getLogger(JettyHttpTransport.class);
 
-    public static final String CARBON_REPOSITORY = "carbon.repository";
-    public static final String CARBON_REPOSITORY_PATH_ENV = "CARBON_REPOSITORY";
-    public static final String CARBON_HOME = "carbon.home";
-    public static final String CARBON_HOME_ENV = "CARBON_HOME";
-    public static final String CARBON_CONFIG_YAML = "carbon.yml";
+    @Override
+    public void start() {
+        logger.info("Transport service : " + this.getClass().getName());
+    }
 
-    /**
-     * Remove default constructor and make it not available to initialize.
-     */
-    private Constants() {
-        throw new AssertionError("Trying to a instantiate a constant class");
+    @Override
+    public void stop() {
+
     }
 }

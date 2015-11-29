@@ -37,7 +37,7 @@ this directory.
 
 		-Dcarbon.repository=[path]
 				Overwrite the conf directory path where we keep all 
-				configuration files like carbon.xml, etc.
+				configuration files like carbon.yml, etc.
 
 4. carbonjartobundle.sh script
     - The script file which runs the org.wso2.carbon.jartobundle-tool.jar tool.
