@@ -32,7 +32,7 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
         name = "org.wso2.carbon.sample.deployer.mgt.DeployerServicesListener",
         immediate = true,
         service = RequiredCapabilityListener.class,
-        property = "required-service-interface=org.wso2.carbon.sample.deployer.mgt.Deployer"
+        property = "capability-name=org.wso2.carbon.sample.deployer.mgt.Deployer"
 )
 public class DeployerServicesListener implements RequiredCapabilityListener {
     private static final Logger logger = LoggerFactory.getLogger(DeployerServicesListener.class);

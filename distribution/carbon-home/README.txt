@@ -66,7 +66,7 @@ Carbon Binary Distribution Directory Structure
           Contains all OSGi related libraries and configurations.
 
         - conf
-          Contains server configuration files. Ex: carbon.xml
+          Contains server configuration files. Ex: carbon.yml
 
         - deployment
 	      All deployment artifacts should go into this directory.

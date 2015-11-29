@@ -66,6 +66,10 @@
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -105,39 +109,27 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Activator>
-                            org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator
-                        </Bundle-Activator>
-                        <Private-Package>
-                            org.wso2.carbon.kernel.internal.*,
-                        </Private-Package>
-                        <Export-Package>
-                            !org.wso2.carbon.kernel.internal,
-                            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
-                        </Export-Package>
-                        <Import-Package>
-                            org.eclipse.osgi.util,
-                            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-                            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
-                            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
-                            javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
-                            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
-                            org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
-                            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-                        </Import-Package>
-                        <_dsannotations>*</_dsannotations>
-                    </instructions>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
+        <private.package>org.wso2.carbon.kernel.internal.*,</private.package>
+        <export.package>
+            !org.wso2.carbon.kernel.internal,
+            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
+        </export.package>
+        <import.package>
+            org.eclipse.osgi.util,
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
+            javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
+            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
+            org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
+            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
+            org.yaml.snakeyaml.*;version="${org.snakeyaml.version.range}"
+        </import.package>
+    </properties>
 
 </project>

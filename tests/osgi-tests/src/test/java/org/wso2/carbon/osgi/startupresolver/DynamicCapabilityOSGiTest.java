@@ -63,6 +63,8 @@ public class DynamicCapabilityOSGiTest {
                 mavenBundle().artifactId("org.wso2.carbon.sample.transport.http").groupId(
                         "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.transport.custom").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.transport.jms").groupId(
                         "org.wso2.carbon").versionAsInProject()
         );
 
@@ -71,7 +73,7 @@ public class DynamicCapabilityOSGiTest {
 
     @Test
     public void testCoordinationWithDynamicAndStaticCapability() {
-        int expectedTransportCount = 4;
+        int expectedTransportCount = 6;
         int actualTransportCount = transportManager.getTransportCount();
         Assert.assertEquals(actualTransportCount, expectedTransportCount, "Transport count is not correct");
     }

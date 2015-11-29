@@ -32,7 +32,7 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
         name = "org.wso2.carbon.sample.runtime.mgt.RuntimeServicesListener",
         immediate = true,
         service = RequiredCapabilityListener.class,
-        property = "required-service-interface=org.wso2.carbon.sample.runtime.mgt.Runtime"
+        property = "capability-name=org.wso2.carbon.sample.runtime.mgt.Runtime"
 )
 public class RuntimeServicesListener implements RequiredCapabilityListener {
     private static final Logger logger = LoggerFactory.getLogger(RuntimeServicesListener.class);
