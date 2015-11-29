@@ -29,6 +29,8 @@
 
     <modules>
         <module>org.wso2.carbon.sample.transport.http</module>
+        <module>org.wso2.carbon.sample.transport.jms</module>
+        <module>org.wso2.carbon.sample.transport.jetty</module>
         <module>org.wso2.carbon.sample.transport.custom</module>
         <module>org.wso2.carbon.sample.transport.mgt</module>
         <module>org.wso2.carbon.sample.runtime.mgt</module>
@@ -36,6 +38,7 @@
         <module>org.wso2.carbon.sample.runtime.webapp</module>
         <module>org.wso2.carbon.sample.runtime.jar</module>
         <module>org.wso2.carbon.sample.runtime.bps</module>
+        <module>org.wso2.carbon.sample.runtime.custom</module>
         <module>org.wso2.carbon.sample.deployer.mgt</module>
 
     </modules>

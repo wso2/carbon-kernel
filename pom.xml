@@ -555,6 +555,11 @@
                 <artifactId>commons-io</artifactId>
                 <version>${commons.io.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.orbit.org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${org.snakeyaml.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -582,6 +587,7 @@
         </osgi.service.tracker.package.import.version.range>
         <osgi.framework.console.package.import.version.range>[1.1.0,2.0.0)
         </osgi.framework.console.package.import.version.range>
+        <org.snakeyaml.version.range>[1.16.0,2.0.0)</org.snakeyaml.version.range>
 
         <!-- Equinox dependency versions -->
         <osgi.core.api.version>6.0.0</osgi.core.api.version>
@@ -664,5 +670,6 @@
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
+        <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
     </properties>
 </project>
