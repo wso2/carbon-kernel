@@ -40,7 +40,7 @@ import java.util.Map;
 @Component(
         name = "org.wso2.carbon.kernel.internal.transports.TransportServiceComponent",
         immediate = true,
-        property = "required-service-interface=org.wso2.carbon.kernel.transports.CarbonTransport"
+        property = "capability-name=org.wso2.carbon.kernel.transports.CarbonTransport"
 )
 public class TransportServiceListenerComponent implements RequiredCapabilityListener {
     private static final Logger logger = LoggerFactory.getLogger(TransportServiceListenerComponent.class);

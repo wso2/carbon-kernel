@@ -15,10 +15,11 @@ import java.util.stream.IntStream;
  * @since 5.0.0
  */
 @Component(
-        name = "org.wso2.carbon.sample.transport.http.TransportServiceComponent",
-        immediate = true
+        name = "org.wso2.carbon.sample.transport.http.CustomTransportServiceCapabilityProvider",
+        immediate = true,
+        property = "capability-name=org.wso2.carbon.sample.transport.mgt.Transport"
 )
-public class TransportServiceCapabilityProvider implements CapabilityProvider {
+public class CustomTransportServiceCapabilityProvider implements CapabilityProvider {
     private static final int customTransportServiceCount = 3;
 
     @Activate
@@ -26,11 +27,6 @@ public class TransportServiceCapabilityProvider implements CapabilityProvider {
         IntStream.range(0, customTransportServiceCount).forEach(
                 count -> bundleContext.registerService(Transport.class, new CustomTransport(), null)
         );
-    }
-
-    @Override
-    public String getName() {
-        return Transport.class.getName();
     }
 
     @Override
