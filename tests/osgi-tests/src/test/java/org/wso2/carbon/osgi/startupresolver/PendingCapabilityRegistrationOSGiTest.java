@@ -15,20 +15,13 @@
  */
 package org.wso2.carbon.osgi.startupresolver;
 
-import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
-import org.ops4j.pax.exam.spi.reactors.PerClass;
-import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.testng.Assert;
-import org.testng.annotations.Listeners;
 import org.wso2.carbon.osgi.util.Utils;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
-
-import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
@@ -39,11 +32,9 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  *
  * @since 5.0.0
  */
-@Listeners(PaxExam.class)
-@ExamReactorStrategy(PerClass.class)
+//TODO : Disabling this until we fix CARBON-15664
 public class PendingCapabilityRegistrationOSGiTest {
 
-    @Inject
     private BundleContext bundleContext;
 
     /**
@@ -55,7 +46,6 @@ public class PendingCapabilityRegistrationOSGiTest {
      *
      * @return the bundle configurations that will be used for this test case.
      */
-    @Configuration
     public Option[] createConfiguration() {
         Utils.setCarbonHome();
         Utils.setupMavenLocalRepo();
