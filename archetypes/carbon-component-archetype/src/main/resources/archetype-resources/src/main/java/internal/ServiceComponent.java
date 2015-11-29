@@ -3,6 +3,7 @@ package ${package}.internal;
 import ${package}.Greeter;
 import ${package}.GreeterImpl;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
