@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 public class ServiceComponent {
 
     Logger logger = Logger.getLogger(ServiceComponent.class.getName());
+    private ServiceRegistration serviceRegistration;
 
     /**
      * This is the activation method of ServiceComponent. This will be called when its references are
@@ -38,7 +39,7 @@ public class ServiceComponent {
         logger.info("Service Component is activated");
 
         // Register GreeterImpl instance as an OSGi service.
-        bundleContext.registerService(Greeter.class.getName(), new GreeterImpl("WSO2"), null);
+        serviceRegistration = bundleContext.registerService(Greeter.class.getName(), new GreeterImpl("WSO2"), null);
     }
 
     /**
@@ -50,6 +51,9 @@ public class ServiceComponent {
     @Deactivate
     protected void stop() throws Exception {
         logger.info("Service Component is deactivated");
+
+        // Unregister Greeter OSGi service
+        serviceRegistration.unregister();
     }
 
     /**
