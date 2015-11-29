@@ -25,7 +25,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
-import org.testng.annotations.Test;
 import org.wso2.carbon.osgi.util.Utils;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
 
@@ -73,7 +72,7 @@ public class PendingCapabilityRegistrationOSGiTest {
         return Utils.getDefaultPaxOptions(options);
     }
 
-    @Test
+    //TODO : Disabling this until we fix CARBON-15664
     public void testPendingCapabilityRegistration() {
         //waiting for more than 1 min to check whether transport manager is registered as a service.
         try {
