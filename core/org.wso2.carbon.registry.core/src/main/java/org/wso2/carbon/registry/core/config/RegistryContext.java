@@ -1083,11 +1083,7 @@ public class RegistryContext {
      * @return true if caching is disabled or false if not.
      */
     public boolean isNoCachePath(String path) {
-        if (noCachePaths.contains(path)) {
-            return true;
-        } else {
-            return false;
-        }
+        return noCachePaths.contains(path);
     }
 
     /**
