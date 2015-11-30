@@ -15,10 +15,8 @@
  */
 package org.wso2.carbon.kernel.internal.startupresolver;
 
-import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.kernel.utils.ManifestElement;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -327,7 +326,7 @@ public class RequireCapabilityCoordinator {
                                 capabilityCounter.incrementAndGet(element.getAttribute("objectClass"));
                             }
                         });
-            } catch (BundleException e) {
+            } catch (Exception e) {
                 logger.error("Error occurred while parsing the {} header in bundle {}",
                         PROVIDE_CAPABILITY, bundle.getSymbolicName(), e);
             }
