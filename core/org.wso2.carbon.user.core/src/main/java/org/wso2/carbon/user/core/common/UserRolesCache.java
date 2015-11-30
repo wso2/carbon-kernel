@@ -184,9 +184,9 @@ public class UserRolesCache {
         return true;
     }
 
-    private String removeUserInRoleIdentifier(String modifiedName){
+    private String removeUserInRoleIdentifier(String modifiedName) {
         String originalName = modifiedName;
-        if(originalName.contains(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER)) {
+        if (originalName.contains(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER)) {
             originalName = modifiedName.replace(UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER, "");
         }
         return originalName;
