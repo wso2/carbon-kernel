@@ -1,3 +1,18 @@
+/*
+ *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.wso2.carbon.kernel.utils;
 
 import java.util.ArrayList;
@@ -5,6 +20,9 @@ import java.util.List;
 
 /**
  * Simple tokenizer class. Used to parse data.
+ * This class is taken from org.eclipse.osgi.framework.internal.core
+ *
+ * @since 5.0.0
  */
 public class Tokenizer {
     protected char value[];
@@ -50,9 +68,9 @@ public class Tokenizer {
             while (count > 0 && (val[begin + count - 1] == ' ' || val[begin + count - 1] == '\t')) {
                 count--;
             }
-            return (new String(val, begin, count));
+            return new String(val, begin, count);
         }
-        return (null);
+        return null;
     }
 
     public String getEscapedToken(String terminals) {
@@ -61,7 +79,7 @@ public class Tokenizer {
         if (cur >= max) {
             return null;
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         char c;
         for (; cur < max; cur++) {
             c = val[cur];
@@ -83,7 +101,7 @@ public class Tokenizer {
     }
 
     public List<String> getEscapedTokens(String terminals) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (String token = getEscapedToken(terminals); token != null; token = getEscapedToken(terminals)) {
             result.add(token);
             getChar(); // consume terminal
@@ -98,7 +116,7 @@ public class Tokenizer {
 
         if (cur < max) {
             if (val[cur] == '\"') { /* if a quoted string */
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 cur++; /* skip quote */
                 char c = '\0';
                 int begin = cur;
@@ -132,7 +150,7 @@ public class Tokenizer {
                 return getToken(terminals);
             }
         }
-        return (null);
+        return null;
     }
 
     public String getString(String terminals) {
@@ -149,9 +167,6 @@ public class Tokenizer {
     }
 
     public boolean hasMoreTokens() {
-        if (cursor < max) {
-            return true;
-        }
-        return false;
+        return cursor < max;
     }
 }

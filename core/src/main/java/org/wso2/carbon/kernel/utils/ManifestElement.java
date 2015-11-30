@@ -1,13 +1,26 @@
+/*
+ *  Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.wso2.carbon.kernel.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -75,13 +88,15 @@ import java.util.StringTokenizer;
  * <p>
  * This class is not intended to be subclassed by clients.
  * </p>
+ * This class is taken from org.eclipse.osgi.util
  *
- * @since 3.0
+ * @since 5.0.0
  */
 public class ManifestElement {
 
     private static final Logger logger = LoggerFactory.getLogger(ManifestElement.class);
 
+    private static final String MANIFEST_INVALID_HEADER_EXCEPTION = "Invalid header found.";
     /**
      * The value of the manifest element.
      */
@@ -258,7 +273,7 @@ public class ManifestElement {
         directives = addTableValue(directives, key, value);
     }
 
-    /*
+    /**
      * Return the last value associated with the given key in the specified table.
      */
     private String getTableValue(Hashtable<String, Object> table, String key) {
@@ -273,7 +288,6 @@ public class ManifestElement {
             return (String) result;
         }
 
-        @SuppressWarnings("unchecked")
         List<String> valueList = (List<String>) result;
         //return the last value
         return valueList.get(valueList.size() - 1);
@@ -293,7 +307,6 @@ public class ManifestElement {
         if (result instanceof String) {
             return new String[]{(String) result};
         }
-        @SuppressWarnings("unchecked")
         List<String> valueList = (List<String>) result;
         return valueList.toArray(new String[valueList.size()]);
     }
@@ -308,12 +321,11 @@ public class ManifestElement {
         return table.keys();
     }
 
-    /*
+    /**
      * Add the given key/value association to the specified table. If an entry already exists
      * for this key, then create an array list from the current value (if necessary) and
      * append the new value to the end of the list.
      */
-    @SuppressWarnings("unchecked")
     private Hashtable<String, Object> addTableValue(Hashtable<String, Object> table, String key, String value) {
         if (table == null) {
             table = new Hashtable<>(7);
@@ -352,37 +364,37 @@ public class ManifestElement {
         if (value == null) {
             return new ManifestElement[]{};
         }
-        List<ManifestElement> headerElements = new ArrayList<ManifestElement>(10);
+        List<ManifestElement> headerElements = new ArrayList<>(10);
         Tokenizer tokenizer = new Tokenizer(value);
-        parseloop:
         while (true) {
-            String next = tokenizer.getString(";,"); //$NON-NLS-1$
+            String next = tokenizer.getString(";,");
             if (next == null) {
-                throw new Exception("Msg.MANIFEST_INVALID_HEADER_EXCEPTION");
+                throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
             }
-            List<String> headerValues = new ArrayList<String>();
-            StringBuffer headerValue = new StringBuffer(next);
+            List<String> headerValues = new ArrayList<>();
+            StringBuilder headerValue = new StringBuilder(next);
             headerValues.add(next);
 
-            logger.debug("parseHeader: " + next); //$NON-NLS-1$
+            logger.debug("parseHeader: " + next);
             boolean directive = false;
             char c = tokenizer.getChar();
             // Header values may be a list of ';' separated values.  Just append them all into one value until the
             // first '=' or ','
             while (c == ';') {
-                next = tokenizer.getString(";,=:"); //$NON-NLS-1$
+                next = tokenizer.getString(";,=:");
                 if (next == null) {
-                    throw new Exception("MANIFEST_INVALID_HEADER_EXCEPTION");
+                    throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
                 }
                 c = tokenizer.getChar();
                 while (c == ':') { // may not really be a :=
                     c = tokenizer.getChar();
                     if (c != '=') {
-                        String restOfNext = tokenizer.getToken(";,=:"); //$NON-NLS-1$
+                        String restOfNext = tokenizer.getToken(";,=:");
                         if (restOfNext == null) {
-                            throw new Exception("MANIFEST_INVALID_HEADER_EXCEPTION");
+                            throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " +
+                                    value);
                         }
-                        next = next.concat(":" + c + restOfNext); //$NON-NLS-1$
+                        next = next.concat(":" + c + restOfNext);
                         c = tokenizer.getChar();
                     } else {
                         directive = true;
@@ -405,7 +417,8 @@ public class ManifestElement {
                     if (c != '=') {
                         String restOfNext = tokenizer.getToken("=:"); //$NON-NLS-1$
                         if (restOfNext == null) {
-                            throw new Exception("MANIFEST_INVALID_HEADER_EXCEPTION");
+                            throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " +
+                                    value);
                         }
                         next = next.concat(":" + c + restOfNext);
                         c = tokenizer.getChar();
@@ -415,21 +428,21 @@ public class ManifestElement {
                 }
                 // determine if the attribute is the form attr:List<type>
                 String preserveEscapes = null;
-                if (!directive && next.indexOf("List") > 0) { //$NON-NLS-1$
+                if (!directive && next.indexOf("List") > 0) {
                     Tokenizer listTokenizer = new Tokenizer(next);
-                    String attrKey = listTokenizer.getToken(":"); //$NON-NLS-1$
+                    String attrKey = listTokenizer.getToken(":");
                     if (attrKey != null && listTokenizer.getChar() == ':' && "List"
-                            .equals(listTokenizer.getToken("<"))) { //$NON-NLS-1$//$NON-NLS-2$
+                            .equals(listTokenizer.getToken("<"))) {
                         // we assume we must preserve escapes for , and "
-                        preserveEscapes = "\\,"; //$NON-NLS-1$
+                        preserveEscapes = "\\,";
                     }
                 }
-                String val = tokenizer.getString(";,", preserveEscapes); //$NON-NLS-1$
+                String val = tokenizer.getString(";,", preserveEscapes);
                 if (val == null) {
-                    throw new Exception("MANIFEST_INVALID_HEADER_EXCEPTION");
+                    throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
                 }
 
-                logger.debug(";" + next + "=" + val); //$NON-NLS-1$ //$NON-NLS-2$
+                logger.debug(";" + next + "=" + val);
                 try {
                     if (directive) {
                         manifestElement.addDirective(next, val);
@@ -438,25 +451,26 @@ public class ManifestElement {
                     }
                     directive = false;
                 } catch (Exception e) {
-                    throw new Exception("MANIFEST_INVALID_HEADER_EXCEPTION");
+                    throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
                 }
                 c = tokenizer.getChar();
                 if (c == ';') /* more */ {
                     next = tokenizer.getToken("=:"); //$NON-NLS-1$
                     if (next == null) {
-                        throw new Exception("MANIFEST_INVALID_HEADER_EXCEPTION");
+                        throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " +
+                                value);
                     }
                     c = tokenizer.getChar();
                 }
             }
             headerElements.add(manifestElement);
             if (c == ',') { /* another manifest element */
-                continue parseloop;
+                continue;
             }
             if (c == '\0') { /* end of value */
-                break parseloop;
+                break;
             }
-            throw new Exception("MANIFEST_INVALID_HEADER_EXCEPTION");
+            throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
         }
         int size = headerElements.size();
         if (size == 0) {
@@ -474,7 +488,7 @@ public class ManifestElement {
      * @return the array of string tokens or <code>null</code> if there are none
      */
     public static String[] getArrayFromList(String stringList) {
-        String[] result = getArrayFromList(stringList, ","); //$NON-NLS-1$
+        String[] result = getArrayFromList(stringList, ",");
         return result.length == 0 ? null : result;
     }
 
@@ -486,13 +500,12 @@ public class ManifestElement {
      * @param separator  the separator to use to split the list into tokens.
      * @return the array of string tokens.  If there are none then an empty array
      * is returned.
-     * @since 3.2
      */
     public static String[] getArrayFromList(String stringList, String separator) {
         if (stringList == null || stringList.trim().length() == 0) {
             return new String[0];
         }
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         StringTokenizer tokens = new StringTokenizer(stringList, separator);
         while (tokens.hasMoreTokens()) {
             String token = tokens.nextToken().trim();
@@ -516,32 +529,25 @@ public class ManifestElement {
      * @param manifest an input stream for a bundle manifest.
      * @param headers  a map used to put the header/value pairs from the bundle manifest.  This value may be null.
      * @return the map with the header/value pairs from the bundle manifest
-     * @throws Exception   if the manifest has an invalid syntax
-     * @throws IOException if an error occurs while reading the manifest
+     * @throws Exception if the manifest has an invalid syntax
      */
     public static Map<String, String> parseBundleManifest(InputStream manifest, Map<String, String> headers)
-            throws IOException, Exception {
+            throws Exception {
         if (headers == null) {
-            headers = new HashMap<String, String>();
+            headers = new HashMap<>();
         }
-        BufferedReader br;
-        try {
-            br = new BufferedReader(new InputStreamReader(manifest, "UTF8")); //$NON-NLS-1$
-        } catch (UnsupportedEncodingException e) {
-            br = new BufferedReader(new InputStreamReader(manifest, "UTF8"));
-        }
-        try {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(manifest, "UTF8"))) {
             String header = null;
-            StringBuffer value = new StringBuffer(256);
+            StringBuilder value = new StringBuilder(256);
             boolean firstLine = true;
 
             while (true) {
                 String line = br.readLine();
                 /* The java.util.jar classes in JDK 1.3 use the value of the last
-* encountered manifest header. So we do the same to emulate
-* this behavior. We no longer throw a BundleException
-* for duplicate manifest headers.
-*/
+                 * encountered manifest header. So we do the same to emulate
+                 * this behavior. We no longer throw a BundleException
+                 * for duplicate manifest headers.
+                 */
 
                 if ((line == null) || (line.length() == 0)) /* EOF or empty line */ {
                     if (!firstLine) /* flush last line */ {
@@ -552,7 +558,7 @@ public class ManifestElement {
 
                 if (line.charAt(0) == ' ') /* continuation */ {
                     if (firstLine) /* if no previous line */ {
-                        throw new Exception("MANIFEST_INVALID_SPACE");
+                        throw new Exception("Invalid space found in manifest content");
                     }
                     value.append(line.substring(1));
                     continue;
@@ -565,17 +571,11 @@ public class ManifestElement {
 
                 int colon = line.indexOf(':');
                 if (colon == -1) /* no colon */ {
-                    throw new Exception("MANIFEST_INVALID_LINE_NOCOLON");
+                    throw new Exception("Colon not found in manifest header");
                 }
                 header = line.substring(0, colon).trim();
                 value.append(line.substring(colon + 1));
                 firstLine = false;
-            }
-        } finally {
-            try {
-                br.close();
-            } catch (IOException ee) {
-                // do nothing
             }
         }
         return headers;
@@ -607,12 +607,13 @@ public class ManifestElement {
         if (values == null) {
             return;
         }
-        for (int i = 0; i < values.length; i++) {
+
+        for (String value : values) {
             result.append(';').append(key);
             if (directive) {
                 result.append(':');
             }
-            result.append("=\"").append(values[i]).append('\"'); //$NON-NLS-1$
+            result.append("=\"").append(value).append('\"'); //$NON-NLS-1$
         }
     }
 }
