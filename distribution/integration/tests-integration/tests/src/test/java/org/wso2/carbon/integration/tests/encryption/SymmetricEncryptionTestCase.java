@@ -110,7 +110,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
             String endpoint = "encrypt";
             String contentType = "application/json";
 
-            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":" + passwordString + "}}";
+            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":\"" + passwordString + "\"}}";
             HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, jsonRequest);
             String encryptedString = response.getData();
             int statusCode = response.getResponseCode();
