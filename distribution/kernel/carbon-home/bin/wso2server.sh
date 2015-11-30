@@ -73,7 +73,7 @@ PRGDIR=`dirname "$PRG"`
 [ -z "$CARBON_HOME" ] && CARBON_HOME=`cd "$PRGDIR/.." ; pwd`
 
 # Set AXIS2_HOME. Needed for One Click JAR Download
-AXIS2_HOME=$CARBON_HOME
+AXIS2_HOME="$CARBON_HOME"
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin; then
@@ -179,19 +179,19 @@ elif [ "$CMD" = "start" ]; then
       exit 0
     fi
   fi
-  export CARBON_HOME=$CARBON_HOME
+  export CARBON_HOME="$CARBON_HOME"
 # using nohup sh to avoid erros in solaris OS.TODO
-  nohup sh $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
+  nohup sh "$CARBON_HOME"/bin/wso2server.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "stop" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  kill -term `cat $CARBON_HOME/wso2carbon.pid`
+  export CARBON_HOME="$CARBON_HOME"
+  kill -term `cat "$CARBON_HOME"/wso2carbon.pid`
   exit 0
 elif [ "$CMD" = "restart" ]; then
-  export CARBON_HOME=$CARBON_HOME
-  kill -term `cat $CARBON_HOME/wso2carbon.pid`
+  export CARBON_HOME="$CARBON_HOME"
+  kill -term `cat "$CARBON_HOME"/wso2carbon.pid`
   process_status=0
-  pid=`cat $CARBON_HOME/wso2carbon.pid`
+  pid=`cat "$CARBON_HOME"/wso2carbon.pid`
   while [ "$process_status" -eq "0" ]
   do
         sleep 1;
@@ -200,13 +200,13 @@ elif [ "$CMD" = "restart" ]; then
   done
 
 # using nohup sh to avoid erros in solaris OS.TODO
-  nohup sh $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
+  nohup sh "$CARBON_HOME"/bin/wso2server.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""
 elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/version.txt
-  cat $CARBON_HOME/bin/wso2carbon-version.txt
+  cat "$CARBON_HOME"/bin/version.txt
+  cat "$CARBON_HOME"/bin/wso2carbon-version.txt
   exit 0
 fi
 
@@ -255,11 +255,11 @@ fi
 # ----- Execute The Requested Command -----------------------------------------
 
 echo JAVA_HOME environment variable is set to $JAVA_HOME
-echo CARBON_HOME environment variable is set to $CARBON_HOME
+echo CARBON_HOME environment variable is set to "$CARBON_HOME"
 
 cd "$CARBON_HOME"
 
-TMP_DIR=$CARBON_HOME/tmp
+TMP_DIR="$CARBON_HOME"/tmp
 if [ -d "$TMP_DIR" ]; then
 rm -rf "$TMP_DIR"
 fi
