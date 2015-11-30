@@ -17,9 +17,23 @@
 
 package org.wso2.carbon.integration.tests.axis2.sample.service;
 
+import org.apache.axiom.om.util.Base64;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
+
 public class DssVerifierService {
 
 	public String verifyJsonRequest(int id, String name, String lastName, String firstName, int age, String country) {
 		return "Success";
 	}
+
+    public String encrypt(String plainText) throws CryptoException {
+        CryptoUtil cryptoUtilInstance = CryptoUtil.getDefaultCryptoUtil();
+        return Base64.encode(cryptoUtilInstance.encrypt(Base64.decode(plainText)));
+    }
+
+    public String decrypt(String encryptedText) throws CryptoException {
+        CryptoUtil cryptoUtilInstance = CryptoUtil.getDefaultCryptoUtil();
+        return Base64.encode(cryptoUtilInstance.decrypt(Base64.decode(encryptedText)));
+    }
 }
