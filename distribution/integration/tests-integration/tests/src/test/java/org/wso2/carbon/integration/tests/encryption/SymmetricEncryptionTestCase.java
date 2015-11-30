@@ -102,10 +102,8 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         }
     }
 
-    @Test(groups = "carbon.core", description = "Check encryption using the symmetric encryption")
-    public void encrypt() throws CryptoException {
     @Test(groups = "carbon.core", description = "Check the symmetric encryption")
-    public void encrypt() {
+    public void encrypt() throws CryptoException {
 
         try {
             uploadApp();
@@ -113,10 +111,6 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
                     "/services/DssVerifierService/";
             String endpoint = "encrypt";
-            String contentType = "application/json";
-
-            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":\"" + passwordString + "\"}}";
-            HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, jsonRequest);
             String contentType = "application/soap+xml;charset=UTF-8";
 
 //            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":" + passwordString + "}}";
@@ -154,10 +148,19 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
                     "/services/DssVerifierService/";
             String endpoint = "decrypt";
-            String contentType = "application/json";
+            String contentType = "application/soap+xml;charset=UTF-8";
+            String xmlRequest = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" " +
+                    "xmlns:ser=\"http://service.sample.axis2.tests.integration.carbon.wso2.org\">\n" +
+                    "   <soap:Header/>\n" +
+                    "   <soap:Body>\n" +
+                    "      <ser:decrypt>\n" +
+                    "         <ser:plainText>" + encryptedString + "</ser:plainText>\n" +
+                    "      </ser:decrypt>\n" +
+                    "   </soap:Body>\n" +
+                    "</soap:Envelope>";
 
-            String jsonRequest = "{\"" + endpoint + "\":{\"encryptedText\":\"" + encryptedString + "\"}}";
-            HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, jsonRequest);
+//            String jsonRequest = "{\"" + endpoint + "\":{\"encryptedText\":\"" + encryptedString + "\"}}";
+            HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, xmlRequest);
             String decryptedString = response.getData();
             int statusCode = response.getResponseCode();
 
