@@ -31,8 +31,10 @@ import org.apache.axis2.transport.base.ManagementSupport;
 import org.apache.axis2.transport.base.MetricsCollector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.NetworkUtils;
+import org.wso2.carbon.utils.ServerConstants;
 import org.wso2.carbon.utils.SessionContextUtil;
 
 import javax.xml.namespace.QName;
@@ -174,7 +176,7 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
     }
 
     protected EndpointReference genEpr(String protocol, String ip, String serviceContextPath,
-                                       String serviceName) throws AxisFault {
+            String serviceName) throws AxisFault {
         try {
             if (ip == null) {
                 ip = NetworkUtils.getLocalHostname();
@@ -183,7 +185,17 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
             String proxyContextPath = CarbonUtils.getProxyContextPath(true);
 
             String tmp = protocol + "://" + ip;
-            if (proxyPort == 80 || proxyPort == 443) {
+
+            String workerProxyPort = null;
+            if (protocol == ServerConstants.HTTP_TRANSPORT) {
+                workerProxyPort = ServerConfiguration.getInstance().getFirstProperty("Ports.WorkerHttpProxyPort");
+            } else if (protocol == ServerConstants.HTTPS_TRANSPORT) {
+                workerProxyPort = ServerConfiguration.getInstance().getFirstProperty("Ports.WorkerHttpsProxyPort");
+            }
+
+            if(workerProxyPort != null) {
+                tmp += ":" + workerProxyPort.trim() + proxyContextPath + serviceContextPath + "/" + serviceName;
+            } else if (proxyPort == 80 || proxyPort == 443) {
                 tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
             } else if (proxyPort != -1) {
                 tmp += ":" + proxyPort + proxyContextPath + serviceContextPath + "/" + serviceName;
