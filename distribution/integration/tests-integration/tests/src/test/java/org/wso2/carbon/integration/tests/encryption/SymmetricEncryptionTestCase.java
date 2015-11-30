@@ -66,7 +66,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 
-public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
+public class SymmetricEncryptionTestCase {
 
     private static final Log log = LogFactory
             .getLog(SymmetricEncryptionTestCase.class);
