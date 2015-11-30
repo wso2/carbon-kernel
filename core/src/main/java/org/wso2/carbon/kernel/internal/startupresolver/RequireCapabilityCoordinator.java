@@ -115,8 +115,7 @@ public class RequireCapabilityCoordinator {
                 public void run() {
                     listenerMap.keySet()
                             .stream()
-                            .filter(key -> capabilityCounter.get(key) == 0 && listenerMap.get(key) != null &&
-                                    capabilityProviderCounter.get(key) == 0)
+                            .filter(new CapabilityNamePredicate<>())
                             .forEach(key -> {
                                 synchronized (key.intern()) {
                                     logger.debug("Invoking listener ({}) as all its required capabilities are " +
@@ -262,22 +261,40 @@ public class RequireCapabilityCoordinator {
             logger.warn("CapabilityProvider service ({}) does not contain the capability name",
                     provider.getClass().getName());
         } else {
-            final String capabilityName = dynamicCapabilityName.trim();
-            logger.debug("Updating CapabilityCounter with Capability-Name : ({}) , Capability-Count : {}",
-                    capabilityName, provider.getCount());
-            int providerCount = capabilityProviderCounter.decrementAndGet(capabilityName);
-            logger.debug("Current provider count for ({}) capability is {}", capabilityName, providerCount);
-            IntStream.range(0, provider.getCount()).forEach(
-                    count -> {
-                        int currentCount = capabilityCounter.incrementAndGet(capabilityName);
-                        logger.debug("Current count for ({}) capability is {}", capabilityName, currentCount);
-                    }
-            );
+            String capabilityName = dynamicCapabilityName.trim();
+            synchronized (capabilityName.intern()) {
+                logger.debug("Updating CapabilityCounter with Capability-Name : ({}) , Capability-Count : {}",
+                        capabilityName, provider.getCount());
+                int providerCount = capabilityProviderCounter.decrementAndGet(capabilityName);
+                logger.debug("Current provider count for ({}) capability is {}", capabilityName, providerCount);
+                IntStream.range(0, provider.getCount()).forEach(
+                        count -> {
+                            int currentCount = capabilityCounter.incrementAndGet(capabilityName);
+                            logger.debug("Current count for ({}) capability is {}", capabilityName, currentCount);
+                        }
+                );
+            }
         }
     }
 
     public void unregisterCapabilityProvider(CapabilityProvider provider) {
 
+    }
+
+    /**
+     * Implementation of the {@link Predicate} interface which checks whether the given capability name satisfy the
+     * test condition so that the relevant capability listeners can be invoked.
+     *
+     * @param <T> Capability Name
+     */
+    private class CapabilityNamePredicate<T extends String> implements Predicate<T> {
+        @Override
+        public boolean test(T capabilityName) {
+            synchronized (capabilityName.intern()) {
+                return capabilityCounter.get(capabilityName) == 0 && listenerMap.get(capabilityName) != null &&
+                        capabilityProviderCounter.get(capabilityName) == 0;
+            }
+        }
     }
 
     /**
