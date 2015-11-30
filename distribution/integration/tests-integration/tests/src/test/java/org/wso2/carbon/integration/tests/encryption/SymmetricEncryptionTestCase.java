@@ -31,9 +31,7 @@ import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerMana
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.util.CryptoException;
-import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.FileManipulator;
 import org.wso2.securevault.SecretResolver;
@@ -90,6 +88,8 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         serverManager = new TestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
         serverManager.startServer();
         carbonHome = serverManager.getCarbonHome();
+
+        readSymmetricKey();
     }
 
     @AfterClass(alwaysRun = true)
@@ -100,7 +100,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     }
 
     @Test(groups = "carbon.core", description = "Check the symmetric encryption")
-    public void encrypt() {
+    public void encrypt() throws CryptoException {
 
         try {
             uploadApp();
@@ -122,16 +122,14 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                 }
             }
         } catch (CryptoException e) {
-            e.printStackTrace();
+            throw new CryptoException("Error in encrypting with symmetric key");
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new CryptoException("Error in encrypting with symmetric key");
         }
     }
 
     private void readSymmetricKey() throws CryptoException {
         FileInputStream fileInputStream = null;
-        OutputStream output = null;
-        KeyGenerator generator = null;
         String secretAlias;
         String encryptionAlgo;
         Properties properties;
@@ -190,7 +188,6 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         Cipher c = null;
         byte[] encryptedData = null;
         String encryptionAlgo;
-        String symmetricKeyInRegistry;
         try {
             if (symmetricKeyEncryptAlgo == null) {
                 encryptionAlgo = symmetricKeyEncryptAlgoDefault;
@@ -203,8 +200,6 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         } catch (NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException |
                 NoSuchPaddingException | InvalidKeyException e) {
             throw new CryptoException("Error when encrypting data.", e);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return encryptedData;
 
@@ -214,7 +209,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         String aarServiceFile = "Axis2SampleService.aar";
         String axis2SampleServiceDir = System.getProperty("axis2.sample.service.dir");
         if (axis2SampleServiceDir == null || !(new File(axis2SampleServiceDir)).exists()) {
-            log.warn("DSS JSON verification test not enabled");
+            log.warn("Symmetric encryption test not enabled");
             return;
         }
         assert carbonHome != null : "carbonHome cannot be null";
@@ -268,7 +263,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     rd.close();
                 }
             }
-            log.info("sb.toString(): " + sb.toString() + "conn.getResponseCode()" + conn.getResponseCode());
+            log.info("Response: " + sb.toString() + ". Response Code" + conn.getResponseCode());
             return new HttpResponse(sb.toString(), conn.getResponseCode());
         }
         return null;
