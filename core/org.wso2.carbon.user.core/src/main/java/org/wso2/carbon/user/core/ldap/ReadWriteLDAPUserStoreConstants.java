@@ -83,7 +83,7 @@ public class ReadWriteLDAPUserStoreConstants {
                 UserStoreConfigConstants.groupNameAttributeDescription);
         setProperty(UserStoreConfigConstants.groupNameSearchFilter, "Group Search Filter", "(&amp;(objectClass=groupOfNames)(cn=?))",
                 UserStoreConfigConstants.groupNameSearchFilterDescription);
-        setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames))",
+        setProperty(UserStoreConfigConstants.groupNameListFilter, "Group List Filter", "(objectClass=groupOfNames)",
                 UserStoreConfigConstants.groupNameListFilterDescription);
         setProperty(roleDNPattern, "Role DN Pattern", "", roleDNPatternDescription);
 
