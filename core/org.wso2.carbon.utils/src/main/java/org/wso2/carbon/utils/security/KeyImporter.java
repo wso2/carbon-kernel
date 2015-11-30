@@ -46,47 +46,38 @@ public class KeyImporter {
             throw new Exception("Incorrect number of parameters");
         }
 
-        FileOutputStream fileOutputStream = null;
+        String sourceStorePath = args[0];
+        String sourceStorePass = args[1];
+        String keyAlias = args[2];
+        String targetStorePath = args[3];
+        String targetStorePass = args[4];
 
-        try {
-            String sourceStorePath = args[0];
-            String sourceStorePass = args[1];
-            String keyAlias = args[2];
-            String targetStorePath = args[3];
-            String targetStorePass = args[4];
+        try (FileOutputStream fileOutputStream = new FileOutputStream(new File(targetStorePath).getAbsolutePath());
+             FileInputStream fis = new FileInputStream(new File(sourceStorePath).getAbsolutePath());) {
 
             KeyStore sourceStore = KeyStore.getInstance("JKS");
-            FileInputStream fis = new FileInputStream(new File(sourceStorePath).getAbsolutePath());
             sourceStore.load(fis, sourceStorePass.toCharArray());
 
             Certificate cert = sourceStore.getCertificateChain(keyAlias)[0];
             KeyStore targetStore = KeyStore.getInstance("JKS");
 
             File targetStoreFile = new File(targetStorePath);
-            if(targetStoreFile.exists()) {
-                targetStore.load(new FileInputStream(targetStoreFile
-                        .getAbsolutePath()), targetStorePass.toCharArray());
+            if (targetStoreFile.exists()) {
+                targetStore.load(new FileInputStream(targetStoreFile.getAbsolutePath()), targetStorePass.toCharArray());
             } else {
                 targetStore.load(null, null);
             }
             targetStore.setCertificateEntry(keyAlias, cert);
-            fileOutputStream =
-                    new FileOutputStream(new File(targetStorePath).getAbsolutePath());
             targetStore.store(fileOutputStream, targetStorePass.toCharArray());
 
-            fis.close();
-            fileOutputStream.flush();            
-            if(log.isDebugEnabled()){
+            fileOutputStream.flush();
+            if (log.isDebugEnabled()) {
                 log.debug("Importing certificate ... DONE !");
             }
         } catch (Exception e) {
             log.error("Importing of key failed");
             throw e;
-            
-        } finally {
-            if(fileOutputStream != null){
-                fileOutputStream.close();
-            }
+
         }
     }
 }

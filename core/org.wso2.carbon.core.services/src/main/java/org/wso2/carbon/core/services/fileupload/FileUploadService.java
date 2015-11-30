@@ -59,7 +59,9 @@ public class FileUploadService extends AbstractAdmin implements IFileUpload {
                 if ((fileName == null || fileName.length() == 0) && multiItems) {
                     continue;
                 }
-                fileItem.getDataHandler().writeTo(new FileOutputStream(uploadedFile));
+                try (FileOutputStream fileOutputStream = new FileOutputStream(uploadedFile)) {
+                    fileItem.getDataHandler().writeTo(fileOutputStream);
+                }
                 if (fileResourceMap == null) {
                     fileResourceMap = new HashMap();
                     configurationContext.setProperty(ServerConstants.FILE_RESOURCE_MAP,
