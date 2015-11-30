@@ -24,6 +24,7 @@
                      <Password>admin</Password>
                 </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
+            <Property name="isCascadeDeleteEnabled">true</Property>
             <Property name="dataSource">jdbc/WSO2CarbonDB</Property>
         </Configuration>
 
@@ -73,7 +74,6 @@
             <Property name="GroupNameAttribute">cn</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
-            <Property name="RoleDNPattern"/>
             <Property name="MembershipAttribute">member</Property>
             <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="BackLinksEnabled">false</Property>
@@ -121,7 +121,6 @@
             <Property name="GroupNameAttribute">cn</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=group)(cn=?))</Property>
             <Property name="GroupNameListFilter">(objectcategory=group)</Property>
-            <Property name="RoleDNPattern"/>
             <Property name="MembershipAttribute">member</Property>
             <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="BackLinksEnabled">true</Property>
@@ -180,8 +179,9 @@
             <Property name="GroupNameAttribute">cn</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
-            <Property name="RoleDNPattern"/>
             <Property name="MembershipAttribute">member</Property>
+            <Property name="MemberOfAttribute">memberOf</Property>
+            <Property name="BackLinksEnabled">false</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated</Property>
@@ -197,6 +197,8 @@
             <Property name="MultiAttributeSeparator">,</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="MaxRoleNameListLength">100</Property>
+            <Property name="kdcEnabled">false</Property>
+            <Property name="defaultRealmName">WSO2.ORG</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="ConnectionPoolingEnabled">false</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>

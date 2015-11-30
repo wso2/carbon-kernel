@@ -78,12 +78,22 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     protected static final String KRB5_PRINCIPAL_NAME_ATTRIBUTE = "krb5PrincipalName";
     protected static final String KRB5_KEY_VERSION_NUMBER_ATTRIBUTE = "krb5KeyVersionNumber";
     protected static final String EMPTY_ATTRIBUTE_STRING = "";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
 
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final ArrayList<Property> RW_LDAP_UM_ADVANCED_PROPERTIES = new ArrayList<Property>();
+    private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
+    private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
+    private static final String readTimeout = "ReadTimeout";
+    private static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
+    private static final String RETRY_ATTEMPTS = "RetryAttempts";
+
     /* To track whether this is the first time startup of the server. */
     protected static boolean isFirstStartup = true;
     private static Log logger = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
     private static Log log = LogFactory.getLog(ReadWriteLDAPUserStoreManager.class);
+    private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
+
     protected Random random = new Random();
 
     protected boolean kdcEnabled = false;
@@ -137,12 +147,15 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             connectionSource = new LDAPConnectionContext(realmConfig);
         }
 
+        DirContext dirContext = null;
         try {
-            connectionSource.getContext();
+            dirContext = connectionSource.getContext();
             log.info("LDAP connection created successfully in read-write mode");
         } catch (Exception e) {
             throw new UserStoreException("Cannot create connection to LDAP server. Error message "
                     + e.getMessage());
+        } finally {
+            JNDIUtil.closeContext(dirContext);
         }
         this.userRealm = realm;
         //persist domain
@@ -228,9 +241,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doAddUser(String userName, Object credential, String[] roleList,
                           Map<String, String> claims, String profileName, boolean requirePasswordChange)
             throws UserStoreException {
-
-		/* validity checks */
-        doAddUserValidityChecks(userName, credential); // TODO bring abstract
 
 		/* getting search base directory context */
         DirContext dirContext = getSearchBaseDirectoryContext();
@@ -321,7 +331,8 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
      */
     protected DirContext getSearchBaseDirectoryContext() throws UserStoreException {
         DirContext mainDirContext = this.connectionSource.getContext();
-        String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE);
+        // assume first search base in case of multiple definitions
+        String searchBase = realmConfig.getUserStoreProperty(LDAPConstants.USER_SEARCH_BASE).split("#")[0];
         try {
             return (DirContext) mainDirContext.lookup(searchBase);
         } catch (NamingException e) {
@@ -583,9 +594,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
             throws UserStoreException {
 
-        /* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
-
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
         // first search the existing user entry.
@@ -648,8 +656,6 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-        /* validity checks */
-        doUpdateCredentialsValidityChecks(userName, newCredential);
 
         DirContext dirContext = this.connectionSource.getContext();
         DirContext subDirContext = null;
@@ -1937,6 +1943,44 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         groupSearchBase = realmConfig.getUserStoreProperty(LDAPConstants.GROUP_SEARCH_BASE);
 
     }
+
+
+    private static void setAdvancedProperties() {
+        //Set Advanced Properties
+
+        RW_LDAP_UM_ADVANCED_PROPERTIES.clear();
+        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants
+                .SCIMEnabledDescription);
+
+        setAdvancedProperty(BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");
+        setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true", UserStoreConfigConstants
+                .emptyRolesAllowedDescription);
+
+
+        setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
+                UserStoreConfigConstants.passwordHashMethodDescription);
+        setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
+
+
+        setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants
+                .maxUserNameListLengthDescription);
+        setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants
+                .maxRoleNameListLengthDescription);
+        setAdvancedProperty("kdcEnabled", "Enable KDC", "false", "Whether key distribution center enabled");
+        setAdvancedProperty("defaultRealmName", "Default Realm Name", "WSO2.ORG", "Default name for the realm");
+
+        setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants
+                .userRolesCacheEnabledDescription);
+
+        setAdvancedProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
+                UserStoreConfigConstants.connectionPoolingEnabledDescription);
+
+        setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
+        setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
+        setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
+                " authentication in case ldap read timed out.");
+    }
+
 //
 //	/**
 //	 * Check and add the initial data to the user store for user manager to start properly.
@@ -1994,6 +2038,9 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
                 (new Property[ReadWriteLDAPUserStoreConstants.RWLDAP_USERSTORE_PROPERTIES.size()]));
         properties.setOptionalProperties(ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.toArray
                 (new Property[ReadWriteLDAPUserStoreConstants.OPTINAL_RWLDAP_USERSTORE_PROPERTIES.size()]));
+        setAdvancedProperties();
+        properties.setAdvancedProperties(RW_LDAP_UM_ADVANCED_PROPERTIES.toArray
+                (new Property[RW_LDAP_UM_ADVANCED_PROPERTIES.size()]));
         return properties;
     }
 
@@ -2255,5 +2302,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
         } else {
             return dn;
         }
+    }
+    private static void setAdvancedProperty(String name, String displayName, String value,
+                                            String description) {
+        Property property = new Property(name, value, displayName + "#" + description, null);
+        RW_LDAP_UM_ADVANCED_PROPERTIES.add(property);
+
     }
 }

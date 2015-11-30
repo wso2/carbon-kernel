@@ -1096,6 +1096,11 @@ public class CacheImpl<K, V> implements Cache<K, V> {
         }
 
         @Override
+        public void mapCleared() {
+            localCache.clear();
+        }
+
+        @Override
         public <X> void entryRemoved(X key) {
 
             //Trigger registered listeners when a distributed cache entry is getting removed.
@@ -1163,6 +1168,11 @@ public class CacheImpl<K, V> implements Cache<K, V> {
             		value.setLastAccessed(new Date().getTime());
             	}
             }
+        }
+
+        @Override
+        public void mapCleared() {
+            localCache.clear();
         }
     }
 }

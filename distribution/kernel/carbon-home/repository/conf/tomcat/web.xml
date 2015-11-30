@@ -458,13 +458,6 @@
         </filter>
     -->
 
-    <!-- This filter sanitizes CR(\r) and LF(\n) characters in response headers centrally -->
-    <!-- and avoids response splitting vulnerability  -->
-    <filter>
-        <filter-name>CRLFPreventionFilter</filter-name>
-        <filter-class>org.wso2.carbon.ui.filters.CRLFPreventionFilter</filter-class>
-    </filter>
-
 
     <!-- ==================== Built In Filter Mappings ====================== -->
 
@@ -475,12 +468,6 @@
             <url-pattern>*.shtml</url-pattern>
         </filter-mapping>
     -->
-
-    <!-- The mapping for the CRLFPreventionFilter -->
-    <filter-mapping>
-        <filter-name>CRLFPreventionFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
 
 
     <!-- ==================== Default Session Configuration ================= -->

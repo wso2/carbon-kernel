@@ -102,6 +102,8 @@ public class RDBMSConfiguration {
 	
 	private List<DataSourceProperty> dataSourceProps;
 
+	private List<DataSourceProperty> databaseProps;
+
 	public String getUrl() {
 		return url;
 	}
@@ -418,6 +420,16 @@ public class RDBMSConfiguration {
 	public void setDataSourceClassName(String dataSourceClassName) {
 		this.dataSourceClassName = dataSourceClassName;
 	}
+
+	@XmlElementWrapper (name = "databaseProps")
+	@XmlElement (name = "property")
+	public List<DataSourceProperty> getDatabaseProps() {
+		return databaseProps;
+	}
+
+	public void setDatabaseProps(List<DataSourceProperty> databaseProps) {
+		this.databaseProps = databaseProps;
+	}
 	
 	@XmlElementWrapper (name = RDBMSDataSourceConstants.DATASOURCE_PROPS_NAME)
 	@XmlElement (name = "property")
@@ -501,5 +513,4 @@ public class RDBMSConfiguration {
 		}
 		
 	}
-	
 }

@@ -291,6 +291,15 @@ public class RDBMSDataSourceUtils {
 		if (config.getDataSourceClassName() != null) {
 			handleExternalDataSource(props, config);
 		}
+		if (config.getDatabaseProps() != null) {
+			Properties properties = new Properties();
+			if (!config.getDatabaseProps().isEmpty()) {
+				for (RDBMSConfiguration.DataSourceProperty property : config.getDatabaseProps()) {
+					properties.setProperty(property.getName(), property.getValue());
+				}
+			}
+			props.setDbProperties(properties);
+		}
 		return props;
 	}
 	
@@ -315,7 +324,6 @@ public class RDBMSDataSourceUtils {
                 }
 		    }
             result.putAll(tmpPropertiesObjects);
-
 		}
 		return result;
 	}

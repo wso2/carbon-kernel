@@ -25,7 +25,6 @@ import org.wso2.carbon.base.ServerConfiguration;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class CSRFValve extends ValveBase {
 
