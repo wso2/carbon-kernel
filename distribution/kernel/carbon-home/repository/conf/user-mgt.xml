@@ -24,6 +24,7 @@
                      <Password>admin</Password>
                 </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
+            <Property name="isCascadeDeleteEnabled">true</Property>
             <Property name="dataSource">jdbc/WSO2CarbonDB</Property>
         </Configuration>
 	<!-- Following is the default user store manager. This user store manager is based on embedded-apacheds LDAP. It reads/writes users and roles into the 		     default apacheds LDAP user store. Descriptions about each of the following properties can be found in user management documentation of the 	 respective product. In case if user core cache domain is needed to identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>
@@ -41,9 +42,6 @@
             <Property name="UserSearchBase">ou=Users,dc=wso2,dc=org</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameAttribute">uid</Property>
-            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
-            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
-            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
 	    <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
@@ -53,6 +51,8 @@
 	    <Property name="WriteGroups">true</Property>
 	    <Property name="EmptyRolesAllowed">true</Property>
             <Property name="GroupSearchBase">ou=Groups,dc=wso2,dc=org</Property>
+            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="GroupEntryObjectClass">groupOfNames</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
@@ -73,7 +73,7 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
+	    <Property name="IsBulkImportSupported">true</Property>
         </UserStoreManager-->
 
 	<!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC. In case if application needs to manage 		     passwords externally set property <Property name="PasswordsExternallyManaged">true</Property>. In case if user core cache domain is needed to 			identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>. Furthermore properties, IsEmailUserName and 	     			DomainCalculation are readonly properties. 
@@ -90,11 +90,10 @@
 	    <Property name="WriteGroups">true</Property>
             <Property name="UserNameUniqueAcrossTenants">false</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
-            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
-            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
-            <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
+	    <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
 	    <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
 	    <Property name="RolenameJavaRegEx">^[^~!#$;%^*+={}\\|\\\\&lt;&gt;,\'\"]{3,30}$</Property>
 	    <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
@@ -102,9 +101,9 @@
             <Property name="MaxUserNameListLength">100</Property>
 	    <Property name="SharedGroupEnabled">false</Property>
             <Property name="SCIMEnabled">false</Property>
-            <Property name="CaseSensitiveUsername">true</Property>
+            <Property name="CaseInsensitiveUsername">true</Property>
             <Property name="MultiAttributeSeparator">,</Property>
-            <Property name="BulkImportSupported">true</Property>
+            <Property name="IsBulkImportSupported">true</Property>
         </UserStoreManager>
 	
 	<!-- If product is using an external LDAP as the user store in READ ONLY mode, use following user manager.
@@ -143,7 +142,6 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
         </UserStoreManager-->
 	
 	<!-- Active directory configuration is as follows.
@@ -168,18 +166,15 @@
             <Property name="UserSearchBase">CN=Users,DC=WSO2,DC=Com</Property>
             <Property name="UserEntryObjectClass">user</Property>
             <Property name="UserNameAttribute">cn</Property>
-            <Property name="MemberOfAttribute">memberOf</Property>
-            <Property name="Referral">follow</Property>
             <Property name="isADLDSRole">false</Property>
 	    <Property name="userAccountControl">512</Property>
             <Property name="UserNameListFilter">(objectClass=user)</Property>
 	    <Property name="UserNameSearchFilter">(&amp;(objectClass=user)(cn=?))</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
+            <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
             <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
-            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
-            <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
 	    <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
 	    <Property name="ReadGroups">true</Property>
@@ -195,6 +190,7 @@
             <Property name="SharedTenantNameAttribute">ou</Property>
             <Property name="SharedTenantObjectClass">organizationalUnit</Property>
             <Property name="MembershipAttribute">member</Property>
+            <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="GroupNameListFilter">(objectcategory=group)</Property>
 	    <Property name="GroupNameSearchFilter">(&amp;(objectClass=group)(cn=?))</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
@@ -205,7 +201,7 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
+	    <Property name="IsBulkImportSupported">true</Property>
         </UserStoreManager-->
 	
 	<!-- If product is using an external LDAP as the user store in read/write mode, use following user manager 
@@ -229,9 +225,6 @@
 	    <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
-            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
-            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
-            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
 	    <Property name="ReadGroups">true</Property>
 	    <Property name="WriteGroups">true</Property>
 	    <Property name="EmptyRolesAllowed">false</Property>
@@ -242,6 +235,8 @@
             <Property name="GroupNameAttribute">cn</Property>
             <Property name="SharedGroupNameAttribute">cn</Property>
             <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
+            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
             <Property name="SharedGroupEntryObjectClass">groupOfNames</Property>
             <Property name="SharedGroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="SharedGroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
@@ -256,7 +251,7 @@
             <Property name="SCIMEnabled">false</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
+	    <Property name="IsBulkImportSupported">true</Property>
         </UserStoreManager-->
 
 	<!-- Following user manager is used by Identity Server (IS) as its default user manager. 
@@ -281,11 +276,8 @@
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameAttribute">uid</Property>
             <Property name="PasswordJavaScriptRegEx">^[\S]{5,30}$</Property>
-            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
-	        <Property name="ServicePasswordJavaRegEx">^[\\S]{5,30}$</Property>
-            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
-            <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated. username should contain  only lower case letters[a-z], upper case letters[A-Z], digits[0-9] or /_| characters and length should be within 3 to 30</Property>
-	        <Property name="ServiceNameJavaRegEx">^[\\S]{2,30}/[\\S]{2,30}$</Property>
+	    <Property name="ServicePasswordJavaRegEx">^[\\S]{5,30}$</Property>
+	    <Property name="ServiceNameJavaRegEx">^[\\S]{2,30}/[\\S]{2,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
@@ -302,6 +294,7 @@
             <Property name="SharedGroupSearchBase">ou=SharedGroups,dc=wso2,dc=org</Property>
             <Property name="SharedGroupEntryObjectClass">groupOfNames</Property>
             <Property name="SharedGroupNameListFilter">(objectClass=groupOfNames)</Property>
+            <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be between 5 to 30 characters</Property>
             <Property name="SharedGroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="SharedTenantNameListFilter">(objectClass=organizationalUnit)</Property>
             <Property name="SharedTenantNameAttribute">ou</Property>
@@ -315,7 +308,7 @@
             <Property name="MaxUserNameListLength">100</Property>
 	    <Property name="ConnectionPoolingEnabled">false</Property>
 	    <Property name="MultiAttributeSeparator">,</Property>
-	    <Property name="BulkImportSupported">true</Property>
+	    <Property name="IsBulkImportSupported">true</Property>
         </ISUserStoreManager-->
 
 	<!--	Following configuration is for the CassandraUserStoreManager. The CassandraUserStoreManager is capable of using a Cassandra
@@ -334,7 +327,6 @@
 	    <Property name="StoreSaltedPassword">true</Property>
 	    <Property name="AuthenticateWithAnyCredential">true</Property>
 	    <Property name="DomainName">multipleCredentialUserStoreDomain</Property>
-	    <Property name="BulkImportSupported">true</Property>
 	        <MultipleCredentials>
 		    <Credential type="Default">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
 		    <Credential type="Email">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>

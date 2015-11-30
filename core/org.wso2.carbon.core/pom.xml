@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.wso2.carbon</groupId>
         <artifactId>carbon-kernel</artifactId>
-        <version>4.5.0-SNAPSHOT</version>
+        <version>4.4.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -60,6 +60,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.bouncycastle.wso2</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
@@ -86,7 +91,7 @@
             <artifactId>org.wso2.carbon.utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-collections.wso2</groupId>
+            <groupId>org.wso2.orbit.commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
@@ -177,7 +182,7 @@
                         <Bundle-SymbolicName>org.wso2.carbon.core</Bundle-SymbolicName>
                         <Bundle-Activator>org.wso2.carbon.core.internal.CarbonCoreActivator</Bundle-Activator>
                         <Private-Package>
-                            org.wso2.carbon.core.internal
+                            org.wso2.carbon.core.internal, org.wso2.carbon.core.encryption
                         </Private-Package>
                         <Export-Package>
                             !org.wso2.carbon.core.internal,

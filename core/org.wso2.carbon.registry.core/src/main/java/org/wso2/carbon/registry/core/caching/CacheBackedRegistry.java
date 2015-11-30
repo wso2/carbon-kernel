@@ -37,6 +37,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,8 +59,12 @@ public class CacheBackedRegistry implements Registry {
     private Map<String, String> pathMap =
             new HashMap<String, String>();
 
-    private static Cache<RegistryCacheKey, GhostResource> getCache() {
+    private static Cache<RegistryCacheKey, GhostResource> getDistributedCache() {
         return RegistryUtils.getResourceCache(RegistryConstants.REGISTRY_CACHE_BACKED_ID);
+    }
+
+    private static Cache<RegistryCacheKey, GhostResource> getLocalCache() {
+        return RegistryUtils.getResourceCache(RegistryConstants.REGISTRY_LOCAL_CACHE_ID);
     }
 
     private static final Log log = LogFactory.getLog(CacheBackedRegistry.class);
@@ -186,7 +191,7 @@ public class CacheBackedRegistry implements Registry {
 
         GhostResource<Resource> ghostResource;
         Object ghostResourceObject;
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
         if ((ghostResourceObject = cache.get(registryCacheKey)) == null) {
             synchronized (path.intern()){
                 //Checking again as the some other previous thread might have updated the cache
@@ -216,8 +221,8 @@ public class CacheBackedRegistry implements Registry {
 
         RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path +
                 ";start=" + start + ";pageSize=" + pageSize);
-        
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
         if (!cache.containsKey(registryCacheKey)) {
             synchronized (path.intern()) {
                 //check again to cache to validate whether any other thread have updated with that time.
@@ -238,6 +243,42 @@ public class CacheBackedRegistry implements Registry {
         }
 
         return ghostResource;
+    }
+
+    /**
+     * used to get the cache instance. Return distributed cache for mounted paths and
+     * returns local cache for non mounted paths
+     *
+     * @param path  cached resource path
+     *
+     * @return      cache instance
+     */
+    private Cache<RegistryCacheKey, GhostResource> getCache(String path) {
+        Cache<RegistryCacheKey, GhostResource> cache;
+        if (path != null && isResourcePathMounted(path)) {
+            cache = getDistributedCache();
+        } else {
+            cache = getLocalCache();
+        }
+        return cache;
+    }
+
+    /**
+     * This method is used to check if resource path is under subdirectory of mount paths
+     *
+     * @param path  path of the resource
+     *
+     * @return      true if path is a subdirectory of mount paths.
+     */
+    private boolean isResourcePathMounted(String path) {
+        RegistryContext registryContext = RegistryContext.getBaseInstance();
+        List<Mount> mounts = registryContext.getMounts();
+        for (Mount mount : mounts) {
+            if (path.startsWith(mount.getPath())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -286,7 +327,8 @@ public class CacheBackedRegistry implements Registry {
         if (registry.getRegistryContext().isNoCachePath(path)) {
             return registry.resourceExists(path);
         }
-        Cache<RegistryCacheKey, GhostResource> cache = getCache();
+
+        Cache<RegistryCacheKey, GhostResource> cache = getCache(path);
         RegistryCacheKey registryCacheKey = getRegistryCacheKey(registry, path);
         if (cache.containsKey(registryCacheKey)) {
             return true;

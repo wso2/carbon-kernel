@@ -24,11 +24,11 @@ import org.wso2.carbon.user.api.RealmConfiguration;
 import org.wso2.carbon.user.core.UserCoreConstants;
 import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.UserStoreException;
-import org.wso2.carbon.user.core.UserStoreManager;
 import org.wso2.carbon.user.core.authorization.AuthorizationCache;
-import org.wso2.carbon.user.core.common.AbstractUserStoreManager;
 import org.wso2.carbon.user.core.common.UserRolesCache;
+import org.wso2.carbon.user.core.constants.UserCoreDBConstants;
 import org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager;
+import org.wso2.carbon.user.core.jdbc.caseinsensitive.JDBCCaseInsensitiveConstants;
 import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 import org.wso2.carbon.utils.dbcreator.DatabaseCreator;
@@ -51,7 +51,12 @@ public class HybridRoleManager {
     int tenantId;
     private DataSource dataSource;
     private RealmConfiguration realmConfig;
+    private String isCascadeDeleteEnabled;
     private boolean userRolesCacheEnabled = true;
+    private static final String APPLICATION_DOMAIN = "Application";
+    private static final String WORKFLOW_DOMAIN = "Workflow";
+
+    private static final String CASE_INSENSITIVE_USERNAME = "CaseInsensitiveUsername";
 
     public HybridRoleManager(DataSource dataSource, int tenantId, RealmConfiguration realmConfig,
                              UserRealm realm) throws UserStoreException {
@@ -59,9 +64,12 @@ public class HybridRoleManager {
         this.dataSource = dataSource;
         this.tenantId = tenantId;
         this.realmConfig = realmConfig;
+        this.isCascadeDeleteEnabled = realmConfig.getRealmProperty(UserCoreDBConstants.CASCADE_DELETE_ENABLED);
         this.userRealm = realm;
         //persist internal domain
         UserCoreUtil.persistDomain(UserCoreConstants.INTERNAL_DOMAIN, tenantId, dataSource);
+        UserCoreUtil.persistDomain(APPLICATION_DOMAIN, tenantId, dataSource);
+        UserCoreUtil.persistDomain(WORKFLOW_DOMAIN, tenantId, dataSource);
 
     }
 
@@ -88,6 +96,7 @@ public class HybridRoleManager {
             if (!this.isExistingRole(roleName)) {
                 DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.ADD_ROLE_SQL,
                         roleName, tenantId);
+                dbConnection.commit();
             } else {
                 throw new UserStoreException("Role name: " + roleName
                         + " in the system. Please pick another role name.");
@@ -108,7 +117,7 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while adding hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -250,8 +259,10 @@ public class HybridRoleManager {
                 while (rs.next()) {
                     String name = rs.getString(1);
                     // Append the domain
-                    name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + name;
+                    if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        name = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                               + name;
+                    }
                     filteredRoles.add(name);
                 }
             }
@@ -349,7 +360,7 @@ public class HybridRoleManager {
             }
 
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while updating user list of hybrid role : " + roleName;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -375,20 +386,10 @@ public class HybridRoleManager {
 
         String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
         String sqlStmt;
-        if (userRealm.getUserStoreManager() == null) {
-            //At the time of admin user creation, user store manager is not added to user realm
+        if (isCaseSensitiveUsername()){
             sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
-        }else{
-            UserStoreManager userStoreManager = userRealm.getUserStoreManager();
-            if (userStoreManager instanceof AbstractUserStoreManager) {
-                if (((AbstractUserStoreManager)userRealm.getUserStoreManager()).isCaseSensitiveUsername()) {
-                    sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
-                } else {
-                    sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE;
-                }
-            }else {
-                sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
-            }
+        }else {
+            sqlStmt = JDBCCaseInsensitiveConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE;
         }
 
         if (getRoleListOfUserSQLConfig != null && !getRoleListOfUserSQLConfig.equals("")) {
@@ -419,8 +420,10 @@ public class HybridRoleManager {
                 List<String> allRoles = new ArrayList<String>();
                 boolean isEveryone = false;
                 for (String role : roles) {
-                    role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
-                            + role;
+                    if(!role.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+                        role = UserCoreConstants.INTERNAL_DOMAIN + CarbonConstants.DOMAIN_SEPARATOR
+                               + role;
+                    }
                     if (role.equals(realmConfig.getEveryOneRoleName())) {
                         isEveryone = true;
                     }
@@ -489,7 +492,7 @@ public class HybridRoleManager {
                 }
             }
             dbConnection.commit();
-        } catch (SQLException e) {
+        } catch (SQLException | UserStoreException e) {
             String errorMessage = "Error occurred while updating hybrid role list of user : " + user;
             if (log.isDebugEnabled()) {
                 log.debug(errorMessage, e);
@@ -525,9 +528,10 @@ public class HybridRoleManager {
         Connection dbConnection = null;
         try {
             dbConnection = DatabaseUtil.getDBConnection(dataSource);
-            DatabaseUtil.updateDatabase(dbConnection,
-                    HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId,
-                    tenantId);
+            if(isCascadeDeleteEnabled == null || !Boolean.parseBoolean(isCascadeDeleteEnabled)) {
+                DatabaseUtil.updateDatabase(dbConnection,
+                        HybridJDBCConstants.ON_DELETE_ROLE_REMOVE_USER_ROLE_SQL, roleName, tenantId, tenantId);
+            }
             DatabaseUtil.updateDatabase(dbConnection, HybridJDBCConstants.DELETE_ROLE_SQL,
                     roleName, tenantId);
             dbConnection.commit();
@@ -720,6 +724,12 @@ public class HybridRoleManager {
      */
     protected String getMyDomainName() {
         return UserCoreUtil.getDomainName(realmConfig);
+    }
+
+    private boolean isCaseSensitiveUsername() throws UserStoreException{
+
+        String isUsernameCaseInsensitiveString = realmConfig.getUserStoreProperty(CASE_INSENSITIVE_USERNAME);
+        return !Boolean.parseBoolean(isUsernameCaseInsensitiveString);
     }
 
 }

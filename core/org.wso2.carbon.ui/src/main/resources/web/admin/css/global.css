@@ -1304,6 +1304,7 @@ background-image:url(../images/panelImage.png);
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
     -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
     white-space:nowrap;
     display:block;
     width:60px;

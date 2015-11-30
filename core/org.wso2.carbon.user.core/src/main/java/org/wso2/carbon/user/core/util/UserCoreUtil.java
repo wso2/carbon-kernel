@@ -30,6 +30,7 @@ import org.wso2.carbon.user.core.common.UserStore;
 import org.wso2.carbon.user.core.dto.RoleDTO;
 import org.wso2.carbon.user.core.jdbc.JDBCRealmConstants;
 import org.wso2.carbon.user.core.service.RealmService;
+import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 import org.wso2.carbon.utils.xml.StringUtils;
 
 import javax.sql.DataSource;
@@ -43,7 +44,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -56,6 +56,8 @@ import java.util.regex.Pattern;
 public final class UserCoreUtil {
 
     private static final String DUMMY_VALUE = "dummy";
+    private static final String APPLICATION_DOMAIN = "Application";
+    private static final String WORKFLOW_DOMAIN = "Workflow";
     private static Log log = LogFactory.getLog(UserCoreUtil.class);
     private static Boolean isEmailUserName;
     private static Boolean isCrossTenantUniqueUserName;
@@ -461,19 +463,22 @@ public final class UserCoreUtil {
     }
 
     /**
-     * Append the distinguished name to the entry name
+     * Append the distinguished name to the tenantAwareEntry name
      *
-     * @param entry
+     * @param tenantAwareEntry
      * @param tenantDomain
      * @return
      */
-    public static String addTenantDomainToEntry(String entry, String tenantDomain) {
+    public static String addTenantDomainToEntry(String tenantAwareEntry, String tenantDomain) {
 
-        if (!StringUtils.isEmpty(tenantDomain)) {
-            entry = entry.split(UserCoreConstants.TENANT_DOMAIN_COMBINER)[0];
-            return entry + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+        if (StringUtils.isEmpty(tenantAwareEntry)){
+            throw new IllegalArgumentException();
+        } else if (!StringUtils.isEmpty(tenantDomain)) {
+            return tenantAwareEntry + UserCoreConstants.TENANT_DOMAIN_COMBINER + tenantDomain;
+        } else {
+            return tenantAwareEntry + UserCoreConstants.TENANT_DOMAIN_COMBINER + MultitenantConstants
+                    .SUPER_TENANT_DOMAIN_NAME;
         }
-        return entry;
     }
 
     /**
@@ -530,7 +535,8 @@ public final class UserCoreUtil {
             for (String name : names) {
                 if ((index = name.indexOf(UserCoreConstants.DOMAIN_SEPARATOR)) > 0) {
                     String domain = name.substring(0, index);
-                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)) {
+                    if (!UserCoreConstants.INTERNAL_DOMAIN.equalsIgnoreCase(domain)
+                        && !APPLICATION_DOMAIN.equalsIgnoreCase(domain) && !WORKFLOW_DOMAIN.equalsIgnoreCase(domain)) {
                         // remove domain name if exist
                         nameList.add(name.substring(index + 1));
                     } else {
@@ -746,7 +752,8 @@ public final class UserCoreUtil {
 
     }
 
-    public static void deletePersistedDomain(String domain, int tenantId, DataSource dataSource) throws UserStoreException {
+    public static void deletePersistedDomain(String domain, int tenantId, DataSource dataSource)
+            throws UserStoreException {
         Connection dbConnection = null;
         try {
             String sqlStatement = JDBCRealmConstants.DELETE_DOMAIN_SQL;
@@ -780,7 +787,8 @@ public final class UserCoreUtil {
         }
     }
 
-    public static void updatePersistedDomain(String previousDomain, String newDomain, int tenantId, DataSource dataSource) throws UserStoreException {
+    public static void updatePersistedDomain(String previousDomain, String newDomain, int tenantId,
+                                             DataSource dataSource) throws UserStoreException {
         Connection dbConnection = null;
         try {
             String sqlStatement = JDBCRealmConstants.UPDATE_DOMAIN_SQL;
@@ -888,7 +896,8 @@ public final class UserCoreUtil {
         }
     }
 
-    private static boolean checkExistingDomainId(int domainId, int tenantId, DataSource dataSource) throws UserStoreException {
+    private static boolean checkExistingDomainId(int domainId, int tenantId, DataSource dataSource)
+            throws UserStoreException {
         Connection dbConnection = null;
         PreparedStatement prepStmt = null;
         ResultSet rs = null;

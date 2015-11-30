@@ -5,12 +5,15 @@
     <parent>
         <artifactId>features</artifactId>
         <groupId>org.wso2.carbon</groupId>
-        <version>4.5.0-SNAPSHOT</version>
+        <version>4.4.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>feature-licensed</artifactId>
     <packaging>pom</packaging>
+    <name>WSO2 Carbon - Test Artifacts - Feature Repo Feature Licensed</name>
+
+
     <modules>
         <module>1.0.0</module>
     </modules>

@@ -47,6 +47,7 @@ import javax.naming.directory.NoSuchAttributeException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -63,6 +64,15 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     private String userAccountControl = "512";
     private String userAttributeSeparator = ",";
     private static final String MULTI_ATTRIBUTE_SEPARATOR = "MultiAttributeSeparator";
+    private static final String MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION = "This is the separator for multiple claim values";
+    private static final ArrayList<Property> ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES = new ArrayList<Property>();
+    private static final String LDAPConnectionTimeout = "LDAPConnectionTimeout";
+    private static final String LDAPConnectionTimeoutDescription = "LDAP Connection Timeout";
+    private static final String BULK_IMPORT_SUPPORT = "BulkImportSupported";
+    private static final String readTimeout = "ReadTimeout";
+    private static final String readTimeoutDescription = "Configure this to define the read timeout for LDAP operations";
+    private static final String RETRY_ATTEMPTS = "RetryAttempts";
+
 
     public ActiveDirectoryUserStoreManager() {
 
@@ -251,9 +261,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         searchControl.setReturningAttributes(returningAttributes);
         searchControl.setSearchScope(SearchControls.SUBTREE_SCOPE);
         DirContext subDirContext = null;
+        NamingEnumeration<SearchResult> searchResults = null;
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
-            NamingEnumeration<SearchResult> searchResults = dirContext.search(escapeDNForSearch(searchBase),
+            searchResults = dirContext.search(escapeDNForSearch(searchBase),
                     searchFilter, searchControl);
             SearchResult user = null;
             int count = 0;
@@ -266,14 +277,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 user = searchResults.next();
                 count++;
             }
-            String userCNValue = null;
-            if (user.getAttributes() != null) {
-                Attribute cnAttribute = user.getAttributes().get("CN");
-                if (cnAttribute != null) {
-                    userCNValue = (String) cnAttribute.get();
-                } else {
-                    throw new UserStoreException("Can not update credential: CN attribute is null");
-                }
+            if (user == null) {
+                throw new UserStoreException("User :" + userName + " does not Exist");
             }
 
             ModificationItem[] mods = null;
@@ -294,7 +299,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
 				 */
             }
             subDirContext = (DirContext) dirContext.lookup(searchBase);
-            subDirContext.modifyAttributes("CN" + "=" + escapeSpecialCharactersForDN(userCNValue), mods);
+            subDirContext.modifyAttributes(user.getName(), mods);
 
         } catch (NamingException e) {
             String error = "Can not access the directory service for user : " + userName;
@@ -303,6 +308,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             }
             throw new UserStoreException(error, e);
         } finally {
+            JNDIUtil.closeNamingEnumeration(searchResults);
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
         }
@@ -312,7 +318,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential)
             throws UserStoreException {
-
         if (!isSSLConnection) {
             logger.warn("Unsecured connection is being used. Password operations will fail");
         }
@@ -331,9 +336,10 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
         searchControl.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
         DirContext subDirContext = null;
+        NamingEnumeration<SearchResult> searchResults = null;
         try {
             // search the user with UserNameAttribute and obtain its CN attribute
-            NamingEnumeration<SearchResult> searchResults = dirContext.search(escapeDNForSearch(searchBase),
+            searchResults = dirContext.search(escapeDNForSearch(searchBase),
                     searchFilter, searchControl);
             SearchResult user = null;
             int count = 0;
@@ -346,14 +352,8 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 user = searchResults.next();
                 count++;
             }
-            String userCNValue = null;
-            if (user.getAttributes() != null) {
-                Attribute cnAttribute = user.getAttributes().get("CN");
-                if (cnAttribute != null) {
-                    userCNValue = (String) cnAttribute.get();
-                } else {
-                    throw new UserStoreException("Can not update credential: CN attribute is null");
-                }
+            if (user == null) {
+                throw new UserStoreException("User :" + userName + " does not Exist");
             }
 
             ModificationItem[] mods = null;
@@ -365,7 +365,7 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                         createUnicodePassword((String) newCredential)));
 
                 subDirContext = (DirContext) dirContext.lookup(searchBase);
-                subDirContext.modifyAttributes("CN" + "=" + escapeSpecialCharactersForDN(userCNValue), mods);
+                subDirContext.modifyAttributes(user.getName(), mods);
             }
 
         } catch (NamingException e) {
@@ -375,8 +375,20 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             }
             throw new UserStoreException(error, e);
         } finally {
+            JNDIUtil.closeNamingEnumeration(searchResults);
             JNDIUtil.closeContext(subDirContext);
             JNDIUtil.closeContext(dirContext);
+        }
+    }
+
+    /**
+     *
+     */
+    protected void doUpdateCredentialsValidityChecks(String userName, Object newCredential)
+            throws UserStoreException {
+        super.doUpdateCredentialsValidityChecks(userName, newCredential);
+        if (!isSSLConnection) {
+            logger.warn("Unsecured connection is being used. Password operations will fail");
         }
     }
 
@@ -660,6 +672,9 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                 (new Property[ActiveDirectoryUserStoreConstants.ACTIVE_DIRECTORY_UM_PROPERTIES.size()]));
         properties.setOptionalProperties(ActiveDirectoryUserStoreConstants.OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.toArray
                 (new Property[ActiveDirectoryUserStoreConstants.OPTIONAL_ACTIVE_DIRECTORY_UM_PROPERTIES.size()]));
+        setAdvancedProperties();
+        properties.setAdvancedProperties(ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.toArray
+                (new Property[ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.size()]));
         return properties;
     }
 
@@ -729,8 +744,6 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
                     case '\\':
                         sb.append("\\5c");
                         break;
-                  /*right now * is used as an IS special character so
-                  LDAP escaping won't fix the problem */
 //                case '*':
 //                    sb.append("\\2a");
 //                    break;
@@ -845,4 +858,52 @@ public class ActiveDirectoryUserStoreManager extends ReadWriteLDAPUserStoreManag
             return dn;
         }
     }
+
+    private static void setAdvancedProperties() {
+        //Set Advanced Properties
+
+        ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.clear();
+        setAdvancedProperty(UserStoreConfigConstants.SCIMEnabled, "Enable SCIM", "false", UserStoreConfigConstants
+                .SCIMEnabledDescription);
+
+        setAdvancedProperty(BULK_IMPORT_SUPPORT, "Bulk Import Support", "true", "Bulk Import Supported");
+        setAdvancedProperty(UserStoreConfigConstants.emptyRolesAllowed, "Allow Empty Roles", "true", UserStoreConfigConstants
+                .emptyRolesAllowedDescription);
+
+
+        setAdvancedProperty(UserStoreConfigConstants.passwordHashMethod, "Password Hashing Algorithm", "PLAIN_TEXT",
+                UserStoreConfigConstants.passwordHashMethodDescription);
+        setAdvancedProperty(MULTI_ATTRIBUTE_SEPARATOR, "Multiple Attribute Separator", ",", MULTI_ATTRIBUTE_SEPARATOR_DESCRIPTION);
+        setAdvancedProperty("isADLDSRole", "Is ADLDS Role", "false", "Whether an Active Directory Lightweight Directory Services role");
+        setAdvancedProperty("userAccountControl", "User Account Control", "512", "Flags that control the behavior of the user account");
+
+
+        setAdvancedProperty(UserStoreConfigConstants.maxUserNameListLength, "Maximum User List Length", "100", UserStoreConfigConstants
+                .maxUserNameListLengthDescription);
+        setAdvancedProperty(UserStoreConfigConstants.maxRoleNameListLength, "Maximum Role List Length", "100", UserStoreConfigConstants
+                .maxRoleNameListLengthDescription);
+
+        setAdvancedProperty("kdcEnabled", "Enable KDC", "false", "Whether key distribution center enabled");
+        setAdvancedProperty("defaultRealmName", "Default Realm Name", "WSO2.ORG", "Default name for the realm");
+
+        setAdvancedProperty(UserStoreConfigConstants.userRolesCacheEnabled, "Enable User Role Cache", "true", UserStoreConfigConstants
+                .userRolesCacheEnabledDescription);
+
+        setAdvancedProperty(UserStoreConfigConstants.connectionPoolingEnabled, "Enable LDAP Connection Pooling", "false",
+                UserStoreConfigConstants.connectionPoolingEnabledDescription);
+
+        setAdvancedProperty(LDAPConnectionTimeout, "LDAP Connection Timeout", "5000", LDAPConnectionTimeoutDescription);
+        setAdvancedProperty(readTimeout, "LDAP Read Timeout", "5000", readTimeoutDescription);
+        setAdvancedProperty(RETRY_ATTEMPTS, "Retry Attempts", "0", "Number of retries for" +
+                " authentication in case ldap read timed out.");
+    }
+
+
+    private static void setAdvancedProperty(String name, String displayName, String value,
+                                            String description) {
+        Property property = new Property(name, value, displayName + "#" + description, null);
+        ACTIVE_DIRECTORY_UM_ADVANCED_PROPERTIES.add(property);
+
+    }
+
 }
