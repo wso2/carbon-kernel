@@ -115,7 +115,7 @@ public class RequireCapabilityCoordinator {
                 public void run() {
                     listenerMap.keySet()
                             .stream()
-                            .filter(new CapabilityNamePredicate<>())
+                            .filter(new CapabilityNamePredicate())
                             .forEach(key -> {
                                 synchronized (key.intern()) {
                                     logger.debug("Invoking listener ({}) as all its required capabilities are " +
@@ -285,11 +285,10 @@ public class RequireCapabilityCoordinator {
      * Implementation of the {@link Predicate} interface which checks whether the given capability name satisfy the
      * test condition so that the relevant capability listeners can be invoked.
      *
-     * @param <T> Capability Name
      */
-    private class CapabilityNamePredicate<T extends String> implements Predicate<T> {
+    private class CapabilityNamePredicate implements Predicate<String> {
         @Override
-        public boolean test(T capabilityName) {
+        public boolean test(String capabilityName) {
             synchronized (capabilityName.intern()) {
                 return capabilityCounter.get(capabilityName) == 0 && listenerMap.get(capabilityName) != null &&
                         capabilityProviderCounter.get(capabilityName) == 0;
