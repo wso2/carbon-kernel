@@ -66,9 +66,9 @@
         </classes>
     </test>
 
-    <test name="Symmetric-Encryption" preserve-order="true" parallel="false" >
+    <test name="Symmetric-Encryption" preserve-order="true" parallel="false">
         <classes>
-            <class name="org.wso2.carbon.integration.tests.encryption.SymmetricEncryptionTestCase" />
+            <class name="org.wso2.carbon.integration.tests.encryption.SymmetricEncryptionTestCase"/>
         </classes>
     </test>
 

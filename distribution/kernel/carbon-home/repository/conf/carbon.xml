@@ -532,6 +532,12 @@
         </Mapping>
     </FileUploadConfig>
 
+    <!-- FileNameRegEx is used to validate the file input/upload/write-out names.
+    e.g.
+     <FileNameRegEx>^(?!(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.[^.])?$)[^&lt;&gt:"/\\|?*\x00-\x1F][^&lt;&gt:"/\\|?*\x00-\x1F\ .]$</FileNameRegEx>
+    -->
+    <!--<FileNameRegEx></FileNameRegEx>-->
+
     <!--
        Processors which process special HTTP GET requests such as ?wsdl, ?policy etc.
 

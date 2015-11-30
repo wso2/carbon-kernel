@@ -75,6 +75,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     private String symmetricKeySecureVaultAlias;
     private static final String resourcePath = "identity/config/symmetricKey";
     private String passwordString = "admin";
+    private String encryptedString = "Adsghjk=";
 
     private static int portOffset = 28;
     private TestServerManager serverManager;
@@ -90,6 +91,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         serverManager = new TestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
         serverManager.startServer();
         carbonHome = serverManager.getCarbonHome();
+
         readSymmetricKey();
     }
 
@@ -100,6 +102,8 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         }
     }
 
+    @Test(groups = "carbon.core", description = "Check encryption using the symmetric encryption")
+    public void encrypt() throws CryptoException {
     @Test(groups = "carbon.core", description = "Check the symmetric encryption")
     public void encrypt() {
 
@@ -109,6 +113,10 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
                     "/services/DssVerifierService/";
             String endpoint = "encrypt";
+            String contentType = "application/json";
+
+            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":\"" + passwordString + "\"}}";
+            HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, jsonRequest);
             String contentType = "application/soap+xml;charset=UTF-8";
 
 //            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":" + passwordString + "}}";
@@ -132,16 +140,43 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                 }
             }
         } catch (CryptoException e) {
-            e.printStackTrace();
+            throw new CryptoException("Error in encrypting with symmetric key");
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new CryptoException("Error in encrypting with symmetric key");
         }
     }
 
+    @Test(groups = "carbon.core", description = "Check decryption of the symmetric encryption")
+    public void decrypt() throws CryptoException {
+
+        try {
+            String serviceEndpoint = "http://" + context.getInstance().getHosts().get("default") + ":" +
+                    (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
+                    "/services/DssVerifierService/";
+            String endpoint = "decrypt";
+            String contentType = "application/json";
+
+            String jsonRequest = "{\"" + endpoint + "\":{\"encryptedText\":\"" + encryptedString + "\"}}";
+            HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, jsonRequest);
+            String decryptedString = response.getData();
+            int statusCode = response.getResponseCode();
+
+            if (statusCode != 500) {
+                String decryptedStringTest = Base64.encode(encryptWithSymmetricKey(Base64.decode(encryptedString)));
+                if (!decryptedString.equals(decryptedStringTest)) {
+                    Assert.hasText(decryptedString, "Error in decrypting with symmetric key");
+                }
+            }
+        } catch (CryptoException e) {
+            throw new CryptoException("Error in decrypting with symmetric key");
+        } catch (Exception e) {
+            throw new CryptoException("Error in decrypting with symmetric key");
+        }
+    }
+
+
     private void readSymmetricKey() throws CryptoException {
         FileInputStream fileInputStream = null;
-        OutputStream output = null;
-        KeyGenerator generator = null;
         String secretAlias;
         String encryptionAlgo;
         Properties properties;
@@ -278,7 +313,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     rd.close();
                 }
             }
-            log.info("sb.toString(): " + sb.toString() + "conn.getResponseCode()" + conn.getResponseCode());
+            log.info("Response: " + sb.toString() + ". Response Code" + conn.getResponseCode());
             return new HttpResponse(sb.toString(), conn.getResponseCode());
         }
         return null;
