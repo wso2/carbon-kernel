@@ -26,9 +26,6 @@
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
             <Property name="dataSource">jdbc/WSO2CarbonDB</Property>
         </Configuration>
-	<!-- Following is the default user store manager. This user store manager is based on embedded-apacheds LDAP. It reads/writes users and roles into the 		     default apacheds LDAP user store. Descriptions about each of the following properties can be found in user management documentation of the 	 respective product. In case if user core cache domain is needed to identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>
-	     Note: Do not comment within UserStoreManager tags. Cause, specific tag names are used as tokens when building configurations for products. -->
-
 
 	<!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC. In case if application needs to manage 		     passwords externally set property <Property name="PasswordsExternallyManaged">true</Property>. In case if user core cache domain is needed to 			identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>. Furthermore properties, IsEmailUserName and 	     			DomainCalculation are readonly properties. 
 	     Note: Do not comment within UserStoreManager tags. Cause, specific tag names are used as tokens when building configurations for products. -->	
@@ -76,11 +73,13 @@
             <Property name="GroupNameAttribute">cn</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
-            <Property name="RoleDNPattern"></Property>
+            <Property name="RoleDNPattern"/>
             <Property name="MembershipAttribute">member</Property>
             <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="BackLinksEnabled">false</Property>
-            <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
+            <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
+            <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
+            <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="SCIMEnabled">false</Property>
             <Property name="PasswordHashMethod">PLAIN_TEXT</Property>
             <Property name="MultiAttributeSeparator">,</Property>
@@ -91,6 +90,7 @@
             <Property name="LDAPConnectionTimeout">5000</Property>
             <Property name="ReadTimeout"/>
             <Property name="RetryAttempts"/>
+            <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
         </UserStoreManager-->
 	
 	<!-- Active directory configuration is as follows.
@@ -121,7 +121,7 @@
             <Property name="GroupNameAttribute">cn</Property>
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=group)(cn=?))</Property>
             <Property name="GroupNameListFilter">(objectcategory=group)</Property>
-            <Property name="RoleDNPattern"></Property>
+            <Property name="RoleDNPattern"/>
             <Property name="MembershipAttribute">member</Property>
             <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="BackLinksEnabled">true</Property>
@@ -182,8 +182,6 @@
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="RoleDNPattern"/>
             <Property name="MembershipAttribute">member</Property>
-            <Property name="MemberOfAttribute">memberOf</Property>
-            <Property name="BackLinksEnabled">false</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
             <Property name="UsernameJavaRegExViolationErrorMsg">Username pattern policy violated</Property>
@@ -199,8 +197,6 @@
             <Property name="MultiAttributeSeparator">,</Property>
             <Property name="MaxUserNameListLength">100</Property>
             <Property name="MaxRoleNameListLength">100</Property>
-            <Property name="kdcEnabled">false</Property>
-            <Property name="defaultRealmName">WSO2.ORG</Property>
             <Property name="UserRolesCacheEnabled">true</Property>
             <Property name="ConnectionPoolingEnabled">false</Property>
             <Property name="LDAPConnectionTimeout">5000</Property>
