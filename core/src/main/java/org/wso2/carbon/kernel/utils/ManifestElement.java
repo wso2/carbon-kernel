@@ -409,8 +409,8 @@ public class ManifestElement {
                 }
             }
             // found the header value create a manifestElement for it.
-            ManifestElement manifestElement = new ManifestElement(headerValue.toString(), headerValues.toArray(new
-                    String[headerValues.size()]));
+            ManifestElement manifestElement = new ManifestElement(headerValue.toString(), headerValues
+                    .toArray(new String[headerValues.size()]));
 
             // now add any attributes/directives for the manifestElement.
             while (c == '=' || c == ':') {
@@ -609,13 +609,12 @@ public class ManifestElement {
         if (values == null) {
             return;
         }
-
         for (String value : values) {
             result.append(';').append(key);
             if (directive) {
                 result.append(':');
             }
-            result.append("=\"").append(value).append('\"'); //$NON-NLS-1$
+            result.append("=\"").append(value).append('\"');
         }
     }
 }
