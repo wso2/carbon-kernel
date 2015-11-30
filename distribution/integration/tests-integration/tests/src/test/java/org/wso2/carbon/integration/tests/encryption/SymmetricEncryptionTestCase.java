@@ -90,6 +90,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         serverManager = new TestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
         serverManager.startServer();
         carbonHome = serverManager.getCarbonHome();
+        readSymmetricKey();
     }
 
     @AfterClass(alwaysRun = true)
@@ -108,10 +109,19 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
                     "/services/DssVerifierService/";
             String endpoint = "encrypt";
-            String contentType = "application/json";
+            String contentType = "application/soap+xml;charset=UTF-8";
 
-            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":" + passwordString + "}}";
-            HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, jsonRequest);
+//            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":" + passwordString + "}}";
+            String xmlRequest = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" " +
+                    "xmlns:ser=\"http://service.sample.axis2.tests.integration.carbon.wso2.org\">\n" +
+                    "   <soap:Header/>\n" +
+                    "   <soap:Body>\n" +
+                    "      <ser:encrypt>\n" +
+                    "         <ser:plainText>" + passwordString + "</ser:plainText>\n" +
+                    "      </ser:encrypt>\n" +
+                    "   </soap:Body>\n" +
+                    "</soap:Envelope>";
+            HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, xmlRequest);
             String encryptedString = response.getData();
             int statusCode = response.getResponseCode();
 
