@@ -17,6 +17,7 @@
 */
 package org.wso2.carbon.user.core.util;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
@@ -44,6 +45,8 @@ public class DatabaseUtil {
     private static final int DEFAULT_MAX_IDLE = 6;
     private static Log log = LogFactory.getLog(DatabaseUtil.class);
     private static DataSource dataSource = null;
+    private static final String VALIDATION_INTERVAL = "validationInterval";
+    private static final long DEFAULT_VALIDATION_INTERVAL = 30000;
 
     /**
      * Gets a database pooling connection. If a pool is not created this will create a connection pool.
@@ -153,6 +156,14 @@ public class DatabaseUtil {
         if (realmConfig.getUserStoreProperty(JDBCRealmConstants.VALIDATION_QUERY) != null) {
             poolProperties.setValidationQuery(realmConfig.getUserStoreProperty(
                     JDBCRealmConstants.VALIDATION_QUERY));
+            poolProperties.setTestOnBorrow(true);
+        }
+        if (StringUtils.isNotEmpty(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL)) &&
+            StringUtils.isNumeric(realmConfig.getUserStoreProperty(VALIDATION_INTERVAL))) {
+            poolProperties.setValidationInterval(Long.parseLong(realmConfig.getUserStoreProperty(
+                    VALIDATION_INTERVAL)));
+        } else {
+            poolProperties.setValidationInterval(DEFAULT_VALIDATION_INTERVAL);
         }
         return new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);
     }
