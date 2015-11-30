@@ -555,7 +555,8 @@ public class MultitenantMessageReceiver implements MessageReceiver {
                 //RESTUtil.processURLRequest(tenantInMsgCtx, os, contentType);
             	this.processRESTRequest(tenantInMsgCtx,os,contentType);
             } else if (httpMethod.equals(Constants.Configuration.HTTP_METHOD_POST) ||
-                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PUT)) {
+                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PUT) ||
+                    httpMethod.equals(Constants.Configuration.HTTP_METHOD_PATCH)) {
                 //RESTUtil.processXMLRequest(tenantInMsgCtx, in, os, contentType);
             	this.processRESTRequest(tenantInMsgCtx,os,contentType);
             } else {
