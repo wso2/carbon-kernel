@@ -79,15 +79,7 @@ public class CarbonLaunchConfig {
      * Load the launch configuration from the classpath.
      */
     public CarbonLaunchConfig() {
-        loadFromClasspath();
-        if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
-            for (Map.Entry entry : properties.entrySet()) {
-                logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
-            }
-        }
-
-        initializeProperties();
+        loadCarbonConfiguration(null);
     }
 
     /**
@@ -96,21 +88,49 @@ public class CarbonLaunchConfig {
      * @param launchPropFile launch.properties file
      */
     public CarbonLaunchConfig(File launchPropFile) {
-        try (FileInputStream fileInputStream = new FileInputStream(launchPropFile)) {
-            // First load all the default properties.
-            loadFromClasspath();
+        loadCarbonConfiguration(launchPropFile);
+    }
 
-            // Then load all the other properties defined in the file.
-            loadLaunchConfiguration(fileInputStream);
+    /**
+     * Load the configuration from a given url.
+     *
+     * @param launchPropURL launch.properties URL
+     */
+    public CarbonLaunchConfig(URL launchPropURL) {
+        loadCarbonConfiguration(launchPropURL);
+    }
 
-            if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
-                for (Map.Entry entry : properties.entrySet()) {
-                    logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
-                }
+    /**
+     * Load configuration based on the given source. If the source is null, configuration is loaded only from
+     * the launch.properties file located in the class path.
+     *
+     * @param source source to load configuration.
+     * @param <T>    java.io.File or java.net.URL
+     */
+    private <T> void loadCarbonConfiguration(T source) {
+        loadFromClasspath();
+        if (source != null) {
+            if (source instanceof File) {
+                loadConfigurationFromFile((File) source);
+            } else if (source instanceof URL) {
+                loadConfigurationFromUrl((URL) source);
             }
+        }
+        if (logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
+            properties.forEach((key, value) -> logger.log(Level.FINE, "Key: " + key + " Value: " + value));
+        }
+        initializeProperties();
+    }
 
-            initializeProperties();
+    /**
+     * Load carbon configuration from a java.io.File object
+     *
+     * @param launchPropFile File
+     */
+    private void loadConfigurationFromFile(File launchPropFile) {
+        try (FileInputStream fileInputStream = new FileInputStream(launchPropFile)) {
+            loadLaunchConfigurationFromStream(fileInputStream);
         } catch (FileNotFoundException e) {
             String errorMsg = "File " + launchPropFile + " does not exists";
             logger.log(Level.SEVERE, errorMsg, e);
@@ -123,26 +143,13 @@ public class CarbonLaunchConfig {
     }
 
     /**
-     * Load the configuration from the given properties file.
+     * Load carbon configuration given as a URL.
      *
-     * @param launchPropURL launch.properties URL
+     * @param launchPropURL URL
      */
-    public CarbonLaunchConfig(URL launchPropURL) {
-        try {
-            // First load all the default properties.
-            loadFromClasspath();
-
-            // Then load all the other properties defined in the file.
-            loadLaunchConfiguration(launchPropURL.openStream());
-
-            if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE, "Loaded properties from the launch.properties file.");
-                for (Map.Entry entry : properties.entrySet()) {
-                    logger.log(Level.FINE, "Key: " + entry.getKey() + " Value: " + entry.getValue());
-                }
-            }
-
-            initializeProperties();
+    private void loadConfigurationFromUrl(URL launchPropURL) {
+        try (InputStream stream = launchPropURL.openStream()) {
+            loadLaunchConfigurationFromStream(stream);
         } catch (IOException e) {
             String errorMsg = "Error loading the launch.properties";
             logger.log(Level.SEVERE, errorMsg, e);
@@ -228,11 +235,14 @@ public class CarbonLaunchConfig {
     }
 
     /**
-     * Load launch configuration from file.
+     * Load launch configuration from launch.properties file which resides in the classpath.
      */
     private void loadFromClasspath() {
-        InputStream stream = CarbonLaunchConfig.class.getClassLoader().getResourceAsStream("launch.properties");
-        loadLaunchConfiguration(stream);
+        try (InputStream stream = CarbonLaunchConfig.class.getClassLoader().getResourceAsStream("launch.properties")) {
+            loadLaunchConfigurationFromStream(stream);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -240,29 +250,14 @@ public class CarbonLaunchConfig {
      *
      * @param is launch configuration input stream
      */
-    private void loadLaunchConfiguration(InputStream is) {
-        try {
-            Properties launchProps = new Properties();
-            launchProps.load(is);
+    private void loadLaunchConfigurationFromStream(InputStream is) throws IOException {
+        Properties launchProps = new Properties();
+        launchProps.load(is);
 
-            // Load the Map from the properties object.
-            // Replace variables with proper value. eg. ${carbon.home}.
-            for (Map.Entry entry : launchProps.entrySet()) {
-                properties.put((String) entry.getKey(), Utils.initializeSystemProperties((String) entry.getValue()));
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                //Ignored
-            }
-        }
+        // Load the Map from the properties object.
+        // Replace variables with proper value. eg. ${carbon.home}.
+        launchProps.forEach((key, value) ->
+                properties.put((String) key, Utils.initializeSystemProperties((String) value)));
     }
 
     /**
@@ -298,17 +293,16 @@ public class CarbonLaunchConfig {
      * @return URL for file
      */
     private URL resolvePath(String path, String parentPath, String key) {
-        URL url;
-
         if (Utils.isNullOrEmpty(path)) {
             String errorMsg = "The property " + key + " must not be null or empty.";
             logger.log(Level.SEVERE, errorMsg);
             throw new RuntimeException("The property " + key + " must not be null or empty.");
 
-        } else {
-            url = FileResolver.resolve(path, parentPath);
         }
-
+        URL url = FileResolver.resolve(path, parentPath);
+        if (url == null) {
+            throw new RuntimeException("URL must not be null.");
+        }
         properties.put(key, url.toExternalForm());
 
         if (logger.isLoggable(Level.FINE)) {
@@ -316,7 +310,6 @@ public class CarbonLaunchConfig {
             logger.log(Level.FINE, "Parent path: " + parentPath);
             logger.log(Level.FINE, "Resolved path: " + url.toExternalForm());
         }
-
         return url;
     }
 
