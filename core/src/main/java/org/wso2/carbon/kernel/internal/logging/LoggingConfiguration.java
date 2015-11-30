@@ -86,7 +86,8 @@ public class LoggingConfiguration {
                             + "]", e);
                 }
             }
-            logger.debug("Logging registration configuration completed");
+            logger.debug("Logging registration configuration completed using config file : {}",
+                    loggingConfigFile.getAbsolutePath());
         } else {
             throw new FileNotFoundException("Log4J2 configuration file is not found at : " +
                     configDir.getAbsolutePath());
@@ -100,6 +101,13 @@ public class LoggingConfiguration {
      * @param managedService managed service
      */
     public void unregister(ManagedService managedService) {
-        //TODO properly remove logging config from config admin
+        try {
+            managedService.updated(new Hashtable<>());
+            if (logger.isDebugEnabled()) {
+                logger.debug("Logging configuration updated to default");
+            }
+        } catch (ConfigurationException e) {
+            logger.error("Error while trying to update Logging Configuration Service with default configuration", e);
+        }
     }
 }
