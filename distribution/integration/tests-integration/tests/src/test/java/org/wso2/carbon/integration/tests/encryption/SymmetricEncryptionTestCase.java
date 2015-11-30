@@ -22,15 +22,20 @@ import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.compass.core.util.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.w3c.dom.NamedNodeMap;
+import org.wso2.carbon.automation.engine.FrameworkConstants;
+import org.wso2.carbon.automation.engine.context.AutomationContext;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
+import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.core.util.CryptoUtil;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 import org.wso2.carbon.utils.CarbonUtils;
+import org.wso2.carbon.utils.FileManipulator;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
 
@@ -41,12 +46,17 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.xpath.XPathExpressionException;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.Properties;
 
 
@@ -54,8 +64,6 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
 
     private static final Log log = LogFactory
             .getLog(SymmetricEncryptionTestCase.class);
-    private String carbonHome;
-    private int portOffset = 1;
 
     private static SecretKey symmetricKey = null;
     private static boolean isSymmetricKeyFromFile = false;
@@ -68,32 +76,54 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     private static final String resourcePath = "identity/config/symmetricKey";
     private String passwordString = "admin";
 
+    private static int portOffset = 28;
+    private TestServerManager serverManager;
+    private AutomationContext context;
+    private String carbonHome;
+
+
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
-        super.init();
-        if (!CarbonTestServerManager.isServerRunning()) {
-            CarbonTestServerManager.start(portOffset);
-        } else {
-            CarbonTestServerManager.stop();
-            CarbonTestServerManager.start(portOffset);
-        }
-        try {
-            readSymmetricKey();
-        } catch (CryptoException e) {
-            throw new CryptoException("Error in reading symmetric key.", e);
+        HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
+        startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
+        context = new AutomationContext();
+        serverManager = new TestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
+        serverManager.startServer();
+        carbonHome = serverManager.getCarbonHome();
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void destroy() throws Exception {
+        if (serverManager != null) {
+            serverManager.stopServer();
         }
     }
 
     @Test(groups = "carbon.core", description = "Check the symmetric encryption")
     public void encrypt() {
-        CryptoUtil cryptoUtil = CryptoUtil.getDefaultCryptoUtil();
+
         try {
-            String encryptedString = Base64.encode(cryptoUtil.encrypt(Base64.decode(passwordString));
-            String encryptedStringTest = Base64.encode(encryptWithSymmetricKey(Base64.decode(passwordString)));
-            if(!encryptedString.equals(encryptedStringTest)){
-                Assert.hasText(encryptedString, "Error in encrypting with symmetric key");
+            uploadApp();
+            String serviceEndpoint = "http://" + context.getInstance().getHosts().get("default") + ":" +
+                    (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
+                    "/services/DssVerifierService/";
+            String endpoint = "encrypt";
+            String contentType = "application/json";
+
+            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":" + passwordString + "}}";
+            HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, jsonRequest);
+            String encryptedString = response.getData();
+            int statusCode = response.getResponseCode();
+
+            if (statusCode != 500) {
+                String encryptedStringTest = Base64.encode(encryptWithSymmetricKey(Base64.decode(passwordString)));
+                if (!encryptedString.equals(encryptedStringTest)) {
+                    Assert.hasText(encryptedString, "Error in encrypting with symmetric key");
+                }
             }
         } catch (CryptoException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -178,5 +208,69 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         }
         return encryptedData;
 
+    }
+
+    private void uploadApp() throws Exception {
+        String aarServiceFile = "Axis2SampleService.aar";
+        String axis2SampleServiceDir = System.getProperty("axis2.sample.service.dir");
+        if (axis2SampleServiceDir == null || !(new File(axis2SampleServiceDir)).exists()) {
+            log.warn("DSS JSON verification test not enabled");
+            return;
+        }
+        assert carbonHome != null : "carbonHome cannot be null";
+        File srcFile = new File(axis2SampleServiceDir + aarServiceFile);
+        assert srcFile.exists() : srcFile.getAbsolutePath() + " does not exist";
+        String deploymentPath =
+                carbonHome + File.separator + "repository" + File.separator + "deployment" + File.separator + "server" +
+                        File.separator + "axis2services";
+        File depFile = new File(deploymentPath);
+        if (!depFile.exists() && !depFile.mkdir()) {
+            throw new IOException("Error while creating the deployment folder : " + deploymentPath);
+        }
+        File dstFile = new File(depFile.getAbsoluteFile() + File.separator + aarServiceFile);
+        log.info("Copying " + srcFile.getAbsolutePath() + " => " + dstFile.getAbsolutePath());
+        FileManipulator.copyFile(srcFile, dstFile);
+        Thread.sleep(20000);
+    }
+
+    HttpResponse getHttpResponse(String endpoint, String contentType, String data) throws Exception {
+        if (endpoint.startsWith("http://")) {
+            URL url = new URL(endpoint);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", contentType);
+            conn.setRequestProperty("Accept", contentType);
+            conn.setRequestProperty("charset", "UTF-8");
+            conn.setReadTimeout(10000);
+            conn.setRequestProperty("Content-Length", String.valueOf(data.length()));
+            OutputStream os = conn.getOutputStream();
+            os.write(data.getBytes());
+            os.close();
+            conn.connect();
+            // Get the response
+            StringBuilder sb = new StringBuilder();
+            BufferedReader rd = null;
+            try {
+                rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    sb.append(line);
+                }
+            } catch (IOException ignored) {
+                rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    sb.append(line);
+                }
+            } finally {
+                if (rd != null) {
+                    rd.close();
+                }
+            }
+            log.info("sb.toString(): " + sb.toString() + "conn.getResponseCode()" + conn.getResponseCode());
+            return new HttpResponse(sb.toString(), conn.getResponseCode());
+        }
+        return null;
     }
 }
