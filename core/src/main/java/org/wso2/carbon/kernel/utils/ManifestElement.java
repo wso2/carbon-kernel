@@ -287,7 +287,7 @@ public class ManifestElement {
         if (result instanceof String) {
             return (String) result;
         }
-
+        @SuppressWarnings("unchecked")
         List<String> valueList = (List<String>) result;
         //return the last value
         return valueList.get(valueList.size() - 1);
@@ -307,6 +307,7 @@ public class ManifestElement {
         if (result instanceof String) {
             return new String[]{(String) result};
         }
+        @SuppressWarnings("unchecked")
         List<String> valueList = (List<String>) result;
         return valueList.toArray(new String[valueList.size()]);
     }
@@ -326,6 +327,7 @@ public class ManifestElement {
      * for this key, then create an array list from the current value (if necessary) and
      * append the new value to the end of the list.
      */
+    @SuppressWarnings("unchecked")
     private Hashtable<String, Object> addTableValue(Hashtable<String, Object> table, String key, String value) {
         if (table == null) {
             table = new Hashtable<>(7);
@@ -402,8 +404,8 @@ public class ManifestElement {
                 }
                 if (c == ';' || c == ',' || c == '\0') /* more */ {
                     headerValues.add(next);
-                    headerValue.append(";").append(next); //$NON-NLS-1$
-                    logger.debug(";" + next); //$NON-NLS-1$
+                    headerValue.append(";").append(next);
+                    logger.debug(";" + next);
                 }
             }
             // found the header value create a manifestElement for it.
@@ -415,7 +417,7 @@ public class ManifestElement {
                 while (c == ':') { // may not really be a :=
                     c = tokenizer.getChar();
                     if (c != '=') {
-                        String restOfNext = tokenizer.getToken("=:"); //$NON-NLS-1$
+                        String restOfNext = tokenizer.getToken("=:");
                         if (restOfNext == null) {
                             throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " +
                                     value);
@@ -428,7 +430,8 @@ public class ManifestElement {
                 }
                 // determine if the attribute is the form attr:List<type>
                 String preserveEscapes = null;
-                if (!directive && next.indexOf("List") > 0) {
+                String tempNextWithoutFirstLetter = next.substring(1);
+                if (!directive && tempNextWithoutFirstLetter.contains("List")) {
                     Tokenizer listTokenizer = new Tokenizer(next);
                     String attrKey = listTokenizer.getToken(":");
                     if (attrKey != null && listTokenizer.getChar() == ':' && "List"
@@ -477,8 +480,7 @@ public class ManifestElement {
             return new ManifestElement[]{};
         }
 
-        ManifestElement[] result = headerElements.toArray(new ManifestElement[size]);
-        return (result);
+        return (headerElements.toArray(new ManifestElement[size]));
     }
 
     /**
