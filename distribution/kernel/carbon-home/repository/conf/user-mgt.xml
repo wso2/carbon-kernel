@@ -67,7 +67,6 @@
             <Property name="UserNameAttribute">uid</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameListFilter">(objectClass=person)</Property>
-            <Property name="UserDNPattern"/>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="GroupSearchBase">ou=system</Property>
@@ -75,7 +74,6 @@
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="MembershipAttribute">member</Property>
-            <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="BackLinksEnabled">false</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="PasswordJavaRegEx">^[\S]{5,30}$</Property>
@@ -112,7 +110,6 @@
             <Property name="UserNameAttribute">cn</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=user)(cn=?))</Property>
             <Property name="UserNameListFilter">(objectClass=user)</Property>
-            <Property name="UserDNPattern"/>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="WriteGroups">true</Property>
@@ -170,7 +167,6 @@
             <Property name="UserNameAttribute">uid</Property>
             <Property name="UserNameSearchFilter">(&amp;(objectClass=person)(uid=?))</Property>
             <Property name="UserNameListFilter">(objectClass=person)</Property>
-            <Property name="UserDNPattern"/>
             <Property name="DisplayNameAttribute"/>
             <Property name="ReadGroups">true</Property>
             <Property name="WriteGroups">true</Property>
@@ -180,7 +176,6 @@
             <Property name="GroupNameSearchFilter">(&amp;(objectClass=groupOfNames)(cn=?))</Property>
             <Property name="GroupNameListFilter">(objectClass=groupOfNames)</Property>
             <Property name="MembershipAttribute">member</Property>
-            <Property name="MemberOfAttribute">memberOf</Property>
             <Property name="BackLinksEnabled">false</Property>
             <Property name="UsernameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="UsernameJavaScriptRegEx">^[\S]{3,30}$</Property>
@@ -254,8 +249,8 @@ ReplaceEscapeCharactersAtUserLogin - This is to configure whether escape charact
 				     Currently the identified escape characters that needs to be replaced are '\' & '\\'
 
 UserDNPattern - This property will be used when authenticating users. During authentication we do a bind. But if the user is login with
-                email address or some other property we need to first lookup LDAP and retreive DN for the user. This involves an additional step. 
-                If UserDNPattern is specified the DN will be contructed using the pattern specified in this property. Performance of this is much better than looking
+                email address or some other property we need to first lookup LDAP and retrieve DN for the user. This involves an additional step.
+                If UserDNPattern is specified the DN will be constructed using the pattern specified in this property. Performance of this is much better than looking
                 up DN and binding user.
 
 RoleDNPattern - This property will be used when checking whether user has been assigned to a given role. Rather than searching the role in search base, by 
