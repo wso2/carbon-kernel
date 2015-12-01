@@ -21,6 +21,7 @@ package org.wso2.carbon.integration.tests.encryption;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -138,7 +139,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
 
             if (statusCode != 500) {
                 String encryptedStringTest = Base64.encode(encryptWithSymmetricKey(passwordString.getBytes()));
-                assert !encryptedString.equals(encryptedStringTest) : "Error in encrypting with symmetric key";
+                Assert.assertEquals("Error in encrypting with symmetric key", encryptedString, encryptedStringTest);
             }
         } catch (CryptoException e) {
             throw new CryptoException("Error in encrypting with symmetric key");
@@ -179,7 +180,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
 
             if (statusCode != 500) {
                 String decryptedStringTest = new String(decryptWithSymmetricKey(Base64.decode(encryptedString)));
-                assert !decryptedString.equals(decryptedStringTest) : "Error in decrypting with symmetric key";
+                Assert.assertEquals("Error in decrypting with symmetric key", decryptedString, decryptedStringTest);
             }
         } catch (CryptoException e) {
             throw new CryptoException("Error in decrypting with symmetric key");
