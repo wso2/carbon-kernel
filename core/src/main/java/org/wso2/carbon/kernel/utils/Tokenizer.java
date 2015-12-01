@@ -52,7 +52,7 @@ public class Tokenizer {
     }
 
     /**
-     * Returns the next token delimited by the provided terminals String.
+     * Returns the next token delimited by any character in the provided terminals String.
      *
      * @param terminals String
      * @return String
@@ -81,6 +81,15 @@ public class Tokenizer {
         return null;
     }
 
+    /**
+     * Returns the next token delimited by any character in the provided terminals String. If the text content being
+     * considered is within quotes, then return the entire string within quotes. If the text content within contains
+     * escape characters, preserve it if it is provided as the second parameter.
+     *
+     * @param terminals String
+     * @param preserveEscapes String
+     * @return String
+     */
     public String getString(String terminals, String preserveEscapes) {
         skipWhiteSpace();
         char[] val = value;
@@ -125,6 +134,14 @@ public class Tokenizer {
         return null;
     }
 
+    /**
+     * Returns the next token delimited by any character in the provided terminals String. If the text content being
+     * considered is within quotes, then return the entire string within quotes. If the text content within contains
+     * escape characters, those are ignored.
+     *
+     * @param terminals String
+     * @return String
+     */
     public String getString(String terminals) {
         return getString(terminals, null);
     }
