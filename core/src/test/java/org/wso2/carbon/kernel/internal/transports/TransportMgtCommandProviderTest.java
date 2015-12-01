@@ -18,8 +18,6 @@ import java.util.Map;
  * @since 5.0.0
  */
 public class TransportMgtCommandProviderTest {
-    private static final Logger logger = LoggerFactory.getLogger(TransportMgtCommandProviderTest.class);
-
     private DummyTransport dummyTransportOne;
     private TransportManager transportManager;
     private TransportMgtCommandProvider transportMgtCommandProvider;
