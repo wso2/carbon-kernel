@@ -220,6 +220,10 @@ public class ManifestElement {
 
     /**
      * Return the last value associated with the given key in the specified table.
+     *
+     * @param table Hashtable&lt;String, Object&gt;
+     * @param key   String
+     * @return String
      */
     private String getTableValue(Hashtable<String, Object> table, String key) {
         if (table == null) {
@@ -240,6 +244,10 @@ public class ManifestElement {
 
     /**
      * Return the values associated with the given key in the specified table.
+     *
+     * @param table Hashtable&lt;String, Object&gt;
+     * @param key   String
+     * @return String[]
      */
     private String[] getTableValues(Hashtable<String, Object> table, String key) {
         if (table == null) {
@@ -259,6 +267,9 @@ public class ManifestElement {
 
     /**
      * Return an enumeration of table keys for the specified table.
+     *
+     * @param table Hashtable&lt;String, Object&gt;
+     * @return Enumeration&lt;String&gt;
      */
     private Enumeration<String> getTableKeys(Hashtable<String, Object> table) {
         if (table == null) {
@@ -271,6 +282,11 @@ public class ManifestElement {
      * Add the given key/value association to the specified table. If an entry already exists
      * for this key, then create an array list from the current value (if necessary) and
      * append the new value to the end of the list.
+     *
+     * @param table Hashtable&lt;String, Object&gt;
+     * @param key String
+     * @param value String
+     * @return Hashtable&lt;String, Object&gt;
      */
     @SuppressWarnings("unchecked")
     private Hashtable<String, Object> addTableValue(Hashtable<String, Object> table, String key, String value) {
