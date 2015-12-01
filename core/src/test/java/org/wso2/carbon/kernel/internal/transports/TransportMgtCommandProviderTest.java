@@ -117,7 +117,7 @@ public class TransportMgtCommandProviderTest {
 
     }
 
-    @Test (dependsOnMethods = "test_endMaintenance", expectedExceptions = UnsupportedOperationException.class)
+    @Test (dependsOnMethods = "test_endMaintenance")
     public void test_listTransports() throws Exception {
         commandInterpreter.resetCounter();
         transportMgtCommandProvider._listTransports(commandInterpreter);
