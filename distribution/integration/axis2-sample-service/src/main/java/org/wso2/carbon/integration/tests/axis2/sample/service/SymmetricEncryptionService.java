@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
@@ -17,9 +18,19 @@
 
 package org.wso2.carbon.integration.tests.axis2.sample.service;
 
-public class DssVerifierService {
+import org.apache.axiom.om.util.Base64;
+import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.core.util.CryptoUtil;
 
-	public String verifyJsonRequest(int id, String name, String lastName, String firstName, int age, String country) {
-		return "Success";
-	}
+public class SymmetricEncryptionService {
+
+    public String encrypt(String plainText) throws CryptoException {
+        CryptoUtil cryptoUtilInstance = CryptoUtil.getDefaultCryptoUtil();
+        return Base64.encode(cryptoUtilInstance.encrypt(plainText.getBytes()));
+    }
+
+    public String decrypt(String encryptedText) throws CryptoException {
+        CryptoUtil cryptoUtilInstance = CryptoUtil.getDefaultCryptoUtil();
+        return new String(cryptoUtilInstance.decrypt(Base64.decode(encryptedText)));
+    }
 }

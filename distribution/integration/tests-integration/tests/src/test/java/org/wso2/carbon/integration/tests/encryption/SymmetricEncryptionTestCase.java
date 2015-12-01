@@ -67,7 +67,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     private String symmetricKeyEncryptAlgo;
     private String symmetricKeySecureVaultAlias;
     private String passwordString = "administrator";
-    private String encryptedString = "T0EM2vkzXB2xheP2/f+3aQ==";
+    private String encryptedString = "l58EohFmzXxXe8I924WQoQ==";
     private ServerConfigurationManager serverConfigurationManager;
     private static int portOffset = 0;
     private String carbonHome;
@@ -91,6 +91,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToCarbonXML), new File
                 (targetCarbonXML), false);
         serverConfigurationManager.restartGracefully();
+        super.init();
         uploadApp();
         readSymmetricKey();
     }
@@ -106,7 +107,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         try {
             String serviceEndpoint = "http://" + automationContext.getInstance().getHosts().get("default") + ":" +
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
-                    "/services/DssVerifierService/";
+                    "/services/SymmetricEncryptionService/";
             String endpoint = "encrypt";
             String contentType = "application/soap+xml";
 
@@ -140,7 +141,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         try {
             String serviceEndpoint = "http://" + automationContext.getInstance().getHosts().get("default") + ":" +
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
-                    "/services/DssVerifierService/";
+                    "/services/SymmetricEncryptionService/";
             String endpoint = "decrypt";
             String contentType = "application/soap+xml";
             String xmlRequest = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" " +
@@ -158,7 +159,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
             int statusCode = response.getResponseCode();
 
             if (statusCode != 500) {
-                String decryptedStringTest = Base64.encode(decryptWithSymmetricKey(encryptedString.getBytes()));
+                String decryptedStringTest = new String(decryptWithSymmetricKey(encryptedString.getBytes()));
                 assert !decryptedString.equals(decryptedStringTest) : "Error in decrypting with symmetric key";
             }
         } catch (CryptoException e) {
