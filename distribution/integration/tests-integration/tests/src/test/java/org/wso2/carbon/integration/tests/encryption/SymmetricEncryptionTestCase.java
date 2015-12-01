@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
@@ -41,10 +42,14 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -121,8 +126,15 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     "   </soap:Body>\n" +
                     "</soap:Envelope>";
             HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, xmlRequest);
-            String encryptedString = response.getData();
+
             int statusCode = response.getResponseCode();
+            String encryptedStringXml = response.getData();
+            InputStream encryptedStringXmlStream = new ByteArrayInputStream(encryptedStringXml.getBytes());
+            DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = fac.newDocumentBuilder();
+            Document encryptedStringDoc = builder.parse(encryptedStringXmlStream);
+            String encryptedString = encryptedStringDoc.getElementsByTagName("soapenv:Body").item(0).getChildNodes()
+                    .item(0).getChildNodes().item(0).getTextContent();
 
             if (statusCode != 500) {
                 String encryptedStringTest = Base64.encode(encryptWithSymmetricKey(passwordString.getBytes()));
@@ -155,11 +167,18 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     "</soap:Envelope>";
 
             HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, xmlRequest);
-            String decryptedString = response.getData();
+
             int statusCode = response.getResponseCode();
+            String decryptedStringXml = response.getData();
+            InputStream decryptedStringXmlStream = new ByteArrayInputStream(decryptedStringXml.getBytes());
+            DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = fac.newDocumentBuilder();
+            Document decryptedStringDoc = builder.parse(decryptedStringXmlStream);
+            String decryptedString = decryptedStringDoc.getElementsByTagName("soapenv:Body").item(0).getChildNodes()
+                    .item(0).getChildNodes().item(0).getTextContent();
 
             if (statusCode != 500) {
-                String decryptedStringTest = new String(decryptWithSymmetricKey(encryptedString.getBytes()));
+                String decryptedStringTest = new String(decryptWithSymmetricKey(Base64.decode(encryptedString)));
                 assert !decryptedString.equals(decryptedStringTest) : "Error in decrypting with symmetric key";
             }
         } catch (CryptoException e) {
