@@ -1131,7 +1131,7 @@ public class PermissionTree {
         }
         String domain = UserCoreUtil.extractDomainFromName(name);
         String nameWithoutDomain = UserCoreUtil.removeDomainFromName(name);
-        String modifiedName = UserCoreUtil.addDomainToName(nameWithoutDomain, domain.toUpperCase());
+        String modifiedName = UserCoreUtil.addDomainToName(nameWithoutDomain, domain);
         return modifiedName;
     }
 }
