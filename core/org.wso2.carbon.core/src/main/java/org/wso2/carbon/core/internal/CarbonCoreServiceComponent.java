@@ -86,7 +86,8 @@ public class CarbonCoreServiceComponent {
             PrivilegedCarbonContext carbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
             carbonContext.setTenantDomain(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_DOMAIN_NAME);
             carbonContext.setTenantId(org.wso2.carbon.base.MultitenantConstants.SUPER_TENANT_ID);
-            ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(), new DeploymentServerStartupObserver(), null);
+            ctxt.getBundleContext().registerService(ServerStartupObserver.class.getName(),
+                    new DeploymentServerStartupObserver(), null);
             SymmetricEncryption encryption = SymmetricEncryption.getInstance();
             encryption.generateSymmetricKey();
             carbonServerManager = new CarbonServerManager();
