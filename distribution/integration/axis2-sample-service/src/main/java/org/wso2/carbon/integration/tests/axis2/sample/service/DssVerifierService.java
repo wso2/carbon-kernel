@@ -29,11 +29,11 @@ public class DssVerifierService {
 
     public String encrypt(String plainText) throws CryptoException {
         CryptoUtil cryptoUtilInstance = CryptoUtil.getDefaultCryptoUtil();
-        return Base64.encode(cryptoUtilInstance.encrypt(Base64.decode(plainText)));
+        return Base64.encode(cryptoUtilInstance.encrypt(plainText.getBytes()));
     }
 
     public String decrypt(String encryptedText) throws CryptoException {
         CryptoUtil cryptoUtilInstance = CryptoUtil.getDefaultCryptoUtil();
-        return Base64.encode(cryptoUtilInstance.decrypt(Base64.decode(encryptedText)));
+        return new String(cryptoUtilInstance.decrypt(Base64.decode(encryptedText)));
     }
 }

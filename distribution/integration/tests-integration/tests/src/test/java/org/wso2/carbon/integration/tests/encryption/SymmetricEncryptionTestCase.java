@@ -66,8 +66,8 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     private String symmetricKeyEncryptEnabled;
     private String symmetricKeyEncryptAlgo;
     private String symmetricKeySecureVaultAlias;
-    private String passwordString = "admin";
-    private String encryptedString = "ERMGQpaJhu91fqzzCpcSgQ==";
+    private String passwordString = "administrator";
+    private String encryptedString = "T0EM2vkzXB2xheP2/f+3aQ==";
     private ServerConfigurationManager serverConfigurationManager;
     private static int portOffset = 0;
     private String carbonHome;
@@ -91,7 +91,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToCarbonXML), new File
                 (targetCarbonXML), false);
         serverConfigurationManager.restartGracefully();
-        super.init();
+        uploadApp();
         readSymmetricKey();
     }
 
@@ -104,12 +104,11 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     public void encrypt() throws CryptoException {
 
         try {
-            uploadApp();
             String serviceEndpoint = "http://" + automationContext.getInstance().getHosts().get("default") + ":" +
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
                     "/services/DssVerifierService/";
             String endpoint = "encrypt";
-            String contentType = "application/soap+xml;charset=UTF-8";
+            String contentType = "application/soap+xml";
 
             String xmlRequest = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" " +
                     "xmlns:ser=\"http://service.sample.axis2.tests.integration.carbon.wso2.org\">\n" +
@@ -125,7 +124,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
             int statusCode = response.getResponseCode();
 
             if (statusCode != 500) {
-                String encryptedStringTest = Base64.encode(encryptWithSymmetricKey(Base64.decode(passwordString)));
+                String encryptedStringTest = Base64.encode(encryptWithSymmetricKey(passwordString.getBytes()));
                 assert !encryptedString.equals(encryptedStringTest) : "Error in encrypting with symmetric key";
             }
         } catch (CryptoException e) {
@@ -139,12 +138,11 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     public void decrypt() throws CryptoException {
 
         try {
-            uploadApp();
             String serviceEndpoint = "http://" + automationContext.getInstance().getHosts().get("default") + ":" +
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
                     "/services/DssVerifierService/";
             String endpoint = "decrypt";
-            String contentType = "application/soap+xml;charset=UTF-8";
+            String contentType = "application/soap+xml";
             String xmlRequest = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" " +
                     "xmlns:ser=\"http://service.sample.axis2.tests.integration.carbon.wso2.org\">\n" +
                     "   <soap:Header/>\n" +
@@ -160,7 +158,7 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
             int statusCode = response.getResponseCode();
 
             if (statusCode != 500) {
-                String decryptedStringTest = Base64.encode(encryptWithSymmetricKey(Base64.decode(encryptedString)));
+                String decryptedStringTest = Base64.encode(decryptWithSymmetricKey(encryptedString.getBytes()));
                 assert !decryptedString.equals(decryptedStringTest) : "Error in decrypting with symmetric key";
             }
         } catch (CryptoException e) {
@@ -213,8 +211,8 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                                 Base64.decode((String) properties.get(secretAlias)).length, encryptionAlgo);
                     }
                 } else if (properties.containsKey(propertyKey)) {
-                    symmetricKey = new SecretKeySpec(Base64.decode(properties.getProperty(propertyKey)), 0,
-                            Base64.decode(properties.getProperty(propertyKey)).length, encryptionAlgo);
+                    symmetricKey = new SecretKeySpec(properties.getProperty(propertyKey).getBytes(), 0,
+                            properties.getProperty(propertyKey).getBytes().length, encryptionAlgo);
                 }
 
                 if (symmetricKey != null) {
@@ -245,6 +243,26 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         }
         return encryptedData;
 
+    }
+
+    public byte[] decryptWithSymmetricKey(byte[] encryptionBytes) throws CryptoException {
+        Cipher c = null;
+        byte[] decryptedData = null;
+        String encryptionAlgo;
+        try {
+            if (symmetricKeyEncryptAlgo == null) {
+                encryptionAlgo = symmetricKeyEncryptAlgoDefault;
+            } else {
+                encryptionAlgo = symmetricKeyEncryptAlgo;
+            }
+            c = Cipher.getInstance(encryptionAlgo);
+            c.init(Cipher.DECRYPT_MODE, symmetricKey);
+            decryptedData = c.doFinal(encryptionBytes);
+        } catch (InvalidKeyException | BadPaddingException | IllegalBlockSizeException |
+                NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new CryptoException("Error when decrypting data.", e);
+        }
+        return decryptedData;
     }
 
     private void uploadApp() throws Exception {
