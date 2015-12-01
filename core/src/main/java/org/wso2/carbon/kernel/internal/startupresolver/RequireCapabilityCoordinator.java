@@ -339,6 +339,10 @@ public class RequireCapabilityCoordinator {
                                     logger.debug("Adding Capability-Provider for ({}) to watch list from bundle ({})",
                                             capabilityName, bundle.getSymbolicName());
                                     capabilityProviderCounter.incrementAndGet(capabilityName.trim());
+                                } else {
+                                    logger.warn("Capability-Provider ({}) from ({}) bundle does not contain the " +
+                                            "capability-name service property", element.getAttribute("objectClass"),
+                                            bundle.getSymbolicName());
                                 }
                             } else {
                                 logger.debug("Updating Capability-Counter for ({}) from bundle ({})",
