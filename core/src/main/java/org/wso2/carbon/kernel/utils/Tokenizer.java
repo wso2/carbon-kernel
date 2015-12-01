@@ -15,9 +15,6 @@
  */
 package org.wso2.carbon.kernel.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Simple tokenizer class. Used to parse data.
  * This class is taken from org.eclipse.osgi.framework.internal.core
@@ -29,6 +26,11 @@ public class Tokenizer {
     protected int max;
     protected int cursor;
 
+    /**
+     * Construct the tokenizer from the given string
+     *
+     * @param value String
+     */
     public Tokenizer(String value) {
         this.value = value.toCharArray();
         max = this.value.length;
@@ -71,42 +73,6 @@ public class Tokenizer {
             return new String(val, begin, count);
         }
         return null;
-    }
-
-    public String getEscapedToken(String terminals) {
-        char[] val = value;
-        int cur = cursor;
-        if (cur >= max) {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder();
-        char c;
-        for (; cur < max; cur++) {
-            c = val[cur];
-            // this is an escaped char
-            if (c == '\\') {
-                cur++; // skip the escape char
-                if (cur == max) {
-                    break;
-                }
-                c = val[cur]; // include the escaped char
-            } else if (terminals.indexOf(c) != -1) {
-                break;
-            }
-            sb.append(c);
-        }
-
-        cursor = cur;
-        return sb.toString();
-    }
-
-    public List<String> getEscapedTokens(String terminals) {
-        List<String> result = new ArrayList<>();
-        for (String token = getEscapedToken(terminals); token != null; token = getEscapedToken(terminals)) {
-            result.add(token);
-            getChar(); // consume terminal
-        }
-        return result;
     }
 
     public String getString(String terminals, String preserveEscapes) {
@@ -164,9 +130,5 @@ public class Tokenizer {
             return (value[cur]);
         }
         return ('\0'); /* end of value */
-    }
-
-    public boolean hasMoreTokens() {
-        return cursor < max;
     }
 }

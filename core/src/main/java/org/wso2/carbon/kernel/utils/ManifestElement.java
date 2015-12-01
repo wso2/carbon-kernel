@@ -18,16 +18,10 @@ package org.wso2.carbon.kernel.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * This class represents a single manifest element.  A manifest element must consist of a single
@@ -145,28 +139,6 @@ public class ManifestElement {
     }
 
     /**
-     * Returns the value components of the manifest element. The value
-     * components returned are the complete list of value components up to
-     * the first attribute or directive.
-     * For example, the following manifest element:
-     * <p>
-     * <pre>
-     * test1.jar;test2.jar;test3.jar;selection-filter="(os.name=Windows XP)"
-     * </pre>
-     * </p>
-     * <p>
-     * This manifest element has the value components array
-     * <tt>{ "test1.jar", "test2.jar", "test3.jar" }</tt>
-     * Each value component is delemited by a semi-colon (<tt>';'</tt>).
-     * </p>
-     *
-     * @return the String[] of value components
-     */
-    public String[] getValueComponents() {
-        return valueComponents.clone();
-    }
-
-    /**
      * Returns the value for the specified attribute or <code>null</code> if it does
      * not exist.  If the attribute has multiple values specified then the last value
      * specified is returned. For example the following manifest element:
@@ -221,33 +193,11 @@ public class ManifestElement {
     }
 
     /**
-     * Returns the value for the specified directive or <code>null</code> if it
-     * does not exist.  If the directive has multiple values specified then the
-     * last value specified is returned. For example the following manifest element:
-     * <p>
-     * <pre>
-     * elementvalue; mydir:="value1"; mydir:="value2"
-     * </pre>
-     * </p>
-     * <p>
-     * specifies two values for the directive key <tt>mydir</tt>.  In this case <tt>value2</tt>
-     * will be returned because it is the last value specified for the directive <tt>mydir</tt>.
-     * </p>
-     *
-     * @param key the directive key to return the value for
-     * @return the directive value or <code>null</code>
-     */
-    public String getDirective(String key) {
-        return getTableValue(directives, key);
-    }
-
-    /**
      * Returns an array of string values for the specified directives or
      * <code>null</code> if it does not exist.
      *
      * @param key the directive key to return the values for
      * @return the array of directive values or <code>null</code>
-     * @see #getDirective(String)
      */
     public String[] getDirectives(String key) {
         return getTableValues(directives, key);
@@ -481,106 +431,6 @@ public class ManifestElement {
         }
 
         return (headerElements.toArray(new ManifestElement[size]));
-    }
-
-    /**
-     * Returns the result of converting a list of comma-separated tokens into an array.
-     *
-     * @param stringList the initial comma-separated string
-     * @return the array of string tokens or <code>null</code> if there are none
-     */
-    public static String[] getArrayFromList(String stringList) {
-        String[] result = getArrayFromList(stringList, ",");
-        return result.length == 0 ? null : result;
-    }
-
-    /**
-     * Returns the result of converting a list of tokens into an array.  The tokens
-     * are split using the specified separator.
-     *
-     * @param stringList the initial string list
-     * @param separator  the separator to use to split the list into tokens.
-     * @return the array of string tokens.  If there are none then an empty array
-     * is returned.
-     */
-    public static String[] getArrayFromList(String stringList, String separator) {
-        if (stringList == null || stringList.trim().length() == 0) {
-            return new String[0];
-        }
-        List<String> list = new ArrayList<>();
-        StringTokenizer tokens = new StringTokenizer(stringList, separator);
-        while (tokens.hasMoreTokens()) {
-            String token = tokens.nextToken().trim();
-            if (token.length() != 0) {
-                list.add(token);
-            }
-        }
-        return list.toArray(new String[list.size()]);
-    }
-
-    /**
-     * Parses a bundle manifest and puts the header/value pairs into the supplied Map.
-     * Only the main section of the manifest is parsed (up to the first blank line).  All
-     * other sections are ignored.  If a header is duplicated then only the last
-     * value is stored in the map.
-     * <p>
-     * The supplied input stream is consumed by this method and will be closed.
-     * If the supplied Map is null then a Map is created to put the header/value pairs into.
-     * </p>
-     *
-     * @param manifest an input stream for a bundle manifest.
-     * @param headers  a map used to put the header/value pairs from the bundle manifest.  This value may be null.
-     * @return the map with the header/value pairs from the bundle manifest
-     * @throws Exception if the manifest has an invalid syntax
-     */
-    public static Map<String, String> parseBundleManifest(InputStream manifest, Map<String, String> headers)
-            throws Exception {
-        if (headers == null) {
-            headers = new HashMap<>();
-        }
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(manifest, "UTF8"))) {
-            String header = null;
-            StringBuilder value = new StringBuilder(256);
-            boolean firstLine = true;
-
-            while (true) {
-                String line = br.readLine();
-                /* The java.util.jar classes in JDK 1.3 use the value of the last
-                 * encountered manifest header. So we do the same to emulate
-                 * this behavior. We no longer throw a BundleException
-                 * for duplicate manifest headers.
-                 */
-
-                if ((line == null) || (line.length() == 0)) /* EOF or empty line */ {
-                    if (!firstLine) /* flush last line */ {
-                        headers.put(header, value.toString().trim());
-                    }
-                    break; /* done processing main attributes */
-                }
-
-                if (line.charAt(0) == ' ') /* continuation */ {
-                    if (firstLine) /* if no previous line */ {
-                        throw new Exception("Invalid space found in manifest content");
-                    }
-                    value.append(line.substring(1));
-                    continue;
-                }
-
-                if (!firstLine) {
-                    headers.put(header, value.toString().trim());
-                    value.setLength(0); /* clear StringBuffer */
-                }
-
-                int colon = line.indexOf(':');
-                if (colon == -1) /* no colon */ {
-                    throw new Exception("Colon not found in manifest header");
-                }
-                header = line.substring(0, colon).trim();
-                value.append(line.substring(colon + 1));
-                firstLine = false;
-            }
-        }
-        return headers;
     }
 
     public String toString() {
