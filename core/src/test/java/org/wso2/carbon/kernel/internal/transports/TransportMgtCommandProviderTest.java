@@ -1,7 +1,5 @@
 package org.wso2.carbon.kernel.internal.transports;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
