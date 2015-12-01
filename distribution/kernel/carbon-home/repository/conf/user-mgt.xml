@@ -190,7 +190,7 @@
             <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be within 5 to 30 characters</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
-            <Property name="SCIMEnabled">false</Property>
+            <Property name="SCIMEnabled">true</Property>
             <Property name="IsBulkImportSupported">true</Property>
             <Property name="EmptyRolesAllowed">true</Property>
             <Property name="PasswordHashMethod">PLAIN_TEXT</Property>
@@ -205,31 +205,6 @@
             <Property name="ReadTimeout"/>
             <Property name="RetryAttempts"/>
         </ISUserStoreManager-->
-
-	<!--	Following configuration is for the CassandraUserStoreManager. The CassandraUserStoreManager is capable of using a Cassandra
-		database as a user store. This user manager supports multiple credentials for authentication. Credential types can be defined
-		and configured in the following configuration. The CassandraUserStoreManager does not ships with the any of the WSO2 Carbon
-		Servers by default, therefor Cassandra user manager component needs to be installed to the Carbon Server befor using.
-
-		And if this CassandraUserStoreManager is used as the primary user store with multi tenants, it should also implement a 
-		compatible TenantManager and set property <Property name="TenantManager">FULL_QUALIFIED_TENANT_MANAGER_CLASS_NAME</Property>.
-	-->
-	<!--UserStoreManager class="org.wso2.carbon.user.cassandra.CassandraUserStoreManager">
-	    <Property name="Keyspace">User_KS3</Property>
-	    <Property name="Host">localhost</Property>
-	    <Property name="Port">9160</Property>
-	    <Property name="PasswordDigest">SHA-256</Property>
-	    <Property name="StoreSaltedPassword">true</Property>
-	    <Property name="AuthenticateWithAnyCredential">true</Property>
-	    <Property name="DomainName">multipleCredentialUserStoreDomain</Property>
-	        <MultipleCredentials>
-		    <Credential type="Default">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
-		    <Credential type="Email">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
-		    <Credential type="PhoneNumber">org.wso2.carbon.user.cassandra.credentialtypes.PhoneNumberCredential</Credential>
-		    <Credential type="Device">org.wso2.carbon.user.cassandra.credentialtypes.DeviceCredential</Credential>
-		    <Credential type="External">org.wso2.carbon.user.cassandra.credentialtypes.ExternalProviderCredential</Credential>
-	        </MultipleCredentials>
-	</UserStoreManager-->
 
         <AuthorizationManager
             class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
