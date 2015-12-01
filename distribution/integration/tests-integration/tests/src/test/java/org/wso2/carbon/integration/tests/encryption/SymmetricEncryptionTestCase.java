@@ -19,7 +19,6 @@
 package org.wso2.carbon.integration.tests.encryption;
 
 import org.apache.axiom.om.util.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.compass.core.util.Assert;
@@ -27,16 +26,13 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
-import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
+import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
 import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
-import org.wso2.carbon.base.ServerConfiguration;
 import org.wso2.carbon.core.util.CryptoException;
-import org.wso2.carbon.core.util.CryptoUtil;
-import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.integration.tests.integration.test.servers.CarbonTestServerManager;
 import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
+import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.carbon.utils.FileManipulator;
 import org.wso2.securevault.SecretResolver;
@@ -45,7 +41,6 @@ import org.wso2.securevault.SecretResolverFactory;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -58,15 +53,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.Properties;
 
 
-public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
+public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
 
     private static final Log log = LogFactory
             .getLog(SymmetricEncryptionTestCase.class);
@@ -81,10 +73,10 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
     private String symmetricKeySecureVaultAlias;
     private static final String resourcePath = "identity/config/symmetricKey";
     private String passwordString = "admin";
-    private String encryptedString = "Adsghjk=";
+    private String encryptedString = "ERMGQpaJhu91fqzzCpcSgQ==";
     private ServerConfigurationManager serverConfigurationManager;
 
-    private static int portOffset = 28;
+    private static int portOffset = 0;
     private TestServerManager serverManager;
     private AutomationContext context;
     private String carbonHome;
@@ -92,48 +84,45 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
-        HashMap<String, String> startUpParameterMap = new HashMap<String, String>();
-        startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
-        context = new AutomationContext();
-        serverManager = new TestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
-        serverManager.startServer();
-        carbonHome = serverManager.getCarbonHome();
+
+        super.init();
+        carbonHome = CarbonUtils.getCarbonHome();
         String pathToCarbonXML = FrameworkPathUtil.getSystemResourceLocation() + "artifacts" + File.separator +
                 "CARBON" + File.separator +
                 "encryption" + File.separator + "carbon.xml";
-        String targetCarbonXML = CarbonUtils.getCarbonHome() + "repository" + File.separator + "conf" + File.separator + "carbon.xml";
+        String targetCarbonXML = carbonHome + File.separator + "repository" + File.separator +
+                "conf" + File.separator + "carbon.xml";
         String pathToSymmetricProperties = FrameworkPathUtil.getSystemResourceLocation() + "artifacts" + File
                 .separator + "CARBON" + File.separator + "encryption" + File.separator + "symmetric-key.properties";
-        String securityFolder = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator +
+        String securityFolder = carbonHome + File.separator + "repository" + File.separator +
                 "resources" + File.separator + "security" + File.separator + "symmetric-key.properties";
-        serverConfigurationManager = new ServerConfigurationManager(context);
-//        Files.copy((new File(pathToSymmetricProperties)).toPath(), (new File(securityFolder)).toPath());
+        serverConfigurationManager = new ServerConfigurationManager(automationContext);
         PrintWriter writer = new PrintWriter(securityFolder, "UTF-8");
-        FileUtils.copyFile(new File(pathToSymmetricProperties), new File(securityFolder));
-        serverConfigurationManager.applyConfiguration(new File(pathToCarbonXML), new File(targetCarbonXML));
+        serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToSymmetricProperties), new File
+                (securityFolder), false);
+        serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToCarbonXML), new File
+                (targetCarbonXML), false);
+        serverConfigurationManager.restartGracefully();
+        super.init();
         readSymmetricKey();
     }
 
     @AfterClass(alwaysRun = true)
     public void destroy() throws Exception {
         serverConfigurationManager.restoreToLastConfiguration();
-        if (serverManager != null) {
-            serverManager.stopServer();
-        }
     }
 
-    @Test(groups = "carbon.core", description = "Check the symmetric encryption")
+    @Test(groups = "carbon.core", description = "Check the symmetric encryption", priority = 1)
     public void encrypt() throws CryptoException {
 
         try {
             uploadApp();
-            String serviceEndpoint = "http://" + context.getInstance().getHosts().get("default") + ":" +
+            String serviceEndpoint = "http://" + automationContext.getInstance().getHosts().get("default") + ":" +
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
                     "/services/DssVerifierService/";
             String endpoint = "encrypt";
             String contentType = "application/soap+xml;charset=UTF-8";
 
-//            String jsonRequest = "{\"" + endpoint + "\":{\"plainText\":" + passwordString + "}}";
             String xmlRequest = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" " +
                     "xmlns:ser=\"http://service.sample.axis2.tests.integration.carbon.wso2.org\">\n" +
                     "   <soap:Header/>\n" +
@@ -160,11 +149,12 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         }
     }
 
-    @Test(groups = "carbon.core", description = "Check decryption of the symmetric encryption")
+    @Test(groups = "carbon.core", description = "Check decryption of the symmetric encryption", priority = 2)
     public void decrypt() throws CryptoException {
 
         try {
-            String serviceEndpoint = "http://" + context.getInstance().getHosts().get("default") + ":" +
+            uploadApp();
+            String serviceEndpoint = "http://" + automationContext.getInstance().getHosts().get("default") + ":" +
                     (Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTP_PORT) + portOffset) +
                     "/services/DssVerifierService/";
             String endpoint = "decrypt";
@@ -179,7 +169,6 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                     "   </soap:Body>\n" +
                     "</soap:Envelope>";
 
-//            String jsonRequest = "{\"" + endpoint + "\":{\"encryptedText\":\"" + encryptedString + "\"}}";
             HttpResponse response = this.getHttpResponse(serviceEndpoint + endpoint, contentType, xmlRequest);
             String decryptedString = response.getData();
             int statusCode = response.getResponseCode();
@@ -205,12 +194,11 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         Properties properties;
 
         try {
-            ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
-            symmetricKeyEncryptEnabled = serverConfiguration.getFirstProperty("SymmetricEncryption.IsEnabled");
-            symmetricKeyEncryptAlgo = serverConfiguration.getFirstProperty("SymmetricEncryption.Algorithm");
-            symmetricKeySecureVaultAlias = serverConfiguration.getFirstProperty("SymmetricEncryption.SecureVaultAlias");
+            symmetricKeyEncryptEnabled = "true";
+            symmetricKeyEncryptAlgo = "AES";
+            symmetricKeySecureVaultAlias = "symmetric.key.value";
 
-            String filePath = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator + "resources" +
+            String filePath = carbonHome + File.separator + "repository" + File.separator + "resources" +
                     File.separator + "security" + File.separator + "symmetric-key.properties";
 
             File file = new File(filePath);
