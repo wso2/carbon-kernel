@@ -141,7 +141,7 @@
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
 
                             <targetPath>file:${basedir}/target/WSO2Carbon</targetPath>
-                            <profile>profile/default</profile>
+                            <profile>profiles/default</profile>
                         </configuration>
                     </execution>
                     <execution>
@@ -151,7 +151,7 @@
                             <goal>install</goal>
                         </goals>
                         <configuration>
-                            <profile>profile/default</profile>
+                            <profile>profiles/default</profile>
                             <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
 
                             <destination>${basedir}/target/WSO2Carbon</destination>
