@@ -21,14 +21,11 @@ package org.wso2.carbon.integration.tests.encryption;
 import org.apache.axiom.om.util.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.compass.core.util.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
-import org.wso2.carbon.automation.engine.context.AutomationContext;
 import org.wso2.carbon.automation.engine.frameworkutils.FrameworkPathUtil;
-import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
 import org.wso2.carbon.automation.test.utils.http.client.HttpResponse;
 import org.wso2.carbon.core.util.CryptoException;
 import org.wso2.carbon.integration.common.utils.mgt.ServerConfigurationManager;
@@ -50,7 +47,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
@@ -58,10 +54,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
 
-public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
+public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
 
-    private static final Log log = LogFactory
-            .getLog(SymmetricEncryptionTestCase.class);
+    private static final Log log = LogFactory.getLog(SymmetricEncryptionTestCase.class);
 
     private static SecretKey symmetricKey = null;
     private static boolean isSymmetricKeyFromFile = false;
@@ -71,16 +66,11 @@ public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
     private String symmetricKeyEncryptEnabled;
     private String symmetricKeyEncryptAlgo;
     private String symmetricKeySecureVaultAlias;
-    private static final String resourcePath = "identity/config/symmetricKey";
     private String passwordString = "admin";
     private String encryptedString = "ERMGQpaJhu91fqzzCpcSgQ==";
     private ServerConfigurationManager serverConfigurationManager;
-
     private static int portOffset = 0;
-    private TestServerManager serverManager;
-    private AutomationContext context;
     private String carbonHome;
-
 
     @BeforeClass(alwaysRun = true)
     public void initialize() throws Exception {
@@ -88,8 +78,7 @@ public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
         super.init();
         carbonHome = CarbonUtils.getCarbonHome();
         String pathToCarbonXML = FrameworkPathUtil.getSystemResourceLocation() + "artifacts" + File.separator +
-                "CARBON" + File.separator +
-                "encryption" + File.separator + "carbon.xml";
+                "CARBON" + File.separator + "encryption" + File.separator + "carbon.xml";
         String targetCarbonXML = carbonHome + File.separator + "repository" + File.separator +
                 "conf" + File.separator + "carbon.xml";
         String pathToSymmetricProperties = FrameworkPathUtil.getSystemResourceLocation() + "artifacts" + File
@@ -97,7 +86,6 @@ public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
         String securityFolder = carbonHome + File.separator + "repository" + File.separator +
                 "resources" + File.separator + "security" + File.separator + "symmetric-key.properties";
         serverConfigurationManager = new ServerConfigurationManager(automationContext);
-        PrintWriter writer = new PrintWriter(securityFolder, "UTF-8");
         serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToSymmetricProperties), new File
                 (securityFolder), false);
         serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToCarbonXML), new File
@@ -138,9 +126,7 @@ public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
 
             if (statusCode != 500) {
                 String encryptedStringTest = Base64.encode(encryptWithSymmetricKey(Base64.decode(passwordString)));
-                if (!encryptedString.equals(encryptedStringTest)) {
-                    Assert.hasText(encryptedString, "Error in encrypting with symmetric key");
-                }
+                assert !encryptedString.equals(encryptedStringTest) : "Error in encrypting with symmetric key";
             }
         } catch (CryptoException e) {
             throw new CryptoException("Error in encrypting with symmetric key");
@@ -175,9 +161,7 @@ public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
 
             if (statusCode != 500) {
                 String decryptedStringTest = Base64.encode(encryptWithSymmetricKey(Base64.decode(encryptedString)));
-                if (!decryptedString.equals(decryptedStringTest)) {
-                    Assert.hasText(decryptedString, "Error in decrypting with symmetric key");
-                }
+                assert !decryptedString.equals(decryptedStringTest) : "Error in decrypting with symmetric key";
             }
         } catch (CryptoException e) {
             throw new CryptoException("Error in decrypting with symmetric key");
@@ -246,7 +230,6 @@ public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
         Cipher c = null;
         byte[] encryptedData = null;
         String encryptionAlgo;
-        String symmetricKeyInRegistry;
         try {
             if (symmetricKeyEncryptAlgo == null) {
                 encryptionAlgo = symmetricKeyEncryptAlgoDefault;
@@ -259,8 +242,6 @@ public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
         } catch (NoSuchAlgorithmException | IllegalBlockSizeException | BadPaddingException |
                 NoSuchPaddingException | InvalidKeyException e) {
             throw new CryptoException("Error when encrypting data.", e);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return encryptedData;
 
@@ -270,15 +251,14 @@ public class SymmetricEncryptionTestCase  extends CarbonIntegrationBaseTest{
         String aarServiceFile = "Axis2SampleService.aar";
         String axis2SampleServiceDir = System.getProperty("axis2.sample.service.dir");
         if (axis2SampleServiceDir == null || !(new File(axis2SampleServiceDir)).exists()) {
-            log.warn("DSS JSON verification test not enabled");
+            log.warn("Symmetric Encryption test not enabled");
             return;
         }
         assert carbonHome != null : "carbonHome cannot be null";
         File srcFile = new File(axis2SampleServiceDir + aarServiceFile);
         assert srcFile.exists() : srcFile.getAbsolutePath() + " does not exist";
-        String deploymentPath =
-                carbonHome + File.separator + "repository" + File.separator + "deployment" + File.separator + "server" +
-                        File.separator + "axis2services";
+        String deploymentPath = carbonHome + File.separator + "repository" + File.separator + "deployment" +
+                File.separator + "server" + File.separator + "axis2services";
         File depFile = new File(deploymentPath);
         if (!depFile.exists() && !depFile.mkdir()) {
             throw new IOException("Error while creating the deployment folder : " + deploymentPath);
