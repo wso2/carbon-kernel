@@ -22,9 +22,9 @@ package org.wso2.carbon.kernel.utils;
  * @since 5.0.0
  */
 public class Tokenizer {
-    protected char value[];
-    protected int max;
-    protected int cursor;
+    private char value[];
+    private int max;
+    private int cursor;
 
     /**
      * Construct the tokenizer from the given string
@@ -51,6 +51,12 @@ public class Tokenizer {
         cursor = cur;
     }
 
+    /**
+     * Returns the next token delimited by the provided terminals String.
+     *
+     * @param terminals String
+     * @return String
+     */
     public String getToken(String terminals) {
         skipWhiteSpace();
         char[] val = value;
@@ -123,6 +129,11 @@ public class Tokenizer {
         return getString(terminals, null);
     }
 
+    /**
+     * Returns the next character to be processed by the tokenizer.
+     *
+     * @return char
+     */
     public char getChar() {
         int cur = cursor;
         if (cur < max) {

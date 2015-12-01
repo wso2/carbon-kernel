@@ -91,15 +91,11 @@ public class ManifestElement {
     private static final Logger logger = LoggerFactory.getLogger(ManifestElement.class);
 
     private static final String MANIFEST_INVALID_HEADER_EXCEPTION = "Invalid header found.";
+
     /**
      * The value of the manifest element.
      */
     private final String mainValue;
-
-    /**
-     * The value components of the manifest element.
-     */
-    private final String[] valueComponents;
 
     /**
      * The table of attributes for the manifest element.
@@ -114,9 +110,8 @@ public class ManifestElement {
     /**
      * Constructs an empty manifest element with no value or attributes.
      */
-    private ManifestElement(String value, String[] valueComponents) {
+    private ManifestElement(String value) {
         this.mainValue = value;
-        this.valueComponents = valueComponents;
     }
 
     /**
@@ -243,7 +238,7 @@ public class ManifestElement {
         return valueList.get(valueList.size() - 1);
     }
 
-    /*
+    /**
      * Return the values associated with the given key in the specified table.
      */
     private String[] getTableValues(Hashtable<String, Object> table, String key) {
@@ -262,7 +257,7 @@ public class ManifestElement {
         return valueList.toArray(new String[valueList.size()]);
     }
 
-    /*
+    /**
      * Return an enumeration of table keys for the specified table.
      */
     private Enumeration<String> getTableKeys(Hashtable<String, Object> table) {
@@ -323,9 +318,7 @@ public class ManifestElement {
             if (next == null) {
                 throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
             }
-            List<String> headerValues = new ArrayList<>();
             StringBuilder headerValue = new StringBuilder(next);
-            headerValues.add(next);
 
             logger.debug("parseHeader: " + next);
             boolean directive = false;
@@ -353,14 +346,12 @@ public class ManifestElement {
                     }
                 }
                 if (c == ';' || c == ',' || c == '\0') /* more */ {
-                    headerValues.add(next);
                     headerValue.append(";").append(next);
                     logger.debug(";" + next);
                 }
             }
             // found the header value create a manifestElement for it.
-            ManifestElement manifestElement = new ManifestElement(headerValue.toString(), headerValues
-                    .toArray(new String[headerValues.size()]));
+            ManifestElement manifestElement = new ManifestElement(headerValue.toString());
 
             // now add any attributes/directives for the manifestElement.
             while (c == '=' || c == ':') {
@@ -408,7 +399,7 @@ public class ManifestElement {
                 }
                 c = tokenizer.getChar();
                 if (c == ';') /* more */ {
-                    next = tokenizer.getToken("=:"); //$NON-NLS-1$
+                    next = tokenizer.getToken("=:");
                     if (next == null) {
                         throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " +
                                 value);
@@ -433,6 +424,11 @@ public class ManifestElement {
         return (headerElements.toArray(new ManifestElement[size]));
     }
 
+    /**
+     * Returns the string representation of the manifest element.
+     *
+     * @return String
+     */
     public String toString() {
         Enumeration<String> attrKeys = getKeys();
         Enumeration<String> directiveKeys = getDirectiveKeys();
