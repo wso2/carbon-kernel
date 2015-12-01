@@ -1,9 +1,16 @@
 package org.wso2.carbon.kernel.internal.transports;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Map;
 
 /**
  * This class test the functionality of org.wso2.carbon.kernel.internal.transports.TransportMgtCommandProvider.
@@ -11,11 +18,14 @@ import org.wso2.carbon.kernel.transports.TransportManager;
  * @since 5.0.0
  */
 public class TransportMgtCommandProviderTest {
+    private static final Logger logger = LoggerFactory.getLogger(TransportMgtCommandProviderTest.class);
+
     private DummyTransport dummyTransportOne;
     private TransportManager transportManager;
     private TransportMgtCommandProvider transportMgtCommandProvider;
     private DummyInterpreter commandInterpreter;
     private DummyTransport[] dummyTransports;
+    private String[] transportIdList;
 
     @BeforeClass
     public void init() {
@@ -34,7 +44,7 @@ public class TransportMgtCommandProviderTest {
 
         dummyTransports = new DummyTransport[randomInt];
 
-        String[] transportIdList = new String[randomInt + 1];
+        transportIdList = new String[randomInt + 1];
         transportIdList[0] = "dummy-transport";
 
         String dummyTransportId;
@@ -119,8 +129,21 @@ public class TransportMgtCommandProviderTest {
 
     @Test (dependsOnMethods = "test_endMaintenance")
     public void test_listTransports() throws Exception {
-        commandInterpreter.resetCounter();
+        String expectedOutputString = "";
+
+        Map<String, CarbonTransport> map = transportManager.getTransports();
+        for (String key : map.keySet()) {
+            expectedOutputString += "Transport Name: " + map.get(key).getId() + "\t" + " State: STOPPED\n";
+        }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        PrintStream old = System.out;
+        System.setOut(ps);
         transportMgtCommandProvider._listTransports(commandInterpreter);
+        System.out.flush();
+        System.setOut(old);
+        Assert.assertEquals(baos.toString(), expectedOutputString);
     }
 
     @Test (dependsOnMethods = "test_listTransports", expectedExceptions = IllegalArgumentException.class)
