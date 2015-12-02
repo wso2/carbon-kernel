@@ -39,9 +39,9 @@ public class Greeter {
     }
 
     /**
-     * This method outputs an info log saying good bye.
+     * This method outputs an info log saying bye.
      */
-    public void sayGoodbye() {
-        logger.info("Good Bye " + name);
+    public void sayBye() {
+        logger.info("Bye " + name);
     }
 }

@@ -45,6 +45,6 @@ public class Activator implements BundleActivator {
      * @throws Exception Could be thrown while bundle stopping
      */
     public void stop(BundleContext bundleContext) throws Exception {
-        greeter.sayGoodbye();
+        greeter.sayBye();
     }
 }
