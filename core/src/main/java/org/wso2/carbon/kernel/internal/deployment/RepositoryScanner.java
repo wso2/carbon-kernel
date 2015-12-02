@@ -42,7 +42,7 @@ public class RepositoryScanner {
     /**
      * A list which holds the artifacts to be deployed.
      */
-    private ArrayList<Artifact> artifactsToDeploy = new ArrayList<>();
+    private List<Artifact> artifactsToDeploy = new ArrayList<>();
     /**
      * A list which holds the artifact to be undeployed.
      */
@@ -50,7 +50,7 @@ public class RepositoryScanner {
     /**
      * A list which holds the artifact to be updated.
      */
-    private ArrayList<Artifact> artifactsToUpdate = new ArrayList<>();
+    private List<Artifact> artifactsToUpdate = new ArrayList<>();
     /**
      * A list to hold the path of the artifacts to be deployed.
      */
