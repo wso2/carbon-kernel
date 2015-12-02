@@ -125,7 +125,7 @@ public class Utils {
     }
 
     /**
-     * When the java security manager is enabled, the {@code Utils#checkSecurity} method can be used to protect/prevent
+     * When the java security manager is enabled, the {@code checkSecurity} method can be used to protect/prevent
      * methods being executed by unsigned code.
      */
     public static void checkSecurity() {
