@@ -48,14 +48,18 @@ public class Utils {
      * @return resolved system property value
      */
     public static String initializeSystemProperties(String value) {
+        //TODO this method is duplicated in org.wso2.carbon.kernel.utils.Utils class. FIX IT.
         String newValue = value;
         Matcher matcher = varPattern.matcher(value);
         while (matcher.find()) {
             String sysPropKey = value.substring(matcher.start() + 2, matcher.end() - 1);
-            String sysPropValue = System.getProperty(sysPropKey);
+            String sysPropValue = getSystemVariableValue(sysPropKey, null);
             if (isNullOrEmpty(sysPropValue)) {
                 throw new RuntimeException("System property " + sysPropKey + " cannot be null");
             }
+
+            // Due to reported bug under CARBON-14746
+            sysPropValue = sysPropValue.replace("\\", "\\\\");
             newValue = newValue.replaceFirst(VAR_REGEXP, sysPropValue);
         }
 
@@ -64,6 +68,27 @@ public class Utils {
         }
 
         return newValue;
+    }
+
+    /**
+     * A utility which allows reading variables from the environment or System properties.
+     * If the variable in available in the environment as well as a System property, the System property takes
+     * precedence.
+     *
+     * @param variableName System/environment variable name
+     * @param defaultValue default value to be returned if the specified system variable is not specified.
+     * @return value of the system/environment variable
+     */
+    public static String getSystemVariableValue(String variableName, String defaultValue) {
+        String value;
+        if (System.getProperty(variableName) != null) {
+            value = System.getProperty(variableName);
+        } else if (System.getenv(variableName) != null) {
+            value = System.getenv(variableName);
+        } else {
+            value = defaultValue;
+        }
+        return value;
     }
 
     /**
