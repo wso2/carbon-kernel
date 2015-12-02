@@ -18,6 +18,7 @@ package org.wso2.carbon.kernel.utils;
 
 import org.wso2.carbon.kernel.Constants;
 
+import java.lang.management.ManagementPermission;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
@@ -121,5 +122,16 @@ public class Utils {
             value = defaultValue;
         }
         return value;
+    }
+
+    /**
+     * When the java security manager is enabled, the {@code Utils#checkSecurity} method can be used to protect/prevent
+     * methods being executed by unsigned code.
+     */
+    public static void checkSecurity() {
+        SecurityManager secMan = System.getSecurityManager();
+        if (secMan != null) {
+            secMan.checkPermission(new ManagementPermission("control"));
+        }
     }
 }

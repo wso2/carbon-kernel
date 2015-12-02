@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.kernel.transports;
 
+import org.wso2.carbon.kernel.utils.Utils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +42,7 @@ public class TransportManager {
         if (transport == null) {
             throw new IllegalArgumentException(transportId + " not found");
         }
+        Utils.checkSecurity();
         transport.startTransport();
     }
 
@@ -48,30 +51,36 @@ public class TransportManager {
         if (transport == null) {
             throw new IllegalArgumentException(transportId + " not found");
         }
+        Utils.checkSecurity();
         transport.stopTransport();
     }
 
     public void startTransports() {
+        Utils.checkSecurity();
         transports.values()
                 .forEach(CarbonTransport::startTransport);
     }
 
     public void stopTransports() {
+        Utils.checkSecurity();
         transports.values()
                 .forEach(CarbonTransport::stopTransport);
     }
 
     public void beginMaintenance() {
+        Utils.checkSecurity();
         transports.values()
                 .forEach(CarbonTransport::beginMaintenance);
     }
 
     public void endMaintenance() {
+        Utils.checkSecurity();
         transports.values()
                 .forEach(CarbonTransport::endMaintenance);
     }
 
     public Map<String, CarbonTransport> getTransports() {
+        Utils.checkSecurity();
         return transports;
     }
 }
