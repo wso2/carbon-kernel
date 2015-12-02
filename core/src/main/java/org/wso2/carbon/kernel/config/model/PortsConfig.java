@@ -15,17 +15,14 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
-import javax.xml.bind.annotation.XmlElement;
-
 /**
- * JAXB mapping for Ports Config.
+ * Ports Config bean.
  *
  * @since 5.0.0
  */
 public class PortsConfig {
 
-    @XmlElement(name = "Offset")
-    private int offset;
+    private int offset = 0;
 
     public int getOffset() {
         return offset;

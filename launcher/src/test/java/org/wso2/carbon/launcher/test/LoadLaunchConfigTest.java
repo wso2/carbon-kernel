@@ -144,7 +144,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "osgi.install.area" has set according to sample launch.properties file
         URL installArea = launchConfig.getOSGiInstallArea();
         String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default").toString();
+                "components", "profiles", "default").toString();
         Assert.assertEquals(expectedLocation, installArea.getPath());
     }
 
@@ -153,7 +153,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "osgi.configuration.area" has set according to sample launch.properties file
         URL osGiConfigurationArea = launchConfig.getOSGiConfigurationArea();
         String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default", "configuration").toString();
+                "components", "profiles", "default", "configuration").toString();
         Assert.assertEquals(expectedLocation, osGiConfigurationArea.getPath());
     }
 
@@ -162,7 +162,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         //test if property "osgi.instance.area" has set according to sample launch.properties file
         URL osGiInstanceArea = launchConfig.getOSGiInstanceArea();
         String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default", "workspace").toString();
+                "components", "profiles", "default", "workspace").toString();
         Assert.assertEquals(expectedLocation, osGiInstanceArea.getPath());
     }
 
