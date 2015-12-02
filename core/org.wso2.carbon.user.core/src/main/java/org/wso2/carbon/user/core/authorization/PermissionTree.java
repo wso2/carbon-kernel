@@ -847,7 +847,7 @@ public class PermissionTree {
                 modified = true;
             }
             if (bs != null) {
-                if(!modified){
+                if (!modified) {
                     allowRoles.remove(roleName);
                 } else {
                     allowRoles.remove(modify(roleName));
