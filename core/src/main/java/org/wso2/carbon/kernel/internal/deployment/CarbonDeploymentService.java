@@ -21,6 +21,7 @@ import org.wso2.carbon.kernel.deployment.Deployer;
 import org.wso2.carbon.kernel.deployment.DeploymentService;
 import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.utils.FileUtils;
+import org.wso2.carbon.kernel.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class CarbonDeploymentService implements DeploymentService {
      */
     public void deploy(String artifactPath, ArtifactType artifactType)
             throws CarbonDeploymentException {
+        Utils.checkSecurity();
         Deployer deployer = carbonDeploymentEngine.getDeployer(artifactType);
         if (deployer == null) {
             throw new CarbonDeploymentException("Unknown artifactType : " + artifactType);
@@ -82,6 +84,7 @@ public class CarbonDeploymentService implements DeploymentService {
      * @throws CarbonDeploymentException this will be thrown on error situation while trying undeploy the given artifact
      */
     public void undeploy(Object key, ArtifactType artifactType) throws CarbonDeploymentException {
+        Utils.checkSecurity();
         Deployer deployer = carbonDeploymentEngine.getDeployer(artifactType);
         if (deployer == null) {
             throw new CarbonDeploymentException("Unknown artifactType : " + artifactType);

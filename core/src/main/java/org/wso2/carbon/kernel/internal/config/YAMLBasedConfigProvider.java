@@ -45,6 +45,7 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
      * @return CarbonConfiguration
      */
     public CarbonConfiguration getCarbonConfiguration() {
+        org.wso2.carbon.kernel.utils.Utils.checkSecurity();
         String configFileLocation = Utils.getCarbonYAMLLocation();
         try (InputStream inputStream = new FileInputStream(configFileLocation)) {
 
