@@ -312,7 +312,16 @@ public class AdvancedJDBCRealmTest extends BaseTestCase {
 
            // Renaming Role
            admin.updateRoleName("role4", "role5");
-           
+
+        try {
+            // updating to invalid role name
+            admin.updateRoleName("role5", "role@12#$");
+            fail("Able to rename role with invalid characters");
+        } catch (UserStoreException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Expected error, hence ignored", e);
+            }
+        }
 
            String[] rolesOfSaman = admin.getRoleListOfUser("saman");
            assertEquals(3, rolesOfSaman.length);
