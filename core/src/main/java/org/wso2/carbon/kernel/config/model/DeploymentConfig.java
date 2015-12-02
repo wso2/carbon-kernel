@@ -15,33 +15,25 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
-import org.wso2.carbon.kernel.utils.Utils;
-
-import javax.xml.bind.annotation.XmlElement;
-
 /**
- * JAXB mapping for Deployment Config.
+ * Deployment Config bean.
  *
  * @since 5.0.0
  */
 public class DeploymentConfig {
 
-    @XmlElement(name = "Mode", required = true)
-    private DeploymentModeEnum mode;
+    private DeploymentModeEnum mode = DeploymentModeEnum.scheduled;
 
-    @XmlElement(name = "RepositoryLocation", required = true)
-    private String repositoryLocation;
+    private String repositoryLocation = "${carbon.home}/repository/deployment/server/";
 
-    @XmlElement(name = "UpdateInterval", required = true)
-    private int updateInterval;
+    private int updateInterval = 15;
 
     public DeploymentModeEnum getMode() {
         return mode;
     }
 
     public String getRepositoryLocation() {
-        //TODO Find a better solution to filtering of system properties.[CARBON-14705]
-        return Utils.substituteVars(repositoryLocation);
+        return repositoryLocation;
     }
 
     public int getUpdateInterval() {

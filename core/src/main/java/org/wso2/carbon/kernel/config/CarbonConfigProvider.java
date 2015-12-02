@@ -33,6 +33,4 @@ public interface CarbonConfigProvider {
      * @return a instance of the CarbonConfiguration
      */
     public CarbonConfiguration getCarbonConfiguration();
-
-    //TODO move the model to this package
 }
