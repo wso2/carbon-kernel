@@ -159,20 +159,20 @@ public class Main {
      */
     public static void processCmdLineArgs(String[] args) {
         // Set the System properties
-        Arrays.asList(args).stream().forEach(arg -> {
-            if (arg.startsWith("-D")) {
-                int indexOfEq = arg.indexOf('=');
-                String property;
-                String value;
-                if (indexOfEq != -1) {
-                    property = arg.substring(2, indexOfEq);
-                    value = arg.substring(indexOfEq + 1);
-                } else {
-                    property = arg.substring(2);
-                    value = "true";
-                }
-                System.setProperty(property, value);
+        Arrays.asList(args).stream()
+                .filter(arg -> arg.startsWith("-D"))
+                .forEach(arg -> {
+            int indexOfEq = arg.indexOf('=');
+            String property;
+            String value;
+            if (indexOfEq != -1) {
+                property = arg.substring(2, indexOfEq);
+                value = arg.substring(indexOfEq + 1);
+            } else {
+                property = arg.substring(2);
+                value = "true";
             }
+            System.setProperty(property, value);
         });
     }
 
