@@ -9,5 +9,5 @@ public interface Greeter {
 
     void sayHello();
 
-    void sayGoodBye();
+    void sayBye();
 }
