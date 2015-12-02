@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -158,21 +159,22 @@ public class Main {
      */
     public static void processCmdLineArgs(String[] args) {
         // Set the System properties
-        for (String arg : args) {
-            if (arg.startsWith("-D")) {
-                int indexOfEq = arg.indexOf('=');
-                String property;
-                String value;
-                if (indexOfEq != -1) {
-                    property = arg.substring(2, indexOfEq);
-                    value = arg.substring(indexOfEq + 1);
-                } else {
-                    property = arg.substring(2);
-                    value = "true";
-                }
-                System.setProperty(property, value);
-            }
-        }
+        Arrays.asList(args)
+                .stream()
+                .filter(arg -> arg.startsWith("-D"))
+                .forEach(arg -> {
+                    int indexOfEq = arg.indexOf('=');
+                    String property;
+                    String value;
+                    if (indexOfEq != -1) {
+                        property = arg.substring(2, indexOfEq);
+                        value = arg.substring(indexOfEq + 1);
+                    } else {
+                        property = arg.substring(2);
+                        value = "true";
+                    }
+                    System.setProperty(property, value);
+                });
     }
 
     /**

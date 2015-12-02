@@ -84,8 +84,6 @@ public class Utils {
      * @return String substituted string
      */
     public static String substituteVariables(String value) {
-        //TODO this method is duplicated in org.wso2.carbon.launcher.utils package. FIX IT.
-
         String newValue = value;
 
         Matcher matcher = varPattern.matcher(value);
