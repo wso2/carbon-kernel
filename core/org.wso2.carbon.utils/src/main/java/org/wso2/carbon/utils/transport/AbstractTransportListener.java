@@ -194,7 +194,12 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
             }
 
             if(workerProxyPort != null) {
-                tmp += ":" + workerProxyPort.trim() + proxyContextPath + serviceContextPath + "/" + serviceName;
+                int workerProxyPortParsed = Integer.parseInt(workerProxyPort.trim());
+                if (workerProxyPortParsed == 80 || workerProxyPortParsed == 443) {
+                    tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
+                } else {
+                    tmp += ":" + workerProxyPortParsed + proxyContextPath + serviceContextPath + "/" + serviceName;
+                }
             } else if (proxyPort == 80 || proxyPort == 443) {
                 tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
             } else if (proxyPort != -1) {
