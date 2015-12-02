@@ -15,10 +15,8 @@
  */
 package org.wso2.carbon.kernel.internal.startupresolver;
 
-import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -33,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.kernel.utils.ManifestElement;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -84,7 +83,7 @@ public class RequireCapabilityCoordinator {
     /**
      * Process Provide-Capability headers and populate a counter which keep all the expected service counts. Register
      * timers to track the service availability as well as pending service registrations.
-     *
+     * <p>
      * If there are no RequireCapabilityListener instances then this method returns.
      *
      * @param bundleContext OSGi bundle context of the Carbon.core bundle
@@ -119,7 +118,7 @@ public class RequireCapabilityCoordinator {
                             .forEach(capabilityName -> {
                                 synchronized (capabilityName.intern()) {
                                     logger.debug("Invoking listener ({}) as all its required capabilities are " +
-                                            "available for ({})", listenerMap.get(capabilityName).getClass().getName(),
+                                           "available for ({})", listenerMap.get(capabilityName).getClass().getName(),
                                             capabilityName);
                                     listenerMap.remove(capabilityName).onAllRequiredCapabilitiesAvailable();
                                     closeCapabilityTracker(capabilityName);
@@ -160,11 +159,11 @@ public class RequireCapabilityCoordinator {
 
     /**
      * Register RequireCapabilityListener instance as and when they are available.
-     *
+     * <p>
      * First extract the required OSGi service interface from the service properties and then register a
      * {@link ServiceTracker} to track required OSGi services.
      *
-     * @param listener an instance of the RequireCapabilityListener interface.
+     * @param listener    an instance of the RequireCapabilityListener interface.
      * @param propertyMap OSGi service properties registered with the listener.
      */
     @Reference(
@@ -287,7 +286,6 @@ public class RequireCapabilityCoordinator {
     /**
      * Implementation of the {@link Predicate} interface which checks whether the given capability name satisfy the
      * test condition so that the relevant capability listeners can be invoked.
-     *
      */
     private class CapabilityNamePredicate implements Predicate<String> {
         @Override
@@ -346,7 +344,7 @@ public class RequireCapabilityCoordinator {
                                 capabilityCounter.incrementAndGet(element.getAttribute("objectClass"));
                             }
                         });
-            } catch (BundleException e) {
+            } catch (Exception e) {
                 logger.error("Error occurred while parsing the {} header in bundle {}",
                         PROVIDE_CAPABILITY, bundle.getSymbolicName(), e);
             }
