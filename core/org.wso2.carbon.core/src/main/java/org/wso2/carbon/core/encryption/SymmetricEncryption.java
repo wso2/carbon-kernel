@@ -20,10 +20,7 @@ package org.wso2.carbon.core.encryption;
 
 import org.apache.axiom.om.util.Base64;
 import org.wso2.carbon.base.ServerConfiguration;
-import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.CryptoException;
-import org.wso2.carbon.registry.core.Resource;
-import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -40,8 +37,6 @@ import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 public class SymmetricEncryption {
