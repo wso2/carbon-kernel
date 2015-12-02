@@ -125,7 +125,6 @@ public class DeploymentEngine {
      * @throws DeployerRegistrationException Throwing deployment registration exception
      */
     public void registerDeployer(Deployer deployer) throws DeployerRegistrationException {
-
         if (deployer == null) {
             throw new DeployerRegistrationException("Failed to add Deployer : " +
                     "Deployer Class Name is null");
@@ -178,8 +177,7 @@ public class DeploymentEngine {
      * @return Deployer instance
      */
     public Deployer getDeployer(ArtifactType type) {
-        Deployer existingDeployer = deployerMap.get(type);
-        return (existingDeployer != null) ? existingDeployer : null;
+        return deployerMap.get(type);
     }
 
     /**
@@ -229,9 +227,7 @@ public class DeploymentEngine {
      * @param artifactsToDeploy list of artifacts to deploy
      */
     public void deployArtifacts(List<Artifact> artifactsToDeploy) {
-
-        for (Object artifact : artifactsToDeploy) {
-            Artifact artifactToDeploy = (Artifact) artifact;
+        artifactsToDeploy.forEach(artifactToDeploy -> {
             try {
                 Deployer deployer = getDeployer(artifactToDeploy.getType());
                 if (deployer != null) {
@@ -246,7 +242,7 @@ public class DeploymentEngine {
                 //TODO : Handle faulty artifact deployment
                 logger.error("Error while deploying artifacts", e);
             }
-        }
+        });
     }
 
     /**
@@ -255,8 +251,7 @@ public class DeploymentEngine {
      * @param artifactsToUpdate list of artifacts to update
      */
     public void updateArtifacts(List<Artifact> artifactsToUpdate) {
-        for (Object artifact : artifactsToUpdate) {
-            Artifact artifactToUpdate = (Artifact) artifact;
+        artifactsToUpdate.forEach(artifactToUpdate -> {
             try {
                 Deployer deployer = getDeployer(artifactToUpdate.getType());
                 if (deployer != null) {
@@ -271,7 +266,7 @@ public class DeploymentEngine {
                 //TODO : Handle faulty artifact deployment
                 logger.error("Error while updating artifacts", e);
             }
-        }
+        });
     }
 
     private void addToDeployedArtifacts(Artifact artifact) {
@@ -290,8 +285,7 @@ public class DeploymentEngine {
      * @param artifactsToUndeploy list of artifacts to undeploy
      */
     public void undeployArtifacts(List<Artifact> artifactsToUndeploy) {
-        for (Object artifact : artifactsToUndeploy) {
-            Artifact artifactToUnDeploy = (Artifact) artifact;
+        artifactsToUndeploy.forEach(artifactToUnDeploy -> {
             try {
                 Deployer deployer = getDeployer(artifactToUnDeploy.getType());
                 if (deployer != null) {
@@ -304,7 +298,7 @@ public class DeploymentEngine {
             } catch (CarbonDeploymentException e) {
                 logger.error("Error while undeploying artifacts", e);
             }
-        }
+        });
     }
 
     private void removeFromDeployedArtifacts(Artifact artifact) {

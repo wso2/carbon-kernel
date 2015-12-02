@@ -87,8 +87,7 @@ public class CarbonDeploymentService implements DeploymentService {
             throw new CarbonDeploymentException("Unknown artifactType : " + artifactType);
         }
 
-        Artifact deployedArtifact = carbonDeploymentEngine.getDeployedArtifact(artifactType,
-                key);
+        Artifact deployedArtifact = carbonDeploymentEngine.getDeployedArtifact(artifactType, key);
         if (deployedArtifact != null) {
             FileUtils.deleteDir(new File(deployedArtifact.getPath()));
         } else {

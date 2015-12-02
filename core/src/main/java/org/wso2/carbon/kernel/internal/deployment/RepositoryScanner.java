@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.deployment.Artifact;
 import org.wso2.carbon.kernel.deployment.ArtifactType;
-import org.wso2.carbon.kernel.deployment.Deployer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -77,11 +76,13 @@ public class RepositoryScanner {
      */
     private void mark() {
         File carbonRepo = carbonDeploymentEngine.getRepositoryDirectory();
-        for (Deployer deployer : carbonDeploymentEngine.getDeployers().values()) {
-            File deploymentLocation = Utils.resolveFileURL(deployer.getLocation().getPath(),
-                    carbonRepo.getPath());
-            findArtifactsToDeploy(deploymentLocation, deployer.getArtifactType());
-        }
+        carbonDeploymentEngine.getDeployers()
+                .values()
+                .forEach(deployer -> {
+                    File deploymentLocation = Utils.resolveFileURL(deployer.getLocation().getPath(),
+                            carbonRepo.getPath());
+                    findArtifactsToDeploy(deploymentLocation, deployer.getArtifactType());
+                });
         checkUndeployedArtifacts();
     }
 
@@ -123,7 +124,7 @@ public class RepositoryScanner {
     private void findArtifactsToDeploy(File directoryToSearch, ArtifactType type) {
         File[] files = directoryToSearch.listFiles();
         if (files != null && files.length > 0) {
-            Arrays.asList(files).stream().forEach(
+            Arrays.asList(files).forEach(
                     file -> {
                         Artifact artifact = new Artifact(file);
                         artifact.setType(type);
@@ -172,7 +173,6 @@ public class RepositoryScanner {
                 carbonDeploymentEngine.getDeployedArtifacts();
 
         deployedArtifacts.values()
-                .stream()
                 .forEach(artifactMap -> artifactsToUndeploy = artifactMap.values()
                         .stream()
                         .filter(artifact -> artifactFilePathList
