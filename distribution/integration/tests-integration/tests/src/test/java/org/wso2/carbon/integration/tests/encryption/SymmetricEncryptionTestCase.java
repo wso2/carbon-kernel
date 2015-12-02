@@ -97,7 +97,6 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
         serverConfigurationManager.applyConfigurationWithoutRestart(new File(pathToCarbonXML), new File
                 (targetCarbonXML), false);
         serverConfigurationManager.restartGracefully();
-        super.init();
         uploadApp();
         readSymmetricKey();
     }
@@ -141,8 +140,6 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                 String encryptedStringTest = Base64.encode(encryptWithSymmetricKey(passwordString.getBytes()));
                 Assert.assertEquals("Error in encrypting with symmetric key", encryptedString, encryptedStringTest);
             }
-        } catch (CryptoException e) {
-            throw new CryptoException("Error in encrypting with symmetric key");
         } catch (Exception e) {
             throw new CryptoException("Error in encrypting with symmetric key");
         }
@@ -182,8 +179,6 @@ public class SymmetricEncryptionTestCase extends CarbonIntegrationBaseTest {
                 String decryptedStringTest = new String(decryptWithSymmetricKey(Base64.decode(encryptedString)));
                 Assert.assertEquals("Error in decrypting with symmetric key", decryptedString, decryptedStringTest);
             }
-        } catch (CryptoException e) {
-            throw new CryptoException("Error in decrypting with symmetric key");
         } catch (Exception e) {
             throw new CryptoException("Error in decrypting with symmetric key");
         }
