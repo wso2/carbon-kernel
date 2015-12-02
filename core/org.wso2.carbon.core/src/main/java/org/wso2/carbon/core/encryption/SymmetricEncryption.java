@@ -20,7 +20,10 @@ package org.wso2.carbon.core.encryption;
 
 import org.apache.axiom.om.util.Base64;
 import org.wso2.carbon.base.ServerConfiguration;
+import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.core.util.CryptoException;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.session.UserRegistry;
 import org.wso2.carbon.utils.CarbonUtils;
 import org.wso2.securevault.SecretResolver;
 import org.wso2.securevault.SecretResolverFactory;
@@ -37,6 +40,8 @@ import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 public class SymmetricEncryption {
@@ -71,10 +76,17 @@ public class SymmetricEncryption {
         try {
             ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
             symmetricKeyEncryptEnabled = serverConfiguration.getFirstProperty("SymmetricEncryption.IsEnabled");
+
+            if (!Boolean.parseBoolean(symmetricKeyEncryptEnabled)) {
+                return;
+            }
+
             symmetricKeyEncryptAlgo = serverConfiguration.getFirstProperty("SymmetricEncryption.Algorithm");
             symmetricKeySecureVaultAlias = serverConfiguration.getFirstProperty("SymmetricEncryption.SecureVaultAlias");
 
-            String filePath = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator + "resources" +
+
+            String filePath = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator +
+                    "resources" +
                     File.separator + "security" + File.separator + "symmetric-key.properties";
 
             File file = new File(filePath);
@@ -105,8 +117,8 @@ public class SymmetricEncryption {
                                 Base64.decode((String) properties.get(secretAlias)).length, encryptionAlgo);
                     }
                 } else if (properties.containsKey(propertyKey)) {
-                    symmetricKey = new SecretKeySpec(properties.getProperty(propertyKey).getBytes(), 0,
-                            properties.getProperty(propertyKey).getBytes().length, encryptionAlgo);
+                    symmetricKey = new SecretKeySpec(Base64.decode(properties.getProperty(propertyKey)), 0,
+                            Base64.decode(properties.getProperty(propertyKey)).length, encryptionAlgo);
                 }
 
                 if (symmetricKey != null) {
@@ -117,6 +129,7 @@ public class SymmetricEncryption {
             if (!isSymmetricKeyFromFile) {
                 throw new CryptoException("Error in generating symmetric key. Symmetric key is not available.");
             }
+
         } catch (Exception e) {
             throw new CryptoException("Error in generating symmetric key", e);
         }
