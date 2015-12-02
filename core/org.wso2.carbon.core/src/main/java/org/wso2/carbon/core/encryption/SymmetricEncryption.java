@@ -76,6 +76,11 @@ public class SymmetricEncryption {
         try {
             ServerConfiguration serverConfiguration = ServerConfiguration.getInstance();
             symmetricKeyEncryptEnabled = serverConfiguration.getFirstProperty("SymmetricEncryption.IsEnabled");
+
+            if (!Boolean.parseBoolean(symmetricKeyEncryptEnabled)) {
+                return;
+            }
+
             symmetricKeyEncryptAlgo = serverConfiguration.getFirstProperty("SymmetricEncryption.Algorithm");
             symmetricKeySecureVaultAlias = serverConfiguration.getFirstProperty("SymmetricEncryption.SecureVaultAlias");
 
