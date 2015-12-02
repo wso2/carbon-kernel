@@ -40,34 +40,51 @@ public class YAMLBasedConfigProviderTest extends BaseTest {
 
     @BeforeClass
     public void init() {
+        System.setProperty("carbon.home", "/home/siripala/wso2carbon-5.0.0");
+        System.setProperty("carbon.version", "1.0.0");
+        System.setProperty("carbon.offset", "10");
         yamlBasedConfigProvider = new YAMLBasedConfigProvider();
     }
 
-    @Test
+    @Test(expectedExceptions = RuntimeException.class,
+            expectedExceptionsMessageRegExp = "Failed populate CarbonConfiguration from.*")
     public void testGetCarbonConfigurationFailScenario() throws Exception {
         System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("wrongPath").getAbsolutePath());
         CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
-        Assert.assertNull(carbonConfiguration);
-        System.clearProperty(Constants.CARBON_REPOSITORY);
     }
 
     @Test(dependsOnMethods = "testGetCarbonConfigurationFailScenario")
     public void testGetCarbonConfiguration() throws Exception {
-        String backupRepoLocation = System.getProperty(Constants.CARBON_REPOSITORY);
         System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("yaml").getAbsolutePath());
 
         CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
 
         Assert.assertEquals(carbonConfiguration.getId(), "carbon-kernel");
         Assert.assertEquals(carbonConfiguration.getName(), "WSO2 Carbon Kernel");
-        Assert.assertEquals(carbonConfiguration.getVersion(), "1.2.3");
-        Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0);
+
+        // Test for system property substitution
+        Assert.assertEquals(carbonConfiguration.getVersion(), "1.0.0");
+
+        // Test for system property substitution
+        Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 10);
 
         DeploymentConfig deploymentConfig = carbonConfiguration.getDeploymentConfig();
 
+        // Test for default values
         Assert.assertEquals(deploymentConfig.getUpdateInterval(), 15);
-        Assert.assertEquals(deploymentConfig.getRepositoryLocation(), "test-repo-location");
+
+        // Test for system property substitution
+        Assert.assertEquals(deploymentConfig.getRepositoryLocation(),
+                "/home/siripala/wso2carbon-5.0.0/repository/deployment/server/");
         Assert.assertEquals(deploymentConfig.getMode(), DeploymentModeEnum.scheduled);
+    }
+
+    public void testForDefaultValuesInCarbonConfiguration() throws Exception {
+        String backupRepoLocation = System.getProperty(Constants.CARBON_REPOSITORY);
+        System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("yaml").getAbsolutePath());
+        CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
+
+        Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0, "Port offset value should be 0");
 
         if (backupRepoLocation != null) {
             System.setProperty(Constants.CARBON_REPOSITORY, backupRepoLocation);
