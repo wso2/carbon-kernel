@@ -185,7 +185,7 @@ public class UtilsTest {
             isCarbonHomeChanged = true;
         }
 
-        Assert.assertEquals(Utils.substituteVars("${carbon.home}"), carbonHome);
+        Assert.assertEquals(Utils.substituteVariables("${carbon.home}"), carbonHome);
 
         if (isCarbonHomeChanged) {
             System.clearProperty(Constants.CARBON_HOME);
@@ -203,7 +203,7 @@ public class UtilsTest {
         }
 
         try {
-            Utils.substituteVars("${carbon.home}");
+            Utils.substituteVariables("${carbon.home}");
         } finally {
             if (isCarbonHomeChanged) {
                 System.setProperty(Constants.CARBON_HOME, carbonHome);
