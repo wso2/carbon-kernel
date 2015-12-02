@@ -115,14 +115,14 @@ public class RequireCapabilityCoordinator {
                 public void run() {
                     listenerMap.keySet()
                             .stream()
-                            .filter(key -> capabilityCounter.get(key) == 0 && listenerMap.get(key) != null &&
-                                    capabilityProviderCounter.get(key) == 0)
-                            .forEach(key -> {
-                                synchronized (key.intern()) {
+                            .filter(new CapabilityNamePredicate())
+                            .forEach(capabilityName -> {
+                                synchronized (capabilityName.intern()) {
                                     logger.debug("Invoking listener ({}) as all its required capabilities are " +
-                                            "available for ({})", listenerMap.get(key).getClass().getName(), key);
-                                    listenerMap.remove(key).onAllRequiredCapabilitiesAvailable();
-                                    closeCapabilityTracker(key);
+                                            "available for ({})", listenerMap.get(capabilityName).getClass().getName(),
+                                            capabilityName);
+                                    listenerMap.remove(capabilityName).onAllRequiredCapabilitiesAvailable();
+                                    closeCapabilityTracker(capabilityName);
                                 }
                             });
                 }
@@ -134,13 +134,15 @@ public class RequireCapabilityCoordinator {
                 public void run() {
                     listenerMap.keySet()
                             .stream()
-                            .forEach(key -> {
-                                synchronized (key.intern()) {
-                                    if (capabilityProviderCounter.get(key) == 0 && capabilityCounter.get(key) > 0) {
-                                        logger.warn("Waiting on pending capability registration for ({})", key);
-                                    } else if (capabilityProviderCounter.get(key) > 0) {
+                            .forEach(capabilityName -> {
+                                synchronized (capabilityName.intern()) {
+                                    if (capabilityProviderCounter.get(capabilityName) == 0 &&
+                                            capabilityCounter.get(capabilityName) > 0) {
+                                        logger.warn("Waiting on pending capability registration for ({})",
+                                                capabilityName);
+                                    } else if (capabilityProviderCounter.get(capabilityName) > 0) {
                                         logger.warn("Waiting on pending capability provider registration for ({})",
-                                                key);
+                                                capabilityName);
                                     }
                                 }
                             });
@@ -175,26 +177,26 @@ public class RequireCapabilityCoordinator {
     public void registerRequireCapabilityListener(RequiredCapabilityListener listener,
                                                   Map<String, String> propertyMap) {
 
-        String requiredServiceKey = propertyMap.get(CAPABILITY_NAME);
-        if (requiredServiceKey == null || requiredServiceKey.equals("")) {
+        String capabilityName = propertyMap.get(CAPABILITY_NAME);
+        if (capabilityName == null || capabilityName.equals("")) {
             logger.warn("RequireCapabilityListener service ({}) does not contain the proper " +
                             "capability-name name",
                     listener.getClass().getName());
             return;
         } else {
-            requiredServiceKey = requiredServiceKey.trim();
+            capabilityName = capabilityName.trim();
         }
 
-        logger.debug("Updating listenerMap for ({}), from ({})", requiredServiceKey, listener.getClass().getName());
+        logger.debug("Updating listenerMap for ({}), from ({})", capabilityName, listener.getClass().getName());
 
-        listenerMap.put(requiredServiceKey, listener);
+        listenerMap.put(capabilityName, listener);
 
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
         if (bundleContext != null) {
-            final String serviceClazz = requiredServiceKey;
+            final String serviceClazz = capabilityName;
             ServiceTracker<Object, Object> serviceTracker = new ServiceTracker<>(
                     bundleContext,
-                    requiredServiceKey,
+                    capabilityName,
                     new ServiceTrackerCustomizer<Object, Object>() {
                         @Override
                         public Object addingService(ServiceReference<Object> reference) {
@@ -218,7 +220,7 @@ public class RequireCapabilityCoordinator {
                         }
                     });
             serviceTracker.open();
-            capabilityTrackerMap.put(requiredServiceKey, serviceTracker);
+            capabilityTrackerMap.put(capabilityName, serviceTracker);
         }
     }
 
@@ -262,22 +264,39 @@ public class RequireCapabilityCoordinator {
             logger.warn("CapabilityProvider service ({}) does not contain the capability name",
                     provider.getClass().getName());
         } else {
-            final String capabilityName = dynamicCapabilityName.trim();
-            logger.debug("Updating CapabilityCounter with Capability-Name : ({}) , Capability-Count : {}",
-                    capabilityName, provider.getCount());
-            int providerCount = capabilityProviderCounter.decrementAndGet(capabilityName);
-            logger.debug("Current provider count for ({}) capability is {}", capabilityName, providerCount);
-            IntStream.range(0, provider.getCount()).forEach(
-                    count -> {
-                        int currentCount = capabilityCounter.incrementAndGet(capabilityName);
-                        logger.debug("Current count for ({}) capability is {}", capabilityName, currentCount);
-                    }
-            );
+            String capabilityName = dynamicCapabilityName.trim();
+            synchronized (capabilityName.intern()) {
+                logger.debug("Updating CapabilityCounter with Capability-Name : ({}) , Capability-Count : {}",
+                        capabilityName, provider.getCount());
+                int providerCount = capabilityProviderCounter.decrementAndGet(capabilityName);
+                logger.debug("Current provider count for ({}) capability is {}", capabilityName, providerCount);
+                IntStream.range(0, provider.getCount()).forEach(
+                        count -> {
+                            int currentCount = capabilityCounter.incrementAndGet(capabilityName);
+                            logger.debug("Current count for ({}) capability is {}", capabilityName, currentCount);
+                        }
+                );
+            }
         }
     }
 
     public void unregisterCapabilityProvider(CapabilityProvider provider) {
 
+    }
+
+    /**
+     * Implementation of the {@link Predicate} interface which checks whether the given capability name satisfy the
+     * test condition so that the relevant capability listeners can be invoked.
+     *
+     */
+    private class CapabilityNamePredicate implements Predicate<String> {
+        @Override
+        public boolean test(String capabilityName) {
+            synchronized (capabilityName.intern()) {
+                return capabilityCounter.get(capabilityName) == 0 && listenerMap.get(capabilityName) != null &&
+                        capabilityProviderCounter.get(capabilityName) == 0;
+            }
+        }
     }
 
     /**
@@ -315,11 +334,11 @@ public class RequireCapabilityCoordinator {
                                         element.getAttribute("objectClass"), bundle.getSymbolicName());
                                 requiredCapabilityListenerCount.incrementAndGet();
                             } else if (CapabilityProvider.class.getName().equals(element.getAttribute("objectClass"))) {
-                                String capability = element.getAttribute(CAPABILITY_NAME);
-                                if (capability != null && !capability.isEmpty()) {
+                                String capabilityName = element.getAttribute(CAPABILITY_NAME);
+                                if (capabilityName != null && !capabilityName.isEmpty()) {
                                     logger.debug("Adding Capability-Provider for ({}) to watch list from bundle ({})",
-                                            capability, bundle.getSymbolicName());
-                                    capabilityProviderCounter.incrementAndGet(capability.trim());
+                                            capabilityName, bundle.getSymbolicName());
+                                    capabilityProviderCounter.incrementAndGet(capabilityName.trim());
                                 }
                             } else {
                                 logger.debug("Updating Capability-Counter for ({}) from bundle ({})",
