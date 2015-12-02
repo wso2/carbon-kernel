@@ -704,7 +704,7 @@ public class PermissionTree {
             Map<String, BitSet> bsAllowed = node.getRoleAllowPermissions();
             for (String role : roles) {
                 BitSet bs = bsAllowed.get(role);
-                if(bs == null) {
+                if (bs == null) {
                     bs = bsAllowed.get(modify(role));
                 }
                 if (bs != null && bs.get(permission.ordinal())) {
@@ -798,12 +798,12 @@ public class PermissionTree {
 
             BitSet bs = allowRoles.get(roleName);
             boolean modified = false;
-            if(bs == null) {
+            if (bs == null) {
                 bs = allowRoles.get(modify(roleName));
                 modified = true;
             }
             if (bs != null) {
-                if(modified){
+                if (modified) {
                     allowRoles.remove(modify(roleName));
                 } else {
                     allowRoles.remove(roleName);
@@ -811,12 +811,12 @@ public class PermissionTree {
             }
             modified = false;
             bs = denyRoles.get(roleName);
-            if(bs == null) {
+            if (bs == null) {
                 bs = denyRoles.get(modify(roleName));
                 modified = true;
             }
             if (bs != null) {
-                if(modified){
+                if (modified) {
                     denyRoles.remove(modify(roleName));
                 } else {
                     denyRoles.remove(roleName);
@@ -862,7 +862,7 @@ public class PermissionTree {
                 modified = true;
             }
             if (bs != null) {
-                if(!modified){
+                if (!modified) {
                     denyRoles.remove(roleName);
                 } else {
                     denyRoles.remove(modify(roleName));
