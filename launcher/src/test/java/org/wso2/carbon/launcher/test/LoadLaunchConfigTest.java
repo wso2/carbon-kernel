@@ -79,13 +79,13 @@ public class LoadLaunchConfigTest extends BaseTest {
 
     @Test
     public void loadCarbonLaunchConfigFromFileTestCase() {
-        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(),
-                LAUNCH_PROPERTIES_FILE).toString();
+        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(), LAUNCH_PROPERTIES_FILE)
+                .toString();
         File launchPropFile = new File(launchPropFilePath);
 
         if (launchPropFile.exists()) {
-            logger.log(Level.FINE, "Loading the Carbon launch configuration from the file " +
-                    launchPropFile.getAbsolutePath());
+            logger.log(Level.FINE,
+                    "Loading the Carbon launch configuration from the file " + launchPropFile.getAbsolutePath());
 
             //loading launch.properties file
             launchConfig = new CarbonLaunchConfig(launchPropFile);
@@ -101,22 +101,21 @@ public class LoadLaunchConfigTest extends BaseTest {
 
     @Test
     public void loadCarbonLaunchConfigFromURLTestCase() throws MalformedURLException {
-        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(),
-                LAUNCH_PROPERTIES_FILE).toString();
+        String launchPropFilePath = Paths.get(Utils.getLaunchConfigDirectory().toString(), LAUNCH_PROPERTIES_FILE)
+                .toString();
         URL launchPropFileURL = new File(launchPropFilePath).toURI().toURL();
 
         launchConfig = new CarbonLaunchConfig(launchPropFileURL);
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromFileTestCase" })
     public void loadLaunchConfigOSGiFrameworkTestCase() {
         //test if property "carbon.osgi.framework" has set according to sample launch.properties file
         URL url = launchConfig.getCarbonOSGiFramework();
-        Assert.assertEquals(url.getFile().split("plugins")[1],
-                "/org.eclipse.osgi_3.10.2.v20150203-1939.jar");
+        Assert.assertEquals(url.getFile().split("plugins")[1], "/org.eclipse.osgi_3.10.2.v20150203-1939.jar");
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromFileTestCase" })
     public void loadLaunchConfigInitialBundlesTestCase() {
         //test if property "carbon.initial.osgi.bundles" has set according to sample launch.properties file
         List<CarbonInitialBundle> initialBundleList = launchConfig.getInitialBundles();
@@ -124,7 +123,7 @@ public class LoadLaunchConfigTest extends BaseTest {
                 "/org.eclipse.equinox.simpleconfigurator_1.1.0.v20131217-1203.jar");
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromFileTestCase" })
     public void loadLaunchConfigOsgiRepoTestCase() throws MalformedURLException {
         //test if property "carbon.osgi.repository" has set according to sample launch.properties file
         URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
@@ -132,57 +131,20 @@ public class LoadLaunchConfigTest extends BaseTest {
         Assert.assertEquals(osgiRepoURL, expectedPath.toUri().toURL());
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromFileTestCase" })
     public void loadLaunchConfigServerListnersTestCase() throws MalformedURLException {
         //test if property "carbon.server.listeners" has set according to sample launch.properties file
         CarbonServerListener carbonServerListener = launchConfig.getCarbonServerListeners().get(0);
         Assert.assertTrue(carbonServerListener instanceof DropinsBundleDeployer);
     }
 
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadOSGiInstallAreaTestCase() throws MalformedURLException {
-        //test if property "osgi.install.area" has set according to sample launch.properties file
-        URL installArea = launchConfig.getOSGiInstallArea();
-        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default").toString();
-        Assert.assertEquals(expectedLocation, installArea.getPath());
-    }
-
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadOSGiConfigurationAreaTestCase() throws MalformedURLException {
-        //test if property "osgi.configuration.area" has set according to sample launch.properties file
-        URL osGiConfigurationArea = launchConfig.getOSGiConfigurationArea();
-        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default", "configuration").toString();
-        Assert.assertEquals(expectedLocation, osGiConfigurationArea.getPath());
-    }
-
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadOSGiInstanceAreaTestCase() throws MalformedURLException {
-        //test if property "osgi.instance.area" has set according to sample launch.properties file
-        URL osGiInstanceArea = launchConfig.getOSGiInstanceArea();
-        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default", "workspace").toString();
-        Assert.assertEquals(expectedLocation, osGiInstanceArea.getPath());
-    }
-
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadEclipseP2DataAreaTestCase() throws MalformedURLException {
-        //test if property "eclipse.p2.data.area" has set according to sample launch.properties file
-        URL eclipseP2DataArea = launchConfig.getEclipseP2DataArea();
-        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "p2").toString();
-        Assert.assertEquals(expectedLocation, eclipseP2DataArea.getPath());
-    }
-
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
+    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromFileTestCase" })
     public void carbonLogAppendTestCase() throws FileNotFoundException {
         String sampleMessage = "Sample message-test logging with class CarbonLaunchConfig";
-        String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest} - " +
-                "Sample message-test logging with class CarbonLaunchConfig";
+        String resultLog = "INFO {org.wso2.carbon.launcher.test.LoadLaunchConfigTest} - "
+                + "Sample message-test logging with class CarbonLaunchConfig";
         logger.info(sampleMessage);
-        ArrayList<String> logRecords =
-                getLogsFromTestResource(new FileInputStream(logFile));
+        ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(logFile));
         //test if log records are added to wso2carbon.log
         boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
         Assert.assertTrue(isContainsInLogs);

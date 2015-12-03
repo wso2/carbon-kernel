@@ -21,5 +21,13 @@ package org.wso2.carbon.test.interfaces;
  * @since 5.0.0
  */
 public interface Greeting {
-    String welcome(String greeting);
+
+    /**
+     * Returns a greeting message with the {@code name} appended.
+     *
+     * @param name the name to be greeted
+     * @return the greeting message
+     */
+    String welcome(String name);
+
 }

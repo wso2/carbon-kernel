@@ -138,9 +138,4 @@
         </plugins>
     </build>
 
-    <properties>
-        <tool.test.artifact.version>${project.version}</tool.test.artifact.version>
-        <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
-    </properties>
-
 </project>

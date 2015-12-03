@@ -15,7 +15,8 @@
  limitations under the License.
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.wso2.carbon</groupId>
@@ -61,6 +62,18 @@
             <version>${equinox.simpleconfigurator.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.util</artifactId>
+            <version>${equinox.util.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.launcher</artifactId>
+            <version>${equinox.launcher.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -89,7 +102,8 @@
                                     <artifactId>org.eclipse.osgi</artifactId>
                                     <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins
+                                    </outputDirectory>
                                     <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -97,9 +111,54 @@
                                     <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
                                     <version>${equinox.simpleconfigurator.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
-                                    <destFileName>org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar</destFileName>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins
+                                    </outputDirectory>
+                                    <destFileName>
+                                        org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
+                                    </destFileName>
                                 </artifactItem>
+
+                                <!-- artifacts for dropins tests -->
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.osgi</groupId>
+                                    <artifactId>org.eclipse.osgi</artifactId>
+                                    <version>${equinox.osgi.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/dropins
+                                    </outputDirectory>
+                                    <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
+                                    <version>${equinox.simpleconfigurator.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/dropins
+                                    </outputDirectory>
+                                    <destFileName>
+                                        org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
+                                    </destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.util</artifactId>
+                                    <version>${equinox.util.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/dropins
+                                    </outputDirectory>
+                                    <destFileName>org.eclipse.equinox.util_${equinox.util.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.wso2.eclipse.equinox</groupId>
+                                    <artifactId>org.eclipse.equinox.launcher</artifactId>
+                                    <version>${equinox.launcher.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/dropins
+                                    </outputDirectory>
+                                    <destFileName>org.eclipse.equinox.launcher_${equinox.launcher.version}.jar
+                                    </destFileName>
+                                </artifactItem>
+                                <!-- artifacts for dropins tests -->
                             </artifactItems>
                         </configuration>
                     </execution>
