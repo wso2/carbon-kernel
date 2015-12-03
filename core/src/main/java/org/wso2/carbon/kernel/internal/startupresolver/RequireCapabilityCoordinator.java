@@ -135,7 +135,7 @@ public class RequireCapabilityCoordinator {
                 public void run() {
                     if (requiredCapabilityListenerCount.get() == 0 && componentKeyCapabilityListenerMap.size() == 0) {
                         logger.debug("All the RequiredCapabilityListeners are notified, " +
-                                "therefore cancelling th    e satisfiableCapabilityListenerTimer");
+                                "therefore cancelling the satisfiableCapabilityListenerTimer");
                         satisfiableCapabilityListenerTimer.cancel();
                         return;
                     }
