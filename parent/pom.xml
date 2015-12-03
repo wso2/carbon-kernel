@@ -227,7 +227,7 @@
 
         <carbon.p2.plugin.version>1.5.4</carbon.p2.plugin.version>
 
-        <neethi.osgi.version>2.0.4.wso2v4</neethi.osgi.version>
+        <neethi.osgi.version>2.0.4.wso2v5</neethi.osgi.version>
         <neethi.osgi.version.range>[2.0.4.wso2v4, 3.1.0)</neethi.osgi.version.range>
         <xmlsec.version>1.4.2-patched</xmlsec.version>
 
@@ -286,16 +286,16 @@
         <version.woden>1.0.0.M9-wso2v1</version.woden>
 
         <!-- Apache Neethi -->
-        <orbit.version.neethi>2.0.4.wso2v4</orbit.version.neethi>
-        <exp.pkg.version.neethi>2.0.4.wso2v4</exp.pkg.version.neethi>
+        <orbit.version.neethi>2.0.4.wso2v5</orbit.version.neethi>
+        <exp.pkg.version.neethi>2.0.4.wso2v5</exp.pkg.version.neethi>
         <imp.pkg.version.neethi>[2.0.4.wso2v4, 3.0.0)</imp.pkg.version.neethi>
 
         <!-- Apache Axiom -->
-        <orbit.version.axiom>1.2.11.wso2v9</orbit.version.axiom>
-        <imp.pkg.version.axiom>[1.2.11.wso2v9, 1.3.0)</imp.pkg.version.axiom>
-        <version.axiom>1.2.11-wso2v9</version.axiom>
-        <axiom.osgi.version>1.2.11.wso2v9</axiom.osgi.version>
-        <axiom.osgi.version.range>[1.2.11.wso2v9, 1.3.0)</axiom.osgi.version.range>
+        <orbit.version.axiom>1.2.11.wso2v10</orbit.version.axiom>
+        <imp.pkg.version.axiom>[1.2.11, 1.3.0)</imp.pkg.version.axiom>
+        <version.axiom>1.2.11-wso2v10</version.axiom>
+        <axiom.osgi.version>1.2.11.wso2v10</axiom.osgi.version>
+        <axiom.osgi.version.range>[1.2.11, 1.3.0)</axiom.osgi.version.range>
 
 
         <!-- Spring Framework -->
@@ -891,7 +891,7 @@
                 <version>${orbit.version.axiom}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.neethi.wso2</groupId>
+                <groupId>org.wso2.orbit.org.apache.neethi</groupId>
                 <artifactId>neethi</artifactId>
                 <version>${neethi.osgi.version}</version>
             </dependency>
