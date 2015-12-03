@@ -83,13 +83,13 @@ public class DeploymentEngineComponent {
             logger.debug("Started Carbon Deployment Engine");
 
             // register pending deployers in the list
-            for (Deployer deployer : deployerList) {
+            deployerList.forEach(deployer -> {
                 try {
                     deploymentEngine.registerDeployer(deployer);
                 } catch (Exception e) {
                     logger.error("Error while adding deployer to the deployment engine", e);
                 }
-            }
+            });
 
         } catch (DeploymentEngineException e) {
             String msg = "Could not initialize carbon deployment engine";

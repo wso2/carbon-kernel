@@ -76,30 +76,30 @@ public class FileUtilsTest {
         }
     }
 
+//    @Test(dependsOnMethods = {"testCopyFileToDir"})
+//    public void testArchiveDir() {
+//        try {
+//            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
+//            FileUtils.archiveDir(zipFile.getAbsolutePath(), testSampleDirStructure.getAbsolutePath());
+//            Assert.assertTrue(zipFile.exists());
+//        } catch (IOException e) {
+//            Assert.assertTrue(false);
+//        }
+//    }
+//
+//    @Test(dependsOnMethods = {"testArchiveDir"})
+//    public void testFailArchiveDir() throws IOException {
+//        File destination = Paths.get("target", "FileUtilTest", "testSampleDirStructure", "sample.txt").toFile();
+//        try {
+//            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
+//            FileUtils.archiveDir(zipFile.getAbsolutePath(), destination.getAbsolutePath());
+//            Assert.assertTrue(false);
+//        } catch (RuntimeException e) {
+//            Assert.assertEquals(e.getMessage(), (destination.getAbsolutePath() + " is not a directory"));
+//        }
+//    }
+
     @Test(dependsOnMethods = {"testCopyFileToDir"})
-    public void testArchiveDir() {
-        try {
-            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
-            FileUtils.archiveDir(zipFile.getAbsolutePath(), testSampleDirStructure.getAbsolutePath());
-            Assert.assertTrue(zipFile.exists());
-        } catch (IOException e) {
-            Assert.assertTrue(false);
-        }
-    }
-
-    @Test(dependsOnMethods = {"testArchiveDir"})
-    public void testFailArchiveDir() throws IOException {
-        File destination = Paths.get("target", "FileUtilTest", "testSampleDirStructure", "sample.txt").toFile();
-        try {
-            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
-            FileUtils.archiveDir(zipFile.getAbsolutePath(), destination.getAbsolutePath());
-            Assert.assertTrue(false);
-        } catch (RuntimeException e) {
-            Assert.assertEquals(e.getMessage(), (destination.getAbsolutePath() + " is not a directory"));
-        }
-    }
-
-    @Test(dependsOnMethods = {"testFailArchiveDir"})
     public void testUDeleteDir() {
         Assert.assertTrue(FileUtils.deleteDir(testDir));
     }

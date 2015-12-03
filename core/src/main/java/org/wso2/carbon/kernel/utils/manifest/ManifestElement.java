@@ -30,7 +30,6 @@ import java.util.List;
  * {@link String} value.  The {@link String} value may be split up into component values each
  * separated by a semi-colon (';').  A manifest element may optionally have a set of
  * attribute and directive values associated with it. The general syntax of a manifest element is as follows:
- * <p>
  * <pre>
  * ManifestElement ::= component (';' component)* (';' parameter)*
  * component ::= ([^;,:="\#x0D#x0A#x00])+ | quoted-string
@@ -42,48 +41,37 @@ import java.util.List;
  * token ::= ( alphanum | '_' | '-' )+
  * extended ::= ( alphanum | '_' | '-' | '.' )+
  * </pre>
- * </p>
  * <p>
  * For example, the following is an example of a manifest element to the <tt>Export-Package</tt> header:
- * </p>
- * <p>
  * <pre>
  * org.osgi.framework; specification-version="1.2"; another-attr="examplevalue"
  * </pre>
- * </p>
  * <p>
  * This manifest element has a value of <tt>org.osgi.framework</tt> and it has two attributes,
  * <tt>specification-version</tt> and <tt>another-attr</tt>.
- * </p>
  * <p>
  * The following manifest element is an example of a manifest element that has multiple
  * components to its value:
- * </p>
- * <p>
  * <pre>
  * code1.jar;code2.jar;code3.jar;attr1=value1;attr2=value2;attr3=value3
  * </pre>
- * </p>
  * <p>
  * This manifest element has a value of <tt>code1.jar;code2.jar;code3.jar</tt>.
  * This is an example of a multiple component value.  This value has three
  * components: <tt>code1.jar</tt>, <tt>code2.jar</tt>, and <tt>code3.jar</tt>.
- * </p>
  * <p>
  * If components contain delimiter characters (e.g ';', ',' ':' "=") then it must be
  * a quoted string.  For example, the following is an example of a manifest element
  * that has multiple components containing delimiter characters:
- * </p>
  * <pre>
  * "component ; 1"; "component , 2"; "component : 3"; attr1=value1; attr2=value2; attr3=value3
  * </pre>
  * <p>
  * This manifest element has a value of <tt>"component ; 1"; "component , 2"; "component : 3"</tt>.
  * This value has three components: <tt>"component ; 1"</tt>, <tt>"component , 2"</tt>, <tt>"component : 3"</tt>.
- * </p>
  * <p>
  * This class is not intended to be subclassed by clients.
- * </p>
+ * <p>
  * This class is taken from org.eclipse.osgi.util
  *
  * @since 5.0.0
@@ -120,14 +108,11 @@ public class ManifestElement {
      * Returns the value of the manifest element.  The value returned is the
      * complete value up to the first attribute or directive.  For example, the
      * following manifest element:
-     * <p>
      * <pre>
      * test1.jar;test2.jar;test3.jar;selection-filter="(os.name=Windows XP)"
      * </pre>
-     * </p>
      * <p>
      * This manifest element has a value of <tt>test1.jar;test2.jar;test3.jar</tt>
-     * </p>
      *
      * @return the value of the manifest element.
      */
@@ -139,16 +124,13 @@ public class ManifestElement {
      * Returns the value for the specified attribute or <code>null</code> if it does
      * not exist.  If the attribute has multiple values specified then the last value
      * specified is returned. For example the following manifest element:
-     * <p>
      * <pre>
      * elementvalue; myattr="value1"; myattr="value2"
      * </pre>
-     * </p>
      * <p>
      * specifies two values for the attribute key <tt>myattr</tt>.  In this case <tt>value2</tt>
      * will be returned because it is the last value specified for the attribute
      * <tt>myattr</tt>.
-     * </p>
      *
      * @param key the attribute key to return the value for
      * @return the attribute value or <code>null</code>
