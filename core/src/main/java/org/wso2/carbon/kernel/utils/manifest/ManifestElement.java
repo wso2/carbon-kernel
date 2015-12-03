@@ -13,10 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.kernel.utils;
+package org.wso2.carbon.kernel.utils.manifest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.utils.ManifestElementParserException;
+import org.wso2.carbon.kernel.utils.Tokenizer;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -284,7 +286,7 @@ public class ManifestElement {
      * append the new value to the end of the list.
      *
      * @param table Hashtable&lt;String, Object&gt;
-     * @param key String
+     * @param key   String
      * @param value String
      * @return Hashtable&lt;String, Object&gt;
      */
@@ -321,9 +323,9 @@ public class ManifestElement {
      * @return the array of ManifestElements that are represented by the header value; null will be
      * returned if the value specified is null or if the value does not parse into
      * one or more ManifestElements.
-     * @throws Exception if the header value is invalid
+     * @throws ManifestElementParserException if the header value is invalid
      */
-    public static ManifestElement[] parseHeader(String header, String value) throws Exception {
+    public static ManifestElement[] parseHeader(String header, String value) throws ManifestElementParserException {
         if (value == null) {
             return new ManifestElement[]{};
         }
@@ -332,7 +334,8 @@ public class ManifestElement {
         while (true) {
             String next = tokenizer.getString(";,");
             if (next == null) {
-                throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
+                throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
+                        header + "Value: " + value);
             }
             StringBuilder headerValue = new StringBuilder(next);
 
@@ -344,7 +347,8 @@ public class ManifestElement {
             while (c == ';') {
                 next = tokenizer.getString(";,=:");
                 if (next == null) {
-                    throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
+                    throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
+                            header + "Value: " + value);
                 }
                 c = tokenizer.getChar();
                 while (c == ':') { // may not really be a :=
@@ -352,7 +356,8 @@ public class ManifestElement {
                     if (c != '=') {
                         String restOfNext = tokenizer.getToken(";,=:");
                         if (restOfNext == null) {
-                            throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " +
+                            throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
+                                    header + "Value: " +
                                     value);
                         }
                         next = next.concat(":" + c + restOfNext);
@@ -376,7 +381,8 @@ public class ManifestElement {
                     if (c != '=') {
                         String restOfNext = tokenizer.getToken("=:");
                         if (restOfNext == null) {
-                            throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " +
+                            throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
+                                    header + "Value: " +
                                     value);
                         }
                         next = next.concat(":" + c + restOfNext);
@@ -400,7 +406,8 @@ public class ManifestElement {
 
                 String val = tokenizer.getString(";,", preserveEscapes);
                 if (val == null) {
-                    throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
+                    throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
+                            header + "Value: " + value);
                 }
 
                 logger.debug(";" + next + "=" + val);
@@ -412,13 +419,15 @@ public class ManifestElement {
                     }
                     directive = false;
                 } catch (Exception e) {
-                    throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
+                    throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
+                            header + "Value: " + value);
                 }
                 c = tokenizer.getChar();
                 if (c == ';') /* more */ {
                     next = tokenizer.getToken("=:");
                     if (next == null) {
-                        throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " +
+                        throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
+                                header + "Value: " +
                                 value);
                     }
                     c = tokenizer.getChar();
@@ -431,7 +440,8 @@ public class ManifestElement {
             if (c == '\0') { /* end of value */
                 break;
             }
-            throw new Exception(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " + header + "Value: " + value);
+            throw new ManifestElementParserException(MANIFEST_INVALID_HEADER_EXCEPTION + " Header: " +
+                    header + "Value: " + value);
         }
         int size = headerElements.size();
         if (size == 0) {
