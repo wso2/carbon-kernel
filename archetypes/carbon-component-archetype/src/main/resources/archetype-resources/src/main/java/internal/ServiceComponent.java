@@ -78,6 +78,6 @@ public class ServiceComponent {
      * @param carbonRuntime The CarbonRuntime instance registered by Carbon Kernel as an OSGi service
      */
     protected void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
-        DataHolder.getInstance().setCarbonRuntime(carbonRuntime);
+        DataHolder.getInstance().setCarbonRuntime(null);
     }
 }
