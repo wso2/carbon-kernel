@@ -138,6 +138,14 @@
                             org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
                             org.yaml.snakeyaml.*;version="${org.snakeyaml.version.range}"
                         </Import-Package>
+                        <Provide-Capability>
+                            osgi.service;effective:=active;
+                            objectClass="org.wso2.carbon.kernel.deployment.DeploymentService";
+                            dependent-component-key="carbon-transport-mgt",
+                            osgi.service;effective:=active;
+                            objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";
+                            dependent-component-key="carbon-deployment-service"
+                        </Provide-Capability>
                         <_dsannotations>*</_dsannotations>
                     </instructions>
                 </configuration>

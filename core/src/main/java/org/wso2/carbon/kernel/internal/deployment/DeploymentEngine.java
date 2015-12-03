@@ -61,35 +61,30 @@ public class DeploymentEngine {
     /**
      * A map to hold all currently deployed artifacts.
      */
-    private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
-            new ConcurrentHashMap<>();
+    private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts = new ConcurrentHashMap<>();
 
-
-    public DeploymentEngine(String repositoryDir) throws DeploymentEngineException {
-        logger.debug("Initializing carbon deployment engine for repository : " + repositoryDir);
-        init(repositoryDir);
-    }
 
     /**
      * Configure and prepare the repository associated with this engine.
-     *
-     * @throws org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException on error
      */
-    private void init(String repositoryDir) throws DeploymentEngineException {
-        repositoryDirectory = new File(repositoryDir);
-        if (!repositoryDirectory.exists()) {
-            throw new DeploymentEngineException("Cannot find repository : " +
-                    repositoryDirectory);
-        }
+    public DeploymentEngine() {
         repositoryScanner = new RepositoryScanner(this);
     }
 
     /**
      * Starts the Deployment engine to perform Hot deployment and so on.
      * This will start the repository scanner and scheduler task and load artifacts to
-     * the deployment engine
+     * the deployment engine.
+     *
+     * @param repositoryDir the deployment repository directory that repository scanner will start scanning.
+     * @throws DeploymentEngineException when an error occurs while trying to start the deployment engine.
      */
-    public void start() {
+    public void start(String repositoryDir) throws DeploymentEngineException {
+        logger.debug("Starting carbon deployment engine for repository : " + repositoryDir);
+        repositoryDirectory = new File(repositoryDir);
+        if (!repositoryDirectory.exists()) {
+            throw new DeploymentEngineException("Cannot find repository : " + repositoryDirectory);
+        }
         //Deploy initial set of artifacts
         repositoryScanner.scan();
         // We need to check and scan the task based on the deployment engine mode of operation

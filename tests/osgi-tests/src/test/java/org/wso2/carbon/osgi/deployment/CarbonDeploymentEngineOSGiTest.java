@@ -130,7 +130,8 @@ public class CarbonDeploymentEngineOSGiTest {
     @Test(dependsOnMethods = {"testDeploymentService"})
     public void testDeploymentEngine() throws DeploymentEngineException, InvalidSyntaxException,
             CarbonDeploymentException, DeployerRegistrationException {
-        DeploymentEngine deploymentEngine = new DeploymentEngine(carbonRepo);
+        DeploymentEngine deploymentEngine = new DeploymentEngine();
+        deploymentEngine.start(carbonRepo);
         CustomDeploymentService customDeploymentService = new CustomDeploymentService(deploymentEngine);
         Dictionary<String, String> properties = new Hashtable<>();
         properties.put("ServiceType", "Custom");
