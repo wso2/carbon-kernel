@@ -43,6 +43,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>archetypes</module>
                 <module>launcher</module>
                 <module>core</module>
                 <module>tests</module>
@@ -80,6 +81,11 @@
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
                 <version>${maven.wagon.ssh.version}</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>${maven.archetype.version}</version>
             </extension>
         </extensions>
         <pluginManagement>
@@ -255,6 +261,11 @@
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>${maven.antrunplugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-archetype-plugin</artifactId>
+                    <version>${maven.archetype.version}</version>
+                    </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -663,6 +674,7 @@
         <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
         <maven.paxexamplugin.version>1.2.4</maven.paxexamplugin.version>
         <maven.antrunplugin.version>1.8</maven.antrunplugin.version>
+        <maven.archetype.version>2.4</maven.archetype.version>
 
         <!--Pax Exam Versions-->
         <pax.exam.version>4.6.0</pax.exam.version>
