@@ -156,8 +156,6 @@ public class DropinsDeployerTest extends BaseTest {
                 + "../../dropins/org.eclipse.equinox.util_1.0.500.v20130404-1337.jar,4,true");
         expected.add("org.eclipse.osgi,3.10.2.v20150203-1939,"
                 + "../../dropins/org.eclipse.osgi_3.10.2.v20150203-1939.jar,4,true");
-        expected.add(
-                "org.wso2.carbon.core,5.0.0.SNAPSHOT,../../dropins/org.wso2.carbon.core_5.0.0-SNAPSHOT.jar,4,true");
 
         return expected;
     }
