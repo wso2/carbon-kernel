@@ -46,7 +46,7 @@ public class CarbonServerStartTest extends BaseTest {
         carbonServer = new CarbonServer(launchConfig);
     }
 
-    @Test(dependsOnMethods = {"stopCarbonServerTestCase"})
+        @Test(dependsOnMethods = {"stopCarbonServerTestCase"})
     public void startCarbonServerTestCase() throws Exception {
         carbonServer.start();
     }
