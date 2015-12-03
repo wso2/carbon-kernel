@@ -374,6 +374,11 @@
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.server.admin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.automationutils</groupId>
+            <artifactId>org.wso2.carbon.integration.common.utils</artifactId>
+            <version>4.4.1</version>
+        </dependency>
     </dependencies>
 
 </project>
