@@ -193,7 +193,7 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
                 workerProxyPort = ServerConfiguration.getInstance().getFirstProperty("Ports.WorkerHttpsProxyPort");
             }
 
-            if(workerProxyPort != null) {
+            if (workerProxyPort != null) {
                 int workerProxyPortParsed = Integer.parseInt(workerProxyPort.trim());
                 if (workerProxyPortParsed == 80 || workerProxyPortParsed == 443) {
                     tmp += proxyContextPath + serviceContextPath + "/" + serviceName;
