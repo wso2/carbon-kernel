@@ -124,7 +124,7 @@ public class CarbonLaunchConfig {
     }
 
     /**
-     * Load carbon configuration from a java.io.File object
+     * Load carbon configuration from a java.io.File object.
      *
      * @param launchPropFile File
      */

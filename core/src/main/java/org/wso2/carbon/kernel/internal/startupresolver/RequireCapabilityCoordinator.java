@@ -258,7 +258,7 @@ public class RequireCapabilityCoordinator {
 
     /**
      * Iterates through all the manifest header in all OSGi bundles and filter out manifest headers with the
-     * "Provide-Capability" as the header key
+     * "Provide-Capability" as the header key.
      * <p>
      * Extract all the osgi.service Provide-Capability manifest header elements
      *
@@ -289,7 +289,7 @@ public class RequireCapabilityCoordinator {
     }
 
     /**
-     * Returns the attribute value of the specified key from the {@code ManifestElement}
+     * Returns the attribute value of the specified key from the {@code ManifestElement}.
      *
      * @param attributeKey    key of the manifest element attribute
      * @param manifestElement {@code ManifestElement} object from which we lookup for attributes
@@ -309,7 +309,7 @@ public class RequireCapabilityCoordinator {
     }
 
     /**
-     * Add a mapping from capability-name to component-key
+     * Add a mapping from capability-name to component-key.
      *
      * @param capability   service capability. Full qualified class name of the service
      * @param componentKey mapped component-key value.
@@ -326,7 +326,7 @@ public class RequireCapabilityCoordinator {
 
     /**
      * Returns an instance of OSGi {@link ServiceTracker} which tracks all the required capability services, all the
-     * RequiredCapabilityListener services and all the CapabilityProvider services
+     * RequiredCapabilityListener services and all the CapabilityProvider services.
      *
      * @return {@code ServiceTracker} instance
      */
@@ -337,7 +337,7 @@ public class RequireCapabilityCoordinator {
     }
 
     /**
-     * Returns and instance of {@link Filter}
+     * Returns and instance of {@link Filter}.
      *
      * @param capabilityNameList all the required capability services.
      * @return LDAP like filter
@@ -367,7 +367,7 @@ public class RequireCapabilityCoordinator {
     /**
      * Custom implementation of the {@link ServiceTrackerCustomizer} which handles registered
      * {@code RequiredCapabilityListener} services, {@code CapabilityProvider} services and
-     * all the other required services
+     * all the other required services.
      */
     private class CapabilityServiceTrackerCustomizer implements ServiceTrackerCustomizer<Object, Object> {
 
