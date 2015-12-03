@@ -157,7 +157,8 @@ public class TransportMgtCommandProviderTest {
         Assert.assertEquals(baos.toString(), expectedOutputString);
     }
 
-    @Test (dependsOnMethods = "test_listTransports", expectedExceptions = IllegalArgumentException.class)
+//    @Test (dependsOnMethods = "test_listTransports", expectedExceptions = IllegalArgumentException.class)
+    @Test (expectedExceptions = IllegalArgumentException.class)
     public void test_startTransportForNullTransportValue() {
         commandInterpreter.resetCounter();
         commandInterpreter.setTransportIdListValuesToNull();
