@@ -15,31 +15,22 @@
  */
 package org.wso2.carbon.kernel.config.model;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * CarbonConfiguration class holds static configuration parameters specified in the carbon.yml file.
  *
  * @since 5.0.0
  */
-@XmlRootElement(name = "Server")
 public class CarbonConfiguration {
 
-    @XmlElement(name = "Id")
-    private String id;
+    private String id = "carbon-kernel";
 
-    @XmlElement(name = "Name")
-    private String name;
+    private String name = "WSO2 Carbon Kernel";
 
-    @XmlElement(name = "Version")
-    private String version;
+    private String version = "5.0.0";
 
-    @XmlElement(name = "Ports")
-    private PortsConfig ports;
+    private PortsConfig ports = new PortsConfig();
 
-    @XmlElement(name = "Deployment")
-    private DeploymentConfig deployment;
+    private DeploymentConfig deployment = new DeploymentConfig();
 
     public String getId() {
         return id;

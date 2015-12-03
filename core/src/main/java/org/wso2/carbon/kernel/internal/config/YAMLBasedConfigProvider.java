@@ -26,6 +26,8 @@ import org.yaml.snakeyaml.introspector.BeanAccess;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
 
 /**
  * This class takes care of parsing the carbon.yml file and creating the CarbonConfiguration object model.
@@ -38,17 +40,27 @@ public class YAMLBasedConfigProvider implements CarbonConfigProvider {
     /**
      * Parse the carbon.yml and returns the CarbonConfiguration object.
      *
+     * All the system properties / environment properties are replaced with values before sending to the YAML parser.
+     *
      * @return CarbonConfiguration
      */
     public CarbonConfiguration getCarbonConfiguration() {
         String configFileLocation = Utils.getCarbonYAMLLocation();
-        try (InputStream in = new FileInputStream(configFileLocation)) {
+        try (InputStream inputStream = new FileInputStream(configFileLocation)) {
+
+            String yamlFileString;
+            try (Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
+                yamlFileString = scanner.useDelimiter("\\A").next();
+                yamlFileString = org.wso2.carbon.kernel.utils.Utils.substituteVariables(yamlFileString);
+            }
+
             Yaml yaml = new Yaml();
             yaml.setBeanAccess(BeanAccess.FIELD);
-            return yaml.loadAs(in, CarbonConfiguration.class);
+            return yaml.loadAs(yamlFileString, CarbonConfiguration.class);
         } catch (IOException e) {
-            logger.error("Could not load " + configFileLocation, e);
+            String errorMessage = "Failed populate CarbonConfiguration from " + configFileLocation;
+            logger.error(errorMessage, e);
+            throw new RuntimeException(errorMessage);
         }
-        return null;
     }
 }

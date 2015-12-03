@@ -113,7 +113,12 @@ public class CarbonCoreDSComponent {
      * @param managedService the managedService instance that is un-registered. this is not used currently in
      *                       this method.
      */
-    protected void unRegisterLoggingConfig(ManagedService managedService) {
+    protected void unRegisterLoggingConfig(ManagedService managedService, Map<String, ?> properties) {
+        String pid = (String) properties.get(Constants.SERVICE_PID);
+        // check for logging config service pid
+        if ((pid == null) || (!Constants.LOGGING_CONFIG_PID.equals(pid))) {
+            return;
+        }
         loggingConfiguration.unregister(managedService);
     }
 }

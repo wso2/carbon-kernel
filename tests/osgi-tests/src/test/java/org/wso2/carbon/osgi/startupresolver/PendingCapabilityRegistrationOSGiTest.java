@@ -15,13 +15,21 @@
  */
 package org.wso2.carbon.osgi.startupresolver;
 
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.testng.Assert;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
 import org.wso2.carbon.osgi.util.Utils;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
+
+import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
@@ -32,9 +40,11 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  *
  * @since 5.0.0
  */
-//TODO : Disabling this until we fix CARBON-15664
+@Listeners(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class PendingCapabilityRegistrationOSGiTest {
 
+    @Inject
     private BundleContext bundleContext;
 
     /**
@@ -46,6 +56,7 @@ public class PendingCapabilityRegistrationOSGiTest {
      *
      * @return the bundle configurations that will be used for this test case.
      */
+    @Configuration
     public Option[] createConfiguration() {
         Utils.setCarbonHome();
         Utils.setupMavenLocalRepo();
@@ -62,7 +73,7 @@ public class PendingCapabilityRegistrationOSGiTest {
         return Utils.getDefaultPaxOptions(options);
     }
 
-    //TODO : Disabling this until we fix CARBON-15664
+    @Test
     public void testPendingCapabilityRegistration() {
         //waiting for more than 1 min to check whether transport manager is registered as a service.
         try {

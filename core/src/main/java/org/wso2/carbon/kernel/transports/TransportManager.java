@@ -70,4 +70,8 @@ public class TransportManager {
         transports.values()
                 .forEach(CarbonTransport::endMaintenance);
     }
+
+    public Map<String, CarbonTransport> getTransports() {
+        return transports;
+    }
 }

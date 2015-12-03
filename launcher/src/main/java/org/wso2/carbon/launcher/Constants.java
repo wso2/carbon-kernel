@@ -30,7 +30,7 @@ public class Constants {
     public static final String CARBON_START_TIME = "carbon.start.time";
 
     public static final String PROFILE = "profile";
-    public static final String DEFAULT_PROFILE = "profile/default";
+    public static final String DEFAULT_PROFILE = "profiles/default";
 
     public static final String CARBON_OSGI_REPOSITORY = "carbon.osgi.repository";
     public static final String CARBON_OSGI_FRAMEWORK = "carbon.osgi.framework";
