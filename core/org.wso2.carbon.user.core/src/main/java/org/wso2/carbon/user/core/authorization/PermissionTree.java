@@ -597,6 +597,9 @@ public class PermissionTree {
 
                 Map<String, BitSet> allowRoles = sr.getLastNode().getRoleAllowPermissions();
                 BitSet bs = allowRoles.get(roleName);
+                if (bs == null) {
+                    bs = allowRoles.get(modify(roleName));
+                }
                 if (bs != null) {
                     bs.clear(permission.ordinal());
                 }
@@ -701,6 +704,9 @@ public class PermissionTree {
             Map<String, BitSet> bsAllowed = node.getRoleAllowPermissions();
             for (String role : roles) {
                 BitSet bs = bsAllowed.get(role);
+                if (bs == null) {
+                    bs = bsAllowed.get(modify(role));
+                }
                 if (bs != null && bs.get(permission.ordinal())) {
                     resources.add(currentPath);
                     break;
@@ -752,6 +758,9 @@ public class PermissionTree {
             Map<String, BitSet> denyRoles = node.getRoleDenyPermissions();
 
             BitSet bs = allowRoles.get(roleName);
+            if (bs == null) {
+                bs = allowRoles.get(modify(roleName));
+            }
             if (bs != null) {
                 bs.clear(permission.ordinal());
             }
@@ -788,13 +797,30 @@ public class PermissionTree {
             Map<String, BitSet> denyRoles = node.getRoleDenyPermissions();
 
             BitSet bs = allowRoles.get(roleName);
-            if (bs != null) {
-                allowRoles.remove(roleName);
+            boolean modified = false;
+            if (bs == null) {
+                bs = allowRoles.get(modify(roleName));
+                modified = true;
             }
-
-            bs = denyRoles.get(roleName);
             if (bs != null) {
-                denyRoles.remove(roleName);
+                if (modified) {
+                    allowRoles.remove(modify(roleName));
+                } else {
+                    allowRoles.remove(roleName);
+                }
+            }
+            modified = false;
+            bs = denyRoles.get(roleName);
+            if (bs == null) {
+                bs = denyRoles.get(modify(roleName));
+                modified = true;
+            }
+            if (bs != null) {
+                if (modified) {
+                    denyRoles.remove(modify(roleName));
+                } else {
+                    denyRoles.remove(roleName);
+                }
             }
 
             Map<String, TreeNode> childMap = node.getChildren();
@@ -814,16 +840,34 @@ public class PermissionTree {
         Map<String, BitSet> denyRoles = node.getRoleDenyPermissions();
         write.lock();
         try {
+            boolean modified = false;
             BitSet bs = allowRoles.get(roleName);
+            if (bs == null) {
+                bs = allowRoles.get(modify(roleName));
+                modified = true;
+            }
             if (bs != null) {
-                allowRoles.remove(roleName);
-                allowRoles.put(newRoleName, bs);
+                if (!modified) {
+                    allowRoles.remove(roleName);
+                } else {
+                    allowRoles.remove(modify(roleName));
+                }
+                allowRoles.put(modify(newRoleName), bs);
             }
 
+            modified = false;
             bs = denyRoles.get(roleName);
+            if (bs == null) {
+                bs = denyRoles.get(modify(roleName));
+                modified = true;
+            }
             if (bs != null) {
-                denyRoles.remove(roleName);
-                denyRoles.put(newRoleName, bs);
+                if (!modified) {
+                    denyRoles.remove(roleName);
+                } else {
+                    denyRoles.remove(modify(roleName));
+                }
+                denyRoles.put(modify(newRoleName), bs);
             }
 
             Map<String, TreeNode> childMap = node.getChildren();
@@ -1081,4 +1125,13 @@ public class PermissionTree {
         return true;
     }
 
+    private String modify(String name) {
+        if (!name.contains(UserCoreConstants.DOMAIN_SEPARATOR)) {
+            return name;
+        }
+        String domain = UserCoreUtil.extractDomainFromName(name);
+        String nameWithoutDomain = UserCoreUtil.removeDomainFromName(name);
+        String modifiedName = UserCoreUtil.addDomainToName(nameWithoutDomain, domain);
+        return modifiedName;
+    }
 }
