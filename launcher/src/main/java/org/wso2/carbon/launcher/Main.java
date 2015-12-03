@@ -54,6 +54,11 @@ public class Main {
      */
     public static void main(String[] args) {
 
+        //get the starting time to calculate the server startup time duration
+        if (System.getProperty(Constants.START_TIME) == null) {
+            System.setProperty(Constants.START_TIME, System.currentTimeMillis() + "");
+        }
+
         // 1) Process command line arguments.
         processCmdLineArgs(args);
 
