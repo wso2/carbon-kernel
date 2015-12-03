@@ -581,6 +581,16 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>tool-test-artifact</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.connector.java.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -691,5 +701,6 @@
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
+        <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
     </properties>
 </project>

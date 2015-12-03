@@ -36,13 +36,11 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>tool-test-artifact</artifactId>
-            <version>${carbon.kernel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.connector.java.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -137,9 +135,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
-    </properties>
 
 </project>
