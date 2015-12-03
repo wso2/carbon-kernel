@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElement;
 import org.wso2.carbon.kernel.utils.manifest.ManifestElementParserException;
 
+import java.util.Arrays;
 import javax.inject.Inject;
 
 /**
@@ -43,7 +44,12 @@ public class ManifestElementTest {
 
     @Test
     public void testParseHeader() {
-        Bundle carbonCoreBundle = bundleContext.getBundles()[14];
+        Bundle carbonCoreBundle = Arrays.asList(bundleContext.getBundles())
+                .stream()
+                .filter(b -> b.getSymbolicName().equals("org.wso2.carbon.core"))
+                .findFirst()
+                .get();
+
         String key = carbonCoreBundle.getHeaders(PROVIDE_CAPABILITY).get(PROVIDE_CAPABILITY);
         try {
             ManifestElement[] elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, key);
