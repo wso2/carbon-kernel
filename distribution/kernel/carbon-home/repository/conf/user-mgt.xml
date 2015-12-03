@@ -18,18 +18,25 @@
     <Realm>
         <Configuration>
 		<AddAdmin>true</AddAdmin>
-                <AdminRole>admin</AdminRole>
-                <AdminUser>
-                     <UserName>admin</UserName>
-                     <Password>admin</Password>
-                </AdminUser>
+            <AdminRole>admin</AdminRole>
+            <AdminUser>
+                <UserName>admin</UserName>
+                <Password>admin</Password>
+            </AdminUser>
             <EveryOneRoleName>everyone</EveryOneRoleName> <!-- By default users in this role sees the registry root -->
             <Property name="isCascadeDeleteEnabled">true</Property>
             <Property name="dataSource">jdbc/WSO2CarbonDB</Property>
         </Configuration>
 
-	<!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC. In case if application needs to manage 		     passwords externally set property <Property name="PasswordsExternallyManaged">true</Property>. In case if user core cache domain is needed to 			identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>. Furthermore properties, IsEmailUserName and 	     			DomainCalculation are readonly properties. 
-	     Note: Do not comment within UserStoreManager tags. Cause, specific tag names are used as tokens when building configurations for products. -->	
+	    <!-- Following is the configuration for internal JDBC user store. This user store manager is based on JDBC.
+	         In case if application needs to manage passwords externally set property
+	         <Property name="PasswordsExternallyManaged">true</Property>.
+	         In case if user core cache domain is needed to identify uniquely set property
+	         <Property name="UserCoreCacheIdentifier">domain</Property>.
+	         Furthermore properties, IsEmailUserName and DomainCalculation are readonly properties.
+	         Note: Do not comment within UserStoreManager tags. Cause, specific tag names are used as tokens
+	         when building configurations for products.
+	    -->
         <UserStoreManager class="org.wso2.carbon.user.core.jdbc.JDBCUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.JDBCTenantManager</Property>
             <Property name="ReadOnly">false</Property>
@@ -55,9 +62,10 @@
             <Property name="UserNameUniqueAcrossTenants">false</Property>
         </UserStoreManager>
 	
-	<!-- If product is using an external LDAP as the user store in READ ONLY mode, use following user manager.
-		In case if user core cache domain is needed to identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>
- 	-->
+	    <!-- If product is using an external LDAP as the user store in READ ONLY mode, use following user manager.
+		     In case if user core cache domain is needed to identify uniquely set property
+		     <Property name="UserCoreCacheIdentifier">domain</Property>
+ 	    -->
         <!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ReadOnlyLDAPUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
             <Property name="ConnectionURL">ldap://localhost:10389</Property>
@@ -91,16 +99,17 @@
             <Property name="ReplaceEscapeCharactersAtUserLogin">true</Property>
         </UserStoreManager-->
 	
-	<!-- Active directory configuration is as follows.
-	    In case if user core cache domain is needed to identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>
-	    There are few special properties for "Active Directory". 
-	    They are : 
-	    1.Referral - (comment out this property if this feature is not reuired) This enables LDAP referral support.
-	    2.BackLinksEnabled - (Do not comment, set to true or false) In some cases LDAP works with BackLinksEnabled. In which role is stored
-	     at user level. Depending on this value we need to change the Search Base within code.
-	    3.isADLDSRole - (Do not comment) Set to true if connecting to an AD LDS instance else set to false.  
-	-->
-	<!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager">
+	    <!-- Active directory configuration is as follows.
+	         In case if user core cache domain is needed to identify uniquely set property
+	         <Property name="UserCoreCacheIdentifier">domain</Property>
+	         There are few special properties for "Active Directory".
+	         They are :
+	         1.Referral - (comment out this property if this feature is not reuired) This enables LDAP referral support.
+	         2.BackLinksEnabled - (Do not comment, set to true or false) In some cases LDAP works with BackLinksEnabled.
+	         In which role is stored at user level. Depending on this value we need to change the Search Base within code.
+	         isADLDSRole - (Do not comment) Set to true if connecting to an AD LDS instance else set to false.
+	    -->
+        <!--UserStoreManager class="org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
             <Property name="ConnectionURL">ldaps://10.100.1.100:636</Property> 
             <Property name="ConnectionName">CN=admin,CN=Users,DC=WSO2,DC=Com</Property>
@@ -147,17 +156,15 @@
             <Property name="ReadTimeout"/>
             <Property name="RetryAttempts"/>
         </UserStoreManager-->
-	
-	<!-- If product is using an external LDAP as the user store in read/write mode, use following user manager 
-		In case if user core cache domain is needed to identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>
-	-->
-	<!-- Following user manager is used by Identity Server (IS) as its default user manager. 
-	     IS will do token replacement when building the product. Therefore do not change the syntax. 
-	     If "kdcEnabled" parameter is true, IS will allow service principle management. Thus "ServicePasswordJavaRegEx", "ServiceNameJavaRegEx"
-	     properties control the service name format and service password formats.
-	     In case if user core cache domain is needed to identify uniquely set property <Property name="UserCoreCacheIdentifier">domain</Property>
-	-->
-	<!--ISUserStoreManager class="org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager">
+
+        <!-- Following user manager is used by Identity Server (IS) as its default user manager.
+             IS will do token replacement when building the product. Therefore do not change the syntax.
+             If "kdcEnabled" parameter is true, IS will allow service principle management.
+             Thus "ServicePasswordJavaRegEx", "ServiceNameJavaRegEx" properties control the service name format and
+             service password formats. In case if user core cache domain is needed to identify uniquely set property
+             <Property name="UserCoreCacheIdentifier">domain</Property>
+        -->
+        <!--ISUserStoreManager class="org.wso2.carbon.user.core.ldap.ReadWriteLDAPUserStoreManager">
             <Property name="TenantManager">org.wso2.carbon.user.core.tenant.CommonHybridLDAPTenantManager</Property>
             <Property name="ConnectionURL">ldap://localhost:${Ports.EmbeddedLDAP.LDAPServerPort}</Property>
             <Property name="ConnectionName">uid=admin,ou=system</Property>
@@ -185,7 +192,7 @@
             <Property name="PasswordJavaRegExViolationErrorMsg">Password length should be within 5 to 30 characters</Property>
             <Property name="RolenameJavaRegEx">[a-zA-Z0-9._-|//]{3,30}$</Property>
             <Property name="RolenameJavaScriptRegEx">^[\S]{3,30}$</Property>
-            <Property name="SCIMEnabled">false</Property>
+            <Property name="SCIMEnabled">true</Property>
             <Property name="IsBulkImportSupported">true</Property>
             <Property name="EmptyRolesAllowed">true</Property>
             <Property name="PasswordHashMethod">PLAIN_TEXT</Property>
@@ -201,66 +208,49 @@
             <Property name="RetryAttempts"/>
         </ISUserStoreManager-->
 
-	<!--	Following configuration is for the CassandraUserStoreManager. The CassandraUserStoreManager is capable of using a Cassandra
-		database as a user store. This user manager supports multiple credentials for authentication. Credential types can be defined
-		and configured in the following configuration. The CassandraUserStoreManager does not ships with the any of the WSO2 Carbon
-		Servers by default, therefor Cassandra user manager component needs to be installed to the Carbon Server befor using.
-
-		And if this CassandraUserStoreManager is used as the primary user store with multi tenants, it should also implement a 
-		compatible TenantManager and set property <Property name="TenantManager">FULL_QUALIFIED_TENANT_MANAGER_CLASS_NAME</Property>.
-	-->
-	<!--UserStoreManager class="org.wso2.carbon.user.cassandra.CassandraUserStoreManager">
-	    <Property name="Keyspace">User_KS3</Property>
-	    <Property name="Host">localhost</Property>
-	    <Property name="Port">9160</Property>
-	    <Property name="PasswordDigest">SHA-256</Property>
-	    <Property name="StoreSaltedPassword">true</Property>
-	    <Property name="AuthenticateWithAnyCredential">true</Property>
-	    <Property name="DomainName">multipleCredentialUserStoreDomain</Property>
-	        <MultipleCredentials>
-		    <Credential type="Default">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
-		    <Credential type="Email">org.wso2.carbon.user.cassandra.credentialtypes.EmailCredential</Credential>
-		    <Credential type="PhoneNumber">org.wso2.carbon.user.cassandra.credentialtypes.PhoneNumberCredential</Credential>
-		    <Credential type="Device">org.wso2.carbon.user.cassandra.credentialtypes.DeviceCredential</Credential>
-		    <Credential type="External">org.wso2.carbon.user.cassandra.credentialtypes.ExternalProviderCredential</Credential>
-	        </MultipleCredentials>
-	</UserStoreManager-->
-
-        <AuthorizationManager
-            class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
+        <AuthorizationManager class="org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager">
             <Property name="AdminRoleManagementPermissions">/permission</Property>
-	    <Property name="AuthorizationCacheEnabled">true</Property>
-	    <Property name="GetAllRolesOfUserEnabled">true</Property>
+            <Property name="AuthorizationCacheEnabled">true</Property>
+            <Property name="GetAllRolesOfUserEnabled">false</Property>
         </AuthorizationManager>
     </Realm>
 </UserManager>
 
-<!--*******Description of some of the configuration properties used in user-mgt.xml*********************************
+<!--
 
-DomainName - This property must be used by all secondary user store managers in multiple user store configuration. 
-	     DomainName is a unique identifier given to the user store. Users must provide both the domain name and 
-	     username at log-in as "DomainName\Username"
+************* Description of some of the configuration properties used in user-mgt.xml *********************************
 
-UserRolesCacheEnabled - This is to indicate whether to cache role list of a user. By default it is set to true.
-                        You may need to disable it if user-roles are changed by external means and need to reflect
-                        those changes in the carbon product immediately.
+DomainName -
+    This property must be used by all secondary user store managers in multiple user store configuration.
+    DomainName is a unique identifier given to the user store. Users must provide both the domain name and
+    username at log-in as "DomainName\Username"
 
-ReplaceEscapeCharactersAtUserLogin - This is to configure whether escape characters in user name needs to be replaced at user login.
-				     Currently the identified escape characters that needs to be replaced are '\' & '\\'
+UserRolesCacheEnabled -
+    This is to indicate whether to cache role list of a user. By default it is set to true.
+    You may need to disable it if user-roles are changed by external means and need to reflect
+    those changes in the carbon product immediately.
 
-UserDNPattern - This property will be used when authenticating users. During authentication we do a bind. But if the user is login with
-                email address or some other property we need to first lookup LDAP and retrieve DN for the user. This involves an additional step.
-                If UserDNPattern is specified the DN will be constructed using the pattern specified in this property. Performance of this is much better than looking
-                up DN and binding user.
+ReplaceEscapeCharactersAtUserLogin -
+    This is to configure whether escape characters in user name needs to be replaced at user login.
+    Currently the identified escape characters that needs to be replaced are '\' & '\\'
 
-RoleDNPattern - This property will be used when checking whether user has been assigned to a given role. Rather than searching the role in search base, by 
-                using this property direct search can be done.
+UserDNPattern -
+    This property will be used when authenticating users. During authentication we do a bind. But if the user is login
+    with email address or some other property we need to first lookup LDAP and retrieve DN for the user.
+    This involves an additional step.  If UserDNPattern is specified the DN will be constructed using the pattern
+    specified in this property. Performance of this is much better than looking up DN and binding user.
 
-PasswordHashMethod - This says how the password should be stored. Allowed values are as follows,
-                     SHA - Uses SHA digest method
-                     MD5 - Uses MD 5 digest method
-                     PLAIN_TEXT - Plain text passwords
-                     In addition to above this supports all digest methods supported by http://docs.oracle.com/javase/6/docs/api/java/security/MessageDigest.html.
+RoleDNPattern -
+    This property will be used when checking whether user has been assigned to a given role.
+    Rather than searching the role in search base, by using this property direct search can be done.
 
-DisplayNameAttribute - this is to have a dedicated LDAP attribute to display an entity(User/Role) in UI, in addition to the UserNameAttribute which is used for IS-UserStore interactions.
+PasswordHashMethod -
+    This says how the password should be stored. Allowed values are as follows,
+        SHA - Uses SHA digest method
+        MD5 - Uses MD 5 digest method
+        PLAIN_TEXT - Plain text passwords
+        In addition to above this supports all digest methods supported by http://docs.oracle.com/javase/6/docs/api/java/security/MessageDigest.html.
+
+DisplayNameAttribute -
+    This is to have a dedicated LDAP attribute to display an entity(User/Role) in UI, in addition to the UserNameAttribute which is used for IS-UserStore interactions.
 -->
