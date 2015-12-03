@@ -37,6 +37,7 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
         //setting up the environment
         Utils.setCarbonHome();
         Utils.setupMavenLocalRepo();
+        Utils.setStartupTime();
         return Utils.getDefaultPaxOptions();
     }
 }

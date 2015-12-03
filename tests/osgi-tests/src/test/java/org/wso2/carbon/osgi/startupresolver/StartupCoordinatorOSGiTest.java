@@ -86,9 +86,9 @@ public class StartupCoordinatorOSGiTest {
     public void testCoordinationWithZeroServices() {
         Assert.assertNotNull(deployerManager, "DeployerManager Service is null");
 
-        int expectedTransportCount = 0;
+        int expectedDeployerCount = 0;
         int actualTransportCount = deployerManager.getDeployerCount();
-        Assert.assertEquals(actualTransportCount, expectedTransportCount, "Deployer count is not correct");
+        Assert.assertEquals(actualTransportCount, expectedDeployerCount, "Deployer count is not correct");
     }
 
     @Test
@@ -104,8 +104,8 @@ public class StartupCoordinatorOSGiTest {
     public void testCoordinationWithMultipleService() {
         Assert.assertNotNull(runtimeManager, "RuntimeManager Service is null");
 
-        int expectedTransportCount = 7;
+        int expectedRuntimeCount = 7;
         int actualTransportCount = runtimeManager.getRuntimeCount();
-        Assert.assertEquals(actualTransportCount, expectedTransportCount, "Runtime count is not correct");
+        Assert.assertEquals(actualTransportCount, expectedRuntimeCount, "Runtime count is not correct");
     }
 }

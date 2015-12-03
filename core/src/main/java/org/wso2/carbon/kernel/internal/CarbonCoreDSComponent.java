@@ -75,7 +75,7 @@ public class CarbonCoreDSComponent {
      */
     @Deactivate
     protected void stop() throws Exception {
-        DataHolder.getInstance().setBundleContext(null);
+//        DataHolder.getInstance().setBundleContext(null);
     }
 
     /**

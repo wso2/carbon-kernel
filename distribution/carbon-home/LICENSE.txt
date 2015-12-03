@@ -46,9 +46,11 @@ org.ops4j.pax.logging.pax-logging-api_1.8.4.jar                                 
 org.ops4j.pax.logging.pax-logging-log4j2_1.8.4.jar                              bundle         apache2   1409      
 org.osgi.core-6.0.0.jar                                                         bundle         apache2   1407      
 org.sat4j.core_2.3.5.v201308161310.jar                                          bundle         epl1+lgpl21091      
-org.sat4j.pb_2.3.5.v201404071733.jar                                            bundle         epl1+lgpl2   
-org.wso2.carbon.core_5.0.0.jar                                                  bundle         apache2   5713      
-org.wso2.carbon.launcher-5.0.0.jar                                              bundle         apache2   5712      
+org.sat4j.pb_2.3.5.v201404071733.jar                                            bundle         apache2   1408      
+org.wso2.carbon.core_5.0.0.jar                                                  bundle         apache2   5713
+org.wso2.carbon.launcher-5.0.0.jar                                              bundle         apache2   5712
+org.wso2.carbon.tools-5.0.0.jar                                                 bundle         apache2   6273
+snakeyaml_1.16.0.wso2v1.jar                                                     bundle         apache2   6274      
 
 
 

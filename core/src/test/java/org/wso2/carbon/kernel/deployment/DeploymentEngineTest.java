@@ -62,14 +62,14 @@ public class DeploymentEngineTest extends BaseTest {
     @Test(expectedExceptions = DeploymentEngineException.class,
             expectedExceptionsMessageRegExp = "Cannot find repository : .*")
     public void testUninitializedDeploymentEngine() throws DeploymentEngineException {
-        DeploymentEngine engine = new DeploymentEngine("/fake/path");
-        engine.start();
+        DeploymentEngine engine = new DeploymentEngine();
+        engine.start("/fake/path");
     }
 
     @Test
     public void testCarbonDeploymentEngine() throws DeploymentEngineException {
-        deploymentEngine = new DeploymentEngine(getTestResourceFile(CARBON_REPO).getAbsolutePath());
-        deploymentEngine.start();
+        deploymentEngine = new DeploymentEngine();
+        deploymentEngine.start(getTestResourceFile(CARBON_REPO).getAbsolutePath());
         repositoryScanner = new RepositoryScanner(deploymentEngine);
     }
 
