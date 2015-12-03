@@ -48,13 +48,11 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.server.feature</artifactId>
-            <version>${project.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core.runtime.feature</artifactId>
-            <version>${project.version}</version>
             <type>zip</type>
         </dependency>
     </dependencies>
@@ -99,16 +97,14 @@
                         </goals>
                         <configuration>
                             <targetRepository>file:${basedir}/target/p2-repo</targetRepository>
-
-
                             <features>
                                 <feature>
                                     <id>org.wso2.carbon.core.server.feature</id>
-                                    <version>${project.version}</version>
+                                    <version>${carbon.kernel.version}</version>
                                 </feature>
                                 <feature>
                                     <id>org.wso2.carbon.core.runtime.feature</id>
-                                    <version>${project.version}</version>
+                                    <version>${carbon.kernel.version}</version>
                                 </feature>
                             </features>
                         </configuration>
@@ -159,7 +155,7 @@
                             <features>
                                 <feature>
                                     <id>org.wso2.carbon.core.server.feature.group</id>
-                                    <version>${project.version}</version>
+                                    <version>${carbon.kernel.version}</version>
                                 </feature>
                             </features>
                         </configuration>

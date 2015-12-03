@@ -24,6 +24,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
@@ -49,12 +50,7 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
 
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
-        bundleContext.registerService(TransportManager.class, transportManager, null);
 
-        // Registering transport management command provider implementation. This allows users to manage
-        // transports via the OSGi console.
-        bundleContext.registerService(CommandProvider.class.getName(),
-                new TransportMgtCommandProvider(transportManager), null);
     }
 
     @Reference(
@@ -78,5 +74,12 @@ public class TransportServiceListenerComponent implements RequiredCapabilityList
             logger.debug("Starting all transports");
         }
         transportManager.startTransports();
+
+        BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
+        bundleContext.registerService(TransportManager.class, transportManager, null);
+        // Registering transport management command provider implementation. This allows users to manage
+        // transports via the OSGi console.
+        bundleContext.registerService(CommandProvider.class.getName(),
+                new TransportMgtCommandProvider(transportManager), null);
     }
 }
