@@ -117,8 +117,8 @@ public class SymmetricEncryption {
                                 Base64.decode((String) properties.get(secretAlias)).length, encryptionAlgo);
                     }
                 } else if (properties.containsKey(propertyKey)) {
-                    symmetricKey = new SecretKeySpec(Base64.decode(properties.getProperty(propertyKey)), 0,
-                            Base64.decode(properties.getProperty(propertyKey)).length, encryptionAlgo);
+                    symmetricKey = new SecretKeySpec(properties.getProperty(propertyKey).getBytes(), 0,
+                            properties.getProperty(propertyKey).getBytes().length, encryptionAlgo);
                 }
 
                 if (symmetricKey != null) {
