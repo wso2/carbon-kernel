@@ -26,7 +26,7 @@ import org.osgi.framework.ServiceReference;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.osgi.util.Utils;
+import org.wso2.carbon.osgi.utils.Utils;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
 
 import javax.inject.Inject;
