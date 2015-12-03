@@ -14,6 +14,8 @@
  */
 package org.wso2.carbon.utils.logging;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.helpers.FormattingInfo;
 import org.apache.log4j.helpers.PatternConverter;
@@ -27,6 +29,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A log4j pattern layout implementation capable of capturing tenant details
@@ -70,6 +76,13 @@ public class TenantAwarePatternLayout extends PatternLayout {
     private static String tenantPattern = DEFAULT_TENANT_PATTERN;
     private static String superTenantText = null;
 
+    private static UUID logUUID;
+    private static Log log = LogFactory.getLog(TenantAwarePatternLayout.class);
+
+    static {
+        logUUID = UUID.randomUUID();
+    }
+
 
     /**
      * The default constructor.
@@ -103,6 +116,37 @@ public class TenantAwarePatternLayout extends PatternLayout {
      */
     public synchronized void setTenantPattern(String tenantPattern) {
         TenantAwarePatternLayout.tenantPattern = tenantPattern;
+    }
+
+    /**
+     * Method to set the logUUID update interval.
+     * Unit is hours.
+     *
+     * @param logUUIDUpdateInterval
+     */
+    public synchronized void setLogUUIDUpdateInterval(String logUUIDUpdateInterval) {
+        if (logUUIDUpdateInterval != null && !logUUIDUpdateInterval.isEmpty()) {
+            try {
+                // update interval in hours
+                int updateInterval = 0;
+                updateInterval = Integer.parseInt(logUUIDUpdateInterval);
+
+                if (updateInterval > 0) {
+                    ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+                    scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+                        @Override
+                        public void run() {
+                            UUID newLogUUID = UUID.randomUUID();
+                            log.info("New log UUID: " + newLogUUID);
+                            logUUID = newLogUUID;
+                        }
+                    }, updateInterval, updateInterval, TimeUnit.HOURS);
+                }
+            }
+            catch(NumberFormatException e) {
+                log.warn("LogUUIDUpdateInterval cannot be converted to an integer.");
+            }
+        }
     }
 
     /**
@@ -170,6 +214,9 @@ public class TenantAwarePatternLayout extends PatternLayout {
                     break;
                 case 'I':
                     pc = new InstanceIdPatternConverter(formattingInfo, extractPrecisionOption());
+                    break;
+                case 'K':
+                    pc = new LogUUIDPatternConverter(formattingInfo, extractPrecisionOption());
                     break;
                 default:
                     super.finalizeConverter(c);
@@ -362,6 +409,18 @@ public class TenantAwarePatternLayout extends PatternLayout {
                     return new TenantAwarePatternLayout(tenantPattern).format(event);
                 }
                 return superTenantText;
+            }
+        }
+
+        private static class LogUUIDPatternConverter extends TenantAwareNamedPatternConverter {
+
+            public LogUUIDPatternConverter(FormattingInfo formattingInfo, int precision) {
+                super(formattingInfo, precision);
+            }
+
+            @Override
+            protected String getFullyQualifiedName(LoggingEvent event) {
+                return logUUID.toString();
             }
         }
     }
