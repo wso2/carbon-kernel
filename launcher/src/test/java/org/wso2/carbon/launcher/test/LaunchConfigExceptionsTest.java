@@ -72,23 +72,6 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     }
 
     /**
-     * Test if wso2carbon.log has error messages logged for exception in loadCarbonLaunchConfigFromFileTestCase.
-     *
-     * @throws FileNotFoundException if wso2carbon.log file not exists.
-     */
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void verifyFileNotFoundErrorLogsTestCase() throws FileNotFoundException {
-
-        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - " +
-                "File test/launch.properties does not exists";
-        ArrayList<String> logRecords =
-                getLogsFromTestResource(new FileInputStream(logFile));
-        //test if log records are added to wso2carbon.log
-        boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
-        Assert.assertTrue(isContainsInLogs);
-    }
-
-    /**
      * Test if wso2carbon.log has error messages logged for exception in loadCarbonLaunchConfigFromURLTestCase.
      *
      * @throws FileNotFoundException if wso2carbon.log file not exists.

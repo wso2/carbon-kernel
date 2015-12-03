@@ -25,7 +25,7 @@ import org.wso2.carbon.test.interfaces.Greeting;
 public class HelloWorld implements Greeting {
 
     /**
-     * Returns a greeting message with the {@code name} appended
+     * Returns a greeting message with the {@code name} appended.
      *
      * @param name the name to be greeted
      * @return the greeting message
