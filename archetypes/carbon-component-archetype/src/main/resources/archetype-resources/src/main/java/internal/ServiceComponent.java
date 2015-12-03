@@ -22,7 +22,8 @@ import java.util.logging.Logger;
  */
 @Component(
         name = "${package}.internal.ServiceComponent",
-        immediate = true)
+        immediate = true
+)
 public class ServiceComponent {
 
     Logger logger = Logger.getLogger(ServiceComponent.class.getName());
@@ -67,7 +68,8 @@ public class ServiceComponent {
             service = CarbonRuntime.class,
             cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetCarbonRuntime")
+            unbind = "unsetCarbonRuntime"
+    )
     protected void setCarbonRuntime(CarbonRuntime carbonRuntime) {
         DataHolder.getInstance().setCarbonRuntime(carbonRuntime);
     }
