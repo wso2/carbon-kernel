@@ -63,7 +63,6 @@ public class Utils {
      * @return file with resolved path
      */
     public static File resolveFileURL(String path, String parentPath) {
-        File file;
         if (path.contains(":") && !path.startsWith("file:")) {
             throw new RuntimeException("URLs other than file URLs are not supported.");
         }
@@ -72,7 +71,7 @@ public class Utils {
             relativeFilePath = path.substring(5);
         }
 
-        file = new File(relativeFilePath);
+        File file = new File(relativeFilePath);
         if (!file.isAbsolute()) {
             file = new File(parentPath, relativeFilePath);
             if (!file.isAbsolute()) {
