@@ -18,6 +18,7 @@ package org.wso2.carbon.kernel.internal.runtime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.runtime.Runtime;
+import org.wso2.carbon.kernel.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ public class RuntimeManager {
      * @param runtime - runtime to be registered
      */
     public void registerRuntime(Runtime runtime) {
+        Utils.checkSecurity();
         runtimeList.add(runtime);
     }
 
@@ -47,6 +49,7 @@ public class RuntimeManager {
      * @param runtime - runtime to be un-registered
      */
     public void unRegisterRuntime(Runtime runtime) {
+        Utils.checkSecurity();
         runtimeList.remove(runtime);
     }
 
@@ -56,6 +59,7 @@ public class RuntimeManager {
      * @return List of rumtimes
      */
     public List<Runtime> getRuntimeList() {
+        Utils.checkSecurity();
         return runtimeList;
     }
 }
