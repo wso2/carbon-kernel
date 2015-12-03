@@ -76,8 +76,8 @@ public class RequireCapabilityCoordinator {
     private MultiCounter<String> capabilityCounter = new MultiCounter<>();
     private MultiCounter<String> capabilityProviderCounter = new MultiCounter<>();
 
-    private Timer checkServiceAvailabilityTimer = new Timer();
-    private Timer pendingServiceTimer = new Timer();
+    private Timer satisfiableCapabilityListenerTimer = new Timer();
+    private Timer pendingCapabilityTimer = new Timer();
 
 
     /**
@@ -108,8 +108,8 @@ public class RequireCapabilityCoordinator {
 
             // 3) Schedule a timer to tack service registrations which have happened before populating the counter as
             //      well as to clear all the listeners with zero available services in the runtime.
-            // TODO find a way to stop these timers and make this timer task configurable from the carbon.yaml
-            checkServiceAvailabilityTimer.scheduleAtFixedRate(new TimerTask() {
+            satisfiableCapabilityListenerTimer.scheduleAtFixedRate(new TimerTask() {
+
                 @Override
                 public void run() {
                     listenerMap.keySet()
@@ -118,19 +118,31 @@ public class RequireCapabilityCoordinator {
                             .forEach(capabilityName -> {
                                 synchronized (capabilityName.intern()) {
                                     logger.debug("Invoking listener ({}) as all its required capabilities are " +
-                                           "available for ({})", listenerMap.get(capabilityName).getClass().getName(),
-                                            capabilityName);
+                                                    "available for ({})",
+                                            listenerMap.get(capabilityName).getClass().getName(), capabilityName);
+
                                     listenerMap.remove(capabilityName).onAllRequiredCapabilitiesAvailable();
                                     closeCapabilityTracker(capabilityName);
+
                                 }
                             });
                 }
             }, 200, 200);
 
             // 4) Start a timer to track pending service registrations.
-            pendingServiceTimer.scheduleAtFixedRate(new TimerTask() {
+            pendingCapabilityTimer.scheduleAtFixedRate(new TimerTask() {
+
                 @Override
                 public void run() {
+
+                    if (listenerMap.size() == 0) {
+                        logger.debug("Cancelling the timer which checks the satisfiable CapabilityListeners");
+                        satisfiableCapabilityListenerTimer.cancel();
+
+                        logger.debug("Cancelling the time which checks pending capabilities");
+                        pendingCapabilityTimer.cancel();
+                    }
+
                     listenerMap.keySet()
                             .stream()
                             .forEach(capabilityName -> {
