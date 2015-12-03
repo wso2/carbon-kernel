@@ -589,7 +589,6 @@
 
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.0.0-SNAPSHOT</carbon.kernel.version>
-        <carbon.kernel.osgi.version>5.0.0.SNAPSHOT</carbon.kernel.osgi.version>
         <carbon.kernel.package.export.version>5.0.0</carbon.kernel.package.export.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
@@ -686,7 +685,7 @@
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
-        <carbon.p2.plugin.version>2.0.0-alpha</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>2.0.0-beta</carbon.p2.plugin.version>
         <testng.version>6.9.4</testng.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
