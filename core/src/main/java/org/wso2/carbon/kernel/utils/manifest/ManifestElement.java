@@ -17,7 +17,6 @@ package org.wso2.carbon.kernel.utils.manifest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.utils.ManifestElementParserException;
 import org.wso2.carbon.kernel.utils.Tokenizer;
 
 import java.util.ArrayList;
