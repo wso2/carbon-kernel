@@ -31,6 +31,7 @@ public class CarbonCoreBundleActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
+        DataHolder.getInstance().setBundleContext(bundleContext);
         logger.debug("Activating carbon core bundle");
     }
 

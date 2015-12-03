@@ -57,8 +57,6 @@ public class CarbonCoreDSComponent {
      */
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
-        DataHolder.getInstance().setBundleContext(bundleContext);
-
         // 1) Find to initialize the Carbon configuration provider
         CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();
 
