@@ -26,7 +26,7 @@ public class Tokenizer {
     private int max;
     private int cursor;
     /**
-     * Construct the tokenizer from the given string
+     * Construct the tokenizer from the given string.
      *
      * @param value String
      */
