@@ -28,8 +28,8 @@ public class ManifestElementTest {
 
     @Test
     public void testParseHeader() {
-        Bundle bundle = bundleContext.getBundles()[14];
-        String key = bundle.getHeaders(PROVIDE_CAPABILITY).get(PROVIDE_CAPABILITY);
+        Bundle carbonCoreBundle = bundleContext.getBundles()[14];
+        String key = carbonCoreBundle.getHeaders(PROVIDE_CAPABILITY).get(PROVIDE_CAPABILITY);
         try {
             ManifestElement[] elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, key);
             Assert.assertEquals(3, elements.length);
