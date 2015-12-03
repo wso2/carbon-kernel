@@ -65,6 +65,7 @@ public class FileUtils {
      * @param destination The destination file
      * @throws java.io.IOException If an Exception occurs while copying
      */
+    //TODO This method is not used, remove this
     public static void copyFile(File source, File destination) throws IOException {
         if (!source.exists()) {
             throw new IOException("Source file does not exist: " + source);
