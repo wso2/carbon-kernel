@@ -64,7 +64,7 @@
                             <bundles>
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.core</symbolicName>
-                                    <version>${carbon.kernel.osgi.version}</version>
+                                    <version>${carbon.kernel.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
