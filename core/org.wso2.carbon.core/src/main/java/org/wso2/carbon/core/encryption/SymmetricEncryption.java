@@ -85,8 +85,7 @@ public class SymmetricEncryption {
             symmetricKeySecureVaultAlias = serverConfiguration.getFirstProperty("SymmetricEncryption.SecureVaultAlias");
 
 
-            String filePath = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator +
-                    "resources" +
+            String filePath = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator + "resources" +
                     File.separator + "security" + File.separator + "symmetric-key.properties";
 
             File file = new File(filePath);
@@ -129,7 +128,6 @@ public class SymmetricEncryption {
             if (!isSymmetricKeyFromFile) {
                 throw new CryptoException("Error in generating symmetric key. Symmetric key is not available.");
             }
-
         } catch (Exception e) {
             throw new CryptoException("Error in generating symmetric key", e);
         }
