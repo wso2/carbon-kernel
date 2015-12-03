@@ -35,7 +35,7 @@ public class Activator implements BundleActivator {
      */
     public void start(BundleContext bundleContext) throws Exception {
         greeter =  new Greeter("WSO2");
-        greeter.sayHello();
+        greeter.hello();
     }
 
     /**
@@ -45,6 +45,6 @@ public class Activator implements BundleActivator {
      * @throws Exception Could be thrown while bundle stopping
      */
     public void stop(BundleContext bundleContext) throws Exception {
-        greeter.sayBye();
+        greeter.bye();
     }
 }

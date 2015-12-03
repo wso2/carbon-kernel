@@ -7,7 +7,7 @@ package ${package};
  */
 public interface Greeter {
 
-    void sayHello();
+    void hello();
 
-    void sayBye();
+    void bye();
 }

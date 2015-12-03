@@ -34,14 +34,14 @@ public class Greeter {
     /**
      * This method outputs an info log saying Hello.
      */
-    public void sayHello() {
+    public void hello() {
         logger.info("Hello " + name);
     }
 
     /**
      * This method outputs an info log saying bye.
      */
-    public void sayBye() {
+    public void bye() {
         logger.info("Bye " + name);
     }
 }
