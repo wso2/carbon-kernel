@@ -35,7 +35,7 @@ import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.kernel.internal.deployment.DeploymentEngine;
-import org.wso2.carbon.osgi.util.Utils;
+import org.wso2.carbon.osgi.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Files;

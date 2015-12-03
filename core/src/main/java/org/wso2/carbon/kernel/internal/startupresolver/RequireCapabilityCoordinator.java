@@ -133,7 +133,7 @@ public class RequireCapabilityCoordinator {
 
                 @Override
                 public void run() {
-                    if (componentKeyCapabilityListenerMap.size() == 0) {
+                    if (requiredCapabilityListenerCount.get() == 0 && componentKeyCapabilityListenerMap.size() == 0) {
                         logger.debug("All the RequiredCapabilityListeners are notified, " +
                                 "therefore cancelling the satisfiableCapabilityListenerTimer");
                         satisfiableCapabilityListenerTimer.cancel();
@@ -396,6 +396,7 @@ public class RequireCapabilityCoordinator {
                                 "capability-name: {}. component-key: {}", RequiredCapabilityListener.class.getName(),
                         serviceImplClassName, capabilityName, componentKey);
 
+                requiredCapabilityListenerCount.decrementAndGet();
                 componentKeyCapabilityListenerMap.put(componentKey, (RequiredCapabilityListener) serviceObject);
 
             } else if (CapabilityProvider.class.getName().equals(serviceInterfaceClassName)) {
@@ -408,9 +409,8 @@ public class RequireCapabilityCoordinator {
                             + serviceImplClassName);
                 }
 
-                logger.debug("Adding {}. Service implementation class name: {}. " + "capability-name: {}. " +
-                                "dependent-component-key: {}", CapabilityProvider.class.getName(),
-                        serviceImplClassName, capabilityName, reference.getProperty(DEPENDENT_COMPONENT_KEY));
+                logger.debug("Adding {}. Service implementation class name: {}. " + "capability-name: {}",
+                        CapabilityProvider.class.getName(), serviceImplClassName, capabilityName);
 
                 IntStream.range(0, provider.getCount()).forEach(count -> capabilityComponentKeyMap.get(capabilityName)
                         .forEach(componentKeyCapabilityCounter::incrementAndGet));
