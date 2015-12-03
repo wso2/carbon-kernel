@@ -81,23 +81,32 @@ public class FileDownloadUtil {
                 if (dataHandler != null) {
                     response.setHeader("Content-Disposition", "filename=" + fileID);
                     response.setContentType(dataHandler.getContentType());
-                    InputStream in = dataHandler.getDataSource().getInputStream();
-                    int nextChar;
-                    while ((nextChar = in.read()) != -1) {
-                        out.write((char) nextChar);
-                    }
-                    out.flush();
-                    out.close();
-                    in.close();
-                    return true;
+                    try (InputStream in = dataHandler.getDataSource().getInputStream()) {
+                        int nextChar;
+                        while ((nextChar = in.read()) != -1) {
+                            out.write((char) nextChar);
+                        }
+                        out.flush();
+                    } finally {
+                        try {
+                            out.close();
+                        } catch (IOException e) {
+                            log.error("Error while closing OutputStream", e);
+                        }
+                    } return true;
                 }
                 out.write("The requested file was not found on the server".getBytes());
                 out.flush();
-                out.close();
             } catch (IOException e) {
                 String msg = "Unable to write output to HttpServletResponse OutputStream ";
                 log.error(msg, e);
                 throw new CarbonException(msg, e);
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    log.error("Error while closing OutputStream", e);
+                }
             }
             return false;
         }

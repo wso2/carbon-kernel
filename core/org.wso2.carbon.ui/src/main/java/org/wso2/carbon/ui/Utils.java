@@ -68,17 +68,16 @@ public class Utils {
                         new File(targetLocation, aChildren));
             }
         } else {
-            InputStream in = new FileInputStream(sourceLocation);
-            OutputStream out = new FileOutputStream(targetLocation);
+            try (InputStream in = new FileInputStream(sourceLocation);
+                 OutputStream out = new FileOutputStream(targetLocation);) {
 
-            // Copy the bits from instream to outstream
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
+                // Copy the bits from instream to outstream
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
             }
-            in.close();
-            out.close();
         }
     }
 

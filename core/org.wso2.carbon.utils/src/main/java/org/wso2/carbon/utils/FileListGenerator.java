@@ -45,20 +45,20 @@ public class FileListGenerator {
             if (!outFile.createNewFile()) {
                 throw new IOException("Fail to create the file: " + outFile.getAbsolutePath());
             }
-            FileWriter fileWriter = new FileWriter(outFile);
-            BufferedWriter buffWriter = new BufferedWriter(fileWriter);
+            try (FileWriter fileWriter = new FileWriter(outFile);
+                 BufferedWriter buffWriter = new BufferedWriter(fileWriter)) {
 
-            String[] files = sourceDir.list();            
-            for (int i = 0; i < files.length; i++) {
-                String file = files[i];
-                buffWriter.write(file);
-                if (i != files.length -1) {
-                    buffWriter.newLine();
+                String[] files = sourceDir.list();
+                for (int i = 0; i < files.length; i++) {
+                    String file = files[i];
+                    buffWriter.write(file);
+                    if (i != files.length - 1) {
+                        buffWriter.newLine();
+                    }
                 }
+                buffWriter.flush();
+            } catch (IOException e) {
             }
-            buffWriter.flush();
-            buffWriter.close();
-            fileWriter.close();
         } catch (IOException e) {
             throw new ServerException("Could not create new output file", e);
         }
