@@ -154,18 +154,16 @@ public class RepositoryScanner {
     }
 
     private Artifact findDeployedArtifact(ArtifactType type, String path) {
-        Artifact deployedArtifact = null;
         Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
                 carbonDeploymentEngine.getDeployedArtifacts();
-
-        if (deployedArtifacts.get(type) != null) {
-            deployedArtifact = deployedArtifacts.get(type).values()
-                    .stream()
-                    .filter(artifact -> path.equals(artifact.getPath()))
-                    .findAny()
-                    .get();
+        if (deployedArtifacts.get(type) == null) {
+            return null;
         }
-        return deployedArtifact;
+        return deployedArtifacts.get(type).values()
+                .stream()
+                .filter(artifact -> path.equals(artifact.getPath()))
+                .findAny()
+                .orElse(null);
     }
 
     private void checkUndeployedArtifacts() {
