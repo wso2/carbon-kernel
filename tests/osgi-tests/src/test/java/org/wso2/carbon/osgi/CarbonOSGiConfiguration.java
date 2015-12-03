@@ -17,7 +17,7 @@ package org.wso2.carbon.osgi;
 
 import org.ops4j.pax.exam.ConfigurationFactory;
 import org.ops4j.pax.exam.Option;
-import org.wso2.carbon.osgi.util.Utils;
+import org.wso2.carbon.osgi.utils.Utils;
 
 /**
  * This class will provide the shared configurations for the OSGi tests.
