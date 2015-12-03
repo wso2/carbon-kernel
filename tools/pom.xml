@@ -36,7 +36,7 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>tool-test-artifact</artifactId>
-            <version>${tool.test.artifact.version}</version>
+            <version>${carbon.kernel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -139,7 +139,6 @@
     </build>
 
     <properties>
-        <tool.test.artifact.version>${project.version}</tool.test.artifact.version>
         <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
     </properties>
 
