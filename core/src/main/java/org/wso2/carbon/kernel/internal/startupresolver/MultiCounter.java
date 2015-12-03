@@ -15,6 +15,9 @@
  */
 package org.wso2.carbon.kernel.internal.startupresolver;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +27,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Counter implementation which maintains multiple key occurrences. This implementation is thread-safe.
  *
- * @since 5.0.0
  * @param <K> the type of keys maintained by this map
+ * @since 5.0.0
  */
 public class MultiCounter<K> {
+    private static final Logger logger = LoggerFactory.getLogger(MultiCounter.class);
+
     private Map<K, AtomicInteger> counterMap = new ConcurrentHashMap<>();
 
     /**
@@ -39,9 +44,13 @@ public class MultiCounter<K> {
     public synchronized int incrementAndGet(K key) {
         if (!counterMap.containsKey(key)) {
             counterMap.put(key, new AtomicInteger(1));
+            logger.debug("IncrementAndGet key: {}, count: {}", key, 1);
             return 1;
         }
-        return counterMap.get(key).incrementAndGet();
+
+        int tally = counterMap.get(key).incrementAndGet();
+        logger.debug("IncrementAndGet key: {}, count: {}", key, tally);
+        return tally;
     }
 
     /**
@@ -53,13 +62,11 @@ public class MultiCounter<K> {
     public synchronized int decrementAndGet(K key) {
         if (counterMap.containsKey(key)) {
             int tally = counterMap.get(key).decrementAndGet();
-            if (tally == 0) {
-                counterMap.remove(key);
-                return tally;
-            }
+            logger.debug("DecrementAndGet key: {}, count: {}", key, tally);
             return tally;
         } else {
             counterMap.put(key, new AtomicInteger(-1));
+            logger.debug("DecrementAndGet key: {}, count: {}", key, -1);
             return -1;
         }
     }
