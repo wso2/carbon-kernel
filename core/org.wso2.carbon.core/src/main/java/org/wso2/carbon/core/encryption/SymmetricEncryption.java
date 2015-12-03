@@ -84,7 +84,6 @@ public class SymmetricEncryption {
             symmetricKeyEncryptAlgo = serverConfiguration.getFirstProperty("SymmetricEncryption.Algorithm");
             symmetricKeySecureVaultAlias = serverConfiguration.getFirstProperty("SymmetricEncryption.SecureVaultAlias");
 
-
             String filePath = CarbonUtils.getCarbonHome() + File.separator + "repository" + File.separator + "resources" +
                     File.separator + "security" + File.separator + "symmetric-key.properties";
 
