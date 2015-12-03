@@ -175,6 +175,16 @@ public abstract class AbstractTransportListener implements TransportListener, Ma
         this.configurationContext = null;
     }
 
+    /**
+     * Returns the endpoint reference for a service.
+     *
+     * @param protocol The protocol used eg: http
+     * @param ip The IP for the service
+     * @param serviceContextPath The context path
+     * @param serviceName  The name of the service
+     * @return The end point reference
+     * @throws AxisFault Thrown in case of a socket exception
+     */
     protected EndpointReference genEpr(String protocol, String ip, String serviceContextPath,
             String serviceName) throws AxisFault {
         try {
