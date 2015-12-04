@@ -16,6 +16,8 @@
 package org.wso2.carbon.kernel.internal.transports;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.kernel.transports.TransportManager;
 
@@ -36,7 +38,7 @@ public class TransportMgtCommandProviderTest {
     private DummyTransport[] dummyTransports;
     private String[] transportIdList;
 
-    //    @BeforeClass
+    @BeforeClass
     public void init() {
         commandInterpreter = new DummyInterpreter();
         setupDummyTransports();
@@ -67,7 +69,7 @@ public class TransportMgtCommandProviderTest {
         commandInterpreter.setTransportIdList(transportIdList);
     }
 
-    //    @Test
+    @Test
     public void testGetHelp() throws Exception {
         Assert.assertEquals(transportMgtCommandProvider.getHelp(), "---Transport Management---\n" +
                 "\tstartTransport <transportName> - Start the specified transport with <transportName>.\n" +
@@ -79,20 +81,20 @@ public class TransportMgtCommandProviderTest {
                 "\tlistTransports - List all the available transports\n");
     }
 
-    //    @Test
+    @Test
     public void test_startTransport() throws Exception {
         transportMgtCommandProvider._startTransport(commandInterpreter);
         Assert.assertEquals(dummyTransportOne.getStarted(), Boolean.TRUE);
     }
 
-    //    @Test(dependsOnMethods = "test_startTransport")
+    @Test(dependsOnMethods = "test_startTransport")
     public void test_stopTransport() throws Exception {
         commandInterpreter.resetCounter();
         transportMgtCommandProvider._stopTransport(commandInterpreter);
         Assert.assertEquals(dummyTransportOne.getStopped(), Boolean.TRUE);
     }
 
-    //    @Test(dependsOnMethods = "test_stopTransport")
+    @Test(dependsOnMethods = "test_stopTransport")
     public void test_startTransports() throws Exception {
         transportMgtCommandProvider._startTransports(commandInterpreter);
 
@@ -101,7 +103,7 @@ public class TransportMgtCommandProviderTest {
         }
     }
 
-    //    @Test(dependsOnMethods = "test_startTransports")
+    @Test(dependsOnMethods = "test_startTransports")
     public void test_stopTransports() throws Exception {
         commandInterpreter.resetCounter();
 
@@ -112,7 +114,7 @@ public class TransportMgtCommandProviderTest {
         }
     }
 
-    //    @Test (dependsOnMethods = "test_stopTransports")
+    @Test (dependsOnMethods = "test_stopTransports")
     public void test_beginMaintenance() throws Exception {
         commandInterpreter.resetCounter();
 
@@ -124,7 +126,7 @@ public class TransportMgtCommandProviderTest {
 
     }
 
-    //    @Test (dependsOnMethods = "test_beginMaintenance")
+    @Test (dependsOnMethods = "test_beginMaintenance")
     public void test_endMaintenance() throws Exception {
         commandInterpreter.resetCounter();
 
@@ -136,13 +138,14 @@ public class TransportMgtCommandProviderTest {
 
     }
 
-    //    @Test (dependsOnMethods = "test_endMaintenance")
+    @Test (dependsOnMethods = "test_endMaintenance")
     public void test_listTransports() throws Exception {
         String expectedOutputString = "";
 
         Map<String, CarbonTransport> map = transportManager.getTransports();
         for (String key : map.keySet()) {
-            expectedOutputString += "Transport Name: " + map.get(key).getId() + "\t" + " State: STOPPED\n";
+            expectedOutputString +=
+                    "Transport Name: " + map.get(key).getId() + "\t" + " State: STOPPED" + System.lineSeparator();
         }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -155,30 +158,30 @@ public class TransportMgtCommandProviderTest {
         Assert.assertEquals(baos.toString(), expectedOutputString);
     }
 
-    //    @Test (dependsOnMethods = "test_listTransports", expectedExceptions = IllegalArgumentException.class)
+    @Test (dependsOnMethods = "test_listTransports", expectedExceptions = IllegalArgumentException.class)
     public void test_startTransportForNullTransportValue() {
         commandInterpreter.resetCounter();
         commandInterpreter.setTransportIdListValuesToNull();
         transportMgtCommandProvider._startTransport(commandInterpreter);
     }
 
-    //    @Test(dependsOnMethods = "test_startTransportForNullTransportValue",
-    //            expectedExceptions = IllegalArgumentException.class)
+    @Test(dependsOnMethods = "test_startTransportForNullTransportValue",
+                expectedExceptions = IllegalArgumentException.class)
     public void test_stopTransportForNullTransportValue() {
         commandInterpreter.resetCounter();
         transportMgtCommandProvider._stopTransport(commandInterpreter);
     }
 
-    //    @Test (dependsOnMethods = "test_stopTransportForNullTransportValue",
-    //            expectedExceptions = IllegalArgumentException.class)
+    @Test (dependsOnMethods = "test_stopTransportForNullTransportValue",
+                expectedExceptions = IllegalArgumentException.class)
     public void test_startTransportForEmptyStringTransportValue() {
         commandInterpreter.resetCounter();
         commandInterpreter.setTransportIdListValuesToEmptyString();
         transportMgtCommandProvider._startTransport(commandInterpreter);
     }
 
-    //    @Test(dependsOnMethods = "test_startTransportForEmptyStringTransportValue",
-    //            expectedExceptions = IllegalArgumentException.class)
+    @Test(dependsOnMethods = "test_startTransportForEmptyStringTransportValue",
+                expectedExceptions = IllegalArgumentException.class)
     public void test_stopTransportForEmptyStringTransportValue() {
         commandInterpreter.resetCounter();
         transportMgtCommandProvider._stopTransport(commandInterpreter);
