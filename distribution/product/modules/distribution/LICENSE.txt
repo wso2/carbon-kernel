@@ -21,7 +21,7 @@ ant-contrib-1.0b3.jar                                                           
 antlr_3.2.0.wso2v1.jar                                                          bundle         bsd       838       
 ant_1.7.0.wso2v1.jar                                                            bundle         apache2   1012      
 authenticator_0.7.0.wso2v1.jar                                                  bundle         apache2   700       
-axiom_1.2.11.wso2v10.jar                                                        bundle         apache2   6271      
+axiom_1.2.11.wso2v9.jar                                                         bundle         apache2   6271      
 axis2-json_1.6.1.wso2v16.jar                                                    bundle         apache2   6270      
 axis2_1.6.1.wso2v16.jar                                                         bundle         apache2   6269      
 backport-util-concurrent_3.1.0.wso2v1.jar                                       bundle         apache2   1007      
