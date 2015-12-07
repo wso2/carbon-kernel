@@ -56,8 +56,8 @@ public class DeploymentServiceTest extends BaseTest {
         customDeployer = new CustomDeployer();
         artifactPath = getTestResourceFile(DEPLOYER_REPO).getAbsolutePath()
                 + File.separator + "sample1.txt";
-        deploymentEngine = new DeploymentEngine(getTestResourceFile(CARBON_REPO).getAbsolutePath());
-        deploymentEngine.start();
+        deploymentEngine = new DeploymentEngine();
+        deploymentEngine.start(getTestResourceFile(CARBON_REPO).getAbsolutePath());
         deploymentEngine.registerDeployer(customDeployer);
     }
 

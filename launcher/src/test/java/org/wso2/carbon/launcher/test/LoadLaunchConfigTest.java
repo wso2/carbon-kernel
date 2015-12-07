@@ -133,46 +133,10 @@ public class LoadLaunchConfigTest extends BaseTest {
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadLaunchConfigServerListnersTestCase() throws MalformedURLException {
+    public void loadLaunchConfigServerListenersTestCase() throws MalformedURLException {
         //test if property "carbon.server.listeners" has set according to sample launch.properties file
         CarbonServerListener carbonServerListener = launchConfig.getCarbonServerListeners().get(0);
         Assert.assertTrue(carbonServerListener instanceof DropinsBundleDeployer);
-    }
-
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadOSGiInstallAreaTestCase() throws MalformedURLException {
-        //test if property "osgi.install.area" has set according to sample launch.properties file
-        URL installArea = launchConfig.getOSGiInstallArea();
-        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default").toString();
-        Assert.assertEquals(expectedLocation, installArea.getPath());
-    }
-
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadOSGiConfigurationAreaTestCase() throws MalformedURLException {
-        //test if property "osgi.configuration.area" has set according to sample launch.properties file
-        URL osGiConfigurationArea = launchConfig.getOSGiConfigurationArea();
-        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default", "configuration").toString();
-        Assert.assertEquals(expectedLocation, osGiConfigurationArea.getPath());
-    }
-
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadOSGiInstanceAreaTestCase() throws MalformedURLException {
-        //test if property "osgi.instance.area" has set according to sample launch.properties file
-        URL osGiInstanceArea = launchConfig.getOSGiInstanceArea();
-        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "profile", "default", "workspace").toString();
-        Assert.assertEquals(expectedLocation, osGiInstanceArea.getPath());
-    }
-
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void loadEclipseP2DataAreaTestCase() throws MalformedURLException {
-        //test if property "eclipse.p2.data.area" has set according to sample launch.properties file
-        URL eclipseP2DataArea = launchConfig.getEclipseP2DataArea();
-        String expectedLocation = Paths.get(Utils.getRepositoryDirectory().toString(),
-                "components", "p2").toString();
-        Assert.assertEquals(expectedLocation, eclipseP2DataArea.getPath());
     }
 
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})

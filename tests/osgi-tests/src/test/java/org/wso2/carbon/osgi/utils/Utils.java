@@ -13,9 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.osgi.util;
+package org.wso2.carbon.osgi.utils;
 
 import org.ops4j.pax.exam.Option;
+import org.wso2.carbon.kernel.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,6 +52,15 @@ public class Utils {
         String currentDir = Paths.get("").toAbsolutePath().toString();
         Path carbonHome = Paths.get(currentDir, "target", "carbon-home");
         System.setProperty("carbon.home", carbonHome.toString());
+    }
+
+    /**
+     * Set the startup time to calculate the server startup time.
+     */
+    public static void setStartupTime() {
+        if (System.getProperty(Constants.START_TIME) == null) {
+            System.setProperty(Constants.START_TIME, System.currentTimeMillis() + "");
+        }
     }
 
     /**

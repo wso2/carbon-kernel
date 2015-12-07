@@ -38,6 +38,10 @@ public abstract class CarbonTransport {
         return id;
     }
 
+    public State getState() {
+        return state;
+    }
+
     void startTransport() {
         if (state.equals(State.UNINITIALIZED) || state.equals(State.IN_MAINTENANCE) || state.equals(State.STOPPED)) {
             state = State.STARTED;
@@ -95,7 +99,10 @@ public abstract class CarbonTransport {
      */
     protected abstract void endMaintenance();
 
-    private enum State {
+    /**
+     * Enum to holds the state of Transport.
+     */
+    public enum State {
         UNINITIALIZED, STARTED, STOPPED, IN_MAINTENANCE;
 
         @Override

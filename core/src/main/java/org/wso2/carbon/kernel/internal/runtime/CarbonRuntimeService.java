@@ -21,6 +21,7 @@ import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.runtime.RuntimeState;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
+import org.wso2.carbon.kernel.utils.Utils;
 
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class CarbonRuntimeService implements RuntimeService {
      */
     @Override
     public void startRuntimes() throws RuntimeServiceException {
+        Utils.checkSecurity();
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
             if (runtime.getState() == RuntimeState.INACTIVE) {
@@ -66,6 +68,7 @@ public class CarbonRuntimeService implements RuntimeService {
      */
     @Override
     public void stopRuntimes() throws RuntimeServiceException {
+        Utils.checkSecurity();
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
             if (runtime.getState() == RuntimeState.PENDING) {
@@ -83,6 +86,7 @@ public class CarbonRuntimeService implements RuntimeService {
      */
     @Override
     public void beginMaintenance() throws RuntimeServiceException {
+        Utils.checkSecurity();
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
             if (runtime.getState() == RuntimeState.PENDING) {
@@ -100,6 +104,7 @@ public class CarbonRuntimeService implements RuntimeService {
      */
     @Override
     public void endMaintenance() throws RuntimeServiceException {
+        Utils.checkSecurity();
         List<Runtime> runtimeMap = runtimeManager.getRuntimeList();
         for (Runtime runtime : runtimeMap) {
             if (runtime.getState() == RuntimeState.PENDING) {

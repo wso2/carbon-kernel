@@ -16,14 +16,14 @@
 
 id: "carbon-kernel"
 name: "WSO2 Carbon Kernel"
-version: "1.2.3"
+version: "${carbon.version}"
 
 # Ports used by this server
 ports:
 # Ports offset. This entry will set the value of the ports defined below to
 # the define value + Offset.
 # e.g. Offset=2 and HTTPS port=9443 will set the effective HTTPS port to 9445
- offset: 0
+ offset: ${carbon.offset}
 # Deployment Engine related configurations
 deployment:
 # Currently there can be two modes
@@ -34,8 +34,8 @@ deployment:
  mode: scheduled
 
 # Location of the artifact repository
- repositoryLocation: test-repo-location
+ repositoryLocation: "${carbon.home}/repository/deployment/server/"
 
 # Deployment update interval in seconds. This is the interval between repository listener
 # executions.
- updateInterval: 15
+# updateInterval: 15    //default value

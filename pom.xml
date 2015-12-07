@@ -42,6 +42,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>archetypes</module>
                 <module>launcher</module>
                 <module>core</module>
                 <module>tests</module>
@@ -79,6 +80,11 @@
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
                 <version>${maven.wagon.ssh.version}</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.archetype</groupId>
+                <artifactId>archetype-packaging</artifactId>
+                <version>${maven.archetype.version}</version>
             </extension>
         </extensions>
         <pluginManagement>
@@ -245,6 +251,24 @@
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>${maven.antrunplugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-archetype-plugin</artifactId>
+                    <version>${maven.archetype.version}</version>
+                    </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>docs</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>javadoc</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -277,6 +301,18 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.tools</artifactId>
                 <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core.server.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core.runtime.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -535,6 +571,16 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>${org.snakeyaml.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>tool-test-artifact</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.connector.java.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -543,7 +589,6 @@
 
         <!-- Carbon platform version comes here-->
         <carbon.kernel.version>5.0.0-SNAPSHOT</carbon.kernel.version>
-        <carbon.kernel.osgi.version>5.0.0.SNAPSHOT</carbon.kernel.osgi.version>
         <carbon.kernel.package.export.version>5.0.0</carbon.kernel.package.export.version>
         <carbon.kernel.package.import.version.range>[5.0.0, 6.0.0)</carbon.kernel.package.import.version.range>
 
@@ -628,6 +673,7 @@
         <maven.findbugsplugin.version>3.0.2</maven.findbugsplugin.version>
         <maven.paxexamplugin.version>1.2.4</maven.paxexamplugin.version>
         <maven.antrunplugin.version>1.8</maven.antrunplugin.version>
+        <maven.archetype.version>2.4</maven.archetype.version>
 
         <!--Pax Exam Versions-->
         <pax.exam.version>4.6.0</pax.exam.version>
@@ -639,11 +685,12 @@
 
         <!--Other dependency versions -->
         <apache.felix.scr.ds-annotations.version>1.2.4</apache.felix.scr.ds-annotations.version>
-        <carbon.p2.plugin.version>2.0.0-alpha</carbon.p2.plugin.version>
+        <carbon.p2.plugin.version>2.0.0-beta</carbon.p2.plugin.version>
         <testng.version>6.9.4</testng.version>
         <jacoco.version>0.7.5.201505241946</jacoco.version>
         <org.jacoco.ant.version>0.7.5.201505241946</org.jacoco.ant.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>
+        <mysql.connector.java.version>5.1.37</mysql.connector.java.version>
     </properties>
 </project>

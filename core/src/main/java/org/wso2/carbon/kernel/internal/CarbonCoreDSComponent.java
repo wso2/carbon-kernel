@@ -57,8 +57,6 @@ public class CarbonCoreDSComponent {
      */
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
-        DataHolder.getInstance().setBundleContext(bundleContext);
-
         // 1) Find to initialize the Carbon configuration provider
         CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();
 
@@ -77,7 +75,7 @@ public class CarbonCoreDSComponent {
      */
     @Deactivate
     protected void stop() throws Exception {
-        DataHolder.getInstance().setBundleContext(null);
+//        DataHolder.getInstance().setBundleContext(null);
     }
 
     /**
@@ -112,8 +110,14 @@ public class CarbonCoreDSComponent {
      *
      * @param managedService the managedService instance that is un-registered. this is not used currently in
      *                       this method.
+     * @param properties     the properties of the ManagedService service registration used for checking the service.pid
      */
-    protected void unRegisterLoggingConfig(ManagedService managedService) {
+    protected void unRegisterLoggingConfig(ManagedService managedService, Map<String, ?> properties) {
+        String pid = (String) properties.get(Constants.SERVICE_PID);
+        // check for logging config service pid
+        if ((pid == null) || (!Constants.LOGGING_CONFIG_PID.equals(pid))) {
+            return;
+        }
         loggingConfiguration.unregister(managedService);
     }
 }

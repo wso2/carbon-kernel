@@ -30,9 +30,8 @@ import org.wso2.carbon.kernel.deployment.Deployer;
 import org.wso2.carbon.kernel.deployment.DeploymentService;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.wso2.carbon.kernel.internal.DataHolder;
+import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 
 /**
  * This service component is responsible for initializing the DeploymentEngine and listening for deployer registrations.
@@ -40,18 +39,25 @@ import java.util.List;
  * @since 5.0.0
  */
 @Component(
-        name = "org.wso2.carbon.kernel.internal.deployment.DeploymentEngineComponent",
-        immediate = true
+        name = "org.wso2.carbon.kernel.internal.deployment.DeploymentEngineListenerComponent",
+        immediate = true,
+        property = {
+                "capability-name=org.wso2.carbon.kernel.deployment.Deployer",
+                "component-key=carbon-deployment-service"
+        }
 )
 
-public class DeploymentEngineComponent {
-    private static Logger logger = LoggerFactory.getLogger(DeploymentEngineComponent.class);
+public class DeploymentEngineListenerComponent implements RequiredCapabilityListener {
+    private static Logger logger = LoggerFactory.getLogger(DeploymentEngineListenerComponent.class);
 
     private CarbonRuntime carbonRuntime;
     private DeploymentEngine deploymentEngine;
     private ServiceRegistration serviceRegistration;
-    private List<Deployer> deployerList = new ArrayList<>();
 
+
+    public DeploymentEngineListenerComponent() {
+        deploymentEngine = new DeploymentEngine();
+    }
 
     /**
      * This is the activation method of DeploymentEngineComponent. This will be called when its references are
@@ -63,40 +69,6 @@ public class DeploymentEngineComponent {
 
     @Activate
     public void start(BundleContext bundleContext) throws Exception {
-        try {
-            // Initialize deployment engine and scan it
-            String carbonRepositoryLocation = carbonRuntime.getConfiguration().
-                    getDeploymentConfig().getRepositoryLocation();
-            deploymentEngine = new DeploymentEngine(carbonRepositoryLocation);
-
-            logger.debug("Starting Carbon Deployment Engine {}", deploymentEngine);
-            deploymentEngine.start();
-
-            // Add deployment engine to the data holder for later usages/references of this object
-            OSGiServiceHolder.getInstance().setCarbonDeploymentEngine(deploymentEngine);
-
-            // Register DeploymentService
-            DeploymentService deploymentService = new CarbonDeploymentService(deploymentEngine);
-            serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
-                    deploymentService, null);
-
-            logger.debug("Started Carbon Deployment Engine");
-
-            // register pending deployers in the list
-            for (Deployer deployer : deployerList) {
-                try {
-                    deploymentEngine.registerDeployer(deployer);
-                } catch (Exception e) {
-                    logger.error("Error while adding deployer to the deployment engine", e);
-                }
-            }
-
-        } catch (DeploymentEngineException e) {
-            String msg = "Could not initialize carbon deployment engine";
-            logger.error(msg, e);
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
     }
 
     /**
@@ -108,7 +80,9 @@ public class DeploymentEngineComponent {
 
     @Deactivate
     public void stop() throws Exception {
-        serviceRegistration.unregister();
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
     }
 
     /**
@@ -125,14 +99,10 @@ public class DeploymentEngineComponent {
             unbind = "unregisterDeployer"
     )
     protected void registerDeployer(Deployer deployer) {
-        if (deploymentEngine != null) {
-            try {
-                deploymentEngine.registerDeployer(deployer);
-            } catch (DeployerRegistrationException e) {
-                logger.error("Error while adding deployer to the deployment engine", e);
-            }
-        } else { //carbon deployment engine is not initialized yet, so we keep them in a pending list
-            deployerList.add(deployer);
+        try {
+            deploymentEngine.registerDeployer(deployer);
+        } catch (DeployerRegistrationException e) {
+            logger.error("Error while adding deployer to the deployment engine", e);
         }
     }
 
@@ -175,5 +145,31 @@ public class DeploymentEngineComponent {
     public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
         this.carbonRuntime = null;
         OSGiServiceHolder.getInstance().setCarbonRuntime(null);
+    }
+
+    @Override
+    public void onAllRequiredCapabilitiesAvailable() {
+        try {
+            // Initialize deployment engine and scan it
+            String carbonRepositoryLocation = carbonRuntime.getConfiguration().getDeploymentConfig().
+                    getRepositoryLocation();
+
+            logger.debug("Starting Carbon Deployment Engine {}", deploymentEngine);
+            deploymentEngine.start(carbonRepositoryLocation);
+
+            // Add deployment engine to the data holder for later usages/references of this object
+            OSGiServiceHolder.getInstance().setCarbonDeploymentEngine(deploymentEngine);
+
+            // Register DeploymentService
+            DeploymentService deploymentService = new CarbonDeploymentService(deploymentEngine);
+            BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
+            serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
+                    deploymentService, null);
+
+            logger.debug("Started Carbon Deployment Engine");
+        } catch (DeploymentEngineException e) {
+            String msg = "Could not initialize carbon deployment engine";
+            logger.error(msg, e);
+        }
     }
 }

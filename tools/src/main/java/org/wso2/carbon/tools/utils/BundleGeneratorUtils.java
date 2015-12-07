@@ -105,8 +105,8 @@ public class BundleGeneratorUtils {
                     logger.log(Level.FINE, "Creating an OSGi bundle for JAR file " + tempJarFilePathHolder.toString() +
                             ", at target directory " + extensionBundle.toString() + ".");
                     BundleGeneratorUtils.createBundle(jarFile, extensionBundle, manifest);
-                    logger.log(Level.FINE, "Created an OSGi bundle for JAR file " + tempJarFilePathHolder.toString()
-                            + ", at target directory " + extensionBundle.toString() + ".");
+                    logger.log(Level.FINE, "Created an OSGi bundle for JAR file " + tempJarFilePathHolder.toString() +
+                            ", at target directory " + extensionBundle.toString() + ".");
                     logger.log(Level.INFO, "Created the OSGi bundle " + pluginName + " for JAR file " +
                             jarFile.toString());
                 } else {
@@ -182,8 +182,8 @@ public class BundleGeneratorUtils {
                 tempBundleHolder.toFile().deleteOnExit();
 
                 Path manifestFile = Paths.get(tempBundleHolder.toString(), Constants.MANIFEST_FILE_NAME);
-                Path p2InfFile = Files
-                        .createTempFile(tempBundleHolder, Constants.P2_INF_FILE_NAME, Constants.P2_INF_FILE_EXTENSION);
+                Path p2InfFile = Files.
+                        createTempFile(tempBundleHolder, Constants.P2_INF_FILE_NAME, Constants.P2_INF_FILE_EXTENSION);
                 p2InfFile.toFile().deleteOnExit();
 
                 try (OutputStream manifestOutputStream = Files.newOutputStream(manifestFile);
@@ -192,8 +192,8 @@ public class BundleGeneratorUtils {
                     manifest.write(manifestOutputStream);
                     logger.log(Level.FINE,
                             "Generated the OSGi bundlePath MANIFEST.MF for the JAR file " + jarFile.toString());
-                    p2InfOutputStream.write("instructions.configure=markStarted(started:true);"
-                            .getBytes(Charset.forName("UTF-8")));
+                    p2InfOutputStream.write("instructions.configure=markStarted(started:true);".
+                            getBytes(Charset.forName("UTF-8")));
                     p2InfOutputStream.flush();
                     logger.log(Level.FINE,
                             "Generated the OSGi bundlePath p2.inf for the JAR file " + jarFile.toString());
@@ -202,8 +202,8 @@ public class BundleGeneratorUtils {
                     if (!Files.exists(manifestFolderPath)) {
                         Files.createDirectories(manifestFolderPath);
                     }
-                    Path manifestPathInBundle = zipFileSystem
-                            .getPath(Constants.JAR_MANIFEST_FOLDER, Constants.MANIFEST_FILE_NAME);
+                    Path manifestPathInBundle = zipFileSystem.
+                            getPath(Constants.JAR_MANIFEST_FOLDER, Constants.MANIFEST_FILE_NAME);
                     Path p2InfPathInBundle = zipFileSystem.getPath(Constants.JAR_MANIFEST_FOLDER,
                             Constants.P2_INF_FILE_NAME + Constants.P2_INF_FILE_EXTENSION);
                     Files.copy(jarFile, zipFileSystem.getPath(tempJarFilePathHolder.toString()));
@@ -356,8 +356,8 @@ public class BundleGeneratorUtils {
             throws IOException, JarToBundleConverterException {
         Path zipFileName = zipFilePath.getFileName();
         if (zipFileName != null) {
-            if ((zipFileName.toString().endsWith(Constants.ZIP_FILE_EXTENSION)) || (zipFileName.toString()
-                    .endsWith(Constants.JAR_FILE_EXTENSION))) {
+            if ((zipFileName.toString().endsWith(Constants.ZIP_FILE_EXTENSION)) || (zipFileName.toString().
+                    endsWith(Constants.JAR_FILE_EXTENSION))) {
                 Map<String, String> bundleJarProperties = new HashMap<>();
                 if (create) {
                     bundleJarProperties.put(Constants.CREATE_NEW_ZIP_FILE_PROPERTY, "true");

@@ -50,10 +50,9 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     /**
      * Test the RuntimeException thrown when launcher.properties file does not exist.
      */
-    @Test(expectedExceptions = {RuntimeException.class})
+    @Test(expectedExceptions = { RuntimeException.class })
     public void loadCarbonLaunchConfigFromFileTestCase() throws FileNotFoundException {
-        String launchPropFilePath = Paths.get("test",
-                LAUNCH_PROPERTIES_FILE).toString();
+        String launchPropFilePath = Paths.get("test", LAUNCH_PROPERTIES_FILE).toString();
         File launchPropFile = new File(launchPropFilePath);
 
         new CarbonLaunchConfig(launchPropFile);
@@ -62,30 +61,12 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     /**
      * Test the RuntimeException thrown when launcher.properties file does not exist.
      */
-    @Test(expectedExceptions = {RuntimeException.class})
+    @Test(expectedExceptions = { RuntimeException.class })
     public void loadCarbonLaunchConfigFromURLTestCase() throws MalformedURLException {
-        String launchPropFilePath = Paths.get("test",
-                LAUNCH_PROPERTIES_FILE).toString();
+        String launchPropFilePath = Paths.get("test", LAUNCH_PROPERTIES_FILE).toString();
         URL launchPropFileURL = new File(launchPropFilePath).toURI().toURL();
 
         new CarbonLaunchConfig(launchPropFileURL);
-    }
-
-    /**
-     * Test if wso2carbon.log has error messages logged for exception in loadCarbonLaunchConfigFromFileTestCase.
-     *
-     * @throws FileNotFoundException if wso2carbon.log file not exists.
-     */
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFileTestCase"})
-    public void verifyFileNotFoundErrorLogsTestCase() throws FileNotFoundException {
-
-        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - " +
-                "File test/launch.properties does not exists";
-        ArrayList<String> logRecords =
-                getLogsFromTestResource(new FileInputStream(logFile));
-        //test if log records are added to wso2carbon.log
-        boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
-        Assert.assertTrue(isContainsInLogs);
     }
 
     /**
@@ -93,13 +74,12 @@ public class LaunchConfigExceptionsTest extends BaseTest {
      *
      * @throws FileNotFoundException if wso2carbon.log file not exists.
      */
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromURLTestCase"})
+    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromURLTestCase" })
     public void verifyRuntimeExceptionErrorLogsTestCase() throws FileNotFoundException {
 
-        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - " +
-                "Error loading the launch.properties";
-        ArrayList<String> logRecords =
-                getLogsFromTestResource(new FileInputStream(logFile));
+        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - "
+                + "Error loading the launch.properties";
+        ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(logFile));
         //test if log records are added to wso2carbon.log
         boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
         Assert.assertTrue(isContainsInLogs);
@@ -108,10 +88,11 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     /**
      * Test the RuntimeException thrown when resolving properties from launcher.properties file.
      */
-    @Test(expectedExceptions = {RuntimeException.class})
+    @Test(expectedExceptions = { RuntimeException.class })
     public void loadCarbonLaunchConfigFromFaultFileTestCase() {
-        String launchPropFilePath = Paths.get("src", "test", "resources",
-                "InvalidLauncherFiles", "launcherWithEmptyValues.properties").toString();
+        String launchPropFilePath = Paths
+                .get("src", "test", "resources", "InvalidLauncherFiles", "launcherWithEmptyValues.properties")
+                .toString();
         File launchPropFile = new File(launchPropFilePath);
 
         new CarbonLaunchConfig(launchPropFile);
@@ -122,13 +103,12 @@ public class LaunchConfigExceptionsTest extends BaseTest {
      *
      * @throws FileNotFoundException if wso2carbon.log file not exists.
      */
-    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFaultFileTestCase"})
+    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromFaultFileTestCase" })
     public void verifyErrorLogsLoadingPropertiesTestCase() throws FileNotFoundException {
 
-        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - " +
-                "The property osgi.install.area must not be null or empty";
-        ArrayList<String> logRecords =
-                getLogsFromTestResource(new FileInputStream(logFile));
+        String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - "
+                + "The property osgi.install.area must not be null or empty";
+        ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(logFile));
         //test if log records are added to wso2carbon.log
         boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
         Assert.assertTrue(isContainsInLogs);
@@ -138,10 +118,11 @@ public class LaunchConfigExceptionsTest extends BaseTest {
      * Test the RuntimeException thrown when loading initial bundles from launch.properties file
      * due to invalid initial bundle entry.
      */
-    @Test(expectedExceptions = {RuntimeException.class})
+    @Test(expectedExceptions = { RuntimeException.class })
     public void launchConfigWithInvalidInitBundlesTestCase() {
-        String launchPropFilePath = Paths.get("src", "test", "resources",
-                "InvalidLauncherFiles", "launcherWithinvalidBundle.properties").toString();
+        String launchPropFilePath = Paths
+                .get("src", "test", "resources", "InvalidLauncherFiles", "launcherWithinvalidBundle.properties")
+                .toString();
         File launchPropFile = new File(launchPropFilePath);
 
         new CarbonLaunchConfig(launchPropFile);

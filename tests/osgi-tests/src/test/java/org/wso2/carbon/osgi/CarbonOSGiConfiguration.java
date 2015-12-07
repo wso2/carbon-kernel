@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.osgi.config;
+package org.wso2.carbon.osgi;
 
 import org.ops4j.pax.exam.ConfigurationFactory;
 import org.ops4j.pax.exam.Option;
-import org.wso2.carbon.osgi.util.Utils;
+import org.wso2.carbon.osgi.utils.Utils;
 
 /**
  * This class will provide the shared configurations for the OSGi tests.
@@ -37,6 +37,7 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
         //setting up the environment
         Utils.setCarbonHome();
         Utils.setupMavenLocalRepo();
+        Utils.setStartupTime();
         return Utils.getDefaultPaxOptions();
     }
 }

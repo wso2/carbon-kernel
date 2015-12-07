@@ -24,7 +24,7 @@ import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.osgi.util.Utils;
+import org.wso2.carbon.osgi.utils.Utils;
 import org.wso2.carbon.sample.deployer.mgt.DeployerManager;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeManager;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
@@ -86,9 +86,9 @@ public class StartupCoordinatorOSGiTest {
     public void testCoordinationWithZeroServices() {
         Assert.assertNotNull(deployerManager, "DeployerManager Service is null");
 
-        int expectedTransportCount = 0;
+        int expectedDeployerCount = 0;
         int actualTransportCount = deployerManager.getDeployerCount();
-        Assert.assertEquals(actualTransportCount, expectedTransportCount, "Deployer count is not correct");
+        Assert.assertEquals(actualTransportCount, expectedDeployerCount, "Deployer count is not correct");
     }
 
     @Test
@@ -104,8 +104,8 @@ public class StartupCoordinatorOSGiTest {
     public void testCoordinationWithMultipleService() {
         Assert.assertNotNull(runtimeManager, "RuntimeManager Service is null");
 
-        int expectedTransportCount = 7;
+        int expectedRuntimeCount = 7;
         int actualTransportCount = runtimeManager.getRuntimeCount();
-        Assert.assertEquals(actualTransportCount, expectedTransportCount, "Runtime count is not correct");
+        Assert.assertEquals(actualTransportCount, expectedRuntimeCount, "Runtime count is not correct");
     }
 }

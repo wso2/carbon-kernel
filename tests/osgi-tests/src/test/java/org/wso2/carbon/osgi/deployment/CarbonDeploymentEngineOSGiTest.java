@@ -35,7 +35,7 @@ import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.kernel.internal.deployment.DeploymentEngine;
-import org.wso2.carbon.osgi.util.Utils;
+import org.wso2.carbon.osgi.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -130,7 +130,8 @@ public class CarbonDeploymentEngineOSGiTest {
     @Test(dependsOnMethods = {"testDeploymentService"})
     public void testDeploymentEngine() throws DeploymentEngineException, InvalidSyntaxException,
             CarbonDeploymentException, DeployerRegistrationException {
-        DeploymentEngine deploymentEngine = new DeploymentEngine(carbonRepo);
+        DeploymentEngine deploymentEngine = new DeploymentEngine();
+        deploymentEngine.start(carbonRepo);
         CustomDeploymentService customDeploymentService = new CustomDeploymentService(deploymentEngine);
         Dictionary<String, String> properties = new Hashtable<>();
         properties.put("ServiceType", "Custom");

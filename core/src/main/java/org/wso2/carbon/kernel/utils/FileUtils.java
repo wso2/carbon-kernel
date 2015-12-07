@@ -19,13 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 /**
  * File Utilities.
@@ -62,33 +58,22 @@ public class FileUtils {
 
 
     /**
-     * Copies src file to dst file.
+     * Copies source file to destination file.
      * If the dst file does not exist, it is created
      *
-     * @param src The source file
-     * @param dst The destiination file
+     * @param source The source file
+     * @param destination The destination file
      * @throws java.io.IOException If an Exception occurs while copying
      */
-    public static void copyFile(File src, File dst) throws IOException {
-        if (!src.exists()) {
-            throw new IOException("Source file does not exist: " + src);
+    //TODO This method is not used, remove this
+    public static void copyFile(File source, File destination) throws IOException {
+        if (!source.exists()) {
+            throw new IOException("Source file does not exist: " + source);
         }
-        
-        String dstAbsPath = dst.getAbsolutePath();
-        String dstDir = dstAbsPath.substring(0, dstAbsPath.lastIndexOf(File.separator));
-        File dir = new File(dstDir);
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IOException("Fail to create the directory: " + dir.getAbsolutePath());
-        }
-
-        try (InputStream in = new FileInputStream(src); OutputStream out = new FileOutputStream(dst)) {
-
-            // Transfer bytes from in to out
-            byte[] buf = new byte[10240];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
+        try {
+            Files.createDirectories(destination.toPath());
+            Files.copy(source.toPath(), destination.toPath().resolve(source.getName()),
+                    StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             logger.warn("Unable to copy file " + e.getMessage(), e);
             throw new IOException("Unable to copy file ", e);
@@ -99,82 +84,22 @@ public class FileUtils {
      * Copies src file to dst directory.
      * If the dst directory does not exist, it is created
      *
-     * @param src The file to be copied
-     * @param dst The destination directory to which the file has to be copied
+     * @param source The file to be copied
+     * @param destination The destination directory to which the file has to be copied
      * @throws java.io.IOException If an error occurs while copying
      */
-    public static void copyFileToDir(File src, File dst) throws IOException {
-        String dstAbsPath = dst.getAbsolutePath();
-        String dstDir = dstAbsPath.substring(0, dstAbsPath.lastIndexOf(File.separator));
-        File dir = new File(dstDir);
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IOException("Fail to create the directory: " + dir.getAbsolutePath());
+    public static void copyFileToDir(File source, File destination) throws IOException {
+
+        if (!source.exists()) {
+            throw new IOException("Source file does not exist: " + source);
         }
-
-        File file = new File(dstAbsPath + File.separator + src.getName());
-        copyFile(src, file);
-    }
-
-    /**
-     * Archive a directory.
-     *
-     * @param destArchive destination of the archive
-     * @param sourceDir   source directory
-     * @throws java.io.IOException throws io exception if archive failed
-     */
-    public static void archiveDir(String destArchive, String sourceDir) throws IOException {
-        File zipDir = new File(sourceDir);
-        if (!zipDir.isDirectory()) {
-            throw new RuntimeException(sourceDir + " is not a directory");
-        }
-
-        try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destArchive))) {
-            zipDir(zipDir, zos, sourceDir);
+        try {
+            Files.createDirectories(destination.toPath());
+            Files.copy(source.toPath(), destination.toPath().resolve(source.getName()),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            logger.warn("Unable to copy file " + e.getMessage(), e);
+            throw new IOException("Unable to copy file ", e);
         }
     }
-
-    protected static void zipDir(File zipDir, ZipOutputStream zos, String archiveSourceDir)
-            throws IOException {
-        //get a listing of the directory content
-        String[] dirList = zipDir.list();
-        byte[] readBuffer = new byte[40960];
-        int bytesIn;
-        //loop through dirList, and zip the files
-        if (dirList != null) {
-            for (String aDirList : dirList) {
-                File f = new File(zipDir, aDirList);
-                //place the zip entry in the ZipOutputStream object
-                zos.putNextEntry(new ZipEntry(getZipEntryPath(f, archiveSourceDir)));
-                if (f.isDirectory()) {
-                    //if the File object is a directory, call this
-                    //function again to add its content recursively
-                    zipDir(f, zos, archiveSourceDir);
-                    //loop again
-                    continue;
-                }
-                //if we reached here, the File object f was not a directory
-                //create a FileInputStream on top of f
-                try (FileInputStream fis = new FileInputStream(f)) {
-                    //now write the content of the file to the ZipOutputStream
-                    while ((bytesIn = fis.read(readBuffer)) != -1) {
-                        zos.write(readBuffer, 0, bytesIn);
-                    }
-                }
-            }
-        }
-    }
-
-    protected static String getZipEntryPath(File f, String archiveSourceDir) {
-        String entryPath = f.getPath();
-        entryPath = entryPath.substring(archiveSourceDir.length() + 1);
-        if (File.separatorChar == '\\') {
-            entryPath = entryPath.replace(File.separatorChar, '/');
-        }
-        if (f.isDirectory()) {
-            entryPath += "/";
-        }
-        return entryPath;
-    }
-
-
 }

@@ -19,13 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.deployment.Artifact;
 import org.wso2.carbon.kernel.deployment.ArtifactType;
-import org.wso2.carbon.kernel.deployment.Deployer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * The Repository Scanner which does the scanning of repository in carbon.
@@ -40,15 +41,15 @@ public class RepositoryScanner {
     /**
      * A list which holds the artifacts to be deployed.
      */
-    private ArrayList<Artifact> artifactsToDeploy = new ArrayList<>();
+    private List<Artifact> artifactsToDeploy = new ArrayList<>();
     /**
      * A list which holds the artifact to be undeployed.
      */
-    private ArrayList<Artifact> artifactsToUndeploy = new ArrayList<>();
+    private List<Artifact> artifactsToUndeploy = new ArrayList<>();
     /**
      * A list which holds the artifact to be updated.
      */
-    private ArrayList<Artifact> artifactsToUpdate = new ArrayList<>();
+    private List<Artifact> artifactsToUpdate = new ArrayList<>();
     /**
      * A list to hold the path of the artifacts to be deployed.
      */
@@ -75,11 +76,13 @@ public class RepositoryScanner {
      */
     private void mark() {
         File carbonRepo = carbonDeploymentEngine.getRepositoryDirectory();
-        for (Deployer deployer : carbonDeploymentEngine.getDeployers().values()) {
-            File deploymentLocation = Utils.resolveFileURL(deployer.getLocation().getPath(),
-                    carbonRepo.getPath());
-            findArtifactsToDeploy(deploymentLocation, deployer.getArtifactType());
-        }
+        carbonDeploymentEngine.getDeployers()
+                .values()
+                .forEach(deployer -> {
+                    File deploymentLocation = Utils.resolveFileURL(deployer.getLocation().getPath(),
+                            carbonRepo.getPath());
+                    findArtifactsToDeploy(deploymentLocation, deployer.getArtifactType());
+                });
         checkUndeployedArtifacts();
     }
 
@@ -121,11 +124,13 @@ public class RepositoryScanner {
     private void findArtifactsToDeploy(File directoryToSearch, ArtifactType type) {
         File[] files = directoryToSearch.listFiles();
         if (files != null && files.length > 0) {
-            for (File file : files) {
-                Artifact artifact = new Artifact(file);
-                artifact.setType(type);
-                addArtifactToDeploy(artifact);
-            }
+            Arrays.asList(files).forEach(
+                    file -> {
+                        Artifact artifact = new Artifact(file);
+                        artifact.setType(type);
+                        addArtifactToDeploy(artifact);
+                    }
+            );
         }
     }
 
@@ -149,38 +154,30 @@ public class RepositoryScanner {
     }
 
     private Artifact findDeployedArtifact(ArtifactType type, String path) {
-        Artifact artifact = null;
         Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
                 carbonDeploymentEngine.getDeployedArtifacts();
-        if (deployedArtifacts.get(type) != null) {
-            for (Artifact anArtifact : deployedArtifacts.get(type).values()) {
-                if (path.equals(anArtifact.getPath())) {
-                    artifact = anArtifact;
-                }
-            }
+        if (deployedArtifacts.get(type) == null) {
+            return null;
         }
-        return artifact;
+        return deployedArtifacts.get(type).values()
+                .stream()
+                .filter(artifact -> path.equals(artifact.getPath()))
+                .findAny()
+                .orElse(null);
     }
 
     private void checkUndeployedArtifacts() {
         Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
                 carbonDeploymentEngine.getDeployedArtifacts();
-        for (Map<Object, Artifact> deployedArtifactList : deployedArtifacts.values()) {
-            for (Artifact artifact : deployedArtifactList.values()) {
-                String filePath = artifact.getPath();
-                boolean found = false;
-                for (Object anArtifactFilePath : artifactFilePathList) {
-                    String artifactFilePath = (String) anArtifactFilePath;
-                    if (filePath.equals(artifactFilePath)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    artifactsToUndeploy.add(artifact);
-                }
-            }
-        }
+
+        deployedArtifacts.values()
+                .forEach(artifactMap -> artifactsToUndeploy = artifactMap.values()
+                        .stream()
+                        .filter(artifact -> artifactFilePathList
+                                .stream()
+                                .noneMatch(path -> (path.equals(artifact.getPath()))))
+                        .collect(Collectors.toList()));
+
         artifactFilePathList.clear();
     }
 }

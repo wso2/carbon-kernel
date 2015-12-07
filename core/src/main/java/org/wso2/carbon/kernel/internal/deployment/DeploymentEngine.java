@@ -61,35 +61,30 @@ public class DeploymentEngine {
     /**
      * A map to hold all currently deployed artifacts.
      */
-    private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
-            new ConcurrentHashMap<>();
+    private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts = new ConcurrentHashMap<>();
 
-
-    public DeploymentEngine(String repositoryDir) throws DeploymentEngineException {
-        logger.debug("Initializing carbon deployment engine for repository : " + repositoryDir);
-        init(repositoryDir);
-    }
 
     /**
      * Configure and prepare the repository associated with this engine.
-     *
-     * @throws org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException on error
      */
-    private void init(String repositoryDir) throws DeploymentEngineException {
-        repositoryDirectory = new File(repositoryDir);
-        if (!repositoryDirectory.exists()) {
-            throw new DeploymentEngineException("Cannot find repository : " +
-                    repositoryDirectory);
-        }
+    public DeploymentEngine() {
         repositoryScanner = new RepositoryScanner(this);
     }
 
     /**
      * Starts the Deployment engine to perform Hot deployment and so on.
      * This will start the repository scanner and scheduler task and load artifacts to
-     * the deployment engine
+     * the deployment engine.
+     *
+     * @param repositoryDir the deployment repository directory that repository scanner will start scanning.
+     * @throws DeploymentEngineException when an error occurs while trying to start the deployment engine.
      */
-    public void start() {
+    public void start(String repositoryDir) throws DeploymentEngineException {
+        logger.debug("Starting carbon deployment engine for repository : " + repositoryDir);
+        repositoryDirectory = new File(repositoryDir);
+        if (!repositoryDirectory.exists()) {
+            throw new DeploymentEngineException("Cannot find repository : " + repositoryDirectory);
+        }
         //Deploy initial set of artifacts
         repositoryScanner.scan();
         // We need to check and scan the task based on the deployment engine mode of operation
@@ -125,7 +120,6 @@ public class DeploymentEngine {
      * @throws DeployerRegistrationException Throwing deployment registration exception
      */
     public void registerDeployer(Deployer deployer) throws DeployerRegistrationException {
-
         if (deployer == null) {
             throw new DeployerRegistrationException("Failed to add Deployer : " +
                     "Deployer Class Name is null");
@@ -178,8 +172,7 @@ public class DeploymentEngine {
      * @return Deployer instance
      */
     public Deployer getDeployer(ArtifactType type) {
-        Deployer existingDeployer = deployerMap.get(type);
-        return (existingDeployer != null) ? existingDeployer : null;
+        return deployerMap.get(type);
     }
 
     /**
@@ -229,9 +222,7 @@ public class DeploymentEngine {
      * @param artifactsToDeploy list of artifacts to deploy
      */
     public void deployArtifacts(List<Artifact> artifactsToDeploy) {
-
-        for (Object artifact : artifactsToDeploy) {
-            Artifact artifactToDeploy = (Artifact) artifact;
+        artifactsToDeploy.forEach(artifactToDeploy -> {
             try {
                 Deployer deployer = getDeployer(artifactToDeploy.getType());
                 if (deployer != null) {
@@ -246,7 +237,7 @@ public class DeploymentEngine {
                 //TODO : Handle faulty artifact deployment
                 logger.error("Error while deploying artifacts", e);
             }
-        }
+        });
     }
 
     /**
@@ -255,8 +246,7 @@ public class DeploymentEngine {
      * @param artifactsToUpdate list of artifacts to update
      */
     public void updateArtifacts(List<Artifact> artifactsToUpdate) {
-        for (Object artifact : artifactsToUpdate) {
-            Artifact artifactToUpdate = (Artifact) artifact;
+        artifactsToUpdate.forEach(artifactToUpdate -> {
             try {
                 Deployer deployer = getDeployer(artifactToUpdate.getType());
                 if (deployer != null) {
@@ -271,7 +261,7 @@ public class DeploymentEngine {
                 //TODO : Handle faulty artifact deployment
                 logger.error("Error while updating artifacts", e);
             }
-        }
+        });
     }
 
     private void addToDeployedArtifacts(Artifact artifact) {
@@ -290,8 +280,7 @@ public class DeploymentEngine {
      * @param artifactsToUndeploy list of artifacts to undeploy
      */
     public void undeployArtifacts(List<Artifact> artifactsToUndeploy) {
-        for (Object artifact : artifactsToUndeploy) {
-            Artifact artifactToUnDeploy = (Artifact) artifact;
+        artifactsToUndeploy.forEach(artifactToUnDeploy -> {
             try {
                 Deployer deployer = getDeployer(artifactToUnDeploy.getType());
                 if (deployer != null) {
@@ -304,7 +293,7 @@ public class DeploymentEngine {
             } catch (CarbonDeploymentException e) {
                 logger.error("Error while undeploying artifacts", e);
             }
-        }
+        });
     }
 
     private void removeFromDeployedArtifacts(Artifact artifact) {
