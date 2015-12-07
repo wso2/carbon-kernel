@@ -27,27 +27,26 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.osgi.utils.Utils;
 import org.wso2.carbon.sample.deployer.mgt.DeployerManager;
 import org.wso2.carbon.sample.deployer.mgt.DeployerServicesListener;
-import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeManager;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeServicesListener;
+import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
 import org.wso2.carbon.sample.transport.mgt.TransportServicesListener;
 
-
-import javax.inject.Inject;
 import java.util.Map;
+import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 /**
  * A test strategy to test and verify the startup order resolving for both intra-component and inter-component
  * dependencies.
- *
+ * <p>
  * In here the test will verify that three different components are started in an expected order.
  * 1. Runtime-Mgt
  * 2. Deployment-Mgt
  * 3. Transport-Mgt
- *
+ * <p>
  * Runtime-Mgt declares a dependency on Deployment-Mgt that it should be started only when runtime-service is
  * registered. And Deployment-Mgt declares a dependency on Transport-Mgt that it should be started only when
  * deployment-service is registered.
@@ -96,9 +95,9 @@ public class SampleStartupOrderResolverOSGiTest {
 
     @Test
     public void testSampleStartupOrderResolving() {
-        Assert.assertNotNull(deployerManager, "DeployerManager Service is null");
-        Assert.assertNotNull(transportManager, "TransportManager Service is null");
-        Assert.assertNotNull(runtimeManager, "RuntimeManager Service is null");
+        Assert.assertNotNull(deployerManager, "DeployerManager Service cannot be null");
+        Assert.assertNotNull(transportManager, "TransportManager Service cannot be null");
+        Assert.assertNotNull(runtimeManager, "RuntimeManager Service cannot be null");
         Map<String, Integer> invocationOrderMap = OrderResolverMonitor.getInstance().getInvocationOrderMap();
         Assert.assertNotNull(invocationOrderMap, "Order Resolver Monitor instance cannot be null");
         int runtimeListenerInvocation = invocationOrderMap.get(RuntimeServicesListener.class.getName());

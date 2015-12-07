@@ -10,15 +10,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class OrderResolverMonitor {
     private Map<String, Integer> invocationOrderMap = new ConcurrentHashMap<>();
     private AtomicInteger invocationCounter = new AtomicInteger();
-    private static OrderResolverMonitor orderResolverMonitor;
+    private static OrderResolverMonitor orderResolverMonitor = new OrderResolverMonitor();
 
     private OrderResolverMonitor() {
     }
 
     public static OrderResolverMonitor getInstance() {
-        if (orderResolverMonitor == null) {
-            orderResolverMonitor = new OrderResolverMonitor();
-        }
         return orderResolverMonitor;
     }
 
