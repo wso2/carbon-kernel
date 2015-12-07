@@ -65,6 +65,8 @@ public class DynamicCapabilityOSGiTest {
                 mavenBundle().artifactId("org.wso2.carbon.sample.transport.custom").groupId(
                         "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.transport.jms").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId(
                         "org.wso2.carbon").versionAsInProject()
         );
 

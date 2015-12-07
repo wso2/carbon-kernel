@@ -22,10 +22,10 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.sample.deployer.mgt</artifactId>
+    <artifactId>org.wso2.carbon.sample.order.resolver</artifactId>
     <packaging>bundle</packaging>
 
-    <name>WSO2 Carbon Kernel - Sample Deployer Manager</name>
+    <name>WSO2 Carbon Kernel - Sample Order Resolver</name>
     <url>http://wso2.org</url>
 
     <build>
@@ -38,14 +38,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>org.wso2.carbon.sample.deployer.mgt</Export-Package>
+                        <Export-Package>org.wso2.carbon.sample.startuporder</Export-Package>
                         <Import-Package>*</Import-Package>
                         <_dsannotations>*</_dsannotations>
-                        <Provide-Capability>
-                            osgi.service;effective:=active;
-                            objectClass="org.wso2.carbon.sample.deployer.mgt.DeployerManager";
-                            dependent-component-key="carbon-sample-transport-mgt",
-                        </Provide-Capability>
                     </instructions>
                 </configuration>
             </plugin>
@@ -56,10 +51,6 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.sample.order.resolver</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
