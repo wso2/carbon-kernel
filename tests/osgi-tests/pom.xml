@@ -250,6 +250,11 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.sample.dbs.deployer</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.sample.runtime.mgt</artifactId>
             <scope>test</scope>
         </dependency>

@@ -66,6 +66,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.sample.dbs.deployer</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.sample.runtime.mgt</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>

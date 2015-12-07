@@ -22,10 +22,10 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.sample.runtime.mgt</artifactId>
+    <artifactId>org.wso2.carbon.sample.dbs.deployer</artifactId>
     <packaging>bundle</packaging>
 
-    <name>WSO2 Carbon Kernel - Sample Runtime Manager</name>
+    <name>WSO2 Carbon Kernel - Sample DataService Deployer</name>
     <url>http://wso2.org</url>
 
     <build>
@@ -38,14 +38,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>org.wso2.carbon.sample.runtime.mgt</Export-Package>
+                        <Export-Package>org.wso2.carbon.sample.dbs.deployer</Export-Package>
                         <Import-Package>*</Import-Package>
                         <_dsannotations>*</_dsannotations>
-                        <Provide-Capability>
-                            osgi.service;effective:=active;
-                            objectClass="org.wso2.carbon.sample.runtime.mgt.RuntimeManager";
-                            dependent-component-key="carbon-sample-deployment-engine",
-                        </Provide-Capability>
                     </instructions>
                 </configuration>
             </plugin>
@@ -56,6 +51,10 @@
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.sample.deployer.mgt</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>

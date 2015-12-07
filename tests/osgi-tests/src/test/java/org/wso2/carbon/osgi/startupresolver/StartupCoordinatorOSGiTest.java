@@ -45,13 +45,14 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 public class StartupCoordinatorOSGiTest {
 
     @Inject
+    private RuntimeManager runtimeManager;
+
+    @Inject
     private DeployerManager deployerManager;
 
     @Inject
     private TransportManager transportManager;
 
-    @Inject
-    private RuntimeManager runtimeManager;
 
     @Configuration
     public Option[] createConfiguration() {
@@ -59,12 +60,6 @@ public class StartupCoordinatorOSGiTest {
         Utils.setupMavenLocalRepo();
 
         Option[] options = CoreOptions.options(
-                mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId(
-                        "org.wso2.carbon").versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.transport.http").groupId(
-                        "org.wso2.carbon").versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId(
-                        "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId(
                         "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.runtime.mss").groupId(
@@ -76,6 +71,14 @@ public class StartupCoordinatorOSGiTest {
                 mavenBundle().artifactId("org.wso2.carbon.sample.runtime.webapp").groupId(
                         "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.runtime.custom").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.dbs.deployer").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.transport.mgt").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.transport.http").groupId(
                         "org.wso2.carbon").versionAsInProject()
         );
 
@@ -86,7 +89,7 @@ public class StartupCoordinatorOSGiTest {
     public void testCoordinationWithZeroServices() {
         Assert.assertNotNull(deployerManager, "DeployerManager Service is null");
 
-        int expectedDeployerCount = 0;
+        int expectedDeployerCount = 1;
         int actualTransportCount = deployerManager.getDeployerCount();
         Assert.assertEquals(actualTransportCount, expectedDeployerCount, "Deployer count is not correct");
     }

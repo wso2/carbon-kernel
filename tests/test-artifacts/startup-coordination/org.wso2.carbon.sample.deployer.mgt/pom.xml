@@ -41,6 +41,11 @@
                         <Export-Package>org.wso2.carbon.sample.deployer.mgt</Export-Package>
                         <Import-Package>*</Import-Package>
                         <_dsannotations>*</_dsannotations>
+                        <Provide-Capability>
+                            osgi.service;effective:=active;
+                            objectClass="org.wso2.carbon.sample.deployer.mgt.DeployerManager";
+                            dependent-component-key="carbon-sample-transport-mgt",
+                        </Provide-Capability>
                     </instructions>
                 </configuration>
             </plugin>
