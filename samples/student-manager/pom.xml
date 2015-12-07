@@ -20,7 +20,7 @@
 
         <orbit.version.axis2>1.6.1.wso2v16</orbit.version.axis2>
         <axis2.client.osgi.version>1.6.1.wso2v16</axis2.client.osgi.version>
-        <orbit.version.axiom>1.2.11.wso2v10</orbit.version.axiom>
+        <orbit.version.axiom>1.2.11.wso2v9</orbit.version.axiom>
         <orbit.version.wsdl4j>1.6.2.wso2v4</orbit.version.wsdl4j>
     </properties>
 
