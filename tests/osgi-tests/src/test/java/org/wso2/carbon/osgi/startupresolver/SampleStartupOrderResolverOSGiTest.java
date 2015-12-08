@@ -33,7 +33,6 @@ import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
 import org.wso2.carbon.sample.transport.mgt.TransportServicesListener;
 
-import java.util.Map;
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
@@ -99,6 +98,7 @@ public class SampleStartupOrderResolverOSGiTest {
         Assert.assertNotNull(runtimeManager, "RuntimeManager Service cannot be null");
         OrderResolverMonitor orderResolverMonitor = OrderResolverMonitor.getInstance();
         Assert.assertNotNull(orderResolverMonitor, "Order Resolver Monitor instance cannot be null");
+
         int runtimeListenerInvocation = orderResolverMonitor.
                 getListenerInvocationOrder(RuntimeServicesListener.class.getName());
         Assert.assertEquals(1, runtimeListenerInvocation);
@@ -109,6 +109,6 @@ public class SampleStartupOrderResolverOSGiTest {
                 getListenerInvocationOrder(TransportServicesListener.class.getName());
         Assert.assertEquals(3, transportListenerInvocation);
 
-        OrderResolverMonitor.getInstance().clearInvocationCounter();
+        orderResolverMonitor.clearInvocationCounter();
     }
 }
