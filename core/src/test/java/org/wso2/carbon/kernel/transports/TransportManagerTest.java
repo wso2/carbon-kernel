@@ -96,12 +96,14 @@ public class TransportManagerTest {
     public void testSuccessfulBeginMaintenance() {
         transportManager.startTransport(carbonTransport2.getId());
         transportManager.beginMaintenance();
+        Assert.assertEquals(carbonTransport2.getState(), CarbonTransport.State.IN_MAINTENANCE);
     }
 
     @Test(dependsOnMethods = {"testSuccessfulBeginMaintenance"})
     public void testSuccessfulEndMaintenance() {
         try {
             transportManager.endMaintenance();
+            Assert.assertEquals(carbonTransport2.getState(), CarbonTransport.State.STARTED);
             transportManager.unregisterTransport(carbonTransport2);
         } catch (IllegalStateException e) {
             Assert.assertTrue(false, "attempting to unregister transport in an illegal state");
