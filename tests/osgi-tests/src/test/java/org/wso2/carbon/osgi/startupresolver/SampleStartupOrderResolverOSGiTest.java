@@ -26,23 +26,35 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.osgi.utils.Utils;
 import org.wso2.carbon.sample.deployer.mgt.DeployerManager;
+import org.wso2.carbon.sample.deployer.mgt.DeployerServicesListener;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeManager;
+import org.wso2.carbon.sample.runtime.mgt.RuntimeServicesListener;
+import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
+import org.wso2.carbon.sample.transport.mgt.TransportServicesListener;
 
 import javax.inject.Inject;
 
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 /**
- * zero provide-capability
- * one provide-capability
- * multiple provide-capability.
+ * A test strategy to test and verify the startup order resolving for both intra-component and inter-component
+ * dependencies.
+ * <p>
+ * In here the test will verify that three different components are started in an expected order.
+ * 1. Runtime-Mgt
+ * 2. Deployment-Mgt
+ * 3. Transport-Mgt
+ * <p>
+ * Runtime-Mgt declares a dependency on Deployment-Mgt that it should be started only when runtime-service is
+ * registered. And Deployment-Mgt declares a dependency on Transport-Mgt that it should be started only when
+ * deployment-service is registered.
  *
  * @since 5.0.0
  */
 @Listeners(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
-public class StartupCoordinatorOSGiTest {
+public class SampleStartupOrderResolverOSGiTest {
 
     @Inject
     private RuntimeManager runtimeManager;
@@ -64,14 +76,6 @@ public class StartupCoordinatorOSGiTest {
                         "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.runtime.mss").groupId(
                         "org.wso2.carbon").versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.runtime.jar").groupId(
-                        "org.wso2.carbon").versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.runtime.bps").groupId(
-                        "org.wso2.carbon").versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.runtime.webapp").groupId(
-                        "org.wso2.carbon").versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.sample.runtime.custom").groupId(
-                        "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.deployer.mgt").groupId(
                         "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.dbs.deployer").groupId(
@@ -88,29 +92,23 @@ public class StartupCoordinatorOSGiTest {
     }
 
     @Test
-    public void testCoordinationWithZeroServices() {
-        Assert.assertNotNull(deployerManager, "DeployerManager Service is null");
+    public void testSampleStartupOrderResolving() {
+        Assert.assertNotNull(deployerManager, "DeployerManager Service cannot be null");
+        Assert.assertNotNull(transportManager, "TransportManager Service cannot be null");
+        Assert.assertNotNull(runtimeManager, "RuntimeManager Service cannot be null");
+        OrderResolverMonitor orderResolverMonitor = OrderResolverMonitor.getInstance();
+        Assert.assertNotNull(orderResolverMonitor, "Order Resolver Monitor instance cannot be null");
 
-        int expectedDeployerCount = 1;
-        int actualDeployerCount = deployerManager.getDeployerCount();
-        Assert.assertEquals(actualDeployerCount, expectedDeployerCount, "Deployer count is not correct");
-    }
+        int runtimeListenerInvocation = orderResolverMonitor.
+                getListenerInvocationOrder(RuntimeServicesListener.class.getName());
+        Assert.assertEquals(runtimeListenerInvocation, 1);
+        int deploymentListenerInvocation = orderResolverMonitor.
+                getListenerInvocationOrder(DeployerServicesListener.class.getName());
+        Assert.assertEquals(deploymentListenerInvocation, 2);
+        int transportListenerInvocation = orderResolverMonitor.
+                getListenerInvocationOrder(TransportServicesListener.class.getName());
+        Assert.assertEquals(transportListenerInvocation, 3);
 
-    @Test
-    public void testCoordinationWithOneService() {
-        Assert.assertNotNull(transportManager, "TransportManager Service is null");
-
-        int expectedTransportCount = 1;
-        int actualTransportCount = transportManager.getTransportCount();
-        Assert.assertEquals(actualTransportCount, expectedTransportCount, "Transport count is not correct");
-    }
-
-    @Test
-    public void testCoordinationWithMultipleService() {
-        Assert.assertNotNull(runtimeManager, "RuntimeManager Service is null");
-
-        int expectedRuntimeCount = 7;
-        int actualRuntimeCount = runtimeManager.getRuntimeCount();
-        Assert.assertEquals(actualRuntimeCount, expectedRuntimeCount, "Runtime count is not correct");
+        orderResolverMonitor.clearInvocationCounter();
     }
 }

@@ -22,20 +22,16 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.sample.transport.mgt</artifactId>
+    <artifactId>org.wso2.carbon.sample.order.resolver</artifactId>
     <packaging>bundle</packaging>
 
-    <name>WSO2 Carbon Kernel - Sample Transport Manager</name>
+    <name>WSO2 Carbon Kernel - Sample Order Resolver</name>
     <url>http://wso2.org</url>
 
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
             <artifactId>org.wso2.carbon.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.sample.order.resolver</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
@@ -55,8 +51,7 @@
     </dependencies>
 
     <properties>
-        <export.package>org.wso2.carbon.sample.transport.mgt</export.package>
-        <import.package>*</import.package>
+        <export.package>org.wso2.carbon.sample.startuporder</export.package>
     </properties>
 
 </project>

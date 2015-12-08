@@ -22,6 +22,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
+
 
 /**
  * Sample Transport Services Listener class.
@@ -32,8 +34,10 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
         name = "org.wso2.carbon.sample.transport.mgt.TransportServicesListener",
         immediate = true,
         service = RequiredCapabilityListener.class,
-        property = {"capability-name=org.wso2.carbon.sample.transport.mgt.Transport",
-                "component-key=carbon-sample-transport-mgt"}
+        property = {
+                "capability-name=org.wso2.carbon.sample.transport.mgt.Transport",
+                "component-key=carbon-sample-transport-mgt"
+        }
 )
 public class TransportServicesListener implements RequiredCapabilityListener {
     private static final Logger logger = LoggerFactory.getLogger(TransportServicesListener.class);
@@ -43,6 +47,7 @@ public class TransportServicesListener implements RequiredCapabilityListener {
     public void onAllRequiredCapabilitiesAvailable() {
         logger.info("All required services are available for : " + this.getClass().getName());
         bundleContext.registerService(TransportManager.class, new TransportManager(), null);
+        OrderResolverMonitor.getInstance().setListenerInvocationOrder(TransportServicesListener.class.getName());
     }
 
     @Activate

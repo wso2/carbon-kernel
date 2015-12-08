@@ -22,6 +22,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
+import org.wso2.carbon.sample.startuporder.OrderResolverMonitor;
+
 
 /**
  * Sample Runtime Service Listener Service Component class.
@@ -32,8 +34,10 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
         name = "org.wso2.carbon.sample.runtime.mgt.RuntimeServicesListener",
         immediate = true,
         service = RequiredCapabilityListener.class,
-        property = {"capability-name=org.wso2.carbon.sample.runtime.mgt.Runtime",
-                "component-key=carbon-sample-runtime-mgt"}
+        property = {
+                "capability-name=org.wso2.carbon.sample.runtime.mgt.Runtime",
+                "component-key=carbon-sample-runtime-mgt"
+        }
 )
 public class RuntimeServicesListener implements RequiredCapabilityListener {
     private static final Logger logger = LoggerFactory.getLogger(RuntimeServicesListener.class);
@@ -43,6 +47,7 @@ public class RuntimeServicesListener implements RequiredCapabilityListener {
     public void onAllRequiredCapabilitiesAvailable() {
         logger.info("All required services are available for : " + this.getClass().getName());
         bundleContext.registerService(RuntimeManager.class, new RuntimeManager(), null);
+        OrderResolverMonitor.getInstance().setListenerInvocationOrder(RuntimeServicesListener.class.getName());
     }
 
     @Activate

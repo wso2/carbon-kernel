@@ -40,7 +40,8 @@
         <module>org.wso2.carbon.sample.runtime.bps</module>
         <module>org.wso2.carbon.sample.runtime.custom</module>
         <module>org.wso2.carbon.sample.deployer.mgt</module>
-
+        <module>org.wso2.carbon.sample.dbs.deployer</module>
+        <module>org.wso2.carbon.sample.order.resolver</module>
     </modules>
 
 

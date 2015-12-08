@@ -34,6 +34,10 @@
             <artifactId>org.wso2.carbon.core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.sample.order.resolver</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi</artifactId>
             <optional>true</optional>
@@ -52,7 +56,11 @@
 
     <properties>
         <export.package>org.wso2.carbon.sample.deployer.mgt</export.package>
-        <import.package>*</import.package>
+        <provide.capability>
+            osgi.service;effective:=active;
+            objectClass="org.wso2.carbon.sample.deployer.mgt.DeployerManager";
+            dependent-component-key="carbon-sample-transport-mgt",
+        </provide.capability>
     </properties>
 
 </project>
