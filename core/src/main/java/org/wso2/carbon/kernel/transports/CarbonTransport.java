@@ -44,11 +44,11 @@ public abstract class CarbonTransport {
 
     void startTransport() {
         if (state.equals(State.UNINITIALIZED) || state.equals(State.IN_MAINTENANCE) || state.equals(State.STOPPED)) {
+            start();
             state = State.STARTED;
         } else {
             throw new IllegalStateException("Cannot start transport " + id + ". Current state: " + state);
         }
-        start();
     }
 
     /**
@@ -58,11 +58,11 @@ public abstract class CarbonTransport {
 
     void stopTransport() {
         if (state.equals(State.STARTED)) {
+            stop();
             state = State.STOPPED;
         } else {
             throw new IllegalStateException("Cannot stop transport " + id + ". Current state: " + state);
         }
-        stop();
     }
 
     /**
@@ -72,12 +72,12 @@ public abstract class CarbonTransport {
 
     void beginTransportMaintenance() {
         if (state.equals(State.STARTED)) {
+            beginMaintenance();
             state = State.IN_MAINTENANCE;
         } else {
             throw new IllegalStateException("Cannot put transport " + id +
                     " into maintenance. Current state: " + state);
         }
-        beginMaintenance();
     }
 
     /**
@@ -87,11 +87,11 @@ public abstract class CarbonTransport {
 
     void endTransportMaintenance() {
         if (state.equals(State.IN_MAINTENANCE)) {
+            endMaintenance();
             state = State.STARTED;
         } else {
             throw new IllegalStateException("Cannot end maintenance of transport " + id + ". Current state: " + state);
         }
-        endMaintenance();
     }
 
     /**

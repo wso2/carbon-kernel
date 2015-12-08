@@ -19,6 +19,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.transports.transporter.CustomCarbonTransport;
+import org.wso2.carbon.kernel.transports.transporter.FailingCarbonTransport;
 
 /**
  * Unit tests class for org.wso2.carbon.kernel.transports.TransportManager.
@@ -28,9 +29,11 @@ import org.wso2.carbon.kernel.transports.transporter.CustomCarbonTransport;
 public class TransportManagerTest {
 
     private TransportManager transportManager;
+    private TransportManager transportManager1;
     private CustomCarbonTransport carbonTransport;
     private CustomCarbonTransport carbonTransport2;
     private CustomCarbonTransport carbonTransport3;
+    private FailingCarbonTransport carbonTransport4;
 
     public TransportManagerTest() {
     }
@@ -38,11 +41,14 @@ public class TransportManagerTest {
     @BeforeTest
     public void setup() {
         transportManager = new TransportManager();
+        transportManager1 = new TransportManager();
         carbonTransport = new CustomCarbonTransport("dummyId");
         carbonTransport2 = new CustomCarbonTransport("dummyId2");
         carbonTransport3 = new CustomCarbonTransport("dummyId3");
+        carbonTransport4 = new FailingCarbonTransport("dummyId4");
         transportManager.registerTransport(carbonTransport);
         transportManager.registerTransport(carbonTransport2);
+        transportManager1.registerTransport(carbonTransport4);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "wrongId not found")
@@ -134,6 +140,57 @@ public class TransportManagerTest {
             transportManager.startTransports();
         } catch (IllegalStateException e) {
             Assert.assertTrue(false, "Illegal state of transport when trying to start the transport.");
+        }
+    }
+
+    @Test(expectedExceptions = RuntimeException.class)
+    public void testFailureOfStartTransports() {
+        try {
+            transportManager1.startTransports();
+        } catch (Throwable t) {
+            Assert.assertEquals(carbonTransport4.getState(), CarbonTransport.State.UNINITIALIZED,
+                    "When transport is not started, state should be UNINITIALIZED");
+            throw t;
+        }
+    }
+
+    @Test(dependsOnMethods = {"testFailureOfStartTransports"},
+            expectedExceptions = RuntimeException.class)
+    public void testFailureOfStopTransports() {
+        carbonTransport4.setFailStart(false);
+        transportManager1.startTransports();
+        try {
+            transportManager1.stopTransport(carbonTransport4.getId());
+        } catch (Throwable t) {
+            Assert.assertEquals(carbonTransport4.getState(), CarbonTransport.State.STARTED,
+                    "When transport is not stopped, state should be STARTED");
+            throw t;
+        }
+    }
+
+    @Test(dependsOnMethods = {"testFailureOfStopTransports"},
+            expectedExceptions = RuntimeException.class)
+    public void testFailureOfBeginMaintenance() {
+        try {
+            transportManager1.beginMaintenance();
+        } catch (Throwable t) {
+            Assert.assertEquals(carbonTransport4.getState(), CarbonTransport.State.STARTED,
+                    "When transport could not be made in maintenance, state should be STARTED");
+            throw t;
+        }
+    }
+
+    @Test(dependsOnMethods = {"testFailureOfBeginMaintenance"},
+            expectedExceptions = RuntimeException.class)
+    public void testFailureOfEndMaintenance() {
+        carbonTransport4.setFailBeginMaintenance(false);
+        transportManager1.beginMaintenance();
+        try {
+            transportManager1.endMaintenance();
+        } catch (Throwable t) {
+            Assert.assertEquals(carbonTransport4.getState(), CarbonTransport.State.IN_MAINTENANCE,
+                    "When transport could not be started again, state should remain IN_MAINTENANCE");
+            throw t;
         }
     }
 }
