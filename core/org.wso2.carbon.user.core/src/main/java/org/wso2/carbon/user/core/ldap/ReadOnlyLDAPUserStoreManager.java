@@ -2284,7 +2284,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     private List<String> getListOfNames(String searchBases, String searchFilter,
                                         SearchControls searchCtls, String property, boolean appendDn)
             throws UserStoreException {
-        searchFilter = searchFilter.replace("*","\\*");
+        searchFilter = searchFilter.replace("*", "\\*");
         boolean debug = log.isDebugEnabled();
         List<String> names = new ArrayList<String>();
         DirContext dirContext = null;
@@ -3192,7 +3192,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
      */
     private String escapeSpecialCharactersForDN(String text){
         boolean replaceEscapeCharacters = true;
-        text.replace("\\*","*");
+        text.replace("\\*", "*");
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
