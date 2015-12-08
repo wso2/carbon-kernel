@@ -101,13 +101,13 @@ public class SampleStartupOrderResolverOSGiTest {
 
         int runtimeListenerInvocation = orderResolverMonitor.
                 getListenerInvocationOrder(RuntimeServicesListener.class.getName());
-        Assert.assertEquals(1, runtimeListenerInvocation);
+        Assert.assertEquals(runtimeListenerInvocation, 1);
         int deploymentListenerInvocation = orderResolverMonitor.
                 getListenerInvocationOrder(DeployerServicesListener.class.getName());
-        Assert.assertEquals(2, deploymentListenerInvocation);
+        Assert.assertEquals(deploymentListenerInvocation, 2);
         int transportListenerInvocation = orderResolverMonitor.
                 getListenerInvocationOrder(TransportServicesListener.class.getName());
-        Assert.assertEquals(3, transportListenerInvocation);
+        Assert.assertEquals(transportListenerInvocation, 3);
 
         orderResolverMonitor.clearInvocationCounter();
     }
