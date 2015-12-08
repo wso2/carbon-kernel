@@ -63,6 +63,11 @@ public class DeploymentEngine {
      */
     private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts = new ConcurrentHashMap<>();
 
+    /**
+     * A map to hold faulty artifacts
+     */
+    private Map<String, Artifact> faultyArtifacts = new ConcurrentHashMap<>();
+
 
     /**
      * Configure and prepare the repository associated with this engine.
@@ -121,23 +126,19 @@ public class DeploymentEngine {
      */
     public void registerDeployer(Deployer deployer) throws DeployerRegistrationException {
         if (deployer == null) {
-            throw new DeployerRegistrationException("Failed to add Deployer : " +
-                    "Deployer Class Name is null");
+            throw new DeployerRegistrationException("Failed to add Deployer : Deployer Class Name is null");
         }
         // Try and initialize the deployer
         deployer.init();
 
         if (deployer.getLocation() == null) {
-            throw new DeployerRegistrationException("Failed to add Deployer " +
-                    deployer.getClass().getName() +
-                    ": missing 'directory' attribute " +
-                    "in deployer instance");
+            throw new DeployerRegistrationException("Failed to add Deployer " + deployer.getClass().getName() +
+                    " : missing 'directory' attribute in deployer instance");
         }
         ArtifactType type = deployer.getArtifactType();
 
         if (type == null) {
-            throw new DeployerRegistrationException("Artifact Type for Deployer : " + deployer +
-                    " is null");
+            throw new DeployerRegistrationException("Artifact Type for Deployer : " + deployer + " is null");
         }
 
         Deployer existingDeployer = deployerMap.get(type);
@@ -216,6 +217,10 @@ public class DeploymentEngine {
         return deployedArtifacts;
     }
 
+    public Map<String, Artifact> getFaultyArtifacts() {
+        return faultyArtifacts;
+    }
+
     /**
      * Deploy the artifacts found in the artifacts to be deployed list.
      *
@@ -227,15 +232,20 @@ public class DeploymentEngine {
                 Deployer deployer = getDeployer(artifactToDeploy.getType());
                 if (deployer != null) {
                     Object artifactKey = deployer.deploy(artifactToDeploy);
-                    artifactToDeploy.setKey(artifactKey);
-                    addToDeployedArtifacts(artifactToDeploy);
+                    if (artifactKey != null) {
+                        artifactToDeploy.setKey(artifactKey);
+                        addToDeployedArtifacts(artifactToDeploy);
+                    } else {
+                        throw new CarbonDeploymentException("Deployed artifact key is null for : " +
+                                artifactToDeploy.getName());
+                    }
                 } else {
-                    throw new CarbonDeploymentException("Deployer instance cannot be found for " +
-                            "the type : " + artifactToDeploy.getType());
+                    throw new CarbonDeploymentException("Deployer instance cannot be found for the type : " +
+                            artifactToDeploy.getType());
                 }
             } catch (CarbonDeploymentException e) {
-                //TODO : Handle faulty artifact deployment
                 logger.error("Error while deploying artifacts", e);
+                addToFaultyArtifacts(artifactToDeploy);
             }
         });
     }
@@ -251,15 +261,20 @@ public class DeploymentEngine {
                 Deployer deployer = getDeployer(artifactToUpdate.getType());
                 if (deployer != null) {
                     Object artifactKey = deployer.update(artifactToUpdate);
-                    artifactToUpdate.setKey(artifactKey);
-                    addToDeployedArtifacts(artifactToUpdate);
+                    if (artifactKey != null) {
+                        artifactToUpdate.setKey(artifactKey);
+                        addToDeployedArtifacts(artifactToUpdate);
+                    } else {
+                        throw new CarbonDeploymentException("Deployed artifact key is null for : " +
+                                artifactToUpdate.getName());
+                    }
                 } else {
-                    throw new CarbonDeploymentException("Deployer instance cannot be found for " +
-                            "the type : " + artifactToUpdate.getType());
+                    throw new CarbonDeploymentException("Deployer instance cannot be found for the type : " +
+                            artifactToUpdate.getType());
                 }
             } catch (CarbonDeploymentException e) {
-                //TODO : Handle faulty artifact deployment
                 logger.error("Error while updating artifacts", e);
+                addToFaultyArtifacts(artifactToUpdate);
             }
         });
     }
@@ -272,6 +287,13 @@ public class DeploymentEngine {
         }
         artifactMap.put(artifact.getKey(), artifact);
         deployedArtifacts.put(artifact.getType(), artifactMap);
+        faultyArtifacts.remove(artifact.getPath());
+    }
+
+    private void addToFaultyArtifacts(Artifact artifact) {
+        faultyArtifacts.put(artifact.getPath(), artifact);
+        //removeFromDeployedArtifacts if it became faulty while undeploying
+        removeFromDeployedArtifacts(artifact);
     }
 
     /**
@@ -287,11 +309,12 @@ public class DeploymentEngine {
                     deployer.undeploy(artifactToUnDeploy.getKey());
                     removeFromDeployedArtifacts(artifactToUnDeploy);
                 } else {
-                    throw new CarbonDeploymentException("Deployer instance cannot be found for " +
-                            "the type : " + artifactToUnDeploy.getType());
+                    throw new CarbonDeploymentException("Deployer instance cannot be found for the type : " +
+                            artifactToUnDeploy.getType());
                 }
             } catch (CarbonDeploymentException e) {
                 logger.error("Error while undeploying artifacts", e);
+                addToFaultyArtifacts(artifactToUnDeploy);
             }
         });
     }
