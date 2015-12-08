@@ -92,19 +92,21 @@ public class SampleStartupOrderResolverOSGiTest {
         return Utils.getDefaultPaxOptions(options);
     }
 
-
     @Test
     public void testSampleStartupOrderResolving() {
         Assert.assertNotNull(deployerManager, "DeployerManager Service cannot be null");
         Assert.assertNotNull(transportManager, "TransportManager Service cannot be null");
         Assert.assertNotNull(runtimeManager, "RuntimeManager Service cannot be null");
-        Map<String, Integer> invocationOrderMap = OrderResolverMonitor.getInstance().getInvocationOrderMap();
-        Assert.assertNotNull(invocationOrderMap, "Order Resolver Monitor instance cannot be null");
-        int runtimeListenerInvocation = invocationOrderMap.get(RuntimeServicesListener.class.getName());
+        OrderResolverMonitor orderResolverMonitor = OrderResolverMonitor.getInstance();
+        Assert.assertNotNull(orderResolverMonitor, "Order Resolver Monitor instance cannot be null");
+        int runtimeListenerInvocation = orderResolverMonitor.
+                getListenerInvocationOrder(RuntimeServicesListener.class.getName());
         Assert.assertEquals(1, runtimeListenerInvocation);
-        int deploymentListenerInvocation = invocationOrderMap.get(DeployerServicesListener.class.getName());
+        int deploymentListenerInvocation = orderResolverMonitor.
+                getListenerInvocationOrder(DeployerServicesListener.class.getName());
         Assert.assertEquals(2, deploymentListenerInvocation);
-        int transportListenerInvocation = invocationOrderMap.get(TransportServicesListener.class.getName());
+        int transportListenerInvocation = orderResolverMonitor.
+                getListenerInvocationOrder(TransportServicesListener.class.getName());
         Assert.assertEquals(3, transportListenerInvocation);
 
         OrderResolverMonitor.getInstance().clearInvocationCounter();

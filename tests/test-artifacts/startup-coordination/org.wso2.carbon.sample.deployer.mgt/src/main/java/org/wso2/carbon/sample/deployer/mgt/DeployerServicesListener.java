@@ -47,7 +47,7 @@ public class DeployerServicesListener implements RequiredCapabilityListener {
         logger.info("All required services are available for : " + this.getClass().getName());
         // update an external service to track the startup order
         bundleContext.registerService(DeployerManager.class, new DeployerManager(), null);
-        OrderResolverMonitor.getInstance().listenerInvoked(DeployerServicesListener.class.getName());
+        OrderResolverMonitor.getInstance().setListenerInvocationOrder(DeployerServicesListener.class.getName());
     }
 
     @Activate

@@ -47,7 +47,7 @@ public class TransportServicesListener implements RequiredCapabilityListener {
     public void onAllRequiredCapabilitiesAvailable() {
         logger.info("All required services are available for : " + this.getClass().getName());
         bundleContext.registerService(TransportManager.class, new TransportManager(), null);
-        OrderResolverMonitor.getInstance().listenerInvoked(TransportServicesListener.class.getName());
+        OrderResolverMonitor.getInstance().setListenerInvocationOrder(TransportServicesListener.class.getName());
     }
 
     @Activate

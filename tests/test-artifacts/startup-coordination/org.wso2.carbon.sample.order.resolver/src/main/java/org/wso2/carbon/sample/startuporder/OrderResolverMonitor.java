@@ -5,7 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A dummy class to check the OrderResolving logic
+ * A class to check the OrderResolving logic using a counter to store the invoked order against the listener name.
+ *
+ * @since 5.0.0
  */
 public class OrderResolverMonitor {
     private Map<String, Integer> invocationOrderMap = new ConcurrentHashMap<>();
@@ -19,16 +21,16 @@ public class OrderResolverMonitor {
         return orderResolverMonitor;
     }
 
-    public void listenerInvoked(String listenerName) {
-        int currentCount = invocationCounter.incrementAndGet();
-        invocationOrderMap.put(listenerName, currentCount);
+    public void setListenerInvocationOrder(String listenerName) {
+        invocationOrderMap.put(listenerName, invocationCounter.incrementAndGet());
     }
 
-    public Map<String, Integer> getInvocationOrderMap() {
-        return invocationOrderMap;
+    public int getListenerInvocationOrder(String listenerName) {
+        return invocationOrderMap.get(listenerName);
     }
 
     public void clearInvocationCounter() {
         invocationCounter.set(0);
+        invocationOrderMap.clear();
     }
 }

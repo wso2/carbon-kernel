@@ -47,7 +47,7 @@ public class RuntimeServicesListener implements RequiredCapabilityListener {
     public void onAllRequiredCapabilitiesAvailable() {
         logger.info("All required services are available for : " + this.getClass().getName());
         bundleContext.registerService(RuntimeManager.class, new RuntimeManager(), null);
-        OrderResolverMonitor.getInstance().listenerInvoked(RuntimeServicesListener.class.getName());
+        OrderResolverMonitor.getInstance().setListenerInvocationOrder(RuntimeServicesListener.class.getName());
     }
 
     @Activate
