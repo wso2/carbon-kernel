@@ -14,9 +14,9 @@
 #   limitations under the License.
 ################################################################################
 
-id: "${server.key}"
-name: "${server.name}"
-version: "${server.version}"
+id: ${server.key}
+name: ${server.name}
+version: ${server.version}
 
 # Ports used by this server
 ports:
@@ -34,7 +34,7 @@ deployment:
  mode: scheduled
 
 # Location of the artifact repository
- repositoryLocation: "${carbon.home}/repository/deployment/server/"
+ repositoryLocation: ${carbon.home}/repository/deployment/server/
 
 # Deployment update interval in seconds. This is the interval between repository listener
 # executions.
