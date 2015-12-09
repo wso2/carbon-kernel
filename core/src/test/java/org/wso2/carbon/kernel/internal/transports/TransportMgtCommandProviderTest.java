@@ -118,6 +118,7 @@ public class TransportMgtCommandProviderTest {
     public void test_beginMaintenance() throws Exception {
         commandInterpreter.resetCounter();
 
+        transportMgtCommandProvider._startTransports(commandInterpreter);
         transportMgtCommandProvider._beginMaintenance(commandInterpreter);
 
         for (int i = 0; i < dummyTransports.length; i++) {
@@ -145,7 +146,7 @@ public class TransportMgtCommandProviderTest {
         Map<String, CarbonTransport> map = transportManager.getTransports();
         for (String key : map.keySet()) {
             expectedOutputString +=
-                    "Transport Name: " + map.get(key).getId() + "\t" + " State: STOPPED" + System.lineSeparator();
+                    "Transport Name: " + map.get(key).getId() + "\t" + " State: STARTED" + System.lineSeparator();
         }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
