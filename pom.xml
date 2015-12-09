@@ -93,7 +93,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
                     <preparationGoals>clean install</preparationGoals>
-                    <autoVersionSubmodules>false</autoVersionSubmodules>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
                 </configuration>
             </plugin>
             <plugin>
