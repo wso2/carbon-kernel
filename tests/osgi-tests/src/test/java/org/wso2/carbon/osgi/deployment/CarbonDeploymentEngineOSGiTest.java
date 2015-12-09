@@ -35,7 +35,7 @@ import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.kernel.internal.deployment.DeploymentEngine;
-import org.wso2.carbon.osgi.utils.Utils;
+import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -59,10 +59,9 @@ public class CarbonDeploymentEngineOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        Utils.setCarbonHome();
-        Utils.setupMavenLocalRepo();
+        OSGiTestUtils.setupOSGiTestEnvironment();
         copyCarbonYAML();
-        return Utils.getDefaultPaxOptions();
+        return OSGiTestUtils.getDefaultPaxOptions();
     }
 
 

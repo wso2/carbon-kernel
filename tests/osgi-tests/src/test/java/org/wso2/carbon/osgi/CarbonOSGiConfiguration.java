@@ -17,7 +17,7 @@ package org.wso2.carbon.osgi;
 
 import org.ops4j.pax.exam.ConfigurationFactory;
 import org.ops4j.pax.exam.Option;
-import org.wso2.carbon.osgi.utils.Utils;
+import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 
 /**
  * This class will provide the shared configurations for the OSGi tests.
@@ -35,9 +35,7 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
      */
     public Option[] createConfiguration() {
         //setting up the environment
-        Utils.setCarbonHome();
-        Utils.setupMavenLocalRepo();
-        Utils.setStartupTime();
-        return Utils.getDefaultPaxOptions();
+        OSGiTestUtils.setupOSGiTestEnvironment();
+        return OSGiTestUtils.getDefaultPaxOptions();
     }
 }

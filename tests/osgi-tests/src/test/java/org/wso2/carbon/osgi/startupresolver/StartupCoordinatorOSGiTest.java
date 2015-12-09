@@ -24,7 +24,7 @@ import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-import org.wso2.carbon.osgi.utils.Utils;
+import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 import org.wso2.carbon.sample.deployer.mgt.DeployerManager;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeManager;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
@@ -56,8 +56,7 @@ public class StartupCoordinatorOSGiTest {
 
     @Configuration
     public Option[] createConfiguration() {
-        Utils.setCarbonHome();
-        Utils.setupMavenLocalRepo();
+        OSGiTestUtils.setupOSGiTestEnvironment();
 
         Option[] options = CoreOptions.options(
                 mavenBundle().artifactId("org.wso2.carbon.sample.runtime.mgt").groupId(
@@ -84,7 +83,7 @@ public class StartupCoordinatorOSGiTest {
                         "org.wso2.carbon").versionAsInProject()
         );
 
-        return Utils.getDefaultPaxOptions(options);
+        return OSGiTestUtils.getDefaultPaxOptions(options);
     }
 
     @Test

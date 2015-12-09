@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
-import org.wso2.carbon.osgi.utils.Utils;
+import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,21 +54,18 @@ public class CarbonRuntimeOSGiTest {
     @Inject
     private BundleContext bundleContext;
 
+    @Inject
+    private CarbonRuntime carbonRuntime;
+
     @Configuration
     public Option[] createConfiguration() {
-        Utils.setCarbonHome();
-        Utils.setupMavenLocalRepo();
+        OSGiTestUtils.setupOSGiTestEnvironment();
         copyCarbonYAML();
-        return Utils.getDefaultPaxOptions();
+        return OSGiTestUtils.getDefaultPaxOptions();
     }
 
     @Test
     public void testCarbonRuntimeService() {
-
-        ServiceReference reference = bundleContext.getServiceReference(CARBON_RUNTIME_SERVICE);
-        Assert.assertNotNull(reference, "Carbon Runtime Service Reference is null");
-
-        CarbonRuntime carbonRuntime = (CarbonRuntime) bundleContext.getService(reference);
         Assert.assertNotNull(carbonRuntime, "Carbon Runtime Service is null");
 
         CarbonConfiguration carbonConfiguration = carbonRuntime.getConfiguration();
