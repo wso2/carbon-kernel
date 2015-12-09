@@ -454,8 +454,8 @@
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
 
-        <test.framework.version>4.4.2</test.framework.version>
-        <jacoco.agent.version>0.7.4.201502262128</jacoco.agent.version>
+        <test.framework.version>4.4.3-SNAPSHOT</test.framework.version>
+        <jacoco.agent.version>0.7.5.201505241946</jacoco.agent.version>
         <testng.verson>6.1.1</testng.verson>
     </properties>
 
