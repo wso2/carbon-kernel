@@ -32,6 +32,8 @@ public class CarbonConfiguration {
 
     private DeploymentConfig deployment = new DeploymentConfig();
 
+    private StartupResolverConfig startupResolver = new StartupResolverConfig();
+
     public String getId() {
         return id;
     }
@@ -50,5 +52,9 @@ public class CarbonConfiguration {
 
     public DeploymentConfig getDeploymentConfig() {
         return deployment;
+    }
+
+    public StartupResolverConfig getStartupResolverConfig() {
+        return startupResolver;
     }
 }

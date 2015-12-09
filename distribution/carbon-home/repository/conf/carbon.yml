@@ -39,3 +39,16 @@ deployment:
 # Deployment update interval in seconds. This is the interval between repository listener
 # executions.
  updateInterval: 15
+
+# StartupOrderResolver related configurations
+startupResolver:
+# Configuration for the timer task which checks for satisfiable RequiredCapabilityListeners periodically
+ capabilityListenerTimer:
+  delay: 200
+  period: 200
+
+# Configuration for the timer task which checks for pending Capabilities
+ pendingCapabilityTimer:
+  delay: 60000
+  period: 30000
+
