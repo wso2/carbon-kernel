@@ -64,7 +64,7 @@ public class DeploymentEngine {
     private Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts = new ConcurrentHashMap<>();
 
     /**
-     * A map to hold faulty artifacts
+     * A map to hold faulty artifacts.
      */
     private Map<String, Artifact> faultyArtifacts = new ConcurrentHashMap<>();
 
