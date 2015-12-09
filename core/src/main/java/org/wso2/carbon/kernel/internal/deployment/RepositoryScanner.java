@@ -140,8 +140,7 @@ public class RepositoryScanner {
      * @param artifact artifact to deploy
      */
     private void addArtifactToDeploy(Artifact artifact) {
-        Artifact deployedArtifact = findDeployedArtifact(artifact.getType(),
-                artifact.getPath());
+        Artifact deployedArtifact = findDeployedArtifact(artifact.getType(), artifact.getPath());
         if (deployedArtifact != null) { // Artifact is getting updated
             if (Utils.isArtifactModified(deployedArtifact)) {
                 artifactsToUpdate.add(deployedArtifact);
@@ -154,6 +153,12 @@ public class RepositoryScanner {
     }
 
     private Artifact findDeployedArtifact(ArtifactType type, String path) {
+        //check whether this artifact is already under faulty list
+        Artifact faultyArtifact = carbonDeploymentEngine.getFaultyArtifacts().get(path);
+        if (faultyArtifact != null && !Utils.isArtifactModified(faultyArtifact)) {
+            return faultyArtifact;
+        }
+
         Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
                 carbonDeploymentEngine.getDeployedArtifacts();
         if (deployedArtifacts.get(type) == null) {
@@ -167,16 +172,13 @@ public class RepositoryScanner {
     }
 
     private void checkUndeployedArtifacts() {
-        Map<ArtifactType, ConcurrentHashMap<Object, Artifact>> deployedArtifacts =
-                carbonDeploymentEngine.getDeployedArtifacts();
-
-        deployedArtifacts.values()
-                .forEach(artifactMap -> artifactsToUndeploy = artifactMap.values()
+        artifactsToUndeploy = carbonDeploymentEngine.getDeployedArtifacts().values()
+                .stream()
+                .flatMap(artifactMap -> artifactMap.values().stream())
+                .filter(artifact -> artifactFilePathList
                         .stream()
-                        .filter(artifact -> artifactFilePathList
-                                .stream()
-                                .noneMatch(path -> (path.equals(artifact.getPath()))))
-                        .collect(Collectors.toList()));
+                        .noneMatch(path -> (path.equals(artifact.getPath()))))
+                .collect(Collectors.toList());
 
         artifactFilePathList.clear();
     }
