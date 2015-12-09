@@ -23,10 +23,15 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.kernel.CarbonRuntime;
+import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
@@ -76,6 +81,8 @@ public class RequireCapabilityCoordinator {
     private static final String DEPENDENT_COMPONENT_KEY = "dependent-component-key";
     private static final String OBJECT_CLASS = "objectClass";
 
+    private CarbonConfiguration carbonConfiguration;
+
     private AtomicInteger requiredCapabilityListenerCount = new AtomicInteger(0);
     private MultiCounter<String> capabilityProviderCounter = new MultiCounter<>();
 
@@ -94,7 +101,7 @@ public class RequireCapabilityCoordinator {
     //      2) All the expected capabilities are now availalb.
     private MultiCounter<String> componentKeyCapabilityCounter = new MultiCounter<>();
 
-    private Timer satisfiableCapabilityListenerTimer = new Timer();
+    private Timer capabilityListenerTimer = new Timer();
 //    private Timer pendingCapabilityTimer = new Timer();
 
     /**
@@ -113,7 +120,6 @@ public class RequireCapabilityCoordinator {
             processManifestHeaders(Arrays.asList(bundleContext.getBundles()));
 
             //TODO Syncronize cases
-            //TODO Test dependent-component-key scenarios
             //TODO Pending timer
 
             // 2.
@@ -129,14 +135,19 @@ public class RequireCapabilityCoordinator {
             capabilityServiceTracker.open();
 
             // 4.
-            satisfiableCapabilityListenerTimer.scheduleAtFixedRate(new TimerTask() {
+            long capabilityListenerTimerDelay = carbonConfiguration.getStartupResolverConfig().
+                    getCapabilityListenerTimer().getDelay();
+            long capabilityListenerTimerPeriod = carbonConfiguration.getStartupResolverConfig().
+                    getCapabilityListenerTimer().getPeriod();
+
+            capabilityListenerTimer.scheduleAtFixedRate(new TimerTask() {
 
                 @Override
                 public void run() {
                     if (requiredCapabilityListenerCount.get() == 0 && componentKeyCapabilityListenerMap.size() == 0) {
                         logger.debug("All the RequiredCapabilityListeners are notified, " +
-                                "therefore cancelling the satisfiableCapabilityListenerTimer");
-                        satisfiableCapabilityListenerTimer.cancel();
+                                "therefore cancelling the capabilityListenerTimer");
+                        capabilityListenerTimer.cancel();
                         return;
                     }
 
@@ -156,7 +167,7 @@ public class RequireCapabilityCoordinator {
                                 }
                             });
                 }
-            }, 200, 200);
+            }, capabilityListenerTimerDelay, capabilityListenerTimerPeriod);
 
 
             // 5) Start a timer to track pending service registrations.
@@ -167,7 +178,7 @@ public class RequireCapabilityCoordinator {
 //
 //                    if (capabilityListenerMap.size() == 0) {
 //                        logger.debug("Cancelling the timer which checks the satisfiable CapabilityListeners");
-//                        satisfiableCapabilityListenerTimer.cancel();
+//                        capabilityListenerTimer.cancel();
 //
 //                        logger.debug("Cancelling the time which checks pending capabilities");
 //                        pendingCapabilityTimer.cancel();
@@ -198,6 +209,30 @@ public class RequireCapabilityCoordinator {
     public void stop(BundleContext bundleContext) throws Exception {
         logger.debug("Deactivating startup resolver component available in bundle {}",
                 bundleContext.getBundle().getSymbolicName());
+    }
+
+    @Reference(
+            name = "carbon.config.service",
+            service = CarbonRuntime.class,
+            cardinality = ReferenceCardinality.MANDATORY,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "unRegisterCarbonRuntime"
+    )
+    /**
+     * This method is invoked when the CarbonRuntime OSGi service is registered.
+     * @param carbonRuntime service object
+     */
+    protected void registerCarbonRuntime(CarbonRuntime carbonRuntime) {
+        carbonConfiguration = carbonRuntime.getConfiguration();
+    }
+
+    /**
+     * This method is invoked when the CarbonRuntime OSGi service is unregistered.
+     *
+     * @param carbonRuntime service object
+     */
+    protected void unRegisterCarbonRuntime(CarbonRuntime carbonRuntime) {
+        carbonConfiguration = null;
     }
 
     /**
