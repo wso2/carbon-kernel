@@ -28,30 +28,6 @@
     <name>WSO2 Carbon Kernel - Sample Deployer Manager</name>
     <url>http://wso2.org</url>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>org.wso2.carbon.sample.deployer.mgt</Export-Package>
-                        <Import-Package>*</Import-Package>
-                        <_dsannotations>*</_dsannotations>
-                        <Provide-Capability>
-                            osgi.service;effective:=active;
-                            objectClass="org.wso2.carbon.sample.deployer.mgt.DeployerManager";
-                            dependent-component-key="carbon-sample-transport-mgt",
-                        </Provide-Capability>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.wso2.carbon</groupId>
@@ -77,5 +53,14 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+
+    <properties>
+        <export.package>org.wso2.carbon.sample.deployer.mgt</export.package>
+        <provide.capability>
+            osgi.service;effective:=active;
+            objectClass="org.wso2.carbon.sample.deployer.mgt.DeployerManager";
+            dependent-component-key="carbon-sample-transport-mgt",
+        </provide.capability>
+    </properties>
 
 </project>
