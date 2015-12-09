@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Test class for FileUtils class.
+ * Test class for ManifestElement class.
  *
  * @since 5.0.0
  */
