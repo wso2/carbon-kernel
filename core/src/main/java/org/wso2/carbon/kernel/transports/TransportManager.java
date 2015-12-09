@@ -70,13 +70,13 @@ public class TransportManager {
     public void beginMaintenance() {
         Utils.checkSecurity();
         transports.values()
-                .forEach(CarbonTransport::beginMaintenance);
+                .forEach(CarbonTransport::beginTransportMaintenance);
     }
 
     public void endMaintenance() {
         Utils.checkSecurity();
         transports.values()
-                .forEach(CarbonTransport::endMaintenance);
+                .forEach(CarbonTransport::endTransportMaintenance);
     }
 
     public Map<String, CarbonTransport> getTransports() {
