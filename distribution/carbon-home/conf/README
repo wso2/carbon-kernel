@@ -1,4 +1,4 @@
-CARBON_HOME/repository/conf directory contains all the Carbon configuration files. 
+CARBON_HOME/conf directory contains all the Carbon configuration files.
 Usage of the sub-directories of relevant configurations are as follows. 
 
 1. carbon.yml

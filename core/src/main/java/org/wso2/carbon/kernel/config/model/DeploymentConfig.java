@@ -24,7 +24,7 @@ public class DeploymentConfig {
 
     private DeploymentModeEnum mode = DeploymentModeEnum.scheduled;
 
-    private String repositoryLocation = "${carbon.home}/repository/deployment/server/";
+    private String repositoryLocation = "${carbon.home}/deployment/";
 
     private int updateInterval = 15;
 

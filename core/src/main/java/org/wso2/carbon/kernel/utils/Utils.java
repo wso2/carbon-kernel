@@ -44,22 +44,12 @@ public class Utils {
 
     /**
      * This method will return the carbon configuration directory path.
-     * i.e $carbon.home/repository/conf
+     * i.e ${carbon.home}/conf
      *
      * @return returns the Carbon Configuration directory path
      */
     public static Path getCarbonConfigHome() {
-        Path configDirPath;
-        String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
-        if (carbonRepoDirPath == null) {
-            carbonRepoDirPath = System.getenv(Constants.CARBON_REPOSITORY_PATH_ENV);
-        }
-        if (carbonRepoDirPath == null) {
-            configDirPath = Paths.get(getCarbonHome().toString(), "repository", "conf");
-        } else {
-            configDirPath = Paths.get(carbonRepoDirPath, "conf");
-        }
-        return configDirPath;
+        return Paths.get(getCarbonHome().toString(), "conf");
     }
 
     /**

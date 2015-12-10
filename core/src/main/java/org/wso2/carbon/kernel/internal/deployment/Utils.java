@@ -56,7 +56,7 @@ public class Utils {
 
     /**
      * Request: file:sample.war .
-     * Response: file:/user/wso2carbon-kernel-5.0.0/repository/deployment/server/webapps/sample.war
+     * Response: file:/user/wso2carbon-kernel-5.0.0/deployment/server/webapps/sample.war
      *
      * @param path       file path to resolve
      * @param parentPath parent file path of the file

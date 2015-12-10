@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
- * DropinsBundleDeployer deploys the OSGi bundles in CARBON_HOME/repository/components/dropins folder by writing
+ * DropinsBundleDeployer deploys the OSGi bundles in CARBON_HOME/osgi/dropins folder by writing
  * the OSGi bundle information to the bundles.info file.
  * <p>
  *
@@ -63,12 +63,12 @@ public class DropinsBundleDeployer implements CarbonServerListener {
     public void notify(CarbonServerEvent event) {
         if (event.getType() == CarbonServerEvent.STARTING) {
             String profileName = System.getProperty(Constants.PROFILE, Constants.DEFAULT_PROFILE);
-            Path dropinsDirectory = Paths.get(Utils.getRepositoryDirectory().toString(), "components", "dropins");
+            Path dropinsDirectory = Paths.get(Utils.getCarbonHomeDirectory().toString(), "osgi", "dropins");
             try {
                 if (Files.exists(dropinsDirectory)) {
                     List<BundleInfo> newBundleInfoLines = getNewBundleInfoLines(dropinsDirectory);
                     Path bundleInfoDirectory = Paths.
-                            get(Utils.getRepositoryDirectory().toString(), "components", profileName, "configuration",
+                            get(Utils.getCarbonHomeDirectory().toString(), "osgi", profileName, "configuration",
                                     "org.eclipse.equinox.simpleconfigurator");
                     Path bundleInfoFile = Paths.get(bundleInfoDirectory.toString(), "bundles.info");
                     Map<String, List<BundleInfo>> bundleInfoLineMap = processBundleInfoFile(bundleInfoFile,

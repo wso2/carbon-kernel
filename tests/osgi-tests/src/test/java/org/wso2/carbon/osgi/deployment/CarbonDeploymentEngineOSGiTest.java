@@ -164,7 +164,7 @@ public class CarbonDeploymentEngineOSGiTest {
         }
         try {
             carbonYAMLFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-            Files.copy(carbonYAMLFilePath, Paths.get(System.getProperty("carbon.home"), "repository", "conf",
+            Files.copy(carbonYAMLFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
                     "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             logger.error("Unable to copy the carbon.yml file", e);

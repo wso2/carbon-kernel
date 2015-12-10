@@ -20,9 +20,9 @@ Installation & Running
 1. Extract the downloaded zip file.
 2. Run the wso2server.sh or wso2server.bat file in the bin directory.
 3. You can enable/disable OSGi Console by un-commenting the osgi.console property in
-   CARBON_HOME/repository/cont/osgi/launch.properties file.
+   CARBON_HOME/conf/osgi/launch.properties file.
 4. You can enable OSGi debug logs by un-commenting the osgi.debug property in
-   CARBON_HOME/repository/cont/osgi/launch.properties file.
+   CARBON_HOME/conf/osgi/launch.properties file.
 
 Hardware Requirements
 -------------------
@@ -40,13 +40,11 @@ Carbon Binary Distribution Directory Structure
 
      CARBON_HOME
         |-- bin <directory>
-        |-- lib <directory>
-        |-- repository <directory>
-        |   |-- components <directory>
-        |   |-- conf <directory>
-        |   |-- deployment <directory>
-        |   |-- logs <directory>
-            |-- README.txt <file>
+        |   |-- bootstrap <directory>
+        |-- osgi <directory>
+        |-- conf <directory>
+        |-- deployment <directory>
+        |-- logs <directory>
         |-- tmp <directory>
         |-- LICENSE.txt <file>
         |-- README.txt <file>
@@ -55,24 +53,19 @@ Carbon Binary Distribution Directory Structure
 
     - bin
       Contains various scripts .sh & .bat scripts.
+        - bootstrap
+            Contains the basic set of libraries required to bootstrap Carbon.
+    - osgi
+      Contains all OSGi related libraries and configurations.
 
-    - lib
-      Contains the basic set of libraries required to startup Carbon.
+    - conf
+      Contains server configuration files. Ex: carbon.yml
 
-    - repository
-      The repository where artifacts which are deployed in WSO2 Carbon based products are stored.
+    - deployment
+	  All deployment artifacts should go into this directory.
 
-    	- components
-          Contains all OSGi related libraries and configurations.
-
-        - conf
-          Contains server configuration files. Ex: carbon.yml
-
-        - deployment
-	      All deployment artifacts should go into this directory.
-
-        - logs
-          Contains all log files created during execution.
+    - logs
+      Contains all log files created during execution.
 
     - tmp
       Used for storing temporary files, and is pointed to by the

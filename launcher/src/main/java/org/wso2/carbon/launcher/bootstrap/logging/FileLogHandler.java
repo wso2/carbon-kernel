@@ -63,7 +63,7 @@ public class FileLogHandler extends StreamHandler {
      * @throws IOException
      */
     private void openLogFile() throws IOException {
-        String logFilename = Paths.get(Utils.getRepositoryDirectory().toString(),
+        String logFilename = Paths.get(Utils.getCarbonHomeDirectory().toString(),
                 "logs", WSO2CARBON_LOG_FILE_NAME).toString();
         File logfile = new File(logFilename);
         if (!logfile.getParentFile().exists()) {

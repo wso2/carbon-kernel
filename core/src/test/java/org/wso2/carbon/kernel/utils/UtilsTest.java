@@ -19,31 +19,12 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.Constants;
 
-import java.nio.file.Paths;
-
 /**
  * This class tests the functionality of org.wso2.carbon.kernel.utils.Utils class.
  *
  * @since 5.0.0
  */
 public class UtilsTest {
-
-    @Test
-    public void testGetCarbonConfigHomePathNonNullSystemProperty() throws Exception {
-        String carbonRepoDirPath = System.getProperty(Constants.CARBON_REPOSITORY);
-        boolean isCarbonHomeChanged = false;
-
-        if (carbonRepoDirPath == null) {
-            carbonRepoDirPath = "test-carbon-repo-dir-path";
-            System.setProperty(Constants.CARBON_REPOSITORY, carbonRepoDirPath);
-            isCarbonHomeChanged = true;
-        }
-        Assert.assertEquals(Utils.getCarbonConfigHome(), Paths.get(carbonRepoDirPath + "/conf"));
-
-        if (isCarbonHomeChanged) {
-            System.clearProperty(Constants.CARBON_REPOSITORY);
-        }
-    }
 
     @Test
     public void testSubstituteVarsSystemPropertyNotNull() {

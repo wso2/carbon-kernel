@@ -92,12 +92,12 @@ public class Utils {
     }
 
     /**
-     * Read repository path from properties.
+     * Return the value of the carbon.home system variable.
      *
      * @return repository location path
      */
-    public static Path getRepositoryDirectory() {
-        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.REPOSITORY_DIR_PATH);
+    public static Path getCarbonHomeDirectory() {
+        return Paths.get(System.getProperty(Constants.CARBON_HOME));
     }
 
     /**
@@ -106,7 +106,7 @@ public class Utils {
      * @return launch configuration directory path
      */
     public static Path getLaunchConfigDirectory() {
-        return Paths.get(System.getProperty(Constants.CARBON_HOME), Constants.LAUNCH_CONF_DIR_PATH);
+        return Paths.get(System.getProperty(Constants.CARBON_HOME), "conf", "osgi");
     }
 
     /**

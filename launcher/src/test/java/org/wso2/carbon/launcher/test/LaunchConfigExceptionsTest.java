@@ -36,7 +36,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     @BeforeClass
     public void init() {
         setupCarbonHome();
-        logFile = new File(Utils.getRepositoryDirectory() + File.separator + "logs" +
+        logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
                 File.separator + "wso2carbon.log");
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
@@ -50,7 +50,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     /**
      * Test the RuntimeException thrown when launcher.properties file does not exist.
      */
-    @Test(expectedExceptions = { RuntimeException.class })
+    @Test(expectedExceptions = {RuntimeException.class})
     public void loadCarbonLaunchConfigFromFileTestCase() throws FileNotFoundException {
         String launchPropFilePath = Paths.get("test", LAUNCH_PROPERTIES_FILE).toString();
         File launchPropFile = new File(launchPropFilePath);
@@ -61,7 +61,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     /**
      * Test the RuntimeException thrown when launcher.properties file does not exist.
      */
-    @Test(expectedExceptions = { RuntimeException.class })
+    @Test(expectedExceptions = {RuntimeException.class})
     public void loadCarbonLaunchConfigFromURLTestCase() throws MalformedURLException {
         String launchPropFilePath = Paths.get("test", LAUNCH_PROPERTIES_FILE).toString();
         URL launchPropFileURL = new File(launchPropFilePath).toURI().toURL();
@@ -74,7 +74,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
      *
      * @throws FileNotFoundException if wso2carbon.log file not exists.
      */
-    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromURLTestCase" })
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromURLTestCase"})
     public void verifyRuntimeExceptionErrorLogsTestCase() throws FileNotFoundException {
 
         String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - "
@@ -88,7 +88,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     /**
      * Test the RuntimeException thrown when resolving properties from launcher.properties file.
      */
-    @Test(expectedExceptions = { RuntimeException.class })
+    @Test(expectedExceptions = {RuntimeException.class})
     public void loadCarbonLaunchConfigFromFaultFileTestCase() {
         String launchPropFilePath = Paths
                 .get("src", "test", "resources", "InvalidLauncherFiles", "launcherWithEmptyValues.properties")
@@ -103,7 +103,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
      *
      * @throws FileNotFoundException if wso2carbon.log file not exists.
      */
-    @Test(dependsOnMethods = { "loadCarbonLaunchConfigFromFaultFileTestCase" })
+    @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFaultFileTestCase"})
     public void verifyErrorLogsLoadingPropertiesTestCase() throws FileNotFoundException {
 
         String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - "
@@ -118,7 +118,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
      * Test the RuntimeException thrown when loading initial bundles from launch.properties file
      * due to invalid initial bundle entry.
      */
-    @Test(expectedExceptions = { RuntimeException.class })
+    @Test(expectedExceptions = {RuntimeException.class})
     public void launchConfigWithInvalidInitBundlesTestCase() {
         String launchPropFilePath = Paths
                 .get("src", "test", "resources", "InvalidLauncherFiles", "launcherWithinvalidBundle.properties")

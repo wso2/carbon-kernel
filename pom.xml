@@ -48,7 +48,6 @@
                 <module>launcher</module>
                 <module>core</module>
                 <module>tests</module>
-                <module>modules/transport</module>
                 <module>features</module>
                 <module>tools</module>
                 <module>distribution</module>

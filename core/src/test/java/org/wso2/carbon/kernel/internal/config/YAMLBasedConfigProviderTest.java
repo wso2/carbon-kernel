@@ -49,13 +49,13 @@ public class YAMLBasedConfigProviderTest extends BaseTest {
     @Test(expectedExceptions = RuntimeException.class,
             expectedExceptionsMessageRegExp = "Failed populate CarbonConfiguration from.*")
     public void testGetCarbonConfigurationFailScenario() throws Exception {
-        System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("wrongPath").getAbsolutePath());
+        System.setProperty(Constants.CARBON_HOME, getTestResourceFile("wrongPath").getAbsolutePath());
         CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
     }
 
     @Test(dependsOnMethods = "testGetCarbonConfigurationFailScenario")
     public void testGetCarbonConfiguration() throws Exception {
-        System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("yaml").getAbsolutePath());
+        System.setProperty(Constants.CARBON_HOME, getTestResourceFile("yaml").getAbsolutePath());
 
         CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
 
@@ -73,23 +73,6 @@ public class YAMLBasedConfigProviderTest extends BaseTest {
         // Test for default values
         Assert.assertEquals(deploymentConfig.getUpdateInterval(), 15);
 
-        // Test for system property substitution
-        Assert.assertEquals(deploymentConfig.getRepositoryLocation(),
-                "/home/siripala/wso2carbon-5.0.0/repository/deployment/server/");
         Assert.assertEquals(deploymentConfig.getMode(), DeploymentModeEnum.scheduled);
-    }
-
-    public void testForDefaultValuesInCarbonConfiguration() throws Exception {
-        String backupRepoLocation = System.getProperty(Constants.CARBON_REPOSITORY);
-        System.setProperty(Constants.CARBON_REPOSITORY, getTestResourceFile("yaml").getAbsolutePath());
-        CarbonConfiguration carbonConfiguration = yamlBasedConfigProvider.getCarbonConfiguration();
-
-        Assert.assertEquals(carbonConfiguration.getPortsConfig().getOffset(), 0, "Port offset value should be 0");
-
-        if (backupRepoLocation != null) {
-            System.setProperty(Constants.CARBON_REPOSITORY, backupRepoLocation);
-        } else {
-            System.clearProperty(Constants.CARBON_REPOSITORY);
-        }
     }
 }

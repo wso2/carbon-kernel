@@ -48,7 +48,7 @@ public class JettyCarbonTransport extends CarbonTransport {
 
     public void start() {
         logger.info("Starting Jetty Server..........");
-        String jettyHome = Paths.get(System.getProperty("carbon.repository"), "conf", "jetty").toString();
+        String jettyHome = Paths.get(System.getProperty("carbon.home"), "conf", "jetty").toString();
 
         Server server = new Server();
 

@@ -107,7 +107,7 @@ public class BaseTest {
         System.setProperty("carbon.home", carbonHome.toString());
         try {
             Path launchPropertyFileLocation = Paths.get(testResourceDir, "launch.properties");
-            Path osgiConfLocation = Paths.get(carbonHome.toString(), "repository", "conf", "osgi");
+            Path osgiConfLocation = Paths.get(carbonHome.toString(), "conf", "osgi");
             if (!osgiConfLocation.toFile().exists()) {
                 Files.createDirectories(osgiConfLocation);
                 Files.copy(launchPropertyFileLocation,

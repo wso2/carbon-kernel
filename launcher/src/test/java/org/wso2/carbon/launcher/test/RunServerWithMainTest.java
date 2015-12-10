@@ -34,7 +34,7 @@ public class RunServerWithMainTest extends BaseTest {
     @BeforeClass
     public void init() {
         setupCarbonHome();
-        logFile = new File(Utils.getRepositoryDirectory() + File.separator + "logs" +
+        logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
                 File.separator + "wso2carbon.log");
         logger = BootstrapLogger.getCarbonLogger(CarbonServerStartTest.class.getName());
 

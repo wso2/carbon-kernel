@@ -15,8 +15,6 @@
  */
 package org.wso2.carbon.launcher;
 
-import java.nio.file.Paths;
-
 /**
  * Carbon constants.
  *
@@ -41,10 +39,6 @@ public class Constants {
     public static final String OSGI_CONFIG_AREA = "osgi.configuration.area";
     public static final String OSGI_INSTANCE_AREA = "osgi.instance.area";
     public static final String ECLIPSE_P2_DATA_AREA = "eclipse.p2.data.area";
-
-    public static final String REPOSITORY_DIR_PATH = "repository";
-    public static final String REPOSITORY_CONF_DIR_PATH = Paths.get(REPOSITORY_DIR_PATH, "conf").toString();
-    public static final String LAUNCH_CONF_DIR_PATH = Paths.get(REPOSITORY_CONF_DIR_PATH, "osgi").toString();
 
     public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
 

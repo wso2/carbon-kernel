@@ -98,7 +98,7 @@
                                     <artifactId>org.eclipse.osgi</artifactId>
                                     <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
+                                    <outputDirectory>${basedir}/target/carbon-home/osgi/plugins</outputDirectory>
                                     <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
@@ -106,7 +106,7 @@
                                     <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
                                     <version>${equinox.simpleconfigurator.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/plugins</outputDirectory>
+                                    <outputDirectory>${basedir}/target/carbon-home/osgi/plugins</outputDirectory>
                                     <destFileName>org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar</destFileName>
                                 </artifactItem>
                                 <!-- artifacts for dropins tests -->
@@ -115,7 +115,7 @@
                                     <artifactId>org.eclipse.osgi</artifactId>
                                     <version>${equinox.osgi.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/dropins
+                                    <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
                                     </outputDirectory>
                                     <destFileName>org.eclipse.osgi_${equinox.osgi.version}.jar</destFileName>
                                 </artifactItem>
@@ -124,7 +124,7 @@
                                     <artifactId>org.eclipse.equinox.simpleconfigurator</artifactId>
                                     <version>${equinox.simpleconfigurator.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/dropins
+                                    <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
                                     </outputDirectory>
                                     <destFileName>
                                         org.eclipse.equinox.simpleconfigurator_${equinox.simpleconfigurator.version}.jar
@@ -135,7 +135,7 @@
                                     <artifactId>org.eclipse.equinox.util</artifactId>
                                     <version>${equinox.util.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/dropins
+                                    <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
                                     </outputDirectory>
                                     <destFileName>org.eclipse.equinox.util_${equinox.util.version}.jar</destFileName>
                                 </artifactItem>
@@ -144,7 +144,7 @@
                                     <artifactId>org.eclipse.equinox.launcher</artifactId>
                                     <version>${equinox.launcher.version}</version>
                                     <type>jar</type>
-                                    <outputDirectory>${basedir}/target/carbon-home/repository/components/dropins
+                                    <outputDirectory>${basedir}/target/carbon-home/osgi/dropins
                                     </outputDirectory>
                                     <destFileName>org.eclipse.equinox.launcher_${equinox.launcher.version}.jar
                                     </destFileName>

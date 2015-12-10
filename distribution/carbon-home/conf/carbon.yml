@@ -34,7 +34,7 @@ deployment:
  mode: scheduled
 
 # Location of the artifact repository
- repositoryLocation: ${carbon.home}/repository/deployment/server/
+ repositoryLocation: ${carbon.home}/deployment/
 
 # Deployment update interval in seconds. This is the interval between repository listener
 # executions.
@@ -44,7 +44,7 @@ deployment:
 startupResolver:
 # Configuration for the timer task which checks for satisfiable RequiredCapabilityListeners periodically
  capabilityListenerTimer:
-  delay: 200
+  delay: 20
   period: 20
 
 # Configuration for the timer task which checks for pending Capabilities

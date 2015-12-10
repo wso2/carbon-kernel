@@ -51,7 +51,7 @@ public class DropinsDeployerTest extends BaseTest {
     public void readBundlesInfoToEmptyFile() {
         String carbonHome = System.getProperty("carbon.home");
         Path bundlesInfoParent = Paths
-                .get(carbonHome, "repository", "components", "profiles", "default", "configuration",
+                .get(carbonHome, "osgi", "profiles", "default", "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
         boolean matching = false;
         try {
@@ -79,7 +79,7 @@ public class DropinsDeployerTest extends BaseTest {
     public void readBundlesInfoToNonEmptyFile() {
         String carbonHome = System.getProperty("carbon.home");
         Path bundlesInfoParent = Paths
-                .get(carbonHome, "repository", "components", "profiles", "default", "configuration",
+                .get(carbonHome, "osgi", "profiles", "default", "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
         boolean matching = false;
         try {
@@ -114,7 +114,7 @@ public class DropinsDeployerTest extends BaseTest {
     private void setupDropinsFolderStructure() {
         String carbonHome = System.getProperty("carbon.home");
         try {
-            Path dropinsFolderPath = Paths.get(carbonHome, "repository", "components", "dropins");
+            Path dropinsFolderPath = Paths.get(carbonHome, "osgi", "dropins");
             Files.createDirectories(dropinsFolderPath);
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Could not create dropins folder structure.");
@@ -124,7 +124,7 @@ public class DropinsDeployerTest extends BaseTest {
     private void setupBundlesInfoFile() {
         String carbonHome = System.getProperty("carbon.home");
         Path bundlesInfoParent = Paths
-                .get(carbonHome, "repository", "components", "profiles", "default", "configuration",
+                .get(carbonHome, "osgi", "profiles", "default", "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
         try {
             Files.createDirectories(bundlesInfoParent);
@@ -165,11 +165,11 @@ public class DropinsDeployerTest extends BaseTest {
         String carbonHome = System.getProperty("carbon.home");
         List<Path> deletePaths = new ArrayList<>();
         Path bundlesInfoParent = Paths
-                .get(carbonHome, "repository", "components", "profiles", "default", "configuration",
+                .get(carbonHome, "osgi", "profiles", "default", "configuration",
                         "org.eclipse.equinox.simpleconfigurator");
         deletePaths.add(bundlesInfoParent);
-        deletePaths.add(Paths.get(carbonHome, "repository", "components", "profile", "default", "configuration"));
-        deletePaths.add(Paths.get(carbonHome, "repository", "components", "profile", "default"));
+        deletePaths.add(Paths.get(carbonHome, "osgi", "profile", "default", "configuration"));
+        deletePaths.add(Paths.get(carbonHome, "osgi", "profile", "default"));
 
         deletePaths.forEach(deletePath -> {
             try {

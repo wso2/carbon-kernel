@@ -72,7 +72,7 @@ public class CarbonRuntimeOSGiTest {
         Assert.assertNotNull(carbonConfiguration, "Carbon Configuration is null");
     }
 
-    @Test(dependsOnMethods = { "testCarbonRuntimeService" })
+    @Test(dependsOnMethods = {"testCarbonRuntimeService"})
     public void testCarbonConfiguration() {
 
         CarbonConfiguration carbonConfiguration = getCarbonConfiguration();
@@ -85,8 +85,7 @@ public class CarbonRuntimeOSGiTest {
         Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getMode(),
                 DeploymentModeEnum.fromValue("scheduled"));
         Assert.assertEquals(carbonConfiguration.getDeploymentConfig().getUpdateInterval(), 15);
-        String deploymentPath = Paths.get(System.getProperty("carbon.home"), "repository", "deployment",
-                "server").toString();
+        String deploymentPath = Paths.get(System.getProperty("carbon.home"), "deployment").toString();
         Assert.assertEquals(Paths.get(carbonConfiguration.getDeploymentConfig().getRepositoryLocation()).toString(),
                 deploymentPath);
 
@@ -113,7 +112,7 @@ public class CarbonRuntimeOSGiTest {
         }
         try {
             carbonYmlFilePath = Paths.get(basedir, "src", "test", "resources", "runtime", "carbon.yml");
-            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "repository", "conf",
+            Files.copy(carbonYmlFilePath, Paths.get(System.getProperty("carbon.home"), "conf",
                     "carbon.yml"), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             logger.error("Unable to copy the carbon.yml file", e);

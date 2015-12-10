@@ -188,7 +188,7 @@ public class DeploymentEngine {
 
     /**
      * Returns the repository directory that the deployment engine is registered with.
-     * Eg: CARBON_HOME/repository/deployment/server
+     * Eg: CARBON_HOME/deployment/server
      *
      * @return repository directory
      */

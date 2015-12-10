@@ -47,7 +47,7 @@ public class CarbonSeverLoggerTest extends BaseTest {
     @BeforeSuite
     public void doBeforeEachTest() throws IOException {
         setupCarbonHome();
-        logFile = new File(Utils.getRepositoryDirectory() + File.separator + "logs" +
+        logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
                 File.separator + "wso2carbon.log");
         logger = BootstrapLogger.getCarbonLogger(CarbonServer.class.getName());
     }

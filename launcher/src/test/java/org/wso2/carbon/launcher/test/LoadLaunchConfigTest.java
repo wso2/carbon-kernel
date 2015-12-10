@@ -65,7 +65,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     @BeforeClass
     public void init() {
         setupCarbonHome();
-        logFile = new File(Utils.getRepositoryDirectory() + File.separator + "logs" +
+        logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
                 File.separator + "wso2carbon.log");
         logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
         String profileName = System.getProperty(PROFILE);
@@ -128,7 +128,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     public void loadLaunchConfigOsgiRepoTestCase() throws MalformedURLException {
         //test if property "carbon.osgi.repository" has set according to sample launch.properties file
         URL osgiRepoURL = launchConfig.getCarbonOSGiRepository();
-        Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "repository", "components");
+        Path expectedPath = Paths.get(System.getProperty(Constants.CARBON_HOME), "osgi");
         Assert.assertEquals(osgiRepoURL, expectedPath.toUri().toURL());
     }
 

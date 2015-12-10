@@ -25,10 +25,6 @@
 
     <fileSets>
         <fileSet>
-            <directory>target/repository</directory>
-            <outputDirectory>repository</outputDirectory>
-        </fileSet>
-        <fileSet>
             <directory>carbon-home</directory>
             <outputDirectory></outputDirectory>
             <excludes>
@@ -55,15 +51,10 @@
             <fileMode>755</fileMode>
         </fileSet>
 
-        <!-- copy scripts for embedded database -->
-        <fileSet>
-            <directory>src/scripts</directory>
-            <outputDirectory>resources/dbscripts</outputDirectory>
-        </fileSet>
         <!-- Copying p2 profile and osgi bundles-->
         <fileSet>
             <directory>target/WSO2Carbon</directory>
-            <outputDirectory>repository/components</outputDirectory>
+            <outputDirectory>osgi</outputDirectory>
             <fileMode>644</fileMode>
             <excludes>
                 <exclude>**/eclipse.ini</exclude>
@@ -78,14 +69,14 @@
 
     <files>
         <file>
-            <source>carbon-home/repository/conf/log4j2.xml</source>
-            <outputDirectory>repository/conf</outputDirectory>
+            <source>carbon-home/conf/log4j2.xml</source>
+            <outputDirectory>conf</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/repository/conf/osgi/launch.properties</source>
-            <outputDirectory>repository/conf/osgi</outputDirectory>
+            <source>carbon-home/conf/osgi/launch.properties</source>
+            <outputDirectory>conf/osgi</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
@@ -120,8 +111,8 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/repository/conf/carbon.yml</source>
-            <outputDirectory>repository/conf/</outputDirectory>
+            <source>carbon-home/conf/carbon.yml</source>
+            <outputDirectory>conf/</outputDirectory>
             <fileMode>644</fileMode>
             <filtered>true</filtered>
         </file>
@@ -135,14 +126,14 @@
 
     <dependencySets>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
+            <outputDirectory>bin/bootstrap</outputDirectory>
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.launcher:jar</include>
                 <include>org.osgi:org.osgi.core:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib/tools</outputDirectory>
+            <outputDirectory>bin/bootstrap/tools</outputDirectory>
             <includes>
                 <include>org.wso2.carbon:org.wso2.carbon.tools:jar</include>
             </includes>

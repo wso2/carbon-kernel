@@ -212,26 +212,26 @@ if [ "$jdk_18" = "" ]; then
 fi
 
 CARBON_XBOOTCLASSPATH=""
-for f in "$CARBON_HOME"/lib/xboot/*.jar
+for f in "$CARBON_HOME"/bin/bootstrap/xboot/*.jar
 do
-    if [ "$f" != "$CARBON_HOME/lib/xboot/*.jar" ];then
+    if [ "$f" != "$CARBON_HOME/bin/bootstrap/xboot/*.jar" ];then
         CARBON_XBOOTCLASSPATH="$CARBON_XBOOTCLASSPATH":$f
     fi
 done
 
-JAVA_ENDORSED_DIRS="$CARBON_HOME/lib/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
+JAVA_ENDORSED_DIRS="$CARBON_HOME/bin/bootstrap/endorsed":"$JAVA_HOME/jre/lib/endorsed":"$JAVA_HOME/lib/endorsed"
 
 CARBON_CLASSPATH=""
-if [ -e "$JAVA_HOME/lib/tools.jar" ]; then
+if [ -e "$JAVA_HOME/bin/bootstrap/tools.jar" ]; then
     CARBON_CLASSPATH="$JAVA_HOME/lib/tools.jar"
 fi
-for f in "$CARBON_HOME"/lib/*.jar
+for f in "$CARBON_HOME"/bin/bootstrap/*.jar
 do
-    if [ "$f" != "$CARBON_HOME/bin/*.jar" ];then
+    if [ "$f" != "$CARBON_HOME/bin/bootstrap/*.jar" ];then
         CARBON_CLASSPATH="$CARBON_CLASSPATH":$f
     fi
 done
-for t in "$CARBON_HOME"/lib/commons-lang*.jar
+for t in "$CARBON_HOME"/bin/bootstrap/commons-lang*.jar
 do
     CARBON_CLASSPATH="$CARBON_CLASSPATH":$t
 done
@@ -264,7 +264,7 @@ do
     -Xbootclasspath/a:"$CARBON_XBOOTCLASSPATH" \
     -Xms256m -Xmx1024m \
     -XX:+HeapDumpOnOutOfMemoryError \
-    -XX:HeapDumpPath="$CARBON_HOME/repository/logs/heap-dump.hprof" \
+    -XX:HeapDumpPath="$CARBON_HOME/logs/heap-dump.hprof" \
     $JAVA_OPTS \
     -Dcom.sun.management.jmxremote \
     -classpath "$CARBON_CLASSPATH" \
@@ -273,7 +273,6 @@ do
     -Dcarbon.registry.root=/ \
     -Djava.command="$JAVACMD" \
     -Dcarbon.home="$CARBON_HOME" \
-    -Dcarbon.repository="$CARBON_HOME/repository" \
     -Djava.security.egd=file:/dev/./urandom \
     -Dfile.encoding=UTF8 \
     org.wso2.carbon.launcher.Main $*
