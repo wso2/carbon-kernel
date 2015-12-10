@@ -79,29 +79,35 @@
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.sample.runtime.mss</artifactId>
                 <version>${carbon.kernel.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.sample.runtime.webapp</artifactId>
                 <version>${carbon.kernel.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.sample.runtime.bps</artifactId>
                 <version>${carbon.kernel.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.sample.runtime.jar</artifactId>
                 <version>${carbon.kernel.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.sample.runtime.custom</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.sample.transport.custom2</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.sample.datasource.mgt</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
