@@ -48,7 +48,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -83,7 +82,8 @@ public class RequireCapabilityCoordinator {
 
     private CarbonConfiguration carbonConfiguration;
 
-    private AtomicInteger requiredCapabilityListenerCount = new AtomicInteger(0);
+    private MultiCounter<String> capabilityListenerCounter = new MultiCounter<>();
+
     private MultiCounter<String> capabilityProviderCounter = new MultiCounter<>();
 
     // Holds capability - component-key (CapabilityListener) dependencies. List of component-keys(CapabilityListeners)
@@ -101,8 +101,11 @@ public class RequireCapabilityCoordinator {
     //      2) All the expected capabilities are now availalb.
     private MultiCounter<String> componentKeyCapabilityCounter = new MultiCounter<>();
 
+    private ServiceTracker<Object, Object> capabilityServiceTracker;
+
     private Timer capabilityListenerTimer = new Timer();
-//    private Timer pendingCapabilityTimer = new Timer();
+
+    private Timer pendingCapabilityTimer = new Timer();
 
     /**
      * Process Provide-Capability headers and populate a counter which keep all the expected service counts. Register
@@ -120,10 +123,9 @@ public class RequireCapabilityCoordinator {
             processManifestHeaders(Arrays.asList(bundleContext.getBundles()));
 
             //TODO Syncronize cases
-            //TODO Pending timer
 
             // 2.
-            if (requiredCapabilityListenerCount.get() == 0) {
+            if (capabilityListenerCounter.getKeysWithNonZeroCount().size() == 0) {
                 // There are no registered RequiredCapabilityListener
                 // Clear all the populated maps.
                 capabilityComponentKeyMap = null;
@@ -131,78 +133,115 @@ public class RequireCapabilityCoordinator {
             }
 
             // 3.
-            ServiceTracker<Object, Object> capabilityServiceTracker = getCapabilityServiceTracker();
-            capabilityServiceTracker.open();
+            openCapabilityServiceTracker();
 
             // 4.
-            long capabilityListenerTimerDelay = carbonConfiguration.getStartupResolverConfig().
-                    getCapabilityListenerTimer().getDelay();
-            long capabilityListenerTimerPeriod = carbonConfiguration.getStartupResolverConfig().
-                    getCapabilityListenerTimer().getPeriod();
-
-            capabilityListenerTimer.scheduleAtFixedRate(new TimerTask() {
-
-                @Override
-                public void run() {
-                    if (requiredCapabilityListenerCount.get() == 0 && componentKeyCapabilityListenerMap.size() == 0) {
-                        logger.debug("All the RequiredCapabilityListeners are notified, " +
-                                "therefore cancelling the capabilityListenerTimer");
-                        capabilityListenerTimer.cancel();
-                        return;
-                    }
-
-                    componentKeyCapabilityListenerMap.keySet()
-                            .stream()
-                            .forEach(componentKey -> {
-                                synchronized (componentKey.intern()) {
-                                    if (capabilityProviderCounter.get(componentKey) == 0 &&
-                                            componentKeyCapabilityCounter.get(componentKey) == 0) {
-                                        RequiredCapabilityListener capabilityListener =
-                                                componentKeyCapabilityListenerMap.remove(componentKey);
-                                        logger.debug("Notifying RequiredCapabilityListener: {} since all the " +
-                                                        "required capabilities are available",
-                                                capabilityListener.getClass().getName());
-                                        capabilityListener.onAllRequiredCapabilitiesAvailable();
-                                    }
-                                }
-                            });
-                }
-            }, capabilityListenerTimerDelay, capabilityListenerTimerPeriod);
-
+            scheduleCapabilityListenerTimer();
 
             // 5) Start a timer to track pending service registrations.
-//            pendingCapabilityTimer.scheduleAtFixedRate(new TimerTask() {
-//
-//                @Override
-//                public void run() {
-//
-//                    if (capabilityListenerMap.size() == 0) {
-//                        logger.debug("Cancelling the timer which checks the satisfiable CapabilityListeners");
-//                        capabilityListenerTimer.cancel();
-//
-//                        logger.debug("Cancelling the time which checks pending capabilities");
-//                        pendingCapabilityTimer.cancel();
-//                    }
-//
-//                    capabilityListenerMap.keySet()
-//                            .stream()
-//                            .forEach(capabilityName -> {
-//                                synchronized (capabilityName.intern()) {
-//                                    if (capabilityProviderCounter.get(capabilityName) == 0 &&
-//                                            capabilityCounter.get(capabilityName) > 0) {
-//                                        logger.warn("Waiting on pending capability registration for ({})",
-//                                                capabilityName);
-//                                    } else if (capabilityProviderCounter.get(capabilityName) > 0) {
-//                                        logger.warn("Waiting on pending capability provider registration for ({})",
-//                                                capabilityName);
-//                                    }
-//                                }
-//                            });
-//                }
-//            }, 60000, 30000);
+            schedulePendingCapabilityTimerTask();
+
         } catch (Throwable e) {
             logger.error("Failed to initialize startup resolver. ", e);
         }
+    }
+
+    private void schedulePendingCapabilityTimerTask() {
+        long pendingCapabilityTimerDelay = carbonConfiguration.getStartupResolverConfig().
+                getPendingCapabilityTimer().getDelay();
+        long pendingCapabilityTimerPeriod = carbonConfiguration.getStartupResolverConfig().
+                getPendingCapabilityTimer().getPeriod();
+
+        pendingCapabilityTimer.scheduleAtFixedRate(new TimerTask() {
+
+            @Override
+            public void run() {
+                if (capabilityListenerCounter.getKeysWithNonZeroCount().size() == 0 &&
+                        componentKeyCapabilityListenerMap.size() == 0 &&
+                        capabilityProviderCounter.getKeysWithNonZeroCount().size() == 0) {
+
+                    logger.debug("All the RequiredCapabilityListeners are notified, " +
+                            "therefore cancelling the pendingCapabilityTimer");
+                    pendingCapabilityTimer.cancel();
+                    return;
+                }
+
+                // Check for pending RequiredCapabilityListers
+                List<String> listerListWithNonZeroCount = capabilityListenerCounter.getKeysWithNonZeroCount();
+                if (listerListWithNonZeroCount.size() != 0) {
+                    listerListWithNonZeroCount
+                            .stream()
+                            .forEach(componentKey -> logger.warn("Waiting on pending RequiredCapabilityLister " +
+                                    "registration for component-key: {}", componentKey));
+                }
+
+                // Check for pending CapabilityProviders
+                List<String> providerListWithNonZeroCount = capabilityProviderCounter.getKeysWithNonZeroCount();
+                if (providerListWithNonZeroCount.size() != 0) {
+                    providerListWithNonZeroCount
+                            .stream()
+                            .forEach(capability -> logger.warn("Waiting on pending CapabilityProvider " +
+                                    "registration for capability: {}", capability));
+                }
+
+                // Check for pending capabilities
+                componentKeyCapabilityListenerMap.keySet()
+                        .stream()
+                        .filter(componentKey -> capabilityProviderCounter.get(componentKey) == 0 &&
+                                componentKeyCapabilityCounter.get(componentKey) != 0)
+                        .map(componentKey -> capabilityComponentKeyMap.keySet()
+                                .stream()
+                                .filter(capability -> capabilityComponentKeyMap.get(
+                                        capability).contains(componentKey))
+                                .collect(Collectors.toList()))
+                        .forEach(capabilityList -> capabilityList.forEach(capability ->
+                                logger.warn("Waiting on pending capability registration. " +
+                                        "Capability: {}", capability)));
+            }
+        }, pendingCapabilityTimerDelay, pendingCapabilityTimerPeriod);
+    }
+
+    /**
+     * Schedule a timer task to monitor satisfiable CapabilityListeners.
+     */
+    private void scheduleCapabilityListenerTimer() {
+        long capabilityListenerTimerDelay = carbonConfiguration.getStartupResolverConfig().
+                getCapabilityListenerTimer().getDelay();
+        long capabilityListenerTimerPeriod = carbonConfiguration.getStartupResolverConfig().
+                getCapabilityListenerTimer().getPeriod();
+
+        capabilityListenerTimer.scheduleAtFixedRate(new TimerTask() {
+
+            @Override
+            public void run() {
+                if (capabilityListenerCounter.getKeysWithNonZeroCount().size() == 0 &&
+                        componentKeyCapabilityListenerMap.size() == 0 &&
+                        capabilityProviderCounter.getKeysWithNonZeroCount().size() == 0) {
+
+                    logger.debug("All the RequiredCapabilityListeners are notified, " +
+                            "therefore cancelling the capabilityListenerTimer");
+                    capabilityListenerTimer.cancel();
+                    capabilityServiceTracker.close();
+                    return;
+                }
+
+                componentKeyCapabilityListenerMap.keySet()
+                        .stream()
+                        .forEach(componentKey -> {
+                            synchronized (componentKey.intern()) {
+                                if (capabilityProviderCounter.get(componentKey) == 0 &&
+                                        componentKeyCapabilityCounter.get(componentKey) == 0) {
+                                    RequiredCapabilityListener capabilityListener =
+                                            componentKeyCapabilityListenerMap.remove(componentKey);
+                                    logger.debug("Notifying RequiredCapabilityListener: {} since all the " +
+                                                    "required capabilities are available",
+                                            capabilityListener.getClass().getName());
+                                    capabilityListener.onAllRequiredCapabilitiesAvailable();
+                                }
+                            }
+                        });
+            }
+        }, capabilityListenerTimerDelay, capabilityListenerTimerPeriod);
     }
 
     @Deactivate
@@ -255,7 +294,7 @@ public class RequireCapabilityCoordinator {
                         String capabilityName = getManifestElementAttribute(CAPABILITY_NAME, manifestElement, true);
                         String componentKey = getManifestElementAttribute(COMPONENT_KEY, manifestElement, true);
                         addCapabilityComponetKeyMapping(capabilityName, componentKey);
-                        requiredCapabilityListenerCount.incrementAndGet();
+                        capabilityListenerCounter.incrementAndGet(componentKey);
 
                     } else if (CapabilityProvider.class.getName().equals(objectClassName)) {
                         String capabilityName = getManifestElementAttribute(CAPABILITY_NAME, manifestElement, true);
@@ -365,10 +404,12 @@ public class RequireCapabilityCoordinator {
      *
      * @return {@code ServiceTracker} instance
      */
-    private ServiceTracker<Object, Object> getCapabilityServiceTracker() {
+    private void openCapabilityServiceTracker() {
         BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
         Filter orFilter = getORFilter(new ArrayList<>(capabilityComponentKeyMap.keySet()));
-        return new ServiceTracker<>(bundleContext, orFilter, new CapabilityServiceTrackerCustomizer());
+        capabilityServiceTracker = new ServiceTracker<>(bundleContext, orFilter,
+                new CapabilityServiceTrackerCustomizer());
+        capabilityServiceTracker.open();
     }
 
     /**
@@ -431,7 +472,7 @@ public class RequireCapabilityCoordinator {
                                 "capability-name: {}. component-key: {}", RequiredCapabilityListener.class.getName(),
                         serviceImplClassName, capabilityName, componentKey);
 
-                requiredCapabilityListenerCount.decrementAndGet();
+                capabilityListenerCounter.decrementAndGet(componentKey);
                 componentKeyCapabilityListenerMap.put(componentKey, (RequiredCapabilityListener) serviceObject);
 
             } else if (CapabilityProvider.class.getName().equals(serviceInterfaceClassName)) {
