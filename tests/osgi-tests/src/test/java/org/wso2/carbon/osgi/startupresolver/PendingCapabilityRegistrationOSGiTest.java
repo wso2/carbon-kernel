@@ -67,6 +67,10 @@ public class PendingCapabilityRegistrationOSGiTest {
                         "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.transport.jetty").groupId(
                         "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.transport.custom2").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.sample.datasource.mgt").groupId(
+                        "org.wso2.carbon").versionAsInProject(),
                 mavenBundle().artifactId("org.wso2.carbon.sample.order.resolver").groupId(
                         "org.wso2.carbon").versionAsInProject()
         );
