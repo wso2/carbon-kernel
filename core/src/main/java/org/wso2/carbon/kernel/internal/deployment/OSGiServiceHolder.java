@@ -15,8 +15,6 @@
  */
 package org.wso2.carbon.kernel.internal.deployment;
 
-import org.wso2.carbon.kernel.CarbonRuntime;
-
 /**
  * A singleton data holder pattern class for holding OSGi related service instances that are used within the scope
  * of this bundle. This class is internal to this bundle only.
@@ -27,7 +25,6 @@ public class OSGiServiceHolder {
     private static OSGiServiceHolder instance = new OSGiServiceHolder();
 
     private DeploymentEngine carbonDeploymentEngine;
-    private CarbonRuntime carbonRuntime;
 
     /**
      * This method will return the singleton instance of this holder.
@@ -56,25 +53,5 @@ public class OSGiServiceHolder {
      */
     public void setCarbonDeploymentEngine(DeploymentEngine carbonDeploymentEngine) {
         this.carbonDeploymentEngine = carbonDeploymentEngine;
-    }
-
-    /**
-     * This method used within this bundle (carbon.core) scope to get the currently held carbonRuntime service instance
-     * within this holder.
-     *
-     * @return this will return the carbonRuntime service instance.
-     */
-    public CarbonRuntime getCarbonRuntime() {
-        return carbonRuntime;
-    }
-
-    /**
-     * This method is called by the relevant service component that acquires the carbonRuntime service
-     * instance and will be stored for future look-ups.
-     *
-     * @param carbonRuntime the carbonRuntime to be stored with this holder
-     */
-    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = carbonRuntime;
     }
 }

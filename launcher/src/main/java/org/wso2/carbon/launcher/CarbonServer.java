@@ -21,7 +21,6 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
-import org.osgi.framework.startlevel.BundleStartLevel;
 import org.wso2.carbon.launcher.bootstrap.logging.BootstrapLogger;
 import org.wso2.carbon.launcher.config.CarbonInitialBundle;
 import org.wso2.carbon.launcher.config.CarbonLaunchConfig;
@@ -229,15 +228,17 @@ public class CarbonServer {
      * @throws BundleException
      */
     private void loadInitialBundles(BundleContext bundleContext) throws BundleException {
-        for (CarbonInitialBundle initialBundleInfo : config.getInitialBundles()) {
+        //Setting this property due to an issue with equinox simple configurator where it tries to uninstall bundles
+        //which are loaded from initial bundle list.
+        System.setProperty(Constants.EQUINOX_SIMPLE_CONFIGURATOR_EXCLUSIVE_INSTALLATION, "false");
 
+        for (CarbonInitialBundle initialBundleInfo : config.getInitialBundles()) {
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE, "Loading initial bundle: " + initialBundleInfo.getLocation().toExternalForm() +
                         " with startlevel " + initialBundleInfo.getLevel());
             }
 
             Bundle bundle = bundleContext.installBundle(initialBundleInfo.getLocation().toString());
-            bundle.adapt(BundleStartLevel.class).setStartLevel(initialBundleInfo.getLevel());
             if (initialBundleInfo.shouldStart()) {
                 bundle.start();
             }

@@ -66,9 +66,7 @@ public class LoggingConfiguration {
     public void register(ManagedService managedService)
             throws IllegalStateException, FileNotFoundException {
         if (managedService == null) {
-            throw new IllegalStateException(
-                    "Configuration admin service is not available."
-            );
+            throw new IllegalStateException("Configuration admin service is not available.");
         }
         File configDir = Utils.getCarbonConfigHome().toFile();
         if (!configDir.exists()) {
@@ -86,7 +84,7 @@ public class LoggingConfiguration {
                             + "]", e);
                 }
             }
-            logger.debug("Logging registration configuration completed using config file : {}",
+            logger.debug("Logging configuration registration completed using config file : {}",
                     loggingConfigFile.getAbsolutePath());
         } else {
             throw new FileNotFoundException("Log4J2 configuration file is not found at : " +
