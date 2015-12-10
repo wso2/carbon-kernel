@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Counter implementation which maintains multiple key occurrences. This implementation is thread-safe.
@@ -91,5 +92,18 @@ public class MultiCounter<K> {
      */
     public List<K> getAllKeys() {
         return new ArrayList<>(counterMap.keySet());
+    }
+
+    /**
+     * Returns all the keys with a non-zero count
+     *
+     * @return a list of key with a non-zero count
+     */
+    public List<K> getKeysWithNonZeroCount() {
+        return counterMap.keySet()
+                .stream()
+                .filter(key -> counterMap.get(key).get() != 0)
+                .collect(Collectors.toList());
+
     }
 }
