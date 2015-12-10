@@ -45,10 +45,10 @@ startupResolver:
 # Configuration for the timer task which checks for satisfiable RequiredCapabilityListeners periodically
  capabilityListenerTimer:
   delay: 200
-  period: 200
+  period: 20
 
 # Configuration for the timer task which checks for pending Capabilities
  pendingCapabilityTimer:
-  delay: 60000
+  delay: 30000
   period: 30000
 
