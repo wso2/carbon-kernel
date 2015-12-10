@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.internal.CarbonStartupHandler;
 import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
@@ -220,6 +221,8 @@ public class RequireCapabilityCoordinator {
 
                     logger.debug("All the RequiredCapabilityListeners are notified, " +
                             "therefore cancelling the capabilityListenerTimer");
+                    CarbonStartupHandler.logServerStartupTime();
+                    CarbonStartupHandler.registerCarbonServerInfoService();
                     capabilityListenerTimer.cancel();
                     capabilityServiceTracker.close();
                     return;
