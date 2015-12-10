@@ -24,6 +24,7 @@ import org.wso2.carbon.kernel.deployment.Deployer;
 import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
+import org.wso2.carbon.kernel.internal.DataHolder;
 
 import java.io.File;
 import java.util.List;
@@ -106,7 +107,7 @@ public class DeploymentEngine {
     private void startScheduler() {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
         SchedulerTask schedulerTask = new SchedulerTask(repositoryScanner);
-        CarbonRuntime carbonRuntime = OSGiServiceHolder.getInstance().getCarbonRuntime();
+        CarbonRuntime carbonRuntime = DataHolder.getInstance().getCarbonRuntime();
 
         int interval = 15;
         if (carbonRuntime != null) {

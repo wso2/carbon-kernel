@@ -16,6 +16,7 @@
 package org.wso2.carbon.kernel.internal;
 
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.internal.runtime.RuntimeManager;
 
 /**
@@ -28,6 +29,8 @@ public class DataHolder {
     private BundleContext bundleContext;
 
     private RuntimeManager runtimeManager = null;
+
+    private CarbonRuntime carbonRuntime;
 
     public static DataHolder getInstance() {
         return instance;
@@ -57,5 +60,25 @@ public class DataHolder {
      */
     public void setRuntimeManager(RuntimeManager runtimeManager) {
         this.runtimeManager = runtimeManager;
+    }
+
+    /**
+     * This method used within this bundle (carbon.core) scope to get the currently held carbonRuntime service instance
+     * within this holder.
+     *
+     * @return this will return the carbonRuntime service instance.
+     */
+    public CarbonRuntime getCarbonRuntime() {
+        return carbonRuntime;
+    }
+
+    /**
+     * This method is called by the relevant service component that acquires the carbonRuntime service
+     * instance and will be stored for future look-ups.
+     *
+     * @param carbonRuntime the carbonRuntime to be stored with this holder
+     */
+    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
+        this.carbonRuntime = carbonRuntime;
     }
 }

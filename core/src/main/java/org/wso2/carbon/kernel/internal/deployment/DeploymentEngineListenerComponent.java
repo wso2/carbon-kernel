@@ -25,7 +25,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.deployment.Deployer;
 import org.wso2.carbon.kernel.deployment.DeploymentService;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
@@ -50,7 +49,6 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 public class DeploymentEngineListenerComponent implements RequiredCapabilityListener {
     private static Logger logger = LoggerFactory.getLogger(DeploymentEngineListenerComponent.class);
 
-    private CarbonRuntime carbonRuntime;
     private DeploymentEngine deploymentEngine;
     private ServiceRegistration serviceRegistration;
 
@@ -119,42 +117,42 @@ public class DeploymentEngineListenerComponent implements RequiredCapabilityList
         }
     }
 
-    /**
-     * The is another dependency of DeploymentEngineComponent for CarbonRuntime registrations from other bundles.
-     * This is the bind method that gets called for CarbonRuntime instance registrations that satisfy the policy.
-     *
-     * @param carbonRuntime the carbonRuntime instances that are registered as services.
-     */
-    @Reference(
-            name = "carbon.runtime.service",
-            service = CarbonRuntime.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetCarbonRuntime"
-    )
-    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = carbonRuntime;
-        OSGiServiceHolder.getInstance().setCarbonRuntime(carbonRuntime);
-    }
-
-    /**
-     * This is the unbind method for the above reference that gets called for carbonRuntime instance un-registrations.
-     *
-     * @param carbonRuntime the carbonRuntime instances that are un-registered.
-     */
-    public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = null;
-        OSGiServiceHolder.getInstance().setCarbonRuntime(null);
-    }
+//    /**
+//     * The is another dependency of DeploymentEngineComponent for CarbonRuntime registrations from other bundles.
+//     * This is the bind method that gets called for CarbonRuntime instance registrations that satisfy the policy.
+//     *
+//     * @param carbonRuntime the carbonRuntime instances that are registered as services.
+//     */
+//    @Reference(
+//            name = "carbon.runtime.service",
+//            service = CarbonRuntime.class,
+//            cardinality = ReferenceCardinality.MANDATORY,
+//            policy = ReferencePolicy.DYNAMIC,
+//            unbind = "unsetCarbonRuntime"
+//    )
+//    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
+//        this.carbonRuntime = carbonRuntime;
+//        OSGiServiceHolder.getInstance().setCarbonRuntime(carbonRuntime);
+//    }
+//
+//    /**
+//     * This is the unbind method for the above reference that gets called for carbonRuntime instance un-registrations.
+//     *
+//     * @param carbonRuntime the carbonRuntime instances that are un-registered.
+//     */
+//    public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
+//        this.carbonRuntime = null;
+//        OSGiServiceHolder.getInstance().setCarbonRuntime(null);
+//    }
 
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
         try {
             // Initialize deployment engine and scan it
-            String carbonRepositoryLocation = carbonRuntime.getConfiguration().getDeploymentConfig().
-                    getRepositoryLocation();
+            String carbonRepositoryLocation = DataHolder.getInstance().getCarbonRuntime().getConfiguration().
+                    getDeploymentConfig().getRepositoryLocation();
 
-            logger.debug("Starting Carbon Deployment Engine {}", deploymentEngine);
+            logger.debug("Starting Carbon Deployment Engine");
             deploymentEngine.start(carbonRepositoryLocation);
 
             // Add deployment engine to the data holder for later usages/references of this object
@@ -166,7 +164,7 @@ public class DeploymentEngineListenerComponent implements RequiredCapabilityList
             serviceRegistration = bundleContext.registerService(DeploymentService.class.getName(),
                     deploymentService, null);
 
-            logger.debug("Started Carbon Deployment Engine");
+            logger.debug("Carbon Deployment Engine is successfully started");
         } catch (DeploymentEngineException e) {
             String msg = "Could not initialize carbon deployment engine";
             logger.error(msg, e);

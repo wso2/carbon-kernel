@@ -58,7 +58,12 @@ public class OSGiTestUtils {
 
                 //must install the testng bundle
                 mavenBundle().artifactId("testng").groupId("org.testng").versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.wso2.eclipse.osgi").
+                        versionAsInProject(),
+                mavenBundle().artifactId("pax-logging-api").groupId("org.ops4j.pax.logging").
+                        versionAsInProject(),
+                mavenBundle().artifactId("pax-logging-log4j2").groupId("org.ops4j.pax.logging").
+                        versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.simpleconfigurator").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
                 mavenBundle().artifactId("org.apache.felix.gogo.command").groupId("org.apache.felix").
@@ -105,16 +110,11 @@ public class OSGiTestUtils {
                         groupId("org.wso2.eclipse.equinox").versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.util").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.osgi.services").groupId("org.wso2.eclipse.osgi").
-                        versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.cm").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
-                mavenBundle().artifactId("pax-logging-api").groupId("org.ops4j.pax.logging").
-                        versionAsInProject(),
-                mavenBundle().artifactId("pax-logging-log4j2").groupId("org.ops4j.pax.logging").
-                        versionAsInProject(),
                 mavenBundle().artifactId("snakeyaml").groupId("org.wso2.orbit.org.yaml").
-                        versionAsInProject()
+                        versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon").versionAsInProject()
         );
     }
 

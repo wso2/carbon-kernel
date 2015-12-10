@@ -42,6 +42,9 @@ public class Constants {
 
     public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
 
+    public static final String EQUINOX_SIMPLE_CONFIGURATOR_EXCLUSIVE_INSTALLATION =
+            "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation";
+
     public static final String START_TIME = "wso2carbon.start.time";
 
     //Constants relevant to log level.

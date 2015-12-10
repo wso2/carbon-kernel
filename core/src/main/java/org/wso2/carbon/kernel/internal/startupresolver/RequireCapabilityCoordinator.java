@@ -23,15 +23,12 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
+import org.wso2.carbon.kernel.internal.CarbonStartupHandler;
 import org.wso2.carbon.kernel.internal.DataHolder;
 import org.wso2.carbon.kernel.startupresolver.CapabilityProvider;
 import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
@@ -80,8 +77,6 @@ public class RequireCapabilityCoordinator {
     private static final String DEPENDENT_COMPONENT_KEY = "dependent-component-key";
     private static final String OBJECT_CLASS = "objectClass";
 
-    private CarbonConfiguration carbonConfiguration;
-
     private MultiCounter<String> capabilityListenerCounter = new MultiCounter<>();
 
     private MultiCounter<String> capabilityProviderCounter = new MultiCounter<>();
@@ -106,6 +101,7 @@ public class RequireCapabilityCoordinator {
     private Timer capabilityListenerTimer = new Timer();
 
     private Timer pendingCapabilityTimer = new Timer();
+
 
     /**
      * Process Provide-Capability headers and populate a counter which keep all the expected service counts. Register
@@ -147,6 +143,7 @@ public class RequireCapabilityCoordinator {
     }
 
     private void schedulePendingCapabilityTimerTask() {
+        CarbonConfiguration carbonConfiguration = DataHolder.getInstance().getCarbonRuntime().getConfiguration();
         long pendingCapabilityTimerDelay = carbonConfiguration.getStartupResolverConfig().
                 getPendingCapabilityTimer().getDelay();
         long pendingCapabilityTimerPeriod = carbonConfiguration.getStartupResolverConfig().
@@ -205,6 +202,7 @@ public class RequireCapabilityCoordinator {
      * Schedule a timer task to monitor satisfiable CapabilityListeners.
      */
     private void scheduleCapabilityListenerTimer() {
+        CarbonConfiguration carbonConfiguration = DataHolder.getInstance().getCarbonRuntime().getConfiguration();
         long capabilityListenerTimerDelay = carbonConfiguration.getStartupResolverConfig().
                 getCapabilityListenerTimer().getDelay();
         long capabilityListenerTimerPeriod = carbonConfiguration.getStartupResolverConfig().
@@ -220,6 +218,8 @@ public class RequireCapabilityCoordinator {
 
                     logger.debug("All the RequiredCapabilityListeners are notified, " +
                             "therefore cancelling the capabilityListenerTimer");
+                    CarbonStartupHandler.logServerStartupTime();
+                    CarbonStartupHandler.registerCarbonServerInfoService();
                     capabilityListenerTimer.cancel();
                     capabilityServiceTracker.close();
                     return;
@@ -248,30 +248,6 @@ public class RequireCapabilityCoordinator {
     public void stop(BundleContext bundleContext) throws Exception {
         logger.debug("Deactivating startup resolver component available in bundle {}",
                 bundleContext.getBundle().getSymbolicName());
-    }
-
-    @Reference(
-            name = "carbon.config.service",
-            service = CarbonRuntime.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unRegisterCarbonRuntime"
-    )
-    /**
-     * This method is invoked when the CarbonRuntime OSGi service is registered.
-     * @param carbonRuntime service object
-     */
-    protected void registerCarbonRuntime(CarbonRuntime carbonRuntime) {
-        carbonConfiguration = carbonRuntime.getConfiguration();
-    }
-
-    /**
-     * This method is invoked when the CarbonRuntime OSGi service is unregistered.
-     *
-     * @param carbonRuntime service object
-     */
-    protected void unRegisterCarbonRuntime(CarbonRuntime carbonRuntime) {
-        carbonConfiguration = null;
     }
 
     /**

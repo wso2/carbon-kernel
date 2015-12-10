@@ -21,10 +21,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.wso2.carbon.kernel.CarbonRuntime;
 
 /**
  * This service component is responsible for registering the Carbon kernel command provider.
@@ -39,7 +35,6 @@ import org.wso2.carbon.kernel.CarbonRuntime;
 
 public class CarbonKernelCommandProvider implements CommandProvider {
 
-    private CarbonRuntime carbonRuntime;
     private ServiceRegistration<CommandProvider> serviceRegistration;
 
     @Activate
@@ -52,28 +47,6 @@ public class CarbonKernelCommandProvider implements CommandProvider {
         if (serviceRegistration != null) {
             serviceRegistration.unregister();
         }
-    }
-
-    public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = null;
-    }
-
-    public CarbonRuntime getCarbonRuntime() throws Exception {
-        if (carbonRuntime == null) {
-            throw new Exception("CarbonRuntime instance is not available");
-        }
-        return carbonRuntime;
-    }
-
-    @Reference(
-            name = "carbon.runtime.service",
-            service = CarbonRuntime.class,
-            cardinality = ReferenceCardinality.MANDATORY,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetCarbonRuntime"
-    )
-    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
-        this.carbonRuntime = carbonRuntime;
     }
 
     @Override
