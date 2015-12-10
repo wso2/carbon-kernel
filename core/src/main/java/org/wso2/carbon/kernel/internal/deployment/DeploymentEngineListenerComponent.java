@@ -116,35 +116,7 @@ public class DeploymentEngineListenerComponent implements RequiredCapabilityList
             logger.error("Error while removing deployer from deployment engine", e);
         }
     }
-
-//    /**
-//     * The is another dependency of DeploymentEngineComponent for CarbonRuntime registrations from other bundles.
-//     * This is the bind method that gets called for CarbonRuntime instance registrations that satisfy the policy.
-//     *
-//     * @param carbonRuntime the carbonRuntime instances that are registered as services.
-//     */
-//    @Reference(
-//            name = "carbon.runtime.service",
-//            service = CarbonRuntime.class,
-//            cardinality = ReferenceCardinality.MANDATORY,
-//            policy = ReferencePolicy.DYNAMIC,
-//            unbind = "unsetCarbonRuntime"
-//    )
-//    public void setCarbonRuntime(CarbonRuntime carbonRuntime) {
-//        this.carbonRuntime = carbonRuntime;
-//        OSGiServiceHolder.getInstance().setCarbonRuntime(carbonRuntime);
-//    }
-//
-//    /**
-//     * This is the unbind method for the above reference that gets called for carbonRuntime instance un-registrations.
-//     *
-//     * @param carbonRuntime the carbonRuntime instances that are un-registered.
-//     */
-//    public void unsetCarbonRuntime(CarbonRuntime carbonRuntime) {
-//        this.carbonRuntime = null;
-//        OSGiServiceHolder.getInstance().setCarbonRuntime(null);
-//    }
-
+    
     @Override
     public void onAllRequiredCapabilitiesAvailable() {
         try {
