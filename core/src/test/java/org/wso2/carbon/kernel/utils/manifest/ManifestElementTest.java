@@ -35,7 +35,7 @@ public class ManifestElementTest {
         //Sample header string to create a list of manifest elements.
         String key = "osgi.service;effective:=active;objectClass=\"org.wso2.carbon.kernel.startupresolver." +
                 "RequiredCapabilityListener\";capability-name=\"org.wso2.carbon.sample.transport.mgt.Transport" +
-                "\";component-key=carbon-sample-transport-mgt";
+                "\";component-key=carbon-sample-transport-mgt,abc=org.wso2.carbon";
 
         try {
             ManifestElement[] elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, key);
@@ -55,6 +55,24 @@ public class ManifestElementTest {
         } catch (ManifestElementParserException e) {
             Assert.assertTrue(false);
         }
+    }
+
+    @Test(expectedExceptions = ManifestElementParserException.class)
+    public void testParseHeaderFail() throws ManifestElementParserException {
+        //Sample header string to create a list of manifest elements.
+        String key = "abc=org.wso2.carbon;something:something,";
+        ManifestElement.parseHeader(PROVIDE_CAPABILITY, key);
+    }
+
+    @Test
+    public void testParseHeaderWithDirectives() throws ManifestElementParserException {
+        //Sample header string to create a list of manifest elements.
+        String key = "wireAdmin: cap=osgi.service;objectClass=org.osgi.service.wireadmin.WireAdmin;uses:=\"" +
+                "org.osgi.ser" +
+                "vice.wireadmin\";effective:=active";
+        ManifestElement[] elements = ManifestElement.parseHeader(PROVIDE_CAPABILITY, key);
+        ManifestElement firstElement = elements[0];
+        Assert.assertEquals(firstElement.getDirectives("effective")[0], "active");
     }
 
     @Test
