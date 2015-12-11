@@ -103,10 +103,6 @@
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-service</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-log4j2</artifactId>
         </dependency>
         <dependency>
@@ -123,63 +119,11 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.simpleconfigurator.manipulator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.equinox</groupId>
-            <artifactId>org.eclipse.equinox.p2.publisher</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.contenttype</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.expressions</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.jobs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.filetransfer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.identity</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse</groupId>
-            <artifactId>org.sat4j.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse</groupId>
-            <artifactId>org.sat4j.pb</artifactId>
         </dependency>
         <dependency>
             <groupId>org.wso2.eclipse.osgi</groupId>
             <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
         </dependency>
     </dependencies>
 
@@ -188,7 +132,6 @@
             <plugin>
                 <groupId>org.wso2.carbon.maven</groupId>
                 <artifactId>carbon-feature-plugin</artifactId>
-                <version>${carbon.p2.plugin.version}</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
@@ -260,10 +203,6 @@
                                     <version>${equinox.registry.version}</version>
                                 </bundle>
                                 <bundle>
-                                    <symbolicName>org.eclipse.equinox.security</symbolicName>
-                                    <version>${equinox.security.version}</version>
-                                </bundle>
-                                <bundle>
                                     <symbolicName>org.eclipse.equinox.simpleconfigurator.manipulator</symbolicName>
                                     <version>${equinox.simpleconfigurator.manipulator.version}</version>
                                 </bundle>
@@ -284,52 +223,10 @@
                                     <version>${apache.felix.gogo.shell.version}</version>
                                 </bundle>
                                 <bundle>
-                                    <symbolicName>org.eclipse.core.contenttype</symbolicName>
-                                    <version>${equinox.core.contenttype.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.eclipse.core.expressions</symbolicName>
-                                    <version>${equinox.core.expressions.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.eclipse.core.jobs</symbolicName>
-                                    <version>${equinox.core.jobs.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.eclipse.core.runtime</symbolicName>
-                                    <version>${equinox.core.runtime.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.eclipse.ecf</symbolicName>
-                                    <version>${ecf.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.eclipse.ecf.filetransfer</symbolicName>
-                                    <version>${ecf.filetransfer.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.eclipse.ecf.identity</symbolicName>
-                                    <version>${ecf.identity.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.eclipse.ecf.provider.filetransfer</symbolicName>
-                                    <version>${ecf.provider.filetransfer.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.sat4j.core</symbolicName>
-                                    <version>${sat4j.core.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>org.sat4j.pb</symbolicName>
-                                    <version>${sat4j.pb.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <!--<symbolicName>pax-logging-api</symbolicName>-->
                                     <symbolicName>org.ops4j.pax.logging.pax-logging-api</symbolicName>
                                     <version>${pax.logging.api.version}</version>
                                 </bundle>
                                 <bundle>
-                                    <!--<symbolicName>pax-logging-log4j2</symbolicName>-->
                                     <symbolicName>org.ops4j.pax.logging.pax-logging-log4j2</symbolicName>
                                     <version>${pax.logging.log4j2.version}</version>
                                 </bundle>
@@ -344,10 +241,6 @@
                                 <bundle>
                                     <symbolicName>org.eclipse.osgi.compatibility.state</symbolicName>
                                     <version>${equinox.osgi.compatibility.statre.version}</version>
-                                </bundle>
-                                <bundle>
-                                    <symbolicName>snakeyaml</symbolicName>
-                                    <version>${org.snakeyaml.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

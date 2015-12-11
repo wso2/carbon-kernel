@@ -72,20 +72,6 @@ public class OSGiTestUtils {
                         versionAsInProject(),
                 mavenBundle().artifactId("org.apache.felix.gogo.shell").groupId("org.apache.felix").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.contenttype").groupId("org.wso2.eclipse.core").
-                        versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.expressions").groupId("org.wso2.eclipse.core").
-                        versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.jobs").groupId("org.wso2.eclipse.core").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.core.runtime").groupId("org.wso2.eclipse.core").
-                        versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.ecf").groupId("org.wso2.eclipse.ecf").versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.ecf.filetransfer").groupId("org.wso2.eclipse.ecf").
-                        versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.ecf.identity").groupId("org.wso2.eclipse.ecf").
-                        versionAsInProject(),
-                mavenBundle().artifactId("org.eclipse.ecf.provider.filetransfer").groupId("org.wso2.eclipse.ecf").
-                        versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.app").groupId("org.wso2.eclipse.equinox").
                         versionAsInProject(),
                 mavenBundle().artifactId("org.eclipse.equinox.common").groupId("org.wso2.eclipse.equinox").

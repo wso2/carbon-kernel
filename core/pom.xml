@@ -121,15 +121,13 @@
             org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
         </export.package>
         <import.package>
-            org.eclipse.osgi.util,
+            org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
             org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
-            javax.xml.bind.*;version="${osgi.framework.javax.xml.bind.package.import.version.range}",
             org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
-            org.osgi.service.*;version="${equinox.osgi.services.package.import.version.range}",
             org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-            org.yaml.snakeyaml.*;version="${org.snakeyaml.version.range}"
+            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}"
         </import.package>
         <provide.capability>
             osgi.service;effective:=active;

@@ -90,46 +90,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wso2.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.contenttype</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.expressions</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.jobs</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.core</groupId>
-            <artifactId>org.eclipse.core.runtime</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.filetransfer</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.identity</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.eclipse.ecf</groupId>
-            <artifactId>org.eclipse.ecf.provider.filetransfer</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.app</artifactId>
             <scope>test</scope>
@@ -234,11 +194,6 @@
         <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.ant</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -377,7 +332,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>${maven.surefireplugin.version}</version>
                         <configuration>
                             <systemPropertyVariables>
                                 <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
@@ -418,8 +372,8 @@
                     </plugin>
 
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>${maven.antrunplugin.version}</version>
                         <executions>
                             <execution>
                                 <phase>prepare-package</phase>
@@ -462,7 +416,7 @@
                     <plugin>
                         <groupId>org.ops4j.pax.exam</groupId>
                         <artifactId>maven-paxexam-plugin</artifactId>
-                        <version>${maven.paxexamplugin.version}</version>
+                        <version>${maven.paxexam.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>generate-config</id>
