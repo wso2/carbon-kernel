@@ -20,9 +20,15 @@ import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.Bundle;
 import org.wso2.carbon.ui.util.UIResourceProvider;
 
-import java.net.URL;
-import java.util.*;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class BundleBasedUIResourceProvider implements UIResourceProvider {
 
