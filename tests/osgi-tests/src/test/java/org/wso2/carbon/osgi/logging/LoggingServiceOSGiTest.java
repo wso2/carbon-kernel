@@ -46,8 +46,8 @@ public class LoggingServiceOSGiTest {
 
     @Test
     public void testServerLogStatus() {
-
-        Assert.assertNotNull(logReaderService, "Log reader service is null");
+        Assert.assertNotNull(carbonServerInfo, "Log reader service cannot be null");
+        Assert.assertNotNull(logReaderService, "Log reader service cannot be null");
         Enumeration entries = logReaderService.getLog();
 
         Assert.assertEquals(entries.hasMoreElements(), true, "Log entry count should be greater than zero");
