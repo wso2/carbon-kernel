@@ -224,7 +224,7 @@ public class CachingHandler extends Handler {
      */
     private Cache<RegistryCacheKey, GhostResource> getCache(String cachePath) {
         Cache<RegistryCacheKey, GhostResource> cache;
-        if (cachePath != null && IsSubPathOfMountPaths(cachePath)) {
+        if (cachePath != null && isResourcePathMounted(cachePath)) {
             cache = getDistributedCache();
         } else {
             cache = getLocalCache();
@@ -306,7 +306,7 @@ public class CachingHandler extends Handler {
      *
      * @return      true if path is a subdirectory of mount paths.
      */
-    private boolean IsSubPathOfMountPaths(String path) {
+    private boolean isResourcePathMounted(String path) {
         RegistryContext registryContext = RegistryContext.getBaseInstance();
         List<Mount> mounts = registryContext.getMounts();
         for (Mount mount : mounts) {
