@@ -95,7 +95,7 @@ public class MultiCounter<K> {
     }
 
     /**
-     * Returns all the keys with a non-zero count
+     * Returns all the keys with a non-zero count.
      *
      * @return a list of key with a non-zero count
      */
