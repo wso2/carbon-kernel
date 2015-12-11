@@ -3340,7 +3340,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     protected String[] getRoleListOfUserFromCache(int tenantID, String userName) {
         if (userRolesCache != null) {
-            return userRolesCache.getRolesListOfUser(cacheIdentifier, tenantID, userName);
+            String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+            return userRolesCache.getRolesListOfUser(cacheIdentifier, tenantID, usernameWithDomain);
         }
         return null;
     }
@@ -3361,7 +3362,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      */
     protected void clearUserRolesCache(String userName) {
         if (userRolesCache != null) {
-            userRolesCache.clearCacheEntry(cacheIdentifier, tenantId, userName);
+            String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
+            userRolesCache.clearCacheEntry(cacheIdentifier, tenantId, usernameWithDomain);
         }
         AuthorizationCache authorizationCache = AuthorizationCache.getInstance();
         authorizationCache.clearCacheByUser(tenantId, userName);
@@ -3565,8 +3567,7 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         roleList = UserCoreUtil.combine(internalRoles, Arrays.asList(modifiedExternalRoleList));
 
-        addToUserRolesCache(this.tenantId,
-                UserCoreUtil.addDomainToName(userName, getMyDomainName()), roleList);
+        addToUserRolesCache(this.tenantId, UserCoreUtil.addDomainToName(userName, getMyDomainName()), roleList);
 
         return roleList;
     }
