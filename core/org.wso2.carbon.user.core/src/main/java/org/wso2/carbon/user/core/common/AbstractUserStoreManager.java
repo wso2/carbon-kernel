@@ -2143,13 +2143,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         String[] roles = null;
 
-        try {
-            roles = getRoleListOfUserFromCache(tenantId, userName);
-        } catch (Exception e) {
-            //ignore
-        }
-
-        if (roles != null) {
+        roles = getRoleListOfUserFromCache(tenantId, userName);
+        if (roles != null && roles.length > 0) {
             if (UserCoreUtil.isContain(roleName, roles)) {
                 return true;
             }
@@ -2157,13 +2152,8 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 
         // TODO create new cache for this method
         String modifiedUserName = UserCoreConstants.IS_USER_IN_ROLE_CACHE_IDENTIFIER + userName;
-        try {
-            roles = getRoleListOfUserFromCache(tenantId, modifiedUserName);
-        } catch (Exception e) {
-            //ignore
-        }
-
-        if (roles != null) {
+        roles = getRoleListOfUserFromCache(tenantId, modifiedUserName);
+        if (roles != null && roles.length > 0) {
             if (UserCoreUtil.isContain(roleName, roles)) {
                 return true;
             }
@@ -2460,13 +2450,9 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
         }
 
         // Check whether roles exist in cache
-        try {
-            roleNames = getRoleListOfUserFromCache(this.tenantId, userName);
-            if (roleNames != null) {
-                return roleNames;
-            }
-        } catch (Exception e) {
-            // If not exist in cache, continue
+        roleNames = getRoleListOfUserFromCache(this.tenantId, userName);
+        if (roleNames != null && roleNames.length > 0) {
+            return roleNames;
         }
 
         UserStore userStore = getUserStore(userName);
