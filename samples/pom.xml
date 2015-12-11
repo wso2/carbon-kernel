@@ -10,7 +10,7 @@
 
     <groupId>org.wso2.carbon</groupId>
     <artifactId>samples</artifactId>
-    <version>4.4.3</version>
+    <version>4.4.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Samples</name>
     <description>Carbon kernel sample</description>
@@ -19,8 +19,4 @@
     <modules>
         <module>student-manager</module>
     </modules>
-
-  <scm>
-    <tag>v4.4.3-RC2</tag>
-  </scm>
 </project>
