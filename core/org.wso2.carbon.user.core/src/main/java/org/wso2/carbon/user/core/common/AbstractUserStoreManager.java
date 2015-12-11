@@ -3359,12 +3359,12 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
      * @param userName
      */
     protected void clearUserRolesCache(String userName) {
+        String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
         if (userRolesCache != null) {
-            String usernameWithDomain = UserCoreUtil.addDomainToName(userName, getMyDomainName());
             userRolesCache.clearCacheEntry(cacheIdentifier, tenantId, usernameWithDomain);
         }
         AuthorizationCache authorizationCache = AuthorizationCache.getInstance();
-        authorizationCache.clearCacheByUser(tenantId, userName);
+        authorizationCache.clearCacheByUser(tenantId, usernameWithDomain);
     }
 
     /**
