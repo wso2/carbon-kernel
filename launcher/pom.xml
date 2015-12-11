@@ -28,7 +28,7 @@
     <packaging>jar</packaging>
     <name>WSO2 Carbon Kernel - Launcher</name>
     <description>The main module which launches a carbon instance</description>
-    <url>http://wso2.org</url>
+    <url>http://wso2.com</url>
 
     <dependencies>
         <dependency>
@@ -43,6 +43,7 @@
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>

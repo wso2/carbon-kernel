@@ -26,7 +26,7 @@
     <artifactId>org.wso2.carbon.core.runtime.feature</artifactId>
     <packaging>carbon-feature</packaging>
     <name>WSO2 Carbon Kernel - Carbon Runtime Feature</name>
-    <url>http://wso2.org</url>
+    <url>http://wso2.com</url>
     <description>
         This feature contains the carbon core runtime related bundles and their dependencies
         Eg : (OSGi Runtime, Declarative Service Runtime, Console, etc)

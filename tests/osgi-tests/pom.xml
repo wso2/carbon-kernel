@@ -23,11 +23,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>osgi-tests</artifactId>
+    <artifactId>carbon-kernel-osgi-tests</artifactId>
     <version>5.0.0-SNAPSHOT</version>
     <name>WSO2 Carbon Kernel - OSGi Tests</name>
     <description>OSGi Tests for Carbon Kernel</description>
-    <url>http://wso2.org</url>
+    <url>http://wso2.com</url>
 
     <dependencies>
         <dependency>
@@ -147,6 +147,11 @@
         <dependency>
             <groupId>org.wso2.eclipse.equinox</groupId>
             <artifactId>org.eclipse.equinox.util</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
             <scope>test</scope>
         </dependency>
 

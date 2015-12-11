@@ -26,7 +26,7 @@
     <artifactId>carbon-kernel-tests</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Kernel - Tests</name>
-    <url>http://wso2.org</url>
+    <url>http://wso2.com</url>
 
     <modules>
         <module>test-artifacts</module>

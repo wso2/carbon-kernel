@@ -5,14 +5,14 @@ Installing  WSO2 Carbon Kernel ${carbon.version}
 
 2. All the shell scripts and .bat files are available in CARBON_HOME/bin directory.
 
-3. To start Carbon Server, use wso2server.sh in all *nix system, and wso2server.bat
+3. To start Carbon Server, use carbon.sh in all *nix system, and carbon.bat
    file on Windows operating systems.
 
 4. Either of the following commands can be used to start Carbon
-      i)  ./wso2server.sh 
-     ii)  wso2server.bat 
+      i)  ./carbon.sh
+     ii)  carbon.bat
 
-            Usage: wso2server.sh [command] [system-properties]
+            Usage: carbon.sh [command] [system-properties]
 
             command:
                 --debug <port>  Start the server in remote debugging mode.

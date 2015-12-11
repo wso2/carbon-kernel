@@ -31,8 +31,7 @@
                 <exclude>**/*.sh</exclude>
                 <exclude>**/*.properties</exclude>
                 <exclude>**/native/*</exclude>
-                <exclude>**/wso2carbon-version.txt</exclude>
-                <exclude>**/version.txt</exclude>
+                <exclude>**/kernel-version.txt</exclude>
                 <exclude>**/carbon.yml</exclude>
                 <exclude>**/log4j2.xml</exclude>
                 <exclude>INSTALL.txt</exclude>
@@ -81,12 +80,6 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/bin/wso2carbon-version.txt</source>
-            <outputDirectory>bin/</outputDirectory>
-            <fileMode>644</fileMode>
-            <filtered>true</filtered>
-        </file>
-        <file>
             <source>carbon-home/README.txt</source>
             <outputDirectory></outputDirectory>
             <fileMode>644</fileMode>
@@ -117,7 +110,7 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>carbon-home/bin/version.txt</source>
+            <source>carbon-home/bin/kernel-version.txt</source>
             <outputDirectory>bin/</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>

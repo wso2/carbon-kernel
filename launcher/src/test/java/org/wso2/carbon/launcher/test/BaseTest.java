@@ -114,8 +114,8 @@ public class BaseTest {
                         osgiConfLocation.resolve(launchPropertyFileLocation.getFileName()),
                         StandardCopyOption.REPLACE_EXISTING);
             }
-            Path pidFileLocation = Paths.get(testResourceDir, "wso2carbon.pid");
-            if (!Paths.get(carbonHome.toString(), "wso2carbon.pid").toFile().exists()) {
+            Path pidFileLocation = Paths.get(testResourceDir, "carbon.pid");
+            if (!Paths.get(carbonHome.toString(), "carbon.pid").toFile().exists()) {
                 Files.copy(pidFileLocation, carbonHome.resolve(pidFileLocation.getFileName()),
                         StandardCopyOption.REPLACE_EXISTING);
             }

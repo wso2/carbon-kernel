@@ -37,7 +37,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     public void init() {
         setupCarbonHome();
         logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
-                File.separator + "wso2carbon.log");
+                File.separator + "carbon.log");
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
@@ -70,9 +70,9 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     }
 
     /**
-     * Test if wso2carbon.log has error messages logged for exception in loadCarbonLaunchConfigFromURLTestCase.
+     * Test if carbon.log has error messages logged for exception in loadCarbonLaunchConfigFromURLTestCase.
      *
-     * @throws FileNotFoundException if wso2carbon.log file not exists.
+     * @throws FileNotFoundException if carbon.log file not exists.
      */
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromURLTestCase"})
     public void verifyRuntimeExceptionErrorLogsTestCase() throws FileNotFoundException {
@@ -80,7 +80,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
         String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - "
                 + "Error loading the launch.properties";
         ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(logFile));
-        //test if log records are added to wso2carbon.log
+        //test if log records are added to carbon.log
         boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
         Assert.assertTrue(isContainsInLogs);
     }
@@ -99,9 +99,9 @@ public class LaunchConfigExceptionsTest extends BaseTest {
     }
 
     /**
-     * Test if wso2carbon.log has error messages logged for exception in loadCarbonLaunchConfigFromFaultFileTestCase.
+     * Test if carbon.log has error messages logged for exception in loadCarbonLaunchConfigFromFaultFileTestCase.
      *
-     * @throws FileNotFoundException if wso2carbon.log file not exists.
+     * @throws FileNotFoundException if carbon.log file not exists.
      */
     @Test(dependsOnMethods = {"loadCarbonLaunchConfigFromFaultFileTestCase"})
     public void verifyErrorLogsLoadingPropertiesTestCase() throws FileNotFoundException {
@@ -109,7 +109,7 @@ public class LaunchConfigExceptionsTest extends BaseTest {
         String resultLog = "SEVERE {org.wso2.carbon.launcher.config.CarbonLaunchConfig} - "
                 + "The property osgi.install.area must not be null or empty";
         ArrayList<String> logRecords = getLogsFromTestResource(new FileInputStream(logFile));
-        //test if log records are added to wso2carbon.log
+        //test if log records are added to carbon.log
         boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
         Assert.assertTrue(isContainsInLogs);
     }

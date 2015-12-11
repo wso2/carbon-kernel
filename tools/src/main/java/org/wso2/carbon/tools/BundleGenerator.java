@@ -90,7 +90,7 @@ public class BundleGenerator {
                 logger.log(Level.WARNING, message);
             }
         } else {
-            String message = "Usage: carbonjartobundle.sh/.bat [source] [destination].\nBoth arguments source " +
+            String message = "Usage: jartobundle.sh/.bat [source] [destination].\nBoth arguments source " +
                     "and destination are compulsory.";
             logger.log(Level.SEVERE, message);
         }

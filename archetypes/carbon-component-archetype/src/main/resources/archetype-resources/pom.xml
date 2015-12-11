@@ -34,7 +34,7 @@
         which consumes an OSGi service registered by Carbon Kernel
         and registers another OSGi service
     </description>
-    <url>http://wso2.org</url>
+    <url>http://wso2.com</url>
 
     <dependencies>
         <dependency>

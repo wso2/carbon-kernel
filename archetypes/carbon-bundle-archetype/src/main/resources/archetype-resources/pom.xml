@@ -24,7 +24,7 @@
     <version>${version}</version>
     <packaging>bundle</packaging>
     <name>WSO2 Carbon - Sample OSGi Bundle</name>
-    <url>http://wso2.org</url>
+    <url>http://wso2.com</url>
 
     <dependencies>
         <dependency>

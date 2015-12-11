@@ -26,7 +26,7 @@ public final class Constants {
     public static final String CARBON_HOME_ENV = "CARBON_HOME";
     public static final String CARBON_CONFIG_YAML = "carbon.yml";
 
-    public static final String START_TIME = "wso2carbon.start.time";
+    public static final String START_TIME = "carbon.start.time";
 
     /**
      * Remove default constructor and make it not available to initialize.

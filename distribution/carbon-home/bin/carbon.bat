@@ -50,7 +50,7 @@ if not "%curDrive%" == "%wsasDrive%" %wsasDrive%:
 
 rem find CARBON_HOME if it does not exist due to either an invalid value passed
 rem by the user or the %0 problem on Windows 9x
-if not exist "%CARBON_HOME%\bin\version.txt" goto noServerHome
+if not exist "%CARBON_HOME%\bin\kernel-version.txt" goto noServerHome
 
 goto updateClasspath
 
@@ -101,8 +101,7 @@ goto setupArgs
 rem ----- commandVersion -------------------------------------------------------
 :commandVersion
 shift
-type "%CARBON_HOME%\bin\version.txt"
-type "%CARBON_HOME%\bin\wso2carbon-version.txt"
+type "%CARBON_HOME%\bin\kernel-version.txt"
 goto end
 
 rem ----- commandDebug ---------------------------------------------------------

@@ -28,13 +28,13 @@ import java.util.logging.StreamHandler;
 
 /**
  * Convenience class for configuring java.util.logging to append to
- * wso2carbon.log file.  This could be used for bootstrap logging
+ * carbon.log file.  This could be used for bootstrap logging
  * prior to start of the framework.
  *
  * @since 5.0.0
  */
 public class FileLogHandler extends StreamHandler {
-    private static final String WSO2CARBON_LOG_FILE_NAME = "wso2carbon.log";
+    private static final String CARBON_LOG_FILE_NAME = "carbon.log";
 
     /**
      * Set a log formatter and append to a named file.
@@ -64,7 +64,7 @@ public class FileLogHandler extends StreamHandler {
      */
     private void openLogFile() throws IOException {
         String logFilename = Paths.get(Utils.getCarbonHomeDirectory().toString(),
-                "logs", WSO2CARBON_LOG_FILE_NAME).toString();
+                "logs", CARBON_LOG_FILE_NAME).toString();
         File logfile = new File(logFilename);
         if (!logfile.getParentFile().exists()) {
             try {

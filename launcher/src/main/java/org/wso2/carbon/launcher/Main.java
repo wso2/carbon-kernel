@@ -74,7 +74,7 @@ public class Main {
         // 4) Register a shutdown hook to stop the server
         registerShutdownHook(carbonServer);
 
-        // 5) Write pid to wso2carbon.pid file
+        // 5) Write pid to carbon.pid file
         writePID(System.getProperty(CARBON_HOME));
 
         // 6) Start Carbon server.
@@ -216,11 +216,11 @@ public class Main {
 
         if (pid.length() != 0) {
             try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(Paths.get(carbonHome, "wso2carbon.pid").toString()),
+                    new FileOutputStream(Paths.get(carbonHome, "carbon.pid").toString()),
                     StandardCharsets.UTF_8))) {
                 writer.write(pid);
             } catch (IOException e) {
-                logger.log(Level.WARNING, "Cannot write wso2carbon.pid file");
+                logger.log(Level.WARNING, "Cannot write carbon.pid file");
             }
         }
     }

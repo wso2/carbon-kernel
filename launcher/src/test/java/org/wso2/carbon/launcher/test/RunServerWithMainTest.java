@@ -35,7 +35,7 @@ public class RunServerWithMainTest extends BaseTest {
     public void init() {
         setupCarbonHome();
         logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
-                File.separator + "wso2carbon.log");
+                File.separator + "carbon.log");
         logger = BootstrapLogger.getCarbonLogger(CarbonServerStartTest.class.getName());
 
         String profileName = System.getProperty(PROFILE);
@@ -80,7 +80,7 @@ public class RunServerWithMainTest extends BaseTest {
     private String readPID() {
         BufferedReader br;
         String pid = null;
-        String pidFileName = Paths.get(System.getProperty(Constants.CARBON_HOME), "wso2carbon.pid").toString();
+        String pidFileName = Paths.get(System.getProperty(Constants.CARBON_HOME), "carbon.pid").toString();
         try {
             br = new BufferedReader(new FileReader(pidFileName));
             pid = br.readLine();

@@ -66,7 +66,7 @@ public class LoadLaunchConfigTest extends BaseTest {
     public void init() {
         setupCarbonHome();
         logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
-                File.separator + "wso2carbon.log");
+                File.separator + "carbon.log");
         logger = BootstrapLogger.getCarbonLogger(CarbonLaunchConfig.class.getName());
         String profileName = System.getProperty(PROFILE);
         if (profileName == null || profileName.length() == 0) {
@@ -147,7 +147,7 @@ public class LoadLaunchConfigTest extends BaseTest {
         logger.info(sampleMessage);
         ArrayList<String> logRecords =
                 getLogsFromTestResource(new FileInputStream(logFile));
-        //test if log records are added to wso2carbon.log
+        //test if log records are added to carbon.log
         boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
         Assert.assertTrue(isContainsInLogs);
     }

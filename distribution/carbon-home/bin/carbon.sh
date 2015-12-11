@@ -125,8 +125,8 @@ if [ -z "$JAVA_HOME" ]; then
   exit 1
 fi
 
-if [ -e "$CARBON_HOME/wso2carbon.pid" ]; then
-  PID=`cat "$CARBON_HOME"/wso2carbon.pid`
+if [ -e "$CARBON_HOME/carbon.pid" ]; then
+  PID=`cat "$CARBON_HOME"/carbon.pid`
 fi
 
 # ----- Process the input command ----------------------------------------------
@@ -167,7 +167,7 @@ if [ "$CMD" = "--debug" ]; then
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."
 elif [ "$CMD" = "start" ]; then
-  if [ -e "$CARBON_HOME/wso2carbon.pid" ]; then
+  if [ -e "$CARBON_HOME/carbon.pid" ]; then
     if  ps -p $PID >&- ; then
       echo "Process is already running"
       exit 0
@@ -175,17 +175,17 @@ elif [ "$CMD" = "start" ]; then
   fi
   export CARBON_HOME=$CARBON_HOME
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
+  nohup bash $CARBON_HOME/bin/carbon.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "stop" ]; then
   export CARBON_HOME=$CARBON_HOME
-  kill -term `cat $CARBON_HOME/wso2carbon.pid`
+  kill -term `cat $CARBON_HOME/carbon.pid`
   exit 0
 elif [ "$CMD" = "restart" ]; then
   export CARBON_HOME=$CARBON_HOME
-  kill -term `cat $CARBON_HOME/wso2carbon.pid`
+  kill -term `cat $CARBON_HOME/carbon.pid`
   process_status=0
-  pid=`cat $CARBON_HOME/wso2carbon.pid`
+  pid=`cat $CARBON_HOME/carbon.pid`
   while [ "$process_status" -eq "0" ]
   do
         sleep 1;
@@ -194,13 +194,12 @@ elif [ "$CMD" = "restart" ]; then
   done
 
 # using nohup bash to avoid erros in solaris OS.TODO
-  nohup bash $CARBON_HOME/bin/wso2server.sh $args > /dev/null 2>&1 &
+  nohup bash $CARBON_HOME/bin/carbon.sh $args > /dev/null 2>&1 &
   exit 0
 elif [ "$CMD" = "test" ]; then
     JAVACMD="exec "$JAVACMD""
 elif [ "$CMD" = "version" ]; then
-  cat $CARBON_HOME/bin/version.txt
-  cat $CARBON_HOME/bin/wso2carbon-version.txt
+  cat $CARBON_HOME/bin/kernel-version.txt
   exit 0
 fi
 

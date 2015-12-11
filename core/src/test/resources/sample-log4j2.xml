@@ -17,7 +17,7 @@
 
 <Configuration>
     <Appenders>
-        <File name="CARBON_LOGFILE" fileName="logs/wso2carbon.log">
+        <File name="CARBON_LOGFILE" fileName="logs/carbon.log">
             <PatternLayout pattern="TID: [%d] %5p {%c} - %m {%c}%n"/>
         </File>
         <Console name="CARBON_CONSOLE" target="SYSTEM_OUT">

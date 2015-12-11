@@ -30,7 +30,7 @@
     <description>
         This is the parent for all the Carbon archetypes
     </description>
-    <url>http://wso2.org</url>
+    <url>http://wso2.com</url>
 
     <modules>
         <module>carbon-bundle-archetype</module>

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
- * Test adding info logs in wso2carbon.log file with log handlers in CarbonServer.class.
+ * Test adding info logs in carbon.log file with log handlers in CarbonServer.class.
  *
  * @since 5.0.0
  */
@@ -48,7 +48,7 @@ public class CarbonSeverLoggerTest extends BaseTest {
     public void doBeforeEachTest() throws IOException {
         setupCarbonHome();
         logFile = new File(Utils.getCarbonHomeDirectory() + File.separator + "logs" +
-                File.separator + "wso2carbon.log");
+                File.separator + "carbon.log");
         logger = BootstrapLogger.getCarbonLogger(CarbonServer.class.getName());
     }
 
@@ -61,7 +61,7 @@ public class CarbonSeverLoggerTest extends BaseTest {
         logger.info(sampleMessage);
         ArrayList<String> logRecords =
                 getLogsFromTestResource(new FileInputStream(logFile));
-        //test if log records are added to wso2carbon.log
+        //test if log records are added to carbon.log
         boolean isContainsInLogs = containsLogRecord(logRecords, resultLog);
         Assert.assertTrue(isContainsInLogs);
     }

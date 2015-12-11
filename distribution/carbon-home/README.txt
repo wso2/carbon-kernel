@@ -18,7 +18,7 @@ What's New In This Release
 Installation & Running
 ----------------------
 1. Extract the downloaded zip file.
-2. Run the wso2server.sh or wso2server.bat file in the bin directory.
+2. Run the carbon.sh or carbon.bat file in the bin directory.
 3. You can enable/disable OSGi Console by un-commenting the osgi.console property in
    CARBON_HOME/conf/osgi/launch.properties file.
 4. You can enable OSGi debug logs by un-commenting the osgi.debug property in

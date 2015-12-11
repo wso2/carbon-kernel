@@ -7,13 +7,13 @@ this directory.
 1. README.txt
     - This file
 
-2. version.txt
+2. kernel-version.txt
     - A simple text file used for storing the version
 
-3. wso2server.sh & wso2server.bat
+3. carbon.sh & carbon.bat
     - The main script file used for running the server.
 
-    Usage: wso2server.sh [commands] [system-properties]
+    Usage: carbon.sh [commands] [system-properties]
 
             commands:
                 --debug <port>  Start the server in remote debugging mode.
@@ -35,12 +35,12 @@ this directory.
                                 If the optional 'options-file' is provided, the OSGi
                                 debug options will be loaded from it.
 
-4. carbonjartobundle.sh script
+4. jartobundle.sh script
     - The script file which runs the org.wso2.carbon.jartobundle-tool.jar tool.
 
     - This tool is capable of converting specified jar files to their corresponding OSGi bundles.
 
-    Usage: carbonjartobundle.sh [source] [destination]
+    Usage: jartobundle.sh [source] [destination]
 
         -- source       source jar file/directory path containing jar file(s) to be converted to
                            OSGi bundle(s)

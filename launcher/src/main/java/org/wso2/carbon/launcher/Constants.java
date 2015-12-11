@@ -46,7 +46,7 @@ public class Constants {
     public static final String EQUINOX_SIMPLE_CONFIGURATOR_EXCLUSIVE_INSTALLATION =
             "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation";
 
-    public static final String START_TIME = "wso2carbon.start.time";
+    public static final String START_TIME = "carbon.start.time";
 
     //Constants relevant to log level.
     public static final String LOG_LEVEL_WARN = "WARN";

@@ -22,10 +22,10 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>test-artifacts</artifactId>
+    <artifactId>carbon-kernel-test-artifacts</artifactId>
     <packaging>pom</packaging>
     <name>WSO2 Carbon Kernel - Sample Tests Artifacts</name>
-    <url>http://wso2.org</url>
+    <url>http://wso2.com</url>
 
     <modules>
         <module>startup-coordination</module>
