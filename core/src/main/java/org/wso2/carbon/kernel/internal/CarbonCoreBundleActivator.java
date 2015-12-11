@@ -47,7 +47,8 @@ public class CarbonCoreBundleActivator implements BundleActivator {
             loggingConfiguration.register(configAdminService);
         } else {
             //Configuration admin service is a must to start carbon core.
-            throw new IllegalStateException("Configuration admin service is not available");
+            throw new IllegalStateException("Cannot start carbon core bundle since configuration " +
+                    "admin service is not available");
         }
         // 1) Find to initialize the Carbon configuration provider
         CarbonConfigProvider configProvider = new YAMLBasedConfigProvider();

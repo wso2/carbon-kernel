@@ -25,8 +25,6 @@ public final class Constants {
     //properties relevant to pax logging configuration
     public static final String LOG4J2_CONFIG_FILE_KEY = "org.ops4j.pax.logging.log4j2.config.file";
     public static final String LOG4J2_CONFIG_FILE_NAME = "log4j2.xml";
-    public static final String LOGGING_CONFIG_PID = "org.ops4j.pax.logging";
-    public static final String SERVICE_PID = "service.pid";
 
     /**
      * Remove default constructor and make it not available to initialize.

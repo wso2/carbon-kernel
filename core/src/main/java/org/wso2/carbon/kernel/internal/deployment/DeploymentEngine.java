@@ -129,6 +129,7 @@ public class DeploymentEngine {
         if (deployer == null) {
             throw new DeployerRegistrationException("Failed to add Deployer : Deployer Class Name is null");
         }
+        logger.debug("Registering deployer instance {} with deployment engine", deployer.getClass().getName());
         // Try and initialize the deployer
         deployer.init();
 
@@ -155,6 +156,7 @@ public class DeploymentEngine {
      * @throws DeploymentEngineException Throwing deployment registration exception
      */
     public void unregisterDeployer(Deployer deployer) throws DeploymentEngineException {
+        logger.debug("Un-registering deployer instance {} from deployment engine", deployer.getClass().getName());
         ArtifactType type = deployer.getArtifactType();
         if (type == null) {
             throw new DeploymentEngineException("Artifact Type for Deployer : " + deployer +
@@ -232,6 +234,8 @@ public class DeploymentEngine {
             try {
                 Deployer deployer = getDeployer(artifactToDeploy.getType());
                 if (deployer != null) {
+                    logger.debug("Deploying artifact {} using {} deployer", artifactToDeploy.getName(),
+                            deployer.getClass().getName());
                     Object artifactKey = deployer.deploy(artifactToDeploy);
                     if (artifactKey != null) {
                         artifactToDeploy.setKey(artifactKey);
@@ -261,6 +265,8 @@ public class DeploymentEngine {
             try {
                 Deployer deployer = getDeployer(artifactToUpdate.getType());
                 if (deployer != null) {
+                    logger.debug("Updating artifact {} using {} deployer", artifactToUpdate.getName(),
+                            deployer.getClass().getName());
                     Object artifactKey = deployer.update(artifactToUpdate);
                     if (artifactKey != null) {
                         artifactToUpdate.setKey(artifactKey);
@@ -307,6 +313,8 @@ public class DeploymentEngine {
             try {
                 Deployer deployer = getDeployer(artifactToUnDeploy.getType());
                 if (deployer != null) {
+                    logger.debug("Undeploying artifact {} using {} deployer", artifactToUnDeploy.getName(),
+                            deployer.getClass().getName());
                     deployer.undeploy(artifactToUnDeploy.getKey());
                     removeFromDeployedArtifacts(artifactToUnDeploy);
                 } else {

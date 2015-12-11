@@ -33,7 +33,5 @@
             <AppenderRef ref="CARBON_CONSOLE"/>
             <AppenderRef ref="CARBON_LOGFILE"/>
         </Root>
-        <!--setting fatal level equinox logs to log only the minimum information-->
-        <Logger name="org.eclipse.equinox" level="fatal"/>
     </Loggers>
 </Configuration>

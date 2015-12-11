@@ -47,7 +47,7 @@ import org.wso2.carbon.kernel.startupresolver.RequiredCapabilityListener;
 )
 
 public class DeploymentEngineListenerComponent implements RequiredCapabilityListener {
-    private static Logger logger = LoggerFactory.getLogger(DeploymentEngineListenerComponent.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeploymentEngineListenerComponent.class);
 
     private DeploymentEngine deploymentEngine;
     private ServiceRegistration serviceRegistration;

@@ -38,6 +38,7 @@ import static org.wso2.carbon.launcher.Constants.ExitCodes;
 import static org.wso2.carbon.launcher.Constants.LAUNCH_PROPERTIES_FILE;
 import static org.wso2.carbon.launcher.Constants.LOG_LEVEL_WARN;
 import static org.wso2.carbon.launcher.Constants.PAX_DEFAULT_SERVICE_LOG_LEVEL;
+import static org.wso2.carbon.launcher.Constants.PAX_LOG_SERVICE_RANKING_LEVEL;
 import static org.wso2.carbon.launcher.Constants.PROFILE;
 
 /**
@@ -153,8 +154,9 @@ public class Main {
             System.setProperty(PROFILE, DEFAULT_PROFILE);
         }
 
-        // Set log level for Pax logger to WARN.
+        // Set log level for Pax logger to WARN and log service ranking to maximum value.
         System.setProperty(PAX_DEFAULT_SERVICE_LOG_LEVEL, LOG_LEVEL_WARN);
+        System.setProperty(PAX_LOG_SERVICE_RANKING_LEVEL, String.valueOf(Integer.MAX_VALUE));
     }
 
     /**

@@ -41,6 +41,7 @@ public class Constants {
     public static final String ECLIPSE_P2_DATA_AREA = "eclipse.p2.data.area";
 
     public static final String PAX_DEFAULT_SERVICE_LOG_LEVEL = "org.ops4j.pax.logging.DefaultServiceLog.level";
+    public static final String PAX_LOG_SERVICE_RANKING_LEVEL = "org.ops4j.pax.logging.ranking";
 
     public static final String EQUINOX_SIMPLE_CONFIGURATOR_EXCLUSIVE_INSTALLATION =
             "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation";
