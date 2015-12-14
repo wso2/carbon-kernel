@@ -2067,7 +2067,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
     protected String getNameInSpaceForUserName(String userName, String searchBase, String searchFilter) throws UserStoreException {
         boolean debug = log.isDebugEnabled();
 
-        if(userCache.get(userName) != null) {
+        if (userCache.get(userName) != null) {
             return userCache.get(userName).toString();
         }
 
