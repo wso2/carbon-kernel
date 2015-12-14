@@ -25,6 +25,7 @@ limitations under the License.
             <class name="org.wso2.carbon.osgi.deployment.CarbonDeploymentEngineOSGiTest" />
 
             <class name="org.wso2.carbon.osgi.logging.LoggingConfigurationOSGiTest" />
+            <class name="org.wso2.carbon.osgi.logging.LoggingServiceOSGiTest" />
 
             <class name="org.wso2.carbon.osgi.runtime.CarbonRuntimeOSGiTest" />
             <class name="org.wso2.carbon.osgi.runtime.PluggableRuntimeServiceOSGiTest" />
@@ -33,7 +34,6 @@ limitations under the License.
             <class name="org.wso2.carbon.osgi.transport.TransportServiceOSGiTest" />
             <class name="org.wso2.carbon.osgi.transport.TransportManagerOSGiTest" />
 
-            <class name="org.wso2.carbon.osgi.utils.OSGiTestUtils" />
             <class name="org.wso2.carbon.osgi.utils.manifest.ManifestElementOSGiTest" />
 
             <class name="org.wso2.carbon.osgi.startupresolver.DynamicCapabilityOSGiTest" />

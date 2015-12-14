@@ -24,6 +24,7 @@ import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 import org.wso2.carbon.sample.transport.mgt.TransportManager;
 
@@ -43,6 +44,9 @@ public class DynamicCapabilityOSGiTest {
 
     @Inject
     TransportManager transportManager;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     /**
      * This configuration registers the capability "org.wso2.carbon.sample.transport.mgt.Transport" statically using

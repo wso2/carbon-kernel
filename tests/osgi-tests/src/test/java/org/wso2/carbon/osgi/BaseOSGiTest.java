@@ -23,6 +23,7 @@ import org.osgi.framework.BundleContext;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 
@@ -37,6 +38,9 @@ public class BaseOSGiTest {
 
     @Inject
     private BundleContext bundleContext;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Test
     public void testBundleContextStatus() {

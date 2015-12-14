@@ -23,6 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.runtime.RuntimeService;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 
@@ -40,6 +41,9 @@ public class RuntimeServiceOSGITest {
 
     @Inject
     private RuntimeService runtimeService;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Test
     public void testRuntimeService() {
