@@ -64,7 +64,7 @@ rem ----- update classpath -----------------------------------------------------
 setlocal EnableDelayedExpansion
 cd %CARBON_HOME%
 set CARBON_CLASSPATH=
-FOR %%C in ("%CARBON_HOME%\lib\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\lib\%%~nC%%~xC"
+FOR %%C in ("%CARBON_HOME%\bin\bootstrap\*.jar") DO set CARBON_CLASSPATH=!CARBON_CLASSPATH!;".\bin\bootstrap\%%~nC%%~xC"
 
 set CARBON_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%CARBON_CLASSPATH%;
 
