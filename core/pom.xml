@@ -119,7 +119,7 @@
         <bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
         <private.package>org.wso2.carbon.kernel.internal.*,</private.package>
         <export.package>
-            !org.wso2.carbon.kernel.internal,
+            !org.wso2.carbon.kernel.internal.*,
             org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
         </export.package>
         <import.package>
