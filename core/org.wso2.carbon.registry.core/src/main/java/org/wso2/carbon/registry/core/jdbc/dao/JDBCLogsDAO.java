@@ -386,7 +386,7 @@ public class JDBCLogsDAO implements LogsDAO {
         boolean queryStarted = false;
         sql = addWherePart(resourcePath, queryStarted, sql, userName, from, to, action);
 
-        if (sortOrder != null && sortOrder.equals("ASC")) {
+        if ("ASC".equals(sortOrder)) {
             descending = false;
         }
         if (descending) {
