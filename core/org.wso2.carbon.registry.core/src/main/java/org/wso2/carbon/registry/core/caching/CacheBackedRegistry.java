@@ -21,7 +21,19 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.CarbonConstants;
 import org.wso2.carbon.context.CarbonContext;
 import org.wso2.carbon.registry.api.GhostResource;
-import org.wso2.carbon.registry.core.*;
+import org.wso2.carbon.registry.core.ActionConstants;
+import org.wso2.carbon.registry.core.Aspect;
+import org.wso2.carbon.registry.core.Association;
+import org.wso2.carbon.registry.core.Collection;
+import org.wso2.carbon.registry.core.Comment;
+import org.wso2.carbon.registry.core.LogEntry;
+import org.wso2.carbon.registry.core.LogEntryCollection;
+import org.wso2.carbon.registry.core.Registry;
+import org.wso2.carbon.registry.core.RegistryConstants;
+import org.wso2.carbon.registry.core.Resource;
+import org.wso2.carbon.registry.core.ResourcePath;
+import org.wso2.carbon.registry.core.TaggedResourcePath;
+import org.wso2.carbon.registry.core.Tag;
 import org.wso2.carbon.registry.core.config.DataBaseConfiguration;
 import org.wso2.carbon.registry.core.config.Mount;
 import org.wso2.carbon.registry.core.config.RegistryContext;
@@ -160,8 +172,10 @@ public class CacheBackedRegistry implements Registry {
         
         Resource resource;        
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
-            String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
-                    "read the resource " + path + ".";
+            StringBuilder builder = new StringBuilder();
+            builder.append("User ").append(CurrentSession.getUser()).append(" is not authorized to read the resource ")
+                    .append(path).append(".");
+            String msg = builder.toString();
             audit.warn(msg);
             throw new AuthorizationFailedException(msg);
         }
@@ -248,8 +262,10 @@ public class CacheBackedRegistry implements Registry {
             return registry.get(path, start, pageSize);
         }
         if (!AuthorizationUtils.authorize(path, ActionConstants.GET)) {
-            String msg = "User " + CurrentSession.getUser() + " is not authorized to " +
-                    "read the resource " + path + ".";
+            StringBuilder builder = new StringBuilder();
+            builder.append("User ").append(CurrentSession.getUser()).append(" is not authorized to read the resource ")
+                    .append(path).append(".");
+            String msg = builder.toString();
             audit.warn(msg);
             throw new AuthorizationFailedException(msg);
         }
