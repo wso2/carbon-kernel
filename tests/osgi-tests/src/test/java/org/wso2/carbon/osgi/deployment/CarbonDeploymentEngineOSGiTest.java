@@ -35,6 +35,7 @@ import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
 import org.wso2.carbon.kernel.deployment.exception.DeployerRegistrationException;
 import org.wso2.carbon.kernel.deployment.exception.DeploymentEngineException;
 import org.wso2.carbon.kernel.internal.deployment.DeploymentEngine;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 
 import java.io.IOException;
@@ -70,6 +71,9 @@ public class CarbonDeploymentEngineOSGiTest {
 
     @Inject
     private DeploymentService deploymentService;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     private static String carbonRepo;
     private static String artifactPath;

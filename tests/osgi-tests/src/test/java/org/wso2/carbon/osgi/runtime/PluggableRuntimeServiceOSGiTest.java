@@ -11,6 +11,7 @@ import org.wso2.carbon.kernel.runtime.Runtime;
 import org.wso2.carbon.kernel.runtime.RuntimeService;
 import org.wso2.carbon.kernel.runtime.RuntimeState;
 import org.wso2.carbon.kernel.runtime.exception.RuntimeServiceException;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 
@@ -30,6 +31,9 @@ public class PluggableRuntimeServiceOSGiTest {
 
     @Inject
     RuntimeService runtimeService;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Test
     public void testPulggableRuntimeService() throws RuntimeServiceException {

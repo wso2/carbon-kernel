@@ -10,6 +10,7 @@ import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import javax.inject.Inject;
 
@@ -25,6 +26,9 @@ public class TransportServiceOSGiTest {
 
     @Inject
     BundleContext bundleContext;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Test
     public void testRegisterTransport() {

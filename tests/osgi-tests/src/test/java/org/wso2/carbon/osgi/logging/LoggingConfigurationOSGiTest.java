@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -53,6 +54,9 @@ public class LoggingConfigurationOSGiTest {
     @Inject
     @Filter("(service.pid=org.ops4j.pax.logging)")
     private ManagedService managedService;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     private static String loggingConfigDirectory;
 

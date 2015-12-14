@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.kernel.CarbonRuntime;
 import org.wso2.carbon.kernel.config.model.CarbonConfiguration;
 import org.wso2.carbon.kernel.config.model.DeploymentModeEnum;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 
 import java.io.IOException;
@@ -56,6 +57,9 @@ public class CarbonRuntimeOSGiTest {
 
     @Inject
     private CarbonRuntime carbonRuntime;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
     @Configuration
     public Option[] createConfiguration() {

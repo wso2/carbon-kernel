@@ -24,6 +24,7 @@ import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.utils.CarbonServerInfo;
 import org.wso2.carbon.osgi.utils.OSGiTestUtils;
 import org.wso2.carbon.sample.deployer.mgt.DeployerManager;
 import org.wso2.carbon.sample.runtime.mgt.RuntimeManager;
@@ -52,6 +53,9 @@ public class StartupCoordinatorOSGiTest {
 
     @Inject
     private TransportManager transportManager;
+
+    @Inject
+    private CarbonServerInfo carbonServerInfo;
 
 
     @Configuration
