@@ -111,7 +111,7 @@ public class ConversionTest {
 
     @Test
     public void nonExistentDestinationTest() {
-        Path destination = Paths.get(System.getProperty("java.io.tmpdir"), TestConstants.CHILD_TEST_DIRECTORY_ONE);
+        Path destination = Paths.get(TestConstants.TARGET_FOLDER, TestConstants.CHILD_TEST_DIRECTORY_ONE);
         executeConversion(TestConstants.SAMPLE_JAR_FILE, destination);
         Path jarFilePath = TestConstants.SAMPLE_JAR_FILE.getFileName();
         if (jarFilePath != null) {
@@ -135,7 +135,7 @@ public class ConversionTest {
 
     @Test
     public void convertFromJarToBundleWithNoManifestTest() throws IOException, JarToBundleConverterException {
-        Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
+        Path destination = Paths.get(TestConstants.TARGET_FOLDER);
         BundleGeneratorUtils.convertFromJarToBundle(TestConstants.SAMPLE_JAR_FILE, destination, null, "");
 
         Path jarFilePath = TestConstants.SAMPLE_JAR_FILE.getFileName();
@@ -159,7 +159,7 @@ public class ConversionTest {
 
     @Test
     public void convertJarFileToBundleTest() throws IOException, JarToBundleConverterException {
-        Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
+        Path destination = Paths.get(TestConstants.TARGET_FOLDER);
         executeConversion(TestConstants.SAMPLE_JAR_FILE, destination);
 
         Path jarFilePath = TestConstants.SAMPLE_JAR_FILE.getFileName();
@@ -176,7 +176,7 @@ public class ConversionTest {
 
     @Test
     public void convertDirectoryContentToBundlesTest() throws IOException, JarToBundleConverterException {
-        Path source = Paths.get("target", "test-resources");
+        Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
 
@@ -194,7 +194,7 @@ public class ConversionTest {
 
     @Test
     public void convertToExistingBundleTest() throws IOException, JarToBundleConverterException {
-        Path source = Paths.get("target", "test-resources");
+        Path source = Paths.get(TestConstants.TARGET_FOLDER, "test-resources");
         Path destination = Paths.get(System.getProperty("java.io.tmpdir"));
         executeConversion(source, destination);
         executeConversion(source, destination);
