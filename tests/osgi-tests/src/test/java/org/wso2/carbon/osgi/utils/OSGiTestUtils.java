@@ -43,7 +43,6 @@ public class OSGiTestUtils {
     public static void setupOSGiTestEnvironment() {
         OSGiTestUtils.setCarbonHome();
         OSGiTestUtils.setRequiredSystemProperties();
-        OSGiTestUtils.setupMavenLocalRepo();
         OSGiTestUtils.setStartupTime();
     }
 
@@ -113,16 +112,6 @@ public class OSGiTestUtils {
     public static Option[] getDefaultPaxOptions(Option[] options) {
         return Stream.concat(Arrays.stream(getDefaultPaxOptions()), Arrays.stream(options))
                 .toArray(Option[]::new);
-    }
-
-    /**
-     * setting the maven local repo system property, important when running in jenkins.
-     */
-    private static void setupMavenLocalRepo() {
-        String localRepo = System.getProperty("maven.repo.local");
-        if (localRepo != null && !localRepo.equals("")) {
-            System.setProperty("org.ops4j.pax.url.mvn.localRepository", localRepo);
-        }
     }
 
     /**
