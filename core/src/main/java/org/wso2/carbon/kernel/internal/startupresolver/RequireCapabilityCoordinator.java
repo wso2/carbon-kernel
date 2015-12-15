@@ -76,6 +76,7 @@ public class RequireCapabilityCoordinator {
     private static final String OSGI_SERVICE_HEADER_ELEMENT = "osgi.service";
     private static final String DEPENDENT_COMPONENT_KEY = "dependent-component-key";
     private static final String OBJECT_CLASS = "objectClass";
+    private static final String CAPABILITY_NAME_SPLIT_CHAR = ",";
 
     private MultiCounter<String> capabilityListenerCounter = new MultiCounter<>();
 
@@ -168,7 +169,7 @@ public class RequireCapabilityCoordinator {
                 if (listerListWithNonZeroCount.size() != 0) {
                     listerListWithNonZeroCount
                             .stream()
-                            .forEach(componentKey -> logger.warn("Waiting on pending RequiredCapabilityLister " +
+                            .forEach(componentKey -> logger.warn("Waiting on pending RequiredCapabilityListener " +
                                     "registration for component-key: {}", componentKey));
                 }
 
@@ -267,10 +268,19 @@ public class RequireCapabilityCoordinator {
                     String objectClassName = manifestElement.getAttribute(OBJECT_CLASS);
 
                     if (RequiredCapabilityListener.class.getName().equals(objectClassName)) {
-                        String capabilityName = getManifestElementAttribute(CAPABILITY_NAME, manifestElement, true);
+                        String capabilityNames = getManifestElementAttribute(CAPABILITY_NAME, manifestElement, true);
                         String componentKey = getManifestElementAttribute(COMPONENT_KEY, manifestElement, true);
-                        addCapabilityComponetKeyMapping(capabilityName, componentKey);
+
+                        // Handle multiple component keys
+                        assert capabilityNames != null;
+                        String[] capabilityNameArray = capabilityNames.split(CAPABILITY_NAME_SPLIT_CHAR);
+                        Arrays.asList(capabilityNameArray)
+                                .forEach(capabilityName -> {
+                                    addCapabilityComponetKeyMapping(capabilityName, componentKey);
+                                });
+
                         capabilityListenerCounter.incrementAndGet(componentKey);
+
 
                     } else if (CapabilityProvider.class.getName().equals(objectClassName)) {
                         String capabilityName = getManifestElementAttribute(CAPABILITY_NAME, manifestElement, true);
