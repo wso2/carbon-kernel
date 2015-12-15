@@ -30,13 +30,14 @@ public class TestConstants {
     protected static final String CHILD_TEST_FILE_ONE = "sampleOne.txt";
     protected static final String CHILD_TEST_FILE_TWO = "sampleTwo.txt";
     protected static final String CHILD_TEST_DIRECTORY_ONE = "sampleOne";
+    protected static final String TARGET_FOLDER = "target";
 
     protected static final String BUNDLE_SYMBOLIC_NAME = "Bundle-SymbolicName";
     protected static final String EXPORT_PACKAGE = "Export-Package";
     protected static final String IMPORT_PACKAGE = "DynamicImport-Package";
 
     protected static final Path SAMPLE_JAR_FILE = Paths
-            .get("target", "test-resources", "tools-test-artifact.jar");
+                .get(TARGET_FOLDER, "test-resources", "tools-test-artifact.jar");
 
     /**
      * A constructor which prevents instantiating the TestConstants class.
