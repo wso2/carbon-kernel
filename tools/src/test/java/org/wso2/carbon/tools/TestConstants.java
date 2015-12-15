@@ -37,7 +37,7 @@ public class TestConstants {
     protected static final String IMPORT_PACKAGE = "DynamicImport-Package";
 
     protected static final Path SAMPLE_JAR_FILE = Paths
-                .get(TARGET_FOLDER, "test-resources", "tools-test-artifact.jar");
+                .get(TARGET_FOLDER, "test-resources", "tool-test-artifact.jar");
 
     /**
      * A constructor which prevents instantiating the TestConstants class.

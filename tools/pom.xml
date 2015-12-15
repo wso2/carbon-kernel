@@ -109,7 +109,7 @@
                                     <artifactId>tool-test-artifact</artifactId>
                                     <type>jar</type>
                                     <outputDirectory>${project.build.directory}/test-resources</outputDirectory>
-                                    <destFileName>tools-test-artifact.jar</destFileName>
+                                    <destFileName>tool-test-artifact.jar</destFileName>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>mysql</groupId>
