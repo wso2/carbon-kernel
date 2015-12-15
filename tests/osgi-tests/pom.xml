@@ -433,6 +433,9 @@
                                 <goals>
                                     <goal>generate-depends-file</goal>
                                 </goals>
+                                <configuration>
+                                    <argLine>-Dorg.ops4j.pax.url.mvn.localRepository=${maven.repo.local}</argLine>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
