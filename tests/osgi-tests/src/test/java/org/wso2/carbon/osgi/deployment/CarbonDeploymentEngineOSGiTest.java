@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
+import org.wso2.carbon.kernel.deployment.ArtifactType;
 import org.wso2.carbon.kernel.deployment.Deployer;
 import org.wso2.carbon.kernel.deployment.DeploymentService;
 import org.wso2.carbon.kernel.deployment.exception.CarbonDeploymentException;
@@ -112,43 +113,37 @@ public class CarbonDeploymentEngineOSGiTest {
         bundleContext.registerService(Deployer.class.getName(), customDeployer, null);
         //undeploy
         try {
+            deploymentService.undeploy(artifactPath, new ArtifactType<>("unknown"));
+        } catch (CarbonDeploymentException e) {
+            Assert.assertTrue(e.getMessage().contains("Unknown artifactType"));
+        }
+        try {
+            deploymentService.undeploy("fake.path", customDeployer.getArtifactType());
+        } catch (CarbonDeploymentException e) {
+            Assert.assertEquals(e.getMessage(), "Cannot find artifact with key : fake.path to undeploy");
+        }
+        try {
             deploymentService.undeploy(artifactPath, customDeployer.getArtifactType());
         } catch (CarbonDeploymentException e) {
             Assert.assertEquals(e.getMessage(), "Cannot find artifact with key : " + artifactPath + " to undeploy");
         }
         //deploy
+        try {
+            deploymentService.deploy("fake.path", customDeployer.getArtifactType());
+        } catch (CarbonDeploymentException e) {
+            Assert.assertTrue(e.getMessage().contains("Error wile copying artifact"));
+        }
+        try {
+            deploymentService.deploy(artifactPath, new ArtifactType<>("unknown"));
+        } catch (CarbonDeploymentException e) {
+            Assert.assertTrue(e.getMessage().contains("Unknown artifactType"));
+        }
         deploymentService.deploy(artifactPath, customDeployer.getArtifactType());
 
         //redeploy - this does not do anything for the moment.
         deploymentService.redeploy(artifactPath, customDeployer.getArtifactType());
     }
 
-
-//    @Test(dependsOnMethods = {"testDeploymentService"})
-//    public void testDeploymentEngine() throws DeploymentEngineException, InvalidSyntaxException,
-//            CarbonDeploymentException, DeployerRegistrationException {
-//        DeploymentEngine deploymentEngine = new DeploymentEngine();
-//        deploymentEngine.start(carbonRepo);
-//        CustomDeploymentService customDeploymentService = new CustomDeploymentService(deploymentEngine);
-//        Dictionary<String, String> properties = new Hashtable<>();
-//        properties.put("ServiceType", "Custom");
-//
-//        ServiceRegistration serviceRegistration = bundleContext.registerService(DeploymentService.class,
-//                customDeploymentService, properties);
-//
-//        String filter = "(ServiceType=Custom)";
-//        ServiceReference<?>[] references = bundleContext.getServiceReferences(DeploymentService.class.getName(),
-//                filter);
-//        Assert.assertNotNull(references, "Custom Deployment Service Reference is null");
-//
-//        CustomDeployer customDeployer = new CustomDeployer();
-//        deploymentEngine.registerDeployer(customDeployer);
-//        //deploy
-//        customDeploymentService.deploy(artifactPath, customDeployer.getArtifactType());
-//        //un-register
-//        deploymentEngine.unregisterDeployer(customDeployer);
-//        serviceRegistration.unregister();
-//    }
 
     /**
      * Replace the existing carbon.yml file with populated carbon.yml file.
