@@ -44,6 +44,7 @@
         <module>org.wso2.carbon.sample.dbs.deployer</module>
         <module>org.wso2.carbon.sample.order.resolver</module>
         <module>org.wso2.carbon.sample.datasource.mgt</module>
+        <module>org.wso2.carbon.sample.repository.mgt</module>
     </modules>
 
 </project>
