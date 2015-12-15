@@ -22,7 +22,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>carbon-kernel-tools-test-artifact</artifactId>
+    <artifactId>tool-test-artifact</artifactId>
     <packaging>jar</packaging>
     <name>WSO2 Carbon Kernel - Test Artifacts for Tools</name>
     <description>
