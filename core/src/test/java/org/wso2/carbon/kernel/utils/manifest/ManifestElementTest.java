@@ -34,7 +34,8 @@ public class ManifestElementTest {
     public void testParseHeader() {
         //Sample header string to create a list of manifest elements.
         String key = "osgi.service;effective:=active;objectClass=\"org.wso2.carbon.kernel.startupresolver." +
-                "RequiredCapabilityListener\";capability-name=\"org.wso2.carbon.sample.transport.mgt.Transport" +
+                "RequiredCapabilityListener\";capability-name=\"org.wso2.carbon.sample.transport.mgt.Transport," +
+                "org.wso2.carbon.sample.runtime.mgt.Runtime" +
                 "\";component-key=carbon-sample-transport-mgt,abc=org.wso2.carbon";
 
         try {
