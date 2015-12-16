@@ -71,12 +71,11 @@
             <class name="org.wso2.carbon.integration.tests.encryption.SymmetricEncryptionTestCase"/>
         </classes>
     </test>
-    <!-- TODO: need to address the get Context exception in automation framework, until then commenting the test case
+
     <test name="logging-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.wso2.carbon.integration.tests.logging.LoggingWithUUIDTestCase"/>
         </classes>
     </test>
-    -->
 
 </suite>
