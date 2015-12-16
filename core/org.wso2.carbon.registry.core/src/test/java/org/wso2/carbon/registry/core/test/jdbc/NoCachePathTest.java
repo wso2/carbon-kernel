@@ -71,10 +71,9 @@ public class NoCachePathTest extends BaseTestCase {
         registryContext.registerNoCachePath(path);
         assertTrue("Path is not added as a no cache path", registryContext.isNoCachePath(path));
 
+        // Removes the resource path from no cache path list.
         registryContext.removeNoCachePath(path);
         assertFalse("Path is not removed from no cache path", registryContext.isNoCachePath(path));
-
     }
-
 }
 
