@@ -37,6 +37,10 @@ import org.wso2.carbon.user.core.util.DatabaseUtil;
 import org.wso2.carbon.user.core.util.UserCoreUtil;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,6 +70,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private String cacheIdentifier;
     private int tenantId;
     private String isCascadeDeleteEnabled;
+    private static final ThreadLocal<Boolean> isSecureCall = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return Boolean.FALSE;
+        }
+    };
 
     public JDBCAuthorizationManager(RealmConfiguration realmConfig, Map<String, Object> properties,
                                     ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm,
@@ -117,6 +127,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public boolean isRoleAuthorized(String roleName, String resourceId, String action) throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            Object object = callSecure("isRoleAuthorized", new Object[]{roleName, resourceId, action}, argTypes);
+            return (Boolean) object;
+        }
+
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
             if (!listener.isRoleAuthorized(roleName, resourceId, action, this)) {
@@ -141,6 +157,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public boolean isUserAuthorized(String userName, String resourceId, String action)
             throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            Object object = callSecure("isUserAuthorized", new Object[]{userName, resourceId, action}, argTypes);
+            return (Boolean) object;
+        }
 
         if (CarbonConstants.REGISTRY_SYSTEM_USERNAME.equals(userName)) {
             return true;
@@ -276,6 +298,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public String[] getAllowedRolesForResource(String resourceId, String action)
             throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getAllowedRolesForResource", new Object[]{resourceId, action}, argTypes);
+            return (String[]) object;
+        }
+
         TreeNode.Permission permission = PermissionTreeUtil.actionToPermission(action);
         permissionTree.updatePermissionTree();
         SearchResult sr =
@@ -297,6 +325,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public String[] getExplicitlyAllowedUsersForResource(String resourceId, String action)
             throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getExplicitlyAllowedUsersForResource", new Object[]{resourceId, action}, argTypes);
+            return (String[]) object;
+        }
 
         TreeNode.Permission permission = PermissionTreeUtil.actionToPermission(action);
         permissionTree.updatePermissionTree();
@@ -320,6 +354,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public String[] getDeniedRolesForResource(String resourceId, String action)
             throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getDeniedRolesForResource", new Object[]{resourceId, action}, argTypes);
+            return (String[]) object;
+        }
+
         TreeNode.Permission permission = PermissionTreeUtil.actionToPermission(action);
         permissionTree.updatePermissionTree();
         SearchResult sr =
@@ -332,6 +372,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public String[] getExplicitlyDeniedUsersForResource(String resourceId, String action)
             throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getExplicitlyDeniedUsersForResource", new Object[]{resourceId, action},
+                    argTypes);
+            return (String[]) object;
+        }
 
         TreeNode.Permission permission = PermissionTreeUtil.actionToPermission(action);
         permissionTree.updatePermissionTree();
@@ -1119,5 +1166,50 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
         return roles;
     }
 
+    /**
+     * This method is used by the APIs' in the JDBCAuthorizationManager
+     * to make compatible with Java Security Manager.
+     */
+    private Object callSecure(final String methodName, final Object[] objects, final Class[] argTypes)
+            throws UserStoreException {
+
+        final JDBCAuthorizationManager instance = this;
+
+        isSecureCall.set(Boolean.TRUE);
+        final Method method;
+        try {
+            Class clazz = Class.forName("org.wso2.carbon.user.core.authorization.JDBCAuthorizationManager");
+            method = clazz.getDeclaredMethod(methodName, argTypes);
+
+        } catch (NoSuchMethodException e) {
+            log.error("Error occurred when calling method " + methodName, e);
+            throw new UserStoreException(e);
+        } catch (ClassNotFoundException e) {
+            log.error("Error occurred when calling class " + methodName, e);
+            throw new UserStoreException(e);
+        }
+
+        try {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                @Override
+                public Object run() throws Exception {
+                    return method.invoke(instance, objects);
+                }
+            });
+        } catch (PrivilegedActionException e) {
+            if (e.getCause() != null && e.getCause().getCause() != null && e.getCause().getCause() instanceof
+                    UserStoreException) {
+                // Actual UserStoreException get wrapped with two exceptions
+                throw new UserStoreException(e.getCause().getCause().getMessage(), e);
+
+            } else {
+                String msg = "Error occurred while accessing Java Security Manager Privilege Block";
+                log.error(msg);
+                throw new UserStoreException(msg, e);
+            }
+        } finally {
+            isSecureCall.set(Boolean.FALSE);
+        }
+    }
 
 }
