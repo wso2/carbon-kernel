@@ -185,7 +185,7 @@ public class RequireCapabilityCoordinator {
                 // Check for pending capabilities
                 componentKeyCapabilityListenerMap.keySet()
                         .stream()
-                        .filter(componentKey -> capabilityProviderCounter.get(componentKey) == 0 &&
+                        .filter(componentKey -> getPendingCapabilityProviderCount(componentKey) == 0 &&
                                 componentKeyCapabilityCounter.get(componentKey) != 0)
                         .map(componentKey -> capabilityComponentKeyMap.keySet()
                                 .stream()
@@ -230,7 +230,7 @@ public class RequireCapabilityCoordinator {
                         .stream()
                         .forEach(componentKey -> {
                             synchronized (componentKey.intern()) {
-                                if (capabilityProviderCounter.get(componentKey) == 0 &&
+                                if (getPendingCapabilityProviderCount(componentKey) == 0 &&
                                         componentKeyCapabilityCounter.get(componentKey) == 0) {
                                     RequiredCapabilityListener capabilityListener =
                                             componentKeyCapabilityListenerMap.remove(componentKey);
@@ -243,6 +243,22 @@ public class RequireCapabilityCoordinator {
                         });
             }
         }, capabilityListenerTimerDelay, capabilityListenerTimerPeriod);
+    }
+
+    /**
+     * Calculates the count of pending capability provider for a given component-key using CapabilityProviderCounter.
+     *
+     * @param componentKey the component-key to check the pending capability provider.
+     * @return capability provider count.
+     */
+    private int getPendingCapabilityProviderCount(String componentKey) {
+        int i = capabilityComponentKeyMap.keySet()
+                .stream()
+                .filter(capabilityName -> capabilityComponentKeyMap.get(capabilityName).contains(componentKey))
+                .mapToInt(capabilityProviderCounter::get)
+                .sum();
+        logger.debug("Capability provider count for ComponentKey : {} is : {}", componentKey, i);
+        return i;
     }
 
     @Deactivate
@@ -278,10 +294,9 @@ public class RequireCapabilityCoordinator {
                                 .forEach(capabilityName -> {
                                     addCapabilityComponetKeyMapping(capabilityName, componentKey);
                                 });
-
+                        logger.debug("Adding RequiredCapabilityListener with the ComponentKey - {} and " +
+                                "CapabilityNames - {} from ManifestHeader entry", componentKey, capabilityNames);
                         capabilityListenerCounter.incrementAndGet(componentKey);
-
-
                     } else if (CapabilityProvider.class.getName().equals(objectClassName)) {
                         String capabilityName = getManifestElementAttribute(CAPABILITY_NAME, manifestElement, true);
                         String dependentComponentKey = getManifestElementAttribute(
@@ -289,12 +304,14 @@ public class RequireCapabilityCoordinator {
                         if (dependentComponentKey != null) {
                             addCapabilityComponetKeyMapping(capabilityName, dependentComponentKey);
                         }
+                        logger.debug("Adding CapabilityProvider with the CapabilityName {} from ManifestHeader entry",
+                                capabilityName);
                         capabilityProviderCounter.incrementAndGet(capabilityName);
-
                     } else if (manifestElement.getAttribute(DEPENDENT_COMPONENT_KEY) != null) {
                         // objectClass is the capabilityName here.
                         String dependentComponentKey = getManifestElementAttribute(
                                 DEPENDENT_COMPONENT_KEY, manifestElement, false);
+                        logger.debug("Adding Capability from ManifestHeader entry - {}", objectClassName);
                         addCapabilityComponetKeyMapping(objectClassName, dependentComponentKey);
                     }
                 });
