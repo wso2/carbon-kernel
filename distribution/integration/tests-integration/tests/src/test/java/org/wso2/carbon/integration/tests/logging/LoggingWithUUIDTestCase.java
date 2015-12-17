@@ -24,13 +24,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.carbon.automation.engine.FrameworkConstants;
 import org.wso2.carbon.automation.engine.context.AutomationContext;
-import org.wso2.carbon.automation.engine.context.TestUserMode;
 import org.wso2.carbon.automation.engine.exceptions.AutomationFrameworkException;
-import org.wso2.carbon.automation.extensions.servers.carbonserver.TestServerManager;
-import org.wso2.carbon.automation.extensions.servers.utils.ClientConnectionUtil;
+import org.wso2.carbon.automation.extensions.servers.carbonserver.CarbonServerManager;
 import org.wso2.carbon.automation.extensions.servers.utils.FileManipulator;
 import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationBaseTest;
-import org.wso2.carbon.integration.tests.common.utils.CarbonIntegrationConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -49,29 +47,31 @@ import javax.xml.xpath.XPathExpressionException;
  */
 public class LoggingWithUUIDTestCase extends CarbonIntegrationBaseTest {
 
-    private TestServerManager serverManager;
+    private CarbonServerManager carbonServerManager;
     private String carbonHome;
     private int portOffset = 29;
     private AutomationContext context;
 
     @BeforeClass
     public void setup() throws XPathExpressionException, IOException, AutomationFrameworkException {
-        context = new AutomationContext(CarbonIntegrationConstants.PRODUCT_GROUP, TestUserMode.SUPER_TENANT_ADMIN);
+        super.init();
+        context = new AutomationContext();
 
-        HashMap<String, String> startUpParameterMap = new HashMap<>();
-        startUpParameterMap.put("-DportOffset", String.valueOf(portOffset));
+        carbonServerManager = new CarbonServerManager(context);
 
-        serverManager = new TestServerManager(context, System.getProperty("carbon.zip"), startUpParameterMap);
+        String carbonZipLocation = System.getProperty("carbon.zip");
+        carbonHome = carbonServerManager.setUpCarbonHome(carbonZipLocation);
 
         File log4JPropertiesSrcFile = Paths.get(
                 System.getProperty(FrameworkConstants.SYSTEM_ARTIFACT_RESOURCE_LOCATION),
                 "log4j", "loggingWithUUID", "log4j.properties").toFile();
-        serverManager.startServer();
-        carbonHome = serverManager.getCarbonHome();
         File log4JPropertiesTargetFile = Paths.get(carbonHome, "repository", "conf", "log4j.properties").toFile();
-
         FileManipulator.copyFile(log4JPropertiesSrcFile, log4JPropertiesTargetFile);
-        restartServer();
+
+        Map<String, String> startupOptions = new HashMap<>();
+        startupOptions.put("-DportOffset", String.valueOf(portOffset));
+
+        carbonServerManager.startServerUsingCarbonHome(carbonHome, startupOptions);
     }
 
     @Test(groups = "org.wso2.carbon.logging", description = "read the last line of wso2carbon.log file and " +
@@ -93,18 +93,7 @@ public class LoggingWithUUIDTestCase extends CarbonIntegrationBaseTest {
 
     @AfterClass
     public void destroy() throws AutomationFrameworkException {
-        if (serverManager != null) {
-            serverManager.stopServer();
-        }
-    }
-
-
-    private void restartServer() throws AutomationFrameworkException, XPathExpressionException {
-        serverManager.restartGracefully();
-        ClientConnectionUtil
-                .waitForPort(Integer.parseInt(FrameworkConstants.SERVER_DEFAULT_HTTPS_PORT) + portOffset, 5 * 60000,
-                             true, context.getInstance().getHosts().get("default"));
-
+        carbonServerManager.serverShutdown(portOffset);
     }
 
     private String getLastLineOfCarbonLog() {
