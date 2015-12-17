@@ -7,12 +7,15 @@ WSO2 Carbon Kernel 5.0.0 is the core of the next-generation WSO2 Carbon platform
 The WSO2 Carbon Kernel includes the following key features. For further details please see the [documentation](https://docs.wso2.com/display/Carbon500).
 
 ### Key Features
-Transport Management Framework
-Logging Framework with Log4j 2.0 as the Backend
-Carbon Startup Order Resolver
-Dropins Support for OSGi Ready Bundles
-Jar to Bundle Conversion Tool
-Pluggable Runtime Support
+* Transport Management Framework
+* Logging Framework with Log4j 2.0 as the Backend
+* Carbon Startup Order Resolver
+* Dropins Support for OSGi Ready Bundles
+* Jar to Bundle Conversion Tool
+* Pluggable Runtime Support
+* Carbon Launcher Framework
+* Pax Exam OSGi Test Framework Support
+* Artifact Deployment Framework
 
 ### How To Contribute
 * Please report issues at [WSO2 JIRA](https://wso2.org/jira/browse/Carbon).
