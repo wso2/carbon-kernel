@@ -46,11 +46,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class JDBCAuthorizationManager implements AuthorizationManager {
 
@@ -393,6 +390,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public String[] getAllowedUIResourcesForUser(String userName, String permissionRootPath)
             throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            Object object = callSecure("getAllowedUIResourcesForUser", new Object[]{userName, permissionRootPath},
+                    argTypes);
+            return (String[]) object;
+        }
+
         if (verifyByRetrievingAllUserRoles) {
 
             List<String> lstPermissions = new ArrayList<String>();
@@ -438,6 +442,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void authorizeRole(String roleName, String resourceId, String action)
             throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            callSecure("authorizeRole", new Object[]{roleName, resourceId, action},
+                    argTypes);
+            return;
+        }
+
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
             if (!listener.authorizeRole(roleName, resourceId, action, this)) {
@@ -454,6 +465,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void denyRole(String roleName, String resourceId, String action)
             throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            callSecure("denyRole", new Object[]{roleName, resourceId, action},
+                    argTypes);
+            return;
+        }
 
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
@@ -472,6 +490,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void authorizeUser(String userName, String resourceId, String action)
             throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            callSecure("authorizeUser", new Object[]{userName, resourceId, action},
+                    argTypes);
+            return;
+        }
+
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
             if (!listener.authorizeUser(userName, resourceId, action, this)) {
@@ -489,6 +514,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void denyUser(String userName, String resourceId, String action)
             throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            callSecure("denyUser", new Object[]{userName, resourceId, action},
+                    argTypes);
+            return;
+        }
+
+
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
             if (!listener.denyUser(userName, resourceId, action, this)) {
@@ -505,6 +538,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     }
 
     public void clearResourceAuthorizations(String resourceId) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class};
+            callSecure("clearResourceAuthorizations", new Object[]{resourceId},
+                    argTypes);
+            return;
+        }
+
 
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
@@ -545,6 +586,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void clearRoleAuthorization(String roleName, String resourceId, String action)
             throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            callSecure("clearRoleAuthorization", new Object[]{roleName, resourceId, action},
+                    argTypes);
+            return;
+        }
+
+
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
             if (!listener.clearRoleAuthorization(roleName, resourceId, action, this)) {
@@ -583,6 +632,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     public void clearUserAuthorization(String userName, String resourceId, String action)
             throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class};
+            callSecure("clearUserAuthorization", new Object[]{userName, resourceId, action},
+                    argTypes);
+            return;
+        }
+
+
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
             if (!listener.clearUserAuthorization(userName, resourceId, action, this)) {
@@ -620,6 +677,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void clearRoleActionOnAllResources(String roleName, String action)
             throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            callSecure("clearRoleActionOnAllResources", new Object[]{roleName, action},
+                    argTypes);
+            return;
+        }
+
 
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
@@ -660,6 +725,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void clearRoleAuthorization(String roleName) throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class};
+            callSecure("clearRoleAuthorization", new Object[]{roleName},
+                    argTypes);
+            return;
+        }
+
+
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
             if (!listener.clearRoleAuthorization(roleName, this)) {
@@ -698,6 +771,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void clearUserAuthorization(String userName) throws UserStoreException {
 
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class};
+            callSecure("clearUserAuthorization", new Object[]{userName},
+                    argTypes);
+            return;
+        }
+
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
             if (!listener.clearUserAuthorization(userName, this)) {
@@ -730,6 +810,13 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void resetPermissionOnUpdateRole(String roleName, String newRoleName)
             throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class};
+            callSecure("resetPermissionOnUpdateRole", new Object[]{roleName, newRoleName},
+                    argTypes);
+            return;
+        }
 
         for (AuthorizationManagerListener listener : UMListenerServiceComponent
                 .getAuthorizationManagerListeners()) {
@@ -774,6 +861,14 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     public void addAuthorization(String subject, String resourceId, String action,
                                  boolean authorized, boolean isRole) throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[]{String.class, String.class, String.class, boolean.class, boolean.class};
+            callSecure("addAuthorization", new Object[]{subject, resourceId, action, authorized, isRole},
+                    argTypes);
+            return;
+        }
+
         short allow = 0;
         if (authorized) {
             allow = UserCoreConstants.ALLOW;
@@ -1077,6 +1172,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     }
 
     public void populatePermissionTreeFromDB() throws UserStoreException {
+
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[0];
+            callSecure("populatePermissionTreeFromDB", new Object[0], argTypes);
+            return;
+        }
         permissionTree.updatePermissionTreeFromDB();
     }
 
@@ -1085,6 +1186,17 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
      * scenario.
      */
     public void clearPermissionTree() {
+        if (!isSecureCall.get()) {
+            Class argTypes[] = new Class[0];
+            try {
+                callSecure("clearPermissionTree", new Object[0], argTypes);
+            } catch (UserStoreException e) {
+                if(log.isDebugEnabled()){
+                    log.debug("Error while clearing Permission Tree : " + e);
+                }
+            }
+            return;
+        }
         this.permissionTree.clear();
         this.authorizationCache.clearCache();
     }
