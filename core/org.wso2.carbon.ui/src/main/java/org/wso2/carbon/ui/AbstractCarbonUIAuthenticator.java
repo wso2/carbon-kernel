@@ -286,14 +286,12 @@ public abstract class AbstractCarbonUIAuthenticator implements CarbonUIAuthentic
             return;
         }
 
-        String tenantAwareUserName;
-        if (session.getAttribute(CarbonConstants.LOGGED_USER) != null) {
-            tenantAwareUserName = (String) session
-                    .getAttribute(CarbonConstants.LOGGED_USER);
-        } else {
-            tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(userName);
-        }
-        request.setAttribute(AbstractCarbonUIAuthenticator.USERNAME, tenantAwareUserName);
+        String loggedInUser = userName;
+		if (session.getAttribute(CarbonConstants.LOGGED_USER) != null) {
+			loggedInUser = (String) session
+					.getAttribute(CarbonConstants.LOGGED_USER);
+		}
+		request.setAttribute(AbstractCarbonUIAuthenticator.USERNAME, loggedInUser);
 
         String serverURL = getBackendUrl(request);
         if (serverURL == null) {
@@ -320,6 +318,8 @@ public abstract class AbstractCarbonUIAuthenticator implements CarbonUIAuthentic
             audit.info("User with null domain tried to login.");
             return;
         }
+
+        String tenantAwareUserName = MultitenantUtils.getTenantAwareUsername(userName);
 
         setUserInformation(cookie, serverURL, session);
        
