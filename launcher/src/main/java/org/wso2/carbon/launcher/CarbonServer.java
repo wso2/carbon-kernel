@@ -251,7 +251,8 @@ public class CarbonServer {
      * @return true if framework is in active or starting state, false otherwise
      */
     private boolean isFrameworkActive() {
-        return framework != null && (framework.getState() == Framework.ACTIVE || framework.getState() == Framework.STARTING);
+        return framework != null
+                && (framework.getState() == Framework.ACTIVE || framework.getState() == Framework.STARTING);
     }
 
     /**
