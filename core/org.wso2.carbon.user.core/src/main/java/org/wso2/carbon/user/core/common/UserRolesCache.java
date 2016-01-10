@@ -120,6 +120,10 @@ public class UserRolesCache {
         UserRolesCacheKey userRolesCacheKey = new UserRolesCacheKey(serverId, tenantId, userName);
         //search cache and get cache entry
         UserRolesCacheEntry userRolesCacheEntry = cache.get(userRolesCacheKey);
+        if (userRolesCacheEntry == null) {
+            return new String[0];
+        }
+        
         return userRolesCacheEntry.getUserRolesList();
     }
 
