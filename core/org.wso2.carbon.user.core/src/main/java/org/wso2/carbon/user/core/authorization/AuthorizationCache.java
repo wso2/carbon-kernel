@@ -147,7 +147,7 @@ public class AuthorizationCache {
             throw new AuthorizationCacheException(
                     "Authorization information not found in the cache.");
         }
-        if (!isCaseSensitiveUsername(userName, tenantId)){
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
             userName = userName.toLowerCase();
         }
         AuthorizationKey key = new AuthorizationKey(serverId, tenantId,
@@ -194,7 +194,7 @@ public class AuthorizationCache {
         if (isCacheNull(cache)) {
             return;
         }
-        if (!isCaseSensitiveUsername(userName, tenantId)){
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
             userName = userName.toLowerCase();
         }
 
@@ -217,7 +217,7 @@ public class AuthorizationCache {
         if (isCacheNull(cache)) {
             return;
         }
-        if (!isCaseSensitiveUsername(userName, tenantId)){
+        if (!isCaseSensitiveUsername(userName, tenantId)) {
             userName = userName.toLowerCase();
         }
         for (Cache.Entry<AuthorizationKey, AuthorizeCacheEntry> entry : cache) {
@@ -322,7 +322,7 @@ public class AuthorizationCache {
         isEnable = false;
     }
 
-    private boolean isCaseSensitiveUsername(String username, int tenantId){
+    private boolean isCaseSensitiveUsername(String username, int tenantId) {
 
         if (UserStoreMgtDSComponent.getRealmService() != null) {
             //this check is added to avoid NullPointerExceptions if the osgi is not started yet.
