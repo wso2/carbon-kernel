@@ -32,9 +32,6 @@ public class CarbonContext {
         return new CarbonContext(CarbonContextHolder.getThreadLocalCarbonContextHolder());
     }
 
-    public int getTenantId() {
-        return getCarbonContextHolder().getTenantId();
-    }
 
     public String getTenantDomain() {
         return getCarbonContextHolder().getTenantDomain();

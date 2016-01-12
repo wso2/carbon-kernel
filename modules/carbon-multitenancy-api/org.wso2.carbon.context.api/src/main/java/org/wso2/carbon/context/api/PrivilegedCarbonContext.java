@@ -45,11 +45,6 @@ public class PrivilegedCarbonContext extends CarbonContext {
         CarbonContextHolder.destroyCurrentCarbonContextHolder();
     }
 
-
-    public void setTenantId(int tenantId) {
-        getCarbonContextHolder().setTenantId(tenantId);
-    }
-
     public void setTenantDomain(String tenantDomain) {
         getCarbonContextHolder().setTenantDomain(tenantDomain);
     }

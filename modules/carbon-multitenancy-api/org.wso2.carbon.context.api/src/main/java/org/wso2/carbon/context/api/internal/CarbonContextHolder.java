@@ -15,13 +15,10 @@
  */
 package org.wso2.carbon.context.api.internal;
 
-import org.wso2.carbon.context.api.Constants;
-
 import java.util.Stack;
 
 public class CarbonContextHolder {
 
-    private int tenantId = Constants.INVALID_TENANT_ID;
     private String tenantDomain;
 
     private static ThreadLocal<CarbonContextHolder> currentContextHolder = new ThreadLocal<CarbonContextHolder>() {
@@ -57,14 +54,6 @@ public class CarbonContextHolder {
     public static void destroyCurrentCarbonContextHolder() {
         currentContextHolder.remove();
         parentContextHolderStack.remove();
-    }
-
-    public int getTenantId() {
-        return tenantId;
-    }
-
-    public void setTenantId(int tenantId) {
-        this.tenantId = tenantId;
     }
 
     public String getTenantDomain() {
