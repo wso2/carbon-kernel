@@ -27,8 +27,7 @@ public class CarbonContextHolder {
         }
     };
 
-    private static ThreadLocal<Stack<CarbonContextHolder>> parentContextHolderStack =
-            new ThreadLocal<Stack<CarbonContextHolder>>();
+    private static ThreadLocal<Stack<CarbonContextHolder>> parentContextHolderStack = new ThreadLocal<>();
 
     public static CarbonContextHolder getThreadLocalCarbonContextHolder() {
         return currentContextHolder.get();
@@ -37,7 +36,7 @@ public class CarbonContextHolder {
     public void startTenantFlow() {
         Stack<CarbonContextHolder> carbonContextDataHolders = parentContextHolderStack.get();
         if (carbonContextDataHolders == null) {
-            carbonContextDataHolders = new Stack<CarbonContextHolder>();
+            carbonContextDataHolders = new Stack<>();
             parentContextHolderStack.set(carbonContextDataHolders);
         }
         carbonContextDataHolders.push(currentContextHolder.get());
