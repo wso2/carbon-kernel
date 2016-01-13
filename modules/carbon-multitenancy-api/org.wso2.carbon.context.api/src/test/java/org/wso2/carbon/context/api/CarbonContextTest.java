@@ -138,7 +138,8 @@ public class CarbonContextTest {
 
                 PrivilegedCarbonContext.startTenantFlow();
                 try {
-                    PrivilegedCarbonContext tenant2CarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                    PrivilegedCarbonContext tenant2CarbonContext = PrivilegedCarbonContext.
+                            getThreadLocalCarbonContext();
                     tenant2CarbonContext.setTenantDomain(tenantDomain2);
                     tenant2CarbonContext.setSubject(subject2);
                     Assert.assertEquals(CarbonContext.getThreadLocalCarbonContext().getTenantDomain(), tenantDomain2);
