@@ -79,6 +79,10 @@ public class CarbonContextHolder {
     }
 
     public void setSubject(Subject subject) {
+        if (this.subject != null && !this.subject.equals(subject)) {
+            throw new IllegalStateException("Trying to override the already available subject " +
+                    this.subject.toString() + " to  " + subject.toString());
+        }
         this.subject = subject;
     }
 }
