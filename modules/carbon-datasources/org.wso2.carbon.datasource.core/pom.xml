@@ -12,6 +12,8 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>org.wso2.carbon.datasource.core</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+
     <dependencies>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -33,6 +35,16 @@
             <artifactId>tomcat-jdbc</artifactId>
             <version>7.0.59</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>biz.aQute.bnd</groupId>
+            <artifactId>biz.aQute.bndlib</artifactId>
+            <version>3.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -44,6 +56,31 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.0.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Private-Package>org.wso2.carbon.datasource.core.internal</Private-Package>
+                        <Export-Package>
+                            org.wso2.carbon.datasource.core.*,org.wso2.carbon.datasource.rdbms.*
+                        </Export-Package>
+                        <Import-Package>
+                            javax.xml.parsers;version=0.0.0,
+                            *;resolution:=optional
+                        </Import-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
                 </configuration>
             </plugin>
         </plugins>
