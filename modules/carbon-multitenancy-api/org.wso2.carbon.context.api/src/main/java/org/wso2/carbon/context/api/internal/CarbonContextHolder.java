@@ -29,7 +29,7 @@ public class CarbonContextHolder {
         }
     };
 
-    public CarbonContextHolder() {
+    private CarbonContextHolder() {
         tenantDomain = null;
         subject = null;
     }
