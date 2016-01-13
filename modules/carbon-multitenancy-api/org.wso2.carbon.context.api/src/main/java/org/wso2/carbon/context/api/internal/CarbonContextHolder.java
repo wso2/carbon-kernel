@@ -68,8 +68,8 @@ public class CarbonContextHolder {
 
     public void setTenantDomain(String tenantDomain) {
         if (this.tenantDomain != null && !this.tenantDomain.equals(tenantDomain)) {
-            throw new IllegalStateException("Trying to set the domain from " + this.tenantDomain + " to "
-                    + tenantDomain);
+            throw new IllegalStateException("Trying to set the domain from " + this.tenantDomain + " to " +
+                    tenantDomain);
         }
         this.tenantDomain = tenantDomain;
     }
