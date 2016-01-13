@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.wso2.carbon</groupId>
+    <artifactId>org.wso2.carbon.datasource.core</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <dependencies>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging-api</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.eclipse.osgi</groupId>-->
+            <!--<artifactId>org.eclipse.osgi.services</artifactId>-->
+            <!--<version>3.3.100.v20120522-1822</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.eclipse.osgi</groupId>-->
+            <!--<artifactId>org.eclipse.osgi</artifactId>-->
+            <!--<version>3.8.1.v20120830-144521</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+            <version>5.0.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+    <!--<packaging>bundle</packaging>-->
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.felix</groupId>-->
+                <!--<artifactId>maven-scr-plugin</artifactId>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.felix</groupId>-->
+                <!--<artifactId>maven-bundle-plugin</artifactId>-->
+                <!--<extensions>true</extensions>-->
+                <!--<configuration>-->
+                    <!--<instructions>-->
+                        <!--<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>-->
+                        <!--<Bundle-Name>${project.artifactId}</Bundle-Name>-->
+                        <!--<Private-Package>org.wso2.carbon.datasource.core.internal</Private-Package>-->
+                        <!--<Export-Package>-->
+                            <!--!org.wso2.carbon.datasource.core.internal,-->
+                            <!--org.wso2.carbon.datasource.core.*-->
+                        <!--</Export-Package>-->
+                        <!--<Import-Package>-->
+                            <!--javax.xml.parsers;version=0.0.0,-->
+                            <!--*;resolution:=optional-->
+                        <!--</Import-Package>-->
+                        <!--<DynamicImport-Package>*</DynamicImport-Package>-->
+                        <!--<DeployBefore>UserCore</DeployBefore>-->
+                    <!--</instructions>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
+
+</project>
