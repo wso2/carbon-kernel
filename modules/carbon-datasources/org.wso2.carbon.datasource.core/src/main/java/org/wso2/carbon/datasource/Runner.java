@@ -23,6 +23,7 @@ import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.sql.DataSource;
 
 public class Runner {
     public static void main(String[] args) {
@@ -39,10 +40,10 @@ public class Runner {
             manager.initSystemDataSources();
             Hashtable<String, String> map = new Hashtable<>();
             map.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.fscontext.RefFSContextFactory");
-            map.put(Context.PROVIDER_URL, "file:///home/dinushab/Carbon/org.wso2.carbon.datasource.core/src/test");
+            map.put(Context.PROVIDER_URL, "file:////home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/org.wso2.carbon.datasource.core/src/test");
             InitialContext context = new InitialContext(map);
-            Object o = context.lookup("jdbc/WSO2CarbonDB/test");
-            System.out.println(o.toString());
+            DataSource dataSource = (DataSource)context.lookup("jdbc/WSO2CarbonDB/test");
+            System.out.println(dataSource.toString());
         } catch (DataSourceException e) {
             e.printStackTrace();
         } catch (NamingException e) {

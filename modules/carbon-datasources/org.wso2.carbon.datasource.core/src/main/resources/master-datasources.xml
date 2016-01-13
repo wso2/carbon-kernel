@@ -1,7 +1,8 @@
 <datasources-configuration>
 
     <providers>
-        <provider>org.wso2.carbon.datasource.common.impl.SampleDataSourceReader</provider>
+        <provider>org.wso2.carbon.datasource.rdbms.RDBMSDataSourceReader</provider>
+        <!--<provider>org.wso2.carbon.datasource.common.impl.SampleDataSourceReader</provider>-->
     </providers>
 
     <datasources>
@@ -13,7 +14,7 @@
                 <name>jdbc/WSO2CarbonDB/test</name>
                 <environment>
                     <property name="java.naming.factory.initial">com.sun.jndi.fscontext.RefFSContextFactory</property>
-                    <property name="java.naming.provider.url">file:///home/dinushab/Carbon/org.wso2.carbon.datasource.core/src/test</property>
+                    <property name="java.naming.provider.url">file:////home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/org.wso2.carbon.datasource.core/src/test</property>
                 </environment>
             </jndiConfig>
             <definition type="RDBMS">

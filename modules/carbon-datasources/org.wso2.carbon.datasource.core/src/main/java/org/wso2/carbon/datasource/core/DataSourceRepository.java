@@ -113,8 +113,9 @@ public class DataSourceRepository {
         this.checkAndCreateJNDISubContexts(context, jndiConfig.getName());
 
         try {
-            context.bind(jndiConfig.getName(), new Reference("org.apache.tomcat.jdbc.pool.DataSource",
-                    "org.apache.tomcat.jdbc.pool.DataSourceFactory", null));
+            context.bind(jndiConfig.getName(), dsObject);
+//            context.bind(jndiConfig.getName(), new Reference("org.apache.tomcat.jdbc.pool.DataSource",
+//                    "org.apache.tomcat.jdbc.pool.DataSourceFactory", null));
         } catch (NamingException e) {
             throw new DataSourceException("Error in binding to JNDI with name '" +
                     jndiConfig.getName() + "' - " + e.getMessage(), e);
