@@ -15,17 +15,24 @@
  */
 package org.wso2.carbon.context.api.internal;
 
+import javax.security.auth.Subject;
 import java.util.Stack;
 
 public class CarbonContextHolder {
 
     private String tenantDomain;
+    private Subject subject;
 
     private static ThreadLocal<CarbonContextHolder> currentContextHolder = new ThreadLocal<CarbonContextHolder>() {
         protected CarbonContextHolder initialValue() {
             return new CarbonContextHolder();
         }
     };
+
+    public CarbonContextHolder() {
+        tenantDomain = null;
+        subject = null;
+    }
 
     private static ThreadLocal<Stack<CarbonContextHolder>> parentContextHolderStack = new ThreadLocal<>();
 
@@ -65,5 +72,13 @@ public class CarbonContextHolder {
                     + tenantDomain);
         }
         this.tenantDomain = tenantDomain;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
 }

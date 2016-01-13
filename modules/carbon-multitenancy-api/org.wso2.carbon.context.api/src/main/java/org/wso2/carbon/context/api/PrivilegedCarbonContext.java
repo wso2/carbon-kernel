@@ -17,6 +17,8 @@ package org.wso2.carbon.context.api;
 
 import org.wso2.carbon.context.api.internal.CarbonContextHolder;
 
+import javax.security.auth.Subject;
+
 public class PrivilegedCarbonContext extends CarbonContext {
 
     private PrivilegedCarbonContext(CarbonContextHolder carbonContextHolder) {
@@ -47,5 +49,9 @@ public class PrivilegedCarbonContext extends CarbonContext {
 
     public void setTenantDomain(String tenantDomain) {
         getCarbonContextHolder().setTenantDomain(tenantDomain);
+    }
+
+    public void setSubject(Subject subject) {
+        getCarbonContextHolder().setSubject(subject);
     }
 }

@@ -17,6 +17,8 @@ package org.wso2.carbon.context.api;
 
 import org.wso2.carbon.context.api.internal.CarbonContextHolder;
 
+import javax.security.auth.Subject;
+
 public class CarbonContext {
     private CarbonContextHolder carbonContextHolder = null;
 
@@ -35,5 +37,9 @@ public class CarbonContext {
 
     public String getTenantDomain() {
         return getCarbonContextHolder().getTenantDomain();
+    }
+
+    public Subject getSubject() {
+        return getCarbonContextHolder().getSubject();
     }
 }
