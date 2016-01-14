@@ -40,7 +40,7 @@ public class Runner {
             manager.initSystemDataSources();
             Hashtable<String, String> map = new Hashtable<>();
             map.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.fscontext.RefFSContextFactory");
-            map.put(Context.PROVIDER_URL, "file:////home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/org.wso2.carbon.datasource.core/src/test");
+            map.put(Context.PROVIDER_URL, "file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/org.wso2.carbon.datasource.core/src/test");
             InitialContext context = new InitialContext(map);
             DataSource dataSource = (DataSource)context.lookup("jdbc/WSO2CarbonDB/test");
             System.out.println(dataSource.toString());
