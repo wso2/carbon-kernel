@@ -19,6 +19,13 @@ import org.wso2.carbon.context.api.internal.CarbonContextHolder;
 
 import javax.security.auth.Subject;
 
+/**
+ * This CarbonContext provides users the ability to carry out privileged actions such as switching tenant flows,
+ * setting domain, setting subject etc.
+ *
+ * @since 5.0.0
+ */
+
 public class PrivilegedCarbonContext extends CarbonContext {
 
     private PrivilegedCarbonContext(CarbonContextHolder carbonContextHolder) {

@@ -19,6 +19,13 @@ import org.wso2.carbon.context.api.internal.CarbonContextHolder;
 
 import javax.security.auth.Subject;
 
+/**
+ * This provides the API for sub-tenant programming around Carbon based products. Each CarbonContext will utilize an
+ * underlying {@link org.wso2.carbon.context.api.internal.CarbonContextHolder} instance, which will store the actual
+ * data.
+ *
+ * @since 5.0.0
+ */
 public class CarbonContext {
     private CarbonContextHolder carbonContextHolder = null;
 

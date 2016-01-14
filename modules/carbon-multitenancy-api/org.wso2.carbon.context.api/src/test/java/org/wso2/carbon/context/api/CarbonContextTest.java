@@ -20,6 +20,11 @@ import org.testng.annotations.Test;
 
 import javax.security.auth.Subject;
 
+/**
+ * Test class for CarbonContext API usage.
+ *
+ * @since 5.0.0
+ */
 public class CarbonContextTest {
     private static final String TENANT_DOMAIN = "test";
 

@@ -15,8 +15,15 @@
  */
 package org.wso2.carbon.context.api.internal;
 
-import javax.security.auth.Subject;
 import java.util.Stack;
+import javax.security.auth.Subject;
+
+/**
+ * This class will preserve an instance the current CarbonContext as a thread local variable. If a CarbonContext is
+ * available on a thread-local-scope this class will do the required lookup and obtain the corresponding instance.
+ *
+ * @since 5.0.0
+ */
 
 public class CarbonContextHolder {
 

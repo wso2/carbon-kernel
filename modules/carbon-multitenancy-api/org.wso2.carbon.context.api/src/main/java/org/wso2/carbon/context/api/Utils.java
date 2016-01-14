@@ -17,6 +17,11 @@ package org.wso2.carbon.context.api;
 
 import java.lang.management.ManagementPermission;
 
+/**
+ * Utility class for carbon context api bundle.
+ *
+ * @since 5.0.0
+ */
 public class Utils {
 
     public static void checkSecurity() {
