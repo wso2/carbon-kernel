@@ -44,7 +44,8 @@ public class DataSourceManager {
     private Map<String, DataSourceReader> dsReaders;
 
     private static DataSourceRepository dsRepo;
-    private String dataSourcesPath;
+    private String dataSourcesPath = null;
+    private boolean initialized = false;
 
     public DataSourceManager() {
         this.dsReaders = new HashMap<>();
@@ -101,9 +102,13 @@ public class DataSourceManager {
      * @throws DataSourceException
      */
     public void initSystemDataSources() throws DataSourceException {
+        if(initialized) {
+            return;
+        }
         try {
-//			Path dataSourcesPath = DataSourceUtils.getDataSourceConfigPath();
-//			Path masterDSPath = DataSourceUtils.getMasterDataSource();
+            if(dataSourcesPath == null) {
+                dataSourcesPath = DataSourceUtils.getDataSourceConfigPath().toString();
+            }
             Path dSPath = Paths.get(this.dataSourcesPath);
             Path masterDSPath = dSPath.resolve(DataSourceConstants.MASTER_DS_FILE_NAME);
             File masterDSFile = masterDSPath.toFile();
@@ -124,6 +129,7 @@ public class DataSourceManager {
             throw new DataSourceException("Error in initializing system data sources: " +
                     e.getMessage(), e);
         }
+        initialized = true;
     }
 
     private void initSystemDataSource(File sysDSFile) throws DataSourceException {

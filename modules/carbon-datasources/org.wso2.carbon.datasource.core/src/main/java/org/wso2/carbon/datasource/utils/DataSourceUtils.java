@@ -1,11 +1,11 @@
-/**
- *  Copyright (c) 2012, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+/*
+ *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *        http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.datasource.utils;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -23,8 +24,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
-import org.wso2.carbon.datasource.common.DataSourceException;
 import org.wso2.carbon.datasource.common.DataSourceConstants;
+import org.wso2.carbon.datasource.common.DataSourceException;
 import org.wso2.carbon.kernel.utils.Utils;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -46,8 +47,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.apache.commons.io.IOUtils;
 
 /**
  * Data Sources utility class.
@@ -149,8 +148,7 @@ public class DataSourceUtils {
     }
 
     public static Path getDataSourceConfigPath() {
-        return Utils.getCarbonConfigHome().resolve(DataSourceConstants.DATASOURCES_DIRECTORY_NAME)
-                .resolve(DataSourceConstants.DATASOURCES_DIRECTORY_NAME);
+        return Utils.getCarbonConfigHome().resolve(DataSourceConstants.DATASOURCES_DIRECTORY_NAME);
     }
 
     public static Path getMasterDataSource() {
@@ -158,7 +156,6 @@ public class DataSourceUtils {
     }
 
     /**
-     *
      * @param xmlConfiguration InputStream that carries xml configuration
      * @return returns a InputStream that has evaluated system variables in input
      * @throws Exception
@@ -198,8 +195,7 @@ public class DataSourceUtils {
     }
 
     /**
-     *
-     * @param doc  the DOM.Document to be converted to InputStream.
+     * @param doc the DOM.Document to be converted to InputStream.
      * @return Returns InputStream.
      * @throws Exception
      */

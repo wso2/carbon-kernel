@@ -69,14 +69,18 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Bundle-Activator>org.wso2.carbon.datasource.core.DataSourceBundleActivator</Bundle-Activator>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>org.wso2.carbon.datasource.core.internal</Private-Package>
                         <Export-Package>
-                            org.wso2.carbon.datasource.core.*,org.wso2.carbon.datasource.rdbms.*
+                            !org.wso2.carbon.datasource.internal,
+                            org.wso2.carbon.datasource.core.*,org.wso2.carbon.datasource.rdbms.*,
+                            org.wso2.carbon.datasource.common.*,org.wso2.carbon.datasource.utils.*
                         </Export-Package>
                         <Import-Package>
                             javax.xml.parsers;version=0.0.0,
+                            org.apache.commons.io.*,
                             *;resolution:=optional
                         </Import-Package>
                         <DynamicImport-Package>*</DynamicImport-Package>
