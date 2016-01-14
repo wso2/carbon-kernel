@@ -53,11 +53,11 @@ public class RDBMSDataSourceReader implements DataSourceReader {
 	@Override
 	public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference)
 			throws DataSourceException {
-		if (isDataSourceFactoryReference) {
+//		if (isDataSourceFactoryReference) {
 			return (new RDBMSDataSource(loadConfig(xmlConfiguration)).getDataSourceFactoryReference());
-		} else {
-			return (new RDBMSDataSource(loadConfig(xmlConfiguration)).getDataSource());
-		}
+//		} else {
+//			return (new RDBMSDataSource(loadConfig(xmlConfiguration)).getDataSource());
+//		}
 	}
 
 	@Override
