@@ -15,6 +15,9 @@
  */
 package org.wso2.carbon.axis2.runtime.internal;
 
+import org.apache.axis2.AxisFault;
+import org.apache.axis2.context.ConfigurationContext;
+import org.apache.axis2.description.AxisService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,6 +27,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.axis2.runtime.Axis2ServiceManager;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
 
@@ -93,5 +97,30 @@ public class Axis2NettyInitializerComponent {
             //TODO : un-initialize the the netty transport
             DataHolder.getInstance().setCarbonTransport(null);
         }
+    }
+
+    @Reference(
+            name = "axis2-service-manager",
+            service = Axis2ServiceManager.class,
+            cardinality = ReferenceCardinality.MULTIPLE,
+            policy = ReferencePolicy.DYNAMIC,
+            unbind = "removeAxis2ServiceManager"
+    )
+    protected void addAxis2ServiceManager(Axis2ServiceManager axis2ServiceManager) {
+        ConfigurationContext configurationContext = DataHolder.getInstance().getConfigurationContext();
+        if (configurationContext != null) {
+            try {
+                AxisService axisService = AxisService.createService(axis2ServiceManager
+                        .getImplementationClass().getName(), configurationContext.getAxisConfiguration());
+                configurationContext.deployService(axisService);
+            } catch (AxisFault axisFault) {
+                logger.error("Failed to create an Axis2 service with given class '{}'",
+                        axis2ServiceManager.getImplementationClass().getName(), axisFault);
+            }
+        }
+    }
+
+    protected void removeAxis2ServiceManager(Axis2ServiceManager axis2ServiceManager) {
+        //TODO: Unregister service group + service form the Configuration Context
     }
 }

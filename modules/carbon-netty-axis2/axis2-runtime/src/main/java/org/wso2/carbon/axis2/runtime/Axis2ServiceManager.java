@@ -15,14 +15,11 @@
  */
 package org.wso2.carbon.axis2.runtime;
 
-import org.apache.axis2.description.AxisService;
-
 /**
  * Netty Axis2 Runtime Axis2ServiceManager.
  *
  * @since 1.0.0
  */
 public interface Axis2ServiceManager {
-    public AxisService registerService(Class clazz);
-    public AxisService unregisterService(AxisService axisService);
+    public Class getImplementationClass();
 }
