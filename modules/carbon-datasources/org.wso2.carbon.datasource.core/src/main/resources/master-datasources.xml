@@ -2,7 +2,6 @@
 
     <providers>
         <provider>org.wso2.carbon.datasource.rdbms.RDBMSDataSourceReader</provider>
-        <!--<provider>org.wso2.carbon.datasource.common.impl.SampleDataSourceReader</provider>-->
     </providers>
 
     <datasources>
