@@ -93,7 +93,9 @@
                             org.slf4j.*;version="[1.7,2)",
                             org.apache.axis2.*;version="[1.6.1.wso2v17-SNAPSHOT,1.6.2)",
                             org.apache.axiom.*;version="[1.2.11-wso2v4,1.2.12)",
-                            *;resolution:=optional
+                            org.wso2.carbon.kernel.*;version="[5.0,6)",
+                            org.wso2.carbon.transport.*;version="[1.0,2)",
+                            io.netty.*;version="[4.0,5)"
                         </Import-Package>
                     </instructions>
                 </configuration>
