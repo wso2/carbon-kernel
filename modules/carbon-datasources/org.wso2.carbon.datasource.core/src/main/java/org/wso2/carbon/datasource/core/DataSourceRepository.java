@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.naming.Reference;
 
 /**
  * This class represents the repository which is used to hold the data sources.
@@ -148,7 +147,7 @@ public class DataSourceRepository {
 
     private synchronized void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
 //        this.unregisterDataSource(dsmInfo.getJndiConfig().getName());
-        this.unregisterJNDI(dsmInfo);
+        // this.unregisterJNDI(dsmInfo);
         Object dsObject = null;
         boolean isDataSourceFactoryReference = false;
         DataSourceStatus dsStatus;
