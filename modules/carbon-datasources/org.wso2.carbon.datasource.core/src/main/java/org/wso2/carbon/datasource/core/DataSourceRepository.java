@@ -57,8 +57,10 @@ public class DataSourceRepository {
 //		/* sets the current data source's (name) as a thread local value
 //		 * so it can be read by data source readers */
 //		DataSourceUtils.setCurrentDataSourceId(dsmInfo.getName());
+
+        Element configurationXmlDefinition = (Element) dsmInfo.getDefinition().getDsXMLConfiguration();
         return dsReader.createDataSource(DataSourceUtils.elementToString(
-                (Element) dsmInfo.getDefinition().getDsXMLConfiguration()), isUseDataSourceFactory);
+                configurationXmlDefinition), isUseDataSourceFactory);
     }
 
     private Context lookupJNDISubContext(Context context, String jndiName)
@@ -216,13 +218,13 @@ public class DataSourceRepository {
         if (cds == null) {
             throw new DataSourceException("Data source does not exist: " + dsName);
         }
-        if (cds.getDSMInfo().isSystem()) {
-            throw new DataSourceException("System data sources cannot be deleted: " + dsName);
-        }
-        this.unregisterDataSource(dsName);
-        if (cds.getDSMInfo().isPersistable()) {
-            this.dsMetaInfoMap.remove(dsName);
-        }
+//        if (cds.getDSMInfo().isSystem()) {
+//            throw new DataSourceException("System data sources cannot be deleted: " + dsName);
+//        }
+//        this.unregisterDataSource(dsName);
+//        if (cds.getDSMInfo().isPersistable()) {
+//            this.dsMetaInfoMap.remove(dsName);
+//        }
     }
 
     /**

@@ -102,11 +102,11 @@ public class DataSourceManager {
      * @throws DataSourceException
      */
     public void initSystemDataSources() throws DataSourceException {
-        if(initialized) {
+        if (initialized) {
             return;
         }
         try {
-            if(dataSourcesPath == null) {
+            if (dataSourcesPath == null) {
                 dataSourcesPath = DataSourceUtils.getDataSourceConfigPath().toString();
             }
             Path dSPath = Paths.get(this.dataSourcesPath);
@@ -141,7 +141,7 @@ public class DataSourceManager {
             DataSourceRepository dsRepo = this.getDataSourceRepository();
             addDataSourceProviders(sysDS.getProviders());
             for (DataSourceMetaInfo dsmInfo : sysDS.getDataSources()) {
-                dsmInfo.setSystem(true);
+//                dsmInfo.setSystem(true);
                 dsRepo.addDataSource(dsmInfo);
             }
         } catch (Exception e) {
