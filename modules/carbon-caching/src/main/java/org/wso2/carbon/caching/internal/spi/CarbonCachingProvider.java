@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.caching.spi;
+package org.wso2.carbon.caching.internal.spi;
 
-import org.wso2.carbon.caching.CarbonCacheManager;
+import org.wso2.carbon.caching.internal.CarbonCacheManager;
 
 import javax.cache.CacheException;
 import javax.cache.CacheManager;

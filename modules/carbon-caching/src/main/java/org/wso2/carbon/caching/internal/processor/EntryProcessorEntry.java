@@ -13,11 +13,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.caching.processor;
+package org.wso2.carbon.caching.internal.processor;
 
-import org.wso2.carbon.caching.CarbonCachedValue;
-import org.wso2.carbon.caching.InternalConverter;
-import org.wso2.carbon.caching.event.CarbonCacheEventDispatcher;
+import org.wso2.carbon.caching.internal.CarbonCachedValue;
+import org.wso2.carbon.caching.internal.InternalConverter;
+import org.wso2.carbon.caching.internal.event.CarbonCacheEventDispatcher;
 
 import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheLoaderException;

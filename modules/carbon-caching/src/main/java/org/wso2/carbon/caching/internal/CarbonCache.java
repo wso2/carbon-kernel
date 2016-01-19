@@ -13,17 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.caching;
+package org.wso2.carbon.caching.internal;
 
-import org.wso2.carbon.caching.event.CarbonCacheEntryEvent;
-import org.wso2.carbon.caching.event.CarbonCacheEntryListenerRegistration;
-import org.wso2.carbon.caching.event.CarbonCacheEventDispatcher;
-import org.wso2.carbon.caching.management.MBeanServerRegistrationUtility;
-import org.wso2.carbon.caching.management.CarbonCacheMXBean;
-import org.wso2.carbon.caching.management.CarbonCacheStatisticsMXBean;
-import org.wso2.carbon.caching.processor.EntryProcessorEntry;
-import org.wso2.carbon.caching.processor.MutableEntryOperation;
-import org.wso2.carbon.caching.processor.CarbonEntryProcessorResult;
+import org.wso2.carbon.caching.internal.event.CarbonCacheEntryEvent;
+import org.wso2.carbon.caching.internal.event.CarbonCacheEntryListenerRegistration;
+import org.wso2.carbon.caching.internal.event.CarbonCacheEventDispatcher;
+import org.wso2.carbon.caching.internal.management.MBeanServerRegistrationUtility;
+import org.wso2.carbon.caching.internal.management.CarbonCacheMXBean;
+import org.wso2.carbon.caching.internal.management.CarbonCacheStatisticsMXBean;
+import org.wso2.carbon.caching.internal.processor.EntryProcessorEntry;
+import org.wso2.carbon.caching.internal.processor.MutableEntryOperation;
+import org.wso2.carbon.caching.internal.processor.CarbonEntryProcessorResult;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -69,8 +69,8 @@ import static javax.cache.event.EventType.CREATED;
 import static javax.cache.event.EventType.EXPIRED;
 import static javax.cache.event.EventType.REMOVED;
 import static javax.cache.event.EventType.UPDATED;
-import static org.wso2.carbon.caching.management.MBeanServerRegistrationUtility.ObjectNameType.Configuration;
-import static org.wso2.carbon.caching.management.MBeanServerRegistrationUtility.ObjectNameType.Statistics;
+import static org.wso2.carbon.caching.internal.management.MBeanServerRegistrationUtility.ObjectNameType.Configuration;
+import static org.wso2.carbon.caching.internal.management.MBeanServerRegistrationUtility.ObjectNameType.Statistics;
 
 /**
  * The reference implementation for JSR107.

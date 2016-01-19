@@ -13,9 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.caching.processor;
+package org.wso2.carbon.caching.internal.processor;
 
-import org.wso2.carbon.caching.CarbonCachedValue;
+import org.wso2.carbon.caching.internal.CarbonCachedValue;
 
 import javax.cache.processor.MutableEntry;
 
