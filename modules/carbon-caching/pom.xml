@@ -11,7 +11,7 @@
 
     <artifactId>org.wso2.carbon.caching</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <name>JSR107 JCache Implementation for Carbon</name>
 
@@ -55,4 +55,33 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <properties>
+        <!--<bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
+        <private.package>org.wso2.carbon.kernel.internal.*,</private.package>
+        <export.package>
+            !org.wso2.carbon.kernel.internal.*,
+            org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
+        </export.package>
+        <import.package>
+            org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
+            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
+            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
+            org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}"
+        </import.package>
+        <provide.capability>
+            osgi.service;effective:=active;
+            objectClass="org.wso2.carbon.kernel.deployment.DeploymentService";
+            dependent-component-key="carbon-transport-mgt",
+            osgi.service;effective:=active;
+            objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";
+            dependent-component-key="carbon-deployment-service",
+            osgi.service;effective:=active;
+            objectClass="org.wso2.carbon.kernel.CarbonRuntime";
+            dependent-component-key="carbon-deployment-service"
+        </provide.capability>-->
+    </properties>
 </project>
