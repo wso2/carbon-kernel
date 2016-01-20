@@ -61,12 +61,12 @@ public class CarbonJNDIActivator implements BundleActivator {
     }
 
 
-    private static class CarbonInitialJNDIContextFactoryBuilder implements
-            InitialContextFactoryBuilder {
-
-        @Override
-        public InitialContextFactory createInitialContextFactory(Hashtable<?, ?> environment) throws NamingException {
-            return new javaURLContextFactory();
-        }
-    }
+//    private static class CarbonInitialJNDIContextFactoryBuilder implements
+//            InitialContextFactoryBuilder {
+//
+//        @Override
+//        public InitialContextFactory createInitialContextFactory(Hashtable<?, ?> environment) throws NamingException {
+//            return new javaURLContextFactory();
+//        }
+//    }
 }
