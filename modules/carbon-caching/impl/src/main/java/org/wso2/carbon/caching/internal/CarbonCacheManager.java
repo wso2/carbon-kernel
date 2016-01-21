@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.caching.internal;
 
-import org.wso2.carbon.caching.internal.spi.CarbonCachingProvider;
+import org.wso2.carbon.caching.spi.CarbonCachingProvider;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;

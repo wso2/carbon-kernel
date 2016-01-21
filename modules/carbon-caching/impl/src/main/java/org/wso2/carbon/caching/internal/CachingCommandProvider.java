@@ -21,14 +21,20 @@ package org.wso2.carbon.caching.internal;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 
+import java.util.concurrent.TimeUnit;
+import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.AccessedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import javax.cache.spi.CachingProvider;
 
 /**
  * OSGi Command provider for testing Carbon caching
  */
 public class CachingCommandProvider implements CommandProvider {
+    private static Duration TEN_SEC = new Duration(TimeUnit.SECONDS,10);
 
     @Override
     public String getHelp() {
@@ -61,5 +67,22 @@ public class CachingCommandProvider implements CommandProvider {
         CachingProvider provider = Caching.getCachingProvider();
         CacheManager cacheManager = provider.getCacheManager();
         System.out.println(cacheManager.getCache(cacheName).remove(key));
+    }
+
+    /**
+     * we initialize a cache with name
+     * @param name
+     */
+    private Cache<String, Integer> initCache(String name, CacheManager cacheManager) {
+
+        //configure the cache
+        MutableConfiguration<String, Integer> config = new MutableConfiguration<String, Integer>();
+        config.setStoreByValue(true)
+                .setTypes(String.class, Integer.class)
+                .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(TEN_SEC))
+                .setStatisticsEnabled(false);
+
+        //create the cache
+        return cacheManager.createCache(name, config);
     }
 }

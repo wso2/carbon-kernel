@@ -1,0 +1,156 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>2</version>
+        <relativePath/>
+    </parent>
+
+    <artifactId>org.wso2.carbon.caching</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+
+    <name>JSR107 JCache Implementation for Carbon</name>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>${maven.wagon.ssh.version}</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.core.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+            <version>${equinox.osgi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+            <version>${equinox.osgi.services.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.equinox</groupId>
+            <artifactId>org.eclipse.equinox.ds</artifactId>
+            <version>${equinox.ds.version}</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.0-SP4</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <private.package>org.wso2.carbon.caching.internal.*,</private.package>
+        <bundle.activator>org.wso2.carbon.caching.internal.CachingBundleActivator</bundle.activator>
+        <export.package>
+            !org.wso2.carbon.caching.internal.*,
+            org.wso2.carbon.caching.spi.*;version="${carbon.caching.package.export.version}",
+            org.wso2.carbon.caching.*; version="${carbon.caching.package.export.version}"
+        </export.package>
+        <import.package>
+            org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
+            org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+            org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+            org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
+            org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
+            org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
+            javax.cache.*
+        </import.package>
+        <!--<bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
+               <export.package>
+                   !org.wso2.carbon.kernel.internal.*,
+                   org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
+               </export.package>
+               <import.package>
+                   org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
+                   org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
+                   org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
+                   org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
+                   org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
+                   org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
+                   org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}"
+               </import.package>
+               <provide.capability>
+                   osgi.service;effective:=active;
+                   objectClass="org.wso2.carbon.kernel.deployment.DeploymentService";
+                   dependent-component-key="carbon-transport-mgt",
+                   osgi.service;effective:=active;
+                   objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";
+                   dependent-component-key="carbon-deployment-service",
+                   osgi.service;effective:=active;
+                   objectClass="org.wso2.carbon.kernel.CarbonRuntime";
+                   dependent-component-key="carbon-deployment-service"
+               </provide.capability>-->
+        <provide.capability>
+            osgi.serviceloader; osgi.serviceloader=javax.cache.spi.CachingProvider
+        </provide.capability>
+        <SPI-Provider>javax.cache.spi.CachingProvider</SPI-Provider>
+
+
+        <carbon.caching.package.export.version>1.0.0</carbon.caching.package.export.version>
+
+        <slf4j.api.version>1.7.12</slf4j.api.version>
+
+        <!-- Equinox dependency versions -->
+        <osgi.core.api.version>6.0.0</osgi.core.api.version>
+        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
+        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
+        <equinox.ds.version>1.4.200.v20131126-2331</equinox.ds.version>
+        <equinox.common.version>3.6.200.v20130402-1505</equinox.common.version>
+
+        <!-- OSGi API version range-->
+        <osgi.framework.package.import.version.range>[1.8.0, 2.0.0)</osgi.framework.package.import.version.range>
+        <osgi.services.cm.package.import.version.range>[1.4.0, 2.0.0)</osgi.services.cm.package.import.version.range>
+        <osgi.service.tracker.package.import.version.range>[1.5.1, 2.0.0)
+        </osgi.service.tracker.package.import.version.range>
+        <osgi.framework.console.package.import.version.range>[1.1.0,2.0.0)
+        </osgi.framework.console.package.import.version.range>
+        <org.eclipse.osgi.util.package.import.version.range>[1.1.0, 2.0.0)
+        </org.eclipse.osgi.util.package.import.version.range>
+
+        <!--Logging API version range-->
+        <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
+    </properties>
+</project>

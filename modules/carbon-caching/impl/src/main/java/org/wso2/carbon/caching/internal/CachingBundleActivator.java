@@ -22,13 +22,17 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
+import javax.cache.Caching;
+
 /**
  * Carbon caching BundleActivator
  */
 public class CachingBundleActivator implements BundleActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        System.out.println("+++++++++++++ started caching bundle +++++++++++");
+        System.out.println("+++++++++++++ started caching bundle ----- +++++++++++");
+        System.setProperty(Caching.JAVAX_CACHE_CACHING_PROVIDER,
+                "org.wso2.carbon.caching.spi.CarbonCachingProvider");
         bundleContext.registerService(CommandProvider.class, new CachingCommandProvider(), null);
     }
 
