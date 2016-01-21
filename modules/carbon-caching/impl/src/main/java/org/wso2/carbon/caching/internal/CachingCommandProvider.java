@@ -34,7 +34,7 @@ import javax.cache.spi.CachingProvider;
  * OSGi Command provider for testing Carbon caching
  */
 public class CachingCommandProvider implements CommandProvider {
-    private static Duration TEN_SEC = new Duration(TimeUnit.SECONDS,10);
+    private static Duration TEN_SEC = new Duration(TimeUnit.SECONDS, 10);
 
     @Override
     public String getHelp() {
@@ -48,37 +48,44 @@ public class CachingCommandProvider implements CommandProvider {
         String cacheName = ci.nextArgument();
         String key = ci.nextArgument();
         String value = ci.nextArgument();
-        CachingProvider provider = Caching.getCachingProvider();
-        CacheManager cacheManager = provider.getCacheManager();
-        cacheManager.getCache(cacheName).put(key, value);
+        getCache(cacheName).put(key, value);
+        System.out.println("OK");
     }
 
     public void _cacheGet(CommandInterpreter ci) {
         String cacheName = ci.nextArgument();
         String key = ci.nextArgument();
-        CachingProvider provider = Caching.getCachingProvider();
-        CacheManager cacheManager = provider.getCacheManager();
-        System.out.println(cacheManager.getCache(cacheName).get(key));
+        System.out.println(getCache(cacheName).get(key));
     }
 
     public void _cacheDelete(CommandInterpreter ci) {
         String cacheName = ci.nextArgument();
         String key = ci.nextArgument();
+        getCache(cacheName).remove(key);
+        System.out.println("OK");
+    }
+
+    private Cache<String, String> getCache(String cacheName) {
         CachingProvider provider = Caching.getCachingProvider();
         CacheManager cacheManager = provider.getCacheManager();
-        System.out.println(cacheManager.getCache(cacheName).remove(key));
+        Cache<String, String> cache = cacheManager.getCache(cacheName);
+        if (cache == null) {
+            cache = initCache(cacheName, cacheManager);
+        }
+        return cache;
     }
 
     /**
      * we initialize a cache with name
+     *
      * @param name
      */
-    private Cache<String, Integer> initCache(String name, CacheManager cacheManager) {
+    private Cache<String, String> initCache(String name, CacheManager cacheManager) {
 
         //configure the cache
-        MutableConfiguration<String, Integer> config = new MutableConfiguration<String, Integer>();
+        MutableConfiguration<String, String> config = new MutableConfiguration<>();
         config.setStoreByValue(true)
-                .setTypes(String.class, Integer.class)
+                .setTypes(String.class, String.class)
                 .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(TEN_SEC))
                 .setStatisticsEnabled(false);
 
