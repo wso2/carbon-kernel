@@ -34,7 +34,7 @@ public class JNDIConfig {
 
     private EnvEntry[] environment;
 
-    private boolean useDataSourceFactory;
+    private boolean useDataSourceFactory = false;
 
     public void setName(String name) {
         this.name = name;
@@ -55,7 +55,7 @@ public class JNDIConfig {
         return environment;
     }
 
-    @XmlAttribute
+    @XmlElement(name = "useDataSourceFactory")
     public boolean isUseDataSourceFactory() {
         return useDataSourceFactory;
     }
@@ -65,7 +65,7 @@ public class JNDIConfig {
     }
 
     public Hashtable<String, String> extractHashtableEnv() {
-        Hashtable<String, String> env = new Hashtable<String, String>();
+        Hashtable<String, String> env = new Hashtable<>();
         if (this.getEnvironment() != null) {
             for (EnvEntry entry : this.getEnvironment()) {
                 env.put(entry.getName(), entry.getValue());

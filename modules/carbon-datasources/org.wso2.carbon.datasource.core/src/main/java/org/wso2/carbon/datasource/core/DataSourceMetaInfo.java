@@ -40,8 +40,8 @@ public class DataSourceMetaInfo {
 
     private DataSourceDefinition definition;
 
-    @XmlTransient
-    private boolean system;
+//    @XmlTransient
+//    private boolean system;
 
     @XmlTransient
     private boolean carbonApplicationDeployed;
@@ -58,9 +58,9 @@ public class DataSourceMetaInfo {
         this.jndiConfig = jndiConfig;
     }
 
-    public void setSystem(boolean system) {
-        this.system = system;
-    }
+//    public void setSystem(boolean system) {
+//        this.system = system;
+//    }
 
     public void setCarbonApplicationDeployed(boolean carbonApplicationDeployed) {
         this.carbonApplicationDeployed = carbonApplicationDeployed;
@@ -81,10 +81,10 @@ public class DataSourceMetaInfo {
         return jndiConfig;
     }
 
-    @XmlTransient
-    public boolean isSystem() {
-        return system;
-    }
+//    @XmlTransient
+//    public boolean isSystem() {
+//        return system;
+//    }
 
     @XmlTransient
     public boolean isCarbonApplicationDeployed() {
@@ -100,10 +100,10 @@ public class DataSourceMetaInfo {
         this.definition = definition;
     }
 
-    @XmlTransient
-    public boolean isPersistable() {
-        return (!system && !carbonApplicationDeployed);
-    }
+//    @XmlTransient
+//    public boolean isPersistable() {
+//        return (!system && !carbonApplicationDeployed);
+//    }
 
     @XmlRootElement(name = "definition")
     public static class DataSourceDefinition {
