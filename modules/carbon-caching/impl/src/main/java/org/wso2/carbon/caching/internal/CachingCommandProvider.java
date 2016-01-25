@@ -34,14 +34,20 @@ import javax.cache.spi.CachingProvider;
  * OSGi Command provider for testing Carbon caching
  */
 public class CachingCommandProvider implements CommandProvider {
-    private static Duration TEN_SEC = new Duration(TimeUnit.SECONDS, 10);
+    private Duration cacheExpiry = new Duration(TimeUnit.MINUTES, 15);
 
     @Override
     public String getHelp() {
         return "---Carbon Caching (JSR107)---\n" +
                 "\tcachePut <cache-name> <key> <value> - Put a string into the cache.\n" +
                 "\tcacheGet <cache-name> <key> - Get the value of <key>\n" +
-                "\tcacheDelete <cache-name> <key> - Delete the cache entry corresponding to <key>\n";
+                "\tcacheDelete <cache-name> <key> - Delete the cache entry corresponding to <key>\n" +
+                "\tcacheFlush <cache-name> - Flush the cache\n" +
+                "\tcachePrint <cache-name> - Print all the key-value pairs in the cache";
+    }
+
+    public void _cacheSetExpiry(CommandInterpreter ci) {
+
     }
 
     public void _cachePut(CommandInterpreter ci) {
@@ -65,6 +71,20 @@ public class CachingCommandProvider implements CommandProvider {
         System.out.println("OK");
     }
 
+    public void _cacheFlush(CommandInterpreter ci) {
+        String cacheName = ci.nextArgument();
+        getCache(cacheName).removeAll();
+        System.out.println("OK");
+    }
+
+    public void _cachePrint(CommandInterpreter ci) {
+        String cacheName = ci.nextArgument();
+        Cache<String, String> cache = getCache(cacheName);
+        for (Cache.Entry<String, String> entry : cache) {
+            System.out.println(entry.getKey() + "=" + entry.getValue());
+        }
+    }
+
     private Cache<String, String> getCache(String cacheName) {
         CachingProvider provider = Caching.getCachingProvider();
         CacheManager cacheManager = provider.getCacheManager();
@@ -86,7 +106,7 @@ public class CachingCommandProvider implements CommandProvider {
         MutableConfiguration<String, String> config = new MutableConfiguration<>();
         config.setStoreByValue(true)
                 .setTypes(String.class, String.class)
-                .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(TEN_SEC))
+                .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(cacheExpiry))
                 .setStatisticsEnabled(false);
 
         //create the cache
