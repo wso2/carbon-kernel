@@ -68,7 +68,7 @@ public class CachingCommandProvider implements CommandProvider {
     private Cache<String, String> getCache(String cacheName) {
         CachingProvider provider = Caching.getCachingProvider();
         CacheManager cacheManager = provider.getCacheManager();
-        Cache<String, String> cache = cacheManager.getCache(cacheName);
+        Cache<String, String> cache = cacheManager.getCache(cacheName, String.class, String.class);
         if (cache == null) {
             cache = initCache(cacheName, cacheManager);
         }
