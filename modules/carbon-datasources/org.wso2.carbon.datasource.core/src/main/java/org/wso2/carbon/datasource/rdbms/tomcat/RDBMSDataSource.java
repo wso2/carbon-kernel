@@ -13,13 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.datasource.rdbms;
+package org.wso2.carbon.datasource.rdbms.tomcat;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.wso2.carbon.datasource.common.DataSourceException;
+import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration;
+import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.utils.RDBMSDataSourceUtils;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
@@ -49,7 +51,7 @@ public class RDBMSDataSource {
     private PoolConfiguration poolProperties;
 
     public RDBMSDataSource(RDBMSConfiguration config) throws DataSourceException {
-        this.poolProperties = RDBMSDataSourceUtils.createPoolConfiguration(config);
+        this.poolProperties = TomcatDataSourceUtils.createPoolConfiguration(config);
         this.populateStandardProps();
     }
 
@@ -58,7 +60,7 @@ public class RDBMSDataSource {
         if (jdbcInterceptors == null) {
             jdbcInterceptors = "";
         }
-        jdbcInterceptors = RDBMSDataSourceConstants.STANDARD_JDBC_INTERCEPTORS + jdbcInterceptors;
+        jdbcInterceptors = RDBMSDataSourceConstants.STANDARD_TOMCAT_JDBC_INTERCEPTORS + jdbcInterceptors;
         this.poolProperties.setJdbcInterceptors(jdbcInterceptors);
     }
 
