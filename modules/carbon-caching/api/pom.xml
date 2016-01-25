@@ -41,6 +41,10 @@
     </dependencies>
 
     <properties>
+        <import.package>
+            javax.enterprise.util;resolution:=optional,
+            javax.management
+        </import.package>
         <export.package>
             javax.cache,
             javax.cache.annotation,
@@ -53,7 +57,6 @@
             javax.cache.spi
         </export.package>
         <dynamic.import.package>*</dynamic.import.package>
-        <SPI-Consumer>*</SPI-Consumer>
     </properties>
 
 </project>

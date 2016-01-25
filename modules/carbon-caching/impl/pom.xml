@@ -123,11 +123,6 @@
                    objectClass="org.wso2.carbon.kernel.CarbonRuntime";
                    dependent-component-key="carbon-deployment-service"
                </provide.capability>-->
-        <provide.capability>
-            osgi.serviceloader; osgi.serviceloader=javax.cache.spi.CachingProvider
-        </provide.capability>
-        <SPI-Provider>javax.cache.spi.CachingProvider</SPI-Provider>
-
 
         <carbon.caching.package.export.version>1.0.0</carbon.caching.package.export.version>
 
