@@ -282,7 +282,7 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
                 permissionTree.getAllowedRolesForResource(null,
                         null,
                         permission,
-                        PermissionTreeUtil.toComponenets(resourceId));
+                        PermissionTreeUtil.toComponenets(resourceId.toLowerCase()));
 
         if (debug) {
             log.debug("Allowed roles for the ResourceID: " + resourceId + " Action: " + action);
@@ -741,8 +741,11 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
     private void addAuthorizationForRole(String roleName, String resourceId, String action,
                                          short allow, boolean updateCache) throws UserStoreException {
 
-        /*need to clear tenant authz cache once role authorization is added, currently there is
-        no way to remove cache entry by role.*/
+        // We are lowering the case of permission since we are not planning to support case sensitivity for permissions.
+        resourceId = resourceId.toLowerCase();
+
+        // Need to clear tenant authz cache once role authorization is added, currently there is
+        // no way to remove cache entry by role.
         authorizationCache.clearCacheByTenant(this.tenantId);
 
         Connection dbConnection = null;
@@ -849,8 +852,12 @@ public class JDBCAuthorizationManager implements AuthorizationManager {
 
     private void addAuthorizationForUser(String userName, String resourceId, String action,
                                          short allow, boolean updateCache) throws UserStoreException {
-        /*need to clear tenant authz cache once role authorization is removed, currently there is
-        no way to remove cache entry by role.*/
+
+        // We are lowering the case of permission since we are not planning to support case sensitivity for permissions.
+        resourceId = resourceId.toLowerCase();
+
+        // Need to clear tenant authz cache once role authorization is removed, currently there is
+        // no way to remove cache entry by role.
         authorizationCache.clearCacheByTenant(this.tenantId);
 
         Connection dbConnection = null;
