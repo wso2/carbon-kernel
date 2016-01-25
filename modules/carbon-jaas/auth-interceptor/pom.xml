@@ -1,0 +1,114 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.wso2.carbon</groupId>
+        <artifactId>carbon-kernel-parent</artifactId>
+        <version>5.0.0</version>
+    </parent>
+
+    <artifactId>auth-interceptor-bundle</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>Auth Interceptor OSGi Bundle</name>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi</artifactId>
+            <version>${equinox.osgi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+            <version>${equinox.osgi.services.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.mss</groupId>
+            <artifactId>org.wso2.carbon.mss</artifactId>
+            <version>${carbon.mss.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>carbon-security-bundle</artifactId>
+            <version>5.1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <private.package>org.wso2.carbon.auth.internal</private.package>
+        <import.package>
+            org.osgi.framework.*;version="${osgi.framework.import.version.range}",
+            io.netty.handler.codec.http.*,
+            org.slf4j.*,
+            com.google.common.collect.*,
+            javax.security.auth.*,
+            javax.security.auth.callback.*,
+            org.wso2.carbon.mss.*,
+            org.osgi.service.*,
+            org.wso2.carbon.security.annotation.*,
+            org.wso2.carbon.security.jaas.callback.*,
+            org.wso2.carbon.security.jaas.module.*,
+            org.wso2.carbon.security.jaas.pincipal.*,
+            org.wso2.carbon.security.jaas.permission.*,
+            org.wso2.carbon.security.exception.*,
+        </import.package>
+        <export.package>!org.wso2.carbon.auth.internal, org.wso2.carbon.auth.*</export.package>
+        <dynamic.import.package>*</dynamic.import.package>
+        <dsannotations>*</dsannotations>
+        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
+        <carbon.mss.version>1.0.0-SNAPSHOT</carbon.mss.version>
+        <netty.version>4.0.30.Final</netty.version>
+        <slf4j.version>1.7.5</slf4j.version>
+        <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
+        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <releases>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <id>wso2-nexus</id>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+        </repository>
+        <repository>
+            <id>apache-maven2-repo</id>
+            <name>Apache Maven2 Repository</name>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
+
+</project>
