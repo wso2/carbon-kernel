@@ -353,7 +353,7 @@
 
         <version.eclipse.ecj>4.4.2</version.eclipse.ecj>
 
-        <orbit.version.hazelcast>3.5.2.wso2v1</orbit.version.hazelcast>
+        <orbit.version.hazelcast>3.5.4.wso2v1</orbit.version.hazelcast>
         <version.apacheds.shared.ldap>0.9.18</version.apacheds.shared.ldap>
 
         <!-- hibernate -->
@@ -454,7 +454,7 @@
         <maven.clean.plugin.version>2.4.1</maven.clean.plugin.version>
         <version.com.google.code.gson>2.3.1</version.com.google.code.gson>
 
-        <test.framework.version>4.4.3-SNAPSHOT</test.framework.version>
+        <test.framework.version>4.4.3</test.framework.version>
         <jacoco.agent.version>0.7.5.201505241946</jacoco.agent.version>
         <testng.verson>6.1.1</testng.verson>
     </properties>
