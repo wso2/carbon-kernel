@@ -12,7 +12,6 @@ This is a POC conducted to read datasource configuration files and bind these da
 - This bundle search for data source configuration files in 'datasources' directory of the carbon configuration folder. Thus create a folder named 'datasources' in CARBON_HOME/conf directory and copy the master-datasources.xml file found in the resources folder of org.wso2.carbon.datasource.core maven project into CARBON_HOME/conf/datasources directory. This master-datasources.xml file is a dummy configuration file. Thus you should update before use this. In addition you can place any data source configuration file have it's file name ends with '-datasources.xml'. This is the convention used in previous carbon versions.
 
 - org.wso2.carbon.datasource.core bundle has a dependency with following jar files;
--- commons-io
 -- fscontext
 -- tomcat-jdbc
 -- sun_jndi_providerutil
