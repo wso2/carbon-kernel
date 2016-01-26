@@ -33,6 +33,7 @@ import javax.cache.spi.CachingProvider;
 /**
  * OSGi Command provider for testing Carbon caching
  */
+@SuppressWarnings("unused")
 public class CachingCommandProvider implements CommandProvider {
     private Duration cacheExpiry = new Duration(TimeUnit.MINUTES, 15);
 
@@ -42,7 +43,8 @@ public class CachingCommandProvider implements CommandProvider {
                 "\tcachePut <cache-name> <key> <value> - Put a string into the cache.\n" +
                 "\tcacheGet <cache-name> <key> - Get the value of <key>\n" +
                 "\tcacheDelete <cache-name> <key> - Delete the cache entry corresponding to <key>\n" +
-                "\tcacheFlush <cache-name> - Flush the cache\n" +
+                "\tcacheList - List all the cache names\n" +
+                "\tcacheClear <cache-name> - Clear the cache\n" +
                 "\tcachePrint <cache-name> - Print all the key-value pairs in the cache";
     }
 
@@ -71,18 +73,26 @@ public class CachingCommandProvider implements CommandProvider {
         System.out.println("OK");
     }
 
-    public void _cacheFlush(CommandInterpreter ci) {
-        String cacheName = ci.nextArgument();
-        getCache(cacheName).removeAll();
-        System.out.println("OK");
-    }
-
     public void _cachePrint(CommandInterpreter ci) {
         String cacheName = ci.nextArgument();
         Cache<String, String> cache = getCache(cacheName);
         for (Cache.Entry<String, String> entry : cache) {
             System.out.println(entry.getKey() + "=" + entry.getValue());
         }
+    }
+
+    public void _cacheClear(CommandInterpreter ci) {
+        String cacheName = ci.nextArgument();
+        CachingProvider provider = Caching.getCachingProvider();
+        CacheManager cacheManager = provider.getCacheManager();
+        cacheManager.destroyCache(cacheName);
+        System.out.println("OK");
+    }
+
+    public void _cacheList(CommandInterpreter ci) {
+        CachingProvider provider = Caching.getCachingProvider();
+        CacheManager cacheManager = provider.getCacheManager();
+        System.out.println(cacheManager.getCacheNames());
     }
 
     private Cache<String, String> getCache(String cacheName) {

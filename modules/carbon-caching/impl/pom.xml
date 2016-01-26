@@ -96,33 +96,9 @@
             org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
             org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
             org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-            javax.cache.*
+            javax.management.*; version="${javax.management.package.import.version.range}",
+            javax.cache.*; version="${javax.cache.package.import.version.range}"
         </import.package>
-        <!--<bundle.activator>org.wso2.carbon.kernel.internal.CarbonCoreBundleActivator</bundle.activator>
-               <export.package>
-                   !org.wso2.carbon.kernel.internal.*,
-                   org.wso2.carbon.kernel.*; version="${carbon.kernel.package.export.version}",
-               </export.package>
-               <import.package>
-                   org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
-                   org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
-                   org.osgi.framework.*;version="${osgi.framework.package.import.version.range}",
-                   org.eclipse.osgi.framework.console;version="${osgi.framework.console.package.import.version.range}",
-                   org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
-                   org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
-                   org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}"
-               </import.package>
-               <provide.capability>
-                   osgi.service;effective:=active;
-                   objectClass="org.wso2.carbon.kernel.deployment.DeploymentService";
-                   dependent-component-key="carbon-transport-mgt",
-                   osgi.service;effective:=active;
-                   objectClass="org.wso2.carbon.kernel.runtime.RuntimeService";
-                   dependent-component-key="carbon-deployment-service",
-                   osgi.service;effective:=active;
-                   objectClass="org.wso2.carbon.kernel.CarbonRuntime";
-                   dependent-component-key="carbon-deployment-service"
-               </provide.capability>-->
 
         <carbon.caching.package.export.version>1.0.0</carbon.caching.package.export.version>
 
@@ -144,6 +120,10 @@
         </osgi.framework.console.package.import.version.range>
         <org.eclipse.osgi.util.package.import.version.range>[1.1.0, 2.0.0)
         </org.eclipse.osgi.util.package.import.version.range>
+
+        <!-- Dependency package version ranges -->
+        <javax.cache.package.import.version.range>[1.0.0, 1.1.0)</javax.cache.package.import.version.range>
+        <javax.management.package.import.version.range>0.0.0</javax.management.package.import.version.range>
 
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
