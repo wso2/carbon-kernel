@@ -26,10 +26,8 @@ import java.util.Hashtable;
 
 public class javaURLContextFactory extends org.apache.naming.java.javaURLContextFactory {
 
-    public Object getObjectInstance(Object o,
-                                    Name name,
-                                    Context context,
-                                    Hashtable<?, ?> hashtable) throws NamingException {
+    public Object getObjectInstance(Object o, Name name, Context context, Hashtable<?, ?> hashtable)
+            throws NamingException {
         if (ContextBindings.isClassLoaderBound()) {
             return new CarbonSelectorContext((Hashtable<String, Object>) hashtable, false, context);
         }
