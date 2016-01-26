@@ -64,7 +64,10 @@ public class CarbonSelectorContext extends SelectorContext {
         try {
             return super.lookup(name);
         } catch (NamingException ex) {
-            return carbonInitialContext.lookup(name);
+            if (carbonInitialContext != null) {
+                return carbonInitialContext.lookup(name);
+            }
+            throw ex;
         }
     }
 
