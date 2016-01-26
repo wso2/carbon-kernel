@@ -119,18 +119,4 @@ public class CarbonSelectorContext extends SelectorContext {
         return new CarbonSelectorContext(env,initialContext,tenantSubContext);
     }
 
-    @Override
-    protected String parseName(String name) throws NamingException {
-        try {
-            return super.parseName(name);
-        } catch (NamingException e) {
-            if (carbonInitialContext.lookup(name) != null) {
-                return name;
-            }
-            throw e;
-        }
-    }
-
-
-
 }
