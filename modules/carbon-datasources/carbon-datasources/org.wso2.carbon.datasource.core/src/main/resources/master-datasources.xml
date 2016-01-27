@@ -1,7 +1,8 @@
 <datasources-configuration>
 
     <providers>
-        <provider>org.wso2.carbon.datasource.rdbms.RDBMSDataSourceReader</provider>
+        <!--<provider>org.wso2.carbon.datasource.rdbms.hikari.HikariDataSourceReader</provider>-->
+        <provider>org.wso2.carbon.datasource.rdbms.tomcat.RDBMSDataSourceReader</provider>
     </providers>
 
     <datasources>
@@ -14,15 +15,16 @@
                 <useDataSourceFactory>true</useDataSourceFactory>
                 <environment>
                     <property name="java.naming.factory.initial">com.sun.jndi.fscontext.RefFSContextFactory</property>
-                    <property name="java.naming.provider.url">file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/org.wso2.carbon.datasource.core/src/test</property>
+                    <property name="java.naming.provider.url">file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/carbon-datasources/org.wso2.carbon.datasource.core/src/test</property>
                 </environment>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
-                    <url>jdbc:h2:repository/database/WSO2CARBON_DB;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=60000</url>
-                    <username>wso2carbon</username>
-                    <password>wso2carbon</password>
-                    <driverClassName>org.h2.Driver</driverClassName>
+                    <url>jdbc:mysql://localhost:3306/test</url>
+                    <username>root</username>
+                    <password>root</password>
+                    <driverClassName>com.mysql.jdbc.Driver</driverClassName>
+                    <!--<driverClassName>org.h2.Driver</driverClassName>-->
                     <maxActive>50</maxActive>
                     <maxWait>60000</maxWait>
                     <testOnBorrow>true</testOnBorrow>
