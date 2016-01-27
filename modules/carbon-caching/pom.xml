@@ -69,6 +69,7 @@
     <modules>
         <module>component</module>
         <module>feature</module>
+        <module>distribution</module>
     </modules>
 
 </project>
