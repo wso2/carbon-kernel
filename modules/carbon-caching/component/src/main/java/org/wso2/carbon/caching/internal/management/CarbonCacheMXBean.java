@@ -28,66 +28,65 @@ import javax.cache.management.CacheMXBean;
  */
 public class CarbonCacheMXBean<K, V> implements CacheMXBean {
 
-  private final Cache<K, V> cache;
+    private final Cache<K, V> cache;
 
 
+    /**
+     * Constructor
+     *
+     * @param cache the cache
+     */
+    public CarbonCacheMXBean(Cache<K, V> cache) {
+        this.cache = cache;
+    }
 
-  /**
-   * Constructor
-   *
-   * @param cache the cache
-   */
-  public CarbonCacheMXBean(Cache<K, V> cache) {
-    this.cache = cache;
-  }
+    @Override
+    public String getKeyType() {
+        return cache.getConfiguration(CompleteConfiguration.class).getKeyType().getName();
+    }
 
-  @Override
-  public String getKeyType() {
-    return cache.getConfiguration(CompleteConfiguration.class).getKeyType().getName();
-  }
+    @Override
+    public String getValueType() {
+        return cache.getConfiguration(CompleteConfiguration.class).getValueType().getName();
+    }
 
-  @Override
-  public String getValueType() {
-    return cache.getConfiguration(CompleteConfiguration.class).getValueType().getName();
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isReadThrough() {
+        return cache.getConfiguration(CompleteConfiguration.class).isReadThrough();
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isReadThrough() {
-    return cache.getConfiguration(CompleteConfiguration.class).isReadThrough();
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isWriteThrough() {
+        return cache.getConfiguration(CompleteConfiguration.class).isWriteThrough();
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isWriteThrough() {
-    return cache.getConfiguration(CompleteConfiguration.class).isWriteThrough();
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isStoreByValue() {
+        return cache.getConfiguration(Configuration.class).isStoreByValue();
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isStoreByValue() {
-    return cache.getConfiguration(Configuration.class).isStoreByValue();
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isStatisticsEnabled() {
+        return cache.getConfiguration(CompleteConfiguration.class).isStatisticsEnabled();
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isStatisticsEnabled() {
-    return cache.getConfiguration(CompleteConfiguration.class).isStatisticsEnabled();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isManagementEnabled() {
-    return cache.getConfiguration(CompleteConfiguration.class).isManagementEnabled();
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isManagementEnabled() {
+        return cache.getConfiguration(CompleteConfiguration.class).isManagementEnabled();
+    }
 }

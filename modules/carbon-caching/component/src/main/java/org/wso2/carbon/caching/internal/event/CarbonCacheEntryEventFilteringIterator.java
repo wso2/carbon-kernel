@@ -15,10 +15,10 @@
  */
 package org.wso2.carbon.caching.internal.event;
 
-import javax.cache.event.CacheEntryEvent;
-import javax.cache.event.CacheEntryEventFilter;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import javax.cache.event.CacheEntryEvent;
+import javax.cache.event.CacheEntryEventFilter;
 
 /**
  * A adapter to {@link Iterator}s to allow filtering of {@link CacheEntryEvent}s
@@ -28,83 +28,83 @@ import java.util.NoSuchElementException;
  */
 public class CarbonCacheEntryEventFilteringIterator<K, V> implements Iterator<CacheEntryEvent<K, V>> {
 
-  /**
-   * The underlying iterator to filter.
-   */
-  private Iterator<CacheEntryEvent<K, V>> iterator;
+    /**
+     * The underlying iterator to filter.
+     */
+    private Iterator<CacheEntryEvent<K, V>> iterator;
 
-  /**
-   * The filter to apply to Cache Entry Events in the {@link Iterator}.
-   */
-  private CacheEntryEventFilter<? super K, ? super V> filter;
+    /**
+     * The filter to apply to Cache Entry Events in the {@link Iterator}.
+     */
+    private CacheEntryEventFilter<? super K, ? super V> filter;
 
-  /**
-   * The next available Cache Entry Event that satisfies the filter.
-   * (when null we must seek to find the next event)
-   */
-  private CacheEntryEvent<K, V> nextEntry;
+    /**
+     * The next available Cache Entry Event that satisfies the filter.
+     * (when null we must seek to find the next event)
+     */
+    private CacheEntryEvent<K, V> nextEntry;
 
-  /**
-   * Constructs an {@link CarbonCacheEntryEventFilteringIterator}.
-   *
-   * @param iterator the underlying iterator to filter
-   * @param filter   the filter to apply to entries in the iterator
-   */
-  public CarbonCacheEntryEventFilteringIterator(Iterator<CacheEntryEvent<K, V>> iterator,
-                                                CacheEntryEventFilter<? super K, ? super V> filter) {
-    this.iterator = iterator;
-    this.filter = filter;
-    this.nextEntry = null;
-  }
-
-  /**
-   * Fetches the next available, entry that satisfies the filter from
-   * the underlying iterator
-   */
-  private void fetch() {
-    while (nextEntry == null && iterator.hasNext()) {
-      CacheEntryEvent<K, V> entry = iterator.next();
-
-      if (filter.evaluate(entry)) {
-        nextEntry = entry;
-      }
+    /**
+     * Constructs an {@link CarbonCacheEntryEventFilteringIterator}.
+     *
+     * @param iterator the underlying iterator to filter
+     * @param filter   the filter to apply to entries in the iterator
+     */
+    public CarbonCacheEntryEventFilteringIterator(Iterator<CacheEntryEvent<K, V>> iterator,
+                                                  CacheEntryEventFilter<? super K, ? super V> filter) {
+        this.iterator = iterator;
+        this.filter = filter;
+        this.nextEntry = null;
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasNext() {
-    if (nextEntry == null) {
-      fetch();
+    /**
+     * Fetches the next available, entry that satisfies the filter from
+     * the underlying iterator
+     */
+    private void fetch() {
+        while (nextEntry == null && iterator.hasNext()) {
+            CacheEntryEvent<K, V> entry = iterator.next();
+
+            if (filter.evaluate(entry)) {
+                nextEntry = entry;
+            }
+        }
     }
-    return nextEntry != null;
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public CacheEntryEvent<K, V> next() {
-    if (hasNext()) {
-      CacheEntryEvent<K, V> entry = nextEntry;
-
-      //reset nextEntry to force fetching the next available entry
-      nextEntry = null;
-
-      return entry;
-    } else {
-      throw new NoSuchElementException();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasNext() {
+        if (nextEntry == null) {
+            fetch();
+        }
+        return nextEntry != null;
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void remove() {
-    iterator.remove();
-    nextEntry = null;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CacheEntryEvent<K, V> next() {
+        if (hasNext()) {
+            CacheEntryEvent<K, V> entry = nextEntry;
+
+            //reset nextEntry to force fetching the next available entry
+            nextEntry = null;
+
+            return entry;
+        } else {
+            throw new NoSuchElementException();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void remove() {
+        iterator.remove();
+        nextEntry = null;
+    }
 }

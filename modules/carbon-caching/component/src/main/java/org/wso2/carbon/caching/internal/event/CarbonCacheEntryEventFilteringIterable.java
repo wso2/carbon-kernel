@@ -15,9 +15,9 @@
  */
 package org.wso2.carbon.caching.internal.event;
 
+import java.util.Iterator;
 import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryEventFilter;
-import java.util.Iterator;
 
 /**
  * An adapter to provide {@link Iterable}s over Cache Entries, those of which
@@ -28,33 +28,33 @@ import java.util.Iterator;
  */
 public class CarbonCacheEntryEventFilteringIterable<K, V> implements Iterable<CacheEntryEvent<K, V>> {
 
-  /**
-   * The underlying {@link Iterable} to filter.
-   */
-  private Iterable<CacheEntryEvent<K, V>> iterable;
+    /**
+     * The underlying {@link Iterable} to filter.
+     */
+    private Iterable<CacheEntryEvent<K, V>> iterable;
 
-  /**
-   * The filter to apply to entries in the produced {@link Iterator}s.
-   */
-  private CacheEntryEventFilter<? super K, ? super V> filter;
+    /**
+     * The filter to apply to entries in the produced {@link Iterator}s.
+     */
+    private CacheEntryEventFilter<? super K, ? super V> filter;
 
-  /**
-   * Constructs an {@link CarbonCacheEntryEventFilteringIterable}.
-   *
-   * @param iterable the underlying iterable to filter
-   * @param filter   the filter to apply to entries in the iterable
-   */
-  public CarbonCacheEntryEventFilteringIterable(Iterable<CacheEntryEvent<K, V>> iterable,
-                                                CacheEntryEventFilter<? super K, ? super V> filter) {
-    this.iterable = iterable;
-    this.filter = filter;
-  }
+    /**
+     * Constructs an {@link CarbonCacheEntryEventFilteringIterable}.
+     *
+     * @param iterable the underlying iterable to filter
+     * @param filter   the filter to apply to entries in the iterable
+     */
+    public CarbonCacheEntryEventFilteringIterable(Iterable<CacheEntryEvent<K, V>> iterable,
+                                                  CacheEntryEventFilter<? super K, ? super V> filter) {
+        this.iterable = iterable;
+        this.filter = filter;
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Iterator<CacheEntryEvent<K, V>> iterator() {
-    return new CarbonCacheEntryEventFilteringIterator<K, V>(iterable.iterator(), filter);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Iterator<CacheEntryEvent<K, V>> iterator() {
+        return new CarbonCacheEntryEventFilteringIterator<K, V>(iterable.iterator(), filter);
+    }
 }

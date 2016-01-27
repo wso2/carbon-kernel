@@ -31,160 +31,160 @@ import javax.cache.processor.MutableEntry;
  * @param <V> the type of mapped values*
  */
 public class EntryProcessorEntry<K, V> implements MutableEntry<K, V> {
-  /**
-   * The key of the {@link MutableEntry}.
-   */
-  private final K key;
+    /**
+     * The key of the {@link MutableEntry}.
+     */
+    private final K key;
 
-  /**
-   * The {@link CarbonCachedValue} for the {@link MutableEntry}.
-   */
-  private final CarbonCachedValue cachedValue;
+    /**
+     * The {@link CarbonCachedValue} for the {@link MutableEntry}.
+     */
+    private final CarbonCachedValue cachedValue;
 
-  /**
-   * The RICache this entry belongs to.
-   */
-  private final InternalConverter<V> converter;
+    /**
+     * The RICache this entry belongs to.
+     */
+    private final InternalConverter<V> converter;
 
-  /**
-   * The new value for the {@link MutableEntry}.
-   */
-  private V value;
+    /**
+     * The new value for the {@link MutableEntry}.
+     */
+    private V value;
 
-  /**
-   * The {@link MutableEntryOperation} to be performed on the {@link MutableEntry}.
-   */
-  private MutableEntryOperation operation;
+    /**
+     * The {@link MutableEntryOperation} to be performed on the {@link MutableEntry}.
+     */
+    private MutableEntryOperation operation;
 
-  /**
-   * The time (since the Epoc) when the MutableEntry was created.
-   */
-  private long now;
+    /**
+     * The time (since the Epoc) when the MutableEntry was created.
+     */
+    private long now;
 
-  /**
-   * The dispatcher to use for capturing events to eventually dispatch.
-   */
-  private CarbonCacheEventDispatcher<K, V> dispatcher;
+    /**
+     * The dispatcher to use for capturing events to eventually dispatch.
+     */
+    private CarbonCacheEventDispatcher<K, V> dispatcher;
 
-  /**
-   * CacheLoader to call if getValue() would return null.
-   */
-  private CacheLoader<K, V> cacheLoader;
+    /**
+     * CacheLoader to call if getValue() would return null.
+     */
+    private CacheLoader<K, V> cacheLoader;
 
-  /**
-   * Construct a {@link MutableEntry}
-   *
-   * @param key         the key for the {@link MutableEntry}
-   * @param cachedValue the {@link CarbonCachedValue} of the {@link MutableEntry}
-   *                    (may be <code>null</code>)
-   * @param now         the current time
-   * @param dispatcher  the dispatch to capture events to dispatch
-   * @param cacheLoader cacheLoader should be non-null only if configuration.isReadThrough is true.
-   */
-  public EntryProcessorEntry(InternalConverter<V> converter, K key,
-                             CarbonCachedValue cachedValue, long now,
-                             CarbonCacheEventDispatcher<K, V> dispatcher,
-                             CacheLoader<K, V> cacheLoader) {
-    this.converter = converter;
-    this.key = key;
-    this.cachedValue = cachedValue;
-    this.operation = MutableEntryOperation.NONE;
-    this.value = null;
-    this.now = now;
-    this.dispatcher = dispatcher;
-    this.cacheLoader = cacheLoader;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public K getKey() {
-    return key;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public V getValue() {
-    if (operation == MutableEntryOperation.NONE) {
-      if (cachedValue == null || cachedValue.isExpiredAt(now)) {
-        value = null;
-      } else if (value == null) {
-        Object internalValue = cachedValue.getInternalValue(now);
-        value = internalValue == null ? null : converter.fromInternal(internalValue);
-      }
+    /**
+     * Construct a {@link MutableEntry}
+     *
+     * @param key         the key for the {@link MutableEntry}
+     * @param cachedValue the {@link CarbonCachedValue} of the {@link MutableEntry}
+     *                    (may be <code>null</code>)
+     * @param now         the current time
+     * @param dispatcher  the dispatch to capture events to dispatch
+     * @param cacheLoader cacheLoader should be non-null only if configuration.isReadThrough is true.
+     */
+    public EntryProcessorEntry(InternalConverter<V> converter, K key,
+                               CarbonCachedValue cachedValue, long now,
+                               CarbonCacheEventDispatcher<K, V> dispatcher,
+                               CacheLoader<K, V> cacheLoader) {
+        this.converter = converter;
+        this.key = key;
+        this.cachedValue = cachedValue;
+        this.operation = MutableEntryOperation.NONE;
+        this.value = null;
+        this.now = now;
+        this.dispatcher = dispatcher;
+        this.cacheLoader = cacheLoader;
     }
 
-    if (value != null) {
-      // mark as Accessed so AccessedExpiry will be computed upon return from entry processor.
-      if (operation == MutableEntryOperation.NONE) {
-        operation = MutableEntryOperation.ACCESS;
-      }
-    } else {
-      // check for read-through
-      if (cacheLoader != null) {
-        try {
-          value = cacheLoader.load(key);
-          if (value != null) {
-            operation = MutableEntryOperation.LOAD;
-          }
-        } catch (Exception e) {
-          if (!(e instanceof CacheLoaderException)) {
-            throw new CacheLoaderException("Exception in CacheLoader", e);
-          } else {
-            throw e;
-          }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public K getKey() {
+        return key;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public V getValue() {
+        if (operation == MutableEntryOperation.NONE) {
+            if (cachedValue == null || cachedValue.isExpiredAt(now)) {
+                value = null;
+            } else if (value == null) {
+                Object internalValue = cachedValue.getInternalValue(now);
+                value = internalValue == null ? null : converter.fromInternal(internalValue);
+            }
         }
-      }
+
+        if (value != null) {
+            // mark as Accessed so AccessedExpiry will be computed upon return from entry processor.
+            if (operation == MutableEntryOperation.NONE) {
+                operation = MutableEntryOperation.ACCESS;
+            }
+        } else {
+            // check for read-through
+            if (cacheLoader != null) {
+                try {
+                    value = cacheLoader.load(key);
+                    if (value != null) {
+                        operation = MutableEntryOperation.LOAD;
+                    }
+                } catch (Exception e) {
+                    if (!(e instanceof CacheLoaderException)) {
+                        throw new CacheLoaderException("Exception in CacheLoader", e);
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        }
+        return value;
     }
-    return value;
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean exists() {
-    return (operation == MutableEntryOperation.NONE && cachedValue != null && !cachedValue.isExpiredAt(now)) || value != null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void remove() {
-    operation = (operation == MutableEntryOperation.CREATE || operation == MutableEntryOperation.LOAD)
-        ? MutableEntryOperation.NONE : MutableEntryOperation.REMOVE;
-    value = null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setValue(V value) {
-    if (value == null) {
-      throw new NullPointerException();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setValue(V value) {
+        if (value == null) {
+            throw new NullPointerException();
+        }
+        operation = cachedValue == null || cachedValue.isExpiredAt(now) ? MutableEntryOperation.CREATE : MutableEntryOperation.UPDATE;
+        this.value = value;
     }
-    operation = cachedValue == null || cachedValue.isExpiredAt(now) ? MutableEntryOperation.CREATE : MutableEntryOperation.UPDATE;
-    this.value = value;
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public <T> T unwrap(Class<T> clazz) {
-    throw new IllegalArgumentException("Can't unwrap an EntryProcessor Entry");
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean exists() {
+        return (operation == MutableEntryOperation.NONE && cachedValue != null && !cachedValue.isExpiredAt(now)) || value != null;
+    }
 
-  /**
-   * Return the operation
-   */
-  public MutableEntryOperation getOperation() {
-    return operation;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void remove() {
+        operation = (operation == MutableEntryOperation.CREATE || operation == MutableEntryOperation.LOAD)
+                ? MutableEntryOperation.NONE : MutableEntryOperation.REMOVE;
+        value = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T unwrap(Class<T> clazz) {
+        throw new IllegalArgumentException("Can't unwrap an EntryProcessor Entry");
+    }
+
+    /**
+     * Return the operation
+     */
+    public MutableEntryOperation getOperation() {
+        return operation;
+    }
 
 }

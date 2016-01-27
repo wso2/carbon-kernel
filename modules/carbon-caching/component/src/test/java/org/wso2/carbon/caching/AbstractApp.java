@@ -15,6 +15,11 @@
  */
 package org.wso2.carbon.caching;
 
+import java.io.File;
+import java.net.URI;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
@@ -22,17 +27,14 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.spi.CachingProvider;
-import java.io.File;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 
 /**
  * Base application
  */
 public class AbstractApp {
+    private static Duration TEN_SEC = new Duration(TimeUnit.SECONDS, 10);
+
     static {
         final String logging = "hazelcast.logging.type";
         if (System.getProperty(logging) == null) {
@@ -55,9 +57,6 @@ public class AbstractApp {
         System.setProperty("hazelcast.jcache.provider.type", "server");
     }
 
-
-    private static Duration TEN_SEC = new Duration(TimeUnit.SECONDS,10);
-
     protected final URI uri1 = new File("jcache/src/main/resources/hazelcast-client-c1.xml").toURI();
     protected final URI uri2 = new File("jcache/src/main/resources/hazelcast-client-c2.xml").toURI();
 
@@ -78,6 +77,7 @@ public class AbstractApp {
 
     /**
      * we initialize a cache with name
+     *
      * @param name
      */
     public Cache<String, Integer> initCache(String name, CacheManager cacheManager) {
@@ -95,6 +95,7 @@ public class AbstractApp {
 
     /**
      * we initialize a cache with name
+     *
      * @param duration
      * @param name
      */
@@ -106,7 +107,7 @@ public class AbstractApp {
                 .setTypes(String.class, Integer.class)
                 .setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(duration))
                 .setStatisticsEnabled(false);
-        if(cacheManager.getCache(name,String.class, Integer.class) != null){
+        if (cacheManager.getCache(name, String.class, Integer.class) != null) {
             //cache should not exist so I will destroy it
             cacheManager.destroyCache(name);
         }
@@ -128,9 +129,9 @@ public class AbstractApp {
     /**
      * print all of the content of the cache, if expires or not exist you will see a null value
      */
-    public void printContent(Cache<String, Integer> cache){
-        System.out.println("==============>  "+cache.getName()+"@ URI:"+ cache.getCacheManager().getURI()+ "  <=====================");
-        for(int i=0;i<10;i++){
+    public void printContent(Cache<String, Integer> cache) {
+        System.out.println("==============>  " + cache.getName() + "@ URI:" + cache.getCacheManager().getURI() + "  <=====================");
+        for (int i = 0; i < 10; i++) {
             final String key = "theKey-" + i;
             System.out.println("Key: " + key + ", Value: " + cache.get(key));
         }
@@ -140,12 +141,12 @@ public class AbstractApp {
     /**
      * print all of the content of the cache using Iterator, if expires or not exist you will see no value
      */
-    public void printContentWithIterator(Cache<String, Integer> cache){
-        System.out.println("==============>  "+cache.getName()+"  <=====================");
+    public void printContentWithIterator(Cache<String, Integer> cache) {
+        System.out.println("==============>  " + cache.getName() + "  <=====================");
         final Iterator<Cache.Entry<String, Integer>> iterator = cache.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             final Cache.Entry<String, Integer> next = iterator.next();
-            System.out.println("Key: " + next.getKey() + ", Value: " + next.getValue() );
+            System.out.println("Key: " + next.getKey() + ", Value: " + next.getValue());
         }
         System.out.println("============================================================");
     }
@@ -162,7 +163,7 @@ public class AbstractApp {
     /**
      * closing the cache manager we started
      */
-    public void shutdown(){
+    public void shutdown() {
         cachingProvider.close();
 
     }

@@ -28,122 +28,123 @@ import javax.cache.event.CacheEntryListener;
  */
 public class CarbonCacheEntryListenerRegistration<K, V> {
 
-  private final CacheEntryListenerConfiguration<K, V> configuration;
-  private CacheEntryListener<? super K, ? super V> listener;
-  private CacheEntryEventFilter<? super K, ? super V> filter;
-  private boolean isOldValueRequired;
-  private boolean isSynchronous;
+    private final CacheEntryListenerConfiguration<K, V> configuration;
+    private CacheEntryListener<? super K, ? super V> listener;
+    private CacheEntryEventFilter<? super K, ? super V> filter;
+    private boolean isOldValueRequired;
+    private boolean isSynchronous;
 
-  /**
-   * Constructs an {@link CarbonCacheEntryListenerRegistration}.
-   *
-   * @param configuration  the {@link CacheEntryListenerConfiguration} to be registered
-   */
-  public CarbonCacheEntryListenerRegistration(CacheEntryListenerConfiguration<K, V> configuration) {
-    this.configuration = configuration;
-    this.listener = configuration.getCacheEntryListenerFactory().create();
-    this.filter = configuration.getCacheEntryEventFilterFactory() == null
-                  ? null
-                  : configuration.getCacheEntryEventFilterFactory().create();
-    this.isOldValueRequired = configuration.isOldValueRequired();
-    this.isSynchronous = configuration.isSynchronous();
-  }
-
-  /**
-   * Obtains the {@link CacheEntryListener} that was registered.
-   *
-   * @return the {@link CacheEntryListener}
-   */
-  public CacheEntryListener<? super K, ? super V> getCacheEntryListener() {
-    return listener;
-  }
-
-  /**
-   * Obtains the {@link CacheEntryEventFilter} that was registered.
-   *
-   * @return the {@link CacheEntryEventFilter}
-   */
-  public CacheEntryEventFilter<? super K, ? super V> getCacheEntryFilter() {
-    return filter;
-  }
-
-  /**
-   * Determines if the old/previous value should to be supplied with the
-   * {@link CacheEntryEvent}s dispatched to the
-   * {@link CacheEntryListener}.
-   */
-  public boolean isOldValueRequired() {
-    return isOldValueRequired;
-  }
-
-  /**
-   * Determines if {@link CacheEntryEvent}s should be raised
-   * synchronously.
-   *
-   * @return <code>true</code> if events should be raised synchronously
-   */
-  public boolean isSynchronous() {
-    return isSynchronous;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((filter == null) ? 0 : filter.hashCode());
-    result = prime * result + (isOldValueRequired ? 1231 : 1237);
-    result = prime * result + (isSynchronous ? 1231 : 1237);
-    result = prime * result
-        + ((listener == null) ? 0 : listener.hashCode());
-    return result;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean equals(Object object) {
-    if (this == object) {
-      return true;
+    /**
+     * Constructs an {@link CarbonCacheEntryListenerRegistration}.
+     *
+     * @param configuration the {@link CacheEntryListenerConfiguration} to be registered
+     */
+    public CarbonCacheEntryListenerRegistration(CacheEntryListenerConfiguration<K, V> configuration) {
+        this.configuration = configuration;
+        this.listener = configuration.getCacheEntryListenerFactory().create();
+        this.filter = configuration.getCacheEntryEventFilterFactory() == null
+                ? null
+                : configuration.getCacheEntryEventFilterFactory().create();
+        this.isOldValueRequired = configuration.isOldValueRequired();
+        this.isSynchronous = configuration.isSynchronous();
     }
-    if (object == null) {
-      return false;
-    }
-    if (!(object instanceof CarbonCacheEntryListenerRegistration)) {
-      return false;
-    }
-    CarbonCacheEntryListenerRegistration<?, ?> other = (CarbonCacheEntryListenerRegistration<?, ?>) object;
-    if (filter == null) {
-      if (other.filter != null) {
-        return false;
-      }
-    } else if (!filter.equals(other.filter)) {
-      return false;
-    }
-    if (isOldValueRequired != other.isOldValueRequired) {
-      return false;
-    }
-    if (isSynchronous != other.isSynchronous) {
-      return false;
-    }
-    if (listener == null) {
-      if (other.listener != null) {
-        return false;
-      }
-    } else if (!listener.equals(other.listener)) {
-      return false;
-    }
-    return true;
-  }
 
-  /**
-   * Gets the underlying configuration used to create this registration
-   * @return the configuration
-   */
-  public CacheEntryListenerConfiguration<K, V> getConfiguration() {
-    return configuration;
-  }
+    /**
+     * Obtains the {@link CacheEntryListener} that was registered.
+     *
+     * @return the {@link CacheEntryListener}
+     */
+    public CacheEntryListener<? super K, ? super V> getCacheEntryListener() {
+        return listener;
+    }
+
+    /**
+     * Obtains the {@link CacheEntryEventFilter} that was registered.
+     *
+     * @return the {@link CacheEntryEventFilter}
+     */
+    public CacheEntryEventFilter<? super K, ? super V> getCacheEntryFilter() {
+        return filter;
+    }
+
+    /**
+     * Determines if the old/previous value should to be supplied with the
+     * {@link CacheEntryEvent}s dispatched to the
+     * {@link CacheEntryListener}.
+     */
+    public boolean isOldValueRequired() {
+        return isOldValueRequired;
+    }
+
+    /**
+     * Determines if {@link CacheEntryEvent}s should be raised
+     * synchronously.
+     *
+     * @return <code>true</code> if events should be raised synchronously
+     */
+    public boolean isSynchronous() {
+        return isSynchronous;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((filter == null) ? 0 : filter.hashCode());
+        result = prime * result + (isOldValueRequired ? 1231 : 1237);
+        result = prime * result + (isSynchronous ? 1231 : 1237);
+        result = prime * result
+                + ((listener == null) ? 0 : listener.hashCode());
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null) {
+            return false;
+        }
+        if (!(object instanceof CarbonCacheEntryListenerRegistration)) {
+            return false;
+        }
+        CarbonCacheEntryListenerRegistration<?, ?> other = (CarbonCacheEntryListenerRegistration<?, ?>) object;
+        if (filter == null) {
+            if (other.filter != null) {
+                return false;
+            }
+        } else if (!filter.equals(other.filter)) {
+            return false;
+        }
+        if (isOldValueRequired != other.isOldValueRequired) {
+            return false;
+        }
+        if (isSynchronous != other.isSynchronous) {
+            return false;
+        }
+        if (listener == null) {
+            if (other.listener != null) {
+                return false;
+            }
+        } else if (!listener.equals(other.listener)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Gets the underlying configuration used to create this registration
+     *
+     * @return the configuration
+     */
+    public CacheEntryListenerConfiguration<K, V> getConfiguration() {
+        return configuration;
+    }
 }

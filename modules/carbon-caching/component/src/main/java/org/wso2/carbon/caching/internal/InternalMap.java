@@ -25,60 +25,60 @@ import java.util.Map;
  */
 interface InternalMap<K, V> extends Iterable<Map.Entry<K, V>> {
 
-  /**
-   * Gets the value associated with the specified key.  If there is no
-   * associated value, <code>null</code> is returned.
-   *
-   * @param key the key
-   * @return the value
-   */
-  V get(Object key);
+    /**
+     * Gets the value associated with the specified key.  If there is no
+     * associated value, <code>null</code> is returned.
+     *
+     * @param key the key
+     * @return the value
+     */
+    V get(Object key);
 
-  /**
-   * Determines if a value is associated with the specified key.
-   *
-   * @param key the key
-   * @return true if a value is associate with the key
-   */
-  boolean containsKey(Object key);
+    /**
+     * Determines if a value is associated with the specified key.
+     *
+     * @param key the key
+     * @return true if a value is associate with the key
+     */
+    boolean containsKey(Object key);
 
-  /**
-   * Associates a value with the specified key.  If a value is already
-   * associated with the key, the provided value replaces the previous value.
-   *
-   * @param key   the key
-   * @param value the value
-   */
-  void put(K key, V value);
+    /**
+     * Associates a value with the specified key.  If a value is already
+     * associated with the key, the provided value replaces the previous value.
+     *
+     * @param key   the key
+     * @param value the value
+     */
+    void put(K key, V value);
 
-  /**
-   * Gets the current value associated with the specified key and replaces
-   * the current value with the provided value.  If a value is not associated
-   * with the key, <code>null</code> is returned.
-   *
-   * @param key   the key
-   * @param value the value
-   * @return the old value
-   */
-  V getAndPut(K key, V value);
+    /**
+     * Gets the current value associated with the specified key and replaces
+     * the current value with the provided value.  If a value is not associated
+     * with the key, <code>null</code> is returned.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the old value
+     */
+    V getAndPut(K key, V value);
 
-  /**
-   * Removes the value associated with the key from this structure.
-   *
-   * @param key the key
-   * @return the value removed or <code>null</code> if there was no value
-   */
-  V remove(Object key);
+    /**
+     * Removes the value associated with the key from this structure.
+     *
+     * @param key the key
+     * @return the value removed or <code>null</code> if there was no value
+     */
+    V remove(Object key);
 
-  /**
-   * Removes all values from this structured.
-   */
-  void clear();
+    /**
+     * Removes all values from this structured.
+     */
+    void clear();
 
-  /**
-   * Gets the number of entries in this structure.
-   *
-   * @return the size
-   */
-  int size();
+    /**
+     * Gets the number of entries in this structure.
+     *
+     * @return the size
+     */
+    int size();
 }

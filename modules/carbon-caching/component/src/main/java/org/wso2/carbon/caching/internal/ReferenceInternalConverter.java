@@ -23,19 +23,19 @@ package org.wso2.carbon.caching.internal;
  */
 public class ReferenceInternalConverter<T> implements InternalConverter<T> {
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public T fromInternal(Object internal) {
-    return (T) internal;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public T fromInternal(Object internal) {
+        return (T) internal;
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Object toInternal(T value) {
-    return value;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object toInternal(T value) {
+        return value;
+    }
 }

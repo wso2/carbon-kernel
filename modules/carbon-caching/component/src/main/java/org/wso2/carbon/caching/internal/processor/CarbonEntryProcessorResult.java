@@ -25,43 +25,43 @@ import javax.cache.processor.EntryProcessorResult;
  * @param <T> the type of {@link javax.cache.processor.EntryProcessor} result
  */
 public class CarbonEntryProcessorResult<T> implements EntryProcessorResult<T> {
-  /**
-   * The result of processing the entry.
-   */
-  private final T result;
+    /**
+     * The result of processing the entry.
+     */
+    private final T result;
 
-  /**
-   * The {@link CacheException} that may have occurred executing an {@link javax.cache.processor.EntryProcessor}.
-   */
-  private final CacheException exception;
+    /**
+     * The {@link CacheException} that may have occurred executing an {@link javax.cache.processor.EntryProcessor}.
+     */
+    private final CacheException exception;
 
-  /**
-   * Constructs an {@link CarbonEntryProcessorResult} for a resulting value
-   *
-   * @param result  the result
-   */
-  public CarbonEntryProcessorResult(T result) {
-    this.result = result;
-    this.exception = null;
-  }
-
-  /**
-   * Constructs an {@link CarbonEntryProcessorResult} for an {@link Exception},
-   * that of which will be returned wrapped as an {@link EntryProcessorException}.
-   *
-   * @param exception  the {@link Exception}
-   */
-  public CarbonEntryProcessorResult(Exception exception) {
-    this.result = null;
-    this.exception = new EntryProcessorException(exception);
-  }
-
-  @Override
-  public T get() throws EntryProcessorException {
-    if (exception == null) {
-      return result;
-    } else {
-      throw exception;
+    /**
+     * Constructs an {@link CarbonEntryProcessorResult} for a resulting value
+     *
+     * @param result the result
+     */
+    public CarbonEntryProcessorResult(T result) {
+        this.result = result;
+        this.exception = null;
     }
-  }
+
+    /**
+     * Constructs an {@link CarbonEntryProcessorResult} for an {@link Exception},
+     * that of which will be returned wrapped as an {@link EntryProcessorException}.
+     *
+     * @param exception the {@link Exception}
+     */
+    public CarbonEntryProcessorResult(Exception exception) {
+        this.result = null;
+        this.exception = new EntryProcessorException(exception);
+    }
+
+    @Override
+    public T get() throws EntryProcessorException {
+        if (exception == null) {
+            return result;
+        } else {
+            throw exception;
+        }
+    }
 }

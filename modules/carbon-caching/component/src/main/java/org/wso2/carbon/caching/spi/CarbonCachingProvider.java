@@ -17,199 +17,200 @@ package org.wso2.carbon.caching.spi;
 
 import org.wso2.carbon.caching.internal.CarbonCacheManager;
 
-import javax.cache.CacheException;
-import javax.cache.CacheManager;
-import javax.cache.configuration.OptionalFeature;
-import javax.cache.spi.CachingProvider;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.WeakHashMap;
+import javax.cache.CacheException;
+import javax.cache.CacheManager;
+import javax.cache.configuration.OptionalFeature;
+import javax.cache.spi.CachingProvider;
 
 /**
  * The reference implementation of the {@link CachingProvider}.
  */
 public class CarbonCachingProvider implements CachingProvider {
 
-  /**
-   * The CacheManagers scoped by ClassLoader and URI.
-   */
-  private WeakHashMap<ClassLoader, HashMap<URI, CacheManager>> cacheManagersByClassLoader;
+    /**
+     * The CacheManagers scoped by ClassLoader and URI.
+     */
+    private WeakHashMap<ClassLoader, HashMap<URI, CacheManager>> cacheManagersByClassLoader;
 
-  /**
-   * Constructs an RICachingProvider.
-   */
-  public CarbonCachingProvider() {
-    this.cacheManagersByClassLoader = new WeakHashMap<ClassLoader, HashMap<URI, CacheManager>>();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized CacheManager getCacheManager(URI uri, ClassLoader classLoader, Properties properties) {
-    URI managerURI = uri == null ? getDefaultURI() : uri;
-    ClassLoader managerClassLoader = classLoader == null ? getDefaultClassLoader() : classLoader;
-    Properties managerProperties = properties == null ? new Properties() : properties;
-
-    HashMap<URI, CacheManager> cacheManagersByURI = cacheManagersByClassLoader.get(managerClassLoader);
-
-    if (cacheManagersByURI == null) {
-      cacheManagersByURI = new HashMap<URI, CacheManager>();
+    /**
+     * Constructs an RICachingProvider.
+     */
+    public CarbonCachingProvider() {
+        this.cacheManagersByClassLoader = new WeakHashMap<ClassLoader, HashMap<URI, CacheManager>>();
     }
 
-    CacheManager cacheManager = cacheManagersByURI.get(managerURI);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized CacheManager getCacheManager(URI uri, ClassLoader classLoader, Properties properties) {
+        URI managerURI = uri == null ? getDefaultURI() : uri;
+        ClassLoader managerClassLoader = classLoader == null ? getDefaultClassLoader() : classLoader;
+        Properties managerProperties = properties == null ? new Properties() : properties;
 
-    if (cacheManager == null) {
-      cacheManager = new CarbonCacheManager(this, managerURI, managerClassLoader, managerProperties);
+        HashMap<URI, CacheManager> cacheManagersByURI = cacheManagersByClassLoader.get(managerClassLoader);
 
-      cacheManagersByURI.put(managerURI, cacheManager);
+        if (cacheManagersByURI == null) {
+            cacheManagersByURI = new HashMap<URI, CacheManager>();
+        }
+
+        CacheManager cacheManager = cacheManagersByURI.get(managerURI);
+
+        if (cacheManager == null) {
+            cacheManager = new CarbonCacheManager(this, managerURI, managerClassLoader, managerProperties);
+
+            cacheManagersByURI.put(managerURI, cacheManager);
+        }
+
+        if (!cacheManagersByClassLoader.containsKey(managerClassLoader)) {
+            cacheManagersByClassLoader.put(managerClassLoader, cacheManagersByURI);
+        }
+
+        return cacheManager;
     }
 
-    if (!cacheManagersByClassLoader.containsKey(managerClassLoader)) {
-      cacheManagersByClassLoader.put(managerClassLoader, cacheManagersByURI);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CacheManager getCacheManager(URI uri, ClassLoader classLoader) {
+        return getCacheManager(uri, classLoader, getDefaultProperties());
     }
 
-    return cacheManager;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public CacheManager getCacheManager(URI uri, ClassLoader classLoader) {
-    return getCacheManager(uri, classLoader, getDefaultProperties());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public CacheManager getCacheManager() {
-    return getCacheManager(getDefaultURI(), getDefaultClassLoader(), null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ClassLoader getDefaultClassLoader() {
-    return getClass().getClassLoader();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public URI getDefaultURI() {
-    try {
-      return new URI(this.getClass().getName());
-    } catch (URISyntaxException e) {
-      throw new CacheException(
-          "Failed to create the default URI for the javax.cache Reference Implementation",
-          e);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CacheManager getCacheManager() {
+        return getCacheManager(getDefaultURI(), getDefaultClassLoader(), null);
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Properties getDefaultProperties() {
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void close() {
-    WeakHashMap<ClassLoader, HashMap<URI, CacheManager>> managersByClassLoader = this.cacheManagersByClassLoader;
-    this.cacheManagersByClassLoader = new WeakHashMap<ClassLoader, HashMap<URI, CacheManager>>();
-
-    for (ClassLoader classLoader : managersByClassLoader.keySet()) {
-      for (CacheManager cacheManager : managersByClassLoader.get(classLoader).values()) {
-        cacheManager.close();
-      }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ClassLoader getDefaultClassLoader() {
+        return getClass().getClassLoader();
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void close(ClassLoader classLoader) {
-    ClassLoader managerClassLoader = classLoader == null ? getDefaultClassLoader() : classLoader;
-
-    HashMap<URI, CacheManager> cacheManagersByURI = cacheManagersByClassLoader.remove(managerClassLoader);
-
-    if (cacheManagersByURI != null) {
-      for (CacheManager cacheManager : cacheManagersByURI.values()) {
-        cacheManager.close();
-      }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public URI getDefaultURI() {
+        try {
+            return new URI(this.getClass().getName());
+        } catch (URISyntaxException e) {
+            throw new CacheException(
+                    "Failed to create the default URI for the javax.cache Reference Implementation",
+                    e);
+        }
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public synchronized void close(URI uri, ClassLoader classLoader) {
-    URI managerURI = uri == null ? getDefaultURI() : uri;
-    ClassLoader managerClassLoader = classLoader == null ? getDefaultClassLoader() : classLoader;
-
-    HashMap<URI, CacheManager> cacheManagersByURI = cacheManagersByClassLoader.get(managerClassLoader);
-    if (cacheManagersByURI != null) {
-      CacheManager cacheManager = cacheManagersByURI.remove(managerURI);
-
-      if (cacheManager != null) {
-        cacheManager.close();
-      }
-
-      if (cacheManagersByURI.size() == 0) {
-        cacheManagersByClassLoader.remove(managerClassLoader);
-      }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Properties getDefaultProperties() {
+        return null;
     }
-  }
 
-  /**
-   * Releases the CacheManager with the specified URI and ClassLoader
-   * from this CachingProvider.  This does not close the CacheManager.  It
-   * simply releases it from being tracked by the CachingProvider.
-   * <p>
-   * This method does nothing if a CacheManager matching the specified
-   * parameters is not being tracked.
-   * </p>
-   * @param uri         the URI of the CacheManager
-   * @param classLoader the ClassLoader of the CacheManager
-   */
-  public synchronized void releaseCacheManager(URI uri, ClassLoader classLoader) {
-    URI managerURI = uri == null ? getDefaultURI() : uri;
-    ClassLoader managerClassLoader = classLoader == null ? getDefaultClassLoader() : classLoader;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void close() {
+        WeakHashMap<ClassLoader, HashMap<URI, CacheManager>> managersByClassLoader = this.cacheManagersByClassLoader;
+        this.cacheManagersByClassLoader = new WeakHashMap<ClassLoader, HashMap<URI, CacheManager>>();
 
-    HashMap<URI, CacheManager> cacheManagersByURI = cacheManagersByClassLoader.get(managerClassLoader);
-    if (cacheManagersByURI != null) {
-      cacheManagersByURI.remove(managerURI);
-
-      if (cacheManagersByURI.size() == 0) {
-        cacheManagersByClassLoader.remove(managerClassLoader);
-      }
+        for (ClassLoader classLoader : managersByClassLoader.keySet()) {
+            for (CacheManager cacheManager : managersByClassLoader.get(classLoader).values()) {
+                cacheManager.close();
+            }
+        }
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean isSupported(OptionalFeature optionalFeature) {
-    switch (optionalFeature) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void close(ClassLoader classLoader) {
+        ClassLoader managerClassLoader = classLoader == null ? getDefaultClassLoader() : classLoader;
 
-      case STORE_BY_REFERENCE:
-        return true;
+        HashMap<URI, CacheManager> cacheManagersByURI = cacheManagersByClassLoader.remove(managerClassLoader);
 
-      default:
-        return false;
+        if (cacheManagersByURI != null) {
+            for (CacheManager cacheManager : cacheManagersByURI.values()) {
+                cacheManager.close();
+            }
+        }
     }
-  }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void close(URI uri, ClassLoader classLoader) {
+        URI managerURI = uri == null ? getDefaultURI() : uri;
+        ClassLoader managerClassLoader = classLoader == null ? getDefaultClassLoader() : classLoader;
+
+        HashMap<URI, CacheManager> cacheManagersByURI = cacheManagersByClassLoader.get(managerClassLoader);
+        if (cacheManagersByURI != null) {
+            CacheManager cacheManager = cacheManagersByURI.remove(managerURI);
+
+            if (cacheManager != null) {
+                cacheManager.close();
+            }
+
+            if (cacheManagersByURI.size() == 0) {
+                cacheManagersByClassLoader.remove(managerClassLoader);
+            }
+        }
+    }
+
+    /**
+     * Releases the CacheManager with the specified URI and ClassLoader
+     * from this CachingProvider.  This does not close the CacheManager.  It
+     * simply releases it from being tracked by the CachingProvider.
+     * <p>
+     * This method does nothing if a CacheManager matching the specified
+     * parameters is not being tracked.
+     * </p>
+     *
+     * @param uri         the URI of the CacheManager
+     * @param classLoader the ClassLoader of the CacheManager
+     */
+    public synchronized void releaseCacheManager(URI uri, ClassLoader classLoader) {
+        URI managerURI = uri == null ? getDefaultURI() : uri;
+        ClassLoader managerClassLoader = classLoader == null ? getDefaultClassLoader() : classLoader;
+
+        HashMap<URI, CacheManager> cacheManagersByURI = cacheManagersByClassLoader.get(managerClassLoader);
+        if (cacheManagersByURI != null) {
+            cacheManagersByURI.remove(managerURI);
+
+            if (cacheManagersByURI.size() == 0) {
+                cacheManagersByClassLoader.remove(managerClassLoader);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isSupported(OptionalFeature optionalFeature) {
+        switch (optionalFeature) {
+
+            case STORE_BY_REFERENCE:
+                return true;
+
+            default:
+                return false;
+        }
+    }
 }

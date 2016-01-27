@@ -24,33 +24,33 @@ import javax.cache.processor.MutableEntry;
  * actions performed on a {@link MutableEntry}.
  */
 public enum MutableEntryOperation {
-  /**
-   * Don't perform any operations on the {@link CarbonCachedValue}.
-   */
-  NONE,
+    /**
+     * Don't perform any operations on the {@link CarbonCachedValue}.
+     */
+    NONE,
 
-  /**
-   * Access an existing {@link CarbonCachedValue}.
-   */
-  ACCESS,
+    /**
+     * Access an existing {@link CarbonCachedValue}.
+     */
+    ACCESS,
 
-  /**
-   * Create a new {@link CarbonCachedValue}.
-   */
-  CREATE,
+    /**
+     * Create a new {@link CarbonCachedValue}.
+     */
+    CREATE,
 
-  /**
-   * Loaded a new {@link CarbonCachedValue}.
-   */
-  LOAD,
+    /**
+     * Loaded a new {@link CarbonCachedValue}.
+     */
+    LOAD,
 
-  /**
-   * Remove the {@link CarbonCachedValue} (and thus the Cache Entry).
-   */
-  REMOVE,
+    /**
+     * Remove the {@link CarbonCachedValue} (and thus the Cache Entry).
+     */
+    REMOVE,
 
-  /**
-   * Update the {@link CarbonCachedValue}.
-   */
-  UPDATE;
+    /**
+     * Update the {@link CarbonCachedValue}.
+     */
+    UPDATE;
 }

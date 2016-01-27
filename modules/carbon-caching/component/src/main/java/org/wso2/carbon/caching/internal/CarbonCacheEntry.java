@@ -24,86 +24,85 @@ import javax.cache.Cache;
  * @param <V> the type of mapped values*
  */
 public class CarbonCacheEntry<K, V> implements Cache.Entry<K, V> {
-  private final K key;
-  private final V value;
-  private final V oldValue;
+    private final K key;
+    private final V value;
+    private final V oldValue;
 
-  /**
-   * Constructor
-   */
-  public CarbonCacheEntry(K key, V value) {
-    this.key = key;
-    this.value = value;
-    this.oldValue = null;
-  }
-
-  /**
-   * Constructor
-   */
-  public CarbonCacheEntry(K key, V value, V oldValue) {
-    this.key = key;
-    this.value = value;
-    this.oldValue = oldValue;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public K getKey() {
-    return key;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public V getValue() {
-    return value;
-  }
-
-  /**
-   *
-   * @return the old value, if any
-   */
-  public V getOldValue() {
-    return oldValue;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public <T> T unwrap(Class<T> clazz) {
-    if (clazz != null && clazz.isInstance(this)) {
-      return (T) this;
-    } else {
-      throw new IllegalArgumentException("Class " + clazz + " is unknown to this implementation");
+    /**
+     * Constructor
+     */
+    public CarbonCacheEntry(K key, V value) {
+        this.key = key;
+        this.value = value;
+        this.oldValue = null;
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || ((Object) this).getClass() != o.getClass()) return false;
+    /**
+     * Constructor
+     */
+    public CarbonCacheEntry(K key, V value, V oldValue) {
+        this.key = key;
+        this.value = value;
+        this.oldValue = oldValue;
+    }
 
-    CarbonCacheEntry<?, ?> e2 = (CarbonCacheEntry<?, ?>) o;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public K getKey() {
+        return key;
+    }
 
-    return this.getKey().equals(e2.getKey()) &&
-        this.getValue().equals(e2.getValue()) &&
-        (this.oldValue == null && e2.oldValue == null ||
-            this.getOldValue().equals(e2.getOldValue()));
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public V getValue() {
+        return value;
+    }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int hashCode() {
-    return getKey().hashCode();
-  }
+    /**
+     * @return the old value, if any
+     */
+    public V getOldValue() {
+        return oldValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T unwrap(Class<T> clazz) {
+        if (clazz != null && clazz.isInstance(this)) {
+            return (T) this;
+        } else {
+            throw new IllegalArgumentException("Class " + clazz + " is unknown to this implementation");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || ((Object) this).getClass() != o.getClass()) return false;
+
+        CarbonCacheEntry<?, ?> e2 = (CarbonCacheEntry<?, ?>) o;
+
+        return this.getKey().equals(e2.getKey()) &&
+                this.getValue().equals(e2.getValue()) &&
+                (this.oldValue == null && e2.oldValue == null ||
+                        this.getOldValue().equals(e2.getOldValue()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return getKey().hashCode();
+    }
 }
 

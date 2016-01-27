@@ -30,19 +30,19 @@ package org.wso2.carbon.caching.internal;
  * @see SerializingInternalConverter
  */
 public interface InternalConverter<T> {
-  /**
-   * Converts the value to an internal representation.
-   *
-   * @param value the value to convert
-   * @return an internal representation of the value
-   */
-  Object toInternal(T value);
+    /**
+     * Converts the value to an internal representation.
+     *
+     * @param value the value to convert
+     * @return an internal representation of the value
+     */
+    Object toInternal(T value);
 
-  /**
-   * Converts an internal representation of a value to a value.
-   *
-   * @param internal the internal representation of the value
-   * @return the value
-   */
-  T fromInternal(Object internal);
+    /**
+     * Converts an internal representation of a value to a value.
+     *
+     * @param internal the internal representation of the value
+     * @return the value
+     */
+    T fromInternal(Object internal);
 }

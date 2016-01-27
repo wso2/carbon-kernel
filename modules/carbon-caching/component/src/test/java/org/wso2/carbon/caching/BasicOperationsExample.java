@@ -21,9 +21,8 @@ import javax.cache.CacheManager;
 /**
  * Basic example
  * Configures a cache with access expiry of 10 secs.
- *
  */
-public class BasicOperationsExample  extends AbstractApp {
+public class BasicOperationsExample extends AbstractApp {
 
 
     public static void main(String[] args) throws InterruptedException {

@@ -22,8 +22,6 @@ import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-import javax.cache.Caching;
-
 /**
  * Carbon caching BundleActivator
  */
@@ -35,6 +33,6 @@ public class CachingBundleActivator implements BundleActivator {
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-       // TODO: unregister the service
+        // TODO: unregister the service
     }
 }
