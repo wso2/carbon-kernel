@@ -57,26 +57,22 @@ public class TransportManager {
 
     public void startTransports() {
         Utils.checkSecurity();
-        transports.values()
-                .forEach(CarbonTransport::startTransport);
+        transports.values().forEach(CarbonTransport::startTransport);
     }
 
     public void stopTransports() {
         Utils.checkSecurity();
-        transports.values()
-                .forEach(CarbonTransport::stopTransport);
+        transports.values().forEach(CarbonTransport::stopTransport);
     }
 
     public void beginMaintenance() {
         Utils.checkSecurity();
-        transports.values()
-                .forEach(CarbonTransport::beginTransportMaintenance);
+        transports.values().forEach(CarbonTransport::beginTransportMaintenance);
     }
 
     public void endMaintenance() {
         Utils.checkSecurity();
-        transports.values()
-                .forEach(CarbonTransport::endTransportMaintenance);
+        transports.values().forEach(CarbonTransport::endTransportMaintenance);
     }
 
     public Map<String, CarbonTransport> getTransports() {
