@@ -15,7 +15,7 @@
                 <useDataSourceFactory>true</useDataSourceFactory>
                 <environment>
                     <property name="java.naming.factory.initial">com.sun.jndi.fscontext.RefFSContextFactory</property>
-                    <property name="java.naming.provider.url">file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/org.wso2.carbon.datasource.core/src/test</property>
+                    <property name="java.naming.provider.url">file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/carbon-datasources/org.wso2.carbon.datasource.core/src/test</property>
                 </environment>
             </jndiConfig>
             <definition type="RDBMS">

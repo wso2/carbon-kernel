@@ -1,6 +1,5 @@
 package org.wso2.carbon.datasource;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.wso2.carbon.datasource.common.DataSourceException;
 import org.wso2.carbon.datasource.core.DataSourceManager;
 
