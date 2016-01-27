@@ -30,8 +30,6 @@ import javax.cache.Caching;
 public class CachingBundleActivator implements BundleActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        System.setProperty(Caching.JAVAX_CACHE_CACHING_PROVIDER,
-                "org.wso2.carbon.caching.spi.CarbonCachingProvider");
         bundleContext.registerService(CommandProvider.class, new CachingCommandProvider(), null);
     }
 

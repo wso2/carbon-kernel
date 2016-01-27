@@ -87,7 +87,16 @@
         <export.package>
             !org.wso2.carbon.caching.internal.*,
             org.wso2.carbon.caching.spi.*;version="${carbon.caching.package.export.version}",
-            org.wso2.carbon.caching.*; version="${carbon.caching.package.export.version}"
+            org.wso2.carbon.caching.*; version="${carbon.caching.package.export.version}",
+            javax.cache,
+            javax.cache.annotation,
+            javax.cache.configuration,
+            javax.cache.event,
+            javax.cache.expiry,
+            javax.cache.integration,
+            javax.cache.management,
+            javax.cache.processor,
+            javax.cache.spi
         </export.package>
         <import.package>
             org.eclipse.osgi.util;version="${org.eclipse.osgi.util.package.import.version.range}",
@@ -97,7 +106,8 @@
             org.osgi.service.cm.*; version="${osgi.services.cm.package.import.version.range}",
             org.osgi.util.tracker; version="${osgi.service.tracker.package.import.version.range}",
             javax.management.*; version="${javax.management.package.import.version.range}",
-            javax.cache.*; version="${javax.cache.package.import.version.range}"
+            javax.cache.*; version="${javax.cache.package.import.version.range}",
+            javax.enterprise.util;resolution:=optional,
         </import.package>
 
         <carbon.caching.package.export.version>1.0.0</carbon.caching.package.export.version>

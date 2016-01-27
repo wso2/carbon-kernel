@@ -56,28 +56,44 @@ public class CachingCommandProvider implements CommandProvider {
         String cacheName = ci.nextArgument();
         String key = ci.nextArgument();
         String value = ci.nextArgument();
-        getCache(cacheName).put(key, value);
-        System.out.println("OK");
+        if (cacheName != null && key != null && value != null) {
+            getCache(cacheName).put(key, value);
+            System.out.println("OK");
+        } else {
+            System.out.println("Usage: cachePut <cache-name> <key> <value>");
+        }
     }
 
     public void _cacheGet(CommandInterpreter ci) {
         String cacheName = ci.nextArgument();
         String key = ci.nextArgument();
-        System.out.println(getCache(cacheName).get(key));
+        if (cacheName != null && key != null) {
+            System.out.println(getCache(cacheName).get(key));
+        } else {
+            System.out.println("Usage: cacheGet <cache-name> <key>");
+        }
     }
 
     public void _cacheDelete(CommandInterpreter ci) {
         String cacheName = ci.nextArgument();
         String key = ci.nextArgument();
-        getCache(cacheName).remove(key);
-        System.out.println("OK");
+        if (cacheName != null && key != null) {
+            getCache(cacheName).remove(key);
+            System.out.println("OK");
+        } else {
+            System.out.println("Usage: cacheDelete <cache-name> <key>");
+        }
     }
 
     public void _cachePrint(CommandInterpreter ci) {
         String cacheName = ci.nextArgument();
-        Cache<String, String> cache = getCache(cacheName);
-        for (Cache.Entry<String, String> entry : cache) {
-            System.out.println(entry.getKey() + "=" + entry.getValue());
+        if (cacheName != null) {
+            Cache<String, String> cache = getCache(cacheName);
+            for (Cache.Entry<String, String> entry : cache) {
+                System.out.println(entry.getKey() + "=" + entry.getValue());
+            }
+        } else {
+            System.out.println("Usage: cachePrint <cache-name>");
         }
     }
 
@@ -85,8 +101,12 @@ public class CachingCommandProvider implements CommandProvider {
         String cacheName = ci.nextArgument();
         CachingProvider provider = Caching.getCachingProvider();
         CacheManager cacheManager = provider.getCacheManager();
-        cacheManager.destroyCache(cacheName);
-        System.out.println("OK");
+        if (cacheName != null) {
+            cacheManager.destroyCache(cacheName);
+            System.out.println("OK");
+        } else {
+            System.out.println("Usage: cacheClear <cache-name>");
+        }
     }
 
     public void _cacheList(CommandInterpreter ci) {
@@ -108,7 +128,7 @@ public class CachingCommandProvider implements CommandProvider {
     /**
      * we initialize a cache with name
      *
-     * @param name
+     * @param name Name of the cache
      */
     private Cache<String, String> initCache(String name, CacheManager cacheManager) {
 
