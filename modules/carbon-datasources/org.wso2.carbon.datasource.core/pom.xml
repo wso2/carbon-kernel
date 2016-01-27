@@ -26,6 +26,11 @@
             <version>5.0.0</version>
         </dependency>
         <dependency>
+            <groupId>commons-io.wso2</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4.0.wso2v1</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jdbc</artifactId>
             <version>7.0.59</version>
@@ -71,7 +76,6 @@
                     <instructions>
                         <Bundle-Activator>org.wso2.carbon.datasource.core.DataSourceBundleActivator</Bundle-Activator>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Private-Package>org.apache.commons.io.*</Private-Package>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.wso2.carbon.datasource.core.*,org.wso2.carbon.datasource.rdbms.*,
