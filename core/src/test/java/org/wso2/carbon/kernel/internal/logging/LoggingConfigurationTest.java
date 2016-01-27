@@ -47,8 +47,6 @@ public class LoggingConfigurationTest extends BaseTest {
             expectedExceptionsMessageRegExp = "Configuration admin service is not available.")
     public void testRegisterNullManagedService() throws FileNotFoundException {
         loggingConfiguration.register(null);
-        Assert.assertTrue(false, "Logger register method did not throw an exception when passing null as the " +
-                "MangedService");
     }
 
     @Test(dependsOnMethods = "testRegisterNullManagedService")

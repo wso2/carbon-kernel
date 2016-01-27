@@ -31,7 +31,7 @@ public class DataHolderTest {
 
     @BeforeClass
     public void setup() {
-       dataHolder = DataHolder.getInstance();
+        dataHolder = DataHolder.getInstance();
         runtimeManager = new RuntimeManager();
     }
 
