@@ -428,9 +428,8 @@ public final class CarbonContextDataHolder {
                                                                 InitialContextFactoryBuilder {
 
         private static final String defaultInitialContextFactory =
-                "org.wso2.carbon.tomcat.jndi.java.javaURLContextFactory";
-                /*CarbonUtils.getServerConfiguration().getFirstProperty(
-                        "JNDI.DefaultInitialContextFactory");*/
+                CarbonUtils.getServerConfiguration().getFirstProperty(
+                        "JNDI.DefaultInitialContextFactory");
 
         public InitialContextFactory createInitialContextFactory(Hashtable<?, ?> h)
                 throws NamingException {
