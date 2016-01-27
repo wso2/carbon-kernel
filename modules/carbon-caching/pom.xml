@@ -67,7 +67,8 @@
     </build>
 
     <modules>
-        <module>impl</module>
+        <module>component</module>
+        <module>feature</module>
     </modules>
 
 </project>
