@@ -17,7 +17,6 @@
 */
 package org.wso2.carbon.jndi.internal;
 
-import org.apache.naming.java.javaURLContextFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -25,11 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.naming.spi.InitialContextFactory;
-import javax.naming.spi.InitialContextFactoryBuilder;
-import javax.naming.spi.NamingManager;
-import java.util.Hashtable;
 
 public class CarbonJNDIActivator implements BundleActivator {
 
