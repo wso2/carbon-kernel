@@ -1,0 +1,7 @@
+grant {
+    permission java.security.AllPermission;
+};
+
+grant principal org.wso2.carbon.security.jaas.pincipal.CarbonPrincipal "admin" {
+    permission org.wso2.carbon.security.jaas.CarbonPermission "/permission/stock/quote", "create,read";
+};
