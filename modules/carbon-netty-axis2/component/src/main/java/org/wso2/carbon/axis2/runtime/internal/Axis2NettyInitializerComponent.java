@@ -30,10 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.axis2.runtime.Axis2ServiceManager;
 import org.wso2.carbon.axis2.runtime.bridge.CarbonAxis2Bridge;
-import org.wso2.carbon.kernel.transports.CarbonTransport;
-import org.wso2.carbon.transport.http.netty.listener.CarbonNettyServerInitializer;
-
-import java.util.Hashtable;
+import org.wso2.carbon.messaging.CarbonMessageProcessor;
 
 /**
  * Service component to consume CarbonTransport instance which has been registered as an OSGi service
@@ -63,6 +60,8 @@ public class Axis2NettyInitializerComponent {
         ListenerManager listenerManager = new ListenerManager();
         listenerManager.init(DataHolder.getInstance().getConfigurationContext());
         listenerManager.start();
+
+        bundleContext.registerService(CarbonMessageProcessor.class, new Axis2CarbonMessageProcessor(), null);
     }
 
     /**
@@ -77,35 +76,6 @@ public class Axis2NettyInitializerComponent {
     }
 
     @Reference(
-            name = "carbon-transport",
-            service = CarbonTransport.class,
-            cardinality = ReferenceCardinality.AT_LEAST_ONE,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeCarbonTransport"
-    )
-    protected void addCarbonTransport(CarbonTransport carbonTransport) {
-        if ("axis2-http".equals(carbonTransport.getId())) {
-            DataHolder.getInstance().setCarbonTransport(carbonTransport);
-            Hashtable<String, String> httpInitParams = new Hashtable<>();
-            httpInitParams.put(CHANNEL_ID_KEY, carbonTransport.getId());
-            Axis2NettyInitializer axis2NettyInitializer = new Axis2NettyInitializer();
-
-            BundleContext bundleContext = DataHolder.getInstance().getBundleContext();
-            if (bundleContext != null) {
-                bundleContext.registerService(CarbonNettyServerInitializer.class,
-                        axis2NettyInitializer, httpInitParams);
-            }
-        }
-    }
-
-    protected void removeCarbonTransport(CarbonTransport carbonTransport) {
-        if ("axis2-http".equals(carbonTransport.getId())) {
-            //TODO : un-initialize the the netty transport
-            DataHolder.getInstance().setCarbonTransport(null);
-        }
-    }
-
-    @Reference(
             name = "axis2-service-manager",
             service = Axis2ServiceManager.class,
             cardinality = ReferenceCardinality.MULTIPLE,
@@ -116,8 +86,6 @@ public class Axis2NettyInitializerComponent {
         ConfigurationContext configurationContext = DataHolder.getInstance().getConfigurationContext();
         if (configurationContext != null) {
             try {
-//                AxisService axisService = AxisService.createService(axis2ServiceManager
-//                        .getImplementationClass().getName(), configurationContext.getAxisConfiguration());
                 AxisService axisService = axis2ServiceManager.getAxisService();
                 configurationContext.deployService(axisService);
             } catch (AxisFault axisFault) {

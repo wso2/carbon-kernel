@@ -36,17 +36,7 @@
 
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.eclipse.osgi</groupId>-->
-            <!--<artifactId>org.eclipse.osgi</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.eclipse.osgi</groupId>-->
-            <!--<artifactId>org.eclipse.osgi.services</artifactId>-->
-        <!--</dependency>-->
-
-
-        <dependency>
+         <dependency>
             <groupId>org.wso2.carbon.axis2</groupId>
             <artifactId>org.wso2.carbon.axis2</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -108,10 +98,6 @@
             <artifactId>neethi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon.transport</groupId>
-            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.woden</groupId>
             <artifactId>woden-core</artifactId>
         </dependency>
@@ -122,6 +108,10 @@
         <dependency>
             <groupId>org.apache.ws.xmlschema</groupId>
             <artifactId>xmlschema-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.messaging</groupId>
+            <artifactId>org.wso2.carbon.messaging</artifactId>
         </dependency>
     </dependencies>
 
@@ -152,14 +142,6 @@
                                 </advice>
                             </adviceFileContents>
                             <bundles>
-                                <!--<bundle>-->
-                                    <!--<symbolicName>org.eclipse.osgi</symbolicName>-->
-                                    <!--<version>${equinox.osgi.version}</version>-->
-                                <!--</bundle>-->
-                                <!--<bundle>-->
-                                    <!--<symbolicName>org.eclipse.osgi.services</symbolicName>-->
-                                    <!--<version>${equinox.osgi.services.version}</version>-->
-                                <!--</bundle>-->
                                 <bundle>
                                     <symbolicName>org.wso2.carbon.axis2</symbolicName>
                                     <version>1.0.0-SNAPSHOT</version>
@@ -221,10 +203,6 @@
                                     <version>${neethi.version}</version>
                                 </bundle>
                                 <bundle>
-                                    <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
-                                    <version>${org.wso2.carbon.transport.http.netty.version}</version>
-                                </bundle>
-                                <bundle>
                                     <symbolicName>org.apache.woden.core</symbolicName>
                                     <version>${woden.core.version}</version>
                                 </bundle>
@@ -235,6 +213,10 @@
                                 <bundle>
                                     <symbolicName>org.apache.ws.xmlschema.core</symbolicName>
                                     <version>${xmlschema.core.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.messaging</symbolicName>
+                                    <version>${org.wso2.carbon.messaging.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
