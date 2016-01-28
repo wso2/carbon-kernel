@@ -162,6 +162,7 @@
         <module>orbit</module>
         <module>component</module>
         <module>feature</module>
+        <module>distribution</module>
     </modules>
 
     <properties>
