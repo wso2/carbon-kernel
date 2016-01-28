@@ -46,9 +46,4 @@ public class HikariDataSourceReader implements DataSourceReader {
                     e.getMessage(), e);
         }
     }
-
-    @Override
-    public boolean testDataSourceConnection(String xmlConfiguration) throws DataSourceException {
-        return false;
-    }
 }

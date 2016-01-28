@@ -40,9 +40,9 @@ import javax.naming.StringRefAddr;
 /**
  * RDBMS data source implementation.
  */
-public class RDBMSDataSource {
+public class TomcatDataSource {
 
-    private static Log log = LogFactory.getLog(RDBMSDataSource.class);
+    private static Log log = LogFactory.getLog(TomcatDataSource.class);
 
     private DataSource dataSource;
 
@@ -50,7 +50,7 @@ public class RDBMSDataSource {
 
     private PoolConfiguration poolProperties;
 
-    public RDBMSDataSource(RDBMSConfiguration config) throws DataSourceException {
+    public TomcatDataSource(RDBMSConfiguration config) throws DataSourceException {
         this.poolProperties = TomcatDataSourceUtils.createPoolConfiguration(config);
         this.populateStandardProps();
     }

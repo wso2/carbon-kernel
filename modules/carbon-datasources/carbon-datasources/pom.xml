@@ -8,10 +8,6 @@
     <artifactId>carbon-datasources</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0</version>
-    <modules>
-        <module>org.wso2.carbon.datasource.core</module>
-        <module>features/org.wso2.carbon.datasource.core.feature</module>
-    </modules>
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -19,4 +15,56 @@
         <version>2</version>
     </parent>
 
+    <modules>
+        <module>org.wso2.carbon.datasource.core</module>
+        <module>feature/org.wso2.carbon.datasource.core.feature</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging-api</artifactId>
+                <version>${commons.logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io.wso2</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.wso2</groupId>
+                <artifactId>jdbc-pool</artifactId>
+                <version>${tomcat.jdbc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.osgi.compendium</artifactId>
+                <version>${org.apache.felix.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${com.zaxxer.hikaricp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <properties>
+        <commons.logging.version>1.1</commons.logging.version>
+        <carbon.datasource.version>1.0.0</carbon.datasource.version>
+        <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
+        <tomcat.jdbc.version>7.0.34.wso2v2</tomcat.jdbc.version>
+        <commons.io.version>2.4.0.wso2v1</commons.io.version>
+        <org.apache.felix.version>1.0.0</org.apache.felix.version>
+        <com.zaxxer.hikaricp.version>2.4.1</com.zaxxer.hikaricp.version>
+        <java.compiler.version>3.3</java.compiler.version>
+        <java.version>1.8</java.version>
+        <carbon.kernel.version>5.0.0</carbon.kernel.version>
+    </properties>
 </project>

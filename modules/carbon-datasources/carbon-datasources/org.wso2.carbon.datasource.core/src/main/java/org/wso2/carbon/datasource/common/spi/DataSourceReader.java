@@ -23,10 +23,8 @@ import org.wso2.carbon.datasource.common.DataSourceException;
  */
 public interface DataSourceReader {
 
-	public String getType();
+	String getType();
 	
-	public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference) throws DataSourceException;
-	
-	public boolean testDataSourceConnection(String xmlConfiguration) throws DataSourceException;
+	Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference) throws DataSourceException;
 	
 }

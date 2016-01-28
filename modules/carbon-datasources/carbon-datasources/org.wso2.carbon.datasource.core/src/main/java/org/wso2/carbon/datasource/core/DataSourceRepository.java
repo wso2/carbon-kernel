@@ -38,11 +38,8 @@ public class DataSourceRepository {
 
     private Map<String, CarbonDataSource> dataSources;
 
-    private Map<String, DataSourceMetaInfo> dsMetaInfoMap;
-
     public DataSourceRepository() throws DataSourceException {
         this.dataSources = new HashMap<>();
-        this.dsMetaInfoMap = new HashMap<>();
     }
 
     private Object createDataSourceObject(DataSourceMetaInfo dsmInfo, boolean isUseDataSourceFactory)
@@ -148,8 +145,6 @@ public class DataSourceRepository {
     }
 
     private synchronized void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
-//        this.unregisterDataSource(dsmInfo.getJndiConfig().getName());
-        // this.unregisterJNDI(dsmInfo);
         Object dsObject = null;
         boolean isDataSourceFactoryReference = false;
         DataSourceStatus dsStatus;
@@ -175,15 +170,6 @@ public class DataSourceRepository {
     }
 
     /**
-     * Gets information about all the data sources.
-     *
-     * @return A list of all data sources
-     */
-    public java.util.Collection<CarbonDataSource> getAllDataSources() {
-        return dataSources.values();
-    }
-
-    /**
      * Gets information about a specific given data source.
      *
      * @param dsName The name of the data source.
@@ -203,48 +189,6 @@ public class DataSourceRepository {
             log.debug("Adding data source: " + dsmInfo.getName());
         }
         this.registerDataSource(dsmInfo);
-    }
-
-    /**
-     * Unregisters and deletes the data source from the repository.
-     *
-     * @param dsName The data source name
-     */
-    public void deleteDataSource(String dsName) throws DataSourceException {
-        if (log.isDebugEnabled()) {
-            log.debug("Deleting data source: " + dsName);
-        }
-        CarbonDataSource cds = this.getDataSource(dsName);
-        if (cds == null) {
-            throw new DataSourceException("Data source does not exist: " + dsName);
-        }
-//        if (cds.getDSMInfo().isSystem()) {
-//            throw new DataSourceException("System data sources cannot be deleted: " + dsName);
-//        }
-//        this.unregisterDataSource(dsName);
-//        if (cds.getDSMInfo().isPersistable()) {
-//            this.dsMetaInfoMap.remove(dsName);
-//        }
-    }
-
-    /**
-     * Tests Connection of the data source
-     *
-     * @param dsmInfo The meta information of the data source to be tested.
-     */
-    public boolean testDataSourceConnection(DataSourceMetaInfo dsmInfo) throws DataSourceException {
-        if (log.isDebugEnabled()) {
-            log.debug("Testing connection of data source: " + dsmInfo.getName());
-        }
-        DataSourceReader dsReader = DataSourceManager.getInstance().getDataSourceReader(
-                dsmInfo.getDefinition().getType());
-        try {
-            return dsReader.testDataSourceConnection(DataSourceUtils.elementToString((Element) dsmInfo.getDefinition().getDsXMLConfiguration()));
-        } catch (DataSourceException e) {
-            log.error(e.getMessage(), e);
-            throw e;
-        }
-
     }
 
 }
