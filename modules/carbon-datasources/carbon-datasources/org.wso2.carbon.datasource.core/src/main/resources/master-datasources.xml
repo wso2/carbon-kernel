@@ -11,8 +11,8 @@
             <name>WSO2_CARBON_DB</name>
             <description>The datasource used for registry and user manager</description>
             <jndiConfig>
-                <name>jdbc</name>
-                <!-- useDataSourceFactory>true</useDataSourceFactory -->
+                <name>jdbc/WSO2CarbonDB/test</name>
+                 <!--<useDataSourceFactory>true</useDataSourceFactory>-->
                 <!--<environment>-->
                     <!--<property name="java.naming.factory.initial">com.sun.jndi.fscontext.RefFSContextFactory</property>-->
                     <!--<property name="java.naming.provider.url">-->
