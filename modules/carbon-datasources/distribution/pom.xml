@@ -22,16 +22,6 @@
             <artifactId>org.wso2.carbon.launcher</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.core.server.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon</groupId>
-            <artifactId>org.wso2.carbon.core.runtime.feature</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
             <groupId>org.wso2.carbon.datasources</groupId>
             <artifactId>org.wso2.carbon.datasource.core.feature</artifactId>
             <type>zip</type>
@@ -82,49 +72,10 @@
                             <targetRepository>file:${basedir}/target/p2-repo</targetRepository>
                             <features>
                                 <feature>
-                                    <id>org.wso2.carbon.core.server.feature</id>
-                                    <version>${carbon.kernel.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.core.runtime.feature</id>
-                                    <version>${carbon.kernel.version}</version>
-                                </feature>
-                                <feature>
                                     <id>org.wso2.carbon.datasource.core.feature</id>
                                     <version>${carbon.datasource.version}</version>
                                 </feature>
                             </features>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>publishing products</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>publish-product</goal>
-                        </goals>
-                        <configuration>
-                            <productConfigurationFile>${basedir}/carbon.product
-                            </productConfigurationFile>
-                            <executable>
-                                ${basedir}/target/org.eclipse.equinox.executable_3.5.0.v20110530-7P7NFUFFLWUl76mart
-                            </executable>
-                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>materialize-product</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>generate-profile</goal>
-                        </goals>
-                        <configuration>
-                            <productConfigurationFile>${basedir}/carbon.product
-                            </productConfigurationFile>
-                            <repositoryURL>file:${basedir}/target/p2-repo</repositoryURL>
-                            <targetPath>
-                                file:${basedir}/target/wso2carbon-kernel-${carbon.kernel.version}/osgi
-                            </targetPath>
-                            <profile>profiles/default</profile>
                         </configuration>
                     </execution>
                     <execution>
@@ -141,14 +92,6 @@
                             </destination>
                             <deleteOldProfileFiles>true</deleteOldProfileFiles>
                             <features>
-                                <feature>
-                                    <id>org.wso2.carbon.core.server.feature.group</id>
-                                    <version>${carbon.kernel.version}</version>
-                                </feature>
-                                <feature>
-                                    <id>org.wso2.carbon.core.runtime.feature.group</id>
-                                    <version>${carbon.kernel.version}</version>
-                                </feature>
                                 <feature>
                                     <id>org.wso2.carbon.datasource.core.feature</id>
                                     <version>${carbon.datasource.version}</version>
