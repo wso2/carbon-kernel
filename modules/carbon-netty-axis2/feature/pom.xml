@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ /*
+  ~ * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.wso2.carbon.axis2</groupId>
+        <artifactId>org.wso2.carbon.axis2.parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>org.wso2.carbon.netty.axis2.feature</artifactId>
+    <packaging>carbon-feature</packaging>
+    <version>1.0.0</version>
+    <name>WSO2 Carbon - Carbon Netty Axis2 Feature</name>
+    <url>http://wso2.org</url>
+    <description>This feature contains the bundles that are needed to run Axis2 on top of the C5 kernel</description>
+
+
+    <dependencies>
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.eclipse.osgi</groupId>-->
+            <!--<artifactId>org.eclipse.osgi</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.wso2.eclipse.osgi</groupId>-->
+            <!--<artifactId>org.eclipse.osgi.services</artifactId>-->
+        <!--</dependency>-->
+
+
+        <dependency>
+            <groupId>org.wso2.carbon.axis2</groupId>
+            <artifactId>org.wso2.carbon.axis2</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.commons.axiom</groupId>
+            <artifactId>axiom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-activation_1.1_spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>jsr311-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.neethi</groupId>
+            <artifactId>neethi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.transport</groupId>
+            <artifactId>org.wso2.carbon.transport.http.netty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.woden</groupId>
+            <artifactId>woden-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.orbit.wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.xmlschema</groupId>
+            <artifactId>xmlschema-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.wso2.carbon.maven</groupId>
+                <artifactId>carbon-feature-plugin</artifactId>
+                <version>${carbon.feature.plugin.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>1-p2-feature-generation</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+
+                            <propertyFile>etc/feature.properties</propertyFile>
+                            <adviceFileContents>
+                                <advice>
+                                    <name>org.wso2.carbon.p2.category.type</name>
+                                    <value>server</value>
+                                </advice>
+                                <advice>
+                                    <name>org.eclipse.equinox.p2.type.group</name>
+                                    <value>false</value>
+                                </advice>
+                            </adviceFileContents>
+                            <bundles>
+                                <!--<bundle>-->
+                                    <!--<symbolicName>org.eclipse.osgi</symbolicName>-->
+                                    <!--<version>${equinox.osgi.version}</version>-->
+                                <!--</bundle>-->
+                                <!--<bundle>-->
+                                    <!--<symbolicName>org.eclipse.osgi.services</symbolicName>-->
+                                    <!--<version>${equinox.osgi.services.version}</version>-->
+                                <!--</bundle>-->
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.axis2</symbolicName>
+                                    <version>1.0.0-SNAPSHOT</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>axiom</symbolicName>
+                                    <version>${axiom.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>axis2-kernel</symbolicName>
+                                    <version>${axis2.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.fileupload</symbolicName>
+                                    <version>${commons.fileupload.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.commons.io</symbolicName>
+                                    <version>${commons.io.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.geronimo.specs.geronimo-activation_1.1_spec</symbolicName>
+                                    <version>${geronimo.activation.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.netty.buffer</symbolicName>
+                                    <version>${netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.netty.codec</symbolicName>
+                                    <version>${netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.netty.codec-http</symbolicName>
+                                    <version>${netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.netty.common</symbolicName>
+                                    <version>${netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.netty.handler</symbolicName>
+                                    <version>${netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>io.netty.transport</symbolicName>
+                                    <version>${netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>javax.servlet-api</symbolicName>
+                                    <version>${javax.servlet.api.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>javax.ws.rs.jsr311-api</symbolicName>
+                                    <version>${jsr311.api.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.neethi</symbolicName>
+                                    <version>${neethi.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.wso2.carbon.transport.http.netty</symbolicName>
+                                    <version>${org.wso2.carbon.transport.http.netty.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.woden.core</symbolicName>
+                                    <version>${woden.core.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>wsdl4j</symbolicName>
+                                    <version>${wsdl4j.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>org.apache.ws.xmlschema.core</symbolicName>
+                                    <version>${xmlschema.core.version}</version>
+                                </bundle>
+                            </bundles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
