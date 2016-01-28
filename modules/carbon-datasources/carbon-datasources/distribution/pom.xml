@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>carbon-datasources</artifactId>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.datasources</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -32,9 +32,8 @@
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.datasources</groupId>
             <artifactId>org.wso2.carbon.datasource.core.feature</artifactId>
-            <version>${carbon.datasource.version}</version>
             <type>zip</type>
         </dependency>
     </dependencies>

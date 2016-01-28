@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>carbon-datasources</artifactId>
-        <groupId>org.wso2.carbon</groupId>
+        <groupId>org.wso2.carbon.datasources</groupId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.wso2.carbon</groupId>
+            <groupId>org.wso2.carbon.datasources</groupId>
             <artifactId>org.wso2.carbon.datasource.core</artifactId>
         </dependency>
         <dependency>
@@ -60,11 +60,11 @@
                                 </bundle>
                                 <bundle>
                                     <symbolicName>commons-io</symbolicName>
-                                    <version>2.4.0.wso2v1</version>
+                                    <version>${commons.io.version}</version>
                                 </bundle>
                                 <bundle>
                                     <symbolicName>jdbc-pool</symbolicName>
-                                    <version>7.0.34.wso2v2</version>
+                                    <version>${tomcat.jdbc.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
