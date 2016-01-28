@@ -7,7 +7,7 @@
     <groupId>org.wso2.carbon</groupId>
     <artifactId>carbon-datasources</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <parent>
         <groupId>org.wso2</groupId>
@@ -16,12 +16,18 @@
     </parent>
 
     <modules>
-        <module>org.wso2.carbon.datasource.core</module>
-        <module>feature/org.wso2.carbon.datasource.core.feature</module>
+        <module>component</module>
+        <module>feature</module>
+        <module>distribution</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.datasource.core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging-api</artifactId>
@@ -52,12 +58,34 @@
                 <artifactId>org.wso2.carbon.core</artifactId>
                 <version>${carbon.kernel.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.launcher</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>org.osgi.core</artifactId>
+                <version>${osgi.core.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core.server.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.core.runtime.feature</artifactId>
+                <version>${carbon.kernel.version}</version>
+                <type>zip</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <properties>
         <commons.logging.version>1.1</commons.logging.version>
-        <carbon.datasource.version>1.0.0</carbon.datasource.version>
+        <carbon.datasource.version>1.0.0-SNAPSHOT</carbon.datasource.version>
         <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
         <tomcat.jdbc.version>7.0.34.wso2v2</tomcat.jdbc.version>
         <commons.io.version>2.4.0.wso2v1</commons.io.version>
@@ -66,5 +94,7 @@
         <java.compiler.version>3.3</java.compiler.version>
         <java.version>1.8</java.version>
         <carbon.kernel.version>5.0.0</carbon.kernel.version>
+
+        <osgi.core.api.version>6.0.0</osgi.core.api.version>
     </properties>
 </project>
