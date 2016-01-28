@@ -1,69 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~ Copyright (c) 2016, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.wso2</groupId>
         <artifactId>wso2</artifactId>
         <version>2</version>
-        <relativePath />
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>org.wso2.carbon.jndi</artifactId>
-    <version>1.0.0</version>
-    <packaging>bundle</packaging>
-
-    <name>WSO2 Carbon - JNDI</name>
-    <url>http://wso2.com</url>
-
-    <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.core</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.carbon</groupId>-->
-            <!--<artifactId>org.wso2.carbon.sample.order.resolver</artifactId>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>org.wso2.eclipse.osgi</groupId>
-            <artifactId>org.eclipse.osgi</artifactId>
-            <version>${equinox.osgi.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.wso2.eclipse.osgi</groupId>-->
-            <!--<artifactId>org.eclipse.osgi.services</artifactId>-->
-            <!--<optional>true</optional>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-            <version>${pax.logging.api.version}</version>
-            <optional>true</optional>
-        </dependency>
-    </dependencies>
-
+    <groupId>org.wso2.carbon.jndi</groupId>
+    <artifactId>org.wso2.carbon.jndi.parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>WSO2 Carbon JNDI - Parent</name>
     <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -72,24 +50,74 @@
         </plugins>
     </build>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi</artifactId>
+                <version>${equinox.osgi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.osgi</groupId>
+                <artifactId>org.eclipse.osgi.services</artifactId>
+                <version>${equinox.osgi.services.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.eclipse.equinox</groupId>
+                <artifactId>org.eclipse.equinox.ds</artifactId>
+                <version>${equinox.ds.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.wso2.carbon.jndi</groupId>
+                <artifactId>org.wso2.carbon.jndi</artifactId>
+                <version>${carbon.jndi.version}</version>
+            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon</groupId>-->
+                <!--<artifactId>org.wso2.carbon.core.server.feature</artifactId>-->
+                <!--<version>${carbon.kernel.version}</version>-->
+                <!--<type>zip</type>-->
+            <!--</dependency>-->
+            <!--<dependency>-->
+                <!--<groupId>org.wso2.carbon</groupId>-->
+                <!--<artifactId>org.wso2.carbon.core.runtime.feature</artifactId>-->
+                <!--<version>${carbon.kernel.version}</version>-->
+                <!--<type>zip</type>-->
+            <!--</dependency>-->
+            <dependency>
+                <groupId>org.wso2.carbon.jndi</groupId>
+                <artifactId>org.wso2.carbon.jndi.feature</artifactId>
+                <version>${carbon.jndi.version}</version>
+                <type>zip</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+        <module>components/org.wso2.carbon.jndi</module>
+        <module>features/org.wso2.carbon.jndi.feature</module>
+        <module>distribution</module>
+    </modules>
 
     <properties>
-        <bundle.activator>org.wso2.carbon.jndi.internal.CarbonJNDIActivator</bundle.activator>
-        <private.package>org.wso2.carbon.jndi.internal.*,</private.package>
-        <export.package>
-            !org.wso2.carbon.kernel.internal.*,
-            org.wso2.carbon.jndi;version=1.0.0,
-            org.apache.naming.*;version=1.0.0
-        </export.package>
-        <import.package>
-            javax.naming.*;version="[0.0.0, 1.0.0)",
-            javax.sql;version="[0.0.0, 1.0.0)",
-            org.osgi.framework;version="${osgi.framework.package.import.version.range}",
-            org.slf4j.*;version="${slf4j.logging.package.import.version.range}"
-        </import.package>
+        <slf4j.api.version>1.7.12</slf4j.api.version>
+        <carbon.jndi.version>1.0.0-SNAPSHOT</carbon.jndi.version>
+        <carbon.jndi.pkg.export.version>1.0.0</carbon.jndi.pkg.export.version>
+        <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
+        <carbon.kernel.version>5.0.0</carbon.kernel.version>
+        <osgi.api.version>6.0.0</osgi.api.version>
+
+        <!-- Equinox dependency versions -->
+        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
+        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
 
         <pax.logging.api.version>1.8.4</pax.logging.api.version>
-        <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <osgi.framework.package.import.version.range>[1.8.0, 2.0.0)</osgi.framework.package.import.version.range>
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
     </properties>
