@@ -7,19 +7,20 @@ This is a POC conducted to read datasource configuration files and bind these da
 
 ### Usage
 
-- Build the project and copy the org.wso2.carbon.datasource.core-1.0-SNAPSHOT.jar into CARBON_HOME/osgi/dropins directory of the C5 distribution. 
+- In this maven project, 3 maven modules can be found.
+- org.wso2.carbon.datasource.core module will create an OSGi bundle which will read the datasource configuration files and bind through jndi.
+- feature module will encapsulate org.wso2.carbon.datasource.core.jar and it's dependencies and create a feature so it is installable into carbon-kernel.
+- distribution module, which will download carbon kernel 5.0.0, install the feature and zip it with the name 'carbon-datasource-1.0.0-SNAPSHOT.zip'
+- Extracted location of the aforementioned zip file is considered as CARBON_HOME for this readme.
+- data source configuration file can be found in CARBON_HOME/conf/datasources directory. Update the master-datasources.xml file to suite your requirement.
+- In addition you can place any data source configuration file in CARBON_HOME/conf/datasources directory having it's file name ends with '-datasources.xml'. This is the convention used in previous carbon versions.
+- Place the required jdbc driver jar in the CARBON_HOME/osgi/dropins folder. Make sure dynamic import is enabled in the driver jar.
 
-- This bundle search for data source configuration files in 'datasources' directory of the carbon configuration folder. Thus create a folder named 'datasources' in CARBON_HOME/conf directory and copy the master-datasources.xml file found in the resources folder of org.wso2.carbon.datasource.core maven project into CARBON_HOME/conf/datasources directory. This master-datasources.xml file is a dummy configuration file. Thus you should update before use this. In addition you can place any data source configuration file have it's file name ends with '-datasources.xml'. This is the convention used in previous carbon versions.
+Important
 
-- org.wso2.carbon.datasource.core bundle has a dependency with following jar files;
--- commons-io
--- fscontext
--- tomcat-jdbc
--- sun_jndi_providerutil
+This project has a dependency with carbon-jndi. So for this to work well, build carbon-jndi and place the carbon-jndi-1.0.0-SNAPSHOT.jar in CARBON_HOME/osgi/dropins.
 
-These jar files can be found in 'osgi' folder of the org.wso2.carbon.datasource.core maven project. Copy these jars into CARBON-HOME/osgi/dropins folder. 
 
-After completing aforementioned activities, start C5 kernel by running carbon.sh or carbon.bat. Then org.wso2.carbon.datasource.core-1.0-SNAPSHOT.jar will read the configuration files from the configuration directory and bind data sources.
+After completing aforementioned activities, start C5 kernel by running carbon.sh or carbon.bat.
 
-A Runner.java class is provided to test this outside the OSGi environment. You need to update provider url in the map according to your file system and the master-datasources.xml.
-
+- A Runner.java class is provided to test this outside the OSGi environment. Make sure you update master-datasources.xml before running this class.
