@@ -27,8 +27,8 @@ import java.io.OutputStream;
  *
  * @since 1.0.0
  */
-public class HttpInCarbonAxis2Bridge implements TransportListener, CarbonAxis2Bridge {
-    private static final Logger logger = LoggerFactory.getLogger(HttpInCarbonAxis2Bridge.class);
+public class HttpCarbonAxis2TransportListener implements TransportListener, CarbonAxis2Bridge {
+    private static final Logger logger = LoggerFactory.getLogger(HttpCarbonAxis2TransportListener.class);
 
     @Override
     public void init(ConfigurationContext configurationContext, TransportInDescription transportInDescription)

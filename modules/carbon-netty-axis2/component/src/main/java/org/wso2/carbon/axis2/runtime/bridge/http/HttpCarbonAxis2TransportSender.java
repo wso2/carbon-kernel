@@ -26,8 +26,8 @@ import javax.xml.parsers.FactoryConfigurationError;
  *
  * @since 1.0.0
  */
-public class HttpOutCarbonAxis2Bridge implements TransportSender {
-    private static final Logger logger = LoggerFactory.getLogger(HttpOutCarbonAxis2Bridge.class);
+public class HttpCarbonAxis2TransportSender implements TransportSender {
+    private static final Logger logger = LoggerFactory.getLogger(HttpCarbonAxis2TransportSender.class);
 
     private TransportOutDescription transportOutDescription;
 

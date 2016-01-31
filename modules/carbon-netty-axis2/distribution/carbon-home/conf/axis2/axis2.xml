@@ -221,7 +221,7 @@
     <!-- In Transports -->
     <!-- ================================================= -->
     <transportReceiver name="http"
-                       class="org.wso2.carbon.axis2.runtime.bridge.http.HttpInCarbonAxis2Bridge">
+                       class="org.wso2.carbon.axis2.runtime.bridge.http.HttpCarbonAxis2TransportListener">
     </transportReceiver>
 
     <!--transportReceiver name="http"
@@ -377,7 +377,7 @@
     <!-- ================================================= -->
 
     <transportSender name="http"
-                     class="org.wso2.carbon.axis2.runtime.bridge.http.HttpOutCarbonAxis2Bridge"/>
+                     class="org.wso2.carbon.axis2.runtime.bridge.http.HttpCarbonAxis2TransportSender"/>
 
     <!--transportSender name="tcp"
                      class="org.apache.axis2.transport.tcp.TCPTransportSender"/>
