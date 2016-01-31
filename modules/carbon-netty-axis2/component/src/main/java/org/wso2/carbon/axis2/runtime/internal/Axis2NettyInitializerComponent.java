@@ -107,10 +107,10 @@ public class Axis2NettyInitializerComponent {
             unbind = "removeCarbonAxis2Bridge"
     )
     protected void addCarbonAxis2Bridge(CarbonAxis2Bridge carbonAxis2Bridge) {
-        logger.info("======================addCarbonAxis2Bridge");
+        logger.info("Adding CarbonAxis2Bridge : " + carbonAxis2Bridge.getClass().getCanonicalName());
     }
 
     protected void removeCarbonAxis2Bridge(CarbonAxis2Bridge carbonAxis2Bridge) {
-        logger.info("======================removeCarbonAxis2Bridge");
+        logger.info("Removing CarbonAxis2Bridge : " + carbonAxis2Bridge.getClass().getCanonicalName());
     }
 }

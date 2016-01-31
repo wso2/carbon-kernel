@@ -12,6 +12,7 @@ import org.apache.axis2.engine.AxisConfiguration;
 import org.apache.axis2.engine.Handler;
 import org.apache.axis2.transport.TransportListener;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.axis2.runtime.bridge.CarbonAxis2Bridge;
@@ -29,6 +30,7 @@ import java.io.OutputStream;
  */
 public class HttpCarbonAxis2TransportListener implements TransportListener, CarbonAxis2Bridge {
     private static final Logger logger = LoggerFactory.getLogger(HttpCarbonAxis2TransportListener.class);
+    private ServiceRegistration serviceRegistration;
 
     @Override
     public void init(ConfigurationContext configurationContext, TransportInDescription transportInDescription)
@@ -38,13 +40,17 @@ public class HttpCarbonAxis2TransportListener implements TransportListener, Carb
 
     @Override
     public void start() throws AxisFault {
-        DataHolder.getInstance().getBundleContext().registerService(CarbonAxis2Bridge.class, this, null);
-        logger.info("HttpInCarbonAxis2Bridge is started");
+        serviceRegistration = DataHolder.getInstance().getBundleContext()
+                .registerService(CarbonAxis2Bridge.class, this, null);
+        logger.info("HttpCarbonAxis2TransportListener is started");
     }
 
     @Override
     public void stop() throws AxisFault {
-        logger.info("HttpInCarbonAxis2Bridge is stopped");
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+        }
+        logger.info("HttpCarbonAxis2TransportListener is stopped");
     }
 
     @Override
