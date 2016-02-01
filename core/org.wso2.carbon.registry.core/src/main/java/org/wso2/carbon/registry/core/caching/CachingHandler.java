@@ -310,7 +310,7 @@ public class CachingHandler extends Handler {
         RegistryContext registryContext = RegistryContext.getBaseInstance();
         List<Mount> mounts = registryContext.getMounts();
         for (Mount mount : mounts) {
-            if (path.startsWith(mount.getPath())) {
+            if (path.startsWith(mount.getTargetPath())) {
                 return true;
             }
         }
