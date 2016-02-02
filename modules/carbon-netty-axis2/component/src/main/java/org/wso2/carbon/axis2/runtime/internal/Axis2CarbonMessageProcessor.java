@@ -1,9 +1,7 @@
 package org.wso2.carbon.axis2.runtime.internal;
 
-import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.axis2.runtime.bridge.CarbonAxis2Bridge;
 import org.wso2.carbon.axis2.runtime.bridge.ResponseStatus;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
@@ -26,6 +24,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class Axis2CarbonMessageProcessor implements CarbonMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(Axis2CarbonMessageProcessor.class);
+    private CarbonAxis2MessageBridge carbonAxis2MessageBridge = new CarbonAxis2MessageBridge();
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
@@ -47,14 +46,9 @@ public class Axis2CarbonMessageProcessor implements CarbonMessageProcessor {
         String requestUri = (String) carbonMessage.getProperty("TO");
         String contentType = carbonMessage.getHeader("Content-Type");
 
-        ServiceReference serviceReference = DataHolder.getInstance().getBundleContext()
-                .getServiceReference(CarbonAxis2Bridge.class);
-        CarbonAxis2Bridge carbonAxis2Bridge = (CarbonAxis2Bridge) DataHolder.getInstance().getBundleContext()
-                .getService(serviceReference);
-
         InputStream inputStream = new ByteArrayInputStream(stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
         OutputStream outputStream = new ByteArrayOutputStream();
-        ResponseStatus responseStatus = carbonAxis2Bridge.processMessage(inputStream, outputStream,
+        ResponseStatus responseStatus = carbonAxis2MessageBridge.processMessage(inputStream, outputStream,
                 contentType, null, requestUri);
 
         if (ResponseStatus.READY == responseStatus) {

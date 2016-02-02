@@ -29,7 +29,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.axis2.runtime.Axis2ServiceManager;
-import org.wso2.carbon.axis2.runtime.bridge.CarbonAxis2Bridge;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
 
 /**
@@ -96,20 +95,5 @@ public class CarbonAxis2Component {
 
     protected void removeAxis2ServiceManager(Axis2ServiceManager axis2ServiceManager) {
         //TODO: Unregister service group + service form the Configuration Context
-    }
-
-    @Reference(
-            name = "carbon-axis2-bridge",
-            service = CarbonAxis2Bridge.class,
-            cardinality = ReferenceCardinality.OPTIONAL,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeCarbonAxis2Bridge"
-    )
-    protected void addCarbonAxis2Bridge(CarbonAxis2Bridge carbonAxis2Bridge) {
-        logger.info("Adding CarbonAxis2Bridge : " + carbonAxis2Bridge.getClass().getCanonicalName());
-    }
-
-    protected void removeCarbonAxis2Bridge(CarbonAxis2Bridge carbonAxis2Bridge) {
-        logger.info("Removing CarbonAxis2Bridge : " + carbonAxis2Bridge.getClass().getCanonicalName());
     }
 }
