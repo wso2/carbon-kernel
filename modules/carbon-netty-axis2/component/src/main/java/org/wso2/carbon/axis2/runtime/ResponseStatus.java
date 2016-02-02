@@ -1,4 +1,4 @@
-package org.wso2.carbon.axis2.runtime.bridge;
+package org.wso2.carbon.axis2.runtime;
 
 /**
  * This is ResponseStatus.

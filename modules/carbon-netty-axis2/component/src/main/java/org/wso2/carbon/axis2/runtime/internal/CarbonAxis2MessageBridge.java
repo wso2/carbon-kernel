@@ -12,8 +12,8 @@ import org.apache.axis2.engine.Handler;
 import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.axis2.runtime.bridge.CarbonAxis2BridgeException;
-import org.wso2.carbon.axis2.runtime.bridge.ResponseStatus;
+import org.wso2.carbon.axis2.runtime.CarbonAxis2Exception;
+import org.wso2.carbon.axis2.runtime.ResponseStatus;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,7 +25,7 @@ public class CarbonAxis2MessageBridge {
                                          OutputStream outputStream,
                                          String contentType,
                                          String soapActionHeader,
-                                         String requestUri) throws CarbonAxis2BridgeException {
+                                         String requestUri) throws CarbonAxis2Exception {
         MessageContext messageContext = createMessageContext(requestUri);
         messageContext.setProperty(Constants.Configuration.CONTENT_TYPE, contentType);
 
@@ -44,7 +44,7 @@ public class CarbonAxis2MessageBridge {
 
             return ResponseStatus.READY;
         } catch (AxisFault axisFault) {
-            throw new CarbonAxis2BridgeException("Failed to process message", axisFault);
+            throw new CarbonAxis2Exception("Failed to process message", axisFault);
         }
     }
 

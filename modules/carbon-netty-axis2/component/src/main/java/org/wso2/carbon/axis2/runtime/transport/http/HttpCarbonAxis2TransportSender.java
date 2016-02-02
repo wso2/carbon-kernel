@@ -1,4 +1,4 @@
-package org.wso2.carbon.axis2.runtime.bridge.http;
+package org.wso2.carbon.axis2.runtime.transport.http;
 
 import org.apache.axiom.om.OMOutputFormat;
 import org.apache.axis2.AxisFault;

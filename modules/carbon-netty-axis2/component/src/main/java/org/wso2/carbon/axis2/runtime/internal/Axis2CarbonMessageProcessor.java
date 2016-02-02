@@ -2,7 +2,7 @@ package org.wso2.carbon.axis2.runtime.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.axis2.runtime.bridge.ResponseStatus;
+import org.wso2.carbon.axis2.runtime.ResponseStatus;
 import org.wso2.carbon.messaging.CarbonCallback;
 import org.wso2.carbon.messaging.CarbonMessage;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
