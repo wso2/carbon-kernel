@@ -2407,12 +2407,16 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                             }
                         }
                         String propertyValue = attrBuffer.toString();
+                        Attribute serviceNameObject = attributes.get(serviceNameAttribute);
+                        String serviceNameAttributeValue = null;
+                        if (serviceNameObject != null){
+                            serviceNameAttributeValue = (String) serviceNameObject.get();
+                        }
                         // Length needs to be more than userAttributeSeparator.length() for a valid
                         // attribute, since we
                         // attach userAttributeSeparator.
                         if (propertyValue != null && propertyValue.trim().length() > userAttributeSeparator.length()) {
-                            if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(attributes
-                                    .get(serviceNameAttribute).get())) {
+                            if (LDAPConstants.SERVER_PRINCIPAL_ATTRIBUTE_VALUE.equals(serviceNameAttributeValue)) {
                                 continue;
                             }
                             propertyValue = propertyValue.substring(0, propertyValue.length() -
