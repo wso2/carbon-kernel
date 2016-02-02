@@ -50,31 +50,39 @@ public class HikariCPRunner {
             i.e: file with the name master-datasources.xml is taken as the configuration for master data and any file
                         that it's name ends with "-datasources.xml" will be processed.
           */
-        manager.setConfigDir(Paths.get("src", "main", "resources").toString());
+        manager.setConfigDir(Paths.get("component", "src", "main", "resources").toString());
+
         try {
             manager.initSystemDataSources();
             Hashtable<String, String> map = new Hashtable<>();
             map.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.fscontext.RefFSContextFactory");
-            map.put(Context.PROVIDER_URL, "file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/org.wso2.carbon.datasource.core/src/test");
+            map.put(Context.PROVIDER_URL, "file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/" +
+                    "carbon-datasources/component/src/test");
+
             InitialContext context = new InitialContext(map);
-            DataSource dataSource = (DataSource)context.lookup("jdbc/WSO2CarbonDB/test");
+            DataSource dataSource = (DataSource) context.lookup("jdbc/WSO2CarbonDB/test");
 
             Connection con = null;
             try {
                 con = dataSource.getConnection();
+
                 Statement st = con.createStatement();
                 ResultSet rs = st.executeQuery("select * from pet");
                 int cnt = 1;
                 while (rs.next()) {
-                    System.out.println((cnt++)+". Host:" +rs.getString("name")+
-                            " User:"+rs.getString("owner")+" Password:"+rs.getString("birth"));
+                    System.out.println(cnt++ + ". Host:" + rs.getString("name") +
+                            " User:" + rs.getString("owner") + " Password:" + rs.getString("birth"));
                 }
                 rs.close();
                 st.close();
+
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
-                if (con!=null) try {con.close();}catch (Exception ignore) {}
+                if (con != null) try {
+                    con.close();
+                } catch (Exception ignore) {
+                }
             }
 
         } catch (DataSourceException e) {
