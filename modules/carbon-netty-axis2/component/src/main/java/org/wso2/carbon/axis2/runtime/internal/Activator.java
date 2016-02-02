@@ -18,6 +18,7 @@ package org.wso2.carbon.axis2.runtime.internal;
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
+import org.apache.axis2.engine.ListenerManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
@@ -50,12 +51,17 @@ public class Activator implements BundleActivator {
         }
 
         try {
-            ConfigurationContext configurationContext = ConfigurationContextFactory.
-                    createConfigurationContextFromFileSystem(null, axis2FilePath);
-            DataHolder.getInstance().setConfigurationContext(configurationContext);
+            ConfigurationContext configurationContext =
+                    ConfigurationContextFactory.createConfigurationContextFromFileSystem(null, axis2FilePath);
+            ListenerManager listenerManager = configurationContext.getListenerManager();
+            if (listenerManager == null) {
+                listenerManager = new ListenerManager();
+            }
+            listenerManager.init(configurationContext);
+            listenerManager.start();
+            configurationContext.setTransportManager(listenerManager);
 
-            CarbonAxis2ServiceImpl axis2ConfigurationContextService = new CarbonAxis2ServiceImpl();
-            bundleContext.registerService(CarbonAxis2Service.class, axis2ConfigurationContextService, null);
+            DataHolder.getInstance().setConfigurationContext(configurationContext);
         } catch (AxisFault axisFault) {
             logger.error("Failed to initialize Axis2 engine with the given axis2.xml", axisFault);
         }

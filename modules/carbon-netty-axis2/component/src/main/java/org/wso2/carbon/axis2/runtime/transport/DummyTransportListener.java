@@ -1,4 +1,4 @@
-package org.wso2.carbon.axis2.runtime.bridge.http;
+package org.wso2.carbon.axis2.runtime.transport;
 
 import org.apache.axis2.AxisFault;
 import org.apache.axis2.addressing.EndpointReference;
@@ -7,18 +7,16 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.SessionContext;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.transport.TransportListener;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.axis2.runtime.internal.DataHolder;
 
 /**
- * This is HttpCarbonAxis2Bridge.
+ * This is DummyTransportListener.
  *
  * @since 1.0.0
  */
-public class HttpCarbonAxis2TransportListener implements TransportListener {
-    private static final Logger logger = LoggerFactory.getLogger(HttpCarbonAxis2TransportListener.class);
+public class DummyTransportListener implements TransportListener {
+    private static final Logger logger = LoggerFactory.getLogger(DummyTransportListener.class);
 
     @Override
     public void init(ConfigurationContext configurationContext, TransportInDescription transportInDescription)
