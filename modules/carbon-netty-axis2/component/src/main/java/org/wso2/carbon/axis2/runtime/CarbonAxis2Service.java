@@ -22,6 +22,6 @@ import org.apache.axis2.context.ConfigurationContext;
  *
  * @since 1.0.0
  */
-public interface Axis2ConfigurationContextService {
+public interface CarbonAxis2Service {
     public ConfigurationContext getConfigurationContext();
 }

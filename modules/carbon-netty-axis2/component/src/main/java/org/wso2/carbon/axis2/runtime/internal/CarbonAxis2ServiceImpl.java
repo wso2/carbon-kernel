@@ -16,14 +16,14 @@
 package org.wso2.carbon.axis2.runtime.internal;
 
 import org.apache.axis2.context.ConfigurationContext;
-import org.wso2.carbon.axis2.runtime.Axis2ConfigurationContextService;
+import org.wso2.carbon.axis2.runtime.CarbonAxis2Service;
 
 /**
  * This is Axis2ConfigurationContextServiceImpl.
  *
  * @since 1.0.0
  */
-public class Axis2ConfigurationContextServiceImpl implements Axis2ConfigurationContextService {
+public class CarbonAxis2ServiceImpl implements CarbonAxis2Service {
 
     @Override
     public ConfigurationContext getConfigurationContext() {

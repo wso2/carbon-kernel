@@ -39,12 +39,11 @@ import org.wso2.carbon.messaging.CarbonMessageProcessor;
  * @since 1.0.0
  */
 @Component(
-        name = "org.wso2.carbon.axis2.runtime.internal.Axis2NettyInitializerComponent",
+        name = "org.wso2.carbon.axis2.runtime.internal.CarbonAxis2Component",
         immediate = true
 )
-public class Axis2NettyInitializerComponent {
-    private static final Logger logger = LoggerFactory.getLogger(Axis2NettyInitializerComponent.class);
-    private static final String CHANNEL_ID_KEY = "channel.id";
+public class CarbonAxis2Component {
+    private static final Logger logger = LoggerFactory.getLogger(CarbonAxis2Component.class);
 
     /**
      * This is the activation method of Axis2NettyInitializerComponent. This will be called when its references are

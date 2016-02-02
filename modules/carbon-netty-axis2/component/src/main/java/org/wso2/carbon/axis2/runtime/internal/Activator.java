@@ -22,7 +22,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.axis2.runtime.Axis2ConfigurationContextService;
+import org.wso2.carbon.axis2.runtime.CarbonAxis2Service;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -54,10 +54,8 @@ public class Activator implements BundleActivator {
                     createConfigurationContextFromFileSystem(null, axis2FilePath);
             DataHolder.getInstance().setConfigurationContext(configurationContext);
 
-            Axis2ConfigurationContextServiceImpl axis2ConfigurationContextService =
-                    new Axis2ConfigurationContextServiceImpl();
-            bundleContext.registerService(Axis2ConfigurationContextService.class,
-                    axis2ConfigurationContextService, null);
+            CarbonAxis2ServiceImpl axis2ConfigurationContextService = new CarbonAxis2ServiceImpl();
+            bundleContext.registerService(CarbonAxis2Service.class, axis2ConfigurationContextService, null);
         } catch (AxisFault axisFault) {
             logger.error("Failed to initialize Axis2 engine with the given axis2.xml", axisFault);
         }
