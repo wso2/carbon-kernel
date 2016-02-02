@@ -111,7 +111,7 @@ public class DataSourceRepository {
         this.checkAndCreateJNDISubContexts(context, jndiConfig.getName());
 
         try {
-            context.bind(jndiConfig.getName(), dsObject);
+            context.rebind(jndiConfig.getName(), dsObject);
         } catch (NamingException e) {
             throw new DataSourceException("Error in binding to JNDI with name '" +
                     jndiConfig.getName() + "' - " + e.getMessage(), e);

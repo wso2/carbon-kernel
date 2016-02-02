@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
 
     <artifactId>carbon-datasource</artifactId>
+    <description>Install the data source feature into C5 and rebuild the pack</description>
 
     <dependencies>
         <dependency>
