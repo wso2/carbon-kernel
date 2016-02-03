@@ -36,11 +36,11 @@ import java.io.OutputStream;
 public class CarbonAxis2MessageBridge {
     private static final Logger logger = LoggerFactory.getLogger(CarbonAxis2MessageBridge.class);
 
-    public ResponseStatus processMessage(InputStream inputStream,
-                                         OutputStream outputStream,
-                                         String contentType,
-                                         String soapActionHeader,
-                                         String requestUri) throws CarbonAxis2Exception {
+    public static ResponseStatus processMessage(InputStream inputStream,
+                                                OutputStream outputStream,
+                                                String contentType,
+                                                String soapActionHeader,
+                                                String requestUri) throws CarbonAxis2Exception {
         MessageContext messageContext = createMessageContext(requestUri);
         messageContext.setProperty(Constants.Configuration.CONTENT_TYPE, contentType);
 
@@ -63,7 +63,7 @@ public class CarbonAxis2MessageBridge {
         }
     }
 
-    protected MessageContext createMessageContext(String requestUri) {
+    private static MessageContext createMessageContext(String requestUri) {
         ConfigurationContext configurationContext = DataHolder.getInstance().getConfigurationContext();
         AxisConfiguration axisConfiguration = configurationContext.getAxisConfiguration();
 

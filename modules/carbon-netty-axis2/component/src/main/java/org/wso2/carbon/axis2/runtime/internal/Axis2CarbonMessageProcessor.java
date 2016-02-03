@@ -36,7 +36,6 @@ import java.nio.charset.StandardCharsets;
 
 public class Axis2CarbonMessageProcessor implements CarbonMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(Axis2CarbonMessageProcessor.class);
-    private CarbonAxis2MessageBridge carbonAxis2MessageBridge = new CarbonAxis2MessageBridge();
 
     @Override
     public boolean receive(CarbonMessage carbonMessage, CarbonCallback carbonCallback) throws Exception {
@@ -60,7 +59,7 @@ public class Axis2CarbonMessageProcessor implements CarbonMessageProcessor {
 
         InputStream inputStream = new ByteArrayInputStream(stringBuilder.toString().getBytes(StandardCharsets.UTF_8));
         OutputStream outputStream = new ByteArrayOutputStream();
-        ResponseStatus responseStatus = carbonAxis2MessageBridge.processMessage(inputStream, outputStream,
+        ResponseStatus responseStatus = CarbonAxis2MessageBridge.processMessage(inputStream, outputStream,
                 contentType, null, requestUri);
 
         if (ResponseStatus.READY == responseStatus) {
