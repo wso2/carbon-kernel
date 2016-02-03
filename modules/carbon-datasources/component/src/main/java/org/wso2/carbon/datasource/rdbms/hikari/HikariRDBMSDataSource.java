@@ -4,7 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.wso2.carbon.datasource.common.DataSourceException;
+import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.utils.RDBMSDataSourceUtils;
 
 import java.util.Map;

@@ -1,8 +1,8 @@
 package org.wso2.carbon.datasource.rdbms.hikari;
 
 import com.zaxxer.hikari.HikariConfig;
-import org.wso2.carbon.datasource.common.DataSourceException;
-import org.wso2.carbon.datasource.common.spi.DataSourceReader;
+import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.utils.RDBMSDataSourceUtils;
@@ -23,11 +23,9 @@ public class HikariDataSourceReader implements DataSourceReader {
         }
     }
 
-
     public static HikariConfig loadConfig(String xmlConfiguration)
             throws DataSourceException {
         try {
-
             RDBMSConfiguration configuration = RDBMSDataSourceUtils.loadConfig(xmlConfiguration);
 
             HikariConfig config = new HikariConfig();

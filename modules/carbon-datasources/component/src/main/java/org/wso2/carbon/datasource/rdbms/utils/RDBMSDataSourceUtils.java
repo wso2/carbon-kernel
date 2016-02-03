@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.datasource.rdbms.utils;
 
-import org.wso2.carbon.datasource.common.DataSourceException;
+import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration;
 import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration.DataSourceProperty;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;

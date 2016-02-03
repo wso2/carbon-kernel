@@ -61,7 +61,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-Activator>org.wso2.carbon.datasource.core.DataSourceBundleActivator</Bundle-Activator>
+                        <Bundle-Activator>org.wso2.carbon.datasource.core.internal.DataSourceBundleActivator</Bundle-Activator>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Export-Package>

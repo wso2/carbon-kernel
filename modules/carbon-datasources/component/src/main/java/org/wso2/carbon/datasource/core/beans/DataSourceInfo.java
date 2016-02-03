@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.datasource.core;
+package org.wso2.carbon.datasource.core.beans;
 
 /**
  * This class represents data source information.

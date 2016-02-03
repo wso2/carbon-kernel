@@ -16,7 +16,7 @@
 package org.wso2.carbon.datasource;
 
 import org.apache.tomcat.jdbc.pool.DataSource;
-import org.wso2.carbon.datasource.common.DataSourceException;
+import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.core.DataSourceManager;
 
 import java.nio.file.Paths;

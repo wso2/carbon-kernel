@@ -24,8 +24,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
-import org.wso2.carbon.datasource.common.DataSourceConstants;
-import org.wso2.carbon.datasource.common.DataSourceException;
+import org.wso2.carbon.datasource.core.common.DataSourceConstants;
+import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.kernel.utils.Utils;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -96,7 +96,7 @@ public class DataSourceUtils {
             serializer.getDomConfig().setParameter(XML_DECLARATION, false);
             return serializer.writeToString(element);
         } catch (Exception e) {
-            log.error("Error while convering element to string: " + e.getMessage(), e);
+            log.error("Error while converting element to string: " + e.getMessage(), e);
             return null;
         }
     }

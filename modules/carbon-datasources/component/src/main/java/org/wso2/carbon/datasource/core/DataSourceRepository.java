@@ -18,9 +18,13 @@ package org.wso2.carbon.datasource.core;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
-import org.wso2.carbon.datasource.common.DataSourceConstants.DataSourceStatusModes;
-import org.wso2.carbon.datasource.common.DataSourceException;
-import org.wso2.carbon.datasource.common.spi.DataSourceReader;
+import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
+import org.wso2.carbon.datasource.core.beans.DataSourceStatus;
+import org.wso2.carbon.datasource.core.common.DataSourceConstants.DataSourceStatusModes;
+import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.spi.DataSourceReader;
+import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
+import org.wso2.carbon.datasource.core.beans.JNDIConfig;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.util.HashMap;
@@ -38,26 +42,8 @@ public class DataSourceRepository {
 
     private Map<String, CarbonDataSource> dataSources;
 
-    public DataSourceRepository() throws DataSourceException {
-        this.dataSources = new HashMap<>();
-    }
-
-    private Object createDataSourceObject(DataSourceMetaInfo dsmInfo, boolean isUseDataSourceFactory)
-            throws DataSourceException {
-        DataSourceReader dsReader = DataSourceManager.getInstance()
-                .getDataSourceReader(dsmInfo.getDefinition().getType());
-
-        if (dsReader == null) {
-            throw new DataSourceException("A data source reader cannot be found for the type '" +
-                    dsmInfo.getDefinition().getType() + "'");
-        }
-//		/* sets the current data source's (name) as a thread local value
-//		 * so it can be read by data source readers */
-//		DataSourceUtils.setCurrentDataSourceId(dsmInfo.getName());
-
-        Element configurationXmlDefinition = (Element) dsmInfo.getDefinition().getDsXMLConfiguration();
-        return dsReader.createDataSource(DataSourceUtils.elementToString(
-                configurationXmlDefinition), isUseDataSourceFactory);
+    public DataSourceRepository() {
+        this.dataSources = new HashMap();
     }
 
     private Context lookupJNDISubContext(Context context, String jndiName)
@@ -144,41 +130,6 @@ public class DataSourceRepository {
         this.dataSources.remove(dsName);
     }
 
-    private synchronized void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
-        Object dsObject = null;
-        boolean isDataSourceFactoryReference = false;
-        DataSourceStatus dsStatus;
-        try {
-            JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
-            if (jndiConfig != null) {
-                isDataSourceFactoryReference = jndiConfig.isUseDataSourceFactory();
-            }
-            dsObject = this.createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
-            this.registerJNDI(dsmInfo, dsObject);
-            dsStatus = new DataSourceStatus(DataSourceStatusModes.ACTIVE, null);
-        } catch (Exception e) {
-            String msg = e.getMessage();
-            log.error(msg, e);
-            dsStatus = new DataSourceStatus(DataSourceStatusModes.ERROR, msg);
-        }
-        /* Creating DataSource object , if dsObject is a Reference */
-        if (isDataSourceFactoryReference) {
-            dsObject = this.createDataSourceObject(dsmInfo, false);
-        }
-        CarbonDataSource cds = new CarbonDataSource(dsmInfo, dsStatus, dsObject);
-        this.dataSources.put(cds.getDSMInfo().getName(), cds);
-    }
-
-    /**
-     * Gets information about a specific given data source.
-     *
-     * @param dsName The name of the data source.
-     * @return The data source information
-     */
-    public CarbonDataSource getDataSource(String dsName) {
-        return this.dataSources.get(dsName);
-    }
-
     /**
      * Adds a new data source to the repository.
      *
@@ -189,6 +140,63 @@ public class DataSourceRepository {
             log.debug("Adding data source: " + dsmInfo.getName());
         }
         this.registerDataSource(dsmInfo);
+    }
+
+    private synchronized void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
+        Object dsObject = null;
+        boolean isDataSourceFactoryReference = false;
+        DataSourceStatus dsStatus;
+        try {
+            JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
+            if (jndiConfig != null) {
+                isDataSourceFactoryReference = jndiConfig.isUseDataSourceFactory();
+            }
+            dsObject = createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
+            registerJNDI(dsmInfo, dsObject);
+            dsStatus = new DataSourceStatus(DataSourceStatusModes.ACTIVE, null);
+        } catch (DataSourceException e) {
+            String msg = e.getMessage();
+            log.error(msg, e);
+            dsStatus = new DataSourceStatus(DataSourceStatusModes.ERROR, msg);
+        }
+
+        //Creates a data source object in any error occurred while registering through JNDI.
+        if (dsObject == null) {
+            dsObject = this.createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
+        }
+        CarbonDataSource cds = new CarbonDataSource(dsmInfo, dsStatus, dsObject);
+        this.dataSources.put(cds.getDSMInfo().getName(), cds);
+    }
+
+    private Object createDataSourceObject(DataSourceMetaInfo dsmInfo, boolean isUseDataSourceFactory)
+            throws DataSourceException {
+
+        DataSourceReader dsReader = DataSourceManager.getInstance()
+                .getDataSourceReader(dsmInfo.getDefinition().getType());
+
+        if (dsReader == null) {
+            throw new DataSourceException("A data source reader cannot be found for the type '" +
+                    dsmInfo.getDefinition().getType() + "'");
+        }
+        log.debug("Generating the DataSource object from \"" + dsReader.getType() + "\" type reader.");
+
+//		/* sets the current data source's (name) as a thread local value
+//		 * so it can be read by data source readers */
+//		DataSourceUtils.setCurrentDataSourceId(dsmInfo.getName());
+
+        Element configurationXmlDefinition = (Element) dsmInfo.getDefinition().getDsXMLConfiguration();
+        return dsReader.createDataSource(DataSourceUtils.elementToString(
+                configurationXmlDefinition), isUseDataSourceFactory);
+    }
+
+    /**
+     * Gets information about a specific given data source.
+     *
+     * @param dsName The name of the data source.
+     * @return The data source information
+     */
+    public CarbonDataSource getDataSource(String dsName) {
+        return this.dataSources.get(dsName);
     }
 
 }

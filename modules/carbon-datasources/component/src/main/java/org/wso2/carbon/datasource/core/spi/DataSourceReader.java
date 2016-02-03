@@ -13,20 +13,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.datasource.common;
+package org.wso2.carbon.datasource.core.spi;
+
+import org.wso2.carbon.datasource.core.common.DataSourceException;
 
 /**
- * This class represents exceptions which are related to data sources.
+ * This represents the service provider interface that must be implemented by any of the 
+ * data source type implementations.
  */
-public class DataSourceException extends Exception {
+public interface DataSourceReader {
 
-    private static final long serialVersionUID = -3151279311929070293L;
-
-    public DataSourceException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public DataSourceException(String msg) {
-        super(msg);
-    }
+	String getType();
+	
+	Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference) throws DataSourceException;
+	
 }
