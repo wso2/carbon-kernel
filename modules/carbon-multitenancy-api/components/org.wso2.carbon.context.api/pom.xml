@@ -20,29 +20,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
-        <groupId>org.wso2</groupId>
-        <artifactId>wso2</artifactId>
-        <version>2</version>
+        <groupId>org.wso2.carbon.multitenancy</groupId>
+        <artifactId>org.wso2.carbon.multitenancy.parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wso2.carbon.context</groupId>
     <artifactId>org.wso2.carbon.context.api</artifactId>
-    <version>5.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>WSO2 Carbon - Carbon Context API OSGi Bundle</name>
+    <name>WSO2 Carbon Context API - OSGi Bundle</name>
     <url>http://wso2.com</url>
 
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>6.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.9.4</version>
         </dependency>
     </dependencies>
 
@@ -67,15 +64,7 @@
             !org.wso2.carbon.context.api.internal,
             org.wso2.carbon.context.api.*;version="${carbon.context.api.version}"
         </export.package>
-        <import.package>org.osgi.framework.*;version="${osgi.framework.import.version.range}"</import.package>
-
-        <carbon.context.api.version>5.0.0</carbon.context.api.version>
-        <osgi.framework.import.version.range>[1.8.0, 2.0.0)</osgi.framework.import.version.range>
-
-        <wso2.maven.compiler.source>1.8</wso2.maven.compiler.source>
-        <wso2.maven.compiler.target>1.8</wso2.maven.compiler.target>
-        <maven.checkstyle.plugin.version>2.17</maven.checkstyle.plugin.version>
-        <maven.findbugs.plugin.version>3.0.3</maven.findbugs.plugin.version>
+        <import.package>org.osgi.framework.*;version="${osgi.framework.package.import.version.range}"</import.package>
     </properties>
 
 
