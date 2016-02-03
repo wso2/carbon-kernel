@@ -19,9 +19,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Created by jayanga on 1/26/16.
- */
 public class Axis2CarbonMessageProcessor implements CarbonMessageProcessor {
     private static final Logger logger = LoggerFactory.getLogger(Axis2CarbonMessageProcessor.class);
     private CarbonAxis2MessageBridge carbonAxis2MessageBridge = new CarbonAxis2MessageBridge();

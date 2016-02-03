@@ -28,8 +28,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.axis2.runtime.Axis2ServiceManager;
-import org.wso2.carbon.axis2.runtime.CarbonAxis2Service;
 import org.wso2.carbon.axis2.runtime.transport.DummyTransportListener;
 import org.wso2.carbon.kernel.transports.CarbonTransport;
 import org.wso2.carbon.messaging.CarbonMessageProcessor;
@@ -58,9 +56,8 @@ public class CarbonAxis2Component {
     protected void start(BundleContext bundleContext) throws Exception {
         logger.info("CarbonAxis2Component is activated");
 
-        CarbonAxis2ServiceImpl carbonAxis2Service = new CarbonAxis2ServiceImpl();
-        bundleContext.registerService(CarbonAxis2Service.class, carbonAxis2Service, null);
-
+        bundleContext.registerService(ConfigurationContext.class,
+                DataHolder.getInstance().getConfigurationContext(), null);
         bundleContext.registerService(CarbonMessageProcessor.class, new Axis2CarbonMessageProcessor(), null);
     }
 
@@ -77,25 +74,23 @@ public class CarbonAxis2Component {
 
     @Reference(
             name = "axis2-service-manager",
-            service = Axis2ServiceManager.class,
+            service = AxisService.class,
             cardinality = ReferenceCardinality.MULTIPLE,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeAxis2ServiceManager"
+            unbind = "removeAxisService"
     )
-    protected void addAxis2ServiceManager(Axis2ServiceManager axis2ServiceManager) {
+    protected void addAxisService(AxisService axisService) {
         ConfigurationContext configurationContext = DataHolder.getInstance().getConfigurationContext();
         if (configurationContext != null) {
             try {
-                AxisService axisService = axis2ServiceManager.getAxisService();
                 configurationContext.deployService(axisService);
             } catch (AxisFault axisFault) {
-                logger.error("Failed to create an Axis2 service with given class '{}'",
-                        axis2ServiceManager.getImplementationClass().getName(), axisFault);
+                logger.error("Failed to deploy axis service : '{}'", axisService.getName(), axisFault);
             }
         }
     }
 
-    protected void removeAxis2ServiceManager(Axis2ServiceManager axis2ServiceManager) {
+    protected void removeAxisService(AxisService axisService) {
         //TODO: Unregister service group + service form the Configuration Context
     }
 

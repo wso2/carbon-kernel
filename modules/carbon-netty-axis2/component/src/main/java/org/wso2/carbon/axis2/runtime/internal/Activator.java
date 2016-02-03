@@ -23,7 +23,6 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.axis2.runtime.CarbonAxis2Service;
 
 import java.io.File;
 import java.nio.file.Paths;
