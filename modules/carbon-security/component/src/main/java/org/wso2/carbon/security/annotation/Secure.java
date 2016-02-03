@@ -22,14 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Definition for RequirePermission annotation.
+ * Definition for Secure annotation
+ * If this annotation is present, authorization need to be verified
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface RequirePermission {
-
-    String permission();
-
-    String[] actions();
+public @interface Secure {
 
 }

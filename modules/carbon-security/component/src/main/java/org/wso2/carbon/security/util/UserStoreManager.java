@@ -16,6 +16,8 @@
 
 package org.wso2.carbon.security.util;
 
+import org.wso2.carbon.security.jaas.CarbonPermission;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,11 +29,17 @@ public class UserStoreManager {
 
     private static Map<String, char[]> userStore = new HashMap<>();
 
+    private static Map<String, CarbonPermission[]> permissionStore = new HashMap<>();
+
     private static UserStoreManager instance = new UserStoreManager();
+
 
     private UserStoreManager() {
 
         userStore.put("admin", new char[]{'a', 'd', 'm', 'i', 'n'});
+
+        permissionStore.put("admin", new CarbonPermission[]{
+                new CarbonPermission("org.wso2.carbon.mss.stockquote.StockQuoteService.getQuote", "GET")});
     }
 
     public static UserStoreManager getInstance() {
@@ -55,6 +63,33 @@ public class UserStoreManager {
             }
 
             return Arrays.equals(password, userPassword);
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks whether a given principal is authorized against a provided permission.
+     *
+     * @param principalName      Name of the principal.
+     * @param requiredPermission Permission which the principal should be checked against.
+     * @return
+     */
+    public boolean authorizePrincipal(String principalName, CarbonPermission requiredPermission) {
+
+        if (principalName != null && !principalName.isEmpty()) {
+
+            CarbonPermission[] carbonPermissions = permissionStore.get(principalName);
+            if (carbonPermissions == null) {
+                return false;
+            }
+
+            for (CarbonPermission carbonPermission : carbonPermissions) {
+                if (carbonPermission.getName().equals(requiredPermission.getName())) {
+                    return true;
+                    //TODO actions are ignored temporally
+                }
+            }
         }
 
         return false;

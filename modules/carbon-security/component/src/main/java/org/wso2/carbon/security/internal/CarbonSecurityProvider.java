@@ -16,13 +16,20 @@
 
 package org.wso2.carbon.security.internal;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.PackagePermission;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.permissionadmin.PermissionAdmin;
+import org.osgi.service.permissionadmin.PermissionInfo;
 import org.wso2.carbon.security.jaas.CarbonPolicy;
 
 import java.security.Policy;
+import java.util.ArrayList;
+import java.util.List;
+import javax.security.auth.AuthPermission;
 
 /**
  * OSGi service component which handle authentication and authorization
@@ -40,11 +47,29 @@ public class CarbonSecurityProvider {
         CarbonPolicy policy = new CarbonPolicy();
         Policy.setPolicy(policy);
         System.setSecurityManager(new SecurityManager());
+
+        // Granting limited number of permissions for the bundle
+        Bundle bundle = bundleContext.getBundle();
+        String bundleLocation = bundle.getLocation();
+        PermissionAdmin permissionAdmin = getPermissionAdmin(bundleContext);
+        if (permissionAdmin != null) {
+            List<PermissionInfo> permissionInfoList = new ArrayList<>();
+            permissionInfoList.add(new PermissionInfo(AuthPermission.class.getName(),"createLoginContext", null));
+            permissionInfoList.add(new PermissionInfo(AuthPermission.class.getName(),"doAsPrivileged", null));
+            permissionInfoList.add(new PermissionInfo(AuthPermission.class.getName(),"modifyPrincipals", null));
+            permissionInfoList.add(new PermissionInfo(PackagePermission.class.getName(),"*", "exportonly,import"));
+            permissionAdmin.setPermissions(bundleLocation, permissionInfoList
+                    .toArray(new PermissionInfo[permissionInfoList.size()]));
+        }
     }
 
     @Deactivate
     public void unregisterCarbonSecurityProvider(BundleContext bundleContext) {
         //TODO
+    }
+
+    private PermissionAdmin getPermissionAdmin(BundleContext context) {
+        return (PermissionAdmin) context.getService(context.getServiceReference(PermissionAdmin.class.getName()));
     }
 
 }
