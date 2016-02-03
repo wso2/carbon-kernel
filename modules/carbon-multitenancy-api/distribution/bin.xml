@@ -16,7 +16,7 @@
 <assembly>
     <includeBaseDirectory>true</includeBaseDirectory>
     <baseDirectory>wso2carbon-context-${carbon.multitenancy.version}</baseDirectory>
-    <id>jndi</id>
+    <id>carbon-context</id>
     <formats>
         <format>zip</format>
     </formats>
