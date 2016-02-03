@@ -13,18 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.axis2.runtime.dummy;
+package org.wso2.carbon.axis2.runtime;
 
 /**
- * MyService is a dummy axis2 service for testing purposes.
+ * This is HttpCarbonAxis2Bridge.
  *
  * @since 1.0.0
  */
-public class MyOtherService {
-    public String sayHello(String name) {
-        return "Hello " + name + ", from MyOtherService";
-    }
-    public int add(int a, int b) {
-        return a + b;
+public class CarbonAxis2Exception extends Exception {
+    public CarbonAxis2Exception(String message, Throwable cause) {
+        super(message, cause);
     }
 }

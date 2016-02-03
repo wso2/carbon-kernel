@@ -28,6 +28,19 @@ listenerConfigurations:
   bossThreadPoolSize: 2
   workerThreadPoolSize: 250
   execHandlerThreadPoolSize: 60
+  parameters:
+      -
+       name: "disruptor.wait.strategy"
+       value: BUSY_SPIN
+      -
+       name: "disruptor.buffer.size"
+       value: 1024
+      -
+       name: "disruptor.count"
+       value: 1
+      -
+       name: "disruptor.eventhandler.count"
+       value: 1
 # -
 #  id: "jaxrs-https"
 #  host: "127.0.0.1"

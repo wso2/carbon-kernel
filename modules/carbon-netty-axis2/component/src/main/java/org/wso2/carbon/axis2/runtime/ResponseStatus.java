@@ -13,18 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.axis2.runtime.dummy2.other;
+package org.wso2.carbon.axis2.runtime;
 
 /**
- * MyService is a dummy axis2 service for testing purposes.
+ * This is ResponseStatus.
  *
  * @since 1.0.0
  */
-public class MySomeOtherService {
-    public String sayHello(String name) {
-        return "Hello " + name + ", from MySomeOtherService";
-    }
-    public int add(int a, int b) {
-        return a + b;
-    }
+public enum  ResponseStatus {
+    READY,
+    ERROR
 }
