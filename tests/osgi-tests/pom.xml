@@ -18,13 +18,13 @@
     <parent>
         <artifactId>carbon-kernel-tests</artifactId>
         <groupId>org.wso2.carbon</groupId>
-        <version>5.0.0</version>
+        <version>5.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>carbon-kernel-osgi-tests</artifactId>
-    <version>5.0.0</version>
+    <version>5.1.0-SNAPSHOT</version>
     <name>WSO2 Carbon Kernel - OSGi Tests</name>
     <description>OSGi Tests for Carbon Kernel</description>
     <url>http://wso2.com</url>
