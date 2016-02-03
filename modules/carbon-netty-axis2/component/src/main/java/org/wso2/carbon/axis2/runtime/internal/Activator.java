@@ -56,10 +56,9 @@ public class Activator implements BundleActivator {
             ListenerManager listenerManager = configurationContext.getListenerManager();
             if (listenerManager == null) {
                 listenerManager = new ListenerManager();
+                listenerManager.init(configurationContext);
+                listenerManager.start();
             }
-            listenerManager.init(configurationContext);
-            listenerManager.start();
-            configurationContext.setTransportManager(listenerManager);
 
             DataHolder.getInstance().setConfigurationContext(configurationContext);
         } catch (AxisFault axisFault) {

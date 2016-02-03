@@ -48,7 +48,7 @@ public class CarbonAxis2Component {
     private static final Logger logger = LoggerFactory.getLogger(CarbonAxis2Component.class);
 
     /**
-     * This is the activation method of Axis2NettyInitializerComponent. This will be called when its references are
+     * This is the activation method of CarbonAxis2Component. This will be called when its references are
      * satisfied.
      *
      * @param bundleContext the bundle context instance of this bundle.
@@ -56,23 +56,23 @@ public class CarbonAxis2Component {
      */
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
-        logger.info("Axis2NettyInitializerComponent is activated");
+        logger.info("CarbonAxis2Component is activated");
 
-        CarbonAxis2ServiceImpl axis2ConfigurationContextService = new CarbonAxis2ServiceImpl();
-        bundleContext.registerService(CarbonAxis2Service.class, axis2ConfigurationContextService, null);
+        CarbonAxis2ServiceImpl carbonAxis2Service = new CarbonAxis2ServiceImpl();
+        bundleContext.registerService(CarbonAxis2Service.class, carbonAxis2Service, null);
 
         bundleContext.registerService(CarbonMessageProcessor.class, new Axis2CarbonMessageProcessor(), null);
     }
 
     /**
-     * This is the deactivation method of Axis2NettyInitializerComponent. This will be called when this component
+     * This is the deactivation method of CarbonAxis2Component. This will be called when this component
      * is being stopped or references are un-satisfied during runtime.
      *
      * @throws Exception this will be thrown if an issue occurs while executing the de-activate method
      */
     @Deactivate
     protected void stop() throws Exception {
-        logger.info("Axis2NettyInitializerComponent is deactivated");
+        logger.info("CarbonAxis2Component is deactivated");
     }
 
     @Reference(
@@ -117,7 +117,7 @@ public class CarbonAxis2Component {
                 configurationContext.getAxisConfiguration().addTransportIn(transportInDescription);
                 configurationContext.getListenerManager().addListener(transportInDescription, false);
             } catch (AxisFault axisFault) {
-                axisFault.printStackTrace();
+                logger.error("Error while configuring transport", axisFault);
             }
         }
     }
@@ -126,7 +126,7 @@ public class CarbonAxis2Component {
         try {
             DataHolder.getInstance().getConfigurationContext().getListenerManager().stop();
         } catch (AxisFault axisFault) {
-            axisFault.printStackTrace();
+            logger.error("Error while stopping transports", axisFault);
         }
     }
 }
