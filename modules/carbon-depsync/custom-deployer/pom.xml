@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>org.wso2.carbon.depsync</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>org.wso2.carbon.deployer</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>WSO2 Custom Deployer OSGi bundle</name>
+    <description>WSO2 Custom Deployer OSGi bundle</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <version>1.8.4</version>
+            <!--<optional>true</optional>-->
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+            <version>3.4.0.v20140312-2051</version>
+        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.logging.log4j</groupId>-->
+            <!--<artifactId>log4j-1.2-api</artifactId>-->
+            <!--<version>2.5</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.logging.log4j</groupId>-->
+            <!--<artifactId>log4j-core</artifactId>-->
+            <!--<version>2.5</version>-->
+        <!--</dependency>-->
+    </dependencies>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>wso2-nexus</id>
+            <name>WSO2 internal Repository</name>
+            <url>http://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <version>1.9.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-scr-scrdescriptor</id>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Vendor>WSO2 Inc</Bundle-Vendor>
+                        <Bundle-SymbolicName>org.wso2.carbon.custom.deployer</Bundle-SymbolicName>
+                        <Bundle-Name>org.wso2.carbon.custom.deployer</Bundle-Name>
+                        <Bundle-Version>1.0.0</Bundle-Version>
+                        <Import-Package>
+                            org.wso2.carbon.kernel.deployment.*;version="[5.0.0,6.0.0)",
+                        </Import-Package>
+                        <Export-Package>
+                            org.wso2.carbon.custom.deployer.*;version="1.0.0"
+                        </Export-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
