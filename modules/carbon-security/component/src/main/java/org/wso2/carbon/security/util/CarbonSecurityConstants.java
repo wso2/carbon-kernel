@@ -17,8 +17,10 @@
 package org.wso2.carbon.security.util;
 
 /**
- *
+ * This class holds the constants used by the security module.
  */
-public class SecurityUtil {
+public class CarbonSecurityConstants {
 
+    public static final String HTTP_AUTHORIZATION_PREFIX_BEARER = "Bearer";
+    public static final String HTTP_AUTHORIZATION_PREFIX_BASIC = "Basic";
 }

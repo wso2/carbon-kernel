@@ -54,6 +54,10 @@
             <groupId>org.wso2.orbit.com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.context</groupId>
+            <artifactId>org.wso2.carbon.context.api</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -66,7 +70,8 @@
             io.netty.handler.codec.http.*;version="${io.netty.package.import.version.range}",
             javax.security.auth.*,
             com.nimbusds.jose.*;version="${com.nimbusds.package.import.version.range}",
-            com.nimbusds.jwt.*;version="${com.nimbusds.package.import.version.range}"
+            com.nimbusds.jwt.*;version="${com.nimbusds.package.import.version.range}",
+            org.wso2.carbon.context.api.*
         </import.package>
 
         <dsannotations>*</dsannotations>
@@ -82,6 +87,8 @@
 
         <!--Logging API version range-->
         <slf4j.logging.package.import.version.range>[1.7.1, 2.0.0)</slf4j.logging.package.import.version.range>
+
+        <org.wso2.carbon.context.import.version.range>[5.0.0, 5.1.0)</org.wso2.carbon.context.import.version.range>
     </properties>
 
 </project>
