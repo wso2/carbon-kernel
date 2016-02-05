@@ -2409,7 +2409,7 @@ public class ReadOnlyLDAPUserStoreManager extends AbstractUserStoreManager {
                         String propertyValue = attrBuffer.toString();
                         Attribute serviceNameObject = attributes.get(serviceNameAttribute);
                         String serviceNameAttributeValue = null;
-                        if (serviceNameObject != null){
+                        if (serviceNameObject != null) {
                             serviceNameAttributeValue = (String) serviceNameObject.get();
                         }
                         // Length needs to be more than userAttributeSeparator.length() for a valid
