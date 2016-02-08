@@ -2,7 +2,7 @@
 
     <providers>
         <!--<provider>org.wso2.carbon.datasource.rdbms.hikari.HikariDataSourceReader</provider>-->
-        <provider>org.wso2.carbon.datasource.rdbms.tomcat.TomcatSDataSourceReader</provider>
+        <provider>org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceReader</provider>
     </providers>
 
     <datasources>
@@ -13,7 +13,7 @@
                 <name>jdbc/WSO2CarbonDB/test</name>
                  <useDataSourceFactory>true</useDataSourceFactory>
                 <environment>
-                    <property name="java.naming.factory.initial">org.wso2.carbon.datasource.core.jndi.ContextFactory</property>
+                    <property name="java.naming.factory.initial">org.wso2.carbon.datasource.core.jndi.CustomContextFactory</property>
                 </environment>
             </jndiConfig>
             <definition type="RDBMS">
