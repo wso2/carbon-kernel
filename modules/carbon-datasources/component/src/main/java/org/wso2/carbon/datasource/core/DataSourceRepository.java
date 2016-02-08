@@ -27,6 +27,7 @@ import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
 import org.wso2.carbon.datasource.core.beans.JNDIConfig;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.naming.Context;
@@ -67,7 +68,7 @@ public class DataSourceRepository {
         String token;
         for (int i = 0; i < tokens.length - 1; i++) {
             token = tokens[i];
-            tmpCtx = this.lookupJNDISubContext(context, token);
+            tmpCtx = lookupJNDISubContext(context, token);
             if (tmpCtx == null) {
                 try {
                     tmpCtx = context.createSubcontext(token);
@@ -94,7 +95,7 @@ public class DataSourceRepository {
             throw new DataSourceException("Error creating JNDI initial context: " +
                     e.getMessage(), e);
         }
-        this.checkAndCreateJNDISubContexts(context, jndiConfig.getName());
+        checkAndCreateJNDISubContexts(context, jndiConfig.getName());
 
         try {
             context.rebind(jndiConfig.getName(), dsObject);
@@ -116,18 +117,6 @@ public class DataSourceRepository {
             log.error("Error in unregistering JNDI name: " +
                     jndiConfig.getName() + " - " + e.getMessage(), e);
         }
-    }
-
-    private void unregisterDataSource(String dsName) {
-        CarbonDataSource cds = this.getDataSource(dsName);
-        if (cds == null) {
-            return;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Unregistering data source: " + dsName);
-        }
-        this.unregisterJNDI(cds.getDSMInfo());
-        this.dataSources.remove(dsName);
     }
 
     /**
@@ -197,6 +186,37 @@ public class DataSourceRepository {
      */
     public CarbonDataSource getDataSource(String dsName) {
         return this.dataSources.get(dsName);
+    }
+
+    /**
+     * Gets information about all the data sources.
+     * @return A list of all data sources
+     */
+    public Collection<CarbonDataSource> getAllDataSources() {
+        return dataSources.values();
+    }
+
+    /**
+     * Unregisters and deletes the data source from the repository.
+     * @param dsName The data source name
+     */
+    public void deleteDataSource(String dsName) throws DataSourceException {
+        if (log.isDebugEnabled()) {
+            log.debug("Deleting data source: " + dsName);
+        }
+        CarbonDataSource cds = getDataSource(dsName);
+        if (cds == null) {
+            throw new DataSourceException("Data source does not exist: " + dsName);
+        }
+        unregisterDataSource(cds, dsName);
+    }
+
+    private void unregisterDataSource(CarbonDataSource cds, String dsName) {
+        if (log.isDebugEnabled()) {
+            log.debug("Unregistering data source: " + dsName);
+        }
+        unregisterJNDI(cds.getDSMInfo());
+        dataSources.remove(dsName);
     }
 
 }
