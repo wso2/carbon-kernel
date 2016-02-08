@@ -19,10 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.wso2.carbon.datasource.core.DataSourceManager;
-import org.wso2.carbon.datasource.core.api.DataSourceService;
-import org.wso2.carbon.datasource.core.impl.DataSourceServiceImpl;
 
 public class DataSourceBundleActivator implements BundleActivator {
 

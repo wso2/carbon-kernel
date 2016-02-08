@@ -16,6 +16,7 @@
 package org.wso2.carbon.datasource.rdbms.hikari.utils;
 
 import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.rdbms.hikari.HikariConfiguration;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.io.ByteArrayInputStream;

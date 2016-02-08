@@ -19,12 +19,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
+import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
 import org.wso2.carbon.datasource.core.beans.DataSourceStatus;
+import org.wso2.carbon.datasource.core.beans.JNDIConfig;
 import org.wso2.carbon.datasource.core.common.DataSourceConstants.DataSourceStatusModes;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
-import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
-import org.wso2.carbon.datasource.core.beans.JNDIConfig;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.util.Collection;
@@ -47,78 +47,6 @@ public class DataSourceRepository {
         this.dataSources = new HashMap();
     }
 
-    private Context lookupJNDISubContext(Context context, String jndiName)
-            throws DataSourceException {
-        try {
-            Object obj = context.lookup(jndiName);
-            if (!(obj instanceof Context)) {
-                throw new DataSourceException("Non JNDI context already exists at '" +
-                        context + "/" + jndiName);
-            }
-            return (Context) obj;
-        } catch (NamingException e) {
-            return null;
-        }
-    }
-
-    private void checkAndCreateJNDISubContexts(Context context, String jndiName)
-            throws DataSourceException {
-        String[] tokens = jndiName.split("/");
-        Context tmpCtx;
-        String token;
-        for (int i = 0; i < tokens.length - 1; i++) {
-            token = tokens[i];
-            tmpCtx = lookupJNDISubContext(context, token);
-            if (tmpCtx == null) {
-                try {
-                    tmpCtx = context.createSubcontext(token);
-                } catch (NamingException e) {
-                    throw new DataSourceException(
-                            "Error in creating JNDI subcontext '" + context +
-                                    "/" + token + ": " + e.getMessage(), e);
-                }
-            }
-            context = tmpCtx;
-        }
-    }
-
-    private void registerJNDI(DataSourceMetaInfo dsmInfo, Object dsObject)
-            throws DataSourceException {
-        JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
-        if (jndiConfig == null) {
-            return;
-        }
-        InitialContext context;
-        try {
-            context = new InitialContext(jndiConfig.extractHashtableEnv());
-        } catch (NamingException e) {
-            throw new DataSourceException("Error creating JNDI initial context: " +
-                    e.getMessage(), e);
-        }
-        checkAndCreateJNDISubContexts(context, jndiConfig.getName());
-
-        try {
-            context.rebind(jndiConfig.getName(), dsObject);
-        } catch (NamingException e) {
-            throw new DataSourceException("Error in binding to JNDI with name '" +
-                    jndiConfig.getName() + "' - " + e.getMessage(), e);
-        }
-    }
-
-    private void unregisterJNDI(DataSourceMetaInfo dsmInfo) {
-        JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
-        if (jndiConfig == null) {
-            return;
-        }
-        try {
-            InitialContext context = new InitialContext(jndiConfig.extractHashtableEnv());
-            context.unbind(jndiConfig.getName());
-        } catch (NamingException e) {
-            log.error("Error in unregistering JNDI name: " +
-                    jndiConfig.getName() + " - " + e.getMessage(), e);
-        }
-    }
-
     /**
      * Adds a new data source to the repository.
      *
@@ -128,7 +56,7 @@ public class DataSourceRepository {
         if (log.isDebugEnabled()) {
             log.debug("Adding data source: " + dsmInfo.getName());
         }
-        this.registerDataSource(dsmInfo);
+        registerDataSource(dsmInfo);
     }
 
     private synchronized void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
@@ -178,6 +106,63 @@ public class DataSourceRepository {
                 configurationXmlDefinition), isUseDataSourceFactory);
     }
 
+    private void registerJNDI(DataSourceMetaInfo dsmInfo, Object dsObject)
+            throws DataSourceException {
+        JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
+        if (jndiConfig == null) {
+            return;
+        }
+        InitialContext context;
+        try {
+            context = new InitialContext(jndiConfig.extractHashtableEnv());
+        } catch (NamingException e) {
+            throw new DataSourceException("Error creating JNDI initial context: " +
+                    e.getMessage(), e);
+        }
+        checkAndCreateJNDISubContexts(context, jndiConfig.getName());
+
+        try {
+            context.rebind(jndiConfig.getName(), dsObject);
+        } catch (NamingException e) {
+            throw new DataSourceException("Error in binding to JNDI with name '" +
+                    jndiConfig.getName() + "' - " + e.getMessage(), e);
+        }
+    }
+
+    private void checkAndCreateJNDISubContexts(Context context, String jndiName)
+            throws DataSourceException {
+        String[] tokens = jndiName.split("/");
+        Context tmpCtx;
+        String token;
+        for (int i = 0; i < tokens.length - 1; i++) {
+            token = tokens[i];
+            tmpCtx = lookupJNDISubContext(context, token);
+            if (tmpCtx == null) {
+                try {
+                    tmpCtx = context.createSubcontext(token);
+                } catch (NamingException e) {
+                    throw new DataSourceException("Error in creating JNDI subcontext '" +
+                            context + "/" + token + ": " + e.getMessage(), e);
+                }
+            }
+            context = tmpCtx;
+        }
+    }
+
+    private Context lookupJNDISubContext(Context context, String jndiName)
+            throws DataSourceException {
+        try {
+            Object obj = context.lookup(jndiName);
+            if (!(obj instanceof Context)) {
+                throw new DataSourceException("Non JNDI context already exists at '" +
+                        context + "/" + jndiName);
+            }
+            return (Context) obj;
+        } catch (NamingException e) {
+            return null;
+        }
+    }
+
     /**
      * Gets information about a specific given data source.
      *
@@ -190,6 +175,7 @@ public class DataSourceRepository {
 
     /**
      * Gets information about all the data sources.
+     *
      * @return A list of all data sources
      */
     public Collection<CarbonDataSource> getAllDataSources() {
@@ -198,6 +184,7 @@ public class DataSourceRepository {
 
     /**
      * Unregisters and deletes the data source from the repository.
+     *
      * @param dsName The data source name
      */
     public void deleteDataSource(String dsName) throws DataSourceException {
@@ -217,6 +204,20 @@ public class DataSourceRepository {
         }
         unregisterJNDI(cds.getDSMInfo());
         dataSources.remove(dsName);
+    }
+
+    private void unregisterJNDI(DataSourceMetaInfo dsmInfo) {
+        JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
+        if (jndiConfig == null) {
+            return;
+        }
+        try {
+            InitialContext context = new InitialContext(jndiConfig.extractHashtableEnv());
+            context.unbind(jndiConfig.getName());
+        } catch (NamingException e) {
+            log.error("Error in unregistering JNDI name: " +
+                    jndiConfig.getName() + " - " + e.getMessage(), e);
+        }
     }
 
 }

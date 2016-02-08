@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.datasource.rdbms.hikari.utils;
+package org.wso2.carbon.datasource.rdbms.hikari;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -71,7 +71,7 @@ public class HikariConfiguration {
         this.passwordPersist = passwordPersist;
     }
 
-    @XmlRootElement (name = "password")
+    @XmlRootElement(name = "password")
     public static class Password {
 
         private boolean encrypted = true;

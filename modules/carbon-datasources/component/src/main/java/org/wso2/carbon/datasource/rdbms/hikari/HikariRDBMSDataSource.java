@@ -27,7 +27,6 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
 public class HikariRDBMSDataSource {
-    private static Log log = LogFactory.getLog(HikariRDBMSDataSource.class);
     private final String JAVAX_DATASOURCE_CLASS = "javax.sql.DataSource";
     private final String HIKARI_JNDI_FACTORY = "com.zaxxer.hikari.HikariJNDIFactory";
 

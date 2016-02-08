@@ -35,11 +35,10 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Override
     public List<CarbonDataSource> getAllDataSourcesForType(String dsType) throws DataSourceException {
-        List<CarbonDataSource> result = DataSourceManager.getInstance().
+        return DataSourceManager.getInstance().
                 getDataSourceRepository().getAllDataSources().stream()
                 .filter(cds -> cds.getDSMInfo().getDefinition().getType().equals(dsType))
                 .collect(Collectors.toList());
-        return result;
     }
 
     @Override

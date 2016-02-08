@@ -20,8 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceConfiguration;
-import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
@@ -92,17 +90,9 @@ public class TomcatDataSource {
             ObjectName objectName = new ObjectName(mBean + ":type=DataSource");
             mBeanServer.registerMBean(this.dataSource.createPool().getJmxPool(), objectName);
         } catch (InstanceAlreadyExistsException e) {
-            //ignore as the mbean for the same datasource name is already exist
-        } catch (MalformedObjectNameException e) {
-            log.error("Error while registering the MBean for dataSource '"
-                    + mBean + " " + e.getMessage(), e);
-        } catch (NotCompliantMBeanException e) {
-            log.error("Error while registering the MBean for dataSource '"
-                    + mBean + " " + e.getMessage(), e);
-        } catch (SQLException e) {
-            log.error("Error while registering the MBean for dataSource '"
-                    + mBean + " " + e.getMessage(), e);
-        } catch (MBeanRegistrationException e) {
+            log.warn("Registering already existing mbean. '"
+                    + mBean + "' " + e.getMessage(), e);
+        } catch (MalformedObjectNameException | NotCompliantMBeanException | SQLException | MBeanRegistrationException e) {
             log.error("Error while registering the MBean for dataSource '"
                     + mBean + " " + e.getMessage(), e);
         }

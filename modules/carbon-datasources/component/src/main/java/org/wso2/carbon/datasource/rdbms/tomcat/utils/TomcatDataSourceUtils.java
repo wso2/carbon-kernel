@@ -16,8 +16,9 @@
 package org.wso2.carbon.datasource.rdbms.tomcat.utils;
 
 import org.wso2.carbon.datasource.core.common.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceConfiguration.DataSourceProperty;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
+import org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceConfiguration;
+import org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceConfiguration.DataSourceProperty;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.io.ByteArrayInputStream;
@@ -150,7 +151,7 @@ public class TomcatDataSourceUtils {
     private static String getFieldNameFromMethodName(String name) throws DataSourceException {
         String prefixGet = "get";
         String prefixIs = "is";
-        String firstLetter = null;
+        String firstLetter;
 
         if (name.startsWith(prefixGet)) {
             firstLetter = name.substring(3, 4);

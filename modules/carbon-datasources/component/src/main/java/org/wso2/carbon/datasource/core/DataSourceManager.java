@@ -18,11 +18,11 @@ package org.wso2.carbon.datasource.core;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
+import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
+import org.wso2.carbon.datasource.core.beans.SystemDataSourcesConfiguration;
 import org.wso2.carbon.datasource.core.common.DataSourceConstants;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
-import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
-import org.wso2.carbon.datasource.core.beans.SystemDataSourcesConfiguration;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.io.File;
@@ -101,24 +101,6 @@ public class DataSourceManager {
         return dsReaders.get(dsType);
     }
 
-    private void addDataSourceProviders(List<String> providers) throws DataSourceException {
-        if (providers == null) {
-            log.debug("No data source providers found!!!");
-            return;
-        }
-        DataSourceReader tmpReader;
-        for (String provider : providers) {
-            try {
-                log.debug("Loading data source provider: " + provider);
-                tmpReader = (DataSourceReader) Class.forName(provider).newInstance();
-                dsReaders.put(tmpReader.getType(), tmpReader);
-            } catch (Exception e) {
-                throw new DataSourceException("Error in loading data source provider: " +
-                        e.getMessage(), e);
-            }
-        }
-    }
-
     /**
      * Sets the configuration directory.
      *
@@ -194,6 +176,24 @@ public class DataSourceManager {
                     unmarshal(doc);
         } catch (JAXBException e) {
             throw new DataSourceException("Error occurred while converting configuration into jaxb beans", e);
+        }
+    }
+
+    private void addDataSourceProviders(List<String> providers) throws DataSourceException {
+        if (providers == null) {
+            log.debug("No data source providers found!!!");
+            return;
+        }
+        DataSourceReader tmpReader;
+        for (String provider : providers) {
+            try {
+                log.debug("Loading data source provider: " + provider);
+                tmpReader = (DataSourceReader) Class.forName(provider).newInstance();
+                dsReaders.put(tmpReader.getType(), tmpReader);
+            } catch (Exception e) {
+                throw new DataSourceException("Error in loading data source provider: " +
+                        e.getMessage(), e);
+            }
         }
     }
 

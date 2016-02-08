@@ -40,9 +40,6 @@ public class DataSourceMetaInfo {
 
     private DataSourceDefinition definition;
 
-//    @XmlTransient
-//    private boolean system;
-
     @XmlTransient
     private boolean carbonApplicationDeployed;
 
@@ -57,10 +54,6 @@ public class DataSourceMetaInfo {
     public void setJndiConfig(JNDIConfig jndiConfig) {
         this.jndiConfig = jndiConfig;
     }
-
-//    public void setSystem(boolean system) {
-//        this.system = system;
-//    }
 
     public void setCarbonApplicationDeployed(boolean carbonApplicationDeployed) {
         this.carbonApplicationDeployed = carbonApplicationDeployed;
@@ -81,11 +74,6 @@ public class DataSourceMetaInfo {
         return jndiConfig;
     }
 
-//    @XmlTransient
-//    public boolean isSystem() {
-//        return system;
-//    }
-
     @XmlTransient
     public boolean isCarbonApplicationDeployed() {
         return carbonApplicationDeployed;
@@ -99,11 +87,6 @@ public class DataSourceMetaInfo {
     public void setDefinition(DataSourceDefinition definition) {
         this.definition = definition;
     }
-
-//    @XmlTransient
-//    public boolean isPersistable() {
-//        return (!system && !carbonApplicationDeployed);
-//    }
 
     @XmlRootElement(name = "definition")
     public static class DataSourceDefinition {
@@ -138,12 +121,9 @@ public class DataSourceMetaInfo {
             if (!DataSourceUtils.nullAllowEquals(dsDef.getType(), this.getType())) {
                 return false;
             }
-            if (!DataSourceUtils.nullAllowEquals(DataSourceUtils.elementToString(
+            return DataSourceUtils.nullAllowEquals(DataSourceUtils.elementToString(
                             (Element) dsDef.getDsXMLConfiguration()),
-                    DataSourceUtils.elementToString((Element) this.getDsXMLConfiguration()))) {
-                return false;
-            }
-            return true;
+                    DataSourceUtils.elementToString((Element) this.getDsXMLConfiguration()));
         }
 
         @Override
@@ -169,10 +149,7 @@ public class DataSourceMetaInfo {
         if (!DataSourceUtils.nullAllowEquals(dsmInfo.getJndiConfig(), this.getJndiConfig())) {
             return false;
         }
-        if (!DataSourceUtils.nullAllowEquals(dsmInfo.getDefinition(), this.getDefinition())) {
-            return false;
-        }
-        return true;
+        return DataSourceUtils.nullAllowEquals(dsmInfo.getDefinition(), this.getDefinition());
     }
 
     @Override
