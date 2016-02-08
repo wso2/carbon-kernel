@@ -20,13 +20,16 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * Utility class for unit tests. All the utility methods required for test classes should reside here.
+ */
 public class Utils {
 
     public static void copy(String src, String dest) {
         createOutputFolderStructure(dest);
 
         try (FileInputStream inputStr = new FileInputStream(src);
-            FileOutputStream outputStr = new FileOutputStream(dest)){
+             FileOutputStream outputStr = new FileOutputStream(dest)) {
             byte[] buf = new byte[1024];
             int bytesRead;
             while ((bytesRead = inputStr.read(buf)) > 0) {

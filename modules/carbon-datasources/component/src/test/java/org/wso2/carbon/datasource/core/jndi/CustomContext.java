@@ -25,6 +25,9 @@ import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
+/**
+ * Custom jndi context for unit tests.
+ */
 public class CustomContext implements Context{
 
     private HashMap<String, Object> contextObjects;

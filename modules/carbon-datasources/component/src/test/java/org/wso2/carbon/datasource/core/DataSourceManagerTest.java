@@ -22,13 +22,12 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 
 import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 
 /**
- * Test case for DataSourceManager class.
+ * Test class for DataSourceManager class.
  */
-public class DataSourceManagerTest {
+public class DataSourceManagerTest extends BaseTest {
 
     private DataSourceManager dsManager;
 
@@ -40,43 +39,25 @@ public class DataSourceManagerTest {
 
     }
 
-    private void setEnv() {
-        //Set carbon home
-        Path carbonHomePath = Paths.get("component", "target", "carbonHome");
-        System.setProperty("carbon.home", carbonHomePath.toFile().getAbsolutePath());
-
-//        Path configFilePath = Paths.get("component", "src", "test", "resources", "conf", "datasources", "master-datasources.xml");
-        Path configFilePath = Paths.get("src", "test", "resources", "conf", "datasources", "master-datasources.xml");
-        Path configPathCopyLocation = Paths.get("component/target/carbonHome/conf/datasources/master-datasources.xml");
-        Utils.copy(configFilePath.toFile().getAbsolutePath(), configPathCopyLocation.toFile().getAbsolutePath());
-
-    }
-
     @Test
-    private void checkDsRepoTest() {
+    private void getDataSourceRepositoryTest() {
         DataSourceRepository dsRepo = dsManager.getDataSourceRepository();
         Assert.assertNotNull(dsRepo, "Expected a DataSourceRepository, but found none!!!");
         //Does loading the data prior to run the test.
     }
 
     @Test
-    public void getAllDataSourcesTest() {
-
+    public void getDataSourceTypesTest() {
+        try {
+            List<String> types = dsManager.getDataSourceTypes();
+            Assert.assertEquals(types.size(), 1, "Expected only one data source type.");
+        } catch (DataSourceException e) {
+            Assert.fail("Threw a DataSourceException while getting data source types.");
+        }
     }
-
-
-    @Test
-    public void getAllDataSourceTest() {
-
-    }
-
 
     @AfterSuite
     public void destroy() {
         clearEnv();
-    }
-
-    private void clearEnv() {
-        System.clearProperty("carbon.home");
     }
 }
