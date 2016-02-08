@@ -386,9 +386,9 @@ public class HybridRoleManager {
 
         String getRoleListOfUserSQLConfig = realmConfig.getRealmProperty(HybridJDBCConstants.GET_ROLE_LIST_OF_USER);
         String sqlStmt;
-        if (isCaseSensitiveUsername()){
+        if (isCaseSensitiveUsername()) {
             sqlStmt = HybridJDBCConstants.GET_ROLE_LIST_OF_USER_SQL;
-        }else {
+        } else {
             sqlStmt = JDBCCaseInsensitiveConstants.GET_ROLE_LIST_OF_USER_SQL_CASE_INSENSITIVE;
         }
 
