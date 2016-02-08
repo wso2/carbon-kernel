@@ -20,9 +20,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration;
+import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceConfiguration;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
-import org.wso2.carbon.datasource.rdbms.utils.RDBMSDataSourceUtils;
+import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.lang.management.ManagementFactory;
@@ -50,8 +50,8 @@ public class TomcatDataSource {
 
     private PoolConfiguration poolProperties;
 
-    public TomcatDataSource(RDBMSConfiguration config) throws DataSourceException {
-        this.poolProperties = TomcatDataSourceUtils.createPoolConfiguration(config);
+    public TomcatDataSource(TomcatDataSourceConfiguration config) throws DataSourceException {
+        this.poolProperties = org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceUtils.createPoolConfiguration(config);
         this.populateStandardProps();
     }
 
@@ -111,7 +111,7 @@ public class TomcatDataSource {
                     "org.apache.tomcat.jdbc.pool.DataSourceFactory", null);
 
             Map<String, String> poolConfigMap =
-                    RDBMSDataSourceUtils.extractPrimitiveFieldNameValuePairs(poolProperties);
+                    TomcatDataSourceUtils.extractPrimitiveFieldNameValuePairs(poolProperties);
             poolConfigMap.forEach((key, value) -> dataSourceFactoryReference.add(new StringRefAddr(key, value)));
         }
         return dataSourceFactoryReference;

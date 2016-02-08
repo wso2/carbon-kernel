@@ -13,11 +13,10 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.datasource.rdbms.utils;
+package org.wso2.carbon.datasource.rdbms.tomcat.utils;
 
 import org.wso2.carbon.datasource.core.common.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration;
-import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration.DataSourceProperty;
+import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceConfiguration.DataSourceProperty;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
@@ -35,14 +34,14 @@ import javax.xml.bind.JAXBContext;
 /**
  * Utility class for RDBMS data sources.
  */
-public class RDBMSDataSourceUtils {
+public class TomcatDataSourceUtils {
 
-    public static RDBMSConfiguration loadConfig(String xmlConfiguration)
+    public static TomcatDataSourceConfiguration loadConfig(String xmlConfiguration)
             throws DataSourceException {
         try {
             xmlConfiguration = DataSourceUtils.replaceSystemVariablesInXml(xmlConfiguration);
-            JAXBContext ctx = JAXBContext.newInstance(RDBMSConfiguration.class);
-            return (RDBMSConfiguration) ctx.createUnmarshaller().unmarshal(
+            JAXBContext ctx = JAXBContext.newInstance(TomcatDataSourceConfiguration.class);
+            return (TomcatDataSourceConfiguration) ctx.createUnmarshaller().unmarshal(
                     new ByteArrayInputStream(xmlConfiguration.getBytes()));
         } catch (Exception e) {
             throw new DataSourceException("Error in loading RDBMS configuration: " +

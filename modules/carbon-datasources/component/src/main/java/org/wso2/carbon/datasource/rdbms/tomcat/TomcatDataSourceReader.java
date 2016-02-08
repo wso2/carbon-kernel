@@ -18,12 +18,12 @@ package org.wso2.carbon.datasource.rdbms.tomcat;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
-import org.wso2.carbon.datasource.rdbms.utils.RDBMSDataSourceUtils;
+import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
 
 /**
  * This class represents the RDBMS based data source reader implementation.
  */
-public class TomcatSDataSourceReader implements DataSourceReader {
+public class TomcatDataSourceReader implements DataSourceReader {
 
     @Override
     public String getType() {
@@ -33,7 +33,7 @@ public class TomcatSDataSourceReader implements DataSourceReader {
     @Override
     public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference)
             throws DataSourceException {
-        TomcatDataSource dataSource = new TomcatDataSource(RDBMSDataSourceUtils.loadConfig(xmlConfiguration));
+        TomcatDataSource dataSource = new TomcatDataSource(TomcatDataSourceUtils.loadConfig(xmlConfiguration));
         if (isDataSourceFactoryReference) {
             return dataSource.getDataSourceFactoryReference();
         } else {

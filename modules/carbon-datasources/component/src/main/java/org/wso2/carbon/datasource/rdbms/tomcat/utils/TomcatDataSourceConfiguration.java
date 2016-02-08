@@ -13,7 +13,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.datasource.rdbms;
+package org.wso2.carbon.datasource.rdbms.tomcat.utils;
+
+import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -27,7 +29,7 @@ import javax.xml.bind.annotation.XmlValue;
  * This class represents the RDBMS configuration properties.
  */
 @XmlRootElement (name = "configuration")
-public class RDBMSConfiguration {
+public class TomcatDataSourceConfiguration {
 
 	private String url;
 	

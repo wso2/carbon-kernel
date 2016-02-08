@@ -18,16 +18,15 @@ package org.wso2.carbon.datasource.rdbms.tomcat;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration;
+import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceConfiguration;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
-import org.wso2.carbon.datasource.rdbms.utils.RDBMSDataSourceUtils;
 
 import java.sql.Connection;
 import java.util.Properties;
 
 public class TomcatDataSourceUtils {
 
-    public static PoolConfiguration createPoolConfiguration(RDBMSConfiguration config)
+    public static PoolConfiguration createPoolConfiguration(TomcatDataSourceConfiguration config)
             throws DataSourceException {
         PoolProperties props = new PoolProperties();
         props.setUrl(config.getUrl());
@@ -145,7 +144,7 @@ public class TomcatDataSourceUtils {
         if (config.getDatabaseProps() != null) {
             Properties properties = new Properties();
             if (!config.getDatabaseProps().isEmpty()) {
-                for (RDBMSConfiguration.DataSourceProperty property : config.getDatabaseProps()) {
+                for (TomcatDataSourceConfiguration.DataSourceProperty property : config.getDatabaseProps()) {
                     properties.setProperty(property.getName(), property.getValue());
                 }
             }
@@ -154,13 +153,13 @@ public class TomcatDataSourceUtils {
         return props;
     }
 
-    private static void handleExternalDataSource(PoolProperties poolProps, RDBMSConfiguration config)
+    private static void handleExternalDataSource(PoolProperties poolProps, TomcatDataSourceConfiguration config)
             throws DataSourceException {
         String dsClassName = config.getDataSourceClassName();
         try {
             Object extDataSource = Class.forName(dsClassName).newInstance();
-            RDBMSDataSourceUtils.assignBeanProps(extDataSource,
-                    RDBMSDataSourceUtils.dataSourcePropsToMap(config.getDataSourceProps()));
+            org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils.assignBeanProps(extDataSource,
+                    org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils.dataSourcePropsToMap(config.getDataSourceProps()));
             poolProps.setDataSource(extDataSource);
         } catch (Exception e) {
             throw new DataSourceException("Error in creating external data source: " +

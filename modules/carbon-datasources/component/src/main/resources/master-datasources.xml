@@ -2,7 +2,7 @@
 
     <providers>
         <provider>org.wso2.carbon.datasource.rdbms.hikari.HikariDataSourceReader</provider>
-        <!--<provider>org.wso2.carbon.datasource.rdbms.tomcat.TomcatSDataSourceReader</provider>-->
+        <!--<provider>org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceReader</provider>-->
     </providers>
 
     <datasources>
