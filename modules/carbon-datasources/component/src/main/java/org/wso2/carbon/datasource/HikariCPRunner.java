@@ -15,31 +15,6 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 public class HikariCPRunner {
-    //HikariCP sample
-//    public static void main(String[] args) throws SQLException {
-//        HikariConfig config = new HikariConfig();
-//        config.setJdbcUrl("jdbc:mysql://localhost:3306/test");
-//        config.setUsername("root");
-//        config.setPassword("root");
-//        config.addDataSourceProperty("cachePrepStmts", "true");
-//        config.addDataSourceProperty("prepStmtCacheSize", "250");
-//        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-//
-//        HikariDataSource ds = new HikariDataSource(config);
-//        Connection con = ds.getConnection();
-//        Statement st = con.createStatement();
-//        ResultSet rs = st.executeQuery("select * from pet");
-//        int cnt = 1;
-//        while (rs.next()) {
-//            System.out.println((cnt++)+". Host:" +rs.getString("name")+
-//                    " User:"+rs.getString("owner")+" Password:"+rs.getString("birth"));
-////                System.out.println((cnt++)+". Host:" +rs.getString("Host")+
-////                        " User:"+rs.getString("User")+" Password:"+rs.getString("Password"));
-//        }
-//        rs.close();
-//        st.close();
-//    }
-
 
     public static void main(String[] args) {
         DataSourceManager manager = DataSourceManager.getInstance();
