@@ -44,6 +44,9 @@ public class TomcatDataSource {
 
     private static Log log = LogFactory.getLog(TomcatDataSource.class);
 
+    private static final String STANDARD_TOMCAT_JDBC_INTERCEPTORS = "ConnectionState;StatementFinalizer;" +
+            "org.wso2.carbon.datasource.rdbms.tomcat.ConnectionRollbackOnReturnInterceptor;";
+
     private DataSource dataSource;
 
     private Reference dataSourceFactoryReference;
@@ -60,7 +63,7 @@ public class TomcatDataSource {
         if (jdbcInterceptors == null) {
             jdbcInterceptors = "";
         }
-        jdbcInterceptors = RDBMSDataSourceConstants.STANDARD_TOMCAT_JDBC_INTERCEPTORS + jdbcInterceptors;
+        jdbcInterceptors = STANDARD_TOMCAT_JDBC_INTERCEPTORS + jdbcInterceptors;
         this.poolProperties.setJdbcInterceptors(jdbcInterceptors);
     }
 

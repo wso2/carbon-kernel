@@ -28,6 +28,8 @@ import javax.naming.StringRefAddr;
 
 public class HikariRDBMSDataSource {
     private static Log log = LogFactory.getLog(HikariRDBMSDataSource.class);
+    private final String JAVAX_DATASOURCE_CLASS = "javax.sql.DataSource";
+    private final String HIKARI_JNDI_FACTORY = "com.zaxxer.hikari.HikariJNDIFactory";
 
     private HikariDataSource dataSource;
 
@@ -49,8 +51,7 @@ public class HikariRDBMSDataSource {
 
     public Reference getDataSourceFactoryReference() throws DataSourceException {
         if (dataSourceFactoryReference == null) {
-            dataSourceFactoryReference = new Reference("javax.sql.DataSource",
-                    "com.zaxxer.hikari.HikariJNDIFactory", null);
+            dataSourceFactoryReference = new Reference(JAVAX_DATASOURCE_CLASS, HIKARI_JNDI_FACTORY, null);
 
             Map<String, String> poolConfigMap =
                     TomcatDataSourceUtils.extractPrimitiveFieldNameValuePairs(this.config);
