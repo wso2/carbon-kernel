@@ -84,9 +84,8 @@ public class DataSourceManager {
      * @return {@code List<String>}
      * @throws DataSourceException if no datasource readers are defined.
      */
-    @SuppressWarnings("unchecked")
     public List<String> getDataSourceTypes() throws DataSourceException {
-        return new ArrayList(dsReaders.keySet());
+        return new ArrayList<>(dsReaders.keySet());
     }
 
     /**

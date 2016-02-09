@@ -240,11 +240,6 @@ public class TomcatDataSourceUtils {
 
     public static boolean isEmptyString(String text) {
         return !(text != null && text.trim().length() > 0);
-//        if (text != null && text.trim().length() > 0) {
-//            return false;
-//        } else {
-//            return true;
-//        }
     }
 
     private static String getSetterMethodNameFromPropName(String propName) throws RuntimeException {
@@ -266,7 +261,8 @@ public class TomcatDataSourceUtils {
         return null;
     }
 
-    public static Map<String, Object> dataSourcePropsToMap(List<TomcatDataSourceConfiguration.DataSourceProperty> dsProps) {
+    public static Map<String, Object> dataSourcePropsToMap(List<TomcatDataSourceConfiguration.DataSourceProperty>
+                                                                   dsProps) {
         Map<String, Object> result = new HashMap<>();
         if (dsProps != null) {
             String[] prop;
