@@ -22,8 +22,13 @@ import org.apache.axis2.context.MessageContext;
 import org.apache.axis2.context.SessionContext;
 import org.apache.axis2.description.TransportInDescription;
 import org.apache.axis2.transport.TransportListener;
+import org.apache.axis2.transport.http.HTTPTransportUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.axis2.runtime.internal.DataHolder;
+import org.wso2.carbon.kernel.transports.CarbonTransport;
+
+import java.net.SocketException;
 
 /**
  * This is DummyTransportListener.
@@ -32,11 +37,15 @@ import org.slf4j.LoggerFactory;
  */
 public class DummyTransportListener implements TransportListener {
     private static final Logger logger = LoggerFactory.getLogger(DummyTransportListener.class);
+    private ConfigurationContext configurationContext;
+    private TransportInDescription transportInDescription;
+    private int port = -1;
 
     @Override
     public void init(ConfigurationContext configurationContext, TransportInDescription transportInDescription)
             throws AxisFault {
-
+        this.configurationContext = configurationContext;
+        this.transportInDescription = transportInDescription;
     }
 
     @Override
@@ -51,7 +60,11 @@ public class DummyTransportListener implements TransportListener {
 
     @Override
     public EndpointReference[] getEPRsForService(String s, String s1) throws AxisFault {
-        return new EndpointReference[0];
+        // TODO : This is a temporary fix
+        if (s1.contains(":")) {
+            port = Integer.parseInt(s1.substring(s1.indexOf(":") + 1));
+        }
+        return HTTPTransportUtils.getEPRsForService(configurationContext, transportInDescription, s, s1, port);
     }
 
     @Override
