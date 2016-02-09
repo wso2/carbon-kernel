@@ -25,15 +25,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * DataSourceServiceImpl is the implementation of DataSourceService interface. This has implemented the operations
+ * allowed to perform on data sources.
+ */
 public class DataSourceServiceImpl implements DataSourceService {
 
-    @Override
+    /**
+     * Return all the registered data sources.
+     *
+     * @return {@code List<CarbonDataSource>}
+     * @throws DataSourceException
+     */
     public List<CarbonDataSource> getAllDataSources() throws DataSourceException {
         return new ArrayList(DataSourceManager.getInstance().
                 getDataSourceRepository().getAllDataSources());
     }
 
-    @Override
+    /**
+     * Return all the registered data sources for the given type.
+     *
+     * @param dsType String
+     * @return {@code List<CarbonDataSource>}
+     * @throws DataSourceException
+     */
     public List<CarbonDataSource> getAllDataSourcesForType(String dsType) throws DataSourceException {
         return DataSourceManager.getInstance().
                 getDataSourceRepository().getAllDataSources().stream()
@@ -41,22 +56,43 @@ public class DataSourceServiceImpl implements DataSourceService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+    /**
+     * Returns a CarbonDataSource for the given name.
+     *
+     * @param dsName name of the data source
+     * @return {@code CarbonDataSource}
+     * @throws DataSourceException
+     */
     public CarbonDataSource getDataSource(String dsName) throws DataSourceException {
         return DataSourceManager.getInstance().getDataSourceRepository().getDataSource(dsName);
     }
 
-    @Override
+    /**
+     * Returns the registered data source types.
+     *
+     * @return {@code List<String>}
+     * @throws DataSourceException
+     */
     public List<String> getDataSourceTypes() throws DataSourceException {
         return DataSourceManager.getInstance().getDataSourceTypes();
     }
 
-    @Override
+    /**
+     * Add a new data source to the data sources repository.
+     *
+     * @param dsmInfo {@code DataSourceMetaInfo}
+     * @throws DataSourceException
+     */
     public void addDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
         DataSourceManager.getInstance().getDataSourceRepository().addDataSource(dsmInfo);
     }
 
-    @Override
+    /**
+     * Deletes a data source from the repository.
+     *
+     * @param dsName {@code String}
+     * @throws DataSourceException
+     */
     public void deleteDataSource(String dsName) throws DataSourceException {
         DataSourceManager.getInstance().getDataSourceRepository().deleteDataSource(dsName);
     }
