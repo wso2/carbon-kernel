@@ -27,6 +27,10 @@
             <groupId>org.apache.tomcat.wso2</groupId>
             <artifactId>jdbc-pool</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -65,6 +69,10 @@
                                 <bundle>
                                     <symbolicName>jdbc-pool</symbolicName>
                                     <version>${tomcat.jdbc.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.zaxxer.HikariCP</symbolicName>
+                                    <version>${hikaricp.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>
