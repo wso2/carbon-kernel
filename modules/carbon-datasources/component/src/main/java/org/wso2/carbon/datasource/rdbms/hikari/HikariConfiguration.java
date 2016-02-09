@@ -25,12 +25,12 @@ import javax.xml.bind.annotation.XmlValue;
 public class HikariConfiguration {
 
     private String url;
-
     private String username;
-
     private Password passwordPersist;
-
     private String driverClassName;
+    private String cachePrepStmts = "true";
+    private String prepStmtCacheSize = "250";
+    private String prepStmtCacheSqlLimit = "2048";
 
     public String getUrl() {
         return url;
@@ -106,5 +106,29 @@ public class HikariConfiguration {
 
     public void setDriverClassName(String driverClassName) {
         this.driverClassName = driverClassName;
+    }
+
+    public String getCachePrepStmts() {
+        return cachePrepStmts;
+    }
+
+    public void setCachePrepStmts(String cachePrepStmts) {
+        this.cachePrepStmts = cachePrepStmts;
+    }
+
+    public String getPrepStmtCacheSize() {
+        return prepStmtCacheSize;
+    }
+
+    public void setPrepStmtCacheSize(String prepStmtCacheSize) {
+        this.prepStmtCacheSize = prepStmtCacheSize;
+    }
+
+    public String getPrepStmtCacheSqlLimit() {
+        return prepStmtCacheSqlLimit;
+    }
+
+    public void setPrepStmtCacheSqlLimit(String prepStmtCacheSqlLimit) {
+        this.prepStmtCacheSqlLimit = prepStmtCacheSqlLimit;
     }
 }

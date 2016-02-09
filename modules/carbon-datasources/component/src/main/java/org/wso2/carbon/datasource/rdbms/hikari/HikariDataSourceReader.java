@@ -41,17 +41,14 @@ public class HikariDataSourceReader implements DataSourceReader {
     public static HikariConfig loadConfig(String xmlConfiguration) throws DataSourceException {
         try {
             HikariConfiguration configuration = HikariDataSourceUtils.loadConfig(xmlConfiguration);
-
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl(configuration.getUrl());
             config.setUsername(configuration.getUsername());
             config.setPassword(configuration.getPassword());
-            config.addDataSourceProperty("cachePrepStmts", "true");
-            config.addDataSourceProperty("prepStmtCacheSize", "250");
-            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+            config.addDataSourceProperty("cachePrepStmts", configuration.getCachePrepStmts());
+            config.addDataSourceProperty("prepStmtCacheSize", configuration.getPrepStmtCacheSize());
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", configuration.getPrepStmtCacheSqlLimit());
             config.setDriverClassName(configuration.getDriverClassName());
-            config.setMinimumIdle(10);
-
             return config;
         } catch (Exception e) {
             throw new DataSourceException("Error in loading RDBMS configuration: " + e.getMessage(), e);
