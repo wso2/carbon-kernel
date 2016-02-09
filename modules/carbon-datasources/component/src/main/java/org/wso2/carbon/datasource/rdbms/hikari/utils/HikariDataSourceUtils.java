@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.datasource.rdbms.hikari.utils;
 
+import com.zaxxer.hikari.HikariConfig;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.hikari.HikariConfiguration;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
@@ -24,6 +25,37 @@ import javax.xml.bind.JAXBContext;
 
 public class HikariDataSourceUtils {
 
+    /**
+     * Generate the configuration bean by reading the xml configuration.
+     *
+     * @param xmlConfiguration String
+     * @return {@code HikariConfig}
+     * @throws DataSourceException
+     */
+    public static HikariConfig buildConfiguration(String xmlConfiguration) throws DataSourceException {
+        try {
+            HikariConfiguration configuration = HikariDataSourceUtils.loadConfig(xmlConfiguration);
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl(configuration.getUrl());
+            config.setUsername(configuration.getUsername());
+            config.setPassword(configuration.getPassword());
+            config.addDataSourceProperty("cachePrepStmts", configuration.getCachePrepStmts());
+            config.addDataSourceProperty("prepStmtCacheSize", configuration.getPrepStmtCacheSize());
+            config.addDataSourceProperty("prepStmtCacheSqlLimit", configuration.getPrepStmtCacheSqlLimit());
+            config.setDriverClassName(configuration.getDriverClassName());
+            return config;
+        } catch (Exception e) {
+            throw new DataSourceException("Error in loading RDBMS configuration: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Generate the configuration bean by reading the xml configuration.
+     *
+     * @param xmlConfiguration String
+     * @return {@code HikariConfiguration}
+     * @throws DataSourceException
+     */
     public static HikariConfiguration loadConfig(String xmlConfiguration)
             throws DataSourceException {
         try {

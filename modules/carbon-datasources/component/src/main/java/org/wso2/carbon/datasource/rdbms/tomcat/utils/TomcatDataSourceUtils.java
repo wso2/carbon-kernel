@@ -32,7 +32,7 @@ import java.util.Properties;
 import javax.xml.bind.JAXBContext;
 
 /**
- * Utility class for RDBMS data sources.
+ * Utility class for Tomcat data sources.
  */
 public class TomcatDataSourceUtils {
 
@@ -176,6 +176,13 @@ public class TomcatDataSourceUtils {
         }
     }
 
+    /**
+     * Generate the configuration bean by reading the xml configuration.
+     *
+     * @param xmlConfiguration String
+     * @return {@code TomcatDataSourceConfiguration}
+     * @throws DataSourceException
+     */
     public static TomcatDataSourceConfiguration loadConfig(String xmlConfiguration)
             throws DataSourceException {
         try {

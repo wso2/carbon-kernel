@@ -15,12 +15,15 @@
  */
 package org.wso2.carbon.datasource.rdbms.hikari;
 
-import com.zaxxer.hikari.HikariConfig;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.hikari.utils.HikariDataSourceUtils;
 
+/**
+ * HikariDataSourceReader is responsible for reading the hikari configuration from the configuration file and build
+ * HikariDataSource.
+ */
 public class HikariDataSourceReader implements DataSourceReader {
     @Override
     public String getType() {
@@ -30,28 +33,12 @@ public class HikariDataSourceReader implements DataSourceReader {
     @Override
     public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference)
             throws DataSourceException {
-        HikariRDBMSDataSource dataSource = new HikariRDBMSDataSource(loadConfig(xmlConfiguration));
+        HikariRDBMSDataSource dataSource = new
+                HikariRDBMSDataSource(HikariDataSourceUtils.buildConfiguration(xmlConfiguration));
         if (isDataSourceFactoryReference) {
             return dataSource.getDataSourceFactoryReference();
         } else {
             return dataSource.getDataSource();
-        }
-    }
-
-    public static HikariConfig loadConfig(String xmlConfiguration) throws DataSourceException {
-        try {
-            HikariConfiguration configuration = HikariDataSourceUtils.loadConfig(xmlConfiguration);
-            HikariConfig config = new HikariConfig();
-            config.setJdbcUrl(configuration.getUrl());
-            config.setUsername(configuration.getUsername());
-            config.setPassword(configuration.getPassword());
-            config.addDataSourceProperty("cachePrepStmts", configuration.getCachePrepStmts());
-            config.addDataSourceProperty("prepStmtCacheSize", configuration.getPrepStmtCacheSize());
-            config.addDataSourceProperty("prepStmtCacheSqlLimit", configuration.getPrepStmtCacheSqlLimit());
-            config.setDriverClassName(configuration.getDriverClassName());
-            return config;
-        } catch (Exception e) {
-            throw new DataSourceException("Error in loading RDBMS configuration: " + e.getMessage(), e);
         }
     }
 }
