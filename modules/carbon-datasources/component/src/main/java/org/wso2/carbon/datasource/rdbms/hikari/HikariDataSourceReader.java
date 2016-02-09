@@ -28,7 +28,8 @@ public class HikariDataSourceReader implements DataSourceReader {
     }
 
     @Override
-    public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference) throws DataSourceException {
+    public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference)
+            throws DataSourceException {
         HikariRDBMSDataSource dataSource = new HikariRDBMSDataSource(loadConfig(xmlConfiguration));
         if (isDataSourceFactoryReference) {
             return dataSource.getDataSourceFactoryReference();
@@ -37,8 +38,7 @@ public class HikariDataSourceReader implements DataSourceReader {
         }
     }
 
-    public static HikariConfig loadConfig(String xmlConfiguration)
-            throws DataSourceException {
+    public static HikariConfig loadConfig(String xmlConfiguration) throws DataSourceException {
         try {
             HikariConfiguration configuration = HikariDataSourceUtils.loadConfig(xmlConfiguration);
 
@@ -54,8 +54,7 @@ public class HikariDataSourceReader implements DataSourceReader {
 
             return config;
         } catch (Exception e) {
-            throw new DataSourceException("Error in loading RDBMS configuration: " +
-                    e.getMessage(), e);
+            throw new DataSourceException("Error in loading RDBMS configuration: " + e.getMessage(), e);
         }
     }
 }
