@@ -90,7 +90,7 @@ public class DataSourceRepository {
             dsObject = createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
         }
         CarbonDataSource cds = new CarbonDataSource(dsmInfo, dsStatus, dsObject);
-        this.dataSources.put(cds.getDSMInfo().getName(), cds);
+        dataSources.put(cds.getDSMInfo().getName(), cds);
     }
 
     /**
@@ -200,7 +200,7 @@ public class DataSourceRepository {
      * @return The data source information
      */
     public CarbonDataSource getDataSource(String dsName) {
-        return this.dataSources.get(dsName);
+        return dataSources.get(dsName);
     }
 
     /**
