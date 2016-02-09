@@ -26,6 +26,7 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.wso2.carbon.datasource.core.common.DataSourceConstants;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.kernel.utils.Utils;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -36,7 +37,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -267,5 +273,67 @@ public class DataSourceUtils {
             }
         }
         return text;
+    }
+
+    public static Map<String, String> extractPrimitiveFieldNameValuePairs(Object object)
+            throws DataSourceException {
+        Map<String, String> nameValueMap = new HashMap<>();
+        Method methods[] = object.getClass().getMethods();
+        for (Method method : methods) {
+            if (isMethodMatched(method)) {
+                String FieldName = getFieldNameFromMethodName(method.getName());
+                try {
+                    if (method.invoke(object) != null) {
+                        String result = method.invoke(object).toString();
+                        nameValueMap.put(FieldName, result);
+                    }
+                } catch (Exception e) {
+                    throw new DataSourceException(
+                            "Error in retrieving " + FieldName + " value from the object :" + object.getClass() + e.getMessage(), e);
+                }
+            }
+        }
+        return nameValueMap;
+    }
+
+
+    private static String getFieldNameFromMethodName(String name) throws DataSourceException {
+        String prefixGet = "get";
+        String prefixIs = "is";
+        String firstLetter;
+
+        if (name.startsWith(prefixGet)) {
+            firstLetter = name.substring(3, 4);
+            name = name.substring(4);
+        } else if (name.startsWith(prefixIs)) {
+            firstLetter = name.substring(2, 3);
+            name = name.substring(3);
+        } else {
+            throw new DataSourceException("Error in retrieving attribute name from method : "
+                    + name);
+        }
+        firstLetter = firstLetter.toLowerCase();
+        return firstLetter.concat(name);
+    }
+
+    private static boolean isMethodMatched(Method method) {
+        String returnType = method.getReturnType().getSimpleName();
+        String methodName = method.getName();
+
+        if (!Modifier.isPublic(method.getModifiers())) {
+            return false;
+        }
+        if (returnType.equals("void")) {
+            return false;
+        }
+        if (!(methodName.startsWith("get") ||
+                (methodName.startsWith("is") && (returnType.equals("Boolean") || returnType.equals("boolean"))))) {
+            return false;
+        }
+        if (!(method.getReturnType().isPrimitive() ||
+                Arrays.asList(RDBMSDataSourceConstants.CLASS_RETURN_TYPES).contains(returnType))) {
+            return false;
+        }
+        return true;
     }
 }

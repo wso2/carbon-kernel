@@ -36,11 +36,16 @@ public class DataSourceManagerTest extends BaseTest {
         setEnv();
         dsManager = DataSourceManager.getInstance();
         dsManager.initSystemDataSources();
+    }
 
+    @Test(expectedExceptions = DataSourceException.class)
+    public void getDataSourceReaderFailTest() throws DataSourceException {
+        dsManager.getDataSourceReader(null);
+        Assert.fail("Exception is not thrown when an exception is expected.");
     }
 
     @Test
-    private void getDataSourceRepositoryTest() {
+    public void getDataSourceRepositoryTest() throws DataSourceException {
         DataSourceRepository dsRepo = dsManager.getDataSourceRepository();
         Assert.assertNotNull(dsRepo, "Expected a DataSourceRepository, but found none!!!");
         //Does loading the data prior to run the test.

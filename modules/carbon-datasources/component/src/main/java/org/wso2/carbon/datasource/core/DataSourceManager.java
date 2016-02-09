@@ -84,6 +84,7 @@ public class DataSourceManager {
      * @return {@code List<String>}
      * @throws DataSourceException if no datasource readers are defined.
      */
+    @SuppressWarnings("unchecked")
     public List<String> getDataSourceTypes() throws DataSourceException {
         return new ArrayList(dsReaders.keySet());
     }
@@ -101,15 +102,6 @@ public class DataSourceManager {
             throw new DataSourceException("No reader found for type: " + dsType);
         }
         return reader;
-    }
-
-    /**
-     * Sets the configuration directory.
-     *
-     * @param configDir String
-     */
-    public void setConfigDir(String configDir) {
-        this.dataSourcesPath = configDir;
     }
 
     /**
@@ -140,7 +132,11 @@ public class DataSourceManager {
             }
             /* then rest of the system data sources */
             File dataSourcesFolder = dSPath.toFile();
-            for (File sysDSFile : dataSourcesFolder.listFiles()) {
+            File[] files = dataSourcesFolder.listFiles();
+            if(files == null) {
+                return;
+            }
+            for (File sysDSFile : files) {
                 if (sysDSFile.getName().endsWith(DataSourceConstants.SYS_DS_FILE_NAME_SUFFIX)
                         && !sysDSFile.getName().equals(DataSourceConstants.MASTER_DS_FILE_NAME)) {
                     log.debug("Initializing data source: " + sysDSFile.getName());

@@ -17,10 +17,8 @@ package org.wso2.carbon.datasource.rdbms.hikari;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
+import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.util.Map;
 import javax.naming.Reference;
@@ -53,7 +51,7 @@ public class HikariRDBMSDataSource {
             dataSourceFactoryReference = new Reference(JAVAX_DATASOURCE_CLASS, HIKARI_JNDI_FACTORY, null);
 
             Map<String, String> poolConfigMap =
-                    TomcatDataSourceUtils.extractPrimitiveFieldNameValuePairs(this.config);
+                    DataSourceUtils.extractPrimitiveFieldNameValuePairs(this.config);
             poolConfigMap.forEach((key, value) -> dataSourceFactoryReference.add(new StringRefAddr(key, value)));
         }
         return dataSourceFactoryReference;

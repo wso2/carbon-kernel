@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.lang.management.ManagementFactory;
@@ -52,7 +51,7 @@ public class TomcatDataSource {
     private PoolConfiguration poolProperties;
 
     public TomcatDataSource(TomcatDataSourceConfiguration config) throws DataSourceException {
-        this.poolProperties = org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceUtils.createPoolConfiguration(config);
+        this.poolProperties = TomcatDataSourceUtils.createPoolConfiguration(config);
         this.populateStandardProps();
     }
 
@@ -92,7 +91,8 @@ public class TomcatDataSource {
         } catch (InstanceAlreadyExistsException e) {
             log.warn("Registering already existing mbean. '"
                     + mBean + "' " + e.getMessage(), e);
-        } catch (MalformedObjectNameException | NotCompliantMBeanException | SQLException | MBeanRegistrationException e) {
+        } catch (MalformedObjectNameException | NotCompliantMBeanException | SQLException |
+                MBeanRegistrationException e) {
             log.error("Error while registering the MBean for dataSource '"
                     + mBean + " " + e.getMessage(), e);
         }
@@ -104,7 +104,7 @@ public class TomcatDataSource {
                     "org.apache.tomcat.jdbc.pool.DataSourceFactory", null);
 
             Map<String, String> poolConfigMap =
-                    TomcatDataSourceUtils.extractPrimitiveFieldNameValuePairs(poolProperties);
+                    DataSourceUtils.extractPrimitiveFieldNameValuePairs(poolProperties);
             poolConfigMap.forEach((key, value) -> dataSourceFactoryReference.add(new StringRefAddr(key, value)));
         }
         return dataSourceFactoryReference;
