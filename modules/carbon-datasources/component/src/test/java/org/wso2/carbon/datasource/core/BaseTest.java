@@ -24,11 +24,11 @@ import java.nio.file.Paths;
 public class BaseTest {
 
     protected void setEnv() {
-        Path carbonHomePath = Paths.get("component", "target", "carbonHome");
+        Path carbonHomePath = Paths.get("target", "carbonHome");
         System.setProperty("carbon.home", carbonHomePath.toFile().getAbsolutePath());
 
         Path configFilePath = Paths.get("src", "test", "resources", "conf", "datasources", "master-datasources.xml");
-        Path configPathCopyLocation = Paths.get("component", "target", "carbonHome", "conf", "datasources",
+        Path configPathCopyLocation = Paths.get("target", "carbonHome", "conf", "datasources",
                 "master-datasources.xml");
         Utils.copy(configFilePath.toFile().getAbsolutePath(), configPathCopyLocation.toFile().getAbsolutePath());
     }
