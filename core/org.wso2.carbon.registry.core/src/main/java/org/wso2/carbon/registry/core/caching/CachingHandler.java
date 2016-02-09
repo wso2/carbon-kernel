@@ -224,7 +224,7 @@ public class CachingHandler extends Handler {
      */
     private Cache<RegistryCacheKey, GhostResource> getCache(String cachePath) {
         Cache<RegistryCacheKey, GhostResource> cache;
-        if (cachePath != null && IsSubPathOfMountPaths(cachePath)) {
+        if (cachePath != null && isResourcePathMounted(cachePath)) {
             cache = getDistributedCache();
         } else {
             cache = getLocalCache();
@@ -232,10 +232,16 @@ public class CachingHandler extends Handler {
         return cache;
     }
 
-    private void clearAncestry(String connectionId, int tenantId, String parentPath, boolean doGlobalCacheInvalidation) {
+    private void clearAncestry(String connectionId, int tenantId, String parentPath,
+            boolean doGlobalCacheInvalidation) {
         boolean cleared = removeFromCache(connectionId, tenantId, parentPath, doGlobalCacheInvalidation);
-        String pagedParentPathPrefix = "^" + Pattern.quote((parentPath == null) ? "" : parentPath)
-                + "(" + RegistryConstants.PATH_SEPARATOR + ")?(;start=.*)?$";
+        StringBuilder builder = new StringBuilder();
+        builder.append("^");
+        builder.append(Pattern.quote((parentPath == null) ? "" : parentPath));
+        builder.append("(");
+        builder.append(RegistryConstants.PATH_SEPARATOR);
+        builder.append(")?(;start=.*)?$");
+        String pagedParentPathPrefix = builder.toString();
         Pattern pattern = Pattern.compile(pagedParentPathPrefix);
         Cache<RegistryCacheKey, GhostResource> cache = getCache(parentPath);
 
@@ -306,7 +312,7 @@ public class CachingHandler extends Handler {
      *
      * @return      true if path is a subdirectory of mount paths.
      */
-    private boolean IsSubPathOfMountPaths(String path) {
+    private boolean isResourcePathMounted(String path) {
         RegistryContext registryContext = RegistryContext.getBaseInstance();
         List<Mount> mounts = registryContext.getMounts();
         for (Mount mount : mounts) {
