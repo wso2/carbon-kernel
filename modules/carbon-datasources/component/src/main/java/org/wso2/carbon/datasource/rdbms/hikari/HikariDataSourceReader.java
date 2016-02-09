@@ -49,7 +49,7 @@ public class HikariDataSourceReader implements DataSourceReader {
             config.addDataSourceProperty("cachePrepStmts", "true");
             config.addDataSourceProperty("prepStmtCacheSize", "250");
             config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-//            config.addDataSourceProperty("dataSourceClassName", "com.zaxxer.hikari.HikariDataSource");
+            config.setDriverClassName(configuration.getDriverClassName());
             config.setMinimumIdle(10);
 
             return config;

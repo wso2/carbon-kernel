@@ -30,6 +30,8 @@ public class HikariConfiguration {
 
     private Password passwordPersist;
 
+    private String driverClassName;
+
     public String getUrl() {
         return url;
     }
@@ -96,5 +98,13 @@ public class HikariConfiguration {
             this.value = value;
         }
 
+    }
+
+    public String getDriverClassName() {
+        return driverClassName;
+    }
+
+    public void setDriverClassName(String driverClassName) {
+        this.driverClassName = driverClassName;
     }
 }
