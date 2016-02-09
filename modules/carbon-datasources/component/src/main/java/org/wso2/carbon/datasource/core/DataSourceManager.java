@@ -85,9 +85,6 @@ public class DataSourceManager {
      * @throws DataSourceException if no datasource readers are defined.
      */
     public List<String> getDataSourceTypes() throws DataSourceException {
-        if (dsReaders == null) {
-            throw new DataSourceException("The data source readers are not initialized yet.");
-        }
         return new ArrayList(dsReaders.keySet());
     }
 
@@ -99,10 +96,11 @@ public class DataSourceManager {
      * @throws DataSourceException
      */
     public DataSourceReader getDataSourceReader(String dsType) throws DataSourceException {
-        if (dsReaders == null) {
-            throw new DataSourceException("The data source readers are not initialized yet");
+        DataSourceReader reader = dsReaders.get(dsType);
+        if (reader == null) {
+            throw new DataSourceException("No reader found for type: " + dsType);
         }
-        return dsReaders.get(dsType);
+        return reader;
     }
 
     /**

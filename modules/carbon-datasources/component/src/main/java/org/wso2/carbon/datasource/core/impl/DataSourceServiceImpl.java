@@ -37,6 +37,7 @@ public class DataSourceServiceImpl implements DataSourceService {
      * @return {@code List<CarbonDataSource>}
      * @throws DataSourceException
      */
+    @SuppressWarnings("unchecked")
     public List<CarbonDataSource> getAllDataSources() throws DataSourceException {
         return new ArrayList(DataSourceManager.getInstance().
                 getDataSourceRepository().getAllDataSources());

@@ -20,21 +20,11 @@ package org.wso2.carbon.datasource.core.common;
  */
 public class DataSourceConstants {
 
-    public static final String DATASOURCES_REPOSITORY_BASE_PATH = "/repository/components/org.wso2.carbon.ndatasource";
-
-    public static final String SECURE_VAULT_NS = "http://org.wso2.securevault/configuration";
-
-    public static final String SECRET_ALIAS_ATTR_NAME = "secretAlias";
-
-    public static final String ENCRYPTED_ATTR_NAME = "encrypted";
-
     public static final String DATASOURCES_DIRECTORY_NAME = "datasources";
 
     public static final String SYS_DS_FILE_NAME_SUFFIX = "-datasources.xml";
 
     public static final String MASTER_DS_FILE_NAME = "master-datasources.xml";
-
-    public static final String DATASOURCES_SYNC_GROUP_NAME = "__CARBON_DATA_SOURCES";
 
     public static final class DataSourceStatusModes {
 
