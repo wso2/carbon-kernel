@@ -2083,10 +2083,11 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     /**
      * Escaping ldap DN special characters in a String value
-     * @param text
+     *
+     * @param text String to replace special characters
      * @return
      */
-    private String escapeSpecialCharactersForDN(String text){
+    private String escapeSpecialCharactersForDN(String text) {
         boolean replaceEscapeCharacters = true;
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
@@ -2151,13 +2152,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
     }
 
 
-
     /**
      * Escaping ldap search filter special characters in a string
-     * @param dnPartial
+     *
+     * @param dnPartial String to replace special characters
      * @return
      */
-    private String escapeSpecialCharactersForFilter(String dnPartial){
+    private String escapeSpecialCharactersForFilter(String dnPartial) {
         boolean replaceEscapeCharacters = true;
 
         dnPartial.replace("\\*", "*");
@@ -2207,12 +2208,13 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
 
     /**
      * Escaping ldap DN special characters in a String value
-     * @param text
+     *
+     * @param text String to replace special characters
      * @return
      */
-    private String escapeSpecialCharactersForDNWithStar(String text){
+    private String escapeSpecialCharactersForDNWithStar(String text) {
         boolean replaceEscapeCharacters = true;
-        text.replace("\\*","*");
+        text.replace("\\*", "*");
 
         String replaceEscapeCharactersAtUserLoginString = realmConfig
                 .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_REPLACE_ESCAPE_CHARACTERS_AT_USER_LOGIN);
@@ -2226,7 +2228,7 @@ public class ReadWriteLDAPUserStoreManager extends ReadOnlyLDAPUserStoreManager 
             }
         }
 
-        if(replaceEscapeCharacters) {
+        if (replaceEscapeCharacters) {
             StringBuilder sb = new StringBuilder();
             if ((text.length() > 0) && ((text.charAt(0) == ' ') || (text.charAt(0) == '#'))) {
                 sb.append('\\'); // add the leading backslash if needed
