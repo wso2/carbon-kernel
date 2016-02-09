@@ -162,6 +162,8 @@ public class DataSourceUtils {
     }
 
     /**
+     * Replaces system variables in the input xml configuration.
+     *
      * @param xmlConfiguration InputStream that carries xml configuration
      * @return returns a InputStream that has evaluated system variables in input
      * @throws Exception
@@ -235,6 +237,13 @@ public class DataSourceUtils {
         }
     }
 
+    /**
+     * Replaces system variables in the input xml configuration.
+     *
+     * @param xmlConfiguration String
+     * @return String
+     * @throws Exception
+     */
     public static String replaceSystemVariablesInXml(String xmlConfiguration) throws Exception {
         InputStream in = replaceSystemVariablesInXml(new ByteArrayInputStream(xmlConfiguration.getBytes()));
         try {

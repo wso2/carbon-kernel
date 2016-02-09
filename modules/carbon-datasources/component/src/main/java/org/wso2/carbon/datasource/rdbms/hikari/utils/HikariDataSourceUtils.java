@@ -23,6 +23,9 @@ import org.wso2.carbon.datasource.utils.DataSourceUtils;
 import java.io.ByteArrayInputStream;
 import javax.xml.bind.JAXBContext;
 
+/**
+ * Encapsulates a set of utility methods for HikariDataSource.
+ */
 public class HikariDataSourceUtils {
 
     /**

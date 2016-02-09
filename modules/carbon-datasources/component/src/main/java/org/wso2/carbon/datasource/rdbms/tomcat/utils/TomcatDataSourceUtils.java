@@ -36,6 +36,13 @@ import javax.xml.bind.JAXBContext;
  */
 public class TomcatDataSourceUtils {
 
+    /**
+     * Generate the {@link PoolConfiguration} by reading {@code TomcatDataSourceConfiguration} object
+     *
+     * @param config {@code TomcatDataSourceConfiguration}
+     * @return {@link PoolConfiguration}
+     * @throws DataSourceException
+     */
     public static PoolConfiguration createPoolConfiguration(TomcatDataSourceConfiguration config)
             throws DataSourceException {
         PoolProperties props = new PoolProperties();
@@ -293,6 +300,4 @@ public class TomcatDataSourceUtils {
         }
         return result;
     }
-
-
 }
