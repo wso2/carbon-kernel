@@ -40,9 +40,11 @@ import javax.naming.NamingException;
 public class DataSourceRepository {
 
     private static Log log = LogFactory.getLog(DataSourceRepository.class);
-
     private Map<String, CarbonDataSource> dataSources;
 
+    /**
+     * Default constructor for DataSourceRepository.
+     */
     public DataSourceRepository() {
         this.dataSources = new HashMap();
     }
@@ -59,7 +61,13 @@ public class DataSourceRepository {
         registerDataSource(dsmInfo);
     }
 
-    private synchronized void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
+    /**
+     * Register a given data source object in JNDI context and in the repository.
+     *
+     * @param dsmInfo {@code DataSourceMetaInfo}
+     * @throws DataSourceException
+     */
+    private void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
         Object dsObject = null;
         boolean isDataSourceFactoryReference = false;
         DataSourceStatus dsStatus;
@@ -79,12 +87,19 @@ public class DataSourceRepository {
 
         //Creates a data source object in any error occurred while registering through JNDI.
         if (dsObject == null) {
-            dsObject = this.createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
+            dsObject = createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
         }
         CarbonDataSource cds = new CarbonDataSource(dsmInfo, dsStatus, dsObject);
         this.dataSources.put(cds.getDSMInfo().getName(), cds);
     }
 
+    /**
+     * Creates the data source object by getting the appropriate DataSourceReader.
+     *
+     * @param dsmInfo                {@code DataSourceMetaInfo}
+     * @param isUseDataSourceFactory {@code boolean}
+     * @return {@code Object}
+     */
     private Object createDataSourceObject(DataSourceMetaInfo dsmInfo, boolean isUseDataSourceFactory)
             throws DataSourceException {
 
@@ -106,6 +121,13 @@ public class DataSourceRepository {
                 configurationXmlDefinition), isUseDataSourceFactory);
     }
 
+    /**
+     * Register the data source in the JNDI context.
+     *
+     * @param dsmInfo  {@code DataSourceMetaInfo}
+     * @param dsObject {@code Object}
+     * @throws DataSourceException
+     */
     private void registerJNDI(DataSourceMetaInfo dsmInfo, Object dsObject)
             throws DataSourceException {
         JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
@@ -149,6 +171,14 @@ public class DataSourceRepository {
         }
     }
 
+    /**
+     * Look up a jndi sub context.
+     *
+     * @param context  {@link Context}
+     * @param jndiName String
+     * @return {@link Context}
+     * @throws DataSourceException
+     */
     private Context lookupJNDISubContext(Context context, String jndiName)
             throws DataSourceException {
         try {
@@ -198,6 +228,12 @@ public class DataSourceRepository {
         unregisterDataSource(cds, dsName);
     }
 
+    /**
+     * Unregister a given data source from the repository.
+     *
+     * @param cds    {@code CarbonDataSource}
+     * @param dsName String
+     */
     private void unregisterDataSource(CarbonDataSource cds, String dsName) {
         if (log.isDebugEnabled()) {
             log.debug("Unregistering data source: " + dsName);
@@ -206,6 +242,11 @@ public class DataSourceRepository {
         dataSources.remove(dsName);
     }
 
+    /**
+     * Unregister a given JNDI binding.
+     *
+     * @param dsmInfo {@code DataSourceMetaInfo}
+     */
     private void unregisterJNDI(DataSourceMetaInfo dsmInfo) {
         JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
         if (jndiConfig == null) {
@@ -215,8 +256,7 @@ public class DataSourceRepository {
             InitialContext context = new InitialContext(jndiConfig.extractHashtableEnv());
             context.unbind(jndiConfig.getName());
         } catch (NamingException e) {
-            log.error("Error in unregistering JNDI name: " +
-                    jndiConfig.getName() + " - " + e.getMessage(), e);
+            log.error("Error in unregistering JNDI name: " + jndiConfig.getName() + " - " + e.getMessage(), e);
         }
     }
 

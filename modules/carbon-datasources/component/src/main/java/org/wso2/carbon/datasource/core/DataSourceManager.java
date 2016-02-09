@@ -41,11 +41,8 @@ import javax.xml.bind.JAXBException;
 public class DataSourceManager {
 
     private static Log log = LogFactory.getLog(DataSourceManager.class);
-
     private static DataSourceManager instance;
-
     private Map<String, DataSourceReader> dsReaders;
-
     private static DataSourceRepository dsRepo;
     private String dataSourcesPath = null;
     private boolean initialized = false;
@@ -94,6 +91,13 @@ public class DataSourceManager {
         return new ArrayList(dsReaders.keySet());
     }
 
+    /**
+     * Returns a DataSourceReader for the given DataSourceReader type.
+     *
+     * @param dsType String
+     * @return {@code DataSourceReader}
+     * @throws DataSourceException
+     */
     public DataSourceReader getDataSourceReader(String dsType) throws DataSourceException {
         if (dsReaders == null) {
             throw new DataSourceException("The data source readers are not initialized yet");
@@ -152,6 +156,12 @@ public class DataSourceManager {
         initialized = true;
     }
 
+    /**
+     * Initialize the data sources given in data source config files.
+     *
+     * @param sysDSFile {@link File}
+     * @throws DataSourceException
+     */
     private void initSystemDataSource(File sysDSFile) throws DataSourceException {
         try {
             SystemDataSourcesConfiguration sysDS = getSystemDataSourcesFromConfigFile(sysDSFile);
@@ -166,6 +176,13 @@ public class DataSourceManager {
         }
     }
 
+    /**
+     * Generate {@code SystemDataSourceConfiguration} jaxb bean from the given data source configuration file.
+     *
+     * @param sysDSFile {@link File}
+     * @return {@code SystemDataSourcesConfiguration}
+     * @throws DataSourceException
+     */
     private SystemDataSourcesConfiguration getSystemDataSourcesFromConfigFile(File sysDSFile)
             throws DataSourceException {
         try {
@@ -179,6 +196,12 @@ public class DataSourceManager {
         }
     }
 
+    /**
+     * Add the given list of data source providers to the repository.
+     *
+     * @param providers {@code List<String>}
+     * @throws DataSourceException
+     */
     private void addDataSourceProviders(List<String> providers) throws DataSourceException {
         if (providers == null) {
             log.debug("No data source providers found!!!");
