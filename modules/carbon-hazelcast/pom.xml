@@ -117,22 +117,7 @@
         <osgi.core.api.version>6.0.0</osgi.core.api.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
         <hazelcast.version>3.6</hazelcast.version>
-        <axis2.version>1.7.0.wso2v1</axis2.version>
-        <axiom.version>1.2.17.wso2v1</axiom.version>
         <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
-
-        <commons.fileupload.version>1.3.1</commons.fileupload.version>
-        <commons.io.version>2.4</commons.io.version>
-        <geronimo.activation.version>1.1</geronimo.activation.version>
-        <netty.version>4.0.30.Final</netty.version>
-        <javax.servlet.api.version>3.1.0</javax.servlet.api.version>
-        <jsr311.api.version>1.1.1</jsr311.api.version>
-        <neethi.version>3.0.3</neethi.version>
-        <woden.core.version>1.0M10</woden.core.version>
-        <wsdl4j.version>1.6.3.wso2v1</wsdl4j.version>
-        <xmlschema.core.version>2.2.1</xmlschema.core.version>
-        <org.wso2.carbon.transport.http.netty.version>2.0.0-alpha2</org.wso2.carbon.transport.http.netty.version>
-        <org.wso2.carbon.messaging.version>1.0.0-alpha2</org.wso2.carbon.messaging.version>
 
         <testng.version>6.9.4</testng.version>
         <pax.exam.version>4.6.0</pax.exam.version>
