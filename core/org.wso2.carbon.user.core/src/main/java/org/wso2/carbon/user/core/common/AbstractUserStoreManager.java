@@ -1828,6 +1828,13 @@ public abstract class AbstractUserStoreManager implements UserStoreManager {
 //            throw new UserStoreException(
 //                    "Logged in user doesn't have permission to delete a role belong to other tenant");
 //        }
+        if (!isRoleNameValid(roleName)) {
+            String regEx = realmConfig
+                    .getUserStoreProperty(UserCoreConstants.RealmConfig.PROPERTY_ROLE_NAME_JAVA_REG_EX);
+            throw new UserStoreException(
+                    INVALID_ROLE + " Role name not valid. Role name must be a non null string with following format, "
+                            + regEx);
+        }
 
         if (isExistingRole(newRoleName)) {
             throw new UserStoreException("Role name: " + newRoleName
