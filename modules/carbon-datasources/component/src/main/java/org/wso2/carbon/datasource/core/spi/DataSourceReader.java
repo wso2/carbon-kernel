@@ -18,13 +18,26 @@ package org.wso2.carbon.datasource.core.spi;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 
 /**
- * This represents the service provider interface that must be implemented by any of the 
+ * This represents the service provider interface that must be implemented by any of the
  * data source type implementations.
  */
 public interface DataSourceReader {
 
-	String getType();
-	
-	Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference) throws DataSourceException;
-	
+    /**
+     * Return the type of the reader.
+     *
+     * @return String
+     */
+    String getType();
+
+    /**
+     * Creating the data source by executing the custom data source creation logic.
+     *
+     * @param xmlConfiguration             String
+     * @param isDataSourceFactoryReference boolean
+     * @return Object
+     * @throws DataSourceException
+     */
+    Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference) throws DataSourceException;
+
 }

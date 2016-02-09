@@ -36,7 +36,7 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
 /**
- * RDBMS data source implementation.
+ * Wrapper class which wraps {@code org.apache.tomcat.jdbc.pool.DataSource} with a set of utility methods.
  */
 public class TomcatDataSource {
 
@@ -51,11 +51,20 @@ public class TomcatDataSource {
 
     private PoolConfiguration poolProperties;
 
+    /**
+     * Constructs TomcatDataSource object.
+     *
+     * @param config {@code TomcatDataSourceConfiguration}
+     * @throws DataSourceException
+     */
     public TomcatDataSource(TomcatDataSourceConfiguration config) throws DataSourceException {
         this.poolProperties = TomcatDataSourceUtils.createPoolConfiguration(config);
         this.populateStandardProps();
     }
 
+    /**
+     * Add jdbc interceptors to the poolProperties.
+     */
     private void populateStandardProps() {
         String jdbcInterceptors = this.poolProperties.getJdbcInterceptors();
         if (jdbcInterceptors == null) {
@@ -65,6 +74,10 @@ public class TomcatDataSource {
         this.poolProperties.setJdbcInterceptors(jdbcInterceptors);
     }
 
+    /**
+     * Returns a DataSource object.
+     * @return {@link DataSource}
+     */
     public DataSource getDataSource() {
         if (this.dataSource == null) {
             this.dataSource = new DataSource(poolProperties);
@@ -75,6 +88,9 @@ public class TomcatDataSource {
         return this.dataSource;
     }
 
+    /**
+     * Register MBeans.
+     */
     private void registerMBean() {
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         String mBean = "";
@@ -99,6 +115,12 @@ public class TomcatDataSource {
         }
     }
 
+    /**
+     * Returns a {@link Reference} object representing the DataSource.
+     *
+     * @return {@link Reference}
+     * @throws DataSourceException
+     */
     public Reference getDataSourceFactoryReference() throws DataSourceException {
         if (dataSourceFactoryReference == null) {
             dataSourceFactoryReference = new Reference("org.apache.tomcat.jdbc.pool.DataSource",

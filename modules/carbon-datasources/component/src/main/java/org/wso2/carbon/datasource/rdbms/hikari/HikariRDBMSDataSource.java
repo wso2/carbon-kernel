@@ -24,6 +24,9 @@ import java.util.Map;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
+/**
+ * HikariDatasource wrapper class which wraps a set of utility methods.
+ */
 public class HikariRDBMSDataSource {
     private final String JAVAX_DATASOURCE_CLASS = "javax.sql.DataSource";
     private final String HIKARI_JNDI_FACTORY = "com.zaxxer.hikari.HikariJNDIFactory";
@@ -35,10 +38,21 @@ public class HikariRDBMSDataSource {
 
     private HikariConfig config;
 
+    /**
+     * Constructs HikariRDBMSDataSource object.
+     *
+     * @param config {@link HikariConfig}
+     * @throws DataSourceException
+     */
     public HikariRDBMSDataSource(HikariConfig config) throws DataSourceException {
         this.config = config;
     }
 
+    /**
+     * Returns the HikariDataSource by building it based on the configuration.
+     *
+     * @return {@link HikariDataSource}
+     */
     public HikariDataSource getDataSource() {
         if (this.dataSource == null) {
             this.dataSource = new HikariDataSource(this.config);
@@ -46,6 +60,12 @@ public class HikariRDBMSDataSource {
         return this.dataSource;
     }
 
+    /**
+     * Returns a {@link Reference} object representing the HikariDataSource.
+     *
+     * @return {@link Reference}
+     * @throws DataSourceException
+     */
     public Reference getDataSourceFactoryReference() throws DataSourceException {
         if (dataSourceFactoryReference == null) {
             dataSourceFactoryReference = new Reference(JAVAX_DATASOURCE_CLASS, HIKARI_JNDI_FACTORY, null);

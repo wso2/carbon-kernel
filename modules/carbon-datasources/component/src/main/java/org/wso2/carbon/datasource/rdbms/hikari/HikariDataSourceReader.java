@@ -25,11 +25,25 @@ import org.wso2.carbon.datasource.rdbms.hikari.utils.HikariDataSourceUtils;
  * HikariDataSource.
  */
 public class HikariDataSourceReader implements DataSourceReader {
+
+    /**
+     * Return the type of the reader.
+     *
+     * @return String
+     */
     @Override
     public String getType() {
         return RDBMSDataSourceConstants.RDBMS_DATASOURCE_TYPE;
     }
 
+    /**
+     * Creating the data source by reading the xml configuration.
+     *
+     * @param xmlConfiguration             String
+     * @param isDataSourceFactoryReference boolean
+     * @return Object
+     * @throws DataSourceException
+     */
     @Override
     public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference)
             throws DataSourceException {
