@@ -67,7 +67,7 @@ public class StringManager {
         String bundleName = packageName + ".LocalStrings";
         ResourceBundle tempBundle = null;
         try {
-            tempBundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+            tempBundle = ResourceBundle.getBundle(bundleName, Locale.getDefault(), this.getClass().getClassLoader());
         } catch( MissingResourceException ex ) {
             // Try from the current loader (that's the case for trusted apps)
             // Should only be required if using a TC5 style classloader structure
