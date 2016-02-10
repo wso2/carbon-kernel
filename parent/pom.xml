@@ -291,10 +291,10 @@
         <imp.pkg.version.neethi>[2.0.4.wso2v4, 3.0.0)</imp.pkg.version.neethi>
 
         <!-- Apache Axiom -->
-        <orbit.version.axiom>1.2.11.wso2v9</orbit.version.axiom>
+        <orbit.version.axiom>1.2.11.wso2v10</orbit.version.axiom>
         <imp.pkg.version.axiom>[1.2.11, 1.3.0)</imp.pkg.version.axiom>
-        <version.axiom>1.2.11-wso2v9</version.axiom>
-        <axiom.osgi.version>1.2.11.wso2v9</axiom.osgi.version>
+        <version.axiom>1.2.11-wso2v10</version.axiom>
+        <axiom.osgi.version>1.2.11.wso2v10</axiom.osgi.version>
         <axiom.osgi.version.range>[1.2.11, 1.3.0)</axiom.osgi.version.range>
 
 
@@ -305,12 +305,12 @@
         <version.spring>3.1.0.RELEASE</version.spring>
 
         <!-- Apache Axis2 -->
-        <version.axis2>1.6.1-wso2v16</version.axis2>
+        <version.axis2>1.6.1-wso2v17</version.axis2>
         <imp.pkg.version.axis2>[1.6.1.wso2v15, 1.7.0)</imp.pkg.version.axis2>
-        <version.addressing>1.6.1-wso2v16</version.addressing>
-        <orbit.version.axis2>1.6.1.wso2v16</orbit.version.axis2>
-        <axis2.client.osgi.version>1.6.1.wso2v16</axis2.client.osgi.version>
-        <version.axis2.json>1.6.1-wso2v16</version.axis2.json>
+        <version.addressing>1.6.1-wso2v17</version.addressing>
+        <orbit.version.axis2>1.6.1.wso2v17</orbit.version.axis2>
+        <axis2.client.osgi.version>1.6.1.wso2v17</axis2.client.osgi.version>
+        <version.axis2.json>1.6.1-wso2v17</version.axis2.json>
 
         <!-- xmlsec version -->
         <version.xmlsec>1.4.2-patched</version.xmlsec>
