@@ -45,7 +45,7 @@ geronimo-jaxws_2.2_spec-1.0.jar                                                 
 geronimo-jms_1.1_spec-1.1.0.wso2v1.jar                                          bundle         apache2   661       
 geronimo-jta_1.1_spec-1.1.jar                                                   jar            apache2   1066      
 geronimo-saaj_1.3_spec_1.0.0.wso2v3.jar                                         bundle         apache2   893       
-h2-1.2.140-wso2v3.jar								                            bundle         epl1
+h2-1.2.140-wso2v3.jar								bundle         epl1
 h2-database-engine_1.2.140.wso2v3.jar                                           bundle         epl1      697       
 hazelcast_3.5.4.wso2v1.jar                                                      bundle         apache2   7208      
 httpcore_4.3.3.wso2v1.jar                                                       bundle         apache2   3638      
