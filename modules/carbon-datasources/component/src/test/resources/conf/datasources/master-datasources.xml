@@ -6,12 +6,15 @@
     </providers>
 
     <datasources>
-
         <datasource>
             <name>WSO2_CARBON_DB</name>
             <description>The datasource used for registry and user manager</description>
             <jndiConfig>
-                <name>jdbc</name>
+                <name>jdbc/WSO2CarbonDB/test</name>
+                 <useDataSourceFactory>true</useDataSourceFactory>
+                <environment>
+                    <property name="java.naming.factory.initial">org.wso2.carbon.datasource.core.jndi.CustomContextFactory</property>
+                </environment>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
@@ -28,7 +31,6 @@
                 </configuration>
             </definition>
         </datasource>
-
     </datasources>
 
 </datasources-configuration>

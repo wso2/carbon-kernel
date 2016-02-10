@@ -1,8 +1,8 @@
 <datasources-configuration>
 
     <providers>
-        <!--<provider>org.wso2.carbon.datasource.rdbms.hikari.HikariDataSourceReader</provider>-->
-        <provider>org.wso2.carbon.datasource.rdbms.tomcat.TomcatSDataSourceReader</provider>
+        <provider>org.wso2.carbon.datasource.rdbms.hikari.HikariDataSourceReader</provider>
+        <!--<provider>org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceReader</provider>-->
     </providers>
 
     <datasources>
@@ -12,13 +12,13 @@
             <description>The datasource used for registry and user manager</description>
             <jndiConfig>
                 <name>jdbc/WSO2CarbonDB/test</name>
-                 <!--<useDataSourceFactory>true</useDataSourceFactory>-->
-                <!--<environment>-->
-                    <!--<property name="java.naming.factory.initial">com.sun.jndi.fscontext.RefFSContextFactory</property>-->
-                    <!--<property name="java.naming.provider.url">-->
-                        <!--file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/carbon-datasources/org.wso2.carbon.datasource.core/src/test-->
-                    <!--</property>-->
-                <!--</environment>-->
+                 <useDataSourceFactory>true</useDataSourceFactory>
+                <environment>
+                    <property name="java.naming.factory.initial">com.sun.jndi.fscontext.RefFSContextFactory</property>
+                    <property name="java.naming.provider.url">
+                        file:///home/dinushab/Carbon/POC/data-sources/carbon-kernel/modules/carbon-datasources/component/src/test
+                    </property>
+                </environment>
             </jndiConfig>
             <definition type="RDBMS">
                 <configuration>
