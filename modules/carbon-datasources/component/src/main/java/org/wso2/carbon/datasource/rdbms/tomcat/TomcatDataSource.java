@@ -19,10 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
-import org.wso2.carbon.datasource.common.DataSourceException;
-import org.wso2.carbon.datasource.rdbms.RDBMSConfiguration;
-import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
-import org.wso2.carbon.datasource.rdbms.utils.RDBMSDataSourceUtils;
+import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.lang.management.ManagementFactory;
@@ -38,11 +36,14 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
 /**
- * RDBMS data source implementation.
+ * Wrapper class which wraps {@code org.apache.tomcat.jdbc.pool.DataSource} with a set of utility methods.
  */
 public class TomcatDataSource {
 
     private static Log log = LogFactory.getLog(TomcatDataSource.class);
+
+    private static final String STANDARD_TOMCAT_JDBC_INTERCEPTORS = "ConnectionState;StatementFinalizer;" +
+            "org.wso2.carbon.datasource.rdbms.tomcat.ConnectionRollbackOnReturnInterceptor;";
 
     private DataSource dataSource;
 
@@ -50,20 +51,33 @@ public class TomcatDataSource {
 
     private PoolConfiguration poolProperties;
 
-    public TomcatDataSource(RDBMSConfiguration config) throws DataSourceException {
+    /**
+     * Constructs TomcatDataSource object.
+     *
+     * @param config {@code TomcatDataSourceConfiguration}
+     * @throws DataSourceException
+     */
+    public TomcatDataSource(TomcatDataSourceConfiguration config) throws DataSourceException {
         this.poolProperties = TomcatDataSourceUtils.createPoolConfiguration(config);
         this.populateStandardProps();
     }
 
+    /**
+     * Add jdbc interceptors to the poolProperties.
+     */
     private void populateStandardProps() {
         String jdbcInterceptors = this.poolProperties.getJdbcInterceptors();
         if (jdbcInterceptors == null) {
             jdbcInterceptors = "";
         }
-        jdbcInterceptors = RDBMSDataSourceConstants.STANDARD_TOMCAT_JDBC_INTERCEPTORS + jdbcInterceptors;
+        jdbcInterceptors = STANDARD_TOMCAT_JDBC_INTERCEPTORS + jdbcInterceptors;
         this.poolProperties.setJdbcInterceptors(jdbcInterceptors);
     }
 
+    /**
+     * Returns a DataSource object.
+     * @return {@link DataSource}
+     */
     public DataSource getDataSource() {
         if (this.dataSource == null) {
             this.dataSource = new DataSource(poolProperties);
@@ -74,6 +88,9 @@ public class TomcatDataSource {
         return this.dataSource;
     }
 
+    /**
+     * Register MBeans.
+     */
     private void registerMBean() {
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
         String mBean = "";
@@ -89,29 +106,27 @@ public class TomcatDataSource {
             ObjectName objectName = new ObjectName(mBean + ":type=DataSource");
             mBeanServer.registerMBean(this.dataSource.createPool().getJmxPool(), objectName);
         } catch (InstanceAlreadyExistsException e) {
-            //ignore as the mbean for the same datasource name is already exist
-        } catch (MalformedObjectNameException e) {
-            log.error("Error while registering the MBean for dataSource '"
-                    + mBean + " " + e.getMessage(), e);
-        } catch (NotCompliantMBeanException e) {
-            log.error("Error while registering the MBean for dataSource '"
-                    + mBean + " " + e.getMessage(), e);
-        } catch (SQLException e) {
-            log.error("Error while registering the MBean for dataSource '"
-                    + mBean + " " + e.getMessage(), e);
-        } catch (MBeanRegistrationException e) {
-            log.error("Error while registering the MBean for dataSource '"
-                    + mBean + " " + e.getMessage(), e);
+            log.warn("Registering already existing mbean. '"
+                    + mBean + "' " + e.getMessage(), e);
+        } catch (MalformedObjectNameException | NotCompliantMBeanException | SQLException
+                | MBeanRegistrationException e) {
+            log.error("Error while registering the MBean for dataSource '"  + mBean + " " + e.getMessage(), e);
         }
     }
 
+    /**
+     * Returns a {@link Reference} object representing the DataSource.
+     *
+     * @return {@link Reference}
+     * @throws DataSourceException
+     */
     public Reference getDataSourceFactoryReference() throws DataSourceException {
         if (dataSourceFactoryReference == null) {
             dataSourceFactoryReference = new Reference("org.apache.tomcat.jdbc.pool.DataSource",
                     "org.apache.tomcat.jdbc.pool.DataSourceFactory", null);
 
             Map<String, String> poolConfigMap =
-                    RDBMSDataSourceUtils.extractPrimitiveFieldNameValuePairs(poolProperties);
+                    DataSourceUtils.extractPrimitiveFieldNameValuePairs(poolProperties);
             poolConfigMap.forEach((key, value) -> dataSourceFactoryReference.add(new StringRefAddr(key, value)));
         }
         return dataSourceFactoryReference;
