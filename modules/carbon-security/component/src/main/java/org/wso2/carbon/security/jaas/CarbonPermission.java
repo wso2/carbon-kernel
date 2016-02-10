@@ -16,9 +16,7 @@
 
 package org.wso2.carbon.security.jaas;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.carbon.security.util.AuthorizationManager;
+import org.wso2.carbon.security.util.UserStoreManager;
 
 import java.security.AccessController;
 import java.security.BasicPermission;
@@ -34,24 +32,22 @@ public class CarbonPermission extends BasicPermission {
 
     private static final long serialVersionUID = 6056209529374720070L;
 
-    private static final Logger log = LoggerFactory.getLogger(CarbonPermission.class);
-
     private String actions;
 
     public CarbonPermission(String name, String actions) {
         super(name);
 
-        if (actions == null || actions.isEmpty()) {
-            throw new IllegalArgumentException("Permission actions cannot be null");
+        if (name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Permission name cannot be empty");
         }
 
-        this.actions = actions;
-
-        if (name.isEmpty()) {
-            throw new IllegalArgumentException("Permission name cannot be null");
+        if (actions != null && !actions.isEmpty()) {
+            this.actions = actions;
         }
+
     }
 
+    //Never get called
     @Override
     public boolean implies(Permission permission) {
 
@@ -66,7 +62,7 @@ public class CarbonPermission extends BasicPermission {
         // find the CarbonPrincipal
         for (Principal principal : subject.getPrincipals()) {
             if (principal instanceof CarbonPrincipal) {
-                if (AuthorizationManager.getInstance().authorizePrincipal(principal.getName(),
+                if (UserStoreManager.getInstance().authorizePrincipal(principal.getName(),
                                                                           (CarbonPermission) permission)) {
                     return true;
                 }
