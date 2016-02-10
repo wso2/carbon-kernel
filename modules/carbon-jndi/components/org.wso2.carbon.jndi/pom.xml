@@ -73,6 +73,7 @@
             org.osgi.framework;version="${osgi.framework.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}"
         </import.package>
+        <include.resource>{maven-resources},org/apache/naming/LocalStrings.properties=src/main/java/org/apache/naming/LocalStrings.properties</include.resource>
     </properties>
 
 </project>

@@ -10,8 +10,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>carbon-feature</packaging>
-
     <artifactId>org.wso2.carbon.datasource.core.feature</artifactId>
+
+    <description>Generates a feature from data source bundle by encapsulating it's core dependencies</description>
 
     <dependencies>
         <dependency>
@@ -26,6 +27,10 @@
             <groupId>org.apache.tomcat.wso2</groupId>
             <artifactId>jdbc-pool</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -33,7 +38,6 @@
             <plugin>
                 <groupId>org.wso2.carbon.maven</groupId>
                 <artifactId>carbon-feature-plugin</artifactId>
-                <version>2.0.0</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
@@ -65,6 +69,10 @@
                                 <bundle>
                                     <symbolicName>jdbc-pool</symbolicName>
                                     <version>${tomcat.jdbc.version}</version>
+                                </bundle>
+                                <bundle>
+                                    <symbolicName>com.zaxxer.HikariCP</symbolicName>
+                                    <version>${hikaricp.version}</version>
                                 </bundle>
                             </bundles>
                         </configuration>

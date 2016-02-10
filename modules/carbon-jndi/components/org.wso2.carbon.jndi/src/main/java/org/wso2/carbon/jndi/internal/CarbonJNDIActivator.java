@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 public class CarbonJNDIActivator implements BundleActivator {
 
@@ -39,14 +40,20 @@ public class CarbonJNDIActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
-        System.setProperty
-                (javax.naming.Context.INITIAL_CONTEXT_FACTORY,
-                        "org.apache.naming.java.javaURLContextFactory");
 
-        logger.info("Setting up INITIAL_CONTEXT_FACTORY");
+        try {
+            System.setProperty(Context.URL_PKG_PREFIXES, "org.apache.naming");
+            System.setProperty
+                    (javax.naming.Context.INITIAL_CONTEXT_FACTORY,
+                            "org.apache.naming.java.javaURLContextFactory");
 
-        Context ctx = new InitialContext();
-        ctx.bind("user-name", "Sameera Jayasoma1234");
+            logger.info("Setting up INITIAL_CONTEXT_FACTORY");
+
+//            Context ctx = new InitialContext();
+//            ctx.bind("user-name", "Sameera Jayasoma1234");
+        } catch (Throwable e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 
     @Override

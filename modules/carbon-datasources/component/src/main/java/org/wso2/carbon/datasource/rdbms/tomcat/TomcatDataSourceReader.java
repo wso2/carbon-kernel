@@ -13,18 +13,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.datasource.rdbms.hikari;
+package org.wso2.carbon.datasource.rdbms.tomcat;
 
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
-import org.wso2.carbon.datasource.rdbms.hikari.utils.HikariDataSourceUtils;
+import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
 
 /**
- * HikariDataSourceReader is responsible for reading the hikari configuration from the configuration file and build
- * HikariDataSource.
+ * This class represents the Tomcat connection pool based data source reader implementation.
  */
-public class HikariDataSourceReader implements DataSourceReader {
+public class TomcatDataSourceReader implements DataSourceReader {
 
     /**
      * Return the type of the reader.
@@ -47,8 +46,7 @@ public class HikariDataSourceReader implements DataSourceReader {
     @Override
     public Object createDataSource(String xmlConfiguration, boolean isDataSourceFactoryReference)
             throws DataSourceException {
-        HikariRDBMSDataSource dataSource = new
-                HikariRDBMSDataSource(HikariDataSourceUtils.buildConfiguration(xmlConfiguration));
+        TomcatDataSource dataSource = new TomcatDataSource(TomcatDataSourceUtils.loadConfig(xmlConfiguration));
         if (isDataSourceFactoryReference) {
             return dataSource.getDataSourceFactoryReference();
         } else {
