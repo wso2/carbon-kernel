@@ -108,10 +108,9 @@ public class TomcatDataSource {
         } catch (InstanceAlreadyExistsException e) {
             log.warn("Registering already existing mbean. '"
                     + mBean + "' " + e.getMessage(), e);
-        } catch (MalformedObjectNameException | NotCompliantMBeanException | SQLException |
-                MBeanRegistrationException e) {
-            log.error("Error while registering the MBean for dataSource '"
-                    + mBean + " " + e.getMessage(), e);
+        } catch (MalformedObjectNameException | NotCompliantMBeanException | SQLException
+                | MBeanRegistrationException e) {
+            log.error("Error while registering the MBean for dataSource '"  + mBean + " " + e.getMessage(), e);
         }
     }
 

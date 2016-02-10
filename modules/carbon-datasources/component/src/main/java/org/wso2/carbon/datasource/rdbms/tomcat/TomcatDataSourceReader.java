@@ -21,7 +21,7 @@ import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
 
 /**
- * This class represents the RDBMS based data source reader implementation.
+ * This class represents the Tomcat connection pool based data source reader implementation.
  */
 public class TomcatDataSourceReader implements DataSourceReader {
 

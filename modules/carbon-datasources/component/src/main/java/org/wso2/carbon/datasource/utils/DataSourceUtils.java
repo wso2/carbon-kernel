@@ -28,8 +28,6 @@ import org.wso2.carbon.datasource.core.common.DataSourceConstants;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.kernel.utils.Utils;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
@@ -78,13 +76,8 @@ public class DataSourceUtils {
     }
 
     public static boolean nullAllowEquals(Object lhs, Object rhs) {
-        if (lhs == null && rhs == null) {
-            return true;
-        }
-        if ((lhs == null && rhs != null) || (lhs != null && rhs == null)) {
-            return false;
-        }
-        return lhs.equals(rhs);
+        return lhs == null && rhs == null || !((lhs == null && rhs != null) || (lhs != null && rhs == null))
+                && lhs.equals(rhs);
     }
 
     public static String elementToString(Element element) {
@@ -110,23 +103,8 @@ public class DataSourceUtils {
     public static Document convertToDocument(File file) throws DataSourceException {
         try {
             return getSecuredDocumentBuilder(false).parse(file);
-        } catch (Exception e) {
-            throw new DataSourceException("Error in creating an XML document from file: " +
-                    e.getMessage(), e);
-        }
-    }
-
-    public static InputStream elementToInputStream(Element element) {
-        try {
-            if (element == null) {
-                return null;
-            }
-            String xmlString = elementToString(element);
-            InputStream stream = new ByteArrayInputStream(xmlString.getBytes());
-            return stream;
-        } catch (Exception e) {
-            log.error("Error while convering element to InputStream: " + e.getMessage(), e);
-            return null;
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            throw new DataSourceException("Error in creating an XML document from file: " + e.getMessage(), e);
         }
     }
 
@@ -145,30 +123,30 @@ public class DataSourceUtils {
         documentBuilderFactory.setExpandEntityReferences(false);
         documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        documentBuilder.setEntityResolver(new EntityResolver() {
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
-            }
+        documentBuilder.setEntityResolver((publicId, systemId) -> {
+            throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
         });
         return documentBuilder;
     }
 
+    /**
+     * Returns the conf directory path located in carbon.home.
+     *
+     * @return {@link Path}
+     */
     public static Path getDataSourceConfigPath() {
         return Utils.getCarbonConfigHome().resolve(DataSourceConstants.DATASOURCES_DIRECTORY_NAME);
     }
 
-    public static Path getMasterDataSource() {
-        return getDataSourceConfigPath().resolve(DataSourceConstants.MASTER_DS_FILE_NAME);
-    }
 
     /**
      * Replaces system variables in the input xml configuration.
      *
      * @param xmlConfiguration InputStream that carries xml configuration
      * @return returns a InputStream that has evaluated system variables in input
-     * @throws Exception
+     * @throws DataSourceException
      */
-    public static InputStream replaceSystemVariablesInXml(InputStream xmlConfiguration) throws Exception {
+    public static InputStream replaceSystemVariablesInXml(InputStream xmlConfiguration) throws DataSourceException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder documentBuilder;
         Document doc;
@@ -176,19 +154,16 @@ public class DataSourceUtils {
             documentBuilderFactory.setNamespaceAware(true);
             documentBuilderFactory.setExpandEntityReferences(false);
             documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-            SecurityManager securityManager = new SecurityManager();
+//            SecurityManager securityManager = new SecurityManager();
 //            securityManager.setEntityExpansionLimit(ENTITY_EXPANSION_LIMIT);
 //            documentBuilderFactory.setAttribute(SECURITY_MANAGER_PROPERTY, securityManager);
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            documentBuilder.setEntityResolver(new EntityResolver() {
-                @Override
-                public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-                    throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
-                }
+            documentBuilder.setEntityResolver((publicId, systemId) -> {
+                throw new SAXException("Possible XML External Entity (XXE) attack. Skip resolving entity");
             });
             doc = documentBuilder.parse(xmlConfiguration);
-        } catch (Exception e) {
-            throw new Exception("Error in building Document", e);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw new DataSourceException("Error in building Document", e);
         }
         NodeList nodeList = null;
         if (doc != null) {
@@ -205,9 +180,9 @@ public class DataSourceUtils {
     /**
      * @param doc the DOM.Document to be converted to InputStream.
      * @return Returns InputStream.
-     * @throws Exception
+     * @throws DataSourceException
      */
-    public static InputStream toInputStream(Document doc) throws Exception {
+    public static InputStream toInputStream(Document doc) throws DataSourceException {
         InputStream in;
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -216,7 +191,7 @@ public class DataSourceUtils {
             TransformerFactory.newInstance().newTransformer().transform(xmlSource, result);
             in = new ByteArrayInputStream(outputStream.toByteArray());
         } catch (TransformerException e) {
-            throw new Exception("Error in transforming DOM to InputStream", e);
+            throw new DataSourceException("Error in transforming DOM to InputStream", e);
         }
         return in;
     }
@@ -242,14 +217,14 @@ public class DataSourceUtils {
      *
      * @param xmlConfiguration String
      * @return String
-     * @throws Exception
+     * @throws DataSourceException
      */
-    public static String replaceSystemVariablesInXml(String xmlConfiguration) throws Exception {
+    public static String replaceSystemVariablesInXml(String xmlConfiguration) throws DataSourceException {
         InputStream in = replaceSystemVariablesInXml(new ByteArrayInputStream(xmlConfiguration.getBytes()));
         try {
             xmlConfiguration = IOUtils.toString(in);
         } catch (IOException e) {
-            throw new Exception("Error in converting InputStream to String");
+            throw new DataSourceException("Error in converting InputStream to String", e);
         }
         return xmlConfiguration;
     }
@@ -284,8 +259,7 @@ public class DataSourceUtils {
         return text;
     }
 
-    public static Map<String, String> extractPrimitiveFieldNameValuePairs(Object object)
-            throws DataSourceException {
+    public static Map<String, String> extractPrimitiveFieldNameValuePairs(Object object) throws DataSourceException {
         Map<String, String> nameValueMap = new HashMap<>();
         Method methods[] = object.getClass().getMethods();
         for (Method method : methods) {
@@ -297,14 +271,13 @@ public class DataSourceUtils {
                         nameValueMap.put(FieldName, result);
                     }
                 } catch (Exception e) {
-                    throw new DataSourceException(
-                            "Error in retrieving " + FieldName + " value from the object :" + object.getClass() + e.getMessage(), e);
+                    throw new DataSourceException("Error in retrieving " + FieldName + " value from the object :" +
+                            object.getClass() + e.getMessage(), e);
                 }
             }
         }
         return nameValueMap;
     }
-
 
     private static String getFieldNameFromMethodName(String name) throws DataSourceException {
         String prefixGet = "get";
@@ -318,8 +291,7 @@ public class DataSourceUtils {
             firstLetter = name.substring(2, 3);
             name = name.substring(3);
         } else {
-            throw new DataSourceException("Error in retrieving attribute name from method : "
-                    + name);
+            throw new DataSourceException("Error in retrieving attribute name from method : " + name);
         }
         firstLetter = firstLetter.toLowerCase();
         return firstLetter.concat(name);
