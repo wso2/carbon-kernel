@@ -339,6 +339,34 @@
                             </excludes>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>test-set8</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <forkMode>pertest</forkMode>
+                            <argLine>-enableassertions</argLine>
+                            <testFailureIgnore>false</testFailureIgnore>
+                            <reportsDirectory>${project.build.directory}/surefire-reports-8</reportsDirectory>
+                            <systemProperties>
+                                <property>
+                                    <name>registry.config</name>
+                                    <value>registry8.xml</value>
+                                </property>
+                            </systemProperties>
+                            <excludes>
+                                <exclude>**/BaseTestCase.java</exclude>
+                                <exclude>**/CustomQueryTest.java</exclude>
+                                <exclude>**/VersionHandlingTest.java</exclude>
+                                <exclude>**/StaticConfigurationFalseTest.java</exclude>
+                                <exclude>**/StaticConfigurationTrueTest.java</exclude>
+                                <exclude>**/BasicPerformanceTest.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
