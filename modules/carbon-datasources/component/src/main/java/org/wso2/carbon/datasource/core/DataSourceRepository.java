@@ -46,7 +46,7 @@ public class DataSourceRepository {
      * Default constructor for DataSourceRepository.
      */
     public DataSourceRepository() {
-        this.dataSources = new HashMap();
+        this.dataSources = new HashMap<>();
     }
 
     /**
@@ -117,8 +117,8 @@ public class DataSourceRepository {
 //		DataSourceUtils.setCurrentDataSourceId(dsmInfo.getName());
 
         Element configurationXmlDefinition = (Element) dsmInfo.getDefinition().getDsXMLConfiguration();
-        return dsReader.createDataSource(DataSourceUtils.elementToString(
-                configurationXmlDefinition), isUseDataSourceFactory);
+        return dsReader.createDataSource(DataSourceUtils.elementToString(configurationXmlDefinition),
+                isUseDataSourceFactory);
     }
 
     /**
@@ -138,8 +138,7 @@ public class DataSourceRepository {
         try {
             context = new InitialContext(jndiConfig.extractHashtableEnv());
         } catch (NamingException e) {
-            throw new DataSourceException("Error creating JNDI initial context: " +
-                    e.getMessage(), e);
+            throw new DataSourceException("Error creating JNDI initial context: " + e.getMessage(), e);
         }
         checkAndCreateJNDISubContexts(context, jndiConfig.getName());
 
@@ -151,6 +150,13 @@ public class DataSourceRepository {
         }
     }
 
+    /**
+     * Check for existence of JNDI sub contexts and create if not found.
+     *
+     * @param context  {@link Context}
+     * @param jndiName String
+     * @throws DataSourceException
+     */
     private void checkAndCreateJNDISubContexts(Context context, String jndiName)
             throws DataSourceException {
         String[] tokens = jndiName.split("/");
@@ -172,7 +178,7 @@ public class DataSourceRepository {
     }
 
     /**
-     * Look up a jndi sub context.
+     * Look up a jndi sub context. This method returns null if a NamingException occurred.
      *
      * @param context  {@link Context}
      * @param jndiName String
@@ -184,8 +190,7 @@ public class DataSourceRepository {
         try {
             Object obj = context.lookup(jndiName);
             if (!(obj instanceof Context)) {
-                throw new DataSourceException("Non JNDI context already exists at '" +
-                        context + "/" + jndiName);
+                throw new DataSourceException("Non JNDI context already exists at '" + context + "/" + jndiName);
             }
             return (Context) obj;
         } catch (NamingException e) {

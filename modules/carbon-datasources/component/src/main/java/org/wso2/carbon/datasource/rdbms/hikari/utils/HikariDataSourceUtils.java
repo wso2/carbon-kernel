@@ -22,6 +22,7 @@ import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.io.ByteArrayInputStream;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 
 /**
  * Encapsulates a set of utility methods for HikariDataSource.
@@ -47,8 +48,8 @@ public class HikariDataSourceUtils {
             config.addDataSourceProperty("prepStmtCacheSqlLimit", configuration.getPrepStmtCacheSqlLimit());
             config.setDriverClassName(configuration.getDriverClassName());
             return config;
-        } catch (Exception e) {
-            throw new DataSourceException("Error in loading RDBMS configuration: " + e.getMessage(), e);
+        } catch (DataSourceException e) {
+            throw new DataSourceException("Error in loading Hikari configuration: " + e.getMessage(), e);
         }
     }
 
@@ -59,16 +60,16 @@ public class HikariDataSourceUtils {
      * @return {@code HikariConfiguration}
      * @throws DataSourceException
      */
-    public static HikariConfiguration loadConfig(String xmlConfiguration)
-            throws DataSourceException {
+    public static HikariConfiguration loadConfig(String xmlConfiguration) throws DataSourceException {
         try {
             xmlConfiguration = DataSourceUtils.replaceSystemVariablesInXml(xmlConfiguration);
             JAXBContext ctx = JAXBContext.newInstance(HikariConfiguration.class);
             return (HikariConfiguration) ctx.createUnmarshaller().unmarshal(
                     new ByteArrayInputStream(xmlConfiguration.getBytes()));
+        } catch (JAXBException e) {
+            throw new DataSourceException("Error in loading X configuration: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new DataSourceException("Error in loading RDBMS configuration: " +
-                    e.getMessage(), e);
+            throw new DataSourceException("Error in loading X configuration: " + e.getMessage(), e);
         }
     }
 }

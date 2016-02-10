@@ -51,7 +51,7 @@ public class DataSourceManager {
      * Private constructor for DataSourceManager class. This is a singleton class, thus the constructor is private.
      */
     private DataSourceManager() {
-        this.dsReaders = new HashMap();
+        this.dsReaders = new HashMap<>();
     }
 
     /**
@@ -82,7 +82,7 @@ public class DataSourceManager {
      * Returns the types of data source readers specified in the system.
      *
      * @return {@code List<String>}
-     * @throws DataSourceException if no datasource readers are defined.
+     * @throws DataSourceException if no data source readers are defined.
      */
     public List<String> getDataSourceTypes() throws DataSourceException {
         return new ArrayList<>(dsReaders.keySet());
@@ -132,19 +132,17 @@ public class DataSourceManager {
             /* then rest of the system data sources */
             File dataSourcesFolder = dSPath.toFile();
             File[] files = dataSourcesFolder.listFiles();
-            if(files == null) {
-                return;
-            }
-            for (File sysDSFile : files) {
-                if (sysDSFile.getName().endsWith(DataSourceConstants.SYS_DS_FILE_NAME_SUFFIX)
-                        && !sysDSFile.getName().equals(DataSourceConstants.MASTER_DS_FILE_NAME)) {
-                    log.debug("Initializing data source: " + sysDSFile.getName());
-                    initSystemDataSource(sysDSFile);
+            if (files != null) {
+                for (File sysDSFile : files) {
+                    if (sysDSFile.getName().endsWith(DataSourceConstants.SYS_DS_FILE_NAME_SUFFIX)
+                            && !sysDSFile.getName().equals(DataSourceConstants.MASTER_DS_FILE_NAME)) {
+                        log.debug("Initializing data source: " + sysDSFile.getName());
+                        initSystemDataSource(sysDSFile);
+                    }
                 }
             }
-        } catch (Exception e) {
-            throw new DataSourceException("Error in initializing system data sources: " +
-                    e.getMessage(), e);
+        } catch (DataSourceException e) {
+            throw new DataSourceException("Error in initializing system data sources: " + e.getMessage(), e);
         }
         initialized = true;
     }
@@ -182,8 +180,7 @@ public class DataSourceManager {
             log.debug("Parsing configuration file: " + sysDSFile.getName());
             JAXBContext ctx = JAXBContext.newInstance(SystemDataSourcesConfiguration.class);
             Document doc = DataSourceUtils.convertToDocument(sysDSFile);
-            return (SystemDataSourcesConfiguration) ctx.createUnmarshaller().
-                    unmarshal(doc);
+            return (SystemDataSourcesConfiguration) ctx.createUnmarshaller().unmarshal(doc);
         } catch (JAXBException e) {
             throw new DataSourceException("Error occurred while converting configuration into jaxb beans", e);
         }
@@ -206,9 +203,8 @@ public class DataSourceManager {
                 log.debug("Loading data source provider: " + provider);
                 tmpReader = (DataSourceReader) Class.forName(provider).newInstance();
                 dsReaders.put(tmpReader.getType(), tmpReader);
-            } catch (Exception e) {
-                throw new DataSourceException("Error in loading data source provider: " +
-                        e.getMessage(), e);
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
+                throw new DataSourceException("Error in loading data source provider: " + e.getMessage(), e);
             }
         }
     }
