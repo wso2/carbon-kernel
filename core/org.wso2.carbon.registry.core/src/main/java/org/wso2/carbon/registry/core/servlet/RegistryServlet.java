@@ -62,12 +62,12 @@ public class RegistryServlet extends HttpServlet {
     public void init(final ServletConfig config) throws ServletException {
         super.init(config);
         EmbeddedRegistryService embeddedRegistryService;
+        InputStream configStream = null;
 
         try {
             // read the registry.xml file from the configured location. if not configured, read the
             // default registry.xml file bundled with the webapp.
             String configPath = config.getInitParameter(RegistryConstants.REGISTRY_CONFIG_PATH);
-            InputStream configStream;
             if (configPath != null) {
                 try {
                     configStream = new FileInputStream(configPath);
@@ -203,6 +203,14 @@ public class RegistryServlet extends HttpServlet {
             String msg = "Registry initialization failed. " + e.getMessage();
             log.fatal(msg, e);
             throw new ServletException(msg, e);
+        } finally {
+            if (configStream != null) {
+                try {
+                    configStream.close();
+                } catch (IOException e) {
+                    log.error("Failed to close the stream", e);
+                }
+            }
         }
         /*if (log.isDebugEnabled()) {
             log.debug(Messages.getMessage("server.initalized"));

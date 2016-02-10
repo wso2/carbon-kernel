@@ -184,14 +184,22 @@ public class RegistryClientUtils {
                     processExport(childNode, tempFile, registry, false);
                 }
             } else {
+                FileOutputStream out = null;
                 try {
-                    FileOutputStream out = new FileOutputStream(tempFile);
+                    out = new FileOutputStream(tempFile);
                     out.write((byte[]) resource.getContent());
                     out.flush();
-                    out.close();
                 } catch (IOException e) {
                     throw new RegistryException("An error occurred while creating the file: " +
                             tempFile.getAbsolutePath(), e);
+                } finally {
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (IOException e) {
+                            log.error("Failed to close the stream", e);
+                        }
+                    }
                 }
             }
         } else {
