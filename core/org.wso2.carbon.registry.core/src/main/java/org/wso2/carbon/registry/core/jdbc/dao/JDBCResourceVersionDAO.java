@@ -42,6 +42,7 @@ import org.wso2.carbon.utils.DBUtils;
 import org.wso2.carbon.utils.multitenancy.MultitenantConstants;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
@@ -965,9 +966,20 @@ public class JDBCResourceVersionDAO implements ResourceVersionDAO {
         if (oldContentID > 0) {
             // if the non-collection restore content
             // get the archived content
-            InputStream contentData = getContentArchived(oldContentID);
-            if (contentData != null) {
-                resourceDO.setContentID(resourceDAO.addContentBytes(contentData));
+            InputStream contentData = null;
+            try {
+                contentData = getContentArchived(oldContentID);
+                if (contentData != null) {
+                    resourceDO.setContentID(resourceDAO.addContentBytes(contentData));
+                }
+            } finally {
+                if (contentData != null) {
+                    try {
+                        contentData.close();
+                    } catch (IOException e) {
+                        log.error("Failed to close the stream", e);
+                    }
+                }
             }
         }
         resourceDAO.addResourceDO(resourceDO);

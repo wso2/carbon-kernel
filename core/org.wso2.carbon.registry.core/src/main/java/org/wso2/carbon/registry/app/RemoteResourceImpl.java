@@ -84,26 +84,44 @@ public class RemoteResourceImpl extends ResourceImpl {
         }
 
         if(!contentModified){
+            InputStream is = null;
+            ByteArrayOutputStream os = null;
             try {
 
-                InputStream is = getContentStreamFromURL();
+                is = getContentStreamFromURL();
 
                 if (is == null) {
                     return null;
                 }
 
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                os = new ByteArrayOutputStream();
                 int nextChar;
                 while ((nextChar = is.read()) != -1) {
                     os.write(nextChar);
                 }
                 os.flush();
                 content = os.toByteArray();
-                return content;
+
 
             } catch (Exception e) {
                 throw new RegistryException("Couldn't get content stream", e);
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        throw new RegistryException("Failed to close content stream", e);
+                    }
+                }
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        throw new RegistryException("Failed to close content stream", e);
+                    }
+                }
             }
+            return content;
         }
         return null;
 
