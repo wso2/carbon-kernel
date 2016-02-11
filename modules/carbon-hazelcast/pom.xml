@@ -115,6 +115,7 @@
 
         <carbon.kernel.version>5.0.0</carbon.kernel.version>
         <osgi.core.api.version>6.0.0</osgi.core.api.version>
+        <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
         <hazelcast.version>3.6</hazelcast.version>
         <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
