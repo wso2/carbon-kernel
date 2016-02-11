@@ -140,10 +140,12 @@ public class DataSourceRepository {
         } catch (NamingException e) {
             throw new DataSourceException("Error creating JNDI initial context: " + e.getMessage(), e);
         }
-        checkAndCreateJNDISubContexts(context, jndiConfig.getName());
-
+        Context subContext = checkAndCreateJNDISubContexts(context, jndiConfig);
+        if(subContext == null) {
+            return;
+        }
         try {
-            context.rebind(jndiConfig.getName(), dsObject);
+            subContext.rebind(jndiConfig.getName(), dsObject);
         } catch (NamingException e) {
             throw new DataSourceException("Error in binding to JNDI with name '" +
                     jndiConfig.getName() + "' - " + e.getMessage(), e);
@@ -154,27 +156,40 @@ public class DataSourceRepository {
      * Check for existence of JNDI sub contexts and create if not found.
      *
      * @param context  {@link Context}
-     * @param jndiName String
+     * @param jndiConfig {@code JNDIConfig}
      * @throws DataSourceException
      */
-    private void checkAndCreateJNDISubContexts(Context context, String jndiName)
+    private Context checkAndCreateJNDISubContexts(Context context, JNDIConfig jndiConfig)
             throws DataSourceException {
+        Context compEnvContext;
+        try {
+            Context compContext = context.createSubcontext("java:comp");
+            compEnvContext  = compContext.createSubcontext("env");
+        } catch (NamingException e) {
+            log.error(e.getMessage(), e);
+            return null;
+        }
+
+        String jndiName = jndiConfig.getName();
         String[] tokens = jndiName.split("/");
-        Context tmpCtx;
+        jndiConfig.setName(tokens[tokens.length - 1]);
+        Context tmpCtx = compEnvContext;
+        Context subContext = null;
         String token;
         for (int i = 0; i < tokens.length - 1; i++) {
             token = tokens[i];
-            tmpCtx = lookupJNDISubContext(context, token);
-            if (tmpCtx == null) {
+            subContext = lookupJNDISubContext(tmpCtx, token);
+            if (subContext == null) {
                 try {
-                    tmpCtx = context.createSubcontext(token);
+                    subContext = tmpCtx.createSubcontext(token);
                 } catch (NamingException e) {
-                    throw new DataSourceException("Error in creating JNDI subcontext '" +
-                            context + "/" + token + ": " + e.getMessage(), e);
+                    throw new DataSourceException("Error in creating JNDI subcontext '" + compEnvContext + "/"
+                            + token + ": " + e.getMessage(), e);
                 }
             }
-            context = tmpCtx;
+            tmpCtx = subContext;
         }
+        return subContext;
     }
 
     /**
