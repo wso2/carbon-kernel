@@ -18,6 +18,7 @@ package org.wso2.carbon.security.jaas;
 
 import sun.security.provider.PolicyFile;
 
+import java.net.URL;
 import java.security.AccessController;
 import java.security.Permission;
 import java.security.Principal;
@@ -32,6 +33,16 @@ import javax.security.auth.Subject;
  *
  */
 public class CarbonPolicy extends PolicyFile {
+
+    public CarbonPolicy()
+    {
+        super();
+    }
+
+    public CarbonPolicy(URL paramURL)
+    {
+        super(paramURL);
+    }
 
     @Override
     public boolean implies(ProtectionDomain domain, Permission permission) {

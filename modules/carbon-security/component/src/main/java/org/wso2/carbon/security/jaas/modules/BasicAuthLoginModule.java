@@ -34,6 +34,8 @@ import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
@@ -66,24 +68,6 @@ public class BasicAuthLoginModule implements LoginModule {
      * @return true if the callback content can be handled, false if not.
      * @throws LoginException
      */
-    private boolean canHandle(CarbonCallback carbonCallback) throws LoginException {
-
-        HttpRequest httpRequest = carbonCallback.getHttpRequest();
-
-        if (httpRequest != null) {
-
-            HttpHeaders headers = httpRequest.headers();
-            if (headers != null) {
-                String authorizationHeader = headers.get(HttpHeaders.Names.AUTHORIZATION);
-                if (authorizationHeader != null && !authorizationHeader.isEmpty()) {
-                    return authorizationHeader.trim().startsWith(CarbonSecurityConstants
-                                                                         .HTTP_AUTHORIZATION_PREFIX_BASIC);
-                }
-            }
-        }
-
-        return false;
-    }
 
     /**
      * This method initializes the login module.
@@ -112,9 +96,9 @@ public class BasicAuthLoginModule implements LoginModule {
     @Override
     public boolean login() throws LoginException {
 
-        Callback[] callbacks = new Callback[1];
-
-        callbacks[0] = new CarbonCallback();
+        NameCallback usernameCallback = new NameCallback("username");
+        PasswordCallback passwordCallback = new PasswordCallback("password", false);
+        Callback[] callbacks = {usernameCallback, passwordCallback};
 
         try {
             callbackHandler.handle(callbacks);
@@ -123,26 +107,8 @@ public class BasicAuthLoginModule implements LoginModule {
             throw new LoginException("Error while handling callbacks.");
         }
 
-        if (!this.canHandle((CarbonCallback) callbacks[0])) {
-            return false;
-        }
-
-        String authorizationHeader = ((CarbonCallback) callbacks[0]).getHttpRequest().headers()
-                .get(HttpHeaders.Names.AUTHORIZATION);
-        String credentials = authorizationHeader.trim().split(" ")[1];
-        byte[] decodedByte = credentials.getBytes(Charset.forName(StandardCharsets.UTF_8.name()));
-        String authDecoded = new String(Base64.getDecoder().decode(decodedByte),
-                                        Charset.forName(StandardCharsets.UTF_8.name()));
-        String[] authParts = authDecoded.split(":");
-        if (authParts.length != 2) {
-            return false;
-        }
-        username = authParts[0];
-        password = authParts[1].toCharArray();
-
-        UserStoreManager userStoreManager = UserStoreManager.getInstance();
-        success = userStoreManager.authenticate(username, password);
-
+        success = UserStoreManager.getInstance().authenticate(usernameCallback.getName(),
+                                                              passwordCallback.getPassword());
         return success;
     }
 

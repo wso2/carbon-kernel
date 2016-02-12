@@ -21,6 +21,7 @@ import org.wso2.carbon.security.util.UserStoreManager;
 import java.security.AccessController;
 import java.security.BasicPermission;
 import java.security.Permission;
+import java.security.PermissionCollection;
 import java.security.Principal;
 import javax.security.auth.Subject;
 
@@ -74,6 +75,11 @@ public class CarbonPermission extends BasicPermission {
     @Override
     public String getActions() {
         return this.actions;
+    }
+
+    @Override
+    public PermissionCollection newPermissionCollection() {
+        return new CarbonPermissionCollection(this.getClass());
     }
 
 }

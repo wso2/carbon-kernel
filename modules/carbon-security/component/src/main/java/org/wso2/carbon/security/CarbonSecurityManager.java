@@ -37,6 +37,7 @@ public class CarbonSecurityManager {
     public static boolean checkPermission(final Subject subject, final CarbonPermission carbonPermission) {
 
         final SecurityManager securityManager;
+
         if (System.getSecurityManager() == null) {
             securityManager = new SecurityManager();
         } else {
