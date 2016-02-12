@@ -320,7 +320,7 @@ public class ManifestElement {
             }
             StringBuilder headerValue = new StringBuilder(next);
 
-            logger.debug("parseHeader: " + next);
+            logger.debug("parseHeader: {}", next);
             boolean directive = false;
             char c = tokenizer.getChar();
             // Header values may be a list of ';' separated values.  Just append them all into one value until the
@@ -349,7 +349,7 @@ public class ManifestElement {
                 }
                 if (c == ';' || c == ',' || c == '\0') /* more */ {
                     headerValue.append(";").append(next);
-                    logger.debug(";" + next);
+                    logger.debug(";{}", next);
                 }
             }
             // found the header value create a manifestElement for it.
@@ -391,7 +391,7 @@ public class ManifestElement {
                             header + "Value: " + value);
                 }
 
-                logger.debug(";" + next + "=" + val);
+                logger.debug("; {} = {}", next, val);
                 try {
                     if (directive) {
                         manifestElement.addDirective(next, val);

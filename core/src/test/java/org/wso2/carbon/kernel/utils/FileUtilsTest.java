@@ -55,7 +55,7 @@ public class FileUtilsTest {
             FileUtils.copyFile(sampleTextFile, destination);
             Assert.assertTrue(destination.exists());
         } catch (IOException e) {
-            Assert.assertTrue(false);
+            Assert.fail("error occurred while copying file.");
         }
     }
 
@@ -70,37 +70,14 @@ public class FileUtilsTest {
         File destination = Paths.get("target", "FileUtilTest", "testSampleDirStructure", "sample.txt").toFile();
         try {
             FileUtils.copyFileToDir(sampleTextFile, testSampleDirStructure);
-            Assert.assertTrue(destination.exists());
+            Assert.assertTrue(destination.exists(), "destination file does not exist after copying.");
         } catch (IOException e) {
-            Assert.assertTrue(false);
+            Assert.fail("error occurred while copying file.");
         }
     }
 
-//    @Test(dependsOnMethods = {"testCopyFileToDir"})
-//    public void testArchiveDir() {
-//        try {
-//            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
-//            FileUtils.archiveDir(zipFile.getAbsolutePath(), testSampleDirStructure.getAbsolutePath());
-//            Assert.assertTrue(zipFile.exists());
-//        } catch (IOException e) {
-//            Assert.assertTrue(false);
-//        }
-//    }
-//
-//    @Test(dependsOnMethods = {"testArchiveDir"})
-//    public void testFailArchiveDir() throws IOException {
-//        File destination = Paths.get("target", "FileUtilTest", "testSampleDirStructure", "sample.txt").toFile();
-//        try {
-//            File zipFile = Paths.get(testDir.toString(), "archive.zip").toFile();
-//            FileUtils.archiveDir(zipFile.getAbsolutePath(), destination.getAbsolutePath());
-//            Assert.assertTrue(false);
-//        } catch (RuntimeException e) {
-//            Assert.assertEquals(e.getMessage(), (destination.getAbsolutePath() + " is not a directory"));
-//        }
-//    }
-
     @Test(dependsOnMethods = {"testCopyFileToDir"})
     public void testUDeleteDir() {
-        Assert.assertTrue(FileUtils.deleteDir(testDir));
+        Assert.assertTrue(FileUtils.deleteDir(testDir), "Error occurred during file deletion.");
     }
 }

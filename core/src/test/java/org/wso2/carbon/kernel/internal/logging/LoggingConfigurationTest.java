@@ -47,28 +47,31 @@ public class LoggingConfigurationTest extends BaseTest {
             expectedExceptionsMessageRegExp = "Configuration admin service is not available.")
     public void testRegisterNullManagedService() throws FileNotFoundException {
         loggingConfiguration.register(null);
-        Assert.assertTrue(false, "Logger register method did not throw an exception when passing null as the " +
-                "MangedService");
+        Assert.fail("Exception not thrown when an exception is expected.");
     }
 
     @Test(dependsOnMethods = "testRegisterNullManagedService")
-    public void testRegisterReadingLog4J2Config() throws FileNotFoundException {
-        System.setProperty(Constants.CARBON_HOME, getTestResourceFile("xsd").getAbsolutePath());
-        loggingConfiguration.register(new CustomManagedService());
-        System.clearProperty(Constants.CARBON_HOME);
+    public void testRegisterReadingLog4J2Config() {
+        try {
+            System.setProperty(Constants.CARBON_HOME, getTestResourceFile("xsd").getAbsolutePath());
+            loggingConfiguration.register(new CustomManagedService());
+            System.clearProperty(Constants.CARBON_HOME);
+        } catch (FileNotFoundException e) {
+            Assert.fail("File not found exception thrown during test.");
+        }
     }
 
-    @Test(dependsOnMethods = "testRegisterReadingLog4J2Config")
-    public void testRegisterReadingNonExistingfile() {
+    @Test(dependsOnMethods = "testRegisterReadingLog4J2Config", expectedExceptions = FileNotFoundException.class)
+    public void testRegisterReadingNonExistingfile() throws FileNotFoundException {
         System.setProperty(Constants.CARBON_HOME, getTestResourceFile("carbon-repo").getAbsolutePath());
         try {
             loggingConfiguration.register(new CustomManagedService());
         } catch (IllegalStateException e) {
-            Assert.assertTrue(false, "IllegalStateException thrown when expected is FileNotFoundException");
-        } catch (FileNotFoundException e) {
-            Assert.assertTrue(true);
+            Assert.fail("IllegalStateException thrown when expected is FileNotFoundException");
+        } finally {
+            System.clearProperty(Constants.CARBON_HOME);
         }
-        System.clearProperty(Constants.CARBON_HOME);
+        Assert.fail("No exception thrown when expected is FileNotFoundException");
     }
 
 }
