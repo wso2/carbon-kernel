@@ -28,14 +28,12 @@ import java.nio.file.Paths;
  */
 public class UtilsTest {
 
-    @Test
+    @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp =
+            "URLs other than file URLs are not supported.")
     public void testResolveFileURLFailOnNoneFileURLs() {
         String pathURL = "http://felix.apache.org/documentation/subprojects/apache-felix-service-runtime.html";
-        try {
-            Utils.resolveFileURL(pathURL, null);
-        } catch (RuntimeException e) {
-            Assert.assertEquals(e.getMessage(), "URLs other than file URLs are not supported.");
-        }
+        Utils.resolveFileURL(pathURL, null);
+        Assert.fail("Exception not thrown when expected.");
     }
 
     @Test
@@ -55,6 +53,7 @@ public class UtilsTest {
         String parentUrl = "home";
         try {
             Utils.resolveFileURL(pathURL, parentUrl);
+            Assert.fail("Exception expected but was not thrown.");
         } catch (RuntimeException e) {
             Assert.assertEquals(e.getMessage(), "Malformed URL : " + pathURL);
         }

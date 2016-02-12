@@ -43,6 +43,7 @@ public class DataHolderTest {
     @Test
     public void testRuntimeManager() {
         dataHolder.setRuntimeManager(runtimeManager);
-        Assert.assertEquals(runtimeManager, dataHolder.getRuntimeManager());
+        Assert.assertEquals(runtimeManager, dataHolder.getRuntimeManager(), "RuntimeManager set in the setter is" +
+                "different from the RumtimeManager returned by the getter.");
     }
 }

@@ -44,13 +44,15 @@ public class RuntimeManagerTest {
     @Test
     public void testGetRuntimesList() {
         List<Runtime> runtimeList = runtimeManager.getRuntimeList();
-        Assert.assertTrue(runtimeList.size() == 1 && runtimeList.get(0) == runtime, "Should contain one runtime");
+        Assert.assertEquals(runtimeList.size(), 1, "Should contain one runtime");
+        Assert.assertEquals(runtimeList.get(0), runtime, "Runtime fetched from the runtimeManager does not match" +
+                "with the runtime set in the runtimeManager.");
     }
 
     @Test(dependsOnMethods = {"testGetRuntimesList"})
     public void testUnRegisterRuntime() {
         runtimeManager.unRegisterRuntime(runtime);
-        Assert.assertTrue(runtimeManager.getRuntimeList().size() == 0, "After unregistration there should be no" +
+        Assert.assertEquals(runtimeManager.getRuntimeList().size(), 0, "After unregistration there should be no" +
                 "runtimes in the runtime manager");
     }
 }
