@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.hazelcast.sample.internal;
 
-import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.osgi.HazelcastOSGiInstance;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,9 +25,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.hazelcast.CarbonHazelcastAgent;
-import org.wso2.carbon.hazelcast.CoordinatedActivity;
-import org.wso2.carbon.hazelcast.sample.SampleCoordinatedActivity;
 
 import java.util.concurrent.ConcurrentMap;
 
@@ -52,12 +49,11 @@ public class HazelcastSampleServiceComponent {
      */
     @Activate
     protected void start(BundleContext bundleContext) throws Exception {
-        bundleContext.registerService(CoordinatedActivity.class, new SampleCoordinatedActivity(), null);
-
         new Thread(new Runnable() {
             public void run() {
-                HazelcastInstance hazelcastInstance = DataHolder.getInstance().getCarbonHazelcastAgent().getHazelcastInstance();
-                ConcurrentMap<String, String> map = hazelcastInstance.getMap("my-distributed-map");
+                HazelcastOSGiInstance hazelcastOSGiInstance = DataHolder.getInstance().getHazelcastOSGiInstance();
+                hazelcastOSGiInstance.getCluster().addMembershipListener(new SampleMembershipListener());
+                ConcurrentMap<String, String> map = hazelcastOSGiInstance.getMap("my-distributed-map");
                 while (true) {
                     long time = System.currentTimeMillis();
                     logger.info("Map size: " + map.size());
@@ -92,16 +88,16 @@ public class HazelcastSampleServiceComponent {
 
     @Reference(
             name = "carbon-hazelcast-agent-service",
-            service = CarbonHazelcastAgent.class,
+            service = HazelcastOSGiInstance.class,
             cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetCarbonHazelcastAgent"
+            unbind = "unsetHazelcastOSGiInstance"
     )
-    protected void setCarbonHazelcastAgent(CarbonHazelcastAgent carbonHazelcastAgent) {
-        DataHolder.getInstance().setCarbonHazelcastAgent(carbonHazelcastAgent);
+    protected void setHazelcastOSGiInstance(HazelcastOSGiInstance hazelcastOSGiService) {
+        DataHolder.getInstance().setHazelcastOSGiInstance(hazelcastOSGiService);
     }
 
-    protected void unsetCarbonHazelcastAgent(CarbonHazelcastAgent carbonHazelcastAgent) {
-        DataHolder.getInstance().setCarbonHazelcastAgent(null);
+    protected void unsetHazelcastOSGiInstance(HazelcastOSGiInstance hazelcastOSGiService) {
+        DataHolder.getInstance().setHazelcastOSGiInstance(null);
     }
 }
