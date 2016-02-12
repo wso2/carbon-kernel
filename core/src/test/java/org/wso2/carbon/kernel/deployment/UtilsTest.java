@@ -43,7 +43,7 @@ public class UtilsTest {
         try {
             Utils.resolveFileURL(pathURL, parentUrl);
         } catch (RuntimeException e) {
-            Assert.assertTrue(false);
+            Assert.fail("Throw an exception when resolving the file url.");
         }
     }
 
