@@ -31,7 +31,8 @@ public class DeployerRegistrationExceptionTest {
             throw new DeployerRegistrationException("sample exception");
         } catch (DeployerRegistrationException e) {
             String exceptionMessage = "sample exception";
-            Assert.assertEquals(exceptionMessage, e.getMessage());
+            Assert.assertEquals(exceptionMessage, e.getMessage(), "Exception message is different from the expected" +
+                    "value");
         }
     }
 
@@ -41,7 +42,8 @@ public class DeployerRegistrationExceptionTest {
             RuntimeException exception = new RuntimeException();
             throw new DeployerRegistrationException("sample exception", exception);
         } catch (DeployerRegistrationException e) {
-            Assert.assertTrue(e.getCause() instanceof RuntimeException);
+            Assert.assertTrue(e.getCause() instanceof RuntimeException, "Cause of the exception is different from " +
+                    "what is expected.");
         }
     }
 }
