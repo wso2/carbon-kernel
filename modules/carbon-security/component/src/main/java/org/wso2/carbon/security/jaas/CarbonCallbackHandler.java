@@ -45,7 +45,7 @@ public class CarbonCallbackHandler implements CallbackHandler {
 
     private HttpRequest httpRequest;
 
-    private boolean preprocessed;
+    private boolean preProcessed;
 
     private String username;
 
@@ -63,12 +63,13 @@ public class CarbonCallbackHandler implements CallbackHandler {
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 
         if (callbacks != null) {
-            preprocessed = false;
+            preProcessed = false;
             for (Callback callback : callbacks) {
                 if (callback instanceof NameCallback) {
-                    if (!preprocessed) {
+                    if (!preProcessed) {
                         try {
                             preProcessRequest(CarbonCallback.Type.BASIC_AUTH);
+                            preProcessed = true;
                         } catch (CarbonSecurityException e) {
                             if (log.isDebugEnabled()) {
                                 log.debug(e.getMessage(), e);
@@ -79,9 +80,10 @@ public class CarbonCallbackHandler implements CallbackHandler {
                     ((NameCallback) callback).setName(username);
 
                 } else if (callback instanceof PasswordCallback) {
-                    if (!preprocessed) {
+                    if (!preProcessed) {
                         try {
                             preProcessRequest(CarbonCallback.Type.BASIC_AUTH);
+                            preProcessed = true;
                         } catch (CarbonSecurityException e) {
                             if (log.isDebugEnabled()) {
                                 log.debug(e.getMessage(), e);
