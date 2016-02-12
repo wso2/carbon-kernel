@@ -15,13 +15,7 @@
  */
 package org.wso2.carbon.hazelcast.internal;
 
-import com.hazelcast.osgi.HazelcastOSGiInstance;
 import com.hazelcast.osgi.HazelcastOSGiService;
-import org.osgi.framework.BundleContext;
-import org.wso2.carbon.hazelcast.CoordinatedActivity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * DataHolder.
@@ -30,21 +24,10 @@ import java.util.List;
  */
 public class DataHolder {
     private static DataHolder instance = new DataHolder();
-    private BundleContext bundleContext = null;
     private HazelcastOSGiService hazelcastOSGiService;
-    private HazelcastOSGiInstance hazelcastOSGiInstance;
-    private List<CoordinatedActivity> coordinatedActivityList = new ArrayList<>();
 
     public static DataHolder getInstance() {
         return instance;
-    }
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
     }
 
     public HazelcastOSGiService getHazelcastOSGiService() {
@@ -53,25 +36,5 @@ public class DataHolder {
 
     public void setHazelcastOSGiService(HazelcastOSGiService hazelcastOSGiService) {
         this.hazelcastOSGiService = hazelcastOSGiService;
-    }
-
-    public HazelcastOSGiInstance getHazelcastOSGiInstance() {
-        return hazelcastOSGiInstance;
-    }
-
-    public void setHazelcastOSGiInstance(HazelcastOSGiInstance hazelcastOSGiInstance) {
-        this.hazelcastOSGiInstance = hazelcastOSGiInstance;
-    }
-
-    public List<CoordinatedActivity> getCoordinatedActivityList() {
-        return coordinatedActivityList;
-    }
-
-    public void addCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
-        this.coordinatedActivityList.add(coordinatedActivity);
-    }
-
-    public void removeCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
-        this.coordinatedActivityList.remove(coordinatedActivity);
     }
 }

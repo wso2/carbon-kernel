@@ -15,6 +15,9 @@
  */
 package org.wso2.carbon.hazelcast.internal;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.config.XmlConfigBuilder;
+import com.hazelcast.osgi.HazelcastOSGiInstance;
 import com.hazelcast.osgi.HazelcastOSGiService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -25,8 +28,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.hazelcast.CarbonHazelcastAgent;
-import org.wso2.carbon.hazelcast.CoordinatedActivity;
+
+import java.nio.file.Paths;
 
 /**
  * This service component is responsible for creating a CarbonHazelcastAgent once the HazelcastOSGiService
@@ -40,6 +43,7 @@ import org.wso2.carbon.hazelcast.CoordinatedActivity;
 )
 public class CarbonHazelcastComponent {
     private static final Logger logger = LoggerFactory.getLogger(CarbonHazelcastComponent.class);
+    private HazelcastOSGiInstance hazelcastOSGiInstance;
 
     /**
      * This is the activation method of CarbonHazelcastComponent. This will be called when all the references are
@@ -50,9 +54,14 @@ public class CarbonHazelcastComponent {
     @Activate
     protected void start(BundleContext bundleContext) {
         try {
-            DataHolder.getInstance().setBundleContext(bundleContext);
-            CarbonHazelcastAgent carbonHazelcastAgent = new CarbonHazelcastAgent();
-            bundleContext.registerService(CarbonHazelcastAgent.class, carbonHazelcastAgent, null);
+            String hazelcastFilePath = Paths.get(System.getProperty("carbon.home"),
+                    "conf", "hazelcast", "hazelcast.xml").toString();
+
+            Config config = new XmlConfigBuilder(hazelcastFilePath).build();
+
+            hazelcastOSGiInstance = DataHolder.getInstance().getHazelcastOSGiService()
+                    .newHazelcastInstance(config);
+            bundleContext.registerService(HazelcastOSGiInstance.class, hazelcastOSGiInstance, null);
 
             logger.info("CarbonHazelcastComponent is activated");
         } catch (Throwable throwable) {
@@ -68,7 +77,11 @@ public class CarbonHazelcastComponent {
      */
     @Deactivate
     protected void stop() throws Exception {
-        logger.info("CarbonHazelcastComponent is deactivated");
+        try {
+            hazelcastOSGiInstance.shutdown();
+        } catch (Throwable throwable) {
+            logger.error("Failed to stop CarbonHazelcastComponent. ", throwable);
+        }
     }
 
     @Reference(
@@ -84,20 +97,5 @@ public class CarbonHazelcastComponent {
 
     protected void unsetHazelcastOSGiService(HazelcastOSGiService hazelcastOSGiService) {
         DataHolder.getInstance().setHazelcastOSGiService(null);
-    }
-
-    @Reference(
-            name = "coordinated-activity-service",
-            service = CoordinatedActivity.class,
-            cardinality = ReferenceCardinality.MULTIPLE,
-            policy = ReferencePolicy.DYNAMIC,
-            unbind = "removeCoordinatedActivity"
-    )
-    protected void addCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
-        DataHolder.getInstance().addCoordinatedActivity(coordinatedActivity);
-    }
-
-    protected void removeCoordinatedActivity(CoordinatedActivity coordinatedActivity) {
-        DataHolder.getInstance().removeCoordinatedActivity(coordinatedActivity);
     }
 }
