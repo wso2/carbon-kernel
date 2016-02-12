@@ -107,8 +107,10 @@ public class BasicAuthLoginModule implements LoginModule {
             throw new LoginException("Error while handling callbacks.");
         }
 
-        success = UserStoreManager.getInstance().authenticate(usernameCallback.getName(),
-                                                              passwordCallback.getPassword());
+        username = usernameCallback.getName();
+        password = passwordCallback.getPassword();
+
+        success = UserStoreManager.getInstance().authenticate(username, password);
         return success;
     }
 

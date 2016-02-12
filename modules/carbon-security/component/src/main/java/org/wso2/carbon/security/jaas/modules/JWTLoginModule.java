@@ -90,7 +90,7 @@ public class JWTLoginModule implements LoginModule {
     @Override
     public boolean login() throws LoginException {
 
-        CarbonCallback<SignedJWT> jwtCarbonCallback = new CarbonCallback<SignedJWT>(CarbonCallback.Type.JWT);
+        CarbonCallback<SignedJWT> jwtCarbonCallback = new CarbonCallback<>(CarbonCallback.Type.JWT);
         Callback[] callbacks = {jwtCarbonCallback};
 
         try {
