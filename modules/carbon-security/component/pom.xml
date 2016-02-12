@@ -58,6 +58,10 @@
             <groupId>org.wso2.carbon.context</groupId>
             <artifactId>org.wso2.carbon.context.api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+        </dependency>
     </dependencies>
 
     <properties>
