@@ -25,9 +25,11 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.context.api.PrivilegedCarbonContext;
 import org.wso2.carbon.security.exception.CarbonSecurityException;
 import org.wso2.carbon.security.jaas.CarbonCallback;
 import org.wso2.carbon.security.jaas.CarbonPrincipal;
+import org.wso2.carbon.security.util.CarbonSecurityConstants;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,7 +64,6 @@ import javax.security.auth.spi.LoginModule;
 public class JWTLoginModule implements LoginModule {
 
     private static final Logger log = LoggerFactory.getLogger(JWTLoginModule.class);
-    private static final String HTTP_AUTHORIZATION_BEARER = "Bearer";
     private static final String ALIAS = "wso2carbon";
     private static final String KEYSTORE_PASSWORD = "wso2carbon";
 
@@ -116,7 +117,8 @@ public class JWTLoginModule implements LoginModule {
 
                 if (authorizationHeader != null && !authorizationHeader.isEmpty()) {
 
-                    if (authorizationHeader.trim().startsWith(HTTP_AUTHORIZATION_BEARER)) {
+                    if (authorizationHeader.trim().startsWith(CarbonSecurityConstants
+                                                                      .HTTP_AUTHORIZATION_PREFIX_BEARER)) {
 
                         String jwt = authorizationHeader.trim().split(" ")[1];
 
@@ -200,6 +202,10 @@ public class JWTLoginModule implements LoginModule {
                 if (!subject.getPrincipals().contains(carbonPrincipal)) {
                     subject.getPrincipals().add(carbonPrincipal);
                 }
+
+                PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+                privilegedCarbonContext.setSubject(subject);
+
                 commitSucceeded = true;
             } catch (ParseException e) {
                 log.error("Error while retrieving claims from JWT Token", e);

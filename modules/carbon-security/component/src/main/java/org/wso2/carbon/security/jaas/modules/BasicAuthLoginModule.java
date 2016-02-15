@@ -20,8 +20,10 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.context.api.PrivilegedCarbonContext;
 import org.wso2.carbon.security.jaas.CarbonCallback;
 import org.wso2.carbon.security.jaas.CarbonPrincipal;
+import org.wso2.carbon.security.util.CarbonSecurityConstants;
 import org.wso2.carbon.security.util.UserStoreManager;
 
 import java.io.IOException;
@@ -46,7 +48,6 @@ import javax.security.auth.spi.LoginModule;
 public class BasicAuthLoginModule implements LoginModule {
 
     private static final Logger log = LoggerFactory.getLogger(BasicAuthLoginModule.class);
-    private static final String BASIC_AUTH_SCHEMA = "Basic";
     private Subject subject;
     private String username;
     private char[] password;
@@ -75,7 +76,8 @@ public class BasicAuthLoginModule implements LoginModule {
             if (headers != null) {
                 String authorizationHeader = headers.get(HttpHeaders.Names.AUTHORIZATION);
                 if (authorizationHeader != null && !authorizationHeader.isEmpty()) {
-                    return authorizationHeader.trim().startsWith(BASIC_AUTH_SCHEMA);
+                    return authorizationHeader.trim().startsWith(CarbonSecurityConstants
+                                                                         .HTTP_AUTHORIZATION_PREFIX_BASIC);
                 }
             }
         }
@@ -167,6 +169,9 @@ public class BasicAuthLoginModule implements LoginModule {
             if (!subject.getPrincipals().contains(carbonPrincipal)) {
                 subject.getPrincipals().add(carbonPrincipal);
             }
+
+            PrivilegedCarbonContext privilegedCarbonContext = PrivilegedCarbonContext.getThreadLocalCarbonContext();
+            privilegedCarbonContext.setSubject(subject);
 
             username = null;
             for (int i = 0; i < password.length; i++) {

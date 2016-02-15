@@ -40,6 +40,9 @@ public class CarbonPolicy extends PolicyFile {
 
         if (authorized && permission instanceof CarbonPermission) {
 
+            // Now CarbonPolicy must authorize
+            authorized = false;
+
             // get the current subject.
             Subject subject = Subject.getSubject(AccessController.getContext());
 

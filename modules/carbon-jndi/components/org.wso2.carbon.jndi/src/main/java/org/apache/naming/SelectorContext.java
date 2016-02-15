@@ -56,6 +56,8 @@ public class SelectorContext implements Context {
      */
     public static final String IC_PREFIX = "IC_";
 
+    private static NamingContext namingContext;
+
 
 //    private static final org.apache.juli.logging.Log log =
 //        org.apache.juli.logging.LogFactory.getLog(SelectorContext.class);
@@ -705,28 +707,35 @@ public class SelectorContext implements Context {
     protected Context getBoundContext()
         throws NamingException {
 
-        if (initialContext) {
-            String ICName = IC_PREFIX;
-            if (ContextBindings.isThreadBound()) {
-                ICName += ContextBindings.getThreadName();
-            } else if (ContextBindings.isClassLoaderBound()) {
-                ICName += ContextBindings.getClassLoaderName();
-            }
-            Context initialContext = ContextBindings.getContext(ICName);
-            if (initialContext == null) {
-                // Allocating a new context and binding it to the appropriate
-                // name
-                initialContext = new NamingContext(env, ICName);
-                ContextBindings.bindContext(ICName, initialContext);
-            }
-            return initialContext;
-        } else {
-            if (ContextBindings.isThreadBound()) {
-                return ContextBindings.getThread();
-            } else {
-                return ContextBindings.getClassLoader();
-            }
+        // TODO implement this properly to avoid race conditions.
+        if(namingContext == null) {
+            namingContext = new NamingContext(env, "/");
         }
+
+        return namingContext;
+
+//        if (initialContext) {
+//            String ICName = IC_PREFIX;
+//            if (ContextBindings.isThreadBound()) {
+//                ICName += ContextBindings.getThreadName();
+//            } else if (ContextBindings.isClassLoaderBound()) {
+//                ICName += ContextBindings.getClassLoaderName();
+//            }
+//            Context initialContext = ContextBindings.getContext(ICName);
+//            if (initialContext == null) {
+//                // Allocating a new context and binding it to the appropriate
+//                // name
+//                initialContext = new NamingContext(env, ICName);
+//                ContextBindings.bindContext(ICName, initialContext);
+//            }
+//            return initialContext;
+//        } else {
+//            if (ContextBindings.isThreadBound()) {
+//                return ContextBindings.getThread();
+//            } else {
+//                return ContextBindings.getClassLoader();
+//            }
+//        }
 
     }
 
