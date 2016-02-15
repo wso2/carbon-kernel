@@ -5,9 +5,11 @@ import org.apache.logging.log4j.core.appender.AppenderLoggingException;
 import org.apache.logging.log4j.core.net.AbstractSocketManager;
 import org.apache.logging.log4j.util.Strings;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -26,10 +28,11 @@ public class HTTPSocketManager extends AbstractSocketManager {
      * The default port number of remote logging server (4560).
      */
     private static final int DEFAULT_PORT = 4560;
+    private static HttpURLConnection connection = null;
     private Socket socket;
 
 
-    public HTTPSocketManager(String name, OutputStream os, final Socket socket, InetAddress inetAddress, String host, int port, Layout<? extends Serializable> layout) {
+    public HTTPSocketManager(String name, OutputStream os, InetAddress inetAddress, String host, int port, Layout<? extends Serializable> layout) {
         super(name, os, inetAddress, host, port, layout);
         this.socket = socket;
     }
@@ -51,7 +54,7 @@ public class HTTPSocketManager extends AbstractSocketManager {
             port = DEFAULT_PORT;
         }
 
-        InetAddress inetAddress;
+        InetAddress inetAddress = null;
         OutputStream os = null;
         Socket socket = new Socket();
         try {
@@ -69,9 +72,7 @@ public class HTTPSocketManager extends AbstractSocketManager {
         } catch (IOException e) {
 
         }
-
-        //TODO null check for "os"
-        return new HTTPSocketManager("HTTP:" + host + ":" + port, os, socket, inetAddress, host, port, layout);
+        return new HTTPSocketManager("HTTP:" + host + ":" + port, os,inetAddress, host, port, layout);
     }
 
     @Override
@@ -84,7 +85,9 @@ public class HTTPSocketManager extends AbstractSocketManager {
         }
         synchronized (this) {
             try {
-                getOutputStream().write(bytes, offset, length);
+                connection.setRequestProperty( "Content-Length", Integer.toString( bytes.length ));
+                DataOutputStream wr = new DataOutputStream( connection.getOutputStream());
+                wr.write(bytes);
             } catch (final IOException ex) {
                 final String msg = "Error writing to " + getName();
                 throw new AppenderLoggingException(msg, ex);

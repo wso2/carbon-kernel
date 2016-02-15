@@ -14,7 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Custom deployer fo deploying files
+ * Custom deployer fo deploying text files
  */
 @Component(
         name = "org.wso2.carbon.custom.deployer.internal.FileDeployer",
@@ -40,7 +40,6 @@ public class FileDeployer implements Deployer {
     @Override
     public void init() {
         log.info("Initializing deployer");
-//        MDC.put("hostname2","testHostName");
     }
 
     @Override

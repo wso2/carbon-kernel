@@ -114,6 +114,9 @@
     <modules>
         <module>ads</module>
         <module>depsync-agent</module>
+        <module>custom-deployer</module>
+        <module>host-detail-converter</module>
+        <module>http-appender</module>
     </modules>
 
 </project>

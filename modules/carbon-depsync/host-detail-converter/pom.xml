@@ -3,8 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.wso2</groupId>
+        <artifactId>org.wso2.carbon.depsync</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-    <groupId>hostDetailConverter</groupId>
     <artifactId>org.wso2.carbon.host.converter</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
@@ -15,7 +20,7 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.5</version>
+            <version>2.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
@@ -73,13 +78,15 @@
                         <Bundle-SymbolicName>org.wso2.carbon.host.converter</Bundle-SymbolicName>
                         <Bundle-Name>org.wso2.carbon.host.converter</Bundle-Name>
                         <Bundle-Version>1.0.0</Bundle-Version>
+                        <Private-Package>org.wso2.carbon.host.converter</Private-Package>
                         <Import-Package>
-                            org.apache.logging.log4j.*;version="[2.5.0,3.0.0)"
+                            org.apache.logging.log4j.core.*,
+                            org.apache.logging.log4j.core.util.*,
                         </Import-Package>
                         <Export-Package>
                             org.wso2.carbon.host.converter*;version="1.0.0"
                         </Export-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Fragment-Host>org.ops4j.pax.logging.pax-logging-log4j2</Fragment-Host>
                     </instructions>
                 </configuration>
             </plugin>
@@ -103,34 +110,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-shade-plugin</artifactId>-->
-                <!--<version>2.4.3</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>shade</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<finalName>${project.artifactId}_${project.version}</finalName>-->
-                            <!--<transformers>-->
-                                <!--<transformer-->
-                                        <!--implementation="com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer">-->
-                                <!--</transformer>-->
-                            <!--</transformers>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<dependencies>-->
-                    <!--<dependency>-->
-                        <!--<groupId>com.github.edwgiz</groupId>-->
-                        <!--<artifactId>maven-shade-plugin.log4j2-cachefile-transformer</artifactId>-->
-                        <!--<version>2.1</version>-->
-                    <!--</dependency>-->
-                <!--</dependencies>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 </project>
