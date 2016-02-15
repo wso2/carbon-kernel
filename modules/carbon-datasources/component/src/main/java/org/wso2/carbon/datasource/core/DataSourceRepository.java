@@ -106,10 +106,6 @@ public class DataSourceRepository {
         DataSourceReader dsReader = DataSourceManager.getInstance()
                 .getDataSourceReader(dsmInfo.getDefinition().getType());
 
-        if (dsReader == null) {
-            throw new DataSourceException("A data source reader cannot be found for the type '" +
-                    dsmInfo.getDefinition().getType() + "'");
-        }
         log.debug("Generating the DataSource object from \"" + dsReader.getType() + "\" type reader.");
 
 //		/* sets the current data source's (name) as a thread local value

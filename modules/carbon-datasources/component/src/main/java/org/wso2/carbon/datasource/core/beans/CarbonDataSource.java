@@ -38,7 +38,7 @@ public class CarbonDataSource {
         return dsmInfo;
     }
 
-    public DataSourceStatus getDSStatus() {
+    public DataSourceStatus getDataSourceStatus() {
         return dsStatus;
     }
 

@@ -68,8 +68,6 @@ public class HikariDataSourceUtils {
                     new ByteArrayInputStream(xmlConfiguration.getBytes()));
         } catch (JAXBException e) {
             throw new DataSourceException("Error in loading X configuration: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new DataSourceException("Error in loading X configuration: " + e.getMessage(), e);
         }
     }
 }

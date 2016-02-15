@@ -59,7 +59,7 @@ public class DataSourceManager {
      *
      * @return DataSourceManager
      */
-    public static DataSourceManager getInstance() {
+    public synchronized static DataSourceManager getInstance() {
         if (instance == null) {
             instance = new DataSourceManager();
         }
@@ -71,7 +71,7 @@ public class DataSourceManager {
      *
      * @return DataSourceRepository
      */
-    public DataSourceRepository getDataSourceRepository() {
+    public synchronized DataSourceRepository getDataSourceRepository() {
         if (dsRepo == null) {
             dsRepo = new DataSourceRepository();
         }
