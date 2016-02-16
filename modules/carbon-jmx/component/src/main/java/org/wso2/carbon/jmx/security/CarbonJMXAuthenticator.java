@@ -34,8 +34,13 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
         // TODO : Implement proper authentication
         final String[] aCredentials = (String[]) credentials;
+        if (aCredentials.length < 2) {
+            throw new SecurityException("Credentials should have at least username & password");
+        }
+
         String userName = aCredentials[0];
         String password = aCredentials[1];
+
         if ("admin".equals(userName) && "password".equals(password)) {
             return new Subject(true,
                     Collections.singleton(new JMXPrincipal(userName)),

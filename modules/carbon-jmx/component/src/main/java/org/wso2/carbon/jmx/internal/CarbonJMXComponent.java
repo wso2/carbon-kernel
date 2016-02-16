@@ -70,7 +70,6 @@ public class CarbonJMXComponent {
                     JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, environment, mBeanServer);
             jmxConnectorServer.start();
 
-            DataHolder.getInstance().setmBeanServer(mBeanServer);
             bundleContext.registerService(MBeanServer.class, mBeanServer, null);
         } catch (Throwable throwable) {
             logger.error("Failed to start CarbonJMXComponent.", throwable);
