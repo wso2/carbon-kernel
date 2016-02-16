@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.jmx.internal.config.JMXConfiguration;
 import org.wso2.carbon.jmx.internal.config.YAMLJMXConfigurationBuilder;
+import org.wso2.carbon.jmx.security.CarbonJMXAuthenticator;
 
 import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
@@ -30,6 +31,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 import java.lang.management.ManagementFactory;
 import java.rmi.registry.LocateRegistry;
+import java.util.HashMap;
 
 /**
  * CarbonJMXComponent
@@ -60,8 +62,12 @@ public class CarbonJMXComponent {
                     jmxConfiguration.getRmiServerPort() + "/jndi/rmi://" + jmxConfiguration.getHostName() + ":" +
                     jmxConfiguration.getRmiRegistryPort() + "/jmxrmi";
             JMXServiceURL jmxServiceURL = new JMXServiceURL(jmxURL);
+
+            HashMap<String, CarbonJMXAuthenticator> environment = new HashMap<>();
+            environment.put(JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
+
             JMXConnectorServer jmxConnectorServer =
-                    JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, null, mBeanServer);
+                    JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, environment, mBeanServer);
             jmxConnectorServer.start();
 
             DataHolder.getInstance().setmBeanServer(mBeanServer);

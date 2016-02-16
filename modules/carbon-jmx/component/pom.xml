@@ -83,6 +83,7 @@
             org.slf4j.*;version="[1.7,2)",
             org.yaml.snakeyaml.*;version="[1.16.0, 2.0.0)",
             javax.management.*,
+            javax.security.auth.*,
         </import.package>
         <carbon.jmx.package.export.version>1.0.0</carbon.jmx.package.export.version>
 
