@@ -64,11 +64,6 @@
                 <version>${carbon.kernel.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.hazelcast</groupId>
-                <artifactId>hazelcast</artifactId>
-                <version>${hazelcast.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.wso2.carbon</groupId>
                 <artifactId>org.wso2.carbon.core.server.feature</artifactId>
                 <version>${carbon.kernel.version}</version>
@@ -228,7 +223,7 @@
         <module>feature</module>
         <module>distribution</module>
         <module>samples/JMXSample</module>
-        <!--<module>tests</module>-->
+        <module>tests</module>
     </modules>
 
     <properties>
@@ -238,7 +233,6 @@
         <osgi.core.api.version>6.0.0</osgi.core.api.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <slf4j.api.version>1.7.12</slf4j.api.version>
-        <hazelcast.version>3.6</hazelcast.version>
         <carbon.feature.plugin.version>2.0.0</carbon.feature.plugin.version>
 
         <testng.version>6.9.4</testng.version>
