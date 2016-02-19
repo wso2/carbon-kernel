@@ -51,6 +51,7 @@
 
 
     <properties>
+        <bundle.activator>org.wso2.carbon.jmx.sample.internal.JMXSampleActivator</bundle.activator>
         <private.package>org.wso2.carbon.jmx.sample.internal</private.package>
         <export.package>
             !org.wso2.carbon.jmx.sample.internal,
