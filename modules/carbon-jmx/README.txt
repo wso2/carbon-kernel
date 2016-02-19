@@ -1,1 +1,1 @@
-This directory contains carbon-hazelcast implementation 
+This directory contains carbon-jmx implementation
