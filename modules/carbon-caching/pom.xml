@@ -78,6 +78,11 @@
                 <artifactId>cache-api</artifactId>
                 <version>1.0.0</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.caching</groupId>
+                <artifactId>org.wso2.carbon.caching</artifactId>
+                <version>${carbon.caching.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.osgi</groupId>
@@ -124,6 +129,7 @@
         <module>component</module>
         <module>feature</module>
         <module>distribution</module>
+        <module>samples/caching-sample</module>
     </modules>
 
     <properties>
