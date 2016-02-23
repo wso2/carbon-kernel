@@ -1,0 +1,1 @@
+Copy this bundle into $CARBON_HOME/osgi/dropins and start the Carbon server
