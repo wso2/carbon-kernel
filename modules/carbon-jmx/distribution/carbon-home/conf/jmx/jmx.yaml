@@ -14,5 +14,5 @@
 #   limitations under the License.
 ################################################################################
 hostName: "localhost"
-rmiServerPort: 9500
-rmiRegistryPort: 9600
+rmiServerPort: 11111
+rmiRegistryPort: 9999
