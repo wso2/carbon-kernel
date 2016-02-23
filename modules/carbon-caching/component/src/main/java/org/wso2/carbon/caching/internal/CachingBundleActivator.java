@@ -21,6 +21,7 @@ package org.wso2.carbon.caching.internal;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.wso2.carbon.caching.CarbonCachingService;
 
 /**
  * Carbon caching BundleActivator
@@ -29,6 +30,7 @@ public class CachingBundleActivator implements BundleActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         bundleContext.registerService(CommandProvider.class, new CachingCommandProvider(), null);
+        bundleContext.registerService(CarbonCachingService.class, new CarbonCachingService(), null);
     }
 
     @Override
