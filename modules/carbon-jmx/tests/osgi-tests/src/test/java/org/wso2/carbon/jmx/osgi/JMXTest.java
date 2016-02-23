@@ -49,7 +49,7 @@ public class JMXTest {
     @Test(dependsOnMethods = {"testMBeanRegistration"})
     public void testAccessMBean() throws Exception {
 
-        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://localhost:7700/jndi/rmi://localhost:7800/jmxrmi");
+        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi://localhost:11111/jndi/rmi://localhost:9999/jmxrmi");
         Map<String, Object> environment = new HashMap<>();
         String[] credentials = {"admin", "password"};
         environment.put(JMXConnector.CREDENTIALS, credentials);
