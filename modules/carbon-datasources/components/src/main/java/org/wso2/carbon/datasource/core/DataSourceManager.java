@@ -206,16 +206,14 @@ public class DataSourceManager {
     private void findDataSourceProviders() {
         if (dsReaders.size() == 0) {
             ServiceLoader<DataSourceReader> dsReaderLoader = ServiceLoader.load(DataSourceReader.class);
-            Iterator<DataSourceReader> iterator = dsReaderLoader.iterator();
-            while (iterator.hasNext()) {
-                DataSourceReader reader = iterator.next();
+            dsReaderLoader.forEach(reader -> {
                 if (dsReaders.containsKey(reader.getType())) {
                     log.warn("A reader with the type " + reader.getType() + "already exists. "
                             + reader.getClass().toString() + " will be ignored.");
-                    continue;
+                } else {
+                    dsReaders.put(reader.getType(), reader);
                 }
-                dsReaders.put(reader.getType(), reader);
-            }
+            });
         }
     }
 
