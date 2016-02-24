@@ -15,6 +15,8 @@
  */
 package org.wso2.carbon.datasource.rdbms.hikari;
 
+import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,9 +30,11 @@ public class HikariConfiguration {
     private String username;
     private Password passwordPersist;
     private String driverClassName;
-    private String cachePrepStmts = "true";
-    private String prepStmtCacheSize = "250";
-    private String prepStmtCacheSqlLimit = "2048";
+    private long connectionTimeout = 30000;
+    private long idleTimeout = 600000;
+    private long maxLifetime = 1800000;
+    private int maximumPoolSize = 10;
+
 
     public String getUrl() {
         return url;
@@ -108,27 +112,36 @@ public class HikariConfiguration {
         this.driverClassName = driverClassName;
     }
 
-    public String getCachePrepStmts() {
-        return cachePrepStmts;
+    @XmlElement(name = "connectionTimeout")
+    public long getConnectionTimeout() {
+        return connectionTimeout;
     }
 
-    public void setCachePrepStmts(String cachePrepStmts) {
-        this.cachePrepStmts = cachePrepStmts;
+    public void setConnectionTimeout(long connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
     }
 
-    public String getPrepStmtCacheSize() {
-        return prepStmtCacheSize;
+    public long getIdleTimeout() {
+        return idleTimeout;
     }
 
-    public void setPrepStmtCacheSize(String prepStmtCacheSize) {
-        this.prepStmtCacheSize = prepStmtCacheSize;
+    public void setIdleTimeout(long idleTimeout) {
+        this.idleTimeout = idleTimeout;
     }
 
-    public String getPrepStmtCacheSqlLimit() {
-        return prepStmtCacheSqlLimit;
+    public long getMaxLifetime() {
+        return maxLifetime;
     }
 
-    public void setPrepStmtCacheSqlLimit(String prepStmtCacheSqlLimit) {
-        this.prepStmtCacheSqlLimit = prepStmtCacheSqlLimit;
+    public void setMaxLifetime(long maxLifetime) {
+        this.maxLifetime = maxLifetime;
+    }
+
+    public int getMaximumPoolSize() {
+        return maximumPoolSize;
+    }
+
+    public void setMaximumPoolSize(int maximumPoolSize) {
+        this.maximumPoolSize = maximumPoolSize;
     }
 }

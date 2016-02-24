@@ -44,6 +44,10 @@ public class HikariDataSourceUtils {
             config.setUsername(configuration.getUsername());
             config.setPassword(configuration.getPassword());
             config.setDriverClassName(configuration.getDriverClassName());
+            config.setConnectionTimeout(configuration.getConnectionTimeout());
+            config.setIdleTimeout(configuration.getIdleTimeout());
+            config.setMaxLifetime(configuration.getMaxLifetime());
+            config.setMaximumPoolSize(configuration.getMaximumPoolSize());
             return config;
         } catch (DataSourceException e) {
             throw new DataSourceException("Error in loading Hikari configuration: " + e.getMessage(), e);
