@@ -15,8 +15,7 @@
  */
 package org.wso2.carbon.datasource.rdbms.tomcat;
 
-import org.osgi.service.component.annotations.Component;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;

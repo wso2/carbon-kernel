@@ -15,37 +15,27 @@
  */
 package org.wso2.carbon.datasource.core.beans;
 
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
- * This class represents data source information.
+ * This class represents the system data sources configuration.
  */
-public class DataSourceInfo {
+@XmlRootElement(name = "datasources-configuration")
+public class DataSourcesConfiguration {
 
-    private DataSourceMetaInfo dsMetaInfo;
+    private List<DataSourceMetaInfo> dataSources;
 
-    private DataSourceStatus dsStatus;
-
-    public DataSourceInfo() {
+    @XmlElementWrapper(name = "datasources")
+    @XmlElement(name = "datasource", nillable = false)
+    public List<DataSourceMetaInfo> getDataSources() {
+        return dataSources;
     }
 
-    public DataSourceInfo(DataSourceMetaInfo dsMetaInfo, DataSourceStatus dsStatus) {
-        this.dsMetaInfo = dsMetaInfo;
-        this.dsStatus = dsStatus;
-    }
-
-    public DataSourceMetaInfo getDsMetaInfo() {
-        return dsMetaInfo;
-    }
-
-    public void setDsMetaInfo(DataSourceMetaInfo dsMetaInfo) {
-        this.dsMetaInfo = dsMetaInfo;
-    }
-
-    public DataSourceStatus getDsStatus() {
-        return dsStatus;
-    }
-
-    public void setDsStatus(DataSourceStatus dsStatus) {
-        this.dsStatus = dsStatus;
+    public void setDataSources(List<DataSourceMetaInfo> dataSources) {
+        this.dataSources = dataSources;
     }
 
 }

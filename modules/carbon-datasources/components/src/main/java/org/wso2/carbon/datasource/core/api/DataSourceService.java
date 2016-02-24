@@ -17,7 +17,7 @@ package org.wso2.carbon.datasource.core.api;
 
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
 import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
 import java.util.List;
 
@@ -67,6 +67,13 @@ public interface DataSourceService {
      * @throws DataSourceException
      */
     void addDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException;
+
+    /**
+     *
+     * @param dmsInfoList
+     * @throws DataSourceException
+     */
+    void addDataSources(List<DataSourceMetaInfo> dmsInfoList) throws DataSourceException;
 
     /**
      * Deletes a data source from the repository.

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wso2.carbon.datasource.core.common;
+package org.wso2.carbon.datasource.core.exception;
 
 /**
  * This class represents exceptions which are related to data sources.

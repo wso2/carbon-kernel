@@ -17,7 +17,7 @@ package org.wso2.carbon.datasource.rdbms.tomcat.utils;
 
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceConfiguration;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;

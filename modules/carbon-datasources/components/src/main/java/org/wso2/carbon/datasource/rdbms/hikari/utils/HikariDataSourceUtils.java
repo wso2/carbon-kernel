@@ -16,7 +16,7 @@
 package org.wso2.carbon.datasource.rdbms.hikari.utils;
 
 import com.zaxxer.hikari.HikariConfig;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.hikari.HikariConfiguration;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
@@ -46,6 +46,7 @@ public class HikariDataSourceUtils {
             config.addDataSourceProperty("cachePrepStmts", configuration.getCachePrepStmts());
             config.addDataSourceProperty("prepStmtCacheSize", configuration.getPrepStmtCacheSize());
             config.addDataSourceProperty("prepStmtCacheSqlLimit", configuration.getPrepStmtCacheSqlLimit());
+            config.setMinimumIdle(1);
             config.setDriverClassName(configuration.getDriverClassName());
             return config;
         } catch (DataSourceException e) {

@@ -19,7 +19,7 @@ import org.wso2.carbon.datasource.core.DataSourceManager;
 import org.wso2.carbon.datasource.core.api.DataSourceService;
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
 import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +85,11 @@ public class DataSourceServiceImpl implements DataSourceService {
      */
     public void addDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
         DataSourceManager.getInstance().getDataSourceRepository().addDataSource(dsmInfo);
+    }
+
+    @Override
+    public void addDataSources(List<DataSourceMetaInfo> dmsInfoList) throws DataSourceException {
+        DataSourceManager.getInstance().getDataSourceRepository().addDataSources(dmsInfoList);
     }
 
     /**

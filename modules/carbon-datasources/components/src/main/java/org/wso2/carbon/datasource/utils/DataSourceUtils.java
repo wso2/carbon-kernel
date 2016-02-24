@@ -24,8 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
-import org.wso2.carbon.datasource.core.common.DataSourceConstants;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
 import org.wso2.carbon.kernel.utils.Utils;
 import org.xml.sax.SAXException;
@@ -60,6 +59,8 @@ public class DataSourceUtils {
     private static Log log = LogFactory.getLog(DataSourceUtils.class);
 
     private static final String XML_DECLARATION = "xml-declaration";
+
+    private static final String DATASOURCES_DIRECTORY_NAME = "datasources";
 
     private static ThreadLocal<String> dataSourceId = new ThreadLocal<String>() {
         protected synchronized String initialValue() {
@@ -135,7 +136,7 @@ public class DataSourceUtils {
      * @return {@link Path}
      */
     public static Path getDataSourceConfigPath() {
-        return Utils.getCarbonConfigHome().resolve(DataSourceConstants.DATASOURCES_DIRECTORY_NAME);
+        return Utils.getCarbonConfigHome().resolve(DATASOURCES_DIRECTORY_NAME);
     }
 
 

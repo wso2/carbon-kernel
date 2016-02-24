@@ -55,10 +55,6 @@ public class DataSourceMetaInfo {
         this.jndiConfig = jndiConfig;
     }
 
-    public void setCarbonApplicationDeployed(boolean carbonApplicationDeployed) {
-        this.carbonApplicationDeployed = carbonApplicationDeployed;
-    }
-
     @XmlElement(name = "name", required = true, nillable = false)
     public String getName() {
         return name;
@@ -72,11 +68,6 @@ public class DataSourceMetaInfo {
     @XmlElement(name = "jndiConfig")
     public JNDIConfig getJndiConfig() {
         return jndiConfig;
-    }
-
-    @XmlTransient
-    public boolean isCarbonApplicationDeployed() {
-        return carbonApplicationDeployed;
     }
 
     @XmlElement(name = "definition", required = true, nillable = false)

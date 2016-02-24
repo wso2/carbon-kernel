@@ -23,23 +23,15 @@ public class CarbonDataSource {
 
     private DataSourceMetaInfo dsmInfo;
 
-    private DataSourceStatus dsStatus;
-
     private Object dsObject;
 
-    public CarbonDataSource(DataSourceMetaInfo dsmInfo,
-                            DataSourceStatus dsStatus, Object dsObject) {
+    public CarbonDataSource(DataSourceMetaInfo dsmInfo, Object dsObject) {
         this.dsmInfo = dsmInfo;
-        this.dsStatus = dsStatus;
         this.dsObject = dsObject;
     }
 
     public DataSourceMetaInfo getDSMInfo() {
         return dsmInfo;
-    }
-
-    public DataSourceStatus getDataSourceStatus() {
-        return dsStatus;
     }
 
     public Object getDSObject() {

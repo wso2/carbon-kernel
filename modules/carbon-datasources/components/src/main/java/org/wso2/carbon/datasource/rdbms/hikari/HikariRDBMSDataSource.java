@@ -17,7 +17,7 @@ package org.wso2.carbon.datasource.rdbms.hikari;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.util.Map;

@@ -19,9 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
-import org.wso2.carbon.datasource.core.beans.SystemDataSourcesConfiguration;
-import org.wso2.carbon.datasource.core.common.DataSourceConstants;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.beans.DataSourcesConfiguration;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
@@ -30,8 +29,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
@@ -46,6 +47,8 @@ public class DataSourceManager {
     private static DataSourceRepository dsRepo;
     private String dataSourcesPath = null;
     private boolean initialized = false;
+    private static final String SYS_DS_FILE_NAME_SUFFIX = "-datasources.xml";
+
 
     /**
      * Private constructor for DataSourceManager class. This is a singleton class, thus the constructor is private.
@@ -103,6 +106,10 @@ public class DataSourceManager {
         return reader;
     }
 
+    public void setConfigurationDirectory(String path) {
+        this.dataSourcesPath = path;
+    }
+
     /**
      * Initializes the system data sources, i.e. /repository/conf/datasources/*-datasources.xml.
      *
@@ -120,22 +127,12 @@ public class DataSourceManager {
             }
             log.debug("Data sources configuration path: " + dataSourcesPath);
             Path dSPath = Paths.get(dataSourcesPath);
-            Path masterDSPath = dSPath.resolve(DataSourceConstants.MASTER_DS_FILE_NAME);
-            File masterDSFile = masterDSPath.toFile();
-            log.debug("Master data source path: " + masterDSPath.toString());
 
-			/* initialize the master data sources first */
-            if (masterDSFile.exists()) {
-                log.debug("Initializing master data source.");
-                initSystemDataSource(masterDSFile);
-            }
-            /* then rest of the system data sources */
             File dataSourcesFolder = dSPath.toFile();
             File[] files = dataSourcesFolder.listFiles();
             if (files != null) {
                 for (File sysDSFile : files) {
-                    if (sysDSFile.getName().endsWith(DataSourceConstants.SYS_DS_FILE_NAME_SUFFIX)
-                            && !sysDSFile.getName().equals(DataSourceConstants.MASTER_DS_FILE_NAME)) {
+                    if (sysDSFile.getName().endsWith(SYS_DS_FILE_NAME_SUFFIX)) {
                         log.debug("Initializing data source: " + sysDSFile.getName());
                         initSystemDataSource(sysDSFile);
                     }
@@ -155,9 +152,11 @@ public class DataSourceManager {
      */
     private void initSystemDataSource(File sysDSFile) throws DataSourceException {
         try {
-            SystemDataSourcesConfiguration sysDS = getSystemDataSourcesFromConfigFile(sysDSFile);
+            DataSourcesConfiguration sysDS = getSystemDataSourcesFromConfigFile(sysDSFile);
             DataSourceRepository dsRepo = getDataSourceRepository();
-            addDataSourceProviders(sysDS.getProviders());
+            if(this.dsReaders.size() == 0) {
+                findDataSourceProviders();
+            }
             for (DataSourceMetaInfo dsmInfo : sysDS.getDataSources()) {
                 dsRepo.addDataSource(dsmInfo);
             }
@@ -174,38 +173,15 @@ public class DataSourceManager {
      * @return {@code SystemDataSourcesConfiguration}
      * @throws DataSourceException
      */
-    private SystemDataSourcesConfiguration getSystemDataSourcesFromConfigFile(File sysDSFile)
+    private DataSourcesConfiguration getSystemDataSourcesFromConfigFile(File sysDSFile)
             throws DataSourceException {
         try {
             log.debug("Parsing configuration file: " + sysDSFile.getName());
-            JAXBContext ctx = JAXBContext.newInstance(SystemDataSourcesConfiguration.class);
+            JAXBContext ctx = JAXBContext.newInstance(DataSourcesConfiguration.class);
             Document doc = DataSourceUtils.convertToDocument(sysDSFile);
-            return (SystemDataSourcesConfiguration) ctx.createUnmarshaller().unmarshal(doc);
+            return (DataSourcesConfiguration) ctx.createUnmarshaller().unmarshal(doc);
         } catch (JAXBException e) {
             throw new DataSourceException("Error occurred while converting configuration into jaxb beans", e);
-        }
-    }
-
-    /**
-     * Add the given list of data source providers to the repository.
-     *
-     * @param providers {@code List<String>}
-     * @throws DataSourceException
-     */
-    private void addDataSourceProviders(List<String> providers) throws DataSourceException {
-        if (providers == null) {
-            log.debug("No data source providers found!!!");
-            return;
-        }
-        DataSourceReader tmpReader;
-        for (String provider : providers) {
-            try {
-                log.debug("Loading data source provider: " + provider);
-                tmpReader = (DataSourceReader) Class.forName(provider).newInstance();
-                dsReaders.put(tmpReader.getType(), tmpReader);
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-                throw new DataSourceException("Error in loading data source provider: " + e.getMessage(), e);
-            }
         }
     }
 
@@ -216,8 +192,18 @@ public class DataSourceManager {
     }
 
     public void findDataSourceProviders() {
-        if(this.dsReaders.size() == 0) {
-            //Load using service loaders;
+        if(dsReaders.size() == 0) {
+            ServiceLoader<DataSourceReader> dsReaderLoader = ServiceLoader.load(DataSourceReader.class);
+            Iterator<DataSourceReader> iterator = dsReaderLoader.iterator();
+            while (iterator.hasNext()) {
+                DataSourceReader reader = iterator.next();
+                if(dsReaders.containsKey(reader.getType())) {
+                    log.warn("A reader with the type " + reader.getType() + "already exists. "
+                            + reader.getClass().toString() + " will be ignored.");
+                    continue;
+                }
+                dsReaders.put(reader.getType(), reader);
+            }
         }
     }
 

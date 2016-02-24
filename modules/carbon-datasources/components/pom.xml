@@ -93,8 +93,8 @@
         </plugins>
     </build>
     <properties>
-        <export.package>org.wso2.carbon.datasource.core.*,org.wso2.carbon.datasource.rdbms.hikari.*,
-            org.wso2.carbon.datasource.rdbms.tomcat.*,org.wso2.carbon.datasource.common.*,
+        <export.package>org.wso2.carbon.datasource.core.*,
+            org.wso2.carbon.datasource.rdbms.*,org.wso2.carbon.datasource.common.*,
             org.wso2.carbon.datasource.utils.*</export.package>
         <import.package>javax.xml.parsers;version=0.0.0,*;resolution:=optional</import.package>
         <provide.capability>

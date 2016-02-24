@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.datasource.core.spi;
 
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 
 /**
  * This represents the service provider interface that must be implemented by any of the

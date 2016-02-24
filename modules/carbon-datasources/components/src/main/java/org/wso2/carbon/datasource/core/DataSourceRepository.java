@@ -20,15 +20,14 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 import org.wso2.carbon.datasource.core.beans.CarbonDataSource;
 import org.wso2.carbon.datasource.core.beans.DataSourceMetaInfo;
-import org.wso2.carbon.datasource.core.beans.DataSourceStatus;
 import org.wso2.carbon.datasource.core.beans.JNDIConfig;
-import org.wso2.carbon.datasource.core.common.DataSourceConstants.DataSourceStatusModes;
-import org.wso2.carbon.datasource.core.common.DataSourceException;
+import org.wso2.carbon.datasource.core.exception.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.utils.DataSourceUtils;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -62,6 +61,18 @@ public class DataSourceRepository {
     }
 
     /**
+     * Add a list of data sources to the repository.
+     *
+     * @param dsInfoList {@code List<DataSourceMetaInfo}
+     * @throws DataSourceException
+     */
+    public void addDataSources(List<DataSourceMetaInfo> dsInfoList) throws DataSourceException {
+        for (DataSourceMetaInfo info : dsInfoList) {
+            addDataSource(info);
+        }
+    }
+
+    /**
      * Register a given data source object in JNDI context and in the repository.
      *
      * @param dsmInfo {@code DataSourceMetaInfo}
@@ -70,7 +81,6 @@ public class DataSourceRepository {
     private void registerDataSource(DataSourceMetaInfo dsmInfo) throws DataSourceException {
         Object dsObject = null;
         boolean isDataSourceFactoryReference = false;
-        DataSourceStatus dsStatus;
         try {
             JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
             if (jndiConfig != null) {
@@ -78,18 +88,16 @@ public class DataSourceRepository {
             }
             dsObject = createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
             registerJNDI(dsmInfo, dsObject);
-            dsStatus = new DataSourceStatus(DataSourceStatusModes.ACTIVE, null);
         } catch (DataSourceException e) {
             String msg = e.getMessage();
             log.error(msg, e);
-            dsStatus = new DataSourceStatus(DataSourceStatusModes.ERROR, msg);
         }
 
         //Creates a data source object in any error occurred while registering through JNDI.
         if (dsObject == null) {
             dsObject = createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
         }
-        CarbonDataSource cds = new CarbonDataSource(dsmInfo, dsStatus, dsObject);
+        CarbonDataSource cds = new CarbonDataSource(dsmInfo, dsObject);
         dataSources.put(cds.getDSMInfo().getName(), cds);
     }
 
@@ -137,7 +145,7 @@ public class DataSourceRepository {
             throw new DataSourceException("Error creating JNDI initial context: " + e.getMessage(), e);
         }
         Context subContext = checkAndCreateJNDISubContexts(context, jndiConfig);
-        if(subContext == null) {
+        if (subContext == null) {
             return;
         }
         try {
@@ -151,7 +159,7 @@ public class DataSourceRepository {
     /**
      * Check for existence of JNDI sub contexts and create if not found.
      *
-     * @param context  {@link Context}
+     * @param context    {@link Context}
      * @param jndiConfig {@code JNDIConfig}
      * @throws DataSourceException
      */
@@ -160,7 +168,7 @@ public class DataSourceRepository {
         Context compEnvContext;
         try {
             Context compContext = context.createSubcontext("java:comp");
-            compEnvContext  = compContext.createSubcontext("env");
+            compEnvContext = compContext.createSubcontext("env");
         } catch (NamingException e) {
             log.error(e.getMessage(), e);
             return null;
