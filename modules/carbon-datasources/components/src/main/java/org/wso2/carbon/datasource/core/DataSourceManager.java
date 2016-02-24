@@ -47,7 +47,7 @@ public class DataSourceManager {
     private static DataSourceRepository dsRepo;
     private String dataSourcesPath = null;
     private boolean initialized = false;
-    private static final String SYS_DS_FILE_NAME_SUFFIX = "-datasources.xml";
+    private static final String FILE_NAME_SUFFIX = "-datasources.xml";
 
 
     /**
@@ -115,11 +115,17 @@ public class DataSourceManager {
      *
      * @throws DataSourceException
      */
-    public void initSystemDataSources() throws DataSourceException {
+    public void initDataSources() throws DataSourceException {
         log.debug("Initializing the data sources.");
         if (initialized) {
             log.debug("Data sources are already initialized.");
             return;
+        }
+        if (dsReaders.size() == 0) {
+            findDataSourceProviders();
+        }
+        if (dsReaders.size() == 0) {
+            throw new DataSourceException("No data source readers found.");
         }
         try {
             if (dataSourcesPath == null) {
@@ -131,10 +137,10 @@ public class DataSourceManager {
             File dataSourcesFolder = dSPath.toFile();
             File[] files = dataSourcesFolder.listFiles();
             if (files != null) {
-                for (File sysDSFile : files) {
-                    if (sysDSFile.getName().endsWith(SYS_DS_FILE_NAME_SUFFIX)) {
-                        log.debug("Initializing data source: " + sysDSFile.getName());
-                        initSystemDataSource(sysDSFile);
+                for (File dsFile : files) {
+                    if (dsFile.getName().endsWith(FILE_NAME_SUFFIX)) {
+                        log.debug("Initializing data source: " + dsFile.getName());
+                        initDataSource(dsFile);
                     }
                 }
             }
@@ -150,14 +156,11 @@ public class DataSourceManager {
      * @param sysDSFile {@link File}
      * @throws DataSourceException
      */
-    private void initSystemDataSource(File sysDSFile) throws DataSourceException {
+    private void initDataSource(File sysDSFile) throws DataSourceException {
         try {
-            DataSourcesConfiguration sysDS = getSystemDataSourcesFromConfigFile(sysDSFile);
+            DataSourcesConfiguration dsConfiguration = getDataSourcesFromConfigFile(sysDSFile);
             DataSourceRepository dsRepo = getDataSourceRepository();
-            if(this.dsReaders.size() == 0) {
-                findDataSourceProviders();
-            }
-            for (DataSourceMetaInfo dsmInfo : sysDS.getDataSources()) {
+            for (DataSourceMetaInfo dsmInfo : dsConfiguration.getDataSources()) {
                 dsRepo.addDataSource(dsmInfo);
             }
         } catch (DataSourceException e) {
@@ -167,14 +170,13 @@ public class DataSourceManager {
     }
 
     /**
-     * Generate {@code SystemDataSourceConfiguration} jaxb bean from the given data source configuration file.
+     * Generate {@code DataSourceConfiguration} jaxb bean from the given data source configuration file.
      *
      * @param sysDSFile {@link File}
-     * @return {@code SystemDataSourcesConfiguration}
+     * @return {@code DataSourcesConfiguration}
      * @throws DataSourceException
      */
-    private DataSourcesConfiguration getSystemDataSourcesFromConfigFile(File sysDSFile)
-            throws DataSourceException {
+    private DataSourcesConfiguration getDataSourcesFromConfigFile(File sysDSFile) throws DataSourceException {
         try {
             log.debug("Parsing configuration file: " + sysDSFile.getName());
             JAXBContext ctx = JAXBContext.newInstance(DataSourcesConfiguration.class);
@@ -185,19 +187,29 @@ public class DataSourceManager {
         }
     }
 
+    /**
+     * Allows the API consumers to provide a map containing a set of {@code DataSourceReader} objects.
+     *
+     * @param readers {@code Map<String, DataSourceReader>}
+     */
     public void addDataSourceProviders(Map<String, DataSourceReader> readers) {
-        if(readers != null && readers.size() > 0) {
+        if (readers != null && readers.size() > 0) {
             this.dsReaders = readers;
         }
     }
 
-    public void findDataSourceProviders() {
-        if(dsReaders.size() == 0) {
+    /**
+     * If {@code DataSourceReader} list is not set from {@code addDataSourceProviders} method,
+     * {@code findDataSourceProviders} is called internally and load data source readers using
+     * {@link java.util.ServiceLoader}.
+     */
+    private void findDataSourceProviders() {
+        if (dsReaders.size() == 0) {
             ServiceLoader<DataSourceReader> dsReaderLoader = ServiceLoader.load(DataSourceReader.class);
             Iterator<DataSourceReader> iterator = dsReaderLoader.iterator();
             while (iterator.hasNext()) {
                 DataSourceReader reader = iterator.next();
-                if(dsReaders.containsKey(reader.getType())) {
+                if (dsReaders.containsKey(reader.getType())) {
                     log.warn("A reader with the type " + reader.getType() + "already exists. "
                             + reader.getClass().toString() + " will be ignored.");
                     continue;

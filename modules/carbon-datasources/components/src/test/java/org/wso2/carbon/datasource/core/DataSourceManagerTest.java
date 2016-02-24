@@ -35,7 +35,7 @@
 //    public void initialize() throws DataSourceException, MalformedURLException {
 //        setEnv();
 //        dsManager = DataSourceManager.getInstance();
-//        dsManager.initSystemDataSources();
+//        dsManager.initDataSources();
 //    }
 //
 //    @Test(expectedExceptions = DataSourceException.class)

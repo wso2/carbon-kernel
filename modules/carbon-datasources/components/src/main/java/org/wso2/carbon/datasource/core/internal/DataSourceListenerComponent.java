@@ -65,7 +65,7 @@ public class DataSourceListenerComponent implements RequiredCapabilityListener {
         try {
             DataSourceManager dsManager = DataSourceManager.getInstance();
             dsManager.addDataSourceProviders(readers);
-            dsManager.initSystemDataSources();
+            dsManager.initDataSources();
 
             log.info("initializing data source bundle completed");
             DataSourceService dsService = new DataSourceServiceImpl();
