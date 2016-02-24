@@ -37,12 +37,11 @@ public class HTTPAppender extends AbstractAppender {
         this.port = port;
     }
 
-    // The append method is where the appender does the work.
-    // Given a log event, you are free to do with it what you want.
-    // This example demonstrates:
-    // 1. Concurrency: this method may be called by multiple threads concurrently
-    // 2. How to use layouts
-    // 3. Error handling
+    /**
+     * The append method is where the appender does the work.
+     * This sends the logevent to a http url with the given host and port.
+     * @param event : log event that has logging information
+     */
     @Override
     public void append(LogEvent event) {
         OutputStream outputStream = null;
@@ -80,10 +79,20 @@ public class HTTPAppender extends AbstractAppender {
         }
     }
 
-    // Your custom appender needs to declare a factory method
-    // annotated with `@PluginFactory`. Log4j will parse the configuration
-    // and call this factory method to construct an appender instance with
-    // the configured attributes.
+    /**
+     * Annotated factory method to pass the configuration via log4j to construct an appender
+     * instance with the configured attributes
+     * @param host                   http hostname
+     * @param port                   port
+     * @param connectTimeoutMillis   the connect timeout in milliseconds.
+     * @param name                   the name of the appender
+     * @param immediateFlush         True if the write should fail if no socket is immediately available.
+     * @param ignoreExceptions       if {@code "true"} (default) exceptions encountered when appending events are logged; otherwise they
+     *                               are propagated to the caller.
+     * @param layout                 The layout to use.
+     * @param filter                 The filter or null
+     * @return A HTTPAppender
+     */
     @PluginFactory
     public static HTTPAppender createAppender(
             // @formatter:off

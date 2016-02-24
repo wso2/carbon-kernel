@@ -28,6 +28,9 @@ public class FileDeployer implements Deployer {
     private ArtifactType artifactType;
     private final String DEPLOYMENTPATH = "file:text-files";
 
+    /**
+     * Initializing file deployer and setting the deployment path
+     */
     public FileDeployer() {
         artifactType = new ArtifactType<String>("txt");
         try {
@@ -42,6 +45,12 @@ public class FileDeployer implements Deployer {
         log.info("Initializing deployer");
     }
 
+    /**
+     * Deploying the artifact. This will deploy text files with non-empty content.
+     * @param artifact text file
+     * @return deployed artifact name
+     * @throws CarbonDeploymentException Throw if deployment failed
+     */
     @Override
     public Object deploy(Artifact artifact) throws CarbonDeploymentException {
         log.info("Deploying : " + artifact.getName());
@@ -65,6 +74,11 @@ public class FileDeployer implements Deployer {
         return key;
     }
 
+    /**
+     * Undeploying the artifact with the given key value
+     * @param key artifact name
+     * @throws CarbonDeploymentException throw if undeployment failed
+     */
     @Override
     public void undeploy(Object key) throws CarbonDeploymentException {
         if (!(key instanceof String)) {
@@ -80,17 +94,29 @@ public class FileDeployer implements Deployer {
         }
     }
 
+    /**
+     * Update a given artifact
+     * @param artifact to be updated
+     * @return absolute path to the given artifact
+     * @throws CarbonDeploymentException throw if update fails
+     */
     @Override
     public Object update(Artifact artifact) throws CarbonDeploymentException {
         log.info("Updating artifact " + artifact);
         return artifact.getFile().getAbsolutePath();
     }
 
+    /**
+     * @return deployment directory location
+     */
     @Override
     public URL getLocation() {
         return directoryLocation;
     }
 
+    /**
+     * @return artifact type
+     */
     @Override
     public ArtifactType getArtifactType() {
         return artifactType;
