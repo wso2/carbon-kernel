@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.datasource.rdbms.hikari;
 
+import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
@@ -24,6 +25,14 @@ import org.wso2.carbon.datasource.rdbms.hikari.utils.HikariDataSourceUtils;
  * HikariDataSourceReader is responsible for reading the hikari configuration from the configuration file and build
  * HikariDataSource.
  */
+@Component(
+        name = "org.wso2.carbon.datasource.rdbms.hikari.HikariDataSourceReader",
+        immediate = true,
+        service = DataSourceReader.class,
+        property = {
+                "dependent-component-key=carbon-datasource-reader"
+        }
+)
 public class HikariDataSourceReader implements DataSourceReader {
 
     /**

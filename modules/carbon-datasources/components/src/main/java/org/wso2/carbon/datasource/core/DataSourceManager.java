@@ -209,4 +209,16 @@ public class DataSourceManager {
         }
     }
 
+    public void addDataSourceProviders(Map<String, DataSourceReader> readers) {
+        if(readers != null && readers.size() > 0) {
+            this.dsReaders = readers;
+        }
+    }
+
+    public void findDataSourceProviders() {
+        if(this.dsReaders.size() == 0) {
+            //Load using service loaders;
+        }
+    }
+
 }

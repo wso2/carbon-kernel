@@ -15,6 +15,7 @@
  */
 package org.wso2.carbon.datasource.rdbms.tomcat;
 
+import org.osgi.service.component.annotations.Component;
 import org.wso2.carbon.datasource.core.common.DataSourceException;
 import org.wso2.carbon.datasource.core.spi.DataSourceReader;
 import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
@@ -23,6 +24,14 @@ import org.wso2.carbon.datasource.rdbms.tomcat.utils.TomcatDataSourceUtils;
 /**
  * This class represents the Tomcat connection pool based data source reader implementation.
  */
+//@Component(
+//        name = "org.wso2.carbon.datasource.rdbms.tomcat.TomcatDataSourceReader",
+//        immediate = true,
+//        service = DataSourceReader.class,
+//        property = {
+//                "dependent-component-key=carbon-datasource-reader"
+//        }
+//)
 public class TomcatDataSourceReader implements DataSourceReader {
 
     /**

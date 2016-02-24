@@ -15,6 +15,12 @@
     <name>Data source implementation for Carbon</name>
     <dependencies>
         <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+            <version>3.4.0.v20140312-2051</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
         </dependency>
@@ -67,44 +73,35 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <inherited>false</inherited>
-                <configuration>
-                    <systemPropertyVariables>
-                        <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
-                    </systemPropertyVariables>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Bundle-Activator>org.wso2.carbon.datasource.core.internal.DataSourceBundleActivator</Bundle-Activator>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Export-Package>
-                            org.wso2.carbon.datasource.core.*,org.wso2.carbon.datasource.rdbms.*,
-                            org.wso2.carbon.datasource.common.*,org.wso2.carbon.datasource.utils.*
-                        </Export-Package>
-                        <Import-Package>
-                            javax.xml.parsers;version=0.0.0,
-                            *;resolution:=optional
-                        </Import-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-surefire-plugin</artifactId>-->
+                <!--<inherited>false</inherited>-->
+                <!--<configuration>-->
+                    <!--<systemPropertyVariables>-->
+                        <!--<jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>-->
+                    <!--</systemPropertyVariables>-->
+                    <!--<suiteXmlFiles>-->
+                        <!--<suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>-->
+                    <!--</suiteXmlFiles>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>org.jacoco</groupId>-->
+                <!--<artifactId>jacoco-maven-plugin</artifactId>-->
+            <!--</plugin>-->
         </plugins>
     </build>
+    <properties>
+        <export.package>org.wso2.carbon.datasource.core.*,org.wso2.carbon.datasource.rdbms.hikari.*,
+            org.wso2.carbon.datasource.rdbms.tomcat.*,org.wso2.carbon.datasource.common.*,
+            org.wso2.carbon.datasource.utils.*</export.package>
+        <import.package>javax.xml.parsers;version=0.0.0,*;resolution:=optional</import.package>
+        <provide.capability>
+            osgi.service;effective:=active;
+            objectClass="org.wso2.carbon.datasource.core.spi.DataSourceReader";
+            dependent-component-key="carbon-datasource-service"
+        </provide.capability>
+        <dynamic.import.package>*</dynamic.import.package>
+    </properties>
 </project>
