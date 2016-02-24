@@ -33,6 +33,7 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.spi.CachingProvider;
+import java.util.Map;
 
 /**
  * CarbonCaching sample service component.
@@ -54,13 +55,13 @@ public class CachingSampleServiceComponent {
 
         try {
             getCache(cacheName).put(key, value);
-            System.out.println("Cache put succeeded");
-            System.out.println("Cache get: key=" + key + ", value=" + getCache(cacheName).get(key));
+            log.info("Cache put succeeded");
+            log.info("Cache get: key=" + key + ", value=" + getCache(cacheName).get(key));
             getCache(cacheName).remove(key);
-            System.out.println("Cache delete succeeded");
-            System.out.println("Cache get: key=" + key + ", value=" + getCache(cacheName).get(key));
+            log.info("Cache delete succeeded");
+            log.info("Cache get: key=" + key + ", value=" + getCache(cacheName).get(key));
 
-            System.out.println("CachingSample is activated");
+            log.info("CachingSample is activated");
         } catch (Throwable e) {
             log.error("Could not activate CachingSample bundle", e);
         }
