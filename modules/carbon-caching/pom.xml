@@ -315,7 +315,8 @@
         <equinox.launcher.version>1.3.0.v20140415-2008</equinox.launcher.version>
         <equinox.preferences.version>3.5.200.v20140224-1527</equinox.preferences.version>
         <equinox.registry.version>3.5.400.v20140428-1507</equinox.registry.version>
-        <equinox.simpleconfigurator.manipulator.version>2.0.0.v20131217-1203</equinox.simpleconfigurator.manipulator.version>
+        <equinox.simpleconfigurator.manipulator.version>2.0.0.v20131217-1203
+        </equinox.simpleconfigurator.manipulator.version>
         <equinox.util.version>1.0.500.v20130404-1337</equinox.util.version>
         <org.eclipse.equinox.cm.version>1.1.0.v20131021-1936</org.eclipse.equinox.cm.version>
         <org.snakeyaml.version>1.16.0.wso2v1</org.snakeyaml.version>

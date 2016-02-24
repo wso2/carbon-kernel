@@ -36,7 +36,7 @@ public class OSGiTestUtils {
 
     /**
      * Setup the test environment.
-     *
+     * <p>
      * Includes setting the carbon.home system property, setting the required system properties,
      * setting the maven local repo directory, etc.
      */

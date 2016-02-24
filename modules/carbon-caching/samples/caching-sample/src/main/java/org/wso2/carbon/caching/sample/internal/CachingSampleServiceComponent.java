@@ -33,7 +33,6 @@ import javax.cache.configuration.MutableConfiguration;
 import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.cache.spi.CachingProvider;
-import java.util.Map;
 
 /**
  * CarbonCaching sample service component.
