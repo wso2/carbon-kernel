@@ -43,10 +43,6 @@ public class HikariDataSourceUtils {
             config.setJdbcUrl(configuration.getUrl());
             config.setUsername(configuration.getUsername());
             config.setPassword(configuration.getPassword());
-            config.addDataSourceProperty("cachePrepStmts", configuration.getCachePrepStmts());
-            config.addDataSourceProperty("prepStmtCacheSize", configuration.getPrepStmtCacheSize());
-            config.addDataSourceProperty("prepStmtCacheSqlLimit", configuration.getPrepStmtCacheSqlLimit());
-            config.setMinimumIdle(1);
             config.setDriverClassName(configuration.getDriverClassName());
             return config;
         } catch (DataSourceException e) {

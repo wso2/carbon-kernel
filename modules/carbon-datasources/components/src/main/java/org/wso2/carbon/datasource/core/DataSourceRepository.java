@@ -94,8 +94,8 @@ public class DataSourceRepository {
         }
 
         //Creates a data source object in any error occurred while registering through JNDI.
-        if (dsObject == null) {
-            dsObject = createDataSourceObject(dsmInfo, isDataSourceFactoryReference);
+        if (isDataSourceFactoryReference) {
+            dsObject = createDataSourceObject(dsmInfo, false);
         }
         CarbonDataSource cds = new CarbonDataSource(dsmInfo, dsObject);
         dataSources.put(cds.getDSMInfo().getName(), cds);
@@ -163,12 +163,18 @@ public class DataSourceRepository {
      * @param jndiConfig {@code JNDIConfig}
      * @throws DataSourceException
      */
-    private Context checkAndCreateJNDISubContexts(Context context, JNDIConfig jndiConfig)
-            throws DataSourceException {
+    private Context checkAndCreateJNDISubContexts(Context context, JNDIConfig jndiConfig) throws DataSourceException {
         Context compEnvContext;
         try {
-            Context compContext = context.createSubcontext("java:comp");
-            compEnvContext = compContext.createSubcontext("env");
+            //Should we reuse the already existing context or destroy the old context and create a new one?
+            Context compContext = (Context)context.lookup("java:comp");
+            if(compContext == null) {
+                compContext = context.createSubcontext("java:comp");
+            }
+            compEnvContext = (Context)compContext.lookup("env");
+            if(compEnvContext == null) {
+                compEnvContext = compContext.createSubcontext("env");
+            }
         } catch (NamingException e) {
             log.error(e.getMessage(), e);
             return null;
@@ -204,8 +210,7 @@ public class DataSourceRepository {
      * @return {@link Context}
      * @throws DataSourceException
      */
-    private Context lookupJNDISubContext(Context context, String jndiName)
-            throws DataSourceException {
+    private Context lookupJNDISubContext(Context context, String jndiName) throws DataSourceException {
         try {
             Object obj = context.lookup(jndiName);
             if (!(obj instanceof Context)) {
