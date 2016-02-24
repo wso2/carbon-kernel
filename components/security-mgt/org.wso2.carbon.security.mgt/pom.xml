@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ ~ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ ~
+ ~ WSO2 Inc. licenses this file to you under the Apache License,
+ ~ Version 2.0 (the "License"); you may not use this file except
+ ~ in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~    http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing,
+ ~ software distributed under the License is distributed on an
+ ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ ~ KIND, either express or implied.  See the License for the
+ ~ specific language governing permissions and limitations
+ ~ under the License.
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.wso2.carbon.identity</groupId>
+        <artifactId>security-mgt</artifactId>
+        <version>5.0.8-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>org.wso2.carbon.security.mgt</artifactId>
+    <packaging>bundle</packaging>
+    <name>WSO2 Carbon - Security BE</name>
+    <description>A custom wso2 products or solution</description>
+    <url>http://wso2.org</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.neethi.wso2</groupId>
+            <artifactId>neethi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.registry.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>org.wso2.carbon.utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ws.security.wso2</groupId>
+            <artifactId>wss4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rampart.wso2</groupId>
+            <artifactId>rampart-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rampart.wso2</groupId>
+            <artifactId>rampart-policy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rampart.wso2</groupId>
+            <artifactId>rampart-trust</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon</groupId>
+            <artifactId>javax.cache.wso2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>backport-util-concurrent.wso2</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity</groupId>
+            <artifactId>org.wso2.carbon.identity.core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>1.4.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Axis2Module>${project.artifactId}-${project.version}</Axis2Module>
+                        <Private-Package>
+                            org.wso2.carbon.security.internal,
+                        </Private-Package>
+                        <Import-Package>
+                            javax.cache,
+                            javax.security.auth.callback,
+                            javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
+                            javax.xml.namespace,
+                            javax.xml.stream; version="${equinox.osgi.stax-api.imp.pkg.version.range}",
+
+                            org.w3c.dom,
+                            org.jaxen; version="${axiom.org.jaxen.imp.pkg.version.range}",
+
+                            org.apache.axiom.*; version="${axiom.osgi.version.range}",
+                            org.apache.axis2.*; version="${axis2.osgi.version.range}",
+                            org.apache.neethi; version="${neethi.osgi.version.range}",
+                            org.apache.neethi.builders.xml; version="${neethi.osgi.version.range}",
+                            org.apache.rahas.*; version="${rampart.wso2.osgi.version.range}",
+                            org.apache.rampart.*; version="${rampart.wso2.osgi.version.range}",
+                            org.apache.ws.secpolicy.*; version="${rampart.wso2.osgi.version.range}",
+                            org.apache.ws.security.*; version="${wss4j.ws.security.imp.pkg.version.range}",
+                            org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
+                            org.apache.commons.collections; version="${commons-collections.wso2.osgi.version.range}",
+                            org.apache.commons.lang; version="${commons-lang.wso2.osgi.version.range}",
+
+                            org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
+                            org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
+
+                            org.wso2.carbon; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.utils.*;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.context; version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.core.*;version="${carbon.kernel.package.import.version.range}",
+                            org.wso2.carbon.user.core.*;version="${carbon.kernel.package.import.version.range}",
+
+                            org.wso2.carbon.base; version="${carbon.base.imp.pkg.version.range}",
+                            org.wso2.carbon.user.api; version="${carbon.user.api.imp.pkg.version.range}",
+                            org.wso2.carbon.registry.core.*;version="${carbon.kernel.registry.imp.pkg.version}",
+                            org.wso2.carbon.registry.api;version="${carbon.kernel.registry.imp.pkg.version}",
+                            org.wso2.carbon.identity.core.*; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.base; version="${carbon.identity.package.import.version.range}",
+                            org.wso2.carbon.identity.core.*;
+                            version="${carbon.identity.package.import.version.range}"
+                        </Import-Package>
+                        <Export-Package>
+                            !org.wso2.carbon.security.internal,
+                            org.wso2.carbon.security.*; version="${carbon.identity.package.export.version}",
+                        </Export-Package>
+                        <Axis2RequiredServices>org.apache.axis2.engine.AxisObserver</Axis2RequiredServices>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
