@@ -1,0 +1,41 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1456290815770
+Build-Jdk: 1.7.0_67
+Built-By: godwin
+Bundle-Description: WSO2 is an open source application development softw
+ are company focused on providing service-oriented        architecture s
+ olutions for professional developers.
+Bundle-DocURL: http://www.wso2.org/
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: org.wso2.carbon.security.mgt.stub
+Bundle-SymbolicName: org.wso2.carbon.security.mgt.stub
+Bundle-Vendor: WSO2
+Bundle-Version: 5.0.8.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+DynamicImport-Package: *
+Export-Package: org.wso2.carbon.security.mgt.stub.config;version="5.0.8.
+ SNAPSHOT";uses:="javax.xml.namespace,javax.xml.stream,org.apache.axiom.
+ om,org.apache.axis2,org.apache.axis2.client,org.apache.axis2.context,or
+ g.apache.axis2.databinding,org.apache.axis2.description,org.wso2.carbon
+ .security.mgt.stub.config.xsd",org.wso2.carbon.security.mgt.stub.config
+ .xsd;version="5.0.8.SNAPSHOT";uses:="javax.xml.namespace,javax.xml.stre
+ am,org.apache.axiom.om,org.apache.axis2.databinding",org.wso2.carbon.se
+ curity.mgt.stub.keystore;version="5.0.8.SNAPSHOT";uses:="javax.xml.name
+ space,javax.xml.stream,org.apache.axiom.om,org.apache.axis2,org.apache.
+ axis2.client,org.apache.axis2.context,org.apache.axis2.databinding,org.
+ apache.axis2.description,org.wso2.carbon.security.mgt.stub.keystore.xsd
+ ",org.wso2.carbon.security.mgt.stub.keystore.xsd;version="5.0.8.SNAPSHO
+ T";uses:="javax.xml.namespace,javax.xml.stream,org.apache.axiom.om,org.
+ apache.axis2.databinding"
+Import-Package: javax.xml.namespace,javax.xml.stream;version="[1.0,2)",o
+ rg.apache.axiom.om;version="[1.2,2)",org.apache.axiom.soap;version="[1.
+ 2,2)",org.apache.axis2;version="[1.6,2)",org.apache.axis2.addressing;ve
+ rsion="[1.6,2)",org.apache.axis2.client;version="[1.6,2)",org.apache.ax
+ is2.client.async;version="[1.6,2)",org.apache.axis2.context;version="[1
+ .6,2)",org.apache.axis2.databinding;version="[1.6,2)",org.apache.axis2.
+ databinding.utils;version="[1.6,2)",org.apache.axis2.databinding.utils.
+ reader;version="[1.6,2)",org.apache.axis2.description;version="[1.6,2)"
+ ,org.apache.axis2.engine;version="[1.6,2)",org.apache.axis2.transport;v
+ ersion="[1.6,2)",org.apache.axis2.util;version="[1.6,2)"
+Tool: Bnd-2.1.0.20130426-122213

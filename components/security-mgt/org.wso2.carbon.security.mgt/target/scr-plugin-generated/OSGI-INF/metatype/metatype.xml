@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0" localization="OSGI-INF/metatype/metatype">
+    <OCD id="org.wso2.carbon.security.deployment.SecurityDeploymentInterceptor" name="%org.wso2.carbon.security.deployment.SecurityDeploymentInterceptor.name" description="%org.wso2.carbon.security.deployment.SecurityDeploymentInterceptor.description"/>
+    <OCD id="security.mgt.service.component" name="%security.mgt.service.component.name" description="%security.mgt.service.component.description"/>
+    <Designate pid="org.wso2.carbon.security.deployment.SecurityDeploymentInterceptor">
+        <Object ocdref="org.wso2.carbon.security.deployment.SecurityDeploymentInterceptor"/>
+    </Designate>
+    <Designate pid="security.mgt.service.component">
+        <Object ocdref="security.mgt.service.component"/>
+    </Designate>
+</metatype:MetaData>

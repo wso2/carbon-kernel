@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Osmorc" name="OSGi">
+      <configuration manifestGenerationMode="OsmorcControlled" manifestLocation="" jarfileLocation="org.wso2.carbon.security.mgt.ui-5.0.8-SNAPSHOT.jar" outputPathType="CompilerOutputPath" bndFileLocation="" bundlorFileLocation="" bundleActivator="" bundleSymbolicName="org.wso2.carbon.security.mgt.ui" bundleVersion="5.0.8.SNAPSHOT" ignoreFilePattern="" useProjectDefaultManifestFileLocation="true" alwaysRebuildBundleJAR="false" doNotSynchronizeWithMaven="false">
+        <additionalProperties>
+          <property key="Bundle-Name" value="org.wso2.carbon.security.mgt.ui" />
+          <property key="Import-Package" value="javax.activation; version=&quot;[0.0.0,0.1.0)&quot;,org.apache.axis2.*; version=&quot;[1.6.1.wso2v12, 2.0.0)&quot;,org.apache.axiom.om.util; version=&quot;[1.2.11, 2.0.0)&quot;,org.apache.commons.fileupload.*; version=&quot;[1.2.2,2.0.0)&quot;,org.apache.commons.logging; version=&quot;[1.2,2.0)&quot;,org.apache.commons.lang; version=&quot;[2.6.0,3.0.0)&quot;,org.osgi.framework; version=&quot;[1.7.0, 2.0.0)&quot;,org.osgi.util.tracker; version=&quot;[1.5.1, 2.0.0)&quot;,org.wso2.carbon.registry.core.*; version=&quot;[1.0.1, 2.0.0)&quot;,org.wso2.carbon.security.mgt.stub.*;version=&quot;[5.0.0, 6.0.0)&quot;,org.wso2.carbon.user.mgt.stub.types.carbon; version=&quot;[5.0.0, 6.0.0)&quot;,org.wso2.carbon.identity.core.*;version=&quot;[5.0.0, 6.0.0)&quot;" />
+          <property key="Export-Package" value="org.wso2.carbon.security.ui.*; version=&quot;5.0.9-SNAPSHOT&quot;" />
+          <property key="Carbon-Component" value="UIBundle" />
+          <property key="Include-Resource" value="KeyStoreAdmin.wsdl=$MODULE_DIR$/src/main/resources/KeyStoreAdmin.wsdl,META-INF/component.xml=$MODULE_DIR$/src/main/resources/META-INF/component.xml,org/wso2/carbon/security/ui/i18n/Resources.properties=$MODULE_DIR$/src/main/resources/org/wso2/carbon/security/ui/i18n/Resources.properties,SecurityConfigAdmin.wsdl=$MODULE_DIR$/src/main/resources/SecurityConfigAdmin.wsdl,web/images/keystores1.jpg=$MODULE_DIR$/src/main/resources/web/images/keystores1.jpg,web/images/keystores2.jpg=$MODULE_DIR$/src/main/resources/web/images/keystores2.jpg,web/images/menu.jpg=$MODULE_DIR$/src/main/resources/web/images/menu.jpg,web/images/usergroups.jpg=$MODULE_DIR$/src/main/resources/web/images/usergroups.jpg,web/images/users.jpg=$MODULE_DIR$/src/main/resources/web/images/users.jpg,web/images/userstores.jpg=$MODULE_DIR$/src/main/resources/web/images/userstores.jpg,web/keystoremgt/add-keystore-finish.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/add-keystore-finish.jsp,web/keystoremgt/add-keystore-step1.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/add-keystore-step1.jsp,web/keystoremgt/add-keystore-step2.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/add-keystore-step2.jsp,web/keystoremgt/delete-cert.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/delete-cert.jsp,web/keystoremgt/delete-keystore.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/delete-keystore.jsp,web/keystoremgt/docs/images/adding-keystore.JPG=$MODULE_DIR$/src/main/resources/web/keystoremgt/docs/images/adding-keystore.JPG,web/keystoremgt/docs/images/keystoremanagement.JPG=$MODULE_DIR$/src/main/resources/web/keystoremgt/docs/images/keystoremanagement.JPG,web/keystoremgt/docs/userguide.html=$MODULE_DIR$/src/main/resources/web/keystoremgt/docs/userguide.html,web/keystoremgt/images/add.gif=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/add.gif,web/keystoremgt/images/close.gif=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/close.gif,web/keystoremgt/images/delete.gif=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/delete.gif,web/keystoremgt/images/edit.gif=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/edit.gif,web/keystoremgt/images/import-cert.png=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/import-cert.png,web/keystoremgt/images/import.gif=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/import.gif,web/keystoremgt/images/keystore.gif=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/keystore.gif,web/keystoremgt/images/list.gif=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/list.gif,web/keystoremgt/images/view-keystore.png=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/view-keystore.png,web/keystoremgt/images/view.gif=$MODULE_DIR$/src/main/resources/web/keystoremgt/images/view.gif,web/keystoremgt/import-cert-finish.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/import-cert-finish.jsp,web/keystoremgt/import-cert.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/import-cert.jsp,web/keystoremgt/keystore-mgt.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/keystore-mgt.jsp,web/keystoremgt/view-keystore.jsp=$MODULE_DIR$/src/main/resources/web/keystoremgt/view-keystore.jsp,web/security_userguide.html=$MODULE_DIR$/src/main/resources/web/security_userguide.html,web/securityconfig/add-security.jsp=$MODULE_DIR$/src/main/resources/web/securityconfig/add-security.jsp,web/securityconfig/docs/images/activate_security_custom_policy.png=$MODULE_DIR$/src/main/resources/web/securityconfig/docs/images/activate_security_custom_policy.png,web/securityconfig/docs/images/activate_security_key_stores.png=$MODULE_DIR$/src/main/resources/web/securityconfig/docs/images/activate_security_key_stores.png,web/securityconfig/docs/images/activate_security_user_groups.png=$MODULE_DIR$/src/main/resources/web/securityconfig/docs/images/activate_security_user_groups.png,web/securityconfig/docs/images/default_scenarios.png=$MODULE_DIR$/src/main/resources/web/securityconfig/docs/images/default_scenarios.png,web/securityconfig/docs/images/kerberos_spn.png=$MODULE_DIR$/src/main/resources/web/securityconfig/docs/images/kerberos_spn.png,web/securityconfig/docs/images/no_security.png=$MODULE_DIR$/src/main/resources/web/securityconfig/docs/images/no_security.png,web/securityconfig/docs/images/policy_from_registry.png=$MODULE_DIR$/src/main/resources/web/securityconfig/docs/images/policy_from_registry.png,web/securityconfig/docs/userguide.html=$MODULE_DIR$/src/main/resources/web/securityconfig/docs/userguide.html,web/securityconfig/extensions/js/vui.js=$MODULE_DIR$/src/main/resources/web/securityconfig/extensions/js/vui.js,web/securityconfig/images/scenario1.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario1.png,web/securityconfig/images/scenario10.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario10.png,web/securityconfig/images/scenario11.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario11.png,web/securityconfig/images/scenario12.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario12.png,web/securityconfig/images/scenario13.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario13.png,web/securityconfig/images/scenario14.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario14.png,web/securityconfig/images/scenario15.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario15.png,web/securityconfig/images/scenario16.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario16.png,web/securityconfig/images/scenario2.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario2.png,web/securityconfig/images/scenario3.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario3.png,web/securityconfig/images/scenario4.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario4.png,web/securityconfig/images/scenario5.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario5.png,web/securityconfig/images/scenario6.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario6.png,web/securityconfig/images/scenario7.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario7.png,web/securityconfig/images/scenario8.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario8.png,web/securityconfig/images/scenario9.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/scenario9.png,web/securityconfig/images/view.png=$MODULE_DIR$/src/main/resources/web/securityconfig/images/view.png,web/securityconfig/index.jsp=$MODULE_DIR$/src/main/resources/web/securityconfig/index.jsp,web/securityconfig/remove-security.jsp=$MODULE_DIR$/src/main/resources/web/securityconfig/remove-security.jsp,web/securityconfig/ut-ks-advance.jsp=$MODULE_DIR$/src/main/resources/web/securityconfig/ut-ks-advance.jsp,web/securityconfig/view-scenario-detail_ajaxprocessor.jsp=$MODULE_DIR$/src/main/resources/web/securityconfig/view-scenario-detail_ajaxprocessor.jsp" />
+        </additionalProperties>
+        <additionalJARContents />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="org.twodividedbyzero.idea.findbugs">
+    <option name="_basePreferences">
+      <map>
+        <entry key="property.analysisEffortLevel" value="default" />
+        <entry key="property.analyzeAfterAutoMake" value="false" />
+        <entry key="property.analyzeAfterCompile" value="false" />
+        <entry key="property.annotationGutterIconEnabled" value="true" />
+        <entry key="property.annotationSuppressWarningsClass" value="edu.umd.cs.findbugs.annotations.SuppressFBWarnings" />
+        <entry key="property.annotationTextRangeMarkupEnabled" value="true" />
+        <entry key="property.exportAsHtml" value="true" />
+        <entry key="property.exportAsXml" value="true" />
+        <entry key="property.exportBaseDir" value="" />
+        <entry key="property.exportCreateArchiveDir" value="false" />
+        <entry key="property.exportOpenBrowser" value="true" />
+        <entry key="property.minPriorityToReport" value="Medium" />
+        <entry key="property.runAnalysisInBackground" value="false" />
+        <entry key="property.showHiddenDetectors" value="false" />
+        <entry key="property.toolWindowToFront" value="true" />
+      </map>
+    </option>
+    <option name="_detectors">
+      <map>
+        <entry key="AppendingToAnObjectOutputStream" value="true" />
+        <entry key="AtomicityProblem" value="true" />
+        <entry key="BadAppletConstructor" value="false" />
+        <entry key="BadResultSetAccess" value="true" />
+        <entry key="BadSyntaxForRegularExpression" value="true" />
+        <entry key="BadUseOfReturnValue" value="true" />
+        <entry key="BadlyOverriddenAdapter" value="true" />
+        <entry key="BooleanReturnNull" value="true" />
+        <entry key="BuildInterproceduralCallGraph" value="false" />
+        <entry key="BuildObligationPolicyDatabase" value="true" />
+        <entry key="BuildStringPassthruGraph" value="true" />
+        <entry key="CallToUnsupportedMethod" value="false" />
+        <entry key="CalledMethods" value="true" />
+        <entry key="CheckCalls" value="false" />
+        <entry key="CheckExpectedWarnings" value="false" />
+        <entry key="CheckImmutableAnnotation" value="true" />
+        <entry key="CheckRelaxingNullnessAnnotation" value="true" />
+        <entry key="CheckTypeQualifiers" value="true" />
+        <entry key="CloneIdiom" value="true" />
+        <entry key="ComparatorIdiom" value="true" />
+        <entry key="ConfusedInheritance" value="true" />
+        <entry key="ConfusionBetweenInheritedAndOuterMethod" value="true" />
+        <entry key="CovariantArrayAssignment" value="false" />
+        <entry key="CrossSiteScripting" value="true" />
+        <entry key="DefaultEncodingDetector" value="true" />
+        <entry key="DoInsideDoPrivileged" value="true" />
+        <entry key="DontCatchIllegalMonitorStateException" value="true" />
+        <entry key="DontIgnoreResultOfPutIfAbsent" value="true" />
+        <entry key="DontUseEnum" value="true" />
+        <entry key="DroppedException" value="true" />
+        <entry key="DumbMethodInvocations" value="true" />
+        <entry key="DumbMethods" value="true" />
+        <entry key="DuplicateBranches" value="true" />
+        <entry key="EmptyZipFileEntry" value="false" />
+        <entry key="EqualsOperandShouldHaveClassCompatibleWithThis" value="true" />
+        <entry key="ExplicitSerialization" value="true" />
+        <entry key="FieldItemSummary" value="true" />
+        <entry key="FinalizerNullsFields" value="true" />
+        <entry key="FindBadCast2" value="true" />
+        <entry key="FindBadForLoop" value="true" />
+        <entry key="FindBugsSummaryStats" value="true" />
+        <entry key="FindCircularDependencies" value="false" />
+        <entry key="FindComparatorProblems" value="true" />
+        <entry key="FindDeadLocalStores" value="true" />
+        <entry key="FindDoubleCheck" value="true" />
+        <entry key="FindEmptySynchronizedBlock" value="true" />
+        <entry key="FindFieldSelfAssignment" value="true" />
+        <entry key="FindFinalizeInvocations" value="true" />
+        <entry key="FindFloatEquality" value="true" />
+        <entry key="FindFloatMath" value="false" />
+        <entry key="FindHEmismatch" value="true" />
+        <entry key="FindInconsistentSync2" value="true" />
+        <entry key="FindJSR166LockMonitorenter" value="true" />
+        <entry key="FindLocalSelfAssignment2" value="true" />
+        <entry key="FindMaskedFields" value="true" />
+        <entry key="FindMismatchedWaitOrNotify" value="true" />
+        <entry key="FindNakedNotify" value="true" />
+        <entry key="FindNoSideEffectMethods" value="true" />
+        <entry key="FindNonSerializableStoreIntoSession" value="false" />
+        <entry key="FindNonSerializableValuePassedToWriteObject" value="false" />
+        <entry key="FindNonShortCircuit" value="true" />
+        <entry key="FindNullDeref" value="true" />
+        <entry key="FindNullDerefsInvolvingNonShortCircuitEvaluation" value="true" />
+        <entry key="FindOpenStream" value="true" />
+        <entry key="FindPuzzlers" value="true" />
+        <entry key="FindRefComparison" value="true" />
+        <entry key="FindReturnRef" value="true" />
+        <entry key="FindRoughConstants" value="true" />
+        <entry key="FindRunInvocations" value="true" />
+        <entry key="FindSelfComparison" value="true" />
+        <entry key="FindSelfComparison2" value="true" />
+        <entry key="FindSleepWithLockHeld" value="true" />
+        <entry key="FindSpinLoop" value="true" />
+        <entry key="FindSqlInjection" value="true" />
+        <entry key="FindTwoLockWait" value="true" />
+        <entry key="FindUncalledPrivateMethods" value="true" />
+        <entry key="FindUnconditionalWait" value="true" />
+        <entry key="FindUninitializedGet" value="true" />
+        <entry key="FindUnrelatedTypesInGenericContainer" value="true" />
+        <entry key="FindUnreleasedLock" value="true" />
+        <entry key="FindUnsatisfiedObligation" value="true" />
+        <entry key="FindUnsyncGet" value="true" />
+        <entry key="FindUseOfNonSerializableValue" value="true" />
+        <entry key="FindUselessControlFlow" value="true" />
+        <entry key="FindUselessObjects" value="true" />
+        <entry key="FormatStringChecker" value="true" />
+        <entry key="FunctionsThatMightBeMistakenForProcedures" value="true" />
+        <entry key="HugeSharedStringConstants" value="true" />
+        <entry key="IDivResultCastToDouble" value="true" />
+        <entry key="IncompatMask" value="true" />
+        <entry key="InconsistentAnnotations" value="true" />
+        <entry key="InefficientIndexOf" value="false" />
+        <entry key="InefficientInitializationInsideLoop" value="false" />
+        <entry key="InefficientMemberAccess" value="false" />
+        <entry key="InefficientToArray" value="false" />
+        <entry key="InfiniteLoop" value="true" />
+        <entry key="InfiniteRecursiveLoop" value="true" />
+        <entry key="InheritanceUnsafeGetResource" value="true" />
+        <entry key="InitializationChain" value="true" />
+        <entry key="InitializeNonnullFieldsInConstructor" value="true" />
+        <entry key="InstantiateStaticClass" value="true" />
+        <entry key="IntCast2LongAsInstant" value="true" />
+        <entry key="InvalidJUnitTest" value="true" />
+        <entry key="IteratorIdioms" value="true" />
+        <entry key="LazyInit" value="true" />
+        <entry key="LoadOfKnownNullValue" value="true" />
+        <entry key="LostLoggerDueToWeakReference" value="true" />
+        <entry key="MethodReturnCheck" value="true" />
+        <entry key="Methods" value="true" />
+        <entry key="MultithreadedInstanceAccess" value="true" />
+        <entry key="MutableEnum" value="true" />
+        <entry key="MutableLock" value="true" />
+        <entry key="MutableStaticFields" value="true" />
+        <entry key="Naming" value="true" />
+        <entry key="Noise" value="false" />
+        <entry key="NoiseNullDeref" value="false" />
+        <entry key="NoteAnnotationRetention" value="true" />
+        <entry key="NoteCheckReturnValueAnnotations" value="true" />
+        <entry key="NoteDirectlyRelevantTypeQualifiers" value="true" />
+        <entry key="NoteJCIPAnnotation" value="true" />
+        <entry key="NoteNonNullAnnotations" value="false" />
+        <entry key="NoteNonnullReturnValues" value="false" />
+        <entry key="NoteSuppressedWarnings" value="true" />
+        <entry key="NoteUnconditionalParamDerefs" value="true" />
+        <entry key="NumberConstructor" value="true" />
+        <entry key="OptionalReturnNull" value="true" />
+        <entry key="OverridingEqualsNotSymmetrical" value="true" />
+        <entry key="PreferZeroLengthArrays" value="true" />
+        <entry key="PublicSemaphores" value="false" />
+        <entry key="QuestionableBooleanAssignment" value="true" />
+        <entry key="ReadOfInstanceFieldInMethodInvokedByConstructorInSuperclass" value="true" />
+        <entry key="ReadReturnShouldBeChecked" value="true" />
+        <entry key="RedundantConditions" value="true" />
+        <entry key="RedundantInterfaces" value="true" />
+        <entry key="ReflectiveClasses" value="true" />
+        <entry key="RepeatedConditionals" value="true" />
+        <entry key="ResolveAllReferences" value="false" />
+        <entry key="RuntimeExceptionCapture" value="true" />
+        <entry key="SerializableIdiom" value="true" />
+        <entry key="StartInConstructor" value="true" />
+        <entry key="StaticCalendarDetector" value="true" />
+        <entry key="StringConcatenation" value="true" />
+        <entry key="SuperfluousInstanceOf" value="true" />
+        <entry key="SuspiciousThreadInterrupted" value="true" />
+        <entry key="SwitchFallthrough" value="true" />
+        <entry key="SynchronizationOnSharedBuiltinConstant" value="true" />
+        <entry key="SynchronizeAndNullCheckField" value="true" />
+        <entry key="SynchronizeOnClassLiteralNotGetClass" value="true" />
+        <entry key="SynchronizingOnContentsOfFieldToProtectField" value="true" />
+        <entry key="TestASM" value="false" />
+        <entry key="TestDataflowAnalysis" value="false" />
+        <entry key="TestingGround" value="false" />
+        <entry key="TestingGround2" value="false" />
+        <entry key="TrainFieldStoreTypes" value="true" />
+        <entry key="TrainLongInstantfParams" value="true" />
+        <entry key="TrainNonNullAnnotations" value="true" />
+        <entry key="TrainUnconditionalDerefParams" value="true" />
+        <entry key="URLProblems" value="true" />
+        <entry key="UncallableMethodOfAnonymousClass" value="true" />
+        <entry key="UnnecessaryMath" value="true" />
+        <entry key="UnreadFields" value="true" />
+        <entry key="UselessSubclassMethod" value="false" />
+        <entry key="VarArgsProblems" value="true" />
+        <entry key="VolatileUsage" value="true" />
+        <entry key="WaitInLoop" value="true" />
+        <entry key="WrongMapIterator" value="true" />
+        <entry key="XMLFactoryBypass" value="true" />
+      </map>
+    </option>
+    <option name="_reportCategories">
+      <map>
+        <entry key="BAD_PRACTICE" value="true" />
+        <entry key="CORRECTNESS" value="true" />
+        <entry key="EXPERIMENTAL" value="true" />
+        <entry key="I18N" value="true" />
+        <entry key="MALICIOUS_CODE" value="true" />
+        <entry key="MT_CORRECTNESS" value="true" />
+        <entry key="PERFORMANCE" value="true" />
+        <entry key="SECURITY" value="true" />
+        <entry key="STYLE" value="true" />
+      </map>
+    </option>
+  </component>
+</module>
+
