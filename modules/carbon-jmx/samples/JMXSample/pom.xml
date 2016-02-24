@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>org.wso2.carbon.jmx</groupId>
+        <artifactId>org.wso2.carbon.jmx.parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>jmx-sample</artifactId>
+    <packaging>bundle</packaging>
+    <version>1.0.0</version>
+
+    <name>WSO2 Carbon - JMX Sample Bundle</name>
+    <url>http://wso2.com</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.eclipse.osgi</groupId>
+            <artifactId>org.eclipse.osgi.services</artifactId>
+        </dependency>
+    </dependencies>
+
+
+    <properties>
+        <bundle.activator>org.wso2.carbon.jmx.sample.internal.JMXSampleActivator</bundle.activator>
+        <private.package>org.wso2.carbon.jmx.sample.internal</private.package>
+        <export.package>
+            !org.wso2.carbon.jmx.sample.internal,
+            org.wso2.carbon.jmx.sample.*;version="${project.version}"
+        </export.package>
+        <import.package>
+            org.osgi.framework.*;version="[1.8.0, 2.0.0)",
+            org.slf4j.*;version="[1.7,2)",
+            javax.management.*,
+        </import.package>
+    </properties>
+
+
+</project>
