@@ -16,9 +16,18 @@
 package org.wso2.carbon.jmx.internal.config;
 
 public class JMXConfiguration {
+    private boolean enabled;
     private String hostName;
     private int rmiServerPort;
     private int rmiRegistryPort;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public String getHostName() {
         return hostName;
