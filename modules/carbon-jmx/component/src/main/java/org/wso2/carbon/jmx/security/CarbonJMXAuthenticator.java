@@ -24,11 +24,11 @@ public class CarbonJMXAuthenticator implements JMXAuthenticator {
 
     @Override
     public Subject authenticate(Object credentials) {
+        if (credentials == null) {
+            throw new SecurityException("Credentials required");
+        }
+
         if (!(credentials instanceof String[])) {
-            // Special case for null so we get a more informative message
-            if (credentials == null) {
-                throw new SecurityException("Credentials required");
-            }
             throw new SecurityException("Credentials should be String[]");
         }
 
