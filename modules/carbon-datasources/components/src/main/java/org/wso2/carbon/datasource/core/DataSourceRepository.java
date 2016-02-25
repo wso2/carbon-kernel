@@ -40,6 +40,8 @@ public class DataSourceRepository {
 
     private static Log log = LogFactory.getLog(DataSourceRepository.class);
     private Map<String, CarbonDataSource> dataSources;
+    private static final String JAVA_COMP_CONTEXT_STRING = "java:comp";
+    private static final String ENV_CONTEXT_STRING = "env";
 
     /**
      * Default constructor for DataSourceRepository.
@@ -116,10 +118,6 @@ public class DataSourceRepository {
 
         log.debug("Generating the DataSource object from \"" + dsReader.getType() + "\" type reader.");
 
-//		/* sets the current data source's (name) as a thread local value
-//		 * so it can be read by data source readers */
-//		DataSourceUtils.setCurrentDataSourceId(dsmInfo.getName());
-
         Element configurationXmlDefinition = (Element) dsmInfo.getDefinition().getDsXMLConfiguration();
         return dsReader.createDataSource(DataSourceUtils.elementToString(configurationXmlDefinition),
                 isUseDataSourceFactory);
@@ -151,8 +149,8 @@ public class DataSourceRepository {
         try {
             subContext.rebind(jndiConfig.getName(), dsObject);
         } catch (NamingException e) {
-            throw new DataSourceException("Error in binding to JNDI with name '" +
-                    jndiConfig.getName() + "' - " + e.getMessage(), e);
+            throw new DataSourceException("Error in binding to JNDI with name '" + jndiConfig.getName()
+                    + "' - " + e.getMessage(), e);
         }
     }
 
@@ -167,13 +165,13 @@ public class DataSourceRepository {
         Context compEnvContext;
         try {
             //Should we reuse the already existing context or destroy the old context and create a new one?
-            Context compContext = (Context)context.lookup("java:comp");
+            Context compContext = (Context)context.lookup(JAVA_COMP_CONTEXT_STRING);
             if(compContext == null) {
-                compContext = context.createSubcontext("java:comp");
+                compContext = context.createSubcontext(JAVA_COMP_CONTEXT_STRING);
             }
-            compEnvContext = (Context)compContext.lookup("env");
+            compEnvContext = (Context)compContext.lookup(ENV_CONTEXT_STRING);
             if(compEnvContext == null) {
-                compEnvContext = compContext.createSubcontext("env");
+                compEnvContext = compContext.createSubcontext(ENV_CONTEXT_STRING);
             }
         } catch (NamingException e) {
             log.error(e.getMessage(), e);
