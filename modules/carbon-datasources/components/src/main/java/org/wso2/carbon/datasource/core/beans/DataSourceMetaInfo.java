@@ -40,9 +40,6 @@ public class DataSourceMetaInfo {
 
     private DataSourceDefinition definition;
 
-    @XmlTransient
-    private boolean carbonApplicationDeployed;
-
     public void setName(String name) {
         this.name = name;
     }
