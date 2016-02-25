@@ -54,8 +54,14 @@ public class CarbonJMXComponent {
     @Activate
     protected void start(BundleContext bundleContext) {
         try {
-            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
             JMXConfiguration jmxConfiguration = YAMLJMXConfigurationBuilder.build();
+            if (!jmxConfiguration.isEnabled()) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Remote JMX is disabled.");
+                }
+                return;
+            }
+
             LocateRegistry.createRegistry(jmxConfiguration.getRmiRegistryPort());
 
             String jmxURL = "service:jmx:rmi://" + jmxConfiguration.getHostName() + ":" +
@@ -67,8 +73,10 @@ public class CarbonJMXComponent {
             environment.put(JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
 
             JMXConnectorServer jmxConnectorServer =
-                    JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, environment, mBeanServer);
+                    JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, environment,
+                            ManagementFactory.getPlatformMBeanServer());
             jmxConnectorServer.start();
+            logger.info("JMXServerManager JMX Service URL : " + jmxServiceURL.toString());
         } catch (Throwable throwable) {
             logger.error("Failed to start CarbonJMXComponent.", throwable);
         }

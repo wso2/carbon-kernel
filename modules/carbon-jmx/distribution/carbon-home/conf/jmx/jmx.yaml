@@ -13,6 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 ################################################################################
+enabled: true
 hostName: "localhost"
 rmiServerPort: 11111
 rmiRegistryPort: 9999
