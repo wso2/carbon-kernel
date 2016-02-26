@@ -43,5 +43,7 @@ String val = cache.get(key);
 cache.remove(key);
 ```  
 
+For full source code, see [caching sample](samples/caching-sample).
+
 For more details about the JCache APIs, please refer to the JCache 
 [Java docs](http://www.javadoc.io/doc/javax.cache/cache-api/1.0.0)
