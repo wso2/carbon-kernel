@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.hazelcast.sample.internal;
 
-import com.hazelcast.osgi.HazelcastOSGiInstance;
+import com.hazelcast.core.HazelcastInstance;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -51,9 +51,9 @@ public class HazelcastSampleServiceComponent {
     protected void start(BundleContext bundleContext) throws Exception {
         new Thread(new Runnable() {
             public void run() {
-                HazelcastOSGiInstance hazelcastOSGiInstance = DataHolder.getInstance().getHazelcastOSGiInstance();
-                hazelcastOSGiInstance.getCluster().addMembershipListener(new SampleMembershipListener());
-                ConcurrentMap<String, String> map = hazelcastOSGiInstance.getMap("my-distributed-map");
+                HazelcastInstance hazelcastInstance = DataHolder.getInstance().getHazelcastInstance();
+                hazelcastInstance.getCluster().addMembershipListener(new SampleMembershipListener());
+                ConcurrentMap<String, String> map = hazelcastInstance.getMap("my-distributed-map");
                 while (true) {
                     long time = System.currentTimeMillis();
                     logger.info("Map size: " + map.size());
@@ -88,16 +88,16 @@ public class HazelcastSampleServiceComponent {
 
     @Reference(
             name = "carbon-hazelcast-agent-service",
-            service = HazelcastOSGiInstance.class,
+            service = HazelcastInstance.class,
             cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,
-            unbind = "unsetHazelcastOSGiInstance"
+            unbind = "unsetHazelcastInstance"
     )
-    protected void setHazelcastOSGiInstance(HazelcastOSGiInstance hazelcastOSGiService) {
-        DataHolder.getInstance().setHazelcastOSGiInstance(hazelcastOSGiService);
+    protected void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        DataHolder.getInstance().setHazelcastInstance(hazelcastInstance);
     }
 
-    protected void unsetHazelcastOSGiInstance(HazelcastOSGiInstance hazelcastOSGiService) {
-        DataHolder.getInstance().setHazelcastOSGiInstance(null);
+    protected void unsetHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        DataHolder.getInstance().setHazelcastInstance(null);
     }
 }
