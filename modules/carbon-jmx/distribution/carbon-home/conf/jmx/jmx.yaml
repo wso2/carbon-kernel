@@ -14,6 +14,6 @@
 #   limitations under the License.
 ################################################################################
 enabled: true
-hostName: "localhost"
+hostName: "127.0.0.1"
 rmiServerPort: 11111
 rmiRegistryPort: 9999
