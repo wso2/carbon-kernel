@@ -21,15 +21,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.jmx.connection.SingleAddressRMIServerSocketFactory;
 import org.wso2.carbon.jmx.internal.config.JMXConfiguration;
 import org.wso2.carbon.jmx.internal.config.YAMLJMXConfigurationBuilder;
 import org.wso2.carbon.jmx.security.CarbonJMXAuthenticator;
 
-import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.remote.rmi.RMIConnectorServer;
 import java.lang.management.ManagementFactory;
+import java.net.InetAddress;
 import java.rmi.registry.LocateRegistry;
 import java.util.HashMap;
 
@@ -44,6 +46,7 @@ import java.util.HashMap;
 )
 public class CarbonJMXComponent {
     private static final Logger logger = LoggerFactory.getLogger(CarbonJMXComponent.class);
+    private final static String JAVA_RMI_SERVER_HOSTNAME = "java.rmi.server.hostname";
 
     /**
      * This is the activation method of CarbonJMXComponent. This will be called when all the references are
@@ -62,15 +65,33 @@ public class CarbonJMXComponent {
                 return;
             }
 
-            LocateRegistry.createRegistry(jmxConfiguration.getRmiRegistryPort());
+            String hostname = System.getProperty(JAVA_RMI_SERVER_HOSTNAME);
+            if (hostname == null || hostname.isEmpty()) {
+                hostname = jmxConfiguration.getHostName();
+                System.setProperty(JAVA_RMI_SERVER_HOSTNAME, hostname);
+            }
 
-            String jmxURL = "service:jmx:rmi://" + jmxConfiguration.getHostName() + ":" +
-                    jmxConfiguration.getRmiServerPort() + "/jndi/rmi://" + jmxConfiguration.getHostName() + ":" +
-                    jmxConfiguration.getRmiRegistryPort() + "/jmxrmi";
+            InetAddress[] inetAddresses = InetAddress.getAllByName(hostname);
+            if (inetAddresses == null || inetAddresses.length == 0) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("No network interface available for '{}' to start JMXConnectorServer", hostname);
+                }
+                return;
+            }
+
+            SingleAddressRMIServerSocketFactory singleAddressRMIServerSocketFactory =
+                    new SingleAddressRMIServerSocketFactory(inetAddresses[0]);
+            LocateRegistry.createRegistry(jmxConfiguration.getRmiRegistryPort(), null,
+                    singleAddressRMIServerSocketFactory);
+
+            String jmxURL = "service:jmx:rmi://" + hostname + ":" + jmxConfiguration.getRmiServerPort()
+                    + "/jndi/rmi://" + hostname + ":" + jmxConfiguration.getRmiRegistryPort() + "/jmxrmi";
             JMXServiceURL jmxServiceURL = new JMXServiceURL(jmxURL);
 
-            HashMap<String, CarbonJMXAuthenticator> environment = new HashMap<>();
+            HashMap<String, Object> environment = new HashMap<>();
             environment.put(JMXConnectorServer.AUTHENTICATOR, new CarbonJMXAuthenticator());
+            environment.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE,
+                    singleAddressRMIServerSocketFactory);
 
             JMXConnectorServer jmxConnectorServer =
                     JMXConnectorServerFactory.newJMXConnectorServer(jmxServiceURL, environment,
