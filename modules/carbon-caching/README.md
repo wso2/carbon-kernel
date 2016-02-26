@@ -25,6 +25,8 @@ config.setStoreByValue(true)
 Cache<String, String> = cacheManager.createCache("myCache", config);
 ```      
   
+Note that cachingService in the above code segment is the org.wso2.carbon.caching.CarbonCachingService OSGi service   
+  
 ### Getting the cache and performing operations on it
   
 ```java
