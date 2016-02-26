@@ -17,7 +17,7 @@ package org.wso2.carbon.hazelcast.internal;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.XmlConfigBuilder;
-import com.hazelcast.osgi.HazelcastOSGiInstance;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.osgi.HazelcastOSGiService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -43,7 +43,7 @@ import java.nio.file.Paths;
 )
 public class CarbonHazelcastComponent {
     private static final Logger logger = LoggerFactory.getLogger(CarbonHazelcastComponent.class);
-    private HazelcastOSGiInstance hazelcastOSGiInstance;
+    private HazelcastInstance hazelcastInstance;
 
     /**
      * This is the activation method of CarbonHazelcastComponent. This will be called when all the references are
@@ -59,9 +59,9 @@ public class CarbonHazelcastComponent {
 
             Config config = new XmlConfigBuilder(hazelcastFilePath).build();
 
-            hazelcastOSGiInstance = DataHolder.getInstance().getHazelcastOSGiService()
+            hazelcastInstance = DataHolder.getInstance().getHazelcastOSGiService()
                     .newHazelcastInstance(config);
-            bundleContext.registerService(HazelcastOSGiInstance.class, hazelcastOSGiInstance, null);
+            bundleContext.registerService(HazelcastInstance.class, hazelcastInstance, null);
 
             logger.info("CarbonHazelcastComponent is activated");
         } catch (Throwable throwable) {
@@ -78,7 +78,7 @@ public class CarbonHazelcastComponent {
     @Deactivate
     protected void stop() throws Exception {
         try {
-            hazelcastOSGiInstance.shutdown();
+            hazelcastInstance.shutdown();
         } catch (Throwable throwable) {
             logger.error("Failed to stop CarbonHazelcastComponent. ", throwable);
         }

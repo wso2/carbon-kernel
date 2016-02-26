@@ -27,14 +27,14 @@ public class SampleMembershipListener implements MembershipListener {
 
     @Override
     public void memberAdded(MembershipEvent membershipEvent) {
-        if (CarbonHazelcastUtils.isCoordinator(DataHolder.getInstance().getHazelcastOSGiInstance())) {
+        if (CarbonHazelcastUtils.isCoordinator(DataHolder.getInstance().getHazelcastInstance())) {
             logger.info("This node become the coordinator");
         }
     }
 
     @Override
     public void memberRemoved(MembershipEvent membershipEvent) {
-        if (CarbonHazelcastUtils.isCoordinator(DataHolder.getInstance().getHazelcastOSGiInstance())) {
+        if (CarbonHazelcastUtils.isCoordinator(DataHolder.getInstance().getHazelcastInstance())) {
             logger.info("This node become the coordinator");
         }
     }
