@@ -15,7 +15,7 @@
  */
 package org.wso2.carbon.hazelcast.sample.internal;
 
-import com.hazelcast.osgi.HazelcastOSGiInstance;
+import com.hazelcast.core.HazelcastInstance;
 
 /**
  * DataHolder.
@@ -24,18 +24,18 @@ import com.hazelcast.osgi.HazelcastOSGiInstance;
  */
 public class DataHolder {
     private static DataHolder dataHolder = new DataHolder();
-    private HazelcastOSGiInstance hazelcastOSGiInstance;
+    private HazelcastInstance hazelcastInstance;
 
     private DataHolder(){}
     public static DataHolder getInstance() {
         return dataHolder;
     }
 
-    public HazelcastOSGiInstance getHazelcastOSGiInstance() {
-        return hazelcastOSGiInstance;
+    public HazelcastInstance getHazelcastInstance() {
+        return hazelcastInstance;
     }
 
-    public void setHazelcastOSGiInstance(HazelcastOSGiInstance hazelcastOSGiInstance) {
-        this.hazelcastOSGiInstance = hazelcastOSGiInstance;
+    public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+        this.hazelcastInstance = hazelcastInstance;
     }
 }
