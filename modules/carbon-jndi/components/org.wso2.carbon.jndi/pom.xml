@@ -41,6 +41,11 @@
             <artifactId>pax-logging-api</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -59,21 +64,22 @@
 
 
     <properties>
-        <bundle.activator>org.wso2.carbon.jndi.internal.CarbonJNDIActivator</bundle.activator>
+        <bundle.activator>org.wso2.carbon.jndi.internal.JNDIActivator</bundle.activator>
         <private.package>org.wso2.carbon.jndi.internal.*,</private.package>
         <export.package>
             !org.wso2.carbon.kernel.internal.*,
-            org.wso2.carbon.jndi;version=${carbon.jndi.pkg.export.version},
-            org.apache.naming.*;version=1.0.0
+            org.wso2.carbon.jndi.*;version=${carbon.jndi.pkg.export.version},
+            org.osgi.service.jndi;version=1.0.0
         </export.package>
         <import.package>
-            !org.wso2.carbon.jndi;version=${carbon.jndi.version},
+            !org.osgi.service.jndi;version=1.0.0,
+            !org.wso2.carbon.jndi.*;version=${carbon.jndi.version},
             javax.naming.*;version="[0.0.0, 1.0.0)",
             javax.sql;version="[0.0.0, 1.0.0)",
             org.osgi.framework;version="${osgi.framework.package.import.version.range}",
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}"
         </import.package>
-        <include.resource>{maven-resources},org/apache/naming/LocalStrings.properties=src/main/java/org/apache/naming/LocalStrings.properties</include.resource>
+        <include.resource>{maven-resources},org/wso2/carbon/jndi/internal/LocalStrings.properties=src/main/java/org/wso2/carbon/jndi/internal/LocalStrings.properties</include.resource>
     </properties>
 
 </project>

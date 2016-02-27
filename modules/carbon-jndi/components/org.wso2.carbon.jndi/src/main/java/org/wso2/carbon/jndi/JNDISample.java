@@ -17,14 +17,15 @@
 */
 package org.wso2.carbon.jndi;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import java.util.Hashtable;
+import javax.cache.Caching;
 
 public class JNDISample {
 
-//    public static void main(String[] args) {
+    public static void main(String[] args) {
+
+
+        Caching.getCachingProvider();
+
 ////        initNaming();
 //
 //        try {
@@ -32,7 +33,7 @@ public class JNDISample {
 //
 //            hashtableEnvironment.put(
 //                    Context.INITIAL_CONTEXT_FACTORY,
-//                    "org.apache.naming.java.javaURLContextFactory"
+//                    "org.wso2.carbon.jndi.java.javaURLContextFactory"
 //            );
 //
 //            // Create the initial context
@@ -55,28 +56,28 @@ public class JNDISample {
 //        } catch (NamingException e) {
 //            System.err.println("Problem looking up " + "sameera" + ": " + e);
 //        }
-//    }
+    }
 
 
     protected static void initNaming() {
         // Setting additional variables
 //        System.setProperty("catalina.useNaming", "true");
-//        String value = "org.apache.naming";
+//        String value = "org.apache.jndi";
 //        String oldValue =
-//                System.getProperty(javax.naming.Context.URL_PKG_PREFIXES);
+//                System.getProperty(javax.jndi.Context.URL_PKG_PREFIXES);
 //        if (oldValue != null) {
 //            value = value + ":" + oldValue;
 //        }
-//        System.setProperty(javax.naming.Context.URL_PKG_PREFIXES, value);
+//        System.setProperty(javax.jndi.Context.URL_PKG_PREFIXES, value);
 //        if (log.isDebugEnabled()) {
-//            log.debug("Setting naming prefix=" + value);
+//            log.debug("Setting jndi prefix=" + value);
 //        }
 //        value = System.getProperty
-//                (javax.naming.Context.INITIAL_CONTEXT_FACTORY);
+//                (javax.jndi.Context.INITIAL_CONTEXT_FACTORY);
 //        if (value == null) {
         System.setProperty
                 (javax.naming.Context.INITIAL_CONTEXT_FACTORY,
-                        "org.apache.naming.java.javaURLContextFactory");
+                        "org.wso2.carbon.jndi.java.javaURLContextFactory");
 //        } else {
 //            log.debug("INITIAL_CONTEXT_FACTORY already set " + value);
 //        }
