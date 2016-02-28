@@ -33,6 +33,8 @@ import javax.naming.spi.NamingManager;
 import javax.naming.spi.ObjectFactory;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.stream.Stream;
 
 public class JNDIActivator implements BundleActivator {
 
@@ -42,20 +44,18 @@ public class JNDIActivator implements BundleActivator {
     public void start(BundleContext bundleContext) throws Exception {
 
         try {
-//            System.setProperty(Context.URL_PKG_PREFIXES, "org.wso2.carbon.jndi");
-//            System.setProperty
-//                    (javax.naming.Context.INITIAL_CONTEXT_FACTORY,
-//                            "org.wso2.carbon.jndi.java.javaURLContextFactory");
-
-
             NamingManager.setInitialContextFactoryBuilder(new DefaultContextFactoryBuilder());
             NamingManager.setObjectFactoryBuilder(new DefaultObjectFactoryBuilder());
 
             Dictionary<String, String> propertyMap = new Hashtable<>();
             propertyMap.put("osgi.jndi.url.scheme", "java");
 
-//            bundleContext.registerService(ObjectFactory.class, new javaURLContextFactory(), propertyMap);
-            bundleContext.registerService(InitialContextFactory.class, new javaURLContextFactory(), null);
+            bundleContext.registerService(ObjectFactory.class, new javaURLContextFactory(), propertyMap);
+
+            // InitialContextFactory Provider should be registered with its implementation class as well as the
+            // InitialContextFactory class.
+            bundleContext.registerService(new String[]{javaURLContextFactory.class.getName(),
+                    InitialContextFactory.class.getName()}, new javaURLContextFactory(), null);
 
             logger.info("Setting up INITIAL_CONTEXT_FACTORY");
             bundleContext.registerService(JNDIContextManager.class, new JNDIContextManagerServiceFactory(), null);

@@ -32,10 +32,14 @@ import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
+
+import static org.wso2.carbon.jndi.internal.util.LambdaExceptionUtil.*;
 
 /**
  * Implements JNDIContextManager interface.
@@ -76,145 +80,175 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
         return null;
     }
 
+    /**
+     *
+     * @param environment
+     * @return
+     * @throws NamingException
+     */
     private Optional<Context> getInitialContext(Hashtable<?, ?> environment) throws NamingException {
-//        Context initialContext = null;
-        Optional<Context> initialContext = Optional.empty();
+        Optional<Context> initialContextOptional;
 
-        // 1 Check whether java.naming.factory.initial property is present
-        String initialContextFactoryClassName = (String) environment.get(javax.naming.Context.INITIAL_CONTEXT_FACTORY);
-        if (initialContextFactoryClassName != null && !"".equals(initialContextFactoryClassName)) {
+        //1) Check whether java.naming.factory.initial property is present
+        String userDefinedICFClassName = (String) environment.get(javax.naming.Context.INITIAL_CONTEXT_FACTORY);
+        if (userDefinedICFClassName != null && !"".equals(userDefinedICFClassName)) {
 
-            //2 Check for OSGi service with key matches with given context factory class name as well as the
-            // InitialContextFactory class name in the ranking order.
+            //2) Check for OSGi service with key matches with given context factory class name as well as the
+            //   InitialContextFactory class name in the ranking order.
+            Collection<ServiceReference<InitialContextFactory>> factorySRefCollection =
+                    getServiceReferences(InitialContextFactory.class, getServiceFilter(userDefinedICFClassName));
 
-
-            // Create the filter.
-            StringBuilder serviceFilter = new StringBuilder();
-            serviceFilter.append("(&");
-            serviceFilter.append("(").append(OBJECT_CLASS).append("=").append(initialContextFactoryClassName).append(")");
-            serviceFilter.append("(").append(OBJECT_CLASS).append("=").append(InitialContextFactory.class.getName()).append(")");
-            serviceFilter.append(")");
-
-            try {
-                Collection<ServiceReference<InitialContextFactory>> serviceRefCollection =
-                        bundleContext.getServiceReferences(InitialContextFactory.class, serviceFilter.toString());
-
-                initialContext = serviceRefCollection
-                        .stream()
-                        .sorted(new ServiceRankComparator())
-                        .findFirst()
-                        .map(factoryServiceRef -> getContextFromFactory(factoryServiceRef, environment))
-                        .get();
-            } catch (InvalidSyntaxException e) {
-                logger.info(e.getMessage(), e);
+            initialContextOptional = getInitialContextFromFactory(factorySRefCollection, environment);
+            if (initialContextOptional.isPresent()) {
+                return initialContextOptional;
             }
 
-            //4 Loop through all the InitialContextFactoryBuilder services in the ranking order.
+            //3) If not, try to get an InitialContext from InitialContextFactoryBuilder OSGi services.
+            Collection<ServiceReference<InitialContextFactoryBuilder>> serviceRefCollection =
+                    getServiceReferences(InitialContextFactoryBuilder.class, null);
 
-            if (!initialContext.isPresent()) {
+            initialContextOptional = getInitialContextFromBuilder(serviceRefCollection, environment);
 
-                try {
-                    Collection<ServiceReference<InitialContextFactoryBuilder>> ref = bundleContext.getServiceReferences(InitialContextFactoryBuilder.class, null);
-                } catch (InvalidSyntaxException e) {
-                    e.printStackTrace();
-                }
+            //4) If not, throw an error.
+            initialContextOptional.orElseThrow(() -> new NoInitialContextException(
+                    "Cannot find the given InitialContextFactory " + userDefinedICFClassName));
 
-                try {
-                    initialContext = bundleContext.getServiceReferences(InitialContextFactoryBuilder.class, null)
-                            .stream()
-                            .sorted(new ServiceRankComparator())
-                            .map(builderServiceRef -> getInitialContextFactoryFromBuilder(builderServiceRef, environment))
-                            .map(initialContextFactory -> getContextFromFactory(initialContextFactory, environment))
-                            .findFirst()
-                            .orElse(Optional.empty());
-
-                } catch (InvalidSyntaxException ignored) {
-                }
-            }
-
-            //5 If not throw an error.
-            //TODO Proper error messages
-            throw new NoInitialContextException();
+            //5) Returning the initialContext which is not null.
+            return initialContextOptional;
 
         } else {
-            //2 Loop through all the InitialContextFactoryBuilder services in the ranking order.
+            //2) Try to get an InitialContext from InitialContextFactoryBuilder OSGi services.
+            Collection<ServiceReference<InitialContextFactoryBuilder>> builderSRefCollection =
+                    getServiceReferences(InitialContextFactoryBuilder.class, null);
 
-            try {
-                initialContext = bundleContext.getServiceReferences(InitialContextFactoryBuilder.class, null)
-                        .stream()
-                        .sorted(new ServiceRankComparator())
-                        .map(builderServiceRef -> getInitialContextFactoryFromBuilder(builderServiceRef, environment))
-                        .map(initialContextFactory -> getContextFromFactory(initialContextFactory, environment))
-                        .findFirst()
-                        .orElse(Optional.empty());
+            initialContextOptional = getInitialContextFromBuilder(builderSRefCollection, environment);
 
-            } catch (InvalidSyntaxException ignored) {
+            if (initialContextOptional.isPresent()) {
+                return initialContextOptional;
             }
 
-            //3 Loop through all the InitialContextFactory services in the ranking order.
-            // TODO check for an alternative for using .isPresent()
-            if (!initialContext.isPresent()) {
+            //3) If not, try to get an InitialContext from InitialContextFactory OSGi services.
+            Collection<ServiceReference<InitialContextFactory>> factorySRefCollection =
+                    getServiceReferences(InitialContextFactory.class, null);
 
-                try {
-                    initialContext = bundleContext.getServiceReferences(InitialContextFactory.class, null)
-                            .stream()
-                            .sorted(new ServiceRankComparator())
-                            .map(factoryServiceRef -> getContextFromFactory(factoryServiceRef, environment))
-                            .findFirst()
-                            .orElse(Optional.empty());
+            initialContextOptional = getInitialContextFromFactory(factorySRefCollection, environment);
 
-                } catch (InvalidSyntaxException ignored) {
-                }
-            }
-
-            //4 If no Context has been found, an initial Context is returned without any backing. This returned initial
+            //4) If no Context has been found, an initial Context is returned without any backing. This returned initial
             //  Context can then only be used to perform URL based lookups.
-            return initialContext;
+            return initialContextOptional;
         }
     }
 
-    private Optional<InitialContextFactory> getInitialContextFactoryFromBuilder(
-            ServiceReference<InitialContextFactoryBuilder> serviceReference,
-            Hashtable<?, ?> environment) {
+    /**
+     * Create a service filter which matches OSGi services registered with two values for the objectClass property.
+     *
+     * User defined initial context factory class name and the InitialContextFactory class name are those two values of
+     * the objectClass property.
+     *
+     * @param userDefinedICFClassName value of java.naming.factory.initial property
+     * @return filter string
+     */
+    private String getServiceFilter(String userDefinedICFClassName) {
+        // Here I've initially user StringBuilder, but IntelliJ IDEA suggested to replace StringBuilder usage with
+        // Strings becuause for this specific case, String concatenation is at least as efficient or more efficent
+        // than the original StringBuilder or StringBuffer user.
+        return "(&" +
+                "(" + OBJECT_CLASS + "=" + userDefinedICFClassName + ")" +
+                "(" + OBJECT_CLASS + "=" + InitialContextFactory.class.getName() + ")" +
+                ")";
+    }
 
-        Optional<InitialContextFactoryBuilder> contextFactoryBuilder =
-                Optional.ofNullable(bundleContext.getService(serviceReference));
-
-        return contextFactoryBuilder.map(builder -> {
+    /**
+     *
+     * @param builderOptional
+     * @param environment
+     * @return
+     */
+    private Optional<InitialContextFactory> getContextFactory(Optional<InitialContextFactoryBuilder> builderOptional,
+                                                              Hashtable<?, ?> environment) {
+        return builderOptional.map(builder -> {
             try {
                 return builder.createInitialContextFactory(environment);
-            } catch (NamingException e) {
-                logger.debug(e.getMessage(), e);
+            } catch (NamingException ignored) {
+                // According to the OSGi JNDI service specification this exception should not thrown to the caller.
+                logger.debug(ignored.getMessage(), ignored);
                 return null;
             }
         });
     }
 
-    private Optional<Context> getContextFromFactory(
-            Optional<InitialContextFactory> contextFactory,
-            Hashtable<?, ?> environment) {
+    /**
+     *
+     * @param serviceRefCollection
+     * @param environment
+     * @return
+     * @throws NamingException
+     */
+    private Optional<Context> getInitialContextFromBuilder(
+            Collection<ServiceReference<InitialContextFactoryBuilder>> serviceRefCollection,
+            Hashtable<?, ?> environment) throws NamingException {
 
-        return contextFactory.map(factory -> {
-            try {
-                return factory.getInitialContext(environment);
-            } catch (NamingException e) {
-                logger.debug(e.getMessage(), e);
-                // TODO Fix this runtime exception.
-                throw new RuntimeException(e.getMessage(), e);
-            }
-        });
+        return serviceRefCollection
+                .stream()
+                .sorted(new ServiceRankComparator())
+                .map(this::getService)
+                .map(builderOptional -> getContextFactory(builderOptional, environment))
+                .flatMap(factoryOptional -> factoryOptional.map(Stream::of).orElseGet(Stream::empty))
+                .map(rethrowFunction(factory -> factory.getInitialContext(environment)))
+                .findFirst();
     }
 
-    private Optional<Context> getContextFromFactory(
-            ServiceReference<InitialContextFactory> serviceReference,
-            Hashtable<?, ?> environment) {
+    /**
+     *
+     * @param serviceRefCollection
+     * @param environment
+     * @return
+     * @throws NamingException
+     */
+    private Optional<Context> getInitialContextFromFactory(
+            Collection<ServiceReference<InitialContextFactory>> serviceRefCollection,
+            Hashtable<?, ?> environment) throws NamingException {
 
-        Optional<InitialContextFactory> contextFactory =
-                Optional.ofNullable(bundleContext.getService(serviceReference));
-
-        return getContextFromFactory(contextFactory, environment);
+        return serviceRefCollection
+                .stream()
+                .sorted(new ServiceRankComparator())
+                .map(this::getService)
+                .flatMap(factoryOptional -> factoryOptional.map(Stream::of).orElseGet(Stream::empty))
+                .map(rethrowFunction(contextFactory -> contextFactory.getInitialContext(environment)))
+                .findFirst();
     }
 
+    /**
+     *
+     * @param clazz
+     * @param filter
+     * @param <S>
+     * @return
+     */
+    private <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> clazz, String filter) {
+        try {
+            return bundleContext.getServiceReferences(clazz, filter);
+        } catch (InvalidSyntaxException ignored) {
+            // This branch cannot be invoked. Since the filter is always correct.
+            // However I am logging the exception in case
+            logger.error("Filter syntax is invalid: " + filter, ignored);
+            return Collections.<ServiceReference<S>>emptyList();
+        }
+    }
+
+    /**
+     *
+     * @param serviceReference
+     * @param <S>
+     * @return
+     */
+    private <S> Optional<S> getService(ServiceReference<S> serviceReference) {
+        return Optional.ofNullable(bundleContext.getService(serviceReference));
+    }
+
+    /**
+     *
+     */
     private static class ServiceRankComparator implements Comparator<ServiceReference<?>> {
 
         @Override
