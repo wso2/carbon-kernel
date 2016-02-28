@@ -109,10 +109,9 @@ public class OSGiTestUtils {
                         versionAsInProject(),
                 mavenBundle().artifactId("snakeyaml").groupId("org.wso2.orbit.org.yaml").
                         versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon").versionAsInProject(),
+                mavenBundle().artifactId("org.wso2.carbon.core").groupId("org.wso2.carbon").versionAsInProject()
 //                mavenBundle().artifactId("org.wso2.carbon.jmx").groupId("org.wso2.carbon.jmx").versionAsInProject()
 //                mavenBundle().artifactId("cache-api").groupId("javax.cache").versionAsInProject(),
-                mavenBundle().artifactId("org.wso2.carbon.jndi").groupId("org.wso2.carbon.jndi").versionAsInProject()
         );
     }
 
