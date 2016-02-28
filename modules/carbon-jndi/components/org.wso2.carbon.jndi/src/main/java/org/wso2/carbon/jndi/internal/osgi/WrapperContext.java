@@ -771,11 +771,5 @@ public class WrapperContext implements Context {
         backingContext.orElseThrow(() -> new NoInitialContextException("TODO"));
         return backingContext.get();
     }
-
-    public static void main(String[] args) {
-        String name = "java:comp/env/jdbc/Datasource";
-        String scheme = name.substring(0, name.indexOf(":"));
-        System.out.println(scheme + "/dafdfadf");
-    }
 }
 

@@ -22,6 +22,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.jndi.JNDIContextManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.carbon.jndi.internal.osgi.JNDIContextManagerImpl;
 import org.wso2.carbon.jndi.internal.osgi.JNDIContextManagerServiceFactory;
 import org.wso2.carbon.jndi.internal.osgi.builders.DefaultContextFactoryBuilder;
 import org.wso2.carbon.jndi.internal.osgi.builders.DefaultObjectFactoryBuilder;

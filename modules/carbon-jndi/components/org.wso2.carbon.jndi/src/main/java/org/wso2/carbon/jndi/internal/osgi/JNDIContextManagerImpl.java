@@ -64,9 +64,14 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
         return new WrapperContext(bundleContext, getInitialContext(environment), environment);
     }
 
+//    @Override
+//    public Context newInitialContext(Map map) throws NamingException {
+//        return null;
+//    }
+
     @Override
-    public Context newInitialContext(Map<?, ?> environment) throws NamingException {
-        Hashtable<?, ?> envMap = new Hashtable<>(environment);
+    public Context newInitialContext(Map environment) throws NamingException {
+        Hashtable envMap = new Hashtable(environment);
         return new WrapperContext(bundleContext, getInitialContext(envMap), envMap);
     }
 
@@ -76,9 +81,14 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
     }
 
     @Override
-    public DirContext newInitialDirContext(Map<?, ?> environment) throws NamingException {
+    public DirContext newInitialDirContext(Map map) throws NamingException {
         return null;
     }
+
+//    @Override
+//    public DirContext newInitialDirContext(Map<?, ?> environment) throws NamingException {
+//        return null;
+//    }
 
     /**
      *

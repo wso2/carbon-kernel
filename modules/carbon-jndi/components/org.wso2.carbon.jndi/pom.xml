@@ -46,6 +46,11 @@
             <artifactId>cache-api</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.osgi</groupId>-->
+            <!--<artifactId>osgi.cmpn</artifactId>-->
+            <!--<version>6.0.0</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -65,15 +70,15 @@
 
     <properties>
         <bundle.activator>org.wso2.carbon.jndi.internal.JNDIActivator</bundle.activator>
-        <private.package>org.wso2.carbon.jndi.internal.*,</private.package>
+        <private.package>org.wso2.carbon.jndi.internal.*</private.package>
         <export.package>
-            !org.wso2.carbon.kernel.internal.*,
+            !org.wso2.carbon.jndi.internal.*,
             org.wso2.carbon.jndi.*;version=${carbon.jndi.pkg.export.version},
-            org.osgi.service.jndi;version=1.0.0
+            org.osgi.service.jndi;version=1.0.0;
         </export.package>
         <import.package>
-            !org.osgi.service.jndi;version=1.0.0,
             !org.wso2.carbon.jndi.*;version=${carbon.jndi.version},
+            org.osgi.service.jndi;version="[1.0.0, 2.0.0)",
             javax.naming.*;version="[0.0.0, 1.0.0)",
             javax.sql;version="[0.0.0, 1.0.0)",
             org.osgi.framework;version="${osgi.framework.package.import.version.range}",
