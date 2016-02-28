@@ -27,14 +27,11 @@ import org.wso2.carbon.jndi.internal.osgi.builders.DefaultContextFactoryBuilder;
 import org.wso2.carbon.jndi.internal.osgi.builders.DefaultObjectFactoryBuilder;
 import org.wso2.carbon.jndi.java.javaURLContextFactory;
 
-import javax.naming.Context;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.NamingManager;
 import javax.naming.spi.ObjectFactory;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.stream.Stream;
 
 public class JNDIActivator implements BundleActivator {
 
