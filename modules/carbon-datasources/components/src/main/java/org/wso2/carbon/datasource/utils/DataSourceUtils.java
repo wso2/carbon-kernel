@@ -70,10 +70,6 @@ public class DataSourceUtils {
         }
     };
 
-    public static void setCurrentDataSourceId(String dsId) {
-        dataSourceId.set(dsId);
-    }
-
     public static String getCurrentDataSourceId() {
         return dataSourceId.get();
     }
@@ -331,8 +327,7 @@ public class DataSourceUtils {
      * @return
      * @throws DataSourceException
      */
-    public static <T, U> T loadJAXBConfiguration(U configuration, Class<T> clazz)
-            throws DataSourceException {
+    public static <T, U> T loadJAXBConfiguration(U configuration, Class<T> clazz) throws DataSourceException {
         try {
             JAXBContext ctx = JAXBContext.newInstance(clazz);
             if (configuration instanceof File) {
@@ -345,7 +340,7 @@ public class DataSourceUtils {
                 String xmlConfiguration = DataSourceUtils.replaceSystemVariablesInXml((String) configuration);
                 return (T) ctx.createUnmarshaller().unmarshal(new ByteArrayInputStream(xmlConfiguration.getBytes()));
             } else {
-                throw new DataSourceException("Only a file or string content allowed to parse jaxb.");
+                throw new DataSourceException("Only a file or string content allowed as the first parameter.");
             }
         } catch (JAXBException e) {
             throw new DataSourceException("Error occurred while converting configuration into jaxb beans", e);

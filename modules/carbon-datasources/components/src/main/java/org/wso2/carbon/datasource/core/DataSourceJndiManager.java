@@ -58,12 +58,12 @@ public class DataSourceJndiManager {
         JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
         //If JNDI configuration is not present, the data source will not be bound to a JNDI context.
         if (jndiConfig == null) {
-            if(log.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 log.debug("JNDI info not found for " + dsmInfo.getName());
             }
             return;
         }
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Registering " + dsmInfo.getName() + " into JNDI context");
         }
         Context subContext = getBindingContext(jndiConfig);
@@ -83,6 +83,13 @@ public class DataSourceJndiManager {
         }
     }
 
+    /**
+     * Returns the binding context.
+     *
+     * @param jndiConfig {@code JNDIConfig}
+     * @return {@code Context}
+     * @throws DataSourceException
+     */
     private static Context getBindingContext(JNDIConfig jndiConfig) throws DataSourceException {
         InitialContext context;
         try {
@@ -109,7 +116,7 @@ public class DataSourceJndiManager {
             try {
                 compContext = (Context) context.lookup(JAVA_COMP_CONTEXT_STRING);
             } catch (NameNotFoundException e) {
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("Creating the JNDI context: " + JAVA_COMP_CONTEXT_STRING);
                 }
                 compContext = context.createSubcontext(JAVA_COMP_CONTEXT_STRING);
@@ -117,7 +124,7 @@ public class DataSourceJndiManager {
             try {
                 compEnvContext = (Context) compContext.lookup(ENV_CONTEXT_STRING);
             } catch (NameNotFoundException e) {
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("Creating the JNDI context: " + ENV_CONTEXT_STRING);
                 }
                 compEnvContext = compContext.createSubcontext(ENV_CONTEXT_STRING);

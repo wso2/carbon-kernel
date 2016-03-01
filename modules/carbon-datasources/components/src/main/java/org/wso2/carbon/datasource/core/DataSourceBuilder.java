@@ -42,8 +42,8 @@ public class DataSourceBuilder {
      */
     public static CarbonDataSource buildCarbonDataSource(DataSourceMetadata dataSourceMetadata)
             throws DataSourceException {
-        Object dsObject = buildDataSourceObject(dataSourceMetadata, false);
-        return new CarbonDataSource(dataSourceMetadata, dsObject);
+        Object dataSource = buildDataSourceObject(dataSourceMetadata, false);
+        return new CarbonDataSource(dataSourceMetadata, dataSource);
     }
 
     /**
@@ -57,15 +57,15 @@ public class DataSourceBuilder {
     public static Object buildDataSourceObject(DataSourceMetadata dataSourceMetadata, boolean isUseDataSourceFactory)
             throws DataSourceException {
 
-        DataSourceReader dsReader = DataSourceManager.getInstance()
+        DataSourceReader dataSourceReader = DataSourceManager.getInstance()
                 .getDataSourceReader(dataSourceMetadata.getDefinition().getType());
 
         if(log.isDebugEnabled()) {
-            log.debug("Generating the DataSource object from \"" + dsReader.getType() + "\" type reader.");
+            log.debug("Generating the DataSource object from \"" + dataSourceReader.getType() + "\" type reader.");
         }
 
         Element configurationXmlDefinition = (Element) dataSourceMetadata.getDefinition().getDsXMLConfiguration();
-        return dsReader.createDataSource(DataSourceUtils.elementToString(configurationXmlDefinition),
+        return dataSourceReader.createDataSource(DataSourceUtils.elementToString(configurationXmlDefinition),
                 isUseDataSourceFactory);
     }
 }
