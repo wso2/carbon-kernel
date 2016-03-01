@@ -66,39 +66,39 @@ public class DataSourceRepository {
     /**
      * Gets information about a specific given data source.
      *
-     * @param dsName The name of the data source.
+     * @param dataSourceName The name of the data source.
      * @return The data source information
      */
-    public CarbonDataSource getDataSource(String dsName) {
-        return dataSources.get(dsName);
+    public CarbonDataSource getDataSource(String dataSourceName) {
+        return dataSources.get(dataSourceName);
     }
 
     /**
      * Adds a new data source to the repository.
      *
-     * @param cds The meta information of the data source to be added.
+     * @param carbonDataSource The meta information of the data source to be added.
      */
-    public void addDataSource(CarbonDataSource cds) throws DataSourceException {
+    public void addDataSource(CarbonDataSource carbonDataSource) throws DataSourceException {
         if (log.isDebugEnabled()) {
-            log.debug("Adding data source: " + cds.getMetadata().getName());
+            log.debug("Adding data source: " + carbonDataSource.getMetadata().getName());
         }
-        dataSources.put(cds.getMetadata().getName(), cds);
+        dataSources.put(carbonDataSource.getMetadata().getName(), carbonDataSource);
     }
 
 
     /**
      * Unregisters and deletes the data source from the repository.
      *
-     * @param dsName The data source name
+     * @param dataSourceName The data source name
      */
-    public void deleteDataSource(String dsName) throws DataSourceException {
+    public void deleteDataSource(String dataSourceName) throws DataSourceException {
         if (log.isDebugEnabled()) {
-            log.debug("Deleting data source: " + dsName);
+            log.debug("Deleting data source: " + dataSourceName);
         }
-        CarbonDataSource cds = getDataSource(dsName);
+        CarbonDataSource cds = getDataSource(dataSourceName);
         if (cds == null) {
-            throw new DataSourceException("Data source does not exist: " + dsName);
+            throw new DataSourceException("Data source does not exist: " + dataSourceName);
         }
-        dataSources.remove(dsName);
+        dataSources.remove(dataSourceName);
     }
 }

@@ -325,9 +325,9 @@ public class DataSourceUtils {
      * Generate the configuration bean by reading the xml file or string xml content.
      *
      * @param configuration This should be either a {@link File} or a {@code String}
-     * @param clazz class type of the generated bean
-     * @param <T> class type of the generated bean
-     * @param <U> {@link File} or a {@code String}
+     * @param clazz         class type of the generated bean
+     * @param <T>           class type of the generated bean
+     * @param <U>           {@link File} or a {@code String}
      * @return
      * @throws DataSourceException
      */

@@ -43,20 +43,12 @@ public interface DataSourceManagementService {
     DataSourceMetadata getMetadata(String dataSourceName) throws DataSourceException;
 
     /**
-     * Returns all the registered data source types.
-     *
-     * @return {@code List<String>}
-     * @throws DataSourceException
-     */
-    List<String> getDataSourceReaderTypes() throws DataSourceException;
-
-    /**
      * Add a new data source metadata object to the repository.
      *
-     * @param dataSourceMetaInfo {@code DataSourceMetaInfo}
+     * @param dataSourceMetadata {@code DataSourceMetaInfo}
      * @throws DataSourceException
      */
-    void addMetadata(DataSourceMetadata dataSourceMetaInfo) throws DataSourceException;
+    void addMetadata(DataSourceMetadata dataSourceMetadata) throws DataSourceException;
 
     /**
      * Deletes a data source from the repository.

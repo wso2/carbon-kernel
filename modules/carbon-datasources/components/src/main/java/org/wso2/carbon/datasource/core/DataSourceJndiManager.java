@@ -56,7 +56,7 @@ public class DataSourceJndiManager {
      */
     public static void register(DataSourceMetadata dsmInfo, Object dsObject) throws DataSourceException {
         JNDIConfig jndiConfig = dsmInfo.getJndiConfig();
-        //If JNDI configuration is not present, the datasource will not be bound to a JNDI context.
+        //If JNDI configuration is not present, the data source will not be bound to a JNDI context.
         if (jndiConfig == null) {
             if(log.isDebugEnabled()) {
                 log.debug("JNDI info not found for " + dsmInfo.getName());
@@ -161,7 +161,7 @@ public class DataSourceJndiManager {
         try {
             Object obj = context.lookup(jndiName);
             if (!(obj instanceof Context)) {
-                throw new DataSourceException("Non JNDI context already exists at '" + context + "/" + jndiName);
+                throw new DataSourceException("Non JNDI context exists at '" + context + "/" + jndiName);
             }
             return (Context) obj;
         } catch (NamingException e) {

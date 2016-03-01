@@ -15,8 +15,6 @@
  */
 package org.wso2.carbon.datasource.rdbms.hikari;
 
-import org.wso2.carbon.datasource.rdbms.RDBMSDataSourceConstants;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

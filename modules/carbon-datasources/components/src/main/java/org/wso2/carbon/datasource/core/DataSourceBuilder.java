@@ -37,34 +37,34 @@ public class DataSourceBuilder {
     /**
      * Build a {@code CarbonDataSource} object from the given {@code DataSourceMetaInfo} object.
      *
-     * @param dsMetaInfo {@code DataSourceMetaInfo}
+     * @param dataSourceMetadata {@code DataSourceMetaInfo}
      * @throws DataSourceException
      */
-    public static CarbonDataSource buildCarbonDataSource(DataSourceMetadata dsMetaInfo)
+    public static CarbonDataSource buildCarbonDataSource(DataSourceMetadata dataSourceMetadata)
             throws DataSourceException {
-        Object dsObject = buildDataSourceObject(dsMetaInfo, false);
-        return new CarbonDataSource(dsMetaInfo, dsObject);
+        Object dsObject = buildDataSourceObject(dataSourceMetadata, false);
+        return new CarbonDataSource(dataSourceMetadata, dsObject);
     }
 
     /**
      * Creates the data source object by getting the appropriate DataSourceReader. The created object would be either
-     * a javax.sql.DataSource or {@link Reference} if {@code isUseDataSourceFactory} param is true.
+     * a {@link javax.sql.DataSource} or {@link Reference} if {@code isUseDataSourceFactory} param is true.
      *
-     * @param dsmInfo                {@code DataSourceMetaInfo}
+     * @param dataSourceMetadata                {@code DataSourceMetaInfo}
      * @param isUseDataSourceFactory {@code boolean}
      * @return {@code Object}
      */
-    public static Object buildDataSourceObject(DataSourceMetadata dsmInfo, boolean isUseDataSourceFactory)
+    public static Object buildDataSourceObject(DataSourceMetadata dataSourceMetadata, boolean isUseDataSourceFactory)
             throws DataSourceException {
 
         DataSourceReader dsReader = DataSourceManager.getInstance()
-                .getDataSourceReader(dsmInfo.getDefinition().getType());
+                .getDataSourceReader(dataSourceMetadata.getDefinition().getType());
 
         if(log.isDebugEnabled()) {
             log.debug("Generating the DataSource object from \"" + dsReader.getType() + "\" type reader.");
         }
 
-        Element configurationXmlDefinition = (Element) dsmInfo.getDefinition().getDsXMLConfiguration();
+        Element configurationXmlDefinition = (Element) dataSourceMetadata.getDefinition().getDsXMLConfiguration();
         return dsReader.createDataSource(DataSourceUtils.elementToString(configurationXmlDefinition),
                 isUseDataSourceFactory);
     }

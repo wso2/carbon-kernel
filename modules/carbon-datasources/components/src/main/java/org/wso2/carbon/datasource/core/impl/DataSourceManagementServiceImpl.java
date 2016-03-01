@@ -55,24 +55,14 @@ public class DataSourceManagementServiceImpl implements DataSourceManagementServ
     }
 
     /**
-     * Returns the registered data source types.
-     *
-     * @return {@code List<String>}
-     * @throws DataSourceException
-     */
-    public List<String> getDataSourceReaderTypes() throws DataSourceException {
-        return DataSourceManager.getInstance().getDataSourceTypes();
-    }
-
-    /**
      * Add a new data source metadata object to the repository. This creates a CarbonDataSource and
      * register it in the JNDI context an the in memory repository.
      *
-     * @param dataSourceMetaInfo {@code DataSourceMetaInfo}
+     * @param dataSourceMetadata {@code DataSourceMetaInfo}
      * @throws DataSourceException
      */
-    public void addMetadata(DataSourceMetadata dataSourceMetaInfo) throws DataSourceException {
-        CarbonDataSource cds = DataSourceBuilder.buildCarbonDataSource(dataSourceMetaInfo);
+    public void addMetadata(DataSourceMetadata dataSourceMetadata) throws DataSourceException {
+        CarbonDataSource cds = DataSourceBuilder.buildCarbonDataSource(dataSourceMetadata);
         DataSourceManager.getInstance().getDataSourceRepository().addDataSource(cds);
         DataSourceJndiManager.register(cds);
     }

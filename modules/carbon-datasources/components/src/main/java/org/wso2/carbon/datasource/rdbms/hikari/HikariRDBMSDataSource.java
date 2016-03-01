@@ -28,14 +28,11 @@ import javax.naming.StringRefAddr;
  * HikariDatasource wrapper class which wraps a set of utility methods.
  */
 public class HikariRDBMSDataSource {
-    private final String JAVAX_DATASOURCE_CLASS = "javax.sql.DataSource";
-    private final String HIKARI_JNDI_FACTORY = "com.zaxxer.hikari.HikariJNDIFactory";
+    private static final String JAVAX_DATASOURCE_CLASS = "javax.sql.DataSource";
+    private static final String HIKARI_JNDI_FACTORY = "com.zaxxer.hikari.HikariJNDIFactory";
 
     private HikariDataSource dataSource;
-
     private Reference dataSourceFactoryReference;
-
-
     private HikariConfig config;
 
     /**

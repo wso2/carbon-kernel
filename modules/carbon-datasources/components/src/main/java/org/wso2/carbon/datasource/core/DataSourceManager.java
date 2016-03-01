@@ -41,7 +41,7 @@ public class DataSourceManager {
     private static Log log = LogFactory.getLog(DataSourceManager.class);
     private static DataSourceManager instance;
     private DataSourceRepository dataSourceRepository;
-    private Map<String, DataSourceReader> dsReaders;
+    private Map<String, DataSourceReader> dataSourceReaders;
 
     private String dataSourcesPath = null;
 
@@ -52,7 +52,7 @@ public class DataSourceManager {
      * Private constructor for DataSourceManager class. This is a singleton class, thus the constructor is private.
      */
     private DataSourceManager() {
-        this.dsReaders = new HashMap<>();
+        this.dataSourceReaders = new HashMap<>();
         this.dataSourceRepository = new DataSourceRepository();
     }
 
@@ -84,7 +84,7 @@ public class DataSourceManager {
      * @throws DataSourceException if no data source readers are defined.
      */
     public List<String> getDataSourceTypes() throws DataSourceException {
-        return new ArrayList<>(dsReaders.keySet());
+        return new ArrayList<>(dataSourceReaders.keySet());
     }
 
     /**
@@ -95,7 +95,7 @@ public class DataSourceManager {
      * @throws DataSourceException
      */
     public DataSourceReader getDataSourceReader(String dsType) throws DataSourceException {
-        DataSourceReader reader = dsReaders.get(dsType);
+        DataSourceReader reader = dataSourceReaders.get(dsType);
         if (reader == null) {
             throw new DataSourceException("No reader found for type: " + dsType);
         }
@@ -117,11 +117,11 @@ public class DataSourceManager {
             log.debug("Data sources are already initialized.");
             return;
         }
-        if (dsReaders.size() == 0) {
+        if (dataSourceReaders.size() == 0) {
             loadDataSourceProviders();
         }
-        if (dsReaders.size() == 0) {
-            throw new DataSourceException("No data source readers found. Datasources will not be initialized!");
+        if (dataSourceReaders.size() == 0) {
+            throw new DataSourceException("No data source readers found. Data sources will not be initialized!");
         }
         try {
             if (dataSourcesPath == null) {
@@ -162,9 +162,9 @@ public class DataSourceManager {
                     .loadJAXBConfiguration(dataSourceFile, DataSourcesConfiguration.class);
 
             for (DataSourceMetadata dsmInfo : dataSourceConfiguration.getDataSources()) {
-                CarbonDataSource cds = DataSourceBuilder.buildCarbonDataSource(dsmInfo);
-                dataSourceRepository.addDataSource(cds);
-                DataSourceJndiManager.register(cds);
+                CarbonDataSource carbonDataSource = DataSourceBuilder.buildCarbonDataSource(dsmInfo);
+                dataSourceRepository.addDataSource(carbonDataSource);
+                DataSourceJndiManager.register(carbonDataSource);
             }
         } catch (DataSourceException e) {
             throw new DataSourceException("Error in initializing system data sources at '" +
@@ -179,7 +179,7 @@ public class DataSourceManager {
      */
     public void addDataSourceProviders(Map<String, DataSourceReader> readers) {
         if (readers != null && readers.size() > 0) {
-            this.dsReaders.putAll(readers);
+            this.dataSourceReaders.putAll(readers);
         }
     }
 
@@ -189,14 +189,14 @@ public class DataSourceManager {
      * {@link java.util.ServiceLoader}.
      */
     private void loadDataSourceProviders() {
-        if (dsReaders.size() == 0) {
+        if (dataSourceReaders.size() == 0) {
             ServiceLoader<DataSourceReader> dsReaderLoader = ServiceLoader.load(DataSourceReader.class);
             dsReaderLoader.forEach(reader -> {
-                if (dsReaders.containsKey(reader.getType())) {
+                if (dataSourceReaders.containsKey(reader.getType())) {
                     log.warn("A reader with the type " + reader.getType() + "already exists. "
                             + reader.getClass().toString() + " will be ignored.");
                 } else {
-                    dsReaders.put(reader.getType(), reader);
+                    dataSourceReaders.put(reader.getType(), reader);
                 }
             });
         }
