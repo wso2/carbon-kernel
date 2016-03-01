@@ -66,7 +66,7 @@ public class NamingContext implements Context {
     /**
      * The string manager for this package.
      */
-    protected static final StringManager sm = StringManager.getManager(Constants.Package);
+    protected static final StringManager sm = StringManager.getManager(Constants.PACKAGE);
 
     /**
      * Bindings in this Context.

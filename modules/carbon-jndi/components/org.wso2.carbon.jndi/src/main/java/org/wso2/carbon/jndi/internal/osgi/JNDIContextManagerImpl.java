@@ -18,7 +18,6 @@
 package org.wso2.carbon.jndi.internal.osgi;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.jndi.JNDIContextManager;
@@ -32,28 +31,24 @@ import javax.naming.directory.DirContext;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-import static org.wso2.carbon.jndi.internal.util.LambdaExceptionUtil.*;
+import static org.wso2.carbon.jndi.internal.util.JNDIUtils.*;
+
 
 /**
- * Implements JNDIContextManager interface.
+ * This class provides an implementation of JNDIContextManager interface.
  */
 public class JNDIContextManagerImpl implements JNDIContextManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(JNDIContextManagerImpl.class);
 
     private static final String OBJECT_CLASS = "objectClass";
 
     private BundleContext bundleContext;
-    private ServiceRegistration serviceRegistration;
+    private ServiceRegistration<JNDIContextManager> serviceRegistration;
 
-    public JNDIContextManagerImpl(BundleContext bundleContext, ServiceRegistration serviceRegistration) {
+    public JNDIContextManagerImpl(BundleContext bundleContext, ServiceRegistration<JNDIContextManager> serviceRegistration) {
         this.bundleContext = bundleContext;
         this.serviceRegistration = serviceRegistration;
     }
@@ -61,18 +56,15 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
     @Override
     public Context newInitialContext() throws NamingException {
         Hashtable<?, ?> environment = new Hashtable<>();
-        return new WrapperContext(bundleContext, getInitialContext(environment), environment);
+        Optional<Context> initialContextInternal = getInitialContextInternal(environment);
+        return new WrapperContext(bundleContext, initialContextInternal, environment);
     }
-
-//    @Override
-//    public Context newInitialContext(Map map) throws NamingException {
-//        return null;
-//    }
 
     @Override
     public Context newInitialContext(Map environment) throws NamingException {
-        Hashtable envMap = new Hashtable(environment);
-        return new WrapperContext(bundleContext, getInitialContext(envMap), envMap);
+        Hashtable<?, ?> envMap = new Hashtable(environment);
+        Optional<Context> initialContextInternal = getInitialContextInternal(envMap);
+        return new WrapperContext(bundleContext, initialContextInternal, envMap);
     }
 
     @Override
@@ -85,18 +77,16 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
         return null;
     }
 
-//    @Override
-//    public DirContext newInitialDirContext(Map<?, ?> environment) throws NamingException {
-//        return null;
-//    }
-
     /**
+     * Creates a new JNDI initial context with the specified JNDI environment properties.
      *
-     * @param environment
-     * @return
-     * @throws NamingException
+     * @param environment The possibly null environment
+     *                    specifying information to be used in the creation
+     *                    of the initial context.
+     * @return an {@code Optional} describing created initial context.
+     * @throws NamingException If cannot create an initial context.
      */
-    private Optional<Context> getInitialContext(Hashtable<?, ?> environment) throws NamingException {
+    private Optional<Context> getInitialContextInternal(Hashtable<?, ?> environment) throws NamingException {
         Optional<Context> initialContextOptional;
 
         //1) Check whether java.naming.factory.initial property is present
@@ -106,22 +96,25 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
             //2) Check for OSGi service with key matches with given context factory class name as well as the
             //   InitialContextFactory class name in the ranking order.
             Collection<ServiceReference<InitialContextFactory>> factorySRefCollection =
-                    getServiceReferences(InitialContextFactory.class, getServiceFilter(userDefinedICFClassName));
+                    getServiceReferences(bundleContext, InitialContextFactory.class,
+                            getServiceFilter(userDefinedICFClassName));
 
-            initialContextOptional = getInitialContextFromFactory(factorySRefCollection, environment);
+            initialContextOptional = getInitialContextFromFactory(bundleContext,
+                    factorySRefCollection, environment);
             if (initialContextOptional.isPresent()) {
                 return initialContextOptional;
             }
 
             //3) If not, try to get an InitialContext from InitialContextFactoryBuilder OSGi services.
             Collection<ServiceReference<InitialContextFactoryBuilder>> serviceRefCollection =
-                    getServiceReferences(InitialContextFactoryBuilder.class, null);
+                    getServiceReferences(bundleContext, InitialContextFactoryBuilder.class, null);
 
-            initialContextOptional = getInitialContextFromBuilder(serviceRefCollection, environment);
+            initialContextOptional = getInitialContextFromBuilder(bundleContext,
+                    serviceRefCollection, environment);
 
             //4) If not, throw an error.
             initialContextOptional.orElseThrow(() -> new NoInitialContextException(
-                    "Cannot find the given InitialContextFactory " + userDefinedICFClassName));
+                    "Cannot find the InitialContextFactory " + userDefinedICFClassName));
 
             //5) Returning the initialContext which is not null.
             return initialContextOptional;
@@ -129,9 +122,10 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
         } else {
             //2) Try to get an InitialContext from InitialContextFactoryBuilder OSGi services.
             Collection<ServiceReference<InitialContextFactoryBuilder>> builderSRefCollection =
-                    getServiceReferences(InitialContextFactoryBuilder.class, null);
+                    getServiceReferences(bundleContext, InitialContextFactoryBuilder.class, null);
 
-            initialContextOptional = getInitialContextFromBuilder(builderSRefCollection, environment);
+            initialContextOptional = getInitialContextFromBuilder(bundleContext,
+                    builderSRefCollection, environment);
 
             if (initialContextOptional.isPresent()) {
                 return initialContextOptional;
@@ -139,9 +133,10 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
 
             //3) If not, try to get an InitialContext from InitialContextFactory OSGi services.
             Collection<ServiceReference<InitialContextFactory>> factorySRefCollection =
-                    getServiceReferences(InitialContextFactory.class, null);
+                    getServiceReferences(bundleContext, InitialContextFactory.class, null);
 
-            initialContextOptional = getInitialContextFromFactory(factorySRefCollection, environment);
+            initialContextOptional = getInitialContextFromFactory(bundleContext,
+                    factorySRefCollection, environment);
 
             //4) If no Context has been found, an initial Context is returned without any backing. This returned initial
             //  Context can then only be used to perform URL based lookups.
@@ -151,7 +146,7 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
 
     /**
      * Create a service filter which matches OSGi services registered with two values for the objectClass property.
-     *
+     * <p>
      * User defined initial context factory class name and the InitialContextFactory class name are those two values of
      * the objectClass property.
      *
@@ -166,113 +161,5 @@ public class JNDIContextManagerImpl implements JNDIContextManager {
                 "(" + OBJECT_CLASS + "=" + userDefinedICFClassName + ")" +
                 "(" + OBJECT_CLASS + "=" + InitialContextFactory.class.getName() + ")" +
                 ")";
-    }
-
-    /**
-     *
-     * @param builderOptional
-     * @param environment
-     * @return
-     */
-    private Optional<InitialContextFactory> getContextFactory(Optional<InitialContextFactoryBuilder> builderOptional,
-                                                              Hashtable<?, ?> environment) {
-        return builderOptional.map(builder -> {
-            try {
-                return builder.createInitialContextFactory(environment);
-            } catch (NamingException ignored) {
-                // According to the OSGi JNDI service specification this exception should not thrown to the caller.
-                logger.debug(ignored.getMessage(), ignored);
-                return null;
-            }
-        });
-    }
-
-    /**
-     *
-     * @param serviceRefCollection
-     * @param environment
-     * @return
-     * @throws NamingException
-     */
-    private Optional<Context> getInitialContextFromBuilder(
-            Collection<ServiceReference<InitialContextFactoryBuilder>> serviceRefCollection,
-            Hashtable<?, ?> environment) throws NamingException {
-
-        return serviceRefCollection
-                .stream()
-                .sorted(new ServiceRankComparator())
-                .map(this::getService)
-                .map(builderOptional -> getContextFactory(builderOptional, environment))
-                .flatMap(factoryOptional -> factoryOptional.map(Stream::of).orElseGet(Stream::empty))
-                .map(rethrowFunction(factory -> factory.getInitialContext(environment)))
-                .findFirst();
-    }
-
-    /**
-     *
-     * @param serviceRefCollection
-     * @param environment
-     * @return
-     * @throws NamingException
-     */
-    private Optional<Context> getInitialContextFromFactory(
-            Collection<ServiceReference<InitialContextFactory>> serviceRefCollection,
-            Hashtable<?, ?> environment) throws NamingException {
-
-        return serviceRefCollection
-                .stream()
-                .sorted(new ServiceRankComparator())
-                .map(this::getService)
-                .flatMap(factoryOptional -> factoryOptional.map(Stream::of).orElseGet(Stream::empty))
-                .map(rethrowFunction(contextFactory -> contextFactory.getInitialContext(environment)))
-                .findFirst();
-    }
-
-    /**
-     *
-     * @param clazz
-     * @param filter
-     * @param <S>
-     * @return
-     */
-    private <S> Collection<ServiceReference<S>> getServiceReferences(Class<S> clazz, String filter) {
-        try {
-            return bundleContext.getServiceReferences(clazz, filter);
-        } catch (InvalidSyntaxException ignored) {
-            // This branch cannot be invoked. Since the filter is always correct.
-            // However I am logging the exception in case
-            logger.error("Filter syntax is invalid: " + filter, ignored);
-            return Collections.<ServiceReference<S>>emptyList();
-        }
-    }
-
-    /**
-     *
-     * @param serviceReference
-     * @param <S>
-     * @return
-     */
-    private <S> Optional<S> getService(ServiceReference<S> serviceReference) {
-        return Optional.ofNullable(bundleContext.getService(serviceReference));
-    }
-
-    /**
-     *
-     */
-    private static class ServiceRankComparator implements Comparator<ServiceReference<?>> {
-
-        @Override
-        public int compare(ServiceReference<?> ref1, ServiceReference<?> ref2) {
-            int rank1 = (Integer) ref1.getProperty("service.ranking");
-            int rank2 = (Integer) ref2.getProperty("service.ranking");
-            int diff = rank1 - rank2;
-            if (diff == 0) {
-                int serviceId1 = (Integer) ref1.getProperty("service.id");
-                int serviceId2 = (Integer) ref2.getProperty("service.id");
-                return -(serviceId1 - serviceId2);
-            } else {
-                return diff;
-            }
-        }
     }
 }

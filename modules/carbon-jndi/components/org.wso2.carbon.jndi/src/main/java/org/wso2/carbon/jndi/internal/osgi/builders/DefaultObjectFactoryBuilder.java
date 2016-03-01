@@ -23,6 +23,7 @@ import javax.naming.spi.ObjectFactoryBuilder;
 import java.util.Hashtable;
 
 public class DefaultObjectFactoryBuilder implements ObjectFactoryBuilder {
+
     @Override
     public ObjectFactory createObjectFactory(Object obj, Hashtable<?, ?> environment) throws NamingException {
         return null;

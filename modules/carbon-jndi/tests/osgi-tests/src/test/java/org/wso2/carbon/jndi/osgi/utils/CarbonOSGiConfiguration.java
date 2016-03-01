@@ -16,8 +16,11 @@
 package org.wso2.carbon.jndi.osgi.utils;
 
 import org.ops4j.pax.exam.ConfigurationFactory;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.wso2.carbon.jndi.osgi.utils.OSGiTestUtils;
+
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 /**
  * This class will provide the shared configurations for the OSGi tests.
@@ -36,6 +39,10 @@ public class CarbonOSGiConfiguration implements ConfigurationFactory {
     public Option[] createConfiguration() {
         //setting up the environment
         OSGiTestUtils.setupOSGiTestEnvironment();
-        return OSGiTestUtils.getDefaultPaxOptions();
+        Option[] options = CoreOptions.options(
+                mavenBundle().artifactId("org.wso2.carbon.jndi").groupId("org.wso2.carbon.jndi").versionAsInProject()
+        );
+
+        return OSGiTestUtils.getDefaultPaxOptions(options);
     }
 }

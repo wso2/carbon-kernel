@@ -31,76 +31,139 @@ import javax.naming.spi.NamingManager;
 import java.util.Hashtable;
 import java.util.Optional;
 
+import static org.wso2.carbon.jndi.internal.util.LambdaExceptionUtil.rethrowFunction;
+import static org.wso2.carbon.jndi.internal.Constants.OSGI_SERVICE_JNDI_BC;
+
+/**
+ * This class represents the default context factory which is used by the {@code DefaultContextFactoryBuilder}
+ */
 public class DefaultContextFactory implements InitialContextFactory {
+
+    /**
+     * Creates an initial context from the JNDIContextManager OSGi service retrieved from the caller bundle context.
+     *
+     * @param environment The possibly null environment
+     *                    specifying information to be used in the creation
+     *                    of the initial context.
+     * @return A non-null initial context object that implements the Context interface.
+     * @throws NamingException If cannot create an initial context.
+     */
     @Override
     public Context getInitialContext(Hashtable<?, ?> environment) throws NamingException {
 
-        //Find the BundleContext of the caller of this method.
-        BundleContext callersBundleContext = getCallersBundleContext(environment);
-        if (callersBundleContext == null) {
-            //TODO Proper error handling.
-            throw new NoInitialContextException("");
-        }
+        //1) Find the BundleContext of the caller of this method. If a BundleContext cannot be found
+        //   then throw NoInitialContext Exception.
+        Optional<BundleContext> bundleContextOptional = getCallersBundleContext(environment);
+        bundleContextOptional.orElseThrow(NoInitialContextException::new);
 
-        //Retrieve the JNDIContextManager service from the BundleContext and invoke getInitialContext method.
+        //2) Retrieve the JNDIContextManager service from the BundleContext and invoke getInitialContext method.
+        //   If no BundleContext is found then, throw NoInitialContext Exception.
+        BundleContext callersBC = bundleContextOptional.get();
         Optional<ServiceReference<JNDIContextManager>> contextManagerSR = Optional.ofNullable(
-                callersBundleContext.getServiceReference(JNDIContextManager.class));
+                callersBC.getServiceReference(JNDIContextManager.class));
 
         return contextManagerSR
-                .map(callersBundleContext::getService)
-                .map(jndiContextManager -> {
-                    try {
-                        return jndiContextManager.newInitialContext(environment);
-                    } catch (NamingException e) {
-                        //TODO Proper error handling  and logging
-                        return null;
-//                        new RuntimeException(e.getMessage(), e);
-                    }
-                })
-                .orElseThrow(() -> new NoInitialContextException(""));
-
-
-        //IF no BundleContext is found then, throw NoInitialContext Exception.
-
-//        return null;
+                .map(callersBC::getService)
+                .map(rethrowFunction(jndiContextManager -> jndiContextManager.newInitialContext(environment)))
+                .orElseThrow(NoInitialContextException::new);
     }
 
-    private BundleContext getCallersBundleContext(Hashtable<?, ?> environment) {
-        BundleContext callersBC = null;
+    /**
+     * Returns caller's bundle context object.
+     * <p>
+     * 1) Get the bundle context from the given environment properties.
+     * 2) If not, from the Thread Context Class Loader.
+     * 3) If not, from the current class stack
+     *
+     * @param environment The possibly null environment
+     *                    specifying information to be used in the creation
+     *                    of the initial context.
+     * @return an {@code Optional} describing the caller's bundle context
+     */
+    private Optional<BundleContext> getCallersBundleContext(Hashtable<?, ?> environment) {
+        Optional<BundleContext> bundleContextOptional;
 
-        // 1. Look in the JNDI environment properties for a property called osgi.service.jndi.bundleContext.
-        //      If a value for this property exists then use it as the Bundle Context.
-        //      If the Bundle Context has been found stop.
-
-        Object obj = environment.get("osgi.service.jndi.bundleContext");
-        if (obj instanceof BundleContext) {
-            return (BundleContext) obj;
+        // Get the bundle context from the given environment properties.
+        bundleContextOptional = getBundleContextFromEnvironment(environment);
+        if (bundleContextOptional.isPresent()) {
+            return bundleContextOptional;
         }
 
-        // 2. Obtain the Thread Context Class Loader; if it, or an ancestor class loader, implements the
-        //      BundleReference interface, call its getBundle method to get the client's Bundle; then call
-        //      getBundleContext on the Bundle object to get the client's Bundle Context.
-        //      If the Bundle Context has been found stop.
+        // If not, from the Thread Context Class Loader.
+        bundleContextOptional = getBundleContextFromTCCL();
+        if (bundleContextOptional.isPresent()) {
+            return bundleContextOptional;
+        }
 
+        // If not, from the current class stack
+        return getBundleContextFromCurrentClassStack();
+    }
+
+    /**
+     * Returns the bundle context object extracted from the environment properties.
+     * <p>
+     * Look in the JNDI environment properties for a property called osgi.service.jndi.bundleContext.
+     * If a value for this property exists then use it as the Bundle Context.
+     * If the Bundle Context has been found then stop.
+     *
+     * @param environment The possibly null environment
+     *                    specifying information to be used in the creation
+     *                    of the initial context.
+     * @return an {@code Optional} describing the caller's bundle context
+     */
+    private Optional<BundleContext> getBundleContextFromEnvironment(Hashtable<?, ?> environment) {
+        Optional<BundleContext> bundleContextOptional;
+        Object obj = environment.get(OSGI_SERVICE_JNDI_BC);
+        bundleContextOptional = Optional.ofNullable(obj)
+                .filter(o -> o instanceof BundleContext)
+                .map(o -> (BundleContext) o);
+        return bundleContextOptional;
+    }
+
+    /**
+     * Returns the bundle context object obtained from the Thread Context Class Loader.
+     * <p>
+     * Obtain the Thread Context Class Loader; if it, or an ancestor class loader, implements the
+     * BundleReference interface, call its getBundle method to get the client's Bundle; then call
+     * getBundleContext on the Bundle object to get the client's Bundle Context.
+     * If the Bundle Context has been found stop.
+     *
+     * @return an {@code Optional} describing the caller's bundle context
+     */
+    private Optional<BundleContext> getBundleContextFromTCCL() {
+        Optional<BundleContext> bundleContextOptional;
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        callersBC = getCallersBundleContext(Optional.of(tccl));
+        bundleContextOptional = getCallersBundleContext(Optional.of(tccl));
+        return bundleContextOptional;
+    }
 
-        // 3. Walk the call stack until the invoker is found. The invoker can be the caller of the InitialContext class
-        //    constructor or the NamingManager or DirectoryManager getObjectInstance methods.
-        //      • Get the class loader of the caller and see if it, or an ancestor, implements the
-        //        BundleReference interface.
-        //      • If a Class Loader implementing the BundleReference interface is found call the getBundle method to
-        //        get the clients Bundle; then call the getBundleContext method on the Bundle to get the
-        //        clients Bundle Context.
-        //      • If the Bundle Context has been found stop, else continue with the next stack frame.
+    /**
+     * Returns the caller's bundle context retrieved from the current class context.
+     * <p>
+     * Current class context can be extracted from a sub class of the SecurityManager. You need to create a sub class
+     * because the method which returns the current class stack is protected method in the SecurityManager.
+     * <p>
+     * Walk the call stack until the invoker is found. The invoker can be the caller of the InitialContext class
+     * constructor or the NamingManager or DirectoryManager getObjectInstance methods.
+     * • Get the class loader of the caller and see if it, or an ancestor, implements the
+     * BundleReference interface.
+     * • If a Class Loader implementing the BundleReference interface is found call the getBundle method to
+     * get the clients Bundle; then call the getBundleContext method on the Bundle to get the
+     * clients Bundle Context.
+     * • If the Bundle Context has been found stop, else continue with the next stack frame.
+     *
+     * @return an {@code Optional} describing the caller's bundle context retrieved from the current class context.
+     */
+    private Optional<BundleContext> getBundleContextFromCurrentClassStack() {
+        Optional<BundleContext> bundleContextOptional = Optional.empty();
 
-        //Creating a local class which extends SecurityManager to get the current execution stack as an array of classes
+        // Creating a local class which extends SecurityManager to get the current execution
+        // stack as an array of classes
         class DummySecurityManager extends SecurityManager {
             public Class<?>[] getClassContext() {
                 return super.getClassContext();
             }
         }
-
         Class[] currentClassStack = new DummySecurityManager().getClassContext();
 
         int index;
@@ -109,8 +172,8 @@ public class DefaultContextFactory implements InitialContextFactory {
             Class clazz = currentClassStack[index];
 
             if (found) {
-                callersBC = getCallersBundleContext(Optional.ofNullable(clazz.getClassLoader()));
-                if (callersBC != null) {
+                bundleContextOptional = getCallersBundleContext(Optional.ofNullable(clazz.getClassLoader()));
+                if (bundleContextOptional.isPresent()) {
                     break;
                 }
             }
@@ -120,10 +183,8 @@ public class DefaultContextFactory implements InitialContextFactory {
                     (NamingManager.class.isAssignableFrom(clazz) || InitialContext.class.isAssignableFrom(clazz))) {
                 found = true;
             }
-
         }
-
-        return callersBC;
+        return bundleContextOptional;
     }
 
     /**
@@ -136,16 +197,21 @@ public class DefaultContextFactory implements InitialContextFactory {
      * @param classLoaderOptional an {@code Optional} describing a ClassLoader
      * @return BundleContext extracted from the give ClassLoader or from its ancestors ClassLoaders.
      */
-    private BundleContext getCallersBundleContext(Optional<ClassLoader> classLoaderOptional) {
+    private Optional<BundleContext> getCallersBundleContext(Optional<ClassLoader> classLoaderOptional) {
 
         if (!classLoaderOptional.isPresent()) {
-            return null;
+            return Optional.empty();
         }
 
-        return classLoaderOptional
+        Optional<BundleContext> bundleContextOptional = classLoaderOptional
                 .filter(classLoader -> classLoader instanceof BundleReference)
                 .map(classLoader -> (BundleReference) classLoader)
-                .map(bundleReference -> bundleReference.getBundle().getBundleContext())
-                .orElseGet(() -> getCallersBundleContext(Optional.ofNullable(classLoaderOptional.get().getParent())));
+                .map(bundleReference -> bundleReference.getBundle().getBundleContext());
+
+        if (bundleContextOptional.isPresent()) {
+            return bundleContextOptional;
+        } else {
+            return getCallersBundleContext(Optional.ofNullable(classLoaderOptional.get().getParent()));
+        }
     }
 }

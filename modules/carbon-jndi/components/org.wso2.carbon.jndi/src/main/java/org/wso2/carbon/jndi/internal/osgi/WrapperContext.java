@@ -19,16 +19,17 @@
 package org.wso2.carbon.jndi.internal.osgi;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.jndi.internal.Constants;
+import org.wso2.carbon.jndi.internal.util.JNDIUtils;
 import org.wso2.carbon.jndi.internal.util.StringManager;
 
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.naming.Binding;
 import javax.naming.Context;
@@ -40,9 +41,14 @@ import javax.naming.NamingException;
 import javax.naming.NoInitialContextException;
 import javax.naming.spi.ObjectFactory;
 
+import static org.wso2.carbon.jndi.internal.Constants.*;
+import static org.wso2.carbon.jndi.internal.util.JNDIUtils.*;
+import static org.wso2.carbon.jndi.internal.util.LambdaExceptionUtil.rethrowFunction;
+import static org.wso2.carbon.jndi.internal.util.LambdaExceptionUtil.rethrowSupplier;
+
+
 /**
  * Wrapper for JNDI Context implementation.
- *
  */
 public class WrapperContext implements Context {
 
@@ -63,7 +69,7 @@ public class WrapperContext implements Context {
     /**
      * The string manager for this package.
      */
-    protected static final StringManager sm = StringManager.getManager(Constants.Package);
+    protected static final StringManager sm = StringManager.getManager(Constants.PACKAGE);
 
 
     /**
@@ -648,19 +654,6 @@ public class WrapperContext implements Context {
         return prefix;
     }
 
-
-    // ------------------------------------------------------ Protected Methods
-
-
-    /**
-     * Get the bound context.
-     */
-//    protected Context getBoundContext()
-//            throws NamingException {
-//        return backingContext.get();
-//    }
-
-
     /**
      * Strips the URL header.
      *
@@ -728,47 +721,22 @@ public class WrapperContext implements Context {
     private Context getBackingURLContext(String name) throws NamingException {
         String scheme = name.substring(0, name.indexOf(":"));
 
-        StringBuilder serviceFilter = new StringBuilder();
-        serviceFilter.append("(").append("osgi.jndi.url.scheme").append("=").append(scheme).append(")");
+        Context urlContext = JNDIUtils.getServiceReferences(bundleContext,
+                ObjectFactory.class, "(" + OSGi_JNDI_URL_SCHEME + "=" + scheme + ")")
+                .stream()
+                .map(serviceRef -> getService(bundleContext, serviceRef))
+                .flatMap(objectFactoryOptional -> objectFactoryOptional.map(Stream::of).orElseGet(Stream::empty))
+                .map(rethrowFunction(objectFactory -> objectFactory.getObjectInstance(null, null, null, env)))
+                .filter(object -> object instanceof Context)
+                .map(object -> (Context) object)
+                .findFirst()
+                .orElseGet(rethrowSupplier(this::getDefaultBackingContext));
 
-        try {
-            return bundleContext.getServiceReferences(ObjectFactory.class, serviceFilter.toString())
-                    .stream()
-                    .findFirst()
-                    .map(serviceReference -> bundleContext.getService(serviceReference))
-                    .map(objectFactory -> {
-                        try {
-                            return objectFactory.getObjectInstance(null, null, null, env);
-                        } catch (Exception e) {
-                            //TODO Proper error handling
-                            logger.error(e.getMessage(), e);
-                            NamingException namingException = new NamingException();
-                            namingException.setRootCause(e);
-                            //throw namingException;
-                            return null;
-                        }
-                    })
-                    .filter(obj -> obj instanceof Context)
-                    .map(obj -> (Context) obj)
-                    .orElseGet(() -> {
-                        try {
-                            return getDefaultBackingContext();
-                        } catch (NamingException e) {
-                            //TODO proper error handling.
-                            throw new RuntimeException(e.getMessage(), e);
-                        }
-                    });
-
-        } catch (InvalidSyntaxException ignored) {
-            logger.error(ignored.getMessage(), ignored);
-        }
-        //TODO
-        return null;
+        return urlContext;
     }
 
     private Context getDefaultBackingContext() throws NamingException {
-        //TODO Proper error messages
-        backingContext.orElseThrow(() -> new NoInitialContextException("TODO"));
+        backingContext.orElseThrow(NoInitialContextException::new);
         return backingContext.get();
     }
 }

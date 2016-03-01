@@ -60,17 +60,6 @@ public class JNDITest {
     @Inject
     private JNDIContextManager jndiContextManager;
 
-    @Configuration
-    public Option[] createConfiguration() {
-        OSGiTestUtils.setupOSGiTestEnvironment();
-
-        Option[] options = CoreOptions.options(
-                mavenBundle().artifactId("org.wso2.carbon.jndi").groupId("org.wso2.carbon.jndi").versionAsInProject()
-        );
-
-        return OSGiTestUtils.getDefaultPaxOptions(options);
-    }
-
     //TODO Clean up these tests
 
     @Test

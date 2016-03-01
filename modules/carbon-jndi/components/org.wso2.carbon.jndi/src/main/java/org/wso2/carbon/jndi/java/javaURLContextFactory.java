@@ -86,7 +86,7 @@ public class javaURLContextFactory implements ObjectFactory, InitialContextFacto
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Context getInitialContext(Hashtable<?, ?> environment)
+    public  Context getInitialContext(Hashtable<?, ?> environment)
             throws NamingException {
 //        if (ContextBindings.isThreadBound() ||
 //                (ContextBindings.isClassLoaderBound())) {
@@ -95,17 +95,17 @@ public class javaURLContextFactory implements ObjectFactory, InitialContextFacto
 //                (Hashtable<String, Object>) environment, true);
 //    }
 
-     //If the thread is not bound, return a shared writable context
+        //If the thread is not bound, return a shared writable context
+//        if (initialContext == null) {
+//            synchronized (javaURLContextFactory.class) {
         if (initialContext == null) {
-            synchronized (javaURLContextFactory.class) {
-                if (initialContext == null) {
-                    initialContext = new NamingContext(
-                            (Hashtable<String, Object>) environment, MAIN);
-                }
-            }
+            initialContext = new NamingContext(
+                    (Hashtable<String, Object>) environment, MAIN);
         }
+//            }
+//        }
         return initialContext;
-}
+    }
 
 
 }
